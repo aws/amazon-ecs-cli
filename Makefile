@@ -1,0 +1,67 @@
+# Copyright 2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"). You
+# may not use this file except in compliance with the License. A copy of
+# the License is located at
+#
+# 	http://aws.amazon.com/apache2.0/
+#
+# or in the "license" file accompanying this file. This file is
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
+# ANY KIND, either express or implied. See the License for the specific
+# language governing permissions and limitations under the License.
+
+ROOT := $(shell pwd)
+
+all: generate build
+
+SOURCEDIR=./ecs-cli
+SOURCES := $(shell find $(SOURCEDIR) -name '*.go')
+LOCAL_BINARY=bin/local/ecs-cli
+LINUX_BINARY=bin/linux-amd64/ecs-cli
+DARWIN_BINARY=bin/darwin-amd64/ecs-cli
+
+.PHONY: build
+build: $(LOCAL_BINARY)
+
+$(LOCAL_BINARY): $(SOURCES)
+	. ./scripts/shared_env && ./scripts/build_binary.sh ./bin/local
+	@echo "Built ecs-cli"
+
+.PHONY: test
+test: generate
+	. ./scripts/shared_env && go test -timeout=120s -v -cover github.com/aws/amazon-ecs-cli/ecs-cli/modules/...
+
+.PHONY: generate
+generate: $(SOURCES)
+	. ./scripts/shared_env && go install github.com/golang/mock/mockgen && go generate github.com/aws/amazon-ecs-cli/ecs-cli/modules/...
+
+.PHONY: docker-build
+docker-build:
+	docker run -v $(shell pwd):/usr/src/app/src/github.com/aws/amazon-ecs-cli \
+		--workdir=/usr/src/app/src/github.com/aws/amazon-ecs-cli \
+		--env GOPATH=/usr/src/app \
+		golang:1.4-cross make $(LINUX_BINARY)
+	docker run -v $(shell pwd):/usr/src/app/src/github.com/aws/amazon-ecs-cli \
+		--workdir=/usr/src/app/src/github.com/aws/amazon-ecs-cli \
+		--env GOPATH=/usr/src/app \
+		golang:1.4-cross make $(DARWIN_BINARY)
+
+.PHONY: supported-platforms
+supported-platforms: $(LINUX_BINARY) $(DARWIN_BINARY)
+
+$(LINUX_BINARY): $(SOURCES)
+	@mkdir -p ./bin/linux-amd64
+	. ./scripts/shared_env && TARGET_GOOS=linux GOARCH=amd64 ./scripts/build_binary.sh ./bin/linux-amd64
+	@echo "Built ecs-cli for linux"
+
+$(DARWIN_BINARY): $(SOURCES)
+	@mkdir -p ./bin/darwin-amd64
+	. ./scripts/shared_env && TARGET_GOOS=darwin GOARCH=amd64 ./scripts/build_binary.sh ./bin/darwin-amd64
+	@echo "Built ecs-cli for darwin"
+
+.PHONY: clean
+clean:
+	rm -rf ./ecs-cli/vendor/pkg ||:
+	rm -rf ./bin/ ||:
+	rm -rf ./ecs-cli/vendor/bin ||:

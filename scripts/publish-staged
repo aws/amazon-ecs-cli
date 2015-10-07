@@ -1,0 +1,91 @@
+#!/bin/bash
+# Copyright 2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the
+# "License"). You may not use this file except in compliance
+#  with the License. A copy of the License is located at
+#
+#     http://aws.amazon.com/apache2.0/
+#
+# or in the "license" file accompanying this file. This file is
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+# CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and
+# limitations under the License.
+
+set -e
+
+DRYRUN=true
+
+AWS_PROFILE=""
+STAGE_S3_BUCKET=""
+PUBLISH_S3_BUCKET="amazon-ecs-cli"
+S3_ACL_OVERRIDE=""
+
+source $(dirname "${0}")/publish-functions.sh
+
+usage() {
+	echo "Usage: ${0} -s BUCKET [OPTIONS]"
+	echo
+	echo "This script is responsible for publishing new versions of the Amazon ECS CLI"
+	echo "It copies staged artifacts in a given bucket into the known release bucket"
+	echo
+	echo "Options"
+	echo "  -d  true|false  Dryrun (default is true)"
+	echo "  -p  PROFILE     AWS CLI Profile (default is none)"
+	echo "  -s  BUCKET      AWS S3 Bucket for staging"
+	echo "  -b  BUCKET      AWS S3 Bucket for publishing (default is ${PUBLISH_S3_BUCKET})"
+	echo "  -a  ACL         AWS S3 Object Canned ACL (default is public-read)"
+	echo "  -h              Display this help message"
+}
+
+publish_s3() {
+	for tag in ${ARTIFACT_TAG_VERSION} ${ARTIFACT_TAG_SHA} ${ARTIFACT_TAG_LATEST}; do
+		echo "Publishing as ecs-cli-linux-amd64-${tag}"
+		dexec s3_cp "s3://${STAGE_S3_BUCKET}/ecs-cli-linux-amd64-${tag}" "s3://${PUBLISH_S3_BUCKET}/ecs-cli-linux-amd64-${tag}"
+		dexec s3_cp "s3://${STAGE_S3_BUCKET}/ecs-cli-linux-amd64-${tag}.md5" "s3://${PUBLISH_S3_BUCKET}/ecs-cli-linux-amd64-${tag}.md5"
+	done
+}
+
+while getopts ":d:p:s:b:i:a:h" opt; do
+	case ${opt} in
+		d)
+			if [[ "${OPTARG}" = "false" ]]; then
+				DRYRUN=false
+			fi
+			;;
+		p)
+			AWS_PROFILE="${OPTARG}"
+			;;
+		s)
+			STAGE_S3_BUCKET="${OPTARG}"
+			;;
+		b)
+			PUBLISH_S3_BUCKET="${OPTARG}"
+			;;
+		a)
+			S3_ACL_OVERRIDE="${OPTARG}"
+			;;
+		\?)
+			echo "Invalid option -${OPTARG}" >&2
+			usage
+			exit 1
+			;;
+		:)
+			echo "Option -${OPTARG} requires an argument." >&2
+			usage
+			exit 1
+			;;
+		h)
+			usage
+			exit 0
+			;;
+	esac
+done
+
+if [ -z "${STAGE_S3_BUCKET}" ]; then
+	usage
+	exit 1
+fi
+
+publish_s3
