@@ -177,7 +177,7 @@ For a complete list of commands, see the
 ## Building the CLI
 ### Developing
 
-Running ``scripts/vendor.sh`` creates/updates the vedor/ directory with
+Running ``scripts/vendor.sh`` creates/updates the vendor/ directory with
 dependencies.
 
 For developing code, the correct GOPATH can be printed by running
