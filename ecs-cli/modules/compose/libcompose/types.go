@@ -24,13 +24,12 @@ type ServiceConfig struct {
 	Build         string            `yaml:"build,omitempty"`
 	CapAdd        []string          `yaml:"cap_add,omitempty"`
 	CapDrop       []string          `yaml:"cap_drop,omitempty"`
-	CpuSet        string            `yaml:"cpu_set,omitempty"`
+	CpuSet        string            `yaml:"cpuset,omitempty"`
 	CpuShares     int64             `yaml:"cpu_shares,omitempty"`
 	Command       Command           `yaml:"command"` // omitempty breaks serialization!
-	Detach        string            `yaml:"detach,omitempty"`
 	Devices       []string          `yaml:"devices,omitempty"`
-	Dns           Stringorslice     `yaml:"dns"`        // omitempty breaks serialization!
-	DnsSearch     Stringorslice     `yaml:"dns_search"` // omitempty breaks serialization!
+	DNS           Stringorslice     `yaml:"dns"`        // omitempty breaks serialization!
+	DNSSearch     Stringorslice     `yaml:"dns_search"` // omitempty breaks serialization!
 	Dockerfile    string            `yaml:"dockerfile,omitempty"`
 	DomainName    string            `yaml:"domainname,omitempty"`
 	Entrypoint    Command           `yaml:"entrypoint"`  // omitempty breaks serialization!
@@ -42,7 +41,7 @@ type ServiceConfig struct {
 	Links         MaporColonSlice   `yaml:"links"`  // omitempty breaks serialization!
 	LogDriver     string            `yaml:"log_driver,omitempty"`
 	MemLimit      int64             `yaml:"mem_limit,omitempty"` // TODO, accept string value: "m" for megabytes
-	MemSwapLimit  int64             `yaml:"mem_swap_limit,omitempty"`
+	MemSwapLimit  int64             `yaml:"memswap_limit,omitempty"`
 	Name          string            `yaml:"name,omitempty"`
 	Net           string            `yaml:"net,omitempty"`
 	Pid           string            `yaml:"pid,omitempty"`
@@ -56,6 +55,7 @@ type ServiceConfig struct {
 	SecurityOpt   []string          `yaml:"security_opt,omitempty"`
 	Tty           bool              `yaml:"tty,omitempty"`
 	User          string            `yaml:"user,omitempty"`
+	ULimits       []string          `yaml:"ulimits,omitempty"`
 	VolumeDriver  string            `yaml:"volume_driver,omitempty"`
 	Volumes       []string          `yaml:"volumes,omitempty"`
 	VolumesFrom   []string          `yaml:"volumes_from,omitempty"`

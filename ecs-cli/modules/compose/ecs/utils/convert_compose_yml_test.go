@@ -24,30 +24,71 @@ import (
 func TestUnmarshalComposeConfig(t *testing.T) {
 	redisImage := "redis"
 	cpuShares := int64(73)
-	memLimit := int64(1000000000)
-	ports := []string{"5000:5000", "127.0.0.1:8001:8001"}
-	links := []string{"redis:redis"}
-	volumes := []string{".:/code"}
 	command := []string{"bundle exec thin -p 3000"}
+	dnsServers := []string{"1.2.3.4"}
+	dnsSearchDomains := []string{"search.example.com"}
 	entryPoint := "/code/entrypoint.sh"
 	env := []string{"RACK_ENV=development", "SESSION_SECRET=session_secret"}
+	extraHosts := []string{"test.local:127.10.10.10"}
+	hostname := "foobarbaz"
+	labels := map[string]string{
+		"label1":         "",
+		"com.foo.label2": "value",
+	}
+	links := []string{"redis:redis"}
+	logDriver := "json-file"
+	logOpts := map[string]string{
+		"max-file": "50",
+		"max-size": "50k",
+	}
+	memLimit := int64(1000000000)
+	ports := []string{"5000:5000", "127.0.0.1:8001:8001"}
+	privileged := true
+	readonly := true
+	securityOpts := []string{"label:type:test_virt"}
+	ulimits := []string{"nofile=1024"}
+	user := "user"
+	volumes := []string{".:/code"}
+	workingDir := "/var"
 
 	composeFileString := `web:
   cpu_shares: 73
-  mem_limit: 1000000000
-  entrypoint: /code/entrypoint.sh
   command: 
    - bundle exec thin -p 3000
-  ports:
-   - "5000:5000"
-   - "127.0.0.1:8001:8001"
-  volumes:
-   - .:/code
+  dns:
+   - 1.2.3.4
+  dns_search: search.example.com
+  entrypoint: /code/entrypoint.sh
   environment:
     RACK_ENV: development
     SESSION_SECRET: session_secret
+  extra_hosts:
+   - test.local:127.10.10.10
+  hostname: "foobarbaz"
+  labels:
+   - label1
+   - com.foo.label2=value
   links:
    - "redis:redis"
+  log_driver: json-file
+  log_opt:
+    max-file: 50
+    max-size: 50k
+  mem_limit: 1000000000
+  ports:
+   - "5000:5000"
+   - "127.0.0.1:8001:8001"
+  privileged: true
+  read_only: true
+  security_opt:
+   - label:type:test_virt
+  ulimits:
+   - nofile=1024
+  user: user
+  volumes:
+   - .:/code
+  volumes_from:
+  working_dir: /var
 redis:
   image: redis`
 
@@ -73,25 +114,19 @@ redis:
 	if cpuShares != web.CpuShares {
 		t.Errorf("Expected cpuShares to be [%s] but got [%s]", cpuShares, web.CpuShares)
 	}
-	if memLimit != web.MemLimit {
-		t.Errorf("Expected memLimit to be [%s] but got [%s]", memLimit, web.MemLimit)
-	}
-	if !reflect.DeepEqual(ports, web.Ports) {
-		t.Errorf("Expected ports to be [%v] but got [%v]", ports, web.Ports)
-	}
-	if !reflect.DeepEqual(volumes, web.Volumes) {
-		t.Errorf("Expected volumes to be [%v] but got [%v]", volumes, web.Volumes)
-	}
-
 	if !reflect.DeepEqual(command, web.Command.Slice()) {
 		t.Errorf("Expected command to be [%v] but got [%v]", command, web.Command.Slice())
+	}
+	if !reflect.DeepEqual(dnsServers, web.DNS.Slice()) {
+		t.Errorf("Expected dns to be [%v] but got [%v]", dnsServers, web.DNS.Slice())
+	}
+	if !reflect.DeepEqual(dnsSearchDomains, web.DNSSearch.Slice()) {
+		t.Errorf("Expected dns search to be [%v] but got [%v]", dnsSearchDomains, web.DNSSearch.Slice())
 	}
 	if len(web.Entrypoint.Slice()) != 1 || entryPoint != web.Entrypoint.ToString() {
 		t.Errorf("Expected entryPoint to be [%s] but got [%s]", entryPoint, web.Entrypoint.ToString())
 	}
-	if !reflect.DeepEqual(links, web.Links.Slice()) {
-		t.Errorf("Expected links to be [%v] but got [%v]", links, web.Links.Slice())
-	}
+
 	sort.Strings(env)
 	webEnv := []string{}
 	for _, val := range web.Environment.Slice() {
@@ -100,6 +135,75 @@ redis:
 	sort.Strings(webEnv)
 	if !reflect.DeepEqual(env, webEnv) {
 		t.Errorf("Expected Environment to be [%v] but got [%v]", env, webEnv)
+	}
+
+	if !reflect.DeepEqual(extraHosts, web.ExtraHosts) {
+		t.Errorf("Expected extraHosts to be [%v] but got [%v]", extraHosts, web.ExtraHosts)
+	}
+	if hostname != web.Hostname {
+		t.Errorf("Expected Hostname to be [%s] but got [%s]", hostname, web.Hostname)
+	}
+	if !reflect.DeepEqual(labels, web.Labels.MapParts()) {
+		t.Errorf("Expected labels to be [%v] but got [%v]", labels, web.Labels.MapParts())
+	}
+	if !reflect.DeepEqual(links, web.Links.Slice()) {
+		t.Errorf("Expected links to be [%v] but got [%v]", links, web.Links.Slice())
+	}
+	if logDriver != web.LogDriver {
+		t.Errorf("Expected logDriver to be [%s] but got [%s]", logDriver, web.LogDriver)
+	}
+	if !reflect.DeepEqual(logOpts, web.LogOpt) {
+		t.Errorf("Expected logOpts to be [%v] but got [%v]", logOpts, web.LogOpt)
+	}
+	if memLimit != web.MemLimit {
+		t.Errorf("Expected memLimit to be [%s] but got [%s]", memLimit, web.MemLimit)
+	}
+	if !reflect.DeepEqual(ports, web.Ports) {
+		t.Errorf("Expected ports to be [%v] but got [%v]", ports, web.Ports)
+	}
+	if privileged != web.Privileged {
+		t.Errorf("Expected privileged to be [%s] but got [%s]", privileged, web.Privileged)
+	}
+	if readonly != web.ReadOnly {
+		t.Errorf("Expected readonly to be [%s] but got [%s]", readonly, web.ReadOnly)
+	}
+	if !reflect.DeepEqual(securityOpts, web.SecurityOpt) {
+		t.Errorf("Expected securityOpts to be [%v] but got [%v]", securityOpts, web.SecurityOpt)
+	}
+	if !reflect.DeepEqual(ulimits, web.ULimits) {
+		t.Errorf("Expected ulimits to be [%v] but got [%v]", ulimits, web.ULimits)
+	}
+	if user != web.User {
+		t.Errorf("Expected user to be [%s] but got [%s]", user, web.User)
+	}
+	if !reflect.DeepEqual(volumes, web.Volumes) {
+		t.Errorf("Expected volumes to be [%v] but got [%v]", volumes, web.Volumes)
+	}
+	if workingDir != web.WorkingDir {
+		t.Errorf("Expected workingDir to be [%s] but got [%s]", user, web.WorkingDir)
+	}
+}
+
+func TestUnmarshalComposeConfigSkipUnsupportedYaml(t *testing.T) {
+	composeFileString := `web:
+  external_links:
+    - /tmp/compose.yml`
+
+	context := libcompose.Context{
+		ComposeBytes: []byte(composeFileString),
+	}
+	configs, err := UnmarshalComposeConfig(context)
+	if err != nil {
+		t.Fatalf("Unable to unmarshall compose string [%s]", composeFileString)
+	}
+
+	// verify web ServiceConfig
+	web := configs["web"]
+	if web == nil {
+		t.Fatalf("Expected [%s] as a service but got configs [%v]", "web", configs)
+	}
+	if len(web.ExternalLinks) != 0 {
+		t.Errorf("Expected external links to be empty but got [%s]", web.ExternalLinks)
 	}
 }
 

@@ -3445,6 +3445,28 @@ func (_mr *_MockEC2APIRecorder) ModifySnapshotAttributeRequest(arg0 interface{})
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifySnapshotAttributeRequest", arg0)
 }
 
+func (_m *MockEC2API) ModifySpotFleetRequest(_param0 *ec2.ModifySpotFleetRequestInput) (*ec2.ModifySpotFleetRequestOutput, error) {
+	ret := _m.ctrl.Call(_m, "ModifySpotFleetRequest", _param0)
+	ret0, _ := ret[0].(*ec2.ModifySpotFleetRequestOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifySpotFleetRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifySpotFleetRequest", arg0)
+}
+
+func (_m *MockEC2API) ModifySpotFleetRequestRequest(_param0 *ec2.ModifySpotFleetRequestInput) (*request.Request, *ec2.ModifySpotFleetRequestOutput) {
+	ret := _m.ctrl.Call(_m, "ModifySpotFleetRequestRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.ModifySpotFleetRequestOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifySpotFleetRequestRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifySpotFleetRequestRequest", arg0)
+}
+
 func (_m *MockEC2API) ModifySubnetAttribute(_param0 *ec2.ModifySubnetAttributeInput) (*ec2.ModifySubnetAttributeOutput, error) {
 	ret := _m.ctrl.Call(_m, "ModifySubnetAttribute", _param0)
 	ret0, _ := ret[0].(*ec2.ModifySubnetAttributeOutput)

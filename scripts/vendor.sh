@@ -27,7 +27,7 @@ vendor_github() {
 
 rm -rf ./ecs-cli/vendor
 
-vendor_github aws aws-sdk-go 69142c71761512d894b028dc5c8cc312758372dd
+vendor_github aws aws-sdk-go 7ab6754ddaaa7972ac1c896ddd7f796cc726e79d
 vendor_github vaughan0 go-ini a98ad7ee00ec53921f08832bc06ecf7fd600e6a1
 vendor_github Sirupsen logrus 418b41d23a1bf978c06faea5313ba194650ac088
 vendor_github go-ini ini e8c222fea70c6c03bde4f0577c93965e7f91d417

@@ -109,6 +109,28 @@ func (_mr *_MockCloudFormationAPIRecorder) DeleteStackRequest(arg0 interface{}) 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteStackRequest", arg0)
 }
 
+func (_m *MockCloudFormationAPI) DescribeAccountLimits(_param0 *cloudformation.DescribeAccountLimitsInput) (*cloudformation.DescribeAccountLimitsOutput, error) {
+	ret := _m.ctrl.Call(_m, "DescribeAccountLimits", _param0)
+	ret0, _ := ret[0].(*cloudformation.DescribeAccountLimitsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeAccountLimits(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeAccountLimits", arg0)
+}
+
+func (_m *MockCloudFormationAPI) DescribeAccountLimitsRequest(_param0 *cloudformation.DescribeAccountLimitsInput) (*request.Request, *cloudformation.DescribeAccountLimitsOutput) {
+	ret := _m.ctrl.Call(_m, "DescribeAccountLimitsRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudformation.DescribeAccountLimitsOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeAccountLimitsRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeAccountLimitsRequest", arg0)
+}
+
 func (_m *MockCloudFormationAPI) DescribeStackEvents(_param0 *cloudformation.DescribeStackEventsInput) (*cloudformation.DescribeStackEventsOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeStackEvents", _param0)
 	ret0, _ := ret[0].(*cloudformation.DescribeStackEventsOutput)

@@ -31,7 +31,10 @@ func TestMD5InPutBucketCors(t *testing.T) {
 		Bucket: aws.String("bucketname"),
 		CORSConfiguration: &s3.CORSConfiguration{
 			CORSRules: []*s3.CORSRule{
-				{AllowedMethods: []*string{aws.String("GET")}},
+				{
+					AllowedMethods: []*string{aws.String("GET")},
+					AllowedOrigins: []*string{aws.String("*")},
+				},
 			},
 		},
 	})
@@ -43,7 +46,7 @@ func TestMD5InPutBucketLifecycle(t *testing.T) {
 	req, _ := svc.PutBucketLifecycleRequest(&s3.PutBucketLifecycleInput{
 		Bucket: aws.String("bucketname"),
 		LifecycleConfiguration: &s3.LifecycleConfiguration{
-			Rules: []*s3.LifecycleRule{
+			Rules: []*s3.Rule{
 				{
 					ID:     aws.String("ID"),
 					Prefix: aws.String("Prefix"),

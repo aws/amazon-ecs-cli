@@ -17,11 +17,11 @@ type API struct {
 	Shapes        map[string]*Shape
 	Documentation string
 
-	// Disables inflection checks. Only use this when generating tests
-	NoInflections bool
-
 	// Set to true to avoid removing unused shapes
 	NoRemoveUnusedShapes bool
+
+	// Set to true to avoid renaming to 'Input/Output' postfixed shapes
+	NoRenameToplevelShapes bool
 
 	// Set to true to ignore service/request init methods (for testing)
 	NoInitMethods bool
@@ -29,11 +29,10 @@ type API struct {
 	// Set to true to ignore String() and GoString methods (for generated tests)
 	NoStringerMethods bool
 
-	initialized       bool
-	imports           map[string]bool
-	name              string
-	unrecognizedNames map[string]string
-	path              string
+	initialized bool
+	imports     map[string]bool
+	name        string
+	path        string
 }
 
 // A Metadata is the metadata about an API's definition.
@@ -248,8 +247,9 @@ func New(config *aws.Config) *{{ .StructName }} {
 	service.Initialize()
 
 	// Handlers
-	service.Handlers.Sign.PushBack(v4.Sign)
-	service.Handlers.Build.PushBack({{ .ProtocolPackage }}.Build)
+	service.Handlers.Sign.PushBack({{if eq .Metadata.SignatureVersion "v2"}}v2{{else}}v4{{end}}.Sign)
+	{{if eq .Metadata.SignatureVersion "v2"}}service.Handlers.Sign.PushBackNamed(corehandlers.BuildContentLengthHandler)
+	{{end}}service.Handlers.Build.PushBack({{ .ProtocolPackage }}.Build)
 	service.Handlers.Unmarshal.PushBack({{ .ProtocolPackage }}.Unmarshal)
 	service.Handlers.UnmarshalMeta.PushBack({{ .ProtocolPackage }}.UnmarshalMeta)
 	service.Handlers.UnmarshalError.PushBack({{ .ProtocolPackage }}.UnmarshalError)
@@ -286,7 +286,12 @@ func (a *API) ServiceGoCode() string {
 	a.imports["github.com/aws/aws-sdk-go/aws/request"] = true
 	a.imports["github.com/aws/aws-sdk-go/aws/service"] = true
 	a.imports["github.com/aws/aws-sdk-go/aws/service/serviceinfo"] = true
-	a.imports["github.com/aws/aws-sdk-go/internal/signer/v4"] = true
+	if a.Metadata.SignatureVersion == "v2" {
+		a.imports["github.com/aws/aws-sdk-go/internal/signer/v2"] = true
+		a.imports["github.com/aws/aws-sdk-go/aws/corehandlers"] = true
+	} else {
+		a.imports["github.com/aws/aws-sdk-go/internal/signer/v4"] = true
+	}
 	a.imports["github.com/aws/aws-sdk-go/internal/protocol/"+a.ProtocolPackage()] = true
 
 	var buf bytes.Buffer

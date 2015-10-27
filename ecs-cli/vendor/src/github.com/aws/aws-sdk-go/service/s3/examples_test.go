@@ -434,6 +434,25 @@ func ExampleS3_GetBucketLifecycle() {
 	fmt.Println(resp)
 }
 
+func ExampleS3_GetBucketLifecycleConfiguration() {
+	svc := s3.New(nil)
+
+	params := &s3.GetBucketLifecycleConfigurationInput{
+		Bucket: aws.String("BucketName"), // Required
+	}
+	resp, err := svc.GetBucketLifecycleConfiguration(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
+}
+
 func ExampleS3_GetBucketLocation() {
 	svc := s3.New(nil)
 
@@ -916,19 +935,19 @@ func ExampleS3_PutBucketCors() {
 
 	params := &s3.PutBucketCorsInput{
 		Bucket: aws.String("BucketName"), // Required
-		CORSConfiguration: &s3.CORSConfiguration{
-			CORSRules: []*s3.CORSRule{
+		CORSConfiguration: &s3.CORSConfiguration{ // Required
+			CORSRules: []*s3.CORSRule{ // Required
 				{ // Required
-					AllowedHeaders: []*string{
-						aws.String("AllowedHeader"), // Required
-						// More values...
-					},
-					AllowedMethods: []*string{
+					AllowedMethods: []*string{ // Required
 						aws.String("AllowedMethod"), // Required
 						// More values...
 					},
-					AllowedOrigins: []*string{
+					AllowedOrigins: []*string{ // Required
 						aws.String("AllowedOrigin"), // Required
+						// More values...
+					},
+					AllowedHeaders: []*string{
+						aws.String("AllowedHeader"), // Required
 						// More values...
 					},
 					ExposeHeaders: []*string{
@@ -960,7 +979,7 @@ func ExampleS3_PutBucketLifecycle() {
 	params := &s3.PutBucketLifecycleInput{
 		Bucket: aws.String("BucketName"), // Required
 		LifecycleConfiguration: &s3.LifecycleConfiguration{
-			Rules: []*s3.LifecycleRule{ // Required
+			Rules: []*s3.Rule{ // Required
 				{ // Required
 					Prefix: aws.String("Prefix"),           // Required
 					Status: aws.String("ExpirationStatus"), // Required
@@ -987,6 +1006,57 @@ func ExampleS3_PutBucketLifecycle() {
 		},
 	}
 	resp, err := svc.PutBucketLifecycle(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
+}
+
+func ExampleS3_PutBucketLifecycleConfiguration() {
+	svc := s3.New(nil)
+
+	params := &s3.PutBucketLifecycleConfigurationInput{
+		Bucket: aws.String("BucketName"), // Required
+		LifecycleConfiguration: &s3.BucketLifecycleConfiguration{
+			Rules: []*s3.LifecycleRule{ // Required
+				{ // Required
+					Prefix: aws.String("Prefix"),           // Required
+					Status: aws.String("ExpirationStatus"), // Required
+					Expiration: &s3.LifecycleExpiration{
+						Date: aws.Time(time.Now()),
+						Days: aws.Int64(1),
+					},
+					ID: aws.String("ID"),
+					NoncurrentVersionExpiration: &s3.NoncurrentVersionExpiration{
+						NoncurrentDays: aws.Int64(1),
+					},
+					NoncurrentVersionTransitions: []*s3.NoncurrentVersionTransition{
+						{ // Required
+							NoncurrentDays: aws.Int64(1),
+							StorageClass:   aws.String("TransitionStorageClass"),
+						},
+						// More values...
+					},
+					Transitions: []*s3.Transition{
+						{ // Required
+							Date:         aws.Time(time.Now()),
+							Days:         aws.Int64(1),
+							StorageClass: aws.String("TransitionStorageClass"),
+						},
+						// More values...
+					},
+				},
+				// More values...
+			},
+		},
+	}
+	resp, err := svc.PutBucketLifecycleConfiguration(params)
 
 	if err != nil {
 		// Print the error, cast err to awserr.Error to get the Code and
@@ -1203,7 +1273,8 @@ func ExampleS3_PutBucketReplication() {
 			Rules: []*s3.ReplicationRule{ // Required
 				{ // Required
 					Destination: &s3.Destination{ // Required
-						Bucket: aws.String("BucketName"), // Required
+						Bucket:       aws.String("BucketName"), // Required
+						StorageClass: aws.String("StorageClass"),
 					},
 					Prefix: aws.String("Prefix"),                // Required
 					Status: aws.String("ReplicationRuleStatus"), // Required
@@ -1477,6 +1548,7 @@ func ExampleS3_UploadPart() {
 		SSECustomerAlgorithm: aws.String("SSECustomerAlgorithm"),
 		SSECustomerKey:       aws.String("SSECustomerKey"),
 		SSECustomerKeyMD5:    aws.String("SSECustomerKeyMD5"),
+		ServerSideEncryption: aws.String("UploadPartRequestServerSideEncryption"),
 	}
 	resp, err := svc.UploadPart(params)
 

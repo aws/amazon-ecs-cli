@@ -29,14 +29,27 @@ func composeOptionsInit() {
 	supportedComposeYamlOptions = map[string]bool{
 		"cpu_shares":   true,
 		"command":      true,
+		"dns":          true,
+		"dns_search":   true,
 		"entrypoint":   true,
 		"environment":  true,
+		"extra_hosts":  true,
+		"hostname":     true,
 		"image":        true,
+		"labels":       true,
 		"links":        true,
+		"log_driver":   true,
+		"log_opt":      true,
 		"mem_limit":    true,
 		"ports":        true,
+		"privileged":   true,
+		"read_only":    true,
+		"security_opt": true,
+		"ulimits":      true,
+		"user":         true,
 		"volumes":      true,
 		"volumes_from": true,
+		"working_dir":  true,
 	}
 }
 

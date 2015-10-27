@@ -26,8 +26,9 @@ import (
 )
 
 const (
-	defaultMemLimit = 512
-	kiB             = 1024
+	defaultMemLimit   = 512
+	kiB               = 1024
+	ulimitFormatError = "expected format TYPE=SOFT-LIMIT[:HARD-LIMIT]. could not parse ulimit "
 
 	// access mode with which the volume is mounted
 	readOnlyVolumeAccessMode  = "ro"
@@ -111,22 +112,62 @@ func convertToContainerDef(inputCfg *libcompose.ServiceConfig,
 	if err != nil {
 		return err
 	}
+
+	// convert extra hosts
+	extraHosts, err := convertToExtraHosts(inputCfg.ExtraHosts)
+	if err != nil {
+		return err
+	}
+
+	// convert log configuration
+	var logConfig *ecs.LogConfiguration
+	if inputCfg.LogDriver != "" {
+		logConfig = &ecs.LogConfiguration{
+			LogDriver: aws.String(inputCfg.LogDriver),
+			Options:   aws.StringMap(inputCfg.LogOpt),
+		}
+	}
+
+	// convert ulimits
+	ulimits, err := convertToULimits(inputCfg.ULimits)
+	if err != nil {
+		return err
+	}
+
 	// populating container definition, offloading the validation to aws-sdk
 	outputContDef.Cpu = aws.Int64(inputCfg.CpuShares)
-	outputContDef.Memory = aws.Int64(mem)
-	outputContDef.EntryPoint = aws.StringSlice(inputCfg.Entrypoint.Slice())
 	outputContDef.Command = aws.StringSlice(inputCfg.Command.Slice())
+	outputContDef.DnsSearchDomains = aws.StringSlice(inputCfg.DNSSearch.Slice())
+	outputContDef.DnsServers = aws.StringSlice(inputCfg.DNS.Slice())
+	outputContDef.DockerLabels = aws.StringMap(inputCfg.Labels.MapParts())
+	outputContDef.DockerSecurityOptions = aws.StringSlice(inputCfg.SecurityOpt)
+	outputContDef.EntryPoint = aws.StringSlice(inputCfg.Entrypoint.Slice())
 	outputContDef.Environment = environment
+	outputContDef.ExtraHosts = extraHosts
+	if inputCfg.Hostname != "" {
+		outputContDef.Hostname = aws.String(inputCfg.Hostname)
+	}
 	outputContDef.Image = aws.String(inputCfg.Image)
 	outputContDef.Links = aws.StringSlice(inputCfg.Links.Slice()) //TODO, read from external links
+	outputContDef.LogConfiguration = logConfig
+	outputContDef.Memory = aws.Int64(mem)
 	outputContDef.MountPoints = mountPoints
+	outputContDef.Privileged = aws.Bool(inputCfg.Privileged)
 	outputContDef.PortMappings = portMappings
+	outputContDef.ReadonlyRootFilesystem = aws.Bool(inputCfg.ReadOnly)
+	outputContDef.Ulimits = ulimits
+	if inputCfg.User != "" {
+		outputContDef.User = aws.String(inputCfg.User)
+	}
 	outputContDef.VolumesFrom = volumesFrom
+	if inputCfg.WorkingDir != "" {
+		outputContDef.WorkingDirectory = aws.String(inputCfg.WorkingDir)
+	}
+
 	return nil
 }
 
 // convertToECSVolumes transforms the map of hostPaths to the format of ecs.Volume
-
 func convertToECSVolumes(hostPaths map[string]string) []*ecs.Volume {
 	output := []*ecs.Volume{}
 	for hostPath, volName := range hostPaths {
@@ -237,4 +278,62 @@ func convertToMountPoints(cfgVolumes []string, volumes map[string]string) ([]*ec
 		})
 	}
 	return mountPoints, nil
+}
+
+// convertToExtraHosts transforms the yml extra hosts slice to ecs compatible HostEntry slice
+func convertToExtraHosts(cfgExtraHosts []string) ([]*ecs.HostEntry, error) {
+	extraHosts := []*ecs.HostEntry{}
+	for _, cfgExtraHost := range cfgExtraHosts {
+		parts := strings.Split(cfgExtraHost, ":")
+		if len(parts) != 2 {
+			return nil, fmt.Errorf(
+				"expected format HOSTNAME:IPADDRESS. could not parse ExtraHost: %s", cfgExtraHost)
+		}
+		extraHost := &ecs.HostEntry{
+			Hostname:  aws.String(parts[0]),
+			IpAddress: aws.String(parts[1]),
+		}
+		extraHosts = append(extraHosts, extraHost)
+	}
+
+	return extraHosts, nil
+}
+
+// convertToULimits transforms the yml extra hosts slice to ecs compatible Ulimit slice
+func convertToULimits(cfgUlimits []string) ([]*ecs.Ulimit, error) {
+	ulimits := []*ecs.Ulimit{}
+	for _, cfgUlimit := range cfgUlimits {
+		parts := strings.Split(cfgUlimit, "=")
+		if len(parts) != 2 {
+			return nil, fmt.Errorf(
+				"%s:%s", ulimitFormatError, cfgUlimit)
+		}
+
+		limits := strings.Split(parts[1], ":")
+		var softLimit, hardLimit int64
+		var limitErr error
+		switch len(limits) {
+		case 1: // Format TYPE=SOFT-LIMIT Example- nofile=1024
+			softLimit, limitErr = strconv.ParseInt(limits[0], 10, 64)
+			hardLimit = softLimit
+		case 2: // Format TYPE=SOFT-LIMIT:HARD-LIMIT Example nofile=1024:1024
+			softLimit, limitErr = strconv.ParseInt(limits[0], 10, 64)
+			hardLimit, limitErr = strconv.ParseInt(limits[1], 10, 64)
+		default:
+			return nil, fmt.Errorf(
+				"%s:%s", ulimitFormatError, cfgUlimit)
+		}
+		if limitErr != nil {
+			return nil, fmt.Errorf("Could not convert limits into integers in ulimits[%s]. Error=[%v]", cfgUlimit, limitErr)
+		}
+
+		ulimit := &ecs.Ulimit{
+			Name:      aws.String(parts[0]),
+			SoftLimit: aws.Int64(softLimit),
+			HardLimit: aws.Int64(hardLimit),
+		}
+		ulimits = append(ulimits, ulimit)
+	}
+
+	return ulimits, nil
 }
