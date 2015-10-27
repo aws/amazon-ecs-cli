@@ -14,13 +14,6 @@
 
 # This script should be sourced by bash or zsh prior to doing basically
 # anything
-
-for godepPath in "$(find ecs-cli/vendor -path "*/Godeps/_workspace")"; do
-  export GOPATH="$(pwd)/${godepPath}:${GOPATH}"
-done
-
 vendor="$(pwd)/ecs-cli/vendor"
 export GOPATH="${vendor}:${GOPATH}"
-echo GOPATH="${GOPATH}"
-
 export PATH="${vendor}/bin:$(pwd)/scripts:${PATH}"

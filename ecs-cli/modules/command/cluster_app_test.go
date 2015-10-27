@@ -52,17 +52,21 @@ func TestClusterUp(t *testing.T) {
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
 
-	mockEcs.EXPECT().Initialize(gomock.Any())
-	mockEcs.EXPECT().CreateCluster(gomock.Any()).Do(func(in interface{}) {
-		if in.(string) != clusterName {
-			t.Fatal("Expected to be called with " + clusterName + " not " + in.(string))
-		}
-	}).Return(clusterName, nil)
+	gomock.InOrder(
+		mockEcs.EXPECT().Initialize(gomock.Any()),
+		mockEcs.EXPECT().CreateCluster(gomock.Any()).Do(func(in interface{}) {
+			if in.(string) != clusterName {
+				t.Fatal("Expected to be called with " + clusterName + " not " + in.(string))
+			}
+		}).Return(clusterName, nil),
+	)
 
-	mockCloudformation.EXPECT().Initialize(gomock.Any())
-	mockCloudformation.EXPECT().ValidateStackExists(gomock.Any()).Return(errors.New("error"))
-	mockCloudformation.EXPECT().CreateStack(gomock.Any(), gomock.Any(), gomock.Any()).Return("", nil)
-	mockCloudformation.EXPECT().WaitUntilCreateComplete(gomock.Any()).Return(nil)
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(gomock.Any()).Return(errors.New("error")),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), gomock.Any(), gomock.Any()).Return("", nil),
+		mockCloudformation.EXPECT().WaitUntilCreateComplete(gomock.Any()).Return(nil),
+	)
 
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalSet.String("region", "us-west-1", "")

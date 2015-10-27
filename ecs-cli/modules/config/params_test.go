@@ -43,18 +43,20 @@ func (rdwr *mockReadWriter) Save(dest *Destination) error {
 }
 
 func TestNewCliParamsFromEnvVars(t *testing.T) {
+	os.Clearenv()
+
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)
 	context := cli.NewContext(nil, nil, globalContext)
 	rdwr := &mockReadWriter{}
-	os.Unsetenv("AWS_REGION")
-	os.Unsetenv("AWS_DEFAULT_REGION")
 	_, err := NewCliParams(context, rdwr)
 	if err == nil {
 		t.Errorf("Expected error when region not specified")
 	}
 
 	os.Setenv("AWS_REGION", "us-west-1")
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	params, err := NewCliParams(context, rdwr)
 	if err != nil {
 		t.Errorf("Unexpected error when region is specified using environment variable AWS_REGION: ", err)

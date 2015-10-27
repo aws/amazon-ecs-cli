@@ -13,7 +13,7 @@
 
 ROOT := $(shell pwd)
 
-all: generate build
+all: build
 
 SOURCEDIR=./ecs-cli
 SOURCES := $(shell find $(SOURCEDIR) -name '*.go')
@@ -29,12 +29,18 @@ $(LOCAL_BINARY): $(SOURCES)
 	@echo "Built ecs-cli"
 
 .PHONY: test
-test: generate
-	. ./scripts/shared_env && go test -timeout=120s -v -cover github.com/aws/amazon-ecs-cli/ecs-cli/modules/...
+test:
+	. ./scripts/shared_env && go test -timeout=120s -v -cover ./ecs-cli/modules/...
 
 .PHONY: generate
 generate: $(SOURCES)
-	. ./scripts/shared_env && go install github.com/golang/mock/mockgen && go generate github.com/aws/amazon-ecs-cli/ecs-cli/modules/...
+	. ./scripts/shared_env && go generate ./ecs-cli/modules/...
+
+.PHONY: generate-deps
+generate-deps:
+	go install github.com/golang/mock/mockgen
+	go get golang.org/x/tools/cmd/goimports
+
 
 .PHONY: docker-build
 docker-build:
