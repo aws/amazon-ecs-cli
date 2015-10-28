@@ -30,7 +30,7 @@ $(LOCAL_BINARY): $(SOURCES)
 
 .PHONY: test
 test:
-	. ./scripts/shared_env && go test -timeout=120s -v -cover ./ecs-cli/modules/...
+	. ./scripts/shared_env && AWS_REGION=us-east-1 AWS_SECRET_KEY=secret AWS_ACCESS_KEY=AKIDEXAMPLE go test -timeout=120s -v -cover ./ecs-cli/modules/...
 
 .PHONY: generate
 generate: $(SOURCES)
