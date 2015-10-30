@@ -43,6 +43,7 @@ func init() {
 		vpcIdFlag:         cloudformation.ParameterKeyVpcId,
 		instanceTypeFlag:  cloudformation.ParameterKeyInstanceType,
 		keypairNameFlag:   cloudformation.ParameterKeyKeyPairName,
+		imageIdFlag:       cloudformation.ParameterKeyAmiId,
 	}
 }
 
@@ -118,11 +119,6 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 		return err
 	}
 
-	amiId, err := amiIds.Get(aws.StringValue(ecsParams.Config.Region))
-	if err != nil {
-		return err
-	}
-
 	// Check if cfn stack already exists
 	cfnClient.Initialize(ecsParams)
 	stackName := ecsParams.GetCfnStackName()
@@ -133,7 +129,26 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 	// Populate cfn params
 	cfnParams := cliFlagsToCfnStackParams(context)
 	cfnParams.Add(cloudformation.ParameterKeyCluster, ecsParams.Cluster)
-	cfnParams.Add(cloudformation.ParameterKeyAmiId, amiId)
+
+	// Check if key pair exists
+	_, err = cfnParams.GetParameter(cloudformation.ParameterKeyKeyPairName)
+	if err == cloudformation.ParameterNotFoundError {
+		return fmt.Errorf("Please specify the keypair name with '--%s' flag", keypairNameFlag)
+	} else if err != nil {
+		return err
+	}
+
+	// Check if image id was supplied, else populate
+	_, err = cfnParams.GetParameter(cloudformation.ParameterKeyAmiId)
+	if err == cloudformation.ParameterNotFoundError {
+		amiId, err := amiIds.Get(aws.StringValue(ecsParams.Config.Region))
+		if err != nil {
+			return err
+		}
+		cfnParams.Add(cloudformation.ParameterKeyAmiId, amiId)
+	} else if err != nil {
+		return err
+	}
 	if err := cfnParams.Validate(); err != nil {
 		return err
 	}

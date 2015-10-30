@@ -13,7 +13,10 @@
 
 package command
 
-import "github.com/codegangsta/cli"
+import (
+	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
+	"github.com/codegangsta/cli"
+)
 
 const (
 	asgMaxSizeFlag    = "size"
@@ -24,6 +27,7 @@ const (
 	subnetIdsFlag     = "subnets"
 	vpcIdFlag         = "vpc"
 	instanceTypeFlag  = "instance-type"
+	imageIdFlag       = "image-id"
 	keypairNameFlag   = "keypair"
 	capabilityIAMFlag = "capability-iam"
 	forceFlag         = "force"
@@ -33,8 +37,12 @@ func UpCommand() cli.Command {
 	return cli.Command{
 		Name:   "up",
 		Usage:  "Create the ECS Cluster (if it does not already exist) and the AWS resources required to set up the cluster.",
+		Before: ecscli.BeforeApp,
 		Action: ClusterUp,
 		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name: ecscli.VerboseFlag + ",debug",
+			},
 			cli.StringFlag{
 				Name:  keypairNameFlag,
 				Usage: "Specify the name of an existing Amazon EC2 key pair to enable SSH access to the EC2 instances in your cluster.",
@@ -74,6 +82,10 @@ func UpCommand() cli.Command {
 			cli.StringFlag{
 				Name:  instanceTypeFlag,
 				Usage: "[Optional] Specify the EC2 instance type for your container instances.",
+			},
+			cli.StringFlag{
+				Name:  imageIdFlag,
+				Usage: "[Optional] Specify the ID of the AMI for your container Instances.",
 			},
 		},
 	}

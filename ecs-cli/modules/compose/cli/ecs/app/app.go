@@ -33,14 +33,6 @@ import (
 //	}
 type ProjectAction func(project ecscompose.Project, c *cli.Context)
 
-// BeforeApp is an action that is executed before any cli command.
-func BeforeApp(c *cli.Context) error {
-	if c.GlobalBool(verboseFlag) || c.Bool(verboseFlag) {
-		log.SetLevel(log.DebugLevel)
-	}
-	return nil
-}
-
 // WithProject is an helper function to create a cli.Command action with a ProjectFactory.
 func WithProject(factory ProjectFactory, action ProjectAction, isService bool) func(context *cli.Context) {
 	return func(context *cli.Context) {

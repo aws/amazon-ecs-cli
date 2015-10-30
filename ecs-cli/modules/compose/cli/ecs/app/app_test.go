@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	log "github.com/Sirupsen/logrus"
+	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/cli/ecs/app/mocks"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/mocks"
@@ -28,10 +29,10 @@ import (
 
 func TestBeforeApp(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli", 0)
-	flagSet.Bool(verboseFlag, true, "")
+	flagSet.Bool(ecscli.VerboseFlag, true, "")
 	cliContext := cli.NewContext(nil, flagSet, nil)
 
-	BeforeApp(cliContext)
+	ecscli.BeforeApp(cliContext)
 
 	observedLogLevel := log.GetLevel()
 	if log.DebugLevel != observedLogLevel {
