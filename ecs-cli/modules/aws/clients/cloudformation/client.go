@@ -74,6 +74,7 @@ func init() {
 	// http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-describing-stacks.html
 	createStackFailures = map[string]bool{
 		cloudformation.StackStatusCreateFailed:         true,
+		cloudformation.StackStatusRollbackInProgress:   true,
 		cloudformation.StackStatusRollbackComplete:     true,
 		cloudformation.StackStatusUpdateRollbackFailed: true,
 	}
