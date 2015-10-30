@@ -465,51 +465,6 @@ var template = `
     "EcsInstanceAsg": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "Properties": {
-        "AvailabilityZones": {
-          "Fn::If": [
-            "UseSpecifiedVpcAvailabilityZones",
-            [
-              {
-                "Fn::Select": [
-                  "0",
-                  {
-                    "Ref": "VpcAvailabilityZones"
-                  }
-                ]
-              },
-              {
-                "Fn::Select": [
-                  "1",
-                  {
-                    "Ref": "VpcAvailabilityZones"
-                  }
-                ]
-              }
-            ],
-            [
-              {
-                "Fn::Select": [
-                  "0",
-                  {
-                    "Fn::GetAZs": {
-                      "Ref": "AWS::Region"
-                    }
-                  }
-                ]
-              },
-              {
-                "Fn::Select": [
-                  "1",
-                  {
-                    "Fn::GetAZs": {
-                      "Ref": "AWS::Region"
-                    }
-                  }
-                ]
-              }
-            ]
-          ]
-        },
         "VPCZoneIdentifier": {
           "Fn::If": [
             "CreateVpcResources",
