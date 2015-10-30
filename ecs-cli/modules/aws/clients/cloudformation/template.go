@@ -284,6 +284,7 @@ var template = `
     },
     "PublicRouteViaIgw": {
       "Condition": "CreateVpcResources",
+      "DependsOn": "AttachGateway",
       "Type": "AWS::EC2::Route",
       "Properties": {
         "RouteTableId": {
