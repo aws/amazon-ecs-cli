@@ -24,6 +24,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecs/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config/ami"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/codegangsta/cli"
 	"github.com/golang/mock/gomock"
 )
@@ -83,23 +84,26 @@ func TestClusterUp(t *testing.T) {
 	}
 }
 
-func TestClusterUpWithoutRegion(t *testing.T) {
+func TestClusterUpWithoutKeyPair(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
-
-	os.Clearenv()
-
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(gomock.Any()).Return(errors.New("error")),
+	)
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalSet.String("region", "us-west-1", "")
 	globalContext := cli.NewContext(nil, globalSet, nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(capabilityIAMFlag, true, "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, &mockReadWriter{}, mockEcs, mockCloudformation, ami.NewStaticAmiIds())
 	if err == nil {
-		t.Fatal("Expected error bringing up cluster")
+		t.Fatal("Expected error for key pair name")
 	}
 }
 
@@ -129,6 +133,74 @@ func TestCliFlagsToCfnStackParams(t *testing.T) {
 	_, err = params.GetParameter(cloudformation.ParameterKeyAsgMaxSize)
 	if err != nil {
 		t.Error("Error getting parameter '%s'", cloudformation.ParameterKeyAsgMaxSize)
+	}
+}
+
+func TestClusterUpForImageIdInput(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	imageId := "ami-12345"
+
+	gomock.InOrder(
+		mockEcs.EXPECT().Initialize(gomock.Any()),
+		mockEcs.EXPECT().CreateCluster(gomock.Any()).Do(func(in interface{}) {
+			if in.(string) != clusterName {
+				t.Fatal("Expected to be called with " + clusterName + " not " + in.(string))
+			}
+		}).Return(clusterName, nil),
+	)
+
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(gomock.Any()).Return(errors.New("error")),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), gomock.Any(), gomock.Any()).Do(func(x, y, z interface{}) {
+			cfnStackParams := z.(*cloudformation.CfnStackParams)
+			param, err := cfnStackParams.GetParameter(cloudformation.ParameterKeyAmiId)
+			if err != nil {
+				t.Fatal("Expected image id params to be present")
+			}
+			if imageId != aws.StringValue(param.ParameterValue) {
+				t.Fatalf("Expected image id to equal %s but got %s", imageId, aws.StringValue(param.ParameterValue))
+			}
+		}).Return("", nil),
+		mockCloudformation.EXPECT().WaitUntilCreateComplete(gomock.Any()).Return(nil),
+	)
+
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalSet.String("region", "us-west-1", "")
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(capabilityIAMFlag, true, "")
+	flagSet.String(keypairNameFlag, "default", "")
+	flagSet.String(imageIdFlag, imageId, "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := createCluster(context, &mockReadWriter{}, mockEcs, mockCloudformation, ami.NewStaticAmiIds())
+	if err != nil {
+		t.Fatal("Error bringing up cluster: ", err)
+	}
+}
+
+func TestClusterUpWithoutRegion(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+
+	os.Clearenv()
+
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := createCluster(context, &mockReadWriter{}, mockEcs, mockCloudformation, ami.NewStaticAmiIds())
+	if err == nil {
+		t.Fatal("Expected error bringing up cluster")
 	}
 }
 

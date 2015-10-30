@@ -14,6 +14,7 @@
 package app
 
 import (
+	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
 	"github.com/codegangsta/cli"
 )
@@ -24,7 +25,6 @@ const (
 	composeFileNameDefaultValue = "docker-compose.yml"
 	containerNameFlag           = "name"
 	projectNameFlag             = "project-name"
-	verboseFlag                 = "verbose"
 )
 
 //* ----------------- COMPOSE PROJECT ----------------- */
@@ -52,7 +52,7 @@ func ComposeCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:   "compose",
 		Usage:  "Execute docker-compose style commands on an ECS cluster.",
-		Before: BeforeApp,
+		Before: ecscli.BeforeApp,
 		Subcommands: []cli.Command{
 			createCommand(factory),
 			psCommand(factory),
@@ -76,7 +76,7 @@ func ComposeCommand(factory ProjectFactory) cli.Command {
 func commonComposeFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.BoolFlag{
-			Name: verboseFlag + ",debug",
+			Name: ecscli.VerboseFlag + ",debug",
 		},
 		cli.StringFlag{
 			Name:   composeFileNameFlag + ",f",

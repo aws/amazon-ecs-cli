@@ -13,13 +13,15 @@
 
 package cli
 
-// Flag names used by the cli.
-// TODO: These need a better home.
-const (
-	ClusterFlag   = "cluster"
-	ProfileFlag   = "profile"
-	RegionFlag    = "region"
-	AccessKeyFlag = "access-key"
-	SecretKeyFlag = "secret-key"
-	VerboseFlag   = "verbose"
+import (
+	log "github.com/Sirupsen/logrus"
+	"github.com/codegangsta/cli"
 )
+
+// BeforeApp is an action that is executed before any cli command.
+func BeforeApp(c *cli.Context) error {
+	if c.GlobalBool(VerboseFlag) || c.Bool(VerboseFlag) {
+		log.SetLevel(log.DebugLevel)
+	}
+	return nil
+}
