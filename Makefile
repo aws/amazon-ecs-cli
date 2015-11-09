@@ -47,10 +47,12 @@ docker-build:
 	docker run -v $(shell pwd):/usr/src/app/src/github.com/aws/amazon-ecs-cli \
 		--workdir=/usr/src/app/src/github.com/aws/amazon-ecs-cli \
 		--env GOPATH=/usr/src/app \
+		--env ECS_RELEASE=$(ECS_RELEASE) \
 		golang:1.4-cross make $(LINUX_BINARY)
 	docker run -v $(shell pwd):/usr/src/app/src/github.com/aws/amazon-ecs-cli \
 		--workdir=/usr/src/app/src/github.com/aws/amazon-ecs-cli \
 		--env GOPATH=/usr/src/app \
+		--env ECS_RELEASE=$(ECS_RELEASE) \
 		golang:1.4-cross make $(DARWIN_BINARY)
 
 .PHONY: supported-platforms

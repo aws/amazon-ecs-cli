@@ -99,6 +99,7 @@ if ! ${ALLOW_DIRTY}; then
 	echo "Cloning to a clean directory ${clean_directory}"
 	git clone --quiet "${CWD}" "${clean_directory}"
 	cd "${clean_directory}"
+	export ECS_RELEASE="cleanbuild"
 fi
 
 make docker-build
