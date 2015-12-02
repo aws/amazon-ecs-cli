@@ -14,86 +14,100 @@
 package config
 
 import (
+	"os"
 	"testing"
-
-	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
 const (
-	clusterName  = "defaultCluster"
-	profileName  = "defaultProfile"
-	region       = "us-west-1"
-	awsAccessKey = "AKID"
-	awsSecretKey = "SKID"
+	clusterName             = "defaultCluster"
+	profileName             = "defaultProfile"
+	region                  = "us-west-1"
+	awsAccessKey            = "AKID"
+	awsSecretKey            = "SKID"
+	envAwsAccessKey         = "envAKID"
+	envAwsSecretKey         = "envSKID"
+	credentialProviderCount = 4
 )
 
-func TestGetCredentialProvidersWithEmptyProfileAndCredentials(t *testing.T) {
+func TestGetCredentialProvidersVerifyProviderCountHasNotChanged(t *testing.T) {
 	ecsConfig := NewCliConfig(clusterName)
+	ecsConfig.Region = region
 	credentialProviders := ecsConfig.getCredentialProviders()
-	if len(credentialProviders) != 4 {
-		t.Error("Unexpected number of credential providers in the chain: ", len(credentialProviders))
-	}
-
-	// credentialProviders is composed of:
-	// 0 -> env provider
-	// 1 -> static creds provider
-	// 2 -> default profile provider
-	// 3 -> role provider
-	profileDefaultCredsProvider, ok := credentialProviders[2].(*credentials.SharedCredentialsProvider)
-	if !ok {
-		t.Fatal("Mismatch in credential provider chain. Expected to use 'default' profile creds provider")
-	}
-	// This would be the 'default' profile creds provider in this case.
-	if "" != profileDefaultCredsProvider.Profile {
-		t.Errorf("Invalid profile name set. Expected empty string. Got [%s]", profileDefaultCredsProvider.Profile)
-	}
-}
-
-func TestGetCredentialProvidersWithProfile(t *testing.T) {
-	ecsConfig := NewCliConfig(clusterName)
-	ecsConfig.AwsProfile = profileName
-	credentialProviders := ecsConfig.getCredentialProviders()
-	if len(credentialProviders) != 3 {
+	if len(credentialProviders) != credentialProviderCount {
 		t.Fatal("Unexpected number of credential providers in the chain: ", len(credentialProviders))
 	}
 
-	// credentialProviders is composed of:
-	// 0 -> profile provider
-	// 1 -> env provider
-	// 2 -> role provider
-	profileCredsProvider, ok := credentialProviders[0].(*credentials.SharedCredentialsProvider)
-	if !ok {
-		t.Fatal("Mismatch in credential provider chain. Expected to use 'default' profile creds provider")
+}
+
+func TestToServiceConfigWhenUsingEnvVariables(t *testing.T) {
+	ecsConfig := NewCliConfig(clusterName)
+	ecsConfig.Region = region
+
+	os.Setenv("AWS_ACCESS_KEY_ID", envAwsAccessKey)
+	os.Setenv("AWS_SECRET_ACCESS_KEY", envAwsSecretKey)
+
+	// Clear env variables as they persist past the individual test boundary
+	defer func() {
+		os.Unsetenv("AWS_ACCESS_KEY_ID")
+		os.Unsetenv("AWS_SECRET_ACCESS_KEY")
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+	}()
+
+	awsConfig, _ := ecsConfig.ToServiceConfig()
+	resolvedCredentials, err := awsConfig.Credentials.Get()
+	if err != nil {
+		t.Error("Error fetching credentials from the chain provider")
 	}
-	// This would be the 'default' profile creds provider in this case.
-	if profileName != profileCredsProvider.Profile {
-		t.Errorf("Invalid profile name set. Expected [%s]. Got [%s]", profileName, profileCredsProvider.Profile)
+
+	if envAwsAccessKey != resolvedCredentials.AccessKeyID {
+		t.Errorf("Invalid access key set. Expected [%s]. Got [%s]", envAwsAccessKey, resolvedCredentials.AccessKeyID)
+	}
+	if envAwsSecretKey != resolvedCredentials.SecretAccessKey {
+		t.Errorf("Invalid secret key set. Expected [%s]. Got [%s]", envAwsSecretKey, resolvedCredentials.SecretAccessKey)
 	}
 }
 
-func TestGetCredentialProvidersWithCredentials(t *testing.T) {
+func TestToServiceConfigWhenUsingECSProfileCredentials(t *testing.T) {
 	ecsConfig := NewCliConfig(clusterName)
+	ecsConfig.Region = region
+
 	ecsConfig.AwsAccessKey = awsAccessKey
 	ecsConfig.AwsSecretKey = awsSecretKey
 
-	credentialProviders := ecsConfig.getCredentialProviders()
-	if len(credentialProviders) != 4 {
-		t.Fatal("Unexpected number of credential providers in the chain: ", len(credentialProviders))
+	awsConfig, _ := ecsConfig.ToServiceConfig()
+	resolvedCredentials, err := awsConfig.Credentials.Get()
+	if err != nil {
+		t.Error("Error fetching credentials from the chain provider")
 	}
 
-	// credentialProviders is composed of:
-	// 0 -> static creds provider
-	// 1 -> env provider
-	// 2 -> default profile provider
-	// 3 -> role provider
-	staticCredsProvider, ok := credentialProviders[0].(*credentials.StaticProvider)
-	if !ok {
-		t.Fatal("Mismatch in credential provider chain. Expected to use static creds provider")
+	if awsAccessKey != resolvedCredentials.AccessKeyID {
+		t.Errorf("Invalid access key set. Expected [%s]. Got [%s]", awsAccessKey, resolvedCredentials.AccessKeyID)
 	}
-	if awsAccessKey != staticCredsProvider.AccessKeyID {
-		t.Errorf("Invalid access key set. Expected [%s]. Got [%s]", awsAccessKey, staticCredsProvider.AccessKeyID)
+	if awsSecretKey != resolvedCredentials.SecretAccessKey {
+		t.Errorf("Invalid secret key set. Expected [%s]. Got [%s]", awsSecretKey, resolvedCredentials.SecretAccessKey)
 	}
-	if awsSecretKey != staticCredsProvider.SecretAccessKey {
-		t.Errorf("Invalid secret key set. Expected [%s]. Got [%s]", awsSecretKey, staticCredsProvider.SecretAccessKey)
+}
+
+// TODO Add proper tests for the shared credential provider resolution
+func TestToServiceConfigWhenAWSProfileSpecified(t *testing.T) {
+	t.Skip("Implement me")
+}
+func TestToServiceConfigWhenNoAWSProfileSpecified(t *testing.T) {
+	t.Skip("Implement me")
+}
+func TestToServiceConfigWhenUsingEC2InstanceRole(t *testing.T) {
+	t.Skip("Implement me")
+}
+
+func TestToServiceConfigWhenRegionIsNotSpecified(t *testing.T) {
+	ecsConfig := NewCliConfig(clusterName)
+
+	_, err := ecsConfig.ToServiceConfig()
+	if err == nil {
+		t.Error("There should always be an error when region is not specified in the ecsConfig.")
 	}
+}
+func TestToServiceConfigWhenNoCredentialsAreAvailable(t *testing.T) {
+	t.Skip("Implement me")
 }

@@ -17,8 +17,8 @@ import (
 	"flag"
 	"testing"
 
-	"github.com/codegangsta/cli"
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
+	"github.com/codegangsta/cli"
 )
 
 const (
@@ -123,11 +123,10 @@ func TestConfigInitWithoutCluster(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected error when cluster is not specified")
 	}
-
 }
 
 func TestConfigInitWithProfileAndKeys(t *testing.T) {
-	// Config init with all params should fail.
+	// Config init with all params will attempt to use the credentials keys specified in the ecs profile
 	setEverything := flag.NewFlagSet("ecs-cli", 0)
 	setEverything.String(ecscli.ProfileFlag, profileName, "")
 	setEverything.String(ecscli.ClusterFlag, clusterName, "")
@@ -137,6 +136,6 @@ func TestConfigInitWithProfileAndKeys(t *testing.T) {
 	context := cli.NewContext(nil, setEverything, nil)
 	_, err := createECSConfigFromCli(context)
 	if err == nil {
-		t.Errorf("Expected error when both profile and keys are specified")
+		t.Errorf("Expected error when both AWS Profile and access keys are specified")
 	}
 }

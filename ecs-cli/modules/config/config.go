@@ -26,7 +26,11 @@ import (
 
 // TODO: This needs a better home.
 
-const RegionFlag = "region"
+const (
+	RegionFlag = "region"
+	// This time.Minute value comes from the SDK defaults package
+	eC2RoleProviderExpiryWindow = 5 * time.Minute
+)
 
 // CliConfig is the top level struct used to map to the ini config.
 type CliConfig struct {
@@ -61,6 +65,8 @@ func (cfg *CliConfig) ToServiceConfig() (*aws.Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// This is just a fail-fast check to ensure that valid credentials are available before returning to the caller.
 	if creds.AccessKeyID == "" {
 		return nil, fmt.Errorf("Error getting valid credentials")
 	}
@@ -74,43 +80,30 @@ func (cfg *CliConfig) ToServiceConfig() (*aws.Config, error) {
 
 // getCredentialProviders gets the chain of credentail provides to use when creating service clients.
 func (cfg *CliConfig) getCredentialProviders() []credentials.Provider {
-	credentialProviders := []credentials.Provider{}
-
-	// Fields saved in ecs-cli's config take precedence in the chain.
-	if cfg.AwsProfile != "" {
-		// ecs-cli has been configured to use an aws profile. Add that next.
-		credentialProviders = append(credentialProviders, &credentials.SharedCredentialsProvider{
-			Filename: "",
-			Profile:  cfg.AwsProfile,
-		})
-	} else {
-		// The 'profile' config is not set. Add static credential provider with
-		// credentials read from the config.
-		credentialProviders = append(credentialProviders, &credentials.StaticProvider{
+	// Append providers in the default credential providers chain to the chain.
+	// Order of credential resolution
+	// 1) Environment Variable provider
+	// 2) ECS Profile provider - attempts to fetch the credentials from the ECS config file
+	// 3) AWS profile - attempts to use the AWS profile specified in the ECS config file;
+	// If the AWS profile has not been specified, provider will attempt to use the 'default' profile
+	// 4) EC2 Instance role
+	credentialProviders := []credentials.Provider{
+		&credentials.EnvProvider{},
+		&credentials.StaticProvider{
 			Value: credentials.Value{
 				AccessKeyID:     cfg.AwsAccessKey,
 				SecretAccessKey: cfg.AwsSecretKey,
 			},
-		})
-	}
-
-	// Append providers in the default credential providers chain to the chain.
-	// EnvProvider is the first provider in the chain.
-	credentialProviders = append(credentialProviders, &credentials.EnvProvider{})
-
-	// The 'default' profile credential provider is next. Add if only if profile is not
-	// set in ecs config.
-	if cfg.AwsProfile == "" {
-		credentialProviders = append(credentialProviders, &credentials.SharedCredentialsProvider{
+		},
+		&credentials.SharedCredentialsProvider{
 			Filename: "",
-			Profile:  "",
-		})
+			Profile:  cfg.AwsProfile,
+		},
+		&ec2rolecreds.EC2RoleProvider{
+			ExpiryWindow: eC2RoleProviderExpiryWindow,
+		},
 	}
 
-	// Add ec2 instance role credential last.
-	credentialProviders = append(credentialProviders, &ec2rolecreds.EC2RoleProvider{
-		ExpiryWindow: 5 * time.Minute,
-	})
 	return credentialProviders
 }
 

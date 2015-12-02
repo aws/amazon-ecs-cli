@@ -101,10 +101,11 @@ func createECSConfigFromCli(context *cli.Context) (*config.CliConfig, error) {
 		return nil, fmt.Errorf("Missing required argument '%s'", ecscli.ClusterFlag)
 	}
 
-	if profile != "" {
-		if accessKey != "" || secretKey != "" {
-			return nil, fmt.Errorf("Missing required credentials. Specify either '%s' with the name of an existing named profile in ~/.aws/credentials, or your AWS credentials with '%s' and '%s'", ecscli.ProfileFlag, ecscli.AccessKeyFlag, ecscli.SecretKeyFlag)
-		}
+	// ONLY allow for profile OR access keys to be specified
+	isProfileSpecified := profile != ""
+	isAccessKeySpecified := accessKey != "" || secretKey != ""
+	if isProfileSpecified && isAccessKeySpecified {
+		return nil, fmt.Errorf("Both AWS Access/Secret Keys and Profile were provided; only one of the two can be specified")
 	}
 
 	ecsConfig := config.NewCliConfig(cluster)
