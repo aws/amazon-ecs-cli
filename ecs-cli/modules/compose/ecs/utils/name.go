@@ -55,11 +55,20 @@ func GetFormattedContainerName(ecsTaskId, ecsContainerName string) string {
 	return fmt.Sprintf("%s/%s", ecsTaskId, ecsContainerName)
 }
 
-// GetIdFromArn extracts the id from arn
+// GetIdFromArn parses an ARN and returns only the family name and revision
 func GetIdFromArn(arn string) string {
 	parts := strings.SplitN(arn, "/", 2)
 	if len(parts) != 2 {
 		return ""
 	}
 	return parts[1]
+}
+
+// GetAwsAccountIdFromArn parses an ARN and returns only the accountId portion
+func GetAwsAccountIdFromArn(arn string) string {
+	parts := strings.SplitN(arn, ":", 7)
+	if len(parts) != 7 {
+		return ""
+	}
+	return parts[4]
 }

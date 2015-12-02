@@ -33,6 +33,7 @@ import (
 )
 
 var clusterName = "test"
+var defaultCliConfigParams = config.CliParams{Cluster: "cluster", Config: &aws.Config{Region: aws.String("region1")}}
 
 // mockReadWriter implements ReadWriter interface to return just the cluster
 // field whenperforming read.
@@ -97,15 +98,27 @@ func TestNewECSClientWithRegion(t *testing.T) {
 	}
 }
 
-func TestRegisterTDWithCache(t *testing.T) {
+func setupTestController(t *testing.T, configParams *config.CliParams) (*mock_ecsiface.MockECSAPI, *mock_cache.MockCache,
+	ECSClient, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 	mockEcs := mock_ecsiface.NewMockECSAPI(ctrl)
 	mockCache := mock_cache.NewMockCache(ctrl)
 	client := NewECSClient()
+
+	if configParams != nil {
+		client.Initialize(configParams)
+	}
+
 	client.(*ecsClient).client = mockEcs
+
+	return mockEcs, mockCache, client, ctrl
+}
+
+func TestRegisterTDWithCache(t *testing.T) {
+	mockEcs, mockCache, client, ctrl := setupTestController(t, &defaultCliConfigParams)
 	defer ctrl.Finish()
 
-	td1 := ecs.RegisterTaskDefinitionInput{
+	registerTaskDefinitionInput1 := ecs.RegisterTaskDefinitionInput{
 		Family: aws.String("family1"),
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
@@ -113,8 +126,7 @@ func TestRegisterTDWithCache(t *testing.T) {
 			},
 		},
 	}
-
-	td2 := ecs.RegisterTaskDefinitionInput{
+	registerTaskDefinitionInput2 := ecs.RegisterTaskDefinitionInput{
 		Family: aws.String("family2"),
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
@@ -123,34 +135,67 @@ func TestRegisterTDWithCache(t *testing.T) {
 		},
 	}
 
+	taskDefinition1 := ecs.TaskDefinition{
+		Family:            registerTaskDefinitionInput1.Family,
+		Revision:          aws.Int64(1),
+		Status:            aws.String(ecs.TaskDefinitionStatusActive),
+		TaskDefinitionArn: aws.String("arn:aws:ecs:region1:123456:task-definition/family1:1"),
+	}
+	taskDefinition2 := ecs.TaskDefinition{
+		Family:            registerTaskDefinitionInput2.Family,
+		Revision:          aws.Int64(1),
+		Status:            aws.String(ecs.TaskDefinitionStatusActive),
+		TaskDefinitionArn: aws.String("arn:aws:ecs:region1:123456:task-definition/family2:1"),
+	}
+
+	describeTaskDefinitionInput1 := ecs.DescribeTaskDefinitionInput{
+		TaskDefinition: registerTaskDefinitionInput1.Family,
+	}
+	describeTaskDefinitionInput2 := ecs.DescribeTaskDefinitionInput{
+		TaskDefinition: registerTaskDefinitionInput2.Family,
+	}
+	describeTaskDefinitionInput1WithRevision := ecs.DescribeTaskDefinitionInput{
+		TaskDefinition: taskDefinition1.TaskDefinitionArn,
+	}
+
 	cache := make(map[string]interface{})
 
 	gomock.InOrder(
-		// First, expect a cache miss when it tries to register, so it actually
+		//First, we will mock the call to DescribeTaskDefinition
+		mockEcs.EXPECT().DescribeTaskDefinition(&describeTaskDefinitionInput1).
+			Return(&ecs.DescribeTaskDefinitionOutput{TaskDefinition: &taskDefinition1}, nil),
+
+		// Next, expect a cache miss when it tries to register, so it actually
 		// registers
 		mockCache.EXPECT().Get(gomock.Any(), gomock.Any()).Return(errors.New("MISS")),
-		mockEcs.EXPECT().RegisterTaskDefinition(gomock.Any()).Do(func(input interface{}) {
-			td := input.(*ecs.RegisterTaskDefinitionInput)
-			if *td.Family != "family1" {
-				t.Fatal("First td should have been family1")
-			}
-		}).Return(&ecs.RegisterTaskDefinitionOutput{TaskDefinition: &ecs.TaskDefinition{Family: aws.String("family1"), Revision: aws.Int64(1)}}, nil),
+
+		mockEcs.EXPECT().RegisterTaskDefinition(&registerTaskDefinitionInput1).
+			Return(&ecs.RegisterTaskDefinitionOutput{TaskDefinition: &taskDefinition1}, nil),
+
 		mockCache.EXPECT().Put(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
 			cache[x.(string)] = y.(*ecs.TaskDefinition)
 		}).Return(nil),
+
+		mockEcs.EXPECT().DescribeTaskDefinition(&describeTaskDefinitionInput1).
+			Return(&ecs.DescribeTaskDefinitionOutput{TaskDefinition: &taskDefinition1}, nil),
+
 		mockCache.EXPECT().Get(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
 			td := y.(*ecs.TaskDefinition)
 			cached := cache[x.(string)].(*ecs.TaskDefinition)
 			*td = *cached
 		}).Return(nil),
-		// Doesn't get called a second time for family1 because of the cache
+
+		mockEcs.EXPECT().DescribeTaskDefinition(&describeTaskDefinitionInput1WithRevision).
+			Return(&ecs.DescribeTaskDefinitionOutput{TaskDefinition: &taskDefinition1}, nil),
+
+		mockEcs.EXPECT().DescribeTaskDefinition(&describeTaskDefinitionInput2).
+			Return(&ecs.DescribeTaskDefinitionOutput{TaskDefinition: &taskDefinition2}, nil),
+
 		mockCache.EXPECT().Get(gomock.Any(), gomock.Any()).Return(errors.New("MISS")),
-		mockEcs.EXPECT().RegisterTaskDefinition(gomock.Any()).Do(func(input interface{}) {
-			td := input.(*ecs.RegisterTaskDefinitionInput)
-			if *td.Family != "family2" {
-				t.Fatal("second td should have been family2")
-			}
-		}).Return(&ecs.RegisterTaskDefinitionOutput{TaskDefinition: &ecs.TaskDefinition{Family: aws.String("family2"), Revision: aws.Int64(1)}}, nil),
+
+		mockEcs.EXPECT().RegisterTaskDefinition(&registerTaskDefinitionInput2).
+			Return(&ecs.RegisterTaskDefinitionOutput{TaskDefinition: &taskDefinition2}, nil),
+
 		mockCache.EXPECT().Put(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
 			if _, ok := cache[x.(string)]; ok {
 				t.Fatal("there shouldn't be a cached family2 entry")
@@ -158,11 +203,11 @@ func TestRegisterTDWithCache(t *testing.T) {
 		}).Return(nil),
 	)
 
-	resp1, err := client.RegisterTaskDefinitionIfNeeded(&td1, mockCache)
+	resp1, err := client.RegisterTaskDefinitionIfNeeded(&registerTaskDefinitionInput1, mockCache)
 	if err != nil {
 		t.Fatal(err)
 	}
-	resp2, err := client.RegisterTaskDefinitionIfNeeded(&td1, mockCache)
+	resp2, err := client.RegisterTaskDefinitionIfNeeded(&registerTaskDefinitionInput1, mockCache)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -171,17 +216,218 @@ func TestRegisterTDWithCache(t *testing.T) {
 		t.Errorf("Expected family/revision to match: %v:%v, %v:%v", *resp1.Family, *resp1.Revision, *resp2.Family, *resp2.Revision)
 	}
 
-	_, err = client.RegisterTaskDefinitionIfNeeded(&td2, mockCache)
+	_, err = client.RegisterTaskDefinitionIfNeeded(&registerTaskDefinitionInput2, mockCache)
 	if err != nil {
 		t.Error(err)
 	}
 }
 
+func TestRegisterTaskDefinitionIfNeededTDBecomesInactive(t *testing.T) {
+	mockEcs, mockCache, client, ctrl := setupTestController(t, &defaultCliConfigParams)
+	defer ctrl.Finish()
+
+	registerTaskDefinitionInput1 := ecs.RegisterTaskDefinitionInput{
+		Family: aws.String("family1"),
+		ContainerDefinitions: []*ecs.ContainerDefinition{
+			{
+				Name: aws.String("foo"),
+			},
+		},
+	}
+
+	describeTaskDefinitionInput1 := ecs.DescribeTaskDefinitionInput{
+		TaskDefinition: registerTaskDefinitionInput1.Family,
+	}
+
+	taskDefinition1 := ecs.TaskDefinition{
+		Family:            registerTaskDefinitionInput1.Family,
+		Revision:          aws.Int64(1),
+		Status:            aws.String(ecs.TaskDefinitionStatusActive),
+		TaskDefinitionArn: aws.String("arn:aws:ecs:region1:123456:task-definition/family1:1"),
+	}
+
+	taskDefinition1Inactive := ecs.TaskDefinition{
+		Family:            registerTaskDefinitionInput1.Family,
+		Revision:          aws.Int64(1),
+		Status:            aws.String(ecs.TaskDefinitionStatusInactive),
+		TaskDefinitionArn: aws.String("arn:aws:ecs:region1:123456:task-definition/family1:1"),
+	}
+	taskDefinition1Revision2 := ecs.TaskDefinition{
+		Family:            registerTaskDefinitionInput1.Family,
+		Revision:          aws.Int64(2),
+		Status:            aws.String(ecs.TaskDefinitionStatusActive),
+		TaskDefinitionArn: aws.String("arn:aws:ecs:region1:123456:task-definition/family1:2"),
+	}
+
+	cache := make(map[string]interface{})
+
+	gomock.InOrder(
+		mockEcs.EXPECT().DescribeTaskDefinition(&describeTaskDefinitionInput1).
+			Return(&ecs.DescribeTaskDefinitionOutput{TaskDefinition: &taskDefinition1}, nil),
+
+		mockCache.EXPECT().Get(gomock.Any(), gomock.Any()).Return(errors.New("MISS")),
+
+		mockEcs.EXPECT().RegisterTaskDefinition(&registerTaskDefinitionInput1).
+			Return(&ecs.RegisterTaskDefinitionOutput{TaskDefinition: &taskDefinition1}, nil),
+
+		mockCache.EXPECT().Put(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
+			cache[x.(string)] = y.(*ecs.TaskDefinition)
+		}).Return(nil),
+
+		mockEcs.EXPECT().DescribeTaskDefinition(&describeTaskDefinitionInput1).
+			Return(&ecs.DescribeTaskDefinitionOutput{TaskDefinition: &taskDefinition1Inactive}, nil),
+
+		mockEcs.EXPECT().RegisterTaskDefinition(&registerTaskDefinitionInput1).
+			Return(&ecs.RegisterTaskDefinitionOutput{TaskDefinition: &taskDefinition1Revision2}, nil),
+
+		mockCache.EXPECT().Put(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
+			cache[x.(string)] = y.(*ecs.TaskDefinition)
+			if len(cache) != 1 {
+				t.Fatal("There should only be one entry in the cache since teh previous INACTIVE task should have the same hash")
+			}
+		}).Return(nil),
+	)
+
+	resp1, err := client.RegisterTaskDefinitionIfNeeded(&registerTaskDefinitionInput1, mockCache)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp2, err := client.RegisterTaskDefinitionIfNeeded(&registerTaskDefinitionInput1, mockCache)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if *resp1.Revision == *resp2.Revision {
+		t.Errorf("Expected revison of second response to be incremented because the task definition is INACTIVE: %v:%v, %v:%v",
+			*resp1.Family, *resp1.Revision, *resp2.Family, *resp2.Revision)
+	}
+
+}
+
+func TestRegisterTaskDefinitionIfNeededFamilyNameNotProvided(t *testing.T) {
+	_, _, client, ctrl := setupTestController(t, nil)
+	defer ctrl.Finish()
+
+	_, err := client.RegisterTaskDefinitionIfNeeded(&ecs.RegisterTaskDefinitionInput{}, nil)
+	if err == nil {
+		t.Fatal("Expected an error if the Family name was not provided.", err)
+	}
+
+}
+
+func TestRegisterTaskDefinitionIfNeededTDLatestTDRevisionIsInactive(t *testing.T) {
+	mockEcs, mockCache, client, ctrl := setupTestController(t, &defaultCliConfigParams)
+	defer ctrl.Finish()
+
+	registerTaskDefinitionInput1 := ecs.RegisterTaskDefinitionInput{
+		Family: aws.String("family1"),
+		ContainerDefinitions: []*ecs.ContainerDefinition{
+			{
+				Name: aws.String("foo"),
+			},
+		},
+	}
+	describeTaskDefinitionInput1 := ecs.DescribeTaskDefinitionInput{
+		TaskDefinition: registerTaskDefinitionInput1.Family,
+	}
+	taskDefinition1 := ecs.TaskDefinition{
+		Family:            registerTaskDefinitionInput1.Family,
+		Revision:          aws.Int64(2),
+		Status:            aws.String(ecs.TaskDefinitionStatusActive),
+		TaskDefinitionArn: aws.String("arn:aws:ecs:region1:123456:task-definition/family1:2"),
+	}
+
+	taskDefinition1Inactive := ecs.TaskDefinition{
+		Family:            registerTaskDefinitionInput1.Family,
+		Revision:          aws.Int64(1),
+		Status:            aws.String(ecs.TaskDefinitionStatusInactive),
+		TaskDefinitionArn: aws.String("arn:aws:ecs:region1:123456:task-definition/family1:1"),
+	}
+
+	gomock.InOrder(
+		mockEcs.EXPECT().DescribeTaskDefinition(&describeTaskDefinitionInput1).
+			Return(&ecs.DescribeTaskDefinitionOutput{TaskDefinition: &taskDefinition1Inactive}, nil),
+
+		mockEcs.EXPECT().RegisterTaskDefinition(&registerTaskDefinitionInput1).
+			Return(&ecs.RegisterTaskDefinitionOutput{TaskDefinition: &taskDefinition1}, nil),
+
+		mockCache.EXPECT().Put(gomock.Any(), gomock.Any()).Return(nil),
+	)
+
+	resp1, err := client.RegisterTaskDefinitionIfNeeded(&registerTaskDefinitionInput1, mockCache)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if *resp1.Revision <= *taskDefinition1Inactive.Revision {
+		t.Errorf("Expected revison of response to be incremented because the latest task definition was INACTIVE: %v:%v",
+			*taskDefinition1Inactive.Revision, *resp1.Revision)
+	}
+
+}
+
+func TestRegisterTaskDefinitionIfNeededCachedTDIsInactive(t *testing.T) {
+	mockEcs, mockCache, client, ctrl := setupTestController(t, &defaultCliConfigParams)
+	defer ctrl.Finish()
+
+	registerTaskDefinitionInput1 := ecs.RegisterTaskDefinitionInput{
+		Family: aws.String("family1"),
+		ContainerDefinitions: []*ecs.ContainerDefinition{
+			{
+				Name: aws.String("foo"),
+			},
+		},
+	}
+	taskDefinition2 := ecs.TaskDefinition{
+		Family:            registerTaskDefinitionInput1.Family,
+		Revision:          aws.Int64(2),
+		Status:            aws.String(ecs.TaskDefinitionStatusActive),
+		TaskDefinitionArn: aws.String("arn:aws:ecs:region1:123456:task-definition/family1:2"),
+	}
+	taskDefinition1CachedInactive := ecs.TaskDefinition{
+		Family:            registerTaskDefinitionInput1.Family,
+		Revision:          aws.Int64(1),
+		Status:            aws.String(ecs.TaskDefinitionStatusInactive),
+		TaskDefinitionArn: aws.String("arn:aws:ecs:region1:123456:task-definition/family1:1"),
+	}
+	describeTaskDefinitionInput2 := ecs.DescribeTaskDefinitionInput{
+		TaskDefinition: registerTaskDefinitionInput1.Family,
+	}
+	describeTaskDefinitionInput1Inactive := ecs.DescribeTaskDefinitionInput{
+		TaskDefinition: taskDefinition1CachedInactive.TaskDefinitionArn,
+	}
+
+	gomock.InOrder(
+		mockEcs.EXPECT().DescribeTaskDefinition(&describeTaskDefinitionInput2).
+			Return(&ecs.DescribeTaskDefinitionOutput{TaskDefinition: &taskDefinition2}, nil),
+
+		mockCache.EXPECT().Get(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
+			*y.(*ecs.TaskDefinition) = taskDefinition1CachedInactive
+		}).Return(nil),
+
+		mockEcs.EXPECT().DescribeTaskDefinition(&describeTaskDefinitionInput1Inactive).
+			Return(&ecs.DescribeTaskDefinitionOutput{TaskDefinition: &taskDefinition1CachedInactive}, nil),
+
+		mockEcs.EXPECT().RegisterTaskDefinition(&registerTaskDefinitionInput1).
+			Return(&ecs.RegisterTaskDefinitionOutput{TaskDefinition: &taskDefinition2}, nil),
+
+		mockCache.EXPECT().Put(gomock.Any(), gomock.Any()).Return(nil),
+	)
+
+	resp1, err := client.RegisterTaskDefinitionIfNeeded(&registerTaskDefinitionInput1, mockCache)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if *resp1.Revision <= *taskDefinition1CachedInactive.Revision {
+		t.Errorf("Expected revison of response to be incremented because the cached task definition is INACTIVE: %v:%v",
+			*taskDefinition1CachedInactive.Revision, *resp1.Revision)
+	}
+
+}
+
 func TestGetTasksPages(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockEcs := mock_ecsiface.NewMockECSAPI(ctrl)
-	client := NewECSClient()
-	client.(*ecsClient).client = mockEcs
+	mockEcs, _, client, ctrl := setupTestController(t, nil)
 	defer ctrl.Finish()
 
 	clusterName := "clusterName"
@@ -241,10 +487,7 @@ func TestGetTasksPages(t *testing.T) {
 }
 
 func TestRunTask(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockEcs := mock_ecsiface.NewMockECSAPI(ctrl)
-	client := NewECSClient()
-	client.(*ecsClient).client = mockEcs
+	mockEcs, _, client, ctrl := setupTestController(t, nil)
 	defer ctrl.Finish()
 
 	clusterName := "clusterName"
@@ -278,10 +521,7 @@ func TestRunTask(t *testing.T) {
 }
 
 func TestIsActiveCluster(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockEcs := mock_ecsiface.NewMockECSAPI(ctrl)
-	client := NewECSClient()
-	client.(*ecsClient).client = mockEcs
+	mockEcs, _, client, ctrl := setupTestController(t, nil)
 	defer ctrl.Finish()
 
 	// API error

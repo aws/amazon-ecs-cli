@@ -20,6 +20,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/utils/cache"
 	"github.com/aws/aws-sdk-go/aws"
@@ -213,10 +214,10 @@ func (client *ecsClient) RegisterTaskDefinition(request *ecs.RegisterTaskDefinit
 
 // RegisterTaskDefinitionIfNeeded checks if a task definition has already been
 // registered via the provided cache, and if so returns it.
-// Otherwise, it regsiters a new one.
+// Otherwise, it registers a new one.
 //
 // This exists to avoid an explosion of task definitions for automatically
-// registered inputs
+// registered inputs.
 func (client *ecsClient) RegisterTaskDefinitionIfNeeded(
 	request *ecs.RegisterTaskDefinitionInput,
 	taskDefinitionCache cache.Cache) (*ecs.TaskDefinition, error) {
@@ -224,37 +225,71 @@ func (client *ecsClient) RegisterTaskDefinitionIfNeeded(
 		return nil, errors.New("invalid task definitions: family is required")
 	}
 
-	// md5sum of the 'GoString' formatted request
-	// Open questions: is the gostring output actually specified to be
-	// deterministic? Is it good enough that we don't care?
-	// TODO, describe the cache hit to make sure it's still ACTIVE
-	tdHash := fmt.Sprintf("%x", md5.Sum([]byte(request.GoString())))
+	taskDefResp, err := client.DescribeTaskDefinition(aws.StringValue(request.Family))
+
+	// If there are no task definitions for this family OR the task definition exists and is marked as 'INACTIVE',
+	// register the task definition and create a cache entry
+	if err != nil || *taskDefResp.Status == ecs.TaskDefinitionStatusInactive {
+		return persistTaskDefinition(request, client, taskDefinitionCache)
+	}
+
+	tdHash := client.constructTaskDefinitionCacheHash(taskDefResp, request)
+
 	td := &ecs.TaskDefinition{}
-	if err := taskDefinitionCache.Get(tdHash, td); err == nil {
-		log.WithFields(log.Fields{
-			"taskDefHash": tdHash,
-			"taskDef":     td,
-		}).Debug("cache hit")
-		return td, nil
-	} else {
+	err = taskDefinitionCache.Get(tdHash, td)
+	if err != nil || !cachedTaskDefinitionRevisionIsActive(td, client) {
 		log.WithFields(log.Fields{
 			"taskDefHash": tdHash,
 			"taskDef":     td,
 		}).Debug("cache miss")
+		return persistTaskDefinition(request, client, taskDefinitionCache)
 	}
 
+	log.WithFields(log.Fields{
+		"taskDefHash": tdHash,
+		"taskDef":     td,
+	}).Debug("cache hit")
+	return td, nil
+}
+
+// cachedTaskDefinitionRevisionIsActive asserts that the family:revison for both the locally cached Task Definition and the Task Definition stored in ECS is listed as ACTIVE
+func cachedTaskDefinitionRevisionIsActive(cachedTaskDefinition *ecs.TaskDefinition, client *ecsClient) bool {
+	taskDefinitionOfRecord, err := client.DescribeTaskDefinition(aws.StringValue(cachedTaskDefinition.TaskDefinitionArn))
+	if err != nil || taskDefinitionOfRecord == nil {
+		return false
+	}
+	return *taskDefinitionOfRecord.Status == ecs.TaskDefinitionStatusActive
+}
+
+// constructTaskDefinitionCacheHash computes md5sum of the region, awsAccountId and the requested task definition data
+// BUG(juanrhenals) The requested Task Definition data (taskDefinitionRequest) is not created in a deterministic fashion because there are maps within
+// the request ecs.RegisterTaskDefinitionInput structure, and map iteration in Go is not deterministic. We need to fix this.
+func (client *ecsClient) constructTaskDefinitionCacheHash(taskDefinition *ecs.TaskDefinition, request *ecs.RegisterTaskDefinitionInput) string {
+	// Get the region from the ecsClient configuration
+	region := aws.StringValue(client.params.Config.Region)
+	awsUserAccountId := utils.GetAwsAccountIdFromArn(aws.StringValue(taskDefinition.TaskDefinitionArn))
+	tdHashInput := fmt.Sprintf("%s-%s-%s", region, awsUserAccountId, request.GoString())
+	return fmt.Sprintf("%x", md5.Sum([]byte(tdHashInput)))
+}
+
+// persistTaskDefinition registers the task definition with ECS and creates a new local cache entry
+func persistTaskDefinition(request *ecs.RegisterTaskDefinitionInput, client *ecsClient, taskDefinitionCache cache.Cache) (*ecs.TaskDefinition, error) {
 	resp, err := client.RegisterTaskDefinition(request)
 	if err != nil {
 		return nil, err
 	}
-	tdErr := taskDefinitionCache.Put(tdHash, resp)
-	if tdErr != nil {
+
+	tdHash := client.constructTaskDefinitionCacheHash(resp, request)
+
+	err = taskDefinitionCache.Put(tdHash, resp)
+	if err != nil {
 		log.WithFields(log.Fields{
-			"error": tdErr,
-		}).Warn("Could not cache task definition; redundant TDs might be created")
+			"error": err,
+		}).Warn("Could not cache task definition; redundant task definitions might be created")
 		// We can keep going even if we can't cache and operate mostly fine
 	}
 	return resp, err
+
 }
 
 func (client *ecsClient) DescribeTaskDefinition(taskDefinitionName string) (*ecs.TaskDefinition, error) {
