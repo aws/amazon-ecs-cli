@@ -204,7 +204,7 @@ func (client *ecsClient) RegisterTaskDefinition(request *ecs.RegisterTaskDefinit
 	resp, err := client.client.RegisterTaskDefinition(request)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"family": request.Family,
+			"family": aws.StringValue(request.Family),
 			"error":  err,
 		}).Error("Error registering task definition")
 		return nil, err
