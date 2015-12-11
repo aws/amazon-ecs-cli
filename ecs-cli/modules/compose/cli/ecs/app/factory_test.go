@@ -15,6 +15,7 @@ package app
 
 import (
 	"flag"
+	"io/ioutil"
 	"os"
 	"testing"
 
@@ -31,10 +32,27 @@ func TestPopulateContext(t *testing.T) {
 	globalContext := cli.NewContext(nil, globalSet, nil)
 	cliContext := cli.NewContext(nil, nil, globalContext)
 	ecsContext := &ecscompose.Context{}
+
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	defer os.Remove(tempDirName)
+	os.Setenv("HOME", tempDirName)
+
 	os.Setenv("AWS_REGION", "us-east-1")
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "secret")
+	defer func() {
+		os.Unsetenv("AWS_REGION")
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+		os.Unsetenv("HOME")
+	}()
 
 	projectFactory := projectFactory{}
-	err := projectFactory.populateContext(ecsContext, cliContext)
+	err = projectFactory.populateContext(ecsContext, cliContext)
 
 	if err != nil {
 		t.Fatal("Error while populating the context")

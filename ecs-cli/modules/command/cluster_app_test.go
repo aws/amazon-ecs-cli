@@ -53,6 +53,13 @@ func TestClusterUp(t *testing.T) {
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
 
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "secret")
+	defer func() {
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+	}()
+
 	gomock.InOrder(
 		mockEcs.EXPECT().Initialize(gomock.Any()),
 		mockEcs.EXPECT().CreateCluster(gomock.Any()).Do(func(in interface{}) {
@@ -89,6 +96,14 @@ func TestClusterUpWithoutKeyPair(t *testing.T) {
 	defer ctrl.Finish()
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "secret")
+	defer func() {
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+	}()
+
 	gomock.InOrder(
 		mockCloudformation.EXPECT().Initialize(gomock.Any()),
 		mockCloudformation.EXPECT().ValidateStackExists(gomock.Any()).Return(errors.New("error")),
@@ -143,6 +158,13 @@ func TestClusterUpForImageIdInput(t *testing.T) {
 	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
 	imageId := "ami-12345"
 
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "secret")
+	defer func() {
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+	}()
+
 	gomock.InOrder(
 		mockEcs.EXPECT().Initialize(gomock.Any()),
 		mockEcs.EXPECT().CreateCluster(gomock.Any()).Do(func(in interface{}) {
@@ -189,8 +211,6 @@ func TestClusterUpWithoutRegion(t *testing.T) {
 	defer ctrl.Finish()
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
-
-	os.Clearenv()
 
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)
@@ -247,8 +267,6 @@ func TestClusterDownWithoutForce(t *testing.T) {
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
 
-	os.Clearenv()
-
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalSet.String("region", "us-west-1", "")
 	globalContext := cli.NewContext(nil, globalSet, nil)
@@ -302,8 +320,6 @@ func TestClusterScaleWithoutIamCapability(t *testing.T) {
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
 
-	os.Clearenv()
-
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)
 
@@ -322,8 +338,6 @@ func TestClusterScaleWithoutSize(t *testing.T) {
 	defer ctrl.Finish()
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
-
-	os.Clearenv()
 
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)

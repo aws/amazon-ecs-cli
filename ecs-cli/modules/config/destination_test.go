@@ -14,11 +14,23 @@
 package config
 
 import (
+	"io/ioutil"
+	"os"
 	"strings"
 	"testing"
 )
 
 func TestNewDefaultDestination(t *testing.T) {
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	defer os.Remove(tempDirName)
+
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+
 	dest, err := newDefaultDestionation()
 	if err != nil {
 		t.Errorf("Error creating new config path: ", err)
