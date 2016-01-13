@@ -143,7 +143,7 @@ func convertToContainerDef(inputCfg *libcompose.ServiceConfig,
 	outputContDef.DockerSecurityOptions = aws.StringSlice(inputCfg.SecurityOpt)
 	outputContDef.EntryPoint = aws.StringSlice(inputCfg.Entrypoint.Slice())
 	outputContDef.Environment = environment
-	if inputCfg.restart == "no" {
+	if inputCfg.Restart == "no" {
 		outputContDef.Essential = false
 	}
 	outputContDef.ExtraHosts = extraHosts
