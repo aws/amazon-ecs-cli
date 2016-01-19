@@ -44,6 +44,7 @@ var template = `
       "Description": "ECS EC2 instance type",
       "Default": "t2.micro",
       "AllowedValues": [
+        "t2.nano",
         "t2.micro",
         "t2.small",
         "t2.medium",
@@ -75,7 +76,13 @@ var template = `
         "i2.xlarge",
         "i2.2xlarge",
         "i2.4xlarge",
-        "i2.8xlarge"
+        "i2.8xlarge",
+        "g2.2xlarge",
+        "g2.8xlarge",
+        "d2.xlarge",
+        "d2.2xlarge",
+        "d2.4xlarge",
+        "d2.8xlarge"
       ],
       "ConstraintDescription": "must be a valid EC2 instance type."
     },
