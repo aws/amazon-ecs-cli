@@ -9,7 +9,7 @@
   (with Amazon ECR support).
 * Enhancement - Better error messaging for ecs-cli up and
   RegisterTaskDefinition API.
-* Bug - Include region, account id in key for local Task Definition cache.
+* Bug - Include region, account in key for local Task Definition cache.
 * Bug - Change ordering of AWS Credential resolution for the ecs-cli.
 * Bug - Minor bug fixes to CFN template (remove additional parameter from
   autoscaling creation, add internet gateway attachment dependency to public
