@@ -35,6 +35,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	name := "mysql"
 	cpu := int64(10)
 	command := "cmd"
+	essential := false
 	hostname := "foobarbaz"
 	image := "testimage"
 	links := []string{"container1"}
@@ -48,6 +49,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	serviceConfig := &libcompose.ServiceConfig{
 		CpuShares:   cpu,
 		Command:     libcompose.NewCommand(command),
+		Essential:   essential,
 		Hostname:    hostname,
 		Image:       image,
 		Links:       libcompose.NewMaporColonSlice(links),
@@ -72,6 +74,9 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	}
 	if len(containerDef.Command) != 1 || command != aws.StringValue(containerDef.Command[0]) {
 		t.Errorf("Expected command [%s] But was [%v]", command, containerDef.Command)
+	}
+	if essential != aws.BoolValue(containerDef.Essential) {
+		t.Errorf("Expected essential [%s] But was [%s]", essential, aws.BoolValue(containerDef.Essential))
 	}
 	if !reflect.DeepEqual(securityOpts, aws.StringValueSlice(containerDef.DockerSecurityOptions)) {
 		t.Errorf("Expected securityOpt [%v] But was [%v]", securityOpts, aws.StringValueSlice(containerDef.DockerSecurityOptions))
