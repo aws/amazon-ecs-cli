@@ -45,6 +45,7 @@ func TestUnmarshalComposeConfig(t *testing.T) {
 	ports := []string{"5000:5000", "127.0.0.1:8001:8001"}
 	privileged := true
 	readonly := true
+	restart := "no"
 	securityOpts := []string{"label:type:test_virt"}
 	ulimits := []string{"nofile=1024"}
 	user := "user"
@@ -80,6 +81,7 @@ func TestUnmarshalComposeConfig(t *testing.T) {
    - "127.0.0.1:8001:8001"
   privileged: true
   read_only: true
+  restart: no
   security_opt:
    - label:type:test_virt
   ulimits:
@@ -166,6 +168,9 @@ redis:
 	}
 	if readonly != web.ReadOnly {
 		t.Errorf("Expected readonly to be [%s] but got [%s]", readonly, web.ReadOnly)
+	}
+	if restart != web.Restart {
+		t.Errorf("Expected restart to be [%s] but got [%s]", restart, web.Restart)
 	}
 	if !reflect.DeepEqual(securityOpts, web.SecurityOpt) {
 		t.Errorf("Expected securityOpts to be [%v] but got [%v]", securityOpts, web.SecurityOpt)
