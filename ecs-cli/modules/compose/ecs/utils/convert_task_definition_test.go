@@ -42,6 +42,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	memory := int64(100) // 1 MiB = 1048576B
 	privileged := true
 	readOnly := true
+	restart := "no"
 	securityOpts := []string{"label:type:test_virt"}
 	user := "user"
 	workingDir := "/var"
@@ -49,13 +50,13 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	serviceConfig := &libcompose.ServiceConfig{
 		CpuShares:   cpu,
 		Command:     libcompose.NewCommand(command),
-		Essential:   essential,
 		Hostname:    hostname,
 		Image:       image,
 		Links:       libcompose.NewMaporColonSlice(links),
 		MemLimit:    int64(1048576) * memory,
 		Privileged:  privileged,
 		ReadOnly:    readOnly,
+		Restart:     restart,
 		SecurityOpt: securityOpts,
 		User:        user,
 		WorkingDir:  workingDir,
