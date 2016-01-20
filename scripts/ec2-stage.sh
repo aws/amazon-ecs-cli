@@ -30,7 +30,7 @@ INSTANCE_PROFILE=""
 source $(dirname "${0}")/publish-functions.sh
 
 usage() {
-	echo "Usage: ${0} -b BUCKET -k SSH_KEY -s SECURITY_GROUP -i IAM_ROLE [OPTIONS]"
+	echo "Usage: ${0} -a BUCKET -k SSH_KEY -s SECURITY_GROUP -i IAM_ROLE [OPTIONS]"
 	echo
 	echo "This script stages a new version of the Amazon ECS CLI"
 	echo "built on a freshly-launched EC2 instance."
@@ -128,7 +128,7 @@ cd "${tmpdir}"
 s3_source_prefix="s3://${SOURCE_BUCKET}/$(hostname)-${RANDOM}"
 s3_source_gz="${s3_source_prefix}/${commit}.tgz"
 source_gz=$(mktemp)
-tar -cz --owner=0 --group=0 -f "${source_gz}" "."
+tar -cz -f "${source_gz}" "."
 
 echo "Uploading ${source_gz} to ${s3_source_gz}..."
 S3_ACL_OVERRIDE="private"
