@@ -5,7 +5,7 @@
 * Feature - Add new options to ecs-cli up (--image-id, --debug or --verbose).
 * Feature - Add support for m4, d2, g2 instance types.
 * Feature - Add new regions eu-central-1 and ap-southeast-1.
-* Feature - Update ECS-optimized AMIs to latest 2015.09.d
+* Feature - Update ECS-optimized AMIs to latest 2015.09.e
   (with Amazon ECR support).
 * Enhancement - Better error messaging for ecs-cli up and
   RegisterTaskDefinition API.
