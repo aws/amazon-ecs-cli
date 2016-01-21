@@ -41,7 +41,7 @@ const CreateServiceCommandName = "create"
 func serviceCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:   "service",
-		Usage:  "Create an ECS Service from your compose file.",
+		Usage:  "Manage Amazon ECS services with docker-compose-style commands on an ECS cluster.",
 		Subcommands: []cli.Command{
 			createServiceCommand(factory),
 			startServiceCommand(factory),
@@ -57,7 +57,7 @@ func serviceCommand(factory ProjectFactory) cli.Command {
 func createServiceCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:   CreateServiceCommandName,
-		Usage:  "Create an ECS service from your compose file. The service is created with a desired count of 0, so no containers are started by this command.",
+		Usage:  "Creates an ECS service from your compose file. The service is created with a desired count of 0, so no containers are started by this command.",
 		Action: WithProject(factory, ProjectCreate, true),
 	}
 }
@@ -65,7 +65,7 @@ func createServiceCommand(factory ProjectFactory) cli.Command {
 func startServiceCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:   "start",
-		Usage:  "Start one copy of each of the containers on the created ECS service. This command updates the desired count of the service to 1.",
+		Usage:  "Starts one copy of each of the containers on the created ECS service. This command updates the desired count of the service to 1.",
 		Action: WithProject(factory, ProjectStart, true),
 	}
 }
@@ -73,7 +73,7 @@ func startServiceCommand(factory ProjectFactory) cli.Command {
 func upServiceCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:   "up",
-		Usage:  "Create an ECS service from your compose file. If no tasks from this compose file are currently running in your cluster, the service is started with a desired count of 1. If tasks from this compose file are currently running, the desired count of the service is set to the number of running tasks.",
+		Usage:  "Creates an ECS service from your compose file (if it does not already exist) and runs one instance of that task on your cluster (a combination of create and start). This command updates the desired count of the service to 1.",
 		Action: WithProject(factory, ProjectUp, true),
 	}
 }
@@ -82,7 +82,7 @@ func psServiceCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:    "ps",
 		Aliases: []string{"list"},
-		Usage:   "List all the containers in this service.",
+		Usage:   "Lists all the containers in your cluster that belong to the service created with the compose project.",
 		Action:  WithProject(factory, ProjectPs, true),
 	}
 }
@@ -90,7 +90,7 @@ func psServiceCommand(factory ProjectFactory) cli.Command {
 func scaleServiceCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:   "scale",
-		Usage:  "ecs-cli compose service scale [count] - updates the count",
+		Usage:  "ecs-cli compose service scale [count] - scales the desired count of the service to the specified count",
 		Action: WithProject(factory, ProjectScale, true),
 	}
 }
@@ -98,7 +98,7 @@ func scaleServiceCommand(factory ProjectFactory) cli.Command {
 func stopServiceCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:    "stop",
-		Usage:   "Stop the containers in this service. This command updates the desired count of the service to 0.",
+		Usage:   "Stops the running tasks that belong to the service created with the compose project. This command updates the desired count of the service to 0.",
 		Action:  WithProject(factory, ProjectStop, true),
 	}
 }
@@ -107,7 +107,7 @@ func rmServiceCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:    "rm",
 		Aliases: []string{"delete", "down"},
-		Usage:   "deletes the service",
+		Usage:   "Updates the desired count of the service to 0 and then deletes the service.",
 		Action:  WithProject(factory, ProjectDown, true),
 	}
 }
