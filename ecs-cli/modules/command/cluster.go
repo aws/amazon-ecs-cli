@@ -65,7 +65,7 @@ func UpCommand() cli.Command {
 			},
 			cli.StringFlag{
 				Name:  sourceCidrFlag,
-				Usage: "[Optional] Specifies a CIDR/IP range for the security group to use for container instances in your cluster. This parameter is ignored if an existing security group is specified with the --security-group option. Defaults to 0.0.0.0/0 .",
+				Usage: "[Optional] Specifies a CIDR/IP range for the security group to use for container instances in your cluster. This parameter is ignored if an existing security group is specified with the --security-group option. Defaults to 0.0.0.0/0.",
 			},
 			cli.StringFlag{
 				Name:  ecsPortFlag,

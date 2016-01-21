@@ -51,7 +51,7 @@ const (
 func ComposeCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:   "compose",
-		Usage:  "Executes docker-compose–style commands on an ECS cluster.",
+		Usage:  "Executes docker-compose-style commands on an ECS cluster.",
 		Before: ecscli.BeforeApp,
 		Subcommands: []cli.Command{
 			createCommand(factory),
