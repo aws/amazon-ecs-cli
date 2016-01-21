@@ -51,7 +51,7 @@ const (
 func ComposeCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:   "compose",
-		Usage:  "Execute docker-compose style commands on an ECS cluster.",
+		Usage:  "Executes docker-compose-style commands on an ECS cluster.",
 		Before: ecscli.BeforeApp,
 		Subcommands: []cli.Command{
 			createCommand(factory),
@@ -76,17 +76,18 @@ func ComposeCommand(factory ProjectFactory) cli.Command {
 func commonComposeFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.BoolFlag{
-			Name: ecscli.VerboseFlag + ",debug",
+			Name:  ecscli.VerboseFlag + ",debug",
+			Usage: "Increase the verbosity of command output to aid in diagnostics.",
 		},
 		cli.StringFlag{
 			Name:   composeFileNameFlag + ",f",
-			Usage:  "Specify an alternate compose file to use (default: " + composeFileNameDefaultValue + " ).",
+			Usage:  "Specifies the Docker compose file to use. Defaults to " + composeFileNameDefaultValue + " file.",
 			Value:  composeFileNameDefaultValue,
 			EnvVar: "COMPOSE_FILE",
 		},
 		cli.StringFlag{
 			Name:   projectNameFlag + ",p",
-			Usage:  "Specify an alternate project name to use (default: directory name).",
+			Usage:  "Specifies the project name to use. Defaults to the current directory name.",
 			EnvVar: "COMPOSE_PROJECT_NAME",
 		},
 	}
@@ -101,7 +102,7 @@ func populate(ecsContext *ecscompose.Context, cliContext *cli.Context) {
 func createCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:   "create",
-		Usage:  "Create an ECS task definition from your compose file.",
+		Usage:  "Creates an ECS task definition from your compose file.",
 		Action: WithProject(factory, ProjectCreate, false),
 	}
 }
@@ -110,7 +111,7 @@ func psCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:    "ps",
 		Aliases: []string{"list"},
-		Usage:   "List all the containers in your cluster.",
+		Usage:   "Lists all the containers in your cluster that were started by the compose project.",
 		Action:  WithProject(factory, ProjectPs, false),
 	}
 }
@@ -118,7 +119,7 @@ func psCommand(factory ProjectFactory) cli.Command {
 func upCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:   "up",
-		Usage:  "Create an ECS task definition from your compose file (if it does not already exist) and run one instance of that task on your cluster.",
+		Usage:  "Creates an ECS task definition from your compose file (if it does not already exist) and runs one instance of that task on your cluster (a combination of create and start).",
 		Action: WithProject(factory, ProjectUp, false),
 	}
 }
@@ -126,7 +127,7 @@ func upCommand(factory ProjectFactory) cli.Command {
 func startCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:   "start",
-		Usage:  "Starts the containers from your compose file.",
+		Usage:  "Starts a single task from the task definition created from your compose file.",
 		Action: WithProject(factory, ProjectStart, false),
 	}
 }
@@ -135,7 +136,7 @@ func runCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name: "run",
 		Usage: "ecs-cli compose run [containerName] [command] [containerName] [command] ..." +
-			"- starts all containers overriding commands with the supplied one-off commands for the containers",
+			"- starts all containers overriding commands with the supplied one-off commands for the containers.",
 		Action: WithProject(factory, ProjectRun, false),
 	}
 }
@@ -144,7 +145,7 @@ func stopCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:    "stop",
 		Aliases: []string{"down"},
-		Usage:   "stops all the containers and ECS automatically deletes them after a while",
+		Usage:   "Stops all the running tasks created by the compose project.",
 		Action:  WithProject(factory, ProjectStop, false),
 	}
 }
@@ -152,7 +153,7 @@ func stopCommand(factory ProjectFactory) cli.Command {
 func scaleCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:   "scale",
-		Usage:  "ecs-cli compose scale [count] - scales each container to the specified count",
+		Usage:  "ecs-cli compose scale [count] - scales the number of running tasks to the specified count.",
 		Action: WithProject(factory, ProjectScale, false),
 	}
 }

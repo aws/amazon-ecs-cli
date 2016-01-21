@@ -26,41 +26,41 @@ import (
 func ConfigureCommand() cli.Command {
 	return cli.Command{
 		Name:   "configure",
-		Usage:  "Configures your AWS credentials, the AWS region to use, and the EC2 Container Service cluster name to use with the ECS CLI.",
+		Usage:  "Configures your AWS credentials, the AWS region to use, and the ECS cluster name to use with the Amazon ECS CLI. The resulting configuration is stored in the ~/.ecs/config file.",
 		Action: configure,
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name: ecscli.RegionFlag + ", r",
 				Usage: fmt.Sprintf(
-					"Specify the AWS Region to use.",
+					"Specifies the AWS region to use. If the AWS_REGION environment variable is set when ecs-cli configure is run, then the AWS region is set to the value of that environment variable.",
 				),
 				EnvVar: "AWS_REGION",
 			},
 			cli.StringFlag{
 				Name: ecscli.AccessKeyFlag,
 				Usage: fmt.Sprintf(
-					"Specify the AWS access key to use.",
+					"Specifies the AWS access key to use. If the AWS_ACCESS_KEY_ID environment variable is set when ecs-cli configure is run, then the AWS access key ID is set to the value of that environment variable.",
 				),
 				EnvVar: "AWS_ACCESS_KEY_ID",
 			},
 			cli.StringFlag{
 				Name: ecscli.SecretKeyFlag,
 				Usage: fmt.Sprintf(
-					"Specify the AWS secret key to use.",
+					"Specifies the AWS secret key to use. If the AWS_SECRET_ACCESS_KEY environment variable is set when ecs-cli configure is run, then the AWS secret access key is set to the value of that environment variable.",
 				),
 				EnvVar: "AWS_SECRET_ACCESS_KEY",
 			},
 			cli.StringFlag{
 				Name: ecscli.ProfileFlag + ", p",
 				Usage: fmt.Sprintf(
-					"Specify your AWS credentials with an existing named profile from ~/.aws/credentials.",
+					"Specifies your AWS credentials with an existing named profile from ~/.aws/credentials. If the AWS_PROFILE environment variable is set when ecs-cli configure is run, then the AWS named profile is set to the value of that environment variable.",
 				),
 				EnvVar: "AWS_PROFILE",
 			},
 			cli.StringFlag{
 				Name: ecscli.ClusterFlag + ", c",
 				Usage: fmt.Sprintf(
-					"Specify the ECS cluster name to use. If the cluster does not exist, it will be created.",
+					"Specifies the ECS cluster name to use. If the cluster does not exist, it is created when you try to add resources to it with the ecs-cli up command.",
 				),
 				// TODO: Override behavior for all ecs-cli commands : CommandLineFlags > EnvVar > ConfigFile > Defaults
 				// Commenting it now to avoid user misunderstanding the behavior of this env var with other ecs-cli commands

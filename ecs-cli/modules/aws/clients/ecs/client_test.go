@@ -283,7 +283,7 @@ func TestRegisterTaskDefinitionIfNeededTDBecomesInactive(t *testing.T) {
 		mockCache.EXPECT().Put(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
 			cache[x.(string)] = y.(*ecs.TaskDefinition)
 			if len(cache) != 1 {
-				t.Fatal("There should only be one entry in the cache since teh previous INACTIVE task should have the same hash")
+				t.Fatal("There should only be one entry in the cache, since the previous INACTIVE task should have the same hash")
 			}
 		}).Return(nil),
 	)
