@@ -83,6 +83,7 @@ func TestClusterUp(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(capabilityIAMFlag, true, "")
 	flagSet.String(keypairNameFlag, "default", "")
+	flagSet.String(certificateFlag, "default", "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, &mockReadWriter{}, mockEcs, mockCloudformation, ami.NewStaticAmiIds())
@@ -198,6 +199,7 @@ func TestClusterUpForImageIdInput(t *testing.T) {
 	flagSet.Bool(capabilityIAMFlag, true, "")
 	flagSet.String(keypairNameFlag, "default", "")
 	flagSet.String(imageIdFlag, imageId, "")
+	flagSet.String(certificateFlag, "default", "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, &mockReadWriter{}, mockEcs, mockCloudformation, ami.NewStaticAmiIds())

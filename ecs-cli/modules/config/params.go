@@ -28,6 +28,7 @@ const cloudformationStackNamePrefix = "amazon-ecs-cli-setup"
 // CliParams saves config to create an aws service clients
 type CliParams struct {
 	Cluster string
+	Certificate string
 	Config  *aws.Config
 }
 
@@ -53,5 +54,5 @@ func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 		return nil, err
 	}
 
-	return &CliParams{Cluster: ecsConfig.Cluster, Config: svcConfig}, nil
+	return &CliParams{Cluster: ecsConfig.Cluster, Certificate: ecsConfig.Certificate, Config: svcConfig}, nil
 }

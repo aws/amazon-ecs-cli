@@ -31,6 +31,7 @@ const (
 	keypairNameFlag   = "keypair"
 	capabilityIAMFlag = "capability-iam"
 	forceFlag         = "force"
+	certificateFlag   = "certificate-arn"
 )
 
 func UpCommand() cli.Command {
@@ -86,6 +87,10 @@ func UpCommand() cli.Command {
 			cli.StringFlag{
 				Name:  imageIdFlag,
 				Usage: "[Optional] Specify the AMI ID for your container instances. Defaults to amazon-ecs-optimized AMI.",
+			},
+			cli.StringFlag{
+				Name:  certificateFlag,
+				Usage: "Specify the certificate-arn for the Amazon ELB.",
 			},
 		},
 	}

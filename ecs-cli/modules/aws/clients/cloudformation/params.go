@@ -34,6 +34,7 @@ const (
 	ParameterKeyKeyPairName   = "KeyName"
 	ParameterKeyCluster       = "EcsCluster"
 	ParameterKeyAmiId         = "EcsAmiId"
+	ParameterKeyCertificate   = "Certificate"
 )
 
 var ParameterNotFoundError = errors.New("Parameter not found")
