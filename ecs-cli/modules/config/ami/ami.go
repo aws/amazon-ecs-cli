@@ -28,15 +28,15 @@ type staticAmiIds struct {
 
 func NewStaticAmiIds() ECSAmiIds {
 	regionToId := make(map[string]string)
-	// amzn-ami-2015.09.e-amazon-ecs-optimized AMIs
-	regionToId["us-east-1"] = "ami-cb2305a1"
-	regionToId["us-west-1"] = "ami-bdafdbdd"
-	regionToId["us-west-2"] = "ami-ec75908c"
-	regionToId["eu-west-1"] = "ami-13f84d60"
-	regionToId["eu-central-1"] = "ami-c3253caf"
-	regionToId["ap-northeast-1"] = "ami-e9724c87"
-	regionToId["ap-southeast-1"] = "ami-5f31fd3c"
-	regionToId["ap-southeast-2"] = "ami-83af8ae0"
+	// amzn-ami-2015.09.f-amazon-ecs-optimized AMIs
+	regionToId["us-east-1"] = "ami-43043329"
+	regionToId["us-west-1"] = "ami-a77b0ac7"
+	regionToId["us-west-2"] = "ami-02a24162"
+	regionToId["eu-west-1"] = "ami-76e95b05"
+	regionToId["eu-central-1"] = "ami-96b6adfa"
+	regionToId["ap-northeast-1"] = "ami-18d8de76"
+	regionToId["ap-southeast-1"] = "ami-9f60aefc"
+	regionToId["ap-southeast-2"] = "ami-75a38416"
 
 	return &staticAmiIds{regionToId: regionToId}
 }
