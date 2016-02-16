@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.1
+* Feature - Update ECS-optimized AMIs to latest 2015.09.f
+
 ## 0.2.0
 * Feature - Add support for new docker options in compose yaml file.
 * Feature - Add new options to ecs-cli up (--image-id, --debug or --verbose).
