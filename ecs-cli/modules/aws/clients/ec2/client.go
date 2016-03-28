@@ -19,6 +19,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 )
@@ -38,7 +39,7 @@ type ec2Client struct {
 
 // NewEC2Client creates an instance of ec2Client object.
 func NewEC2Client(params *config.CliParams) EC2Client {
-	client := ec2.New(params.Config)
+	client := ec2.New(session.New(params.Config))
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
 	return &ec2Client{
 		client: client,

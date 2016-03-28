@@ -24,6 +24,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/utils"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
 )
@@ -116,7 +117,7 @@ func NewCloudformationClient() CloudformationClient {
 
 // Initialize initializes all the fields of the cloudFormationClient object.
 func (c *cloudformationClient) Initialize(params *config.CliParams) {
-	cfnClient := cloudformation.New(params.Config)
+	cfnClient := cloudformation.New(session.New(params.Config))
 	cfnClient.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
 	c.client = cfnClient
 	c.cliParams = params
