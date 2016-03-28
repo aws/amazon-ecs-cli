@@ -4,22 +4,34 @@ package dynamodb
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/defaults"
+	"github.com/aws/aws-sdk-go/aws/client"
+	"github.com/aws/aws-sdk-go/aws/client/metadata"
 	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/aws/service"
-	"github.com/aws/aws-sdk-go/aws/service/serviceinfo"
-	"github.com/aws/aws-sdk-go/internal/protocol/jsonrpc"
-	"github.com/aws/aws-sdk-go/internal/signer/v4"
+	"github.com/aws/aws-sdk-go/private/protocol/jsonrpc"
+	"github.com/aws/aws-sdk-go/private/signer/v4"
 )
 
-// Overview
-//
 // This is the Amazon DynamoDB API Reference. This guide provides descriptions
-// and samples of the low-level DynamoDB API. For information about DynamoDB
-// application development, see the Amazon DynamoDB Developer Guide (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/).
+// of the low-level DynamoDB API.
 //
-// Instead of making the requests to the low-level DynamoDB API directly from
-// your application, we recommend that you use the AWS Software Development
+// This guide is intended for use with the following DynamoDB documentation:
+//
+//    Amazon DynamoDB Getting Started Guide (http://docs.aws.amazon.com/amazondynamodb/latest/gettingstartedguide/)
+// - provides hands-on exercises that help you learn the basics of working with
+// DynamoDB. If you are new to DynamoDB, we recommend that you begin with the
+// Getting Started Guide.
+//
+//    Amazon DynamoDB Developer Guide (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/)
+// - contains detailed information about DynamoDB concepts, usage, and best
+// practices.
+//
+//    Amazon DynamoDB Streams API Reference (http://docs.aws.amazon.com/dynamodbstreams/latest/APIReference/)
+// - provides descriptions and samples of the DynamoDB Streams API. (For more
+// information, see Capturing Table Activity with DynamoDB Streams (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html)
+// in the Amazon DynamoDB Developer Guide.)
+//
+//   Instead of making the requests to the low-level DynamoDB API directly
+// from your application, we recommend that you use the AWS Software Development
 // Kits (SDKs). The easy-to-use libraries in the AWS SDKs make it unnecessary
 // to call the low-level DynamoDB API directly from your application. The libraries
 // take care of request authentication, serialization, and connection management.
@@ -37,9 +49,8 @@ import (
 //  Managing Tables
 //
 //   CreateTable - Creates a table with user-specified provisioned throughput
-// settings. You must designate one attribute as the hash primary key for the
-// table; you can optionally designate a second attribute as the range primary
-// key. DynamoDB creates indexes on these key attributes for fast data access.
+// settings. You must define a primary key for the table - either a simple primary
+// key (partition key), or a composite primary key (partition key and sort key).
 // Optionally, you can create one or more secondary indexes, which provide fast
 // data access using non-key attributes.
 //
@@ -71,10 +82,10 @@ import (
 // Both eventually consistent and strongly consistent reads can be used.
 //
 //   Query - Returns one or more items from a table or a secondary index. You
-// must provide a specific hash key value. You can narrow the scope of the query
-// using comparison operators against a range key value, or on the index key.
-// Query supports either eventual or strong consistency. A single response has
-// a size limit of 1 MB.
+// must provide a specific value for the partition key. You can narrow the scope
+// of the query using comparison operators against a sort key value, or on the
+// index key. Query supports either eventual or strong consistency. A single
+// response has a size limit of 1 MB.
 //
 //   Scan - Reads every item in a table; the result set is eventually consistent.
 // You can limit the number of items returned by filtering the data attributes,
@@ -115,42 +126,66 @@ import (
 // (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/WorkingWithItems.html)
 // and Query and Scan Operations (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/QueryAndScan.html)
 // in the Amazon DynamoDB Developer Guide.
+//The service client's operations are safe to be used concurrently.
+// It is not safe to mutate any of the client's properties though.
 type DynamoDB struct {
-	*service.Service
+	*client.Client
 }
 
-// Used for custom service initialization logic
-var initService func(*service.Service)
+// Used for custom client initialization logic
+var initClient func(*client.Client)
 
 // Used for custom request initialization logic
 var initRequest func(*request.Request)
 
-// New returns a new DynamoDB client.
-func New(config *aws.Config) *DynamoDB {
-	service := &service.Service{
-		ServiceInfo: serviceinfo.ServiceInfo{
-			Config:       defaults.DefaultConfig.Merge(config),
-			ServiceName:  "dynamodb",
-			APIVersion:   "2012-08-10",
-			JSONVersion:  "1.0",
-			TargetPrefix: "DynamoDB_20120810",
-		},
+// A ServiceName is the name of the service the client will make API calls to.
+const ServiceName = "dynamodb"
+
+// New creates a new instance of the DynamoDB client with a session.
+// If additional configuration is needed for the client instance use the optional
+// aws.Config parameter to add your extra config.
+//
+// Example:
+//     // Create a DynamoDB client from just a session.
+//     svc := dynamodb.New(mySession)
+//
+//     // Create a DynamoDB client with additional configuration
+//     svc := dynamodb.New(mySession, aws.NewConfig().WithRegion("us-west-2"))
+func New(p client.ConfigProvider, cfgs ...*aws.Config) *DynamoDB {
+	c := p.ClientConfig(ServiceName, cfgs...)
+	return newClient(*c.Config, c.Handlers, c.Endpoint, c.SigningRegion)
+}
+
+// newClient creates, initializes and returns a new service client instance.
+func newClient(cfg aws.Config, handlers request.Handlers, endpoint, signingRegion string) *DynamoDB {
+	svc := &DynamoDB{
+		Client: client.New(
+			cfg,
+			metadata.ClientInfo{
+				ServiceName:   ServiceName,
+				SigningRegion: signingRegion,
+				Endpoint:      endpoint,
+				APIVersion:    "2012-08-10",
+				JSONVersion:   "1.0",
+				TargetPrefix:  "DynamoDB_20120810",
+			},
+			handlers,
+		),
 	}
-	service.Initialize()
 
 	// Handlers
-	service.Handlers.Sign.PushBack(v4.Sign)
-	service.Handlers.Build.PushBack(jsonrpc.Build)
-	service.Handlers.Unmarshal.PushBack(jsonrpc.Unmarshal)
-	service.Handlers.UnmarshalMeta.PushBack(jsonrpc.UnmarshalMeta)
-	service.Handlers.UnmarshalError.PushBack(jsonrpc.UnmarshalError)
+	svc.Handlers.Sign.PushBack(v4.Sign)
+	svc.Handlers.Build.PushBackNamed(jsonrpc.BuildHandler)
+	svc.Handlers.Unmarshal.PushBackNamed(jsonrpc.UnmarshalHandler)
+	svc.Handlers.UnmarshalMeta.PushBackNamed(jsonrpc.UnmarshalMetaHandler)
+	svc.Handlers.UnmarshalError.PushBackNamed(jsonrpc.UnmarshalErrorHandler)
 
-	// Run custom service initialization if present
-	if initService != nil {
-		initService(service)
+	// Run custom client initialization if present
+	if initClient != nil {
+		initClient(svc.Client)
 	}
 
-	return &DynamoDB{service}
+	return svc
 }
 
 // newRequest creates a new request for a DynamoDB operation and runs any

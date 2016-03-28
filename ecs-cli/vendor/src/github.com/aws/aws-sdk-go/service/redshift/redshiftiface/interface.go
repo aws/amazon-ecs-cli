@@ -208,6 +208,10 @@ type RedshiftAPI interface {
 
 	DescribeSnapshotCopyGrants(*redshift.DescribeSnapshotCopyGrantsInput) (*redshift.DescribeSnapshotCopyGrantsOutput, error)
 
+	DescribeTableRestoreStatusRequest(*redshift.DescribeTableRestoreStatusInput) (*request.Request, *redshift.DescribeTableRestoreStatusOutput)
+
+	DescribeTableRestoreStatus(*redshift.DescribeTableRestoreStatusInput) (*redshift.DescribeTableRestoreStatusOutput, error)
+
 	DescribeTagsRequest(*redshift.DescribeTagsInput) (*request.Request, *redshift.DescribeTagsOutput)
 
 	DescribeTags(*redshift.DescribeTagsInput) (*redshift.DescribeTagsOutput, error)
@@ -264,6 +268,10 @@ type RedshiftAPI interface {
 
 	RestoreFromClusterSnapshot(*redshift.RestoreFromClusterSnapshotInput) (*redshift.RestoreFromClusterSnapshotOutput, error)
 
+	RestoreTableFromClusterSnapshotRequest(*redshift.RestoreTableFromClusterSnapshotInput) (*request.Request, *redshift.RestoreTableFromClusterSnapshotOutput)
+
+	RestoreTableFromClusterSnapshot(*redshift.RestoreTableFromClusterSnapshotInput) (*redshift.RestoreTableFromClusterSnapshotOutput, error)
+
 	RevokeClusterSecurityGroupIngressRequest(*redshift.RevokeClusterSecurityGroupIngressInput) (*request.Request, *redshift.RevokeClusterSecurityGroupIngressOutput)
 
 	RevokeClusterSecurityGroupIngress(*redshift.RevokeClusterSecurityGroupIngressInput) (*redshift.RevokeClusterSecurityGroupIngressOutput, error)
@@ -276,3 +284,5 @@ type RedshiftAPI interface {
 
 	RotateEncryptionKey(*redshift.RotateEncryptionKeyInput) (*redshift.RotateEncryptionKeyOutput, error)
 }
+
+var _ RedshiftAPI = (*redshift.Redshift)(nil)

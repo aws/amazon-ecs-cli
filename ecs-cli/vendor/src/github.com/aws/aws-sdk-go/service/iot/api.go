@@ -8,6 +8,8 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/request"
+	"github.com/aws/aws-sdk-go/private/protocol"
+	"github.com/aws/aws-sdk-go/private/protocol/restjson"
 )
 
 const opAcceptCertificateTransfer = "AcceptCertificateTransfer"
@@ -25,6 +27,8 @@ func (c *IoT) AcceptCertificateTransferRequest(input *AcceptCertificateTransferI
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &AcceptCertificateTransferOutput{}
 	req.Data = output
 	return
@@ -56,6 +60,8 @@ func (c *IoT) AttachPrincipalPolicyRequest(input *AttachPrincipalPolicyInput) (r
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &AttachPrincipalPolicyOutput{}
 	req.Data = output
 	return
@@ -111,6 +117,8 @@ func (c *IoT) CancelCertificateTransferRequest(input *CancelCertificateTransferI
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &CancelCertificateTransferOutput{}
 	req.Data = output
 	return
@@ -119,10 +127,10 @@ func (c *IoT) CancelCertificateTransferRequest(input *CancelCertificateTransferI
 // Cancels a pending transfer for the specified certificate.
 //
 // Note Only the transfer source account can use this operation to cancel a
-// transfer (transfer destinations can use RejectCertificateTransfer instead).
+// transfer. (Transfer destinations can use RejectCertificateTransfer instead.)
 // After transfer, AWS IoT returns the certificate to the source account in
-// the INACTIVE state. Once the destination account has accepted the transfer,
-// the transfer may no longer be cancelled.
+// the INACTIVE state. After the destination account has accepted the transfer,
+// the transfer cannot be cancelled.
 //
 // After a certificate transfer is cancelled, the status of the certificate
 // changes from PENDING_TRANSFER to INACTIVE.
@@ -156,6 +164,40 @@ func (c *IoT) CreateCertificateFromCsrRequest(input *CreateCertificateFromCsrInp
 //
 // Note Reusing the same certificate signing request (CSR) results in a distinct
 // certificate.
+//
+// You can create multiple certificates in a batch by creating a directory,
+// copying multiple .csr files into that directory, and then specifying that
+// directory on the command line. The following commands show how to create
+// a batch of certificates given a batch of CSRs.
+//
+// Assuming a set of CSRs are located inside of the directory my-csr-directory:
+//
+// > On Linux and OS X, the command is:
+//
+// $ ls my-csr-directory/ | xargs -I {} aws iot create-certificate-from-csr
+// --certificate-signing-request file://my-csr-directory/{}
+//
+//  This command lists all of the CSRs in my-csr-directory and pipes each CSR
+// file name to the aws iot create-certificate-from-csr AWS CLI command to create
+// a certificate for the corresponding CSR.
+//
+//  The aws iot create-certificate-from-csr part of the command can also be
+// run in parallel to speed up the certificate creation process:
+//
+//  $ ls my-csr-directory/ | xargs -P 10 -I {} aws iot create-certificate-from-csr
+// --certificate-signing-request file://my-csr-directory/{}
+//
+//  On Windows PowerShell, the command to create certificates for all CSRs
+// in my-csr-directory is:
+//
+//  > ls -Name my-csr-directory | %{aws iot create-certificate-from-csr --certificate-signing-request
+// file://my-csr-directory/$_}
+//
+//  On a Windows command prompt, the command to create certificates for all
+// CSRs in my-csr-directory is:
+//
+//  > forfiles /p my-csr-directory /c "cmd /c aws iot create-certificate-from-csr
+// --certificate-signing-request file://@path"
 func (c *IoT) CreateCertificateFromCsr(input *CreateCertificateFromCsrInput) (*CreateCertificateFromCsrOutput, error) {
 	req, out := c.CreateCertificateFromCsrRequest(input)
 	err := req.Send()
@@ -182,11 +224,11 @@ func (c *IoT) CreateKeysAndCertificateRequest(input *CreateKeysAndCertificateInp
 	return
 }
 
-// Creates a 2048 bit RSA key pair and issues an X.509 certificate using the
+// Creates a 2048-bit RSA key pair and issues an X.509 certificate using the
 // issued public key.
 //
-// Note This is the only time AWS IoT issues the private key for this certificate.
-// It is important to keep track of the private key.
+// Note This is the only time AWS IoT issues the private key for this certificate,
+// so it is important to keep it in a secure location.
 func (c *IoT) CreateKeysAndCertificate(input *CreateKeysAndCertificateInput) (*CreateKeysAndCertificateOutput, error) {
 	req, out := c.CreateKeysAndCertificateRequest(input)
 	err := req.Send()
@@ -244,7 +286,14 @@ func (c *IoT) CreatePolicyVersionRequest(input *CreatePolicyVersionInput) (req *
 	return
 }
 
-// Creates a new version of the specified AWS IoT policy.
+// Creates a new version of the specified AWS IoT policy. To update a policy,
+// create a new policy version. A managed policy can have up to five versions.
+// If the policy has five versions, you must use DeletePolicyVersion to delete
+// an existing version before you create a new one.
+//
+// Optionally, you can set the new version as the policy's default version.
+// The default version is the operative version (that is, the version that is
+// in effect for the certificates to which the policy is attached).
 func (c *IoT) CreatePolicyVersion(input *CreatePolicyVersionInput) (*CreatePolicyVersionOutput, error) {
 	req, out := c.CreatePolicyVersionRequest(input)
 	err := req.Send()
@@ -271,7 +320,7 @@ func (c *IoT) CreateThingRequest(input *CreateThingInput) (req *request.Request,
 	return
 }
 
-// Creates a thing in the thing registry.
+// Creates a thing in the Thing Registry.
 func (c *IoT) CreateThing(input *CreateThingInput) (*CreateThingOutput, error) {
 	req, out := c.CreateThingRequest(input)
 	err := req.Send()
@@ -293,12 +342,16 @@ func (c *IoT) CreateTopicRuleRequest(input *CreateTopicRuleInput) (req *request.
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &CreateTopicRuleOutput{}
 	req.Data = output
 	return
 }
 
-// Creates a rule.
+// Creates a rule. Creating rules is an administrator-level action. Any user
+// who has permission to create rules will be able to access data processed
+// by the rule.
 func (c *IoT) CreateTopicRule(input *CreateTopicRuleInput) (*CreateTopicRuleOutput, error) {
 	req, out := c.CreateTopicRuleRequest(input)
 	err := req.Send()
@@ -320,6 +373,8 @@ func (c *IoT) DeleteCertificateRequest(input *DeleteCertificateInput) (req *requ
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteCertificateOutput{}
 	req.Data = output
 	return
@@ -327,13 +382,10 @@ func (c *IoT) DeleteCertificateRequest(input *DeleteCertificateInput) (req *requ
 
 // Deletes the specified certificate.
 //
-// A certificate cannot be deleted if it has a policy attached to it. To delete
-// a certificate, first detach all policies using the DetachPrincipalPolicy
-// operation.
-//
-// In addition, a certificate cannot be deleted if it is in ACTIVE status.
-// To delete a certificate, first change the status to INACTIVE using the UpdateCertificate
-// operation.
+// A certificate cannot be deleted if it has a policy attached to it or if
+// its status is set to ACTIVE. To delete a certificate, first use the DetachPrincipalPolicy
+// API to detach all policies. Next, use the UpdateCertificate API to set the
+// certificate to the INACTIVE status.
 func (c *IoT) DeleteCertificate(input *DeleteCertificateInput) (*DeleteCertificateOutput, error) {
 	req, out := c.DeleteCertificateRequest(input)
 	err := req.Send()
@@ -355,6 +407,8 @@ func (c *IoT) DeletePolicyRequest(input *DeletePolicyInput) (req *request.Reques
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeletePolicyOutput{}
 	req.Data = output
 	return
@@ -362,20 +416,15 @@ func (c *IoT) DeletePolicyRequest(input *DeletePolicyInput) (req *request.Reques
 
 // Deletes the specified policy.
 //
-// A policy cannot be deleted if:
+// A policy cannot be deleted if it has non-default versions or it is attached
+// to any certificate.
 //
-//  - it has non-default versions
+// To delete a policy, use the DeletePolicyVersion API to delete all non-default
+// versions of the policy; use the DetachPrincipalPolicy API to detach the policy
+// from any certificate; and then use the DeletePolicy API to delete the policy.
 //
-//  - it is attached to any certificate
-//
-// To delete a policy:
-//
-//  - First delete all the non-default versions of the policy using the DeletePolicyVersion
-// API.
-//
-//  - Detach it from any certificate using the DetachPrincipalPolicy API.
-//
-// When a policy is deleted, its default version is deleted with it.
+// When a policy is deleted using DeletePolicy, its default version is deleted
+// with it.
 func (c *IoT) DeletePolicy(input *DeletePolicyInput) (*DeletePolicyOutput, error) {
 	req, out := c.DeletePolicyRequest(input)
 	err := req.Send()
@@ -397,16 +446,17 @@ func (c *IoT) DeletePolicyVersionRequest(input *DeletePolicyVersionInput) (req *
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeletePolicyVersionOutput{}
 	req.Data = output
 	return
 }
 
-// Deletes the specified version of the specified policy. The default version
-// of the policy cannot be deleted.
-//
-// To delete the default version use the DeletePolicy API or mark the policy
-// as non-default and then delete it.
+// Deletes the specified version of the specified policy. You cannot delete
+// the default version of a policy using this API. To delete the default version
+// of a policy, use DeletePolicy. To find out which version of a policy is marked
+// as the default version, use ListPolicyVersions.
 func (c *IoT) DeletePolicyVersion(input *DeletePolicyVersionInput) (*DeletePolicyVersionOutput, error) {
 	req, out := c.DeletePolicyVersionRequest(input)
 	err := req.Send()
@@ -455,6 +505,8 @@ func (c *IoT) DeleteTopicRuleRequest(input *DeleteTopicRuleInput) (req *request.
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteTopicRuleOutput{}
 	req.Data = output
 	return
@@ -514,9 +566,9 @@ func (c *IoT) DescribeEndpointRequest(input *DescribeEndpointInput) (req *reques
 	return
 }
 
-// Returns a unique URL specific to the AWS account making the call. The URL
-// points to the AWS IoT data plane endpoint. The customer-specific endpoint
-// should be provided to all data plane operations.
+// Returns a unique endpoint specific to the AWS account making the call. You
+// specify the following URI when updating state information for your thing:
+// https://endpoint/things/thingName/shadow.
 func (c *IoT) DescribeEndpoint(input *DescribeEndpointInput) (*DescribeEndpointOutput, error) {
 	req, out := c.DescribeEndpointRequest(input)
 	err := req.Send()
@@ -565,6 +617,8 @@ func (c *IoT) DetachPrincipalPolicyRequest(input *DetachPrincipalPolicyInput) (r
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DetachPrincipalPolicyOutput{}
 	req.Data = output
 	return
@@ -600,6 +654,64 @@ func (c *IoT) DetachThingPrincipalRequest(input *DetachThingPrincipalInput) (req
 // Detaches the specified principal from the specified thing.
 func (c *IoT) DetachThingPrincipal(input *DetachThingPrincipalInput) (*DetachThingPrincipalOutput, error) {
 	req, out := c.DetachThingPrincipalRequest(input)
+	err := req.Send()
+	return out, err
+}
+
+const opDisableTopicRule = "DisableTopicRule"
+
+// DisableTopicRuleRequest generates a request for the DisableTopicRule operation.
+func (c *IoT) DisableTopicRuleRequest(input *DisableTopicRuleInput) (req *request.Request, output *DisableTopicRuleOutput) {
+	op := &request.Operation{
+		Name:       opDisableTopicRule,
+		HTTPMethod: "POST",
+		HTTPPath:   "/rules/{ruleName}/disable",
+	}
+
+	if input == nil {
+		input = &DisableTopicRuleInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &DisableTopicRuleOutput{}
+	req.Data = output
+	return
+}
+
+// Disables the specified rule.
+func (c *IoT) DisableTopicRule(input *DisableTopicRuleInput) (*DisableTopicRuleOutput, error) {
+	req, out := c.DisableTopicRuleRequest(input)
+	err := req.Send()
+	return out, err
+}
+
+const opEnableTopicRule = "EnableTopicRule"
+
+// EnableTopicRuleRequest generates a request for the EnableTopicRule operation.
+func (c *IoT) EnableTopicRuleRequest(input *EnableTopicRuleInput) (req *request.Request, output *EnableTopicRuleOutput) {
+	op := &request.Operation{
+		Name:       opEnableTopicRule,
+		HTTPMethod: "POST",
+		HTTPPath:   "/rules/{ruleName}/enable",
+	}
+
+	if input == nil {
+		input = &EnableTopicRuleInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	output = &EnableTopicRuleOutput{}
+	req.Data = output
+	return
+}
+
+// Enables the specified rule.
+func (c *IoT) EnableTopicRule(input *EnableTopicRuleInput) (*EnableTopicRuleOutput, error) {
+	req, out := c.EnableTopicRuleRequest(input)
 	err := req.Send()
 	return out, err
 }
@@ -735,8 +847,8 @@ func (c *IoT) ListCertificatesRequest(input *ListCertificatesInput) (req *reques
 
 // Lists your certificates.
 //
-// The results are paginated with a default page size of 25. You can retrieve
-// additional results using the returned marker.
+// The results are paginated with a default page size of 25. You can use the
+// returned marker to retrieve additional results.
 func (c *IoT) ListCertificates(input *ListCertificatesInput) (*ListCertificatesOutput, error) {
 	req, out := c.ListCertificatesRequest(input)
 	err := req.Send()
@@ -817,8 +929,8 @@ func (c *IoT) ListPrincipalPoliciesRequest(input *ListPrincipalPoliciesInput) (r
 	return
 }
 
-// Lists the policies attached to the specified principal. If you use an Amazon
-// Cognito identity, the ID needs to be in Amazon Cognito Identity format (http://docs.aws.amazon.com/cognitoidentity/latest/APIReference/API_GetCredentialsForIdentity.html#API_GetCredentialsForIdentity_RequestSyntax).
+// Lists the policies attached to the specified principal. If you use an Cognito
+// identity, the ID must be in AmazonCognito Identity format (http://docs.aws.amazon.com/cognitoidentity/latest/APIReference/API_GetCredentialsForIdentity.html#API_GetCredentialsForIdentity_RequestSyntax).
 func (c *IoT) ListPrincipalPolicies(input *ListPrincipalPoliciesInput) (*ListPrincipalPoliciesOutput, error) {
 	req, out := c.ListPrincipalPoliciesRequest(input)
 	err := req.Send()
@@ -899,9 +1011,8 @@ func (c *IoT) ListThingsRequest(input *ListThingsInput) (req *request.Request, o
 	return
 }
 
-// Lists your things. You can pass an AttributeName and/or AttributeValue to
-// filter your things. For example: "ListThings where AttributeName=Color and
-// AttributeValue=Red"
+// Lists your things. You can pass an AttributeName or AttributeValue to filter
+// your things (for example, "ListThings where AttributeName=Color and AttributeValue=Red").
 func (c *IoT) ListThings(input *ListThingsInput) (*ListThingsOutput, error) {
 	req, out := c.ListThingsRequest(input)
 	err := req.Send()
@@ -950,6 +1061,8 @@ func (c *IoT) RejectCertificateTransferRequest(input *RejectCertificateTransferI
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &RejectCertificateTransferOutput{}
 	req.Data = output
 	return
@@ -961,9 +1074,9 @@ func (c *IoT) RejectCertificateTransferRequest(input *RejectCertificateTransferI
 // To check for pending certificate transfers, call ListCertificates to enumerate
 // your certificates.
 //
-// This operation can only be called by the transfer destination. Once called,
-// the certificate will be returned to the source's account in the INACTIVE
-// state.
+// This operation can only be called by the transfer destination. After it
+// is called, the certificate will be returned to the source's account in the
+// INACTIVE state.
 func (c *IoT) RejectCertificateTransfer(input *RejectCertificateTransferInput) (*RejectCertificateTransferOutput, error) {
 	req, out := c.RejectCertificateTransferRequest(input)
 	err := req.Send()
@@ -985,13 +1098,16 @@ func (c *IoT) ReplaceTopicRuleRequest(input *ReplaceTopicRuleInput) (req *reques
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &ReplaceTopicRuleOutput{}
 	req.Data = output
 	return
 }
 
 // Replaces the specified rule. You must specify all parameters for the new
-// rule.
+// rule. Creating rules is an administrator-level action. Any user who has permission
+// to create rules will be able to access data processed by the rule.
 func (c *IoT) ReplaceTopicRule(input *ReplaceTopicRuleInput) (*ReplaceTopicRuleOutput, error) {
 	req, out := c.ReplaceTopicRuleRequest(input)
 	err := req.Send()
@@ -1013,12 +1129,17 @@ func (c *IoT) SetDefaultPolicyVersionRequest(input *SetDefaultPolicyVersionInput
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &SetDefaultPolicyVersionOutput{}
 	req.Data = output
 	return
 }
 
-// Sets the specified policy version as the default for the specified policy.
+// Sets the specified version of the specified policy as the policy's default
+// (operative) version. This action affects all certificates to which the policy
+// is attached. To list the principals the policy is attached to, use the ListPrincipalPolicy
+// API.
 func (c *IoT) SetDefaultPolicyVersion(input *SetDefaultPolicyVersionInput) (*SetDefaultPolicyVersionOutput, error) {
 	req, out := c.SetDefaultPolicyVersionRequest(input)
 	err := req.Send()
@@ -1040,6 +1161,8 @@ func (c *IoT) SetLoggingOptionsRequest(input *SetLoggingOptionsInput) (req *requ
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &SetLoggingOptionsOutput{}
 	req.Data = output
 	return
@@ -1076,14 +1199,14 @@ func (c *IoT) TransferCertificateRequest(input *TransferCertificateInput) (req *
 //
 // You can cancel the transfer until it is acknowledged by the recipient.
 //
-// No notification is sent to the transfer destination's account, it is up
+// No notification is sent to the transfer destination's account. It is up
 // to the caller to notify the transfer target.
 //
-// The certificate being transferred must not be in the ACTIVE state. It can
-// be deactivated using the UpdateCertificate API.
+// The certificate being transferred must not be in the ACTIVE state. You can
+// use the UpdateCertificate API to deactivate it.
 //
-// The certificate must not have any policies attached to it. These can be
-// detached using the DetachPrincipalPolicy API.
+// The certificate must not have any policies attached to it. You can use the
+// DetachPrincipalPolicy API to detach them.
 func (c *IoT) TransferCertificate(input *TransferCertificateInput) (*TransferCertificateOutput, error) {
 	req, out := c.TransferCertificateRequest(input)
 	err := req.Send()
@@ -1105,6 +1228,8 @@ func (c *IoT) UpdateCertificateRequest(input *UpdateCertificateInput) (req *requ
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &UpdateCertificateOutput{}
 	req.Data = output
 	return
@@ -1112,8 +1237,9 @@ func (c *IoT) UpdateCertificateRequest(input *UpdateCertificateInput) (req *requ
 
 // Updates the status of the specified certificate. This operation is idempotent.
 //
-// Moving a cert from the ACTIVE state (including REVOKED) will NOT disconnect
-// currently-connected devices, although these devices will be unable to reconnect.
+// Moving a certificate from the ACTIVE state (including REVOKED) will not
+// disconnect currently connected devices, but these devices will be unable
+// to reconnect.
 //
 // The ACTIVE state is required to authenticate devices connecting to AWS IoT
 // using a certificate.
@@ -1152,17 +1278,13 @@ func (c *IoT) UpdateThing(input *UpdateThingInput) (*UpdateThingOutput, error) {
 
 // The input for the AcceptCertificateTransfer operation.
 type AcceptCertificateTransferInput struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the certificate.
 	CertificateId *string `location:"uri" locationName:"certificateId" min:"64" type:"string" required:"true"`
 
 	// Specifies whether the certificate is active.
 	SetAsActive *bool `location:"querystring" locationName:"setAsActive" type:"boolean"`
-
-	metadataAcceptCertificateTransferInput `json:"-" xml:"-"`
-}
-
-type metadataAcceptCertificateTransferInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1176,11 +1298,7 @@ func (s AcceptCertificateTransferInput) GoString() string {
 }
 
 type AcceptCertificateTransferOutput struct {
-	metadataAcceptCertificateTransferOutput `json:"-" xml:"-"`
-}
-
-type metadataAcceptCertificateTransferOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1195,12 +1313,24 @@ func (s AcceptCertificateTransferOutput) GoString() string {
 
 // Describes the actions associated with a rule.
 type Action struct {
+	_ struct{} `type:"structure"`
+
+	// Change the state of a CloudWatch alarm.
+	CloudwatchAlarm *CloudwatchAlarmAction `locationName:"cloudwatchAlarm" type:"structure"`
+
+	// Capture a CloudWatch metric.
+	CloudwatchMetric *CloudwatchMetricAction `locationName:"cloudwatchMetric" type:"structure"`
+
 	// Write to a DynamoDB table.
 	DynamoDB *DynamoDBAction `locationName:"dynamoDB" type:"structure"`
 
+	// Write data to an Amazon Elasticsearch Service; domain.
+	Elasticsearch *ElasticsearchAction `locationName:"elasticsearch" type:"structure"`
+
+	// Write to an Amazon Kinesis Firehose stream.
 	Firehose *FirehoseAction `locationName:"firehose" type:"structure"`
 
-	// Write data to a Kinesis stream.
+	// Write data to an Amazon Kinesis stream.
 	Kinesis *KinesisAction `locationName:"kinesis" type:"structure"`
 
 	// Invoke a Lambda function.
@@ -1209,20 +1339,14 @@ type Action struct {
 	// Publish to another MQTT topic.
 	Republish *RepublishAction `locationName:"republish" type:"structure"`
 
-	// Write to an S3 bucket.
+	// Write to an Amazon S3 bucket.
 	S3 *S3Action `locationName:"s3" type:"structure"`
 
-	// Publish to an SNS topic.
+	// Publish to an Amazon SNS topic.
 	Sns *SnsAction `locationName:"sns" type:"structure"`
 
-	// Publish to an SQS queue.
+	// Publish to an Amazon SQS queue.
 	Sqs *SqsAction `locationName:"sqs" type:"structure"`
-
-	metadataAction `json:"-" xml:"-"`
-}
-
-type metadataAction struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1237,18 +1361,14 @@ func (s Action) GoString() string {
 
 // The input for the AttachPrincipalPolicy operation.
 type AttachPrincipalPolicyInput struct {
+	_ struct{} `type:"structure"`
+
 	// The policy name.
 	PolicyName *string `location:"uri" locationName:"policyName" min:"1" type:"string" required:"true"`
 
-	// The principal which can be a certificate ARN (as returned from the CreateCertificate
-	// operation) or a Cognito ID.
+	// The principal, which can be a certificate ARN (as returned from the CreateCertificate
+	// operation) or an Amazon Cognito ID.
 	Principal *string `location:"header" locationName:"x-amzn-iot-principal" type:"string" required:"true"`
-
-	metadataAttachPrincipalPolicyInput `json:"-" xml:"-"`
-}
-
-type metadataAttachPrincipalPolicyInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1262,11 +1382,7 @@ func (s AttachPrincipalPolicyInput) GoString() string {
 }
 
 type AttachPrincipalPolicyOutput struct {
-	metadataAttachPrincipalPolicyOutput `json:"-" xml:"-"`
-}
-
-type metadataAttachPrincipalPolicyOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1281,17 +1397,13 @@ func (s AttachPrincipalPolicyOutput) GoString() string {
 
 // The input for the AttachThingPrincipal operation.
 type AttachThingPrincipalInput struct {
+	_ struct{} `type:"structure"`
+
 	// The principal (certificate or other credential).
 	Principal *string `location:"header" locationName:"x-amzn-principal" type:"string" required:"true"`
 
 	// The name of the thing.
 	ThingName *string `location:"uri" locationName:"thingName" min:"1" type:"string" required:"true"`
-
-	metadataAttachThingPrincipalInput `json:"-" xml:"-"`
-}
-
-type metadataAttachThingPrincipalInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1306,11 +1418,7 @@ func (s AttachThingPrincipalInput) GoString() string {
 
 // The output from the AttachThingPrincipal operation.
 type AttachThingPrincipalOutput struct {
-	metadataAttachThingPrincipalOutput `json:"-" xml:"-"`
-}
-
-type metadataAttachThingPrincipalOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1323,20 +1431,14 @@ func (s AttachThingPrincipalOutput) GoString() string {
 	return s.String()
 }
 
-// The attribute payload, a JSON string containing up to three key-value pairs.
-//
-// For example: {\"attributes\":{\"string1\":\"string2\”}}
+// The attribute payload, a JSON string containing up to three key-value pairs
+// (for example, {\"attributes\":{\"string1\":\"string2\"}}).
 type AttributePayload struct {
-	// A JSON string containing up to three key-value pair in JSON format.
-	//
-	// For example: {\"attributes\":{\"string1\":\"string2\”}}
+	_ struct{} `type:"structure"`
+
+	// A JSON string containing up to three key-value pair in JSON format (for example,
+	// {\"attributes\":{\"string1\":\"string2\"}}).
 	Attributes map[string]*string `locationName:"attributes" type:"map"`
-
-	metadataAttributePayload `json:"-" xml:"-"`
-}
-
-type metadataAttributePayload struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1351,14 +1453,10 @@ func (s AttributePayload) GoString() string {
 
 // The input for the CancelCertificateTransfer operation.
 type CancelCertificateTransferInput struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the certificate.
 	CertificateId *string `location:"uri" locationName:"certificateId" min:"64" type:"string" required:"true"`
-
-	metadataCancelCertificateTransferInput `json:"-" xml:"-"`
-}
-
-type metadataCancelCertificateTransferInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1372,11 +1470,7 @@ func (s CancelCertificateTransferInput) GoString() string {
 }
 
 type CancelCertificateTransferOutput struct {
-	metadataCancelCertificateTransferOutput `json:"-" xml:"-"`
-}
-
-type metadataCancelCertificateTransferOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1391,6 +1485,8 @@ func (s CancelCertificateTransferOutput) GoString() string {
 
 // Information about a certificate.
 type Certificate struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the certificate.
 	CertificateArn *string `locationName:"certificateArn" type:"string"`
 
@@ -1402,12 +1498,6 @@ type Certificate struct {
 
 	// The status of the certificate.
 	Status *string `locationName:"status" type:"string" enum:"CertificateStatus"`
-
-	metadataCertificate `json:"-" xml:"-"`
-}
-
-type metadataCertificate struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1422,6 +1512,8 @@ func (s Certificate) GoString() string {
 
 // Describes a certificate.
 type CertificateDescription struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the certificate.
 	CertificateArn *string `locationName:"certificateArn" type:"string"`
 
@@ -1429,7 +1521,7 @@ type CertificateDescription struct {
 	CertificateId *string `locationName:"certificateId" min:"64" type:"string"`
 
 	// The certificate data, in PEM format.
-	CertificatePem *string `locationName:"certificatePem" type:"string"`
+	CertificatePem *string `locationName:"certificatePem" min:"1" type:"string"`
 
 	// The date and time the certificate was created.
 	CreationDate *time.Time `locationName:"creationDate" type:"timestamp" timestampFormat:"unix"`
@@ -1442,12 +1534,6 @@ type CertificateDescription struct {
 
 	// The status of the certificate.
 	Status *string `locationName:"status" type:"string" enum:"CertificateStatus"`
-
-	metadataCertificateDescription `json:"-" xml:"-"`
-}
-
-type metadataCertificateDescription struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1460,19 +1546,76 @@ func (s CertificateDescription) GoString() string {
 	return s.String()
 }
 
+// Describes an action that updates a CloudWatch alarm.
+type CloudwatchAlarmAction struct {
+	_ struct{} `type:"structure"`
+
+	// The CloudWatch alarm name.
+	AlarmName *string `locationName:"alarmName" type:"string" required:"true"`
+
+	// The IAM role that allows access to the CloudWatch alarm.
+	RoleArn *string `locationName:"roleArn" type:"string" required:"true"`
+
+	// The reason for the alarm change.
+	StateReason *string `locationName:"stateReason" type:"string" required:"true"`
+
+	// The value of the alarm state. Acceptable values are: OK, ALARM, INSUFFICIENT_DATA.
+	StateValue *string `locationName:"stateValue" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s CloudwatchAlarmAction) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CloudwatchAlarmAction) GoString() string {
+	return s.String()
+}
+
+// Describes an action that captures a CloudWatch metric.
+type CloudwatchMetricAction struct {
+	_ struct{} `type:"structure"`
+
+	// The CloudWatch metric name.
+	MetricName *string `locationName:"metricName" type:"string" required:"true"`
+
+	// The CloudWatch metric namespace name.
+	MetricNamespace *string `locationName:"metricNamespace" type:"string" required:"true"`
+
+	// An optional Unix timestamp (http://docs.aws.amazon.com/AmazonCloudWatch/latest/DeveloperGuide/cloudwatch_concepts.html#about_timestamp).
+	MetricTimestamp *string `locationName:"metricTimestamp" type:"string"`
+
+	// The metric unit (http://docs.aws.amazon.com/AmazonCloudWatch/latest/DeveloperGuide/cloudwatch_concepts.html#Unit)
+	// supported by CloudWatch.
+	MetricUnit *string `locationName:"metricUnit" type:"string" required:"true"`
+
+	// The CloudWatch metric value.
+	MetricValue *string `locationName:"metricValue" type:"string" required:"true"`
+
+	// The IAM role that allows access to the CloudWatch metric.
+	RoleArn *string `locationName:"roleArn" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s CloudwatchMetricAction) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CloudwatchMetricAction) GoString() string {
+	return s.String()
+}
+
 // The input for the CreateCertificateFromCsr operation.
 type CreateCertificateFromCsrInput struct {
+	_ struct{} `type:"structure"`
+
 	// The certificate signing request (CSR).
 	CertificateSigningRequest *string `locationName:"certificateSigningRequest" min:"1" type:"string" required:"true"`
 
 	// Specifies whether the certificate is active.
 	SetAsActive *bool `location:"querystring" locationName:"setAsActive" type:"boolean"`
-
-	metadataCreateCertificateFromCsrInput `json:"-" xml:"-"`
-}
-
-type metadataCreateCertificateFromCsrInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1487,6 +1630,8 @@ func (s CreateCertificateFromCsrInput) GoString() string {
 
 // The output from the CreateCertificateFromCsr operation.
 type CreateCertificateFromCsrOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the certificate. You can use the ARN as
 	// a principal for policy operations.
 	CertificateArn *string `locationName:"certificateArn" type:"string"`
@@ -1496,13 +1641,7 @@ type CreateCertificateFromCsrOutput struct {
 	CertificateId *string `locationName:"certificateId" min:"64" type:"string"`
 
 	// The certificate data, in PEM format.
-	CertificatePem *string `locationName:"certificatePem" type:"string"`
-
-	metadataCreateCertificateFromCsrOutput `json:"-" xml:"-"`
-}
-
-type metadataCreateCertificateFromCsrOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	CertificatePem *string `locationName:"certificatePem" min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -1517,14 +1656,10 @@ func (s CreateCertificateFromCsrOutput) GoString() string {
 
 // The input for the CreateKeysAndCertificate operation.
 type CreateKeysAndCertificateInput struct {
+	_ struct{} `type:"structure"`
+
 	// Specifies whether the certificate is active.
 	SetAsActive *bool `location:"querystring" locationName:"setAsActive" type:"boolean"`
-
-	metadataCreateKeysAndCertificateInput `json:"-" xml:"-"`
-}
-
-type metadataCreateKeysAndCertificateInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1539,24 +1674,20 @@ func (s CreateKeysAndCertificateInput) GoString() string {
 
 // The output of the CreateKeysAndCertificate operation.
 type CreateKeysAndCertificateOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the certificate.
 	CertificateArn *string `locationName:"certificateArn" type:"string"`
 
 	// The ID of the certificate. AWS IoT issues a default subject name for the
-	// certificate (e.g., AWS IoT Certificate).
+	// certificate (for example, AWS IoT Certificate).
 	CertificateId *string `locationName:"certificateId" min:"64" type:"string"`
 
 	// The certificate data, in PEM format.
-	CertificatePem *string `locationName:"certificatePem" type:"string"`
+	CertificatePem *string `locationName:"certificatePem" min:"1" type:"string"`
 
 	// The generated key pair.
 	KeyPair *KeyPair `locationName:"keyPair" type:"structure"`
-
-	metadataCreateKeysAndCertificateOutput `json:"-" xml:"-"`
-}
-
-type metadataCreateKeysAndCertificateOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1571,18 +1702,14 @@ func (s CreateKeysAndCertificateOutput) GoString() string {
 
 // The input for the CreatePolicy operation.
 type CreatePolicyInput struct {
-	// The JSON document that describes the policy. The length of the policyDocument
-	// must be a minimum length of 1, with a maximum length of 2048, excluding whitespace.
+	_ struct{} `type:"structure"`
+
+	// The JSON document that describes the policy. policyDocument must have a minimum
+	// length of 1, with a maximum length of 2048, excluding whitespace.
 	PolicyDocument *string `locationName:"policyDocument" type:"string" required:"true"`
 
 	// The policy name.
 	PolicyName *string `location:"uri" locationName:"policyName" min:"1" type:"string" required:"true"`
-
-	metadataCreatePolicyInput `json:"-" xml:"-"`
-}
-
-type metadataCreatePolicyInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1597,6 +1724,8 @@ func (s CreatePolicyInput) GoString() string {
 
 // The output from the CreatePolicy operation.
 type CreatePolicyOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The policy ARN.
 	PolicyArn *string `locationName:"policyArn" type:"string"`
 
@@ -1608,12 +1737,6 @@ type CreatePolicyOutput struct {
 
 	// The policy version ID.
 	PolicyVersionId *string `locationName:"policyVersionId" type:"string"`
-
-	metadataCreatePolicyOutput `json:"-" xml:"-"`
-}
-
-type metadataCreatePolicyOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1628,20 +1751,19 @@ func (s CreatePolicyOutput) GoString() string {
 
 // The input for the CreatePolicyVersion operation.
 type CreatePolicyVersionInput struct {
-	// The JSON document that describes the policy.
+	_ struct{} `type:"structure"`
+
+	// The JSON document that describes the policy. Minimum length of 1. Maximum
+	// length of 2048, excluding whitespaces
 	PolicyDocument *string `locationName:"policyDocument" type:"string" required:"true"`
 
 	// The policy name.
 	PolicyName *string `location:"uri" locationName:"policyName" min:"1" type:"string" required:"true"`
 
-	// Specifies whether the policy version is set as the default.
+	// Specifies whether the policy version is set as the default. When this parameter
+	// is true, the new policy version becomes the operative version (that is, the
+	// version that is in effect for the certificates to which the policy is attached).
 	SetAsDefault *bool `location:"querystring" locationName:"setAsDefault" type:"boolean"`
-
-	metadataCreatePolicyVersionInput `json:"-" xml:"-"`
-}
-
-type metadataCreatePolicyVersionInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1656,6 +1778,8 @@ func (s CreatePolicyVersionInput) GoString() string {
 
 // The output of the CreatePolicyVersion operation.
 type CreatePolicyVersionOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Specifies whether the policy version is the default.
 	IsDefaultVersion *bool `locationName:"isDefaultVersion" type:"boolean"`
 
@@ -1667,12 +1791,6 @@ type CreatePolicyVersionOutput struct {
 
 	// The policy version ID.
 	PolicyVersionId *string `locationName:"policyVersionId" type:"string"`
-
-	metadataCreatePolicyVersionOutput `json:"-" xml:"-"`
-}
-
-type metadataCreatePolicyVersionOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1687,18 +1805,14 @@ func (s CreatePolicyVersionOutput) GoString() string {
 
 // The input for the CreateThing operation.
 type CreateThingInput struct {
-	// The attribute payload. Which consists of up to 3 name/value pairs in a JSON
-	// document. For example: {\"attributes\":{\"string1\":\"string2\”}}
+	_ struct{} `type:"structure"`
+
+	// The attribute payload, which consists of up to 3 name/value pairs in a JSON
+	// document (for example, {\"attributes\":{\"string1\":\"string2\"}}).
 	AttributePayload *AttributePayload `locationName:"attributePayload" type:"structure"`
 
 	// The name of the thing.
 	ThingName *string `location:"uri" locationName:"thingName" min:"1" type:"string" required:"true"`
-
-	metadataCreateThingInput `json:"-" xml:"-"`
-}
-
-type metadataCreateThingInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1713,17 +1827,13 @@ func (s CreateThingInput) GoString() string {
 
 // The output of the CreateThing operation.
 type CreateThingOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The thing ARN.
 	ThingArn *string `locationName:"thingArn" type:"string"`
 
 	// The name of the thing.
 	ThingName *string `locationName:"thingName" min:"1" type:"string"`
-
-	metadataCreateThingOutput `json:"-" xml:"-"`
-}
-
-type metadataCreateThingOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1738,17 +1848,13 @@ func (s CreateThingOutput) GoString() string {
 
 // The input for the CreateTopicRule operation.
 type CreateTopicRuleInput struct {
+	_ struct{} `type:"structure" payload:"TopicRulePayload"`
+
 	// The name of the rule.
 	RuleName *string `location:"uri" locationName:"ruleName" min:"1" type:"string" required:"true"`
 
 	// The rule payload.
 	TopicRulePayload *TopicRulePayload `locationName:"topicRulePayload" type:"structure" required:"true"`
-
-	metadataCreateTopicRuleInput `json:"-" xml:"-"`
-}
-
-type metadataCreateTopicRuleInput struct {
-	SDKShapeTraits bool `type:"structure" payload:"TopicRulePayload"`
 }
 
 // String returns the string representation
@@ -1762,11 +1868,7 @@ func (s CreateTopicRuleInput) GoString() string {
 }
 
 type CreateTopicRuleOutput struct {
-	metadataCreateTopicRuleOutput `json:"-" xml:"-"`
-}
-
-type metadataCreateTopicRuleOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1781,14 +1883,10 @@ func (s CreateTopicRuleOutput) GoString() string {
 
 // The input for the DeleteCertificate operation.
 type DeleteCertificateInput struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the certificate.
 	CertificateId *string `location:"uri" locationName:"certificateId" min:"64" type:"string" required:"true"`
-
-	metadataDeleteCertificateInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteCertificateInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1802,11 +1900,7 @@ func (s DeleteCertificateInput) GoString() string {
 }
 
 type DeleteCertificateOutput struct {
-	metadataDeleteCertificateOutput `json:"-" xml:"-"`
-}
-
-type metadataDeleteCertificateOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1821,14 +1915,10 @@ func (s DeleteCertificateOutput) GoString() string {
 
 // The input for the DeletePolicy operation.
 type DeletePolicyInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the policy to delete.
 	PolicyName *string `location:"uri" locationName:"policyName" min:"1" type:"string" required:"true"`
-
-	metadataDeletePolicyInput `json:"-" xml:"-"`
-}
-
-type metadataDeletePolicyInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1842,11 +1932,7 @@ func (s DeletePolicyInput) GoString() string {
 }
 
 type DeletePolicyOutput struct {
-	metadataDeletePolicyOutput `json:"-" xml:"-"`
-}
-
-type metadataDeletePolicyOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1861,17 +1947,13 @@ func (s DeletePolicyOutput) GoString() string {
 
 // The input for the DeletePolicyVersion operation.
 type DeletePolicyVersionInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the policy.
 	PolicyName *string `location:"uri" locationName:"policyName" min:"1" type:"string" required:"true"`
 
 	// The policy version ID.
 	PolicyVersionId *string `location:"uri" locationName:"policyVersionId" type:"string" required:"true"`
-
-	metadataDeletePolicyVersionInput `json:"-" xml:"-"`
-}
-
-type metadataDeletePolicyVersionInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1885,11 +1967,7 @@ func (s DeletePolicyVersionInput) GoString() string {
 }
 
 type DeletePolicyVersionOutput struct {
-	metadataDeletePolicyVersionOutput `json:"-" xml:"-"`
-}
-
-type metadataDeletePolicyVersionOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1904,14 +1982,10 @@ func (s DeletePolicyVersionOutput) GoString() string {
 
 // The input for the DeleteThing operation.
 type DeleteThingInput struct {
+	_ struct{} `type:"structure"`
+
 	// The thing name.
 	ThingName *string `location:"uri" locationName:"thingName" min:"1" type:"string" required:"true"`
-
-	metadataDeleteThingInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteThingInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1926,11 +2000,7 @@ func (s DeleteThingInput) GoString() string {
 
 // The output of the DeleteThing operation.
 type DeleteThingOutput struct {
-	metadataDeleteThingOutput `json:"-" xml:"-"`
-}
-
-type metadataDeleteThingOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1945,14 +2015,10 @@ func (s DeleteThingOutput) GoString() string {
 
 // The input for the DeleteTopicRule operation.
 type DeleteTopicRuleInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the rule.
 	RuleName *string `location:"uri" locationName:"ruleName" min:"1" type:"string" required:"true"`
-
-	metadataDeleteTopicRuleInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteTopicRuleInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1966,11 +2032,7 @@ func (s DeleteTopicRuleInput) GoString() string {
 }
 
 type DeleteTopicRuleOutput struct {
-	metadataDeleteTopicRuleOutput `json:"-" xml:"-"`
-}
-
-type metadataDeleteTopicRuleOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1985,14 +2047,10 @@ func (s DeleteTopicRuleOutput) GoString() string {
 
 // The input for the DescribeCertificate operation.
 type DescribeCertificateInput struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the certificate.
 	CertificateId *string `location:"uri" locationName:"certificateId" min:"64" type:"string" required:"true"`
-
-	metadataDescribeCertificateInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeCertificateInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2007,14 +2065,10 @@ func (s DescribeCertificateInput) GoString() string {
 
 // The output of the DescribeCertificate operation.
 type DescribeCertificateOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The description of the certificate.
 	CertificateDescription *CertificateDescription `locationName:"certificateDescription" type:"structure"`
-
-	metadataDescribeCertificateOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeCertificateOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2029,11 +2083,7 @@ func (s DescribeCertificateOutput) GoString() string {
 
 // The input for the DescribeEndpoint operation.
 type DescribeEndpointInput struct {
-	metadataDescribeEndpointInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeEndpointInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -2048,14 +2098,10 @@ func (s DescribeEndpointInput) GoString() string {
 
 // The output from the DescribeEndpoint operation.
 type DescribeEndpointOutput struct {
-	// The address.
+	_ struct{} `type:"structure"`
+
+	// The endpoint. The format of the endpoint is as follows: identifier.iot.region.amazonaws.com.
 	EndpointAddress *string `locationName:"endpointAddress" type:"string"`
-
-	metadataDescribeEndpointOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeEndpointOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2070,14 +2116,10 @@ func (s DescribeEndpointOutput) GoString() string {
 
 // The input for the DescribeThing operation.
 type DescribeThingInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the thing.
 	ThingName *string `location:"uri" locationName:"thingName" min:"1" type:"string" required:"true"`
-
-	metadataDescribeThingInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeThingInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2092,10 +2134,10 @@ func (s DescribeThingInput) GoString() string {
 
 // The output from the DescribeThing operation.
 type DescribeThingOutput struct {
-	// The attributes which are name/value pairs in JSON format. For example:
-	//
-	// {\"attributes\":{\"some-name1\":\"some-value1\”}, {\"some-name2\":\"some-value2\”},
-	// {\"some-name3\":\"some-value3\”}}
+	_ struct{} `type:"structure"`
+
+	// The attributes, which are name/value pairs in JSON format (for example: {\"attributes\":{\"some-name1\":\"some-value1\"},
+	// {\"some-name2\":\"some-value2\"}, {\"some-name3\":\"some-value3\"}})
 	Attributes map[string]*string `locationName:"attributes" type:"map"`
 
 	// The default client ID.
@@ -2103,12 +2145,6 @@ type DescribeThingOutput struct {
 
 	// The name of the thing.
 	ThingName *string `locationName:"thingName" min:"1" type:"string"`
-
-	metadataDescribeThingOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeThingOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2123,20 +2159,16 @@ func (s DescribeThingOutput) GoString() string {
 
 // The input for the DetachPrincipalPolicy operation.
 type DetachPrincipalPolicyInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the policy to detach.
 	PolicyName *string `location:"uri" locationName:"policyName" min:"1" type:"string" required:"true"`
 
-	// The principal
+	// The principal.
 	//
 	// If the principal is a certificate, specify the certificate ARN. If the principal
-	// is a Cognito identity specify the identity ID.
+	// is an Amazon Cognito identity, specify the identity ID.
 	Principal *string `location:"header" locationName:"x-amzn-iot-principal" type:"string" required:"true"`
-
-	metadataDetachPrincipalPolicyInput `json:"-" xml:"-"`
-}
-
-type metadataDetachPrincipalPolicyInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2150,11 +2182,7 @@ func (s DetachPrincipalPolicyInput) GoString() string {
 }
 
 type DetachPrincipalPolicyOutput struct {
-	metadataDetachPrincipalPolicyOutput `json:"-" xml:"-"`
-}
-
-type metadataDetachPrincipalPolicyOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -2169,17 +2197,13 @@ func (s DetachPrincipalPolicyOutput) GoString() string {
 
 // The input for the DetachThingPrincipal operation.
 type DetachThingPrincipalInput struct {
+	_ struct{} `type:"structure"`
+
 	// The principal.
 	Principal *string `location:"header" locationName:"x-amzn-principal" type:"string" required:"true"`
 
 	// The name of the thing.
 	ThingName *string `location:"uri" locationName:"thingName" min:"1" type:"string" required:"true"`
-
-	metadataDetachThingPrincipalInput `json:"-" xml:"-"`
-}
-
-type metadataDetachThingPrincipalInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2194,11 +2218,7 @@ func (s DetachThingPrincipalInput) GoString() string {
 
 // The output from the DetachThingPrincipal operation.
 type DetachThingPrincipalOutput struct {
-	metadataDetachThingPrincipalOutput `json:"-" xml:"-"`
-}
-
-type metadataDetachThingPrincipalOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -2211,6 +2231,38 @@ func (s DetachThingPrincipalOutput) GoString() string {
 	return s.String()
 }
 
+// The input for the DisableTopicRuleRequest operation.
+type DisableTopicRuleInput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the rule to disable.
+	RuleName *string `location:"uri" locationName:"ruleName" min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s DisableTopicRuleInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DisableTopicRuleInput) GoString() string {
+	return s.String()
+}
+
+type DisableTopicRuleOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s DisableTopicRuleOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DisableTopicRuleOutput) GoString() string {
+	return s.String()
+}
+
 // Describes an action to write to a DynamoDB table.
 //
 // The tableName, hashKeyField, and rangeKeyField values must match the values
@@ -2219,9 +2271,9 @@ func (s DetachThingPrincipalOutput) GoString() string {
 // The hashKeyValue and rangeKeyvalue fields use a substitution template syntax.
 // These templates provide data at runtime. The syntax is as follows: ${sql-expression}.
 //
-// You can specify any expression that's valid in a WHERE or SELECT clause,
-// including JSON properties, comparisons, calculations, and functions. For
-// example, the following field uses the third level of the topic:
+// You can specify any valid expression in a WHERE or SELECT clause, including
+// JSON properties, comparisons, calculations, and functions. For example, the
+// following field uses the third level of the topic:
 //
 // "hashKeyValue": "${topic(3)}"
 //
@@ -2229,13 +2281,15 @@ func (s DetachThingPrincipalOutput) GoString() string {
 //
 // "rangeKeyValue": "${timestamp()}"
 type DynamoDBAction struct {
+	_ struct{} `type:"structure"`
+
 	// The hash key name.
 	HashKeyField *string `locationName:"hashKeyField" type:"string" required:"true"`
 
 	// The hash key value.
 	HashKeyValue *string `locationName:"hashKeyValue" type:"string" required:"true"`
 
-	// The action payload.
+	// The action payload. This name can be customized.
 	PayloadField *string `locationName:"payloadField" type:"string"`
 
 	// The range key name.
@@ -2244,17 +2298,11 @@ type DynamoDBAction struct {
 	// The range key value.
 	RangeKeyValue *string `locationName:"rangeKeyValue" type:"string" required:"true"`
 
-	// The ARN of the IAM role that grants access.
+	// The ARN of the IAM role that grants access to the DynamoDB table.
 	RoleArn *string `locationName:"roleArn" type:"string" required:"true"`
 
 	// The name of the DynamoDB table.
 	TableName *string `locationName:"tableName" type:"string" required:"true"`
-
-	metadataDynamoDBAction `json:"-" xml:"-"`
-}
-
-type metadataDynamoDBAction struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2267,16 +2315,78 @@ func (s DynamoDBAction) GoString() string {
 	return s.String()
 }
 
-type FirehoseAction struct {
-	DeliveryStreamName *string `locationName:"deliveryStreamName" type:"string" required:"true"`
+// Describes an action that writes data to an Amazon Elasticsearch Service;
+// domain.
+type ElasticsearchAction struct {
+	_ struct{} `type:"structure"`
 
+	// The endpoint of your Elasticsearch domain.
+	Endpoint *string `locationName:"endpoint" type:"string" required:"true"`
+
+	// The unique identifier for the document you are storing.
+	Id *string `locationName:"id" type:"string" required:"true"`
+
+	// The Elasticsearch index where you want to store your data.
+	Index *string `locationName:"index" type:"string" required:"true"`
+
+	// The IAM role ARN that has access to Elasticsearch.
 	RoleArn *string `locationName:"roleArn" type:"string" required:"true"`
 
-	metadataFirehoseAction `json:"-" xml:"-"`
+	// The type of document you are storing.
+	Type *string `locationName:"type" type:"string" required:"true"`
 }
 
-type metadataFirehoseAction struct {
-	SDKShapeTraits bool `type:"structure"`
+// String returns the string representation
+func (s ElasticsearchAction) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ElasticsearchAction) GoString() string {
+	return s.String()
+}
+
+// The input for the EnableTopicRuleRequest operation.
+type EnableTopicRuleInput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the topic rule to enable.
+	RuleName *string `location:"uri" locationName:"ruleName" min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s EnableTopicRuleInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s EnableTopicRuleInput) GoString() string {
+	return s.String()
+}
+
+type EnableTopicRuleOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s EnableTopicRuleOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s EnableTopicRuleOutput) GoString() string {
+	return s.String()
+}
+
+// Describes an action that writes data to an Amazon Kinesis Firehose stream.
+type FirehoseAction struct {
+	_ struct{} `type:"structure"`
+
+	// The delivery stream name.
+	DeliveryStreamName *string `locationName:"deliveryStreamName" type:"string" required:"true"`
+
+	// The IAM role that grants access to the Amazon Kinesis Firehost stream.
+	RoleArn *string `locationName:"roleArn" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2291,11 +2401,7 @@ func (s FirehoseAction) GoString() string {
 
 // The input for the GetLoggingOptions operation.
 type GetLoggingOptionsInput struct {
-	metadataGetLoggingOptionsInput `json:"-" xml:"-"`
-}
-
-type metadataGetLoggingOptionsInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -2310,17 +2416,13 @@ func (s GetLoggingOptionsInput) GoString() string {
 
 // The output from the GetLoggingOptions operation.
 type GetLoggingOptionsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The logging level.
 	LogLevel *string `locationName:"logLevel" type:"string" enum:"LogLevel"`
 
 	// The ARN of the IAM role that grants access.
 	RoleArn *string `locationName:"roleArn" type:"string"`
-
-	metadataGetLoggingOptionsOutput `json:"-" xml:"-"`
-}
-
-type metadataGetLoggingOptionsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2335,14 +2437,10 @@ func (s GetLoggingOptionsOutput) GoString() string {
 
 // The input for the GetPolicy operation.
 type GetPolicyInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the policy.
 	PolicyName *string `location:"uri" locationName:"policyName" min:"1" type:"string" required:"true"`
-
-	metadataGetPolicyInput `json:"-" xml:"-"`
-}
-
-type metadataGetPolicyInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2357,6 +2455,8 @@ func (s GetPolicyInput) GoString() string {
 
 // The output from the GetPolicy operation.
 type GetPolicyOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The default policy version ID.
 	DefaultVersionId *string `locationName:"defaultVersionId" type:"string"`
 
@@ -2368,12 +2468,6 @@ type GetPolicyOutput struct {
 
 	// The policy name.
 	PolicyName *string `locationName:"policyName" min:"1" type:"string"`
-
-	metadataGetPolicyOutput `json:"-" xml:"-"`
-}
-
-type metadataGetPolicyOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2388,17 +2482,13 @@ func (s GetPolicyOutput) GoString() string {
 
 // The input for the GetPolicyVersion operation.
 type GetPolicyVersionInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the policy.
 	PolicyName *string `location:"uri" locationName:"policyName" min:"1" type:"string" required:"true"`
 
 	// The policy version ID.
 	PolicyVersionId *string `location:"uri" locationName:"policyVersionId" type:"string" required:"true"`
-
-	metadataGetPolicyVersionInput `json:"-" xml:"-"`
-}
-
-type metadataGetPolicyVersionInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2413,6 +2503,8 @@ func (s GetPolicyVersionInput) GoString() string {
 
 // The output from the GetPolicyVersion operation.
 type GetPolicyVersionOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Specifies whether the policy version is the default.
 	IsDefaultVersion *bool `locationName:"isDefaultVersion" type:"boolean"`
 
@@ -2427,12 +2519,6 @@ type GetPolicyVersionOutput struct {
 
 	// The policy version ID.
 	PolicyVersionId *string `locationName:"policyVersionId" type:"string"`
-
-	metadataGetPolicyVersionOutput `json:"-" xml:"-"`
-}
-
-type metadataGetPolicyVersionOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2447,14 +2533,10 @@ func (s GetPolicyVersionOutput) GoString() string {
 
 // The input for the GetTopicRule operation.
 type GetTopicRuleInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the rule.
 	RuleName *string `location:"uri" locationName:"ruleName" min:"1" type:"string" required:"true"`
-
-	metadataGetTopicRuleInput `json:"-" xml:"-"`
-}
-
-type metadataGetTopicRuleInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2469,14 +2551,13 @@ func (s GetTopicRuleInput) GoString() string {
 
 // The output from the GetTopicRule operation.
 type GetTopicRuleOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The rule.
 	Rule *TopicRule `locationName:"rule" type:"structure"`
 
-	metadataGetTopicRuleOutput `json:"-" xml:"-"`
-}
-
-type metadataGetTopicRuleOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	// The rule ARN.
+	RuleArn *string `locationName:"ruleArn" type:"string"`
 }
 
 // String returns the string representation
@@ -2491,17 +2572,13 @@ func (s GetTopicRuleOutput) GoString() string {
 
 // Describes a key pair.
 type KeyPair struct {
+	_ struct{} `type:"structure"`
+
 	// The private key.
 	PrivateKey *string `min:"1" type:"string"`
 
 	// The public key.
 	PublicKey *string `min:"1" type:"string"`
-
-	metadataKeyPair `json:"-" xml:"-"`
-}
-
-type metadataKeyPair struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2516,20 +2593,16 @@ func (s KeyPair) GoString() string {
 
 // Describes an action to write data to an Amazon Kinesis stream.
 type KinesisAction struct {
+	_ struct{} `type:"structure"`
+
 	// The partition key.
 	PartitionKey *string `locationName:"partitionKey" type:"string"`
 
-	// The ARN of the IAM role that grants access.
+	// The ARN of the IAM role that grants access to the Amazon Kinesis stream.
 	RoleArn *string `locationName:"roleArn" type:"string" required:"true"`
 
-	// The name of the Kinesis stream.
+	// The name of the Amazon Kinesis stream.
 	StreamName *string `locationName:"streamName" type:"string" required:"true"`
-
-	metadataKinesisAction `json:"-" xml:"-"`
-}
-
-type metadataKinesisAction struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2542,16 +2615,12 @@ func (s KinesisAction) GoString() string {
 	return s.String()
 }
 
-// Describes an action to invoke a Lamdba function.
+// Describes an action to invoke a Lambda function.
 type LambdaAction struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the Lambda function.
 	FunctionArn *string `locationName:"functionArn" type:"string" required:"true"`
-
-	metadataLambdaAction `json:"-" xml:"-"`
-}
-
-type metadataLambdaAction struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2566,6 +2635,8 @@ func (s LambdaAction) GoString() string {
 
 // The input for the ListCertificates operation.
 type ListCertificatesInput struct {
+	_ struct{} `type:"structure"`
+
 	// Specifies the order for results. If True, the results are returned in ascending
 	// order, based on the creation date.
 	AscendingOrder *bool `location:"querystring" locationName:"isAscendingOrder" type:"boolean"`
@@ -2575,12 +2646,6 @@ type ListCertificatesInput struct {
 
 	// The result page size.
 	PageSize *int64 `location:"querystring" locationName:"pageSize" min:"1" type:"integer"`
-
-	metadataListCertificatesInput `json:"-" xml:"-"`
-}
-
-type metadataListCertificatesInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2595,18 +2660,14 @@ func (s ListCertificatesInput) GoString() string {
 
 // The output of the ListCertificates operation.
 type ListCertificatesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The descriptions of the certificates.
 	Certificates []*Certificate `locationName:"certificates" type:"list"`
 
 	// The marker for the next set of results, or null if there are no additional
 	// results.
 	NextMarker *string `locationName:"nextMarker" type:"string"`
-
-	metadataListCertificatesOutput `json:"-" xml:"-"`
-}
-
-type metadataListCertificatesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2621,6 +2682,8 @@ func (s ListCertificatesOutput) GoString() string {
 
 // The input for the ListPolicies operation.
 type ListPoliciesInput struct {
+	_ struct{} `type:"structure"`
+
 	// Specifies the order for results. If true, the results are returned in ascending
 	// creation order.
 	AscendingOrder *bool `location:"querystring" locationName:"isAscendingOrder" type:"boolean"`
@@ -2630,12 +2693,6 @@ type ListPoliciesInput struct {
 
 	// The result page size.
 	PageSize *int64 `location:"querystring" locationName:"pageSize" min:"1" type:"integer"`
-
-	metadataListPoliciesInput `json:"-" xml:"-"`
-}
-
-type metadataListPoliciesInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2650,18 +2707,14 @@ func (s ListPoliciesInput) GoString() string {
 
 // The output from the ListPolicies operation.
 type ListPoliciesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The marker for the next set of results, or null if there are no additional
 	// results.
 	NextMarker *string `locationName:"nextMarker" type:"string"`
 
 	// The descriptions of the policies.
 	Policies []*Policy `locationName:"policies" type:"list"`
-
-	metadataListPoliciesOutput `json:"-" xml:"-"`
-}
-
-type metadataListPoliciesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2676,14 +2729,10 @@ func (s ListPoliciesOutput) GoString() string {
 
 // The input for the ListPolicyVersions operation.
 type ListPolicyVersionsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The policy name.
 	PolicyName *string `location:"uri" locationName:"policyName" min:"1" type:"string" required:"true"`
-
-	metadataListPolicyVersionsInput `json:"-" xml:"-"`
-}
-
-type metadataListPolicyVersionsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2698,14 +2747,10 @@ func (s ListPolicyVersionsInput) GoString() string {
 
 // The output from the ListPolicyVersions operation.
 type ListPolicyVersionsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The policy versions.
 	PolicyVersions []*PolicyVersion `locationName:"policyVersions" type:"list"`
-
-	metadataListPolicyVersionsOutput `json:"-" xml:"-"`
-}
-
-type metadataListPolicyVersionsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2720,6 +2765,8 @@ func (s ListPolicyVersionsOutput) GoString() string {
 
 // The input for the ListPrincipalPolicies operation.
 type ListPrincipalPoliciesInput struct {
+	_ struct{} `type:"structure"`
+
 	// Specifies the order for results. If true, results are returned in ascending
 	// creation order.
 	AscendingOrder *bool `location:"querystring" locationName:"isAscendingOrder" type:"boolean"`
@@ -2732,12 +2779,6 @@ type ListPrincipalPoliciesInput struct {
 
 	// The principal.
 	Principal *string `location:"header" locationName:"x-amzn-iot-principal" type:"string" required:"true"`
-
-	metadataListPrincipalPoliciesInput `json:"-" xml:"-"`
-}
-
-type metadataListPrincipalPoliciesInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2752,18 +2793,14 @@ func (s ListPrincipalPoliciesInput) GoString() string {
 
 // The output from the ListPrincipalPolicies operation.
 type ListPrincipalPoliciesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The marker for the next set of results, or null if there are no additional
 	// results.
 	NextMarker *string `locationName:"nextMarker" type:"string"`
 
 	// The policies.
 	Policies []*Policy `locationName:"policies" type:"list"`
-
-	metadataListPrincipalPoliciesOutput `json:"-" xml:"-"`
-}
-
-type metadataListPrincipalPoliciesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2778,18 +2815,16 @@ func (s ListPrincipalPoliciesOutput) GoString() string {
 
 // The input for the ListPrincipalThings operation.
 type ListPrincipalThingsInput struct {
+	_ struct{} `type:"structure"`
+
+	// The maximum number of principals to return.
 	MaxResults *int64 `location:"querystring" locationName:"maxResults" min:"1" type:"integer"`
 
+	// A token used to retrieve the next value.
 	NextToken *string `location:"querystring" locationName:"nextToken" type:"string"`
 
 	// The principal.
 	Principal *string `location:"header" locationName:"x-amzn-principal" type:"string" required:"true"`
-
-	metadataListPrincipalThingsInput `json:"-" xml:"-"`
-}
-
-type metadataListPrincipalThingsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2804,17 +2839,13 @@ func (s ListPrincipalThingsInput) GoString() string {
 
 // The output from the ListPrincipalThings operation.
 type ListPrincipalThingsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A token used to retrieve the next value.
 	NextToken *string `locationName:"nextToken" type:"string"`
 
 	// The things.
 	Things []*string `locationName:"things" type:"list"`
-
-	metadataListPrincipalThingsOutput `json:"-" xml:"-"`
-}
-
-type metadataListPrincipalThingsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2829,14 +2860,10 @@ func (s ListPrincipalThingsOutput) GoString() string {
 
 // The input for the ListThingPrincipal operation.
 type ListThingPrincipalsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the thing.
 	ThingName *string `location:"uri" locationName:"thingName" min:"1" type:"string" required:"true"`
-
-	metadataListThingPrincipalsInput `json:"-" xml:"-"`
-}
-
-type metadataListThingPrincipalsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2851,14 +2878,10 @@ func (s ListThingPrincipalsInput) GoString() string {
 
 // The output from the ListThingPrincipals operation.
 type ListThingPrincipalsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The principals.
 	Principals []*string `locationName:"principals" type:"list"`
-
-	metadataListThingPrincipalsOutput `json:"-" xml:"-"`
-}
-
-type metadataListThingPrincipalsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2873,6 +2896,8 @@ func (s ListThingPrincipalsOutput) GoString() string {
 
 // The input for the ListThings operation.
 type ListThingsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The attribute name.
 	AttributeName *string `location:"querystring" locationName:"attributeName" type:"string"`
 
@@ -2884,12 +2909,6 @@ type ListThingsInput struct {
 
 	// The token for the next value.
 	NextToken *string `location:"querystring" locationName:"nextToken" type:"string"`
-
-	metadataListThingsInput `json:"-" xml:"-"`
-}
-
-type metadataListThingsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2904,17 +2923,13 @@ func (s ListThingsInput) GoString() string {
 
 // The output from the ListThings operation.
 type ListThingsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A token used to retrieve the next value.
 	NextToken *string `locationName:"nextToken" type:"string"`
 
 	// The things.
 	Things []*ThingAttribute `locationName:"things" type:"list"`
-
-	metadataListThingsOutput `json:"-" xml:"-"`
-}
-
-type metadataListThingsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2929,6 +2944,8 @@ func (s ListThingsOutput) GoString() string {
 
 // The input for the ListTopicRules operation.
 type ListTopicRulesInput struct {
+	_ struct{} `type:"structure"`
+
 	// The maximum number of results to return.
 	MaxResults *int64 `location:"querystring" locationName:"maxResults" min:"1" type:"integer"`
 
@@ -2940,12 +2957,6 @@ type ListTopicRulesInput struct {
 
 	// The topic.
 	Topic *string `location:"querystring" locationName:"topic" type:"string"`
-
-	metadataListTopicRulesInput `json:"-" xml:"-"`
-}
-
-type metadataListTopicRulesInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2960,17 +2971,13 @@ func (s ListTopicRulesInput) GoString() string {
 
 // The output from the ListTopicRules operation.
 type ListTopicRulesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A token used to retrieve the next value.
 	NextToken *string `locationName:"nextToken" type:"string"`
 
 	// The rules.
 	Rules []*TopicRuleListItem `locationName:"rules" type:"list"`
-
-	metadataListTopicRulesOutput `json:"-" xml:"-"`
-}
-
-type metadataListTopicRulesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2985,17 +2992,13 @@ func (s ListTopicRulesOutput) GoString() string {
 
 // Describes the logging options payload.
 type LoggingOptionsPayload struct {
+	_ struct{} `type:"structure"`
+
 	// The logging level.
 	LogLevel *string `locationName:"logLevel" type:"string" enum:"LogLevel"`
 
 	// The ARN of the IAM role that grants access.
 	RoleArn *string `locationName:"roleArn" type:"string" required:"true"`
-
-	metadataLoggingOptionsPayload `json:"-" xml:"-"`
-}
-
-type metadataLoggingOptionsPayload struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3010,17 +3013,13 @@ func (s LoggingOptionsPayload) GoString() string {
 
 // Describes an AWS IoT policy.
 type Policy struct {
+	_ struct{} `type:"structure"`
+
 	// The policy ARN.
 	PolicyArn *string `locationName:"policyArn" type:"string"`
 
 	// The policy name.
 	PolicyName *string `locationName:"policyName" min:"1" type:"string"`
-
-	metadataPolicy `json:"-" xml:"-"`
-}
-
-type metadataPolicy struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3035,6 +3034,8 @@ func (s Policy) GoString() string {
 
 // Describes a policy version.
 type PolicyVersion struct {
+	_ struct{} `type:"structure"`
+
 	// The date and time the policy was created.
 	CreateDate *time.Time `locationName:"createDate" type:"timestamp" timestampFormat:"unix"`
 
@@ -3043,12 +3044,6 @@ type PolicyVersion struct {
 
 	// The policy version ID.
 	VersionId *string `locationName:"versionId" type:"string"`
-
-	metadataPolicyVersion `json:"-" xml:"-"`
-}
-
-type metadataPolicyVersion struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3063,14 +3058,10 @@ func (s PolicyVersion) GoString() string {
 
 // The input for the RejectCertificateTransfer operation.
 type RejectCertificateTransferInput struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the certificate.
 	CertificateId *string `location:"uri" locationName:"certificateId" min:"64" type:"string" required:"true"`
-
-	metadataRejectCertificateTransferInput `json:"-" xml:"-"`
-}
-
-type metadataRejectCertificateTransferInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3084,11 +3075,7 @@ func (s RejectCertificateTransferInput) GoString() string {
 }
 
 type RejectCertificateTransferOutput struct {
-	metadataRejectCertificateTransferOutput `json:"-" xml:"-"`
-}
-
-type metadataRejectCertificateTransferOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -3103,17 +3090,13 @@ func (s RejectCertificateTransferOutput) GoString() string {
 
 // The input for the ReplaceTopicRule operation.
 type ReplaceTopicRuleInput struct {
+	_ struct{} `type:"structure" payload:"TopicRulePayload"`
+
 	// The name of the rule.
 	RuleName *string `location:"uri" locationName:"ruleName" min:"1" type:"string" required:"true"`
 
 	// The rule payload.
 	TopicRulePayload *TopicRulePayload `locationName:"topicRulePayload" type:"structure" required:"true"`
-
-	metadataReplaceTopicRuleInput `json:"-" xml:"-"`
-}
-
-type metadataReplaceTopicRuleInput struct {
-	SDKShapeTraits bool `type:"structure" payload:"TopicRulePayload"`
 }
 
 // String returns the string representation
@@ -3127,11 +3110,7 @@ func (s ReplaceTopicRuleInput) GoString() string {
 }
 
 type ReplaceTopicRuleOutput struct {
-	metadataReplaceTopicRuleOutput `json:"-" xml:"-"`
-}
-
-type metadataReplaceTopicRuleOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -3146,17 +3125,13 @@ func (s ReplaceTopicRuleOutput) GoString() string {
 
 // Describes an action to republish to another topic.
 type RepublishAction struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the IAM role that grants access.
 	RoleArn *string `locationName:"roleArn" type:"string" required:"true"`
 
 	// The name of the MQTT topic.
 	Topic *string `locationName:"topic" type:"string" required:"true"`
-
-	metadataRepublishAction `json:"-" xml:"-"`
-}
-
-type metadataRepublishAction struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3171,7 +3146,9 @@ func (s RepublishAction) GoString() string {
 
 // Describes an action to write data to an Amazon S3 bucket.
 type S3Action struct {
-	// The S3 bucket.
+	_ struct{} `type:"structure"`
+
+	// The Amazon S3 bucket.
 	BucketName *string `locationName:"bucketName" type:"string" required:"true"`
 
 	// The object key.
@@ -3179,12 +3156,6 @@ type S3Action struct {
 
 	// The ARN of the IAM role that grants access.
 	RoleArn *string `locationName:"roleArn" type:"string" required:"true"`
-
-	metadataS3Action `json:"-" xml:"-"`
-}
-
-type metadataS3Action struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3199,17 +3170,13 @@ func (s S3Action) GoString() string {
 
 // The input for the SetDefaultPolicyVersion operation.
 type SetDefaultPolicyVersionInput struct {
+	_ struct{} `type:"structure"`
+
 	// The policy name.
 	PolicyName *string `location:"uri" locationName:"policyName" min:"1" type:"string" required:"true"`
 
 	// The policy version ID.
 	PolicyVersionId *string `location:"uri" locationName:"policyVersionId" type:"string" required:"true"`
-
-	metadataSetDefaultPolicyVersionInput `json:"-" xml:"-"`
-}
-
-type metadataSetDefaultPolicyVersionInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3223,11 +3190,7 @@ func (s SetDefaultPolicyVersionInput) GoString() string {
 }
 
 type SetDefaultPolicyVersionOutput struct {
-	metadataSetDefaultPolicyVersionOutput `json:"-" xml:"-"`
-}
-
-type metadataSetDefaultPolicyVersionOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -3242,14 +3205,10 @@ func (s SetDefaultPolicyVersionOutput) GoString() string {
 
 // The input for the SetLoggingOptions operation.
 type SetLoggingOptionsInput struct {
+	_ struct{} `type:"structure" payload:"LoggingOptionsPayload"`
+
 	// The logging options payload.
-	LoggingOptionsPayload *LoggingOptionsPayload `locationName:"loggingOptionsPayload" type:"structure"`
-
-	metadataSetLoggingOptionsInput `json:"-" xml:"-"`
-}
-
-type metadataSetLoggingOptionsInput struct {
-	SDKShapeTraits bool `type:"structure" payload:"LoggingOptionsPayload"`
+	LoggingOptionsPayload *LoggingOptionsPayload `locationName:"loggingOptionsPayload" type:"structure" required:"true"`
 }
 
 // String returns the string representation
@@ -3263,11 +3222,7 @@ func (s SetLoggingOptionsInput) GoString() string {
 }
 
 type SetLoggingOptionsOutput struct {
-	metadataSetLoggingOptionsOutput `json:"-" xml:"-"`
-}
-
-type metadataSetLoggingOptionsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -3282,17 +3237,20 @@ func (s SetLoggingOptionsOutput) GoString() string {
 
 // Describes an action to publish to an Amazon SNS topic.
 type SnsAction struct {
+	_ struct{} `type:"structure"`
+
+	// The message format of the message to publish. Optional. Accepted values are
+	// "JSON" and "RAW". The default value of the attribute is "RAW". SNS uses this
+	// setting to determine if the payload should be parsed and relevant platform-specific
+	// bits of the payload should be extracted. To read more about SNS message formats,
+	// see  refer to their official documentation.
+	MessageFormat *string `locationName:"messageFormat" type:"string" enum:"MessageFormat"`
+
 	// The ARN of the IAM role that grants access.
 	RoleArn *string `locationName:"roleArn" type:"string" required:"true"`
 
 	// The ARN of the SNS topic.
 	TargetArn *string `locationName:"targetArn" type:"string" required:"true"`
-
-	metadataSnsAction `json:"-" xml:"-"`
-}
-
-type metadataSnsAction struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3305,8 +3263,10 @@ func (s SnsAction) GoString() string {
 	return s.String()
 }
 
-// Describes an action to publish data to an SQS queue.
+// Describes an action to publish data to an Amazon SQS queue.
 type SqsAction struct {
+	_ struct{} `type:"structure"`
+
 	// The URL of the Amazon SQS queue.
 	QueueUrl *string `locationName:"queueUrl" type:"string" required:"true"`
 
@@ -3315,12 +3275,6 @@ type SqsAction struct {
 
 	// Specifies whether to use Base64 encoding.
 	UseBase64 *bool `locationName:"useBase64" type:"boolean"`
-
-	metadataSqsAction `json:"-" xml:"-"`
-}
-
-type metadataSqsAction struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3335,17 +3289,13 @@ func (s SqsAction) GoString() string {
 
 // Describes a thing attribute.
 type ThingAttribute struct {
+	_ struct{} `type:"structure"`
+
 	// The attributes.
 	Attributes map[string]*string `locationName:"attributes" type:"map"`
 
 	// The name of the thing.
 	ThingName *string `locationName:"thingName" min:"1" type:"string"`
-
-	metadataThingAttribute `json:"-" xml:"-"`
-}
-
-type metadataThingAttribute struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3360,6 +3310,8 @@ func (s ThingAttribute) GoString() string {
 
 // Describes a rule.
 type TopicRule struct {
+	_ struct{} `type:"structure"`
+
 	// The actions associated with the rule.
 	Actions []*Action `locationName:"actions" type:"list"`
 
@@ -3376,14 +3328,8 @@ type TopicRule struct {
 	RuleName *string `locationName:"ruleName" min:"1" type:"string"`
 
 	// The SQL statement used to query the topic. When using a SQL query with multiple
-	// lines, be sure to escape the newline characters properly.
+	// lines, be sure to escape the newline characters.
 	Sql *string `locationName:"sql" type:"string"`
-
-	metadataTopicRule `json:"-" xml:"-"`
-}
-
-type metadataTopicRule struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3398,8 +3344,13 @@ func (s TopicRule) GoString() string {
 
 // Describes a rule.
 type TopicRuleListItem struct {
+	_ struct{} `type:"structure"`
+
 	// The date and time the rule was created.
 	CreatedAt *time.Time `locationName:"createdAt" type:"timestamp" timestampFormat:"unix"`
+
+	// The rule ARN.
+	RuleArn *string `locationName:"ruleArn" type:"string"`
 
 	// Specifies whether the rule is disabled.
 	RuleDisabled *bool `locationName:"ruleDisabled" type:"boolean"`
@@ -3409,12 +3360,6 @@ type TopicRuleListItem struct {
 
 	// The pattern for the topic names that apply.
 	TopicPattern *string `locationName:"topicPattern" type:"string"`
-
-	metadataTopicRuleListItem `json:"-" xml:"-"`
-}
-
-type metadataTopicRuleListItem struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3429,6 +3374,8 @@ func (s TopicRuleListItem) GoString() string {
 
 // Describes a rule.
 type TopicRulePayload struct {
+	_ struct{} `type:"structure"`
+
 	// The actions associated with the rule.
 	Actions []*Action `locationName:"actions" type:"list" required:"true"`
 
@@ -3442,12 +3389,6 @@ type TopicRulePayload struct {
 	// IoT SQL Reference (http://docs.aws.amazon.com/iot/latest/developerguide/iot-rules.html#aws-iot-sql-reference)
 	// in the AWS IoT Developer Guide.
 	Sql *string `locationName:"sql" type:"string" required:"true"`
-
-	metadataTopicRulePayload `json:"-" xml:"-"`
-}
-
-type metadataTopicRulePayload struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3462,17 +3403,13 @@ func (s TopicRulePayload) GoString() string {
 
 // The input for the TransferCertificate operation.
 type TransferCertificateInput struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the certificate.
 	CertificateId *string `location:"uri" locationName:"certificateId" min:"64" type:"string" required:"true"`
 
 	// The AWS account.
 	TargetAwsAccount *string `location:"querystring" locationName:"targetAwsAccount" type:"string" required:"true"`
-
-	metadataTransferCertificateInput `json:"-" xml:"-"`
-}
-
-type metadataTransferCertificateInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3487,14 +3424,10 @@ func (s TransferCertificateInput) GoString() string {
 
 // The output from the TransferCertificate operation.
 type TransferCertificateOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the certificate.
 	TransferredCertificateArn *string `locationName:"transferredCertificateArn" type:"string"`
-
-	metadataTransferCertificateOutput `json:"-" xml:"-"`
-}
-
-type metadataTransferCertificateOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3509,17 +3442,17 @@ func (s TransferCertificateOutput) GoString() string {
 
 // The input for the UpdateCertificate operation.
 type UpdateCertificateInput struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the certificate.
 	CertificateId *string `location:"uri" locationName:"certificateId" min:"64" type:"string" required:"true"`
 
 	// The new status.
+	//
+	// Note: Setting the status to PENDING_TRANSFER will result in an exception
+	// being thrown. PENDING_TRANSFER is a status used internally by AWS IoT. It
+	// is not intended for developer use.
 	NewStatus *string `location:"querystring" locationName:"newStatus" type:"string" required:"true" enum:"CertificateStatus"`
-
-	metadataUpdateCertificateInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateCertificateInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3533,11 +3466,7 @@ func (s UpdateCertificateInput) GoString() string {
 }
 
 type UpdateCertificateOutput struct {
-	metadataUpdateCertificateOutput `json:"-" xml:"-"`
-}
-
-type metadataUpdateCertificateOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -3552,19 +3481,14 @@ func (s UpdateCertificateOutput) GoString() string {
 
 // The input for the UpdateThing operation.
 type UpdateThingInput struct {
-	// The attribute payload, a JSON string containing up to three key-value pairs.
-	//
-	// For example: {\"attributes\":{\"string1\":\"string2\”}}
+	_ struct{} `type:"structure"`
+
+	// The attribute payload, a JSON string containing up to three key-value pairs
+	// (for example, {\"attributes\":{\"string1\":\"string2\"}}).
 	AttributePayload *AttributePayload `locationName:"attributePayload" type:"structure" required:"true"`
 
 	// The thing name.
 	ThingName *string `location:"uri" locationName:"thingName" min:"1" type:"string" required:"true"`
-
-	metadataUpdateThingInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateThingInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3579,11 +3503,7 @@ func (s UpdateThingInput) GoString() string {
 
 // The output from the UpdateThing operation.
 type UpdateThingOutput struct {
-	metadataUpdateThingOutput `json:"-" xml:"-"`
-}
-
-type metadataUpdateThingOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -3618,4 +3538,11 @@ const (
 	LogLevelWarn = "WARN"
 	// @enum LogLevel
 	LogLevelDisabled = "DISABLED"
+)
+
+const (
+	// @enum MessageFormat
+	MessageFormatRaw = "RAW"
+	// @enum MessageFormat
+	MessageFormatJson = "JSON"
 )

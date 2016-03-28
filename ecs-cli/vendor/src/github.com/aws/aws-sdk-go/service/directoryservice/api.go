@@ -30,7 +30,7 @@ func (c *DirectoryService) ConnectDirectoryRequest(input *ConnectDirectoryInput)
 	return
 }
 
-// Creates an AD Connector to connect an on-premises directory.
+// Creates an AD Connector to connect to an on-premises directory.
 func (c *DirectoryService) ConnectDirectory(input *ConnectDirectoryInput) (*ConnectDirectoryOutput, error) {
 	req, out := c.ConnectDirectoryRequest(input)
 	err := req.Send()
@@ -59,7 +59,7 @@ func (c *DirectoryService) CreateAliasRequest(input *CreateAliasInput) (req *req
 
 // Creates an alias for a directory and assigns the alias to the directory.
 // The alias is used to construct the access URL for the directory, such as
-// http://<alias>.awsapps.com.
+// http://alias.awsapps.com.
 //
 //  After an alias has been created, it cannot be deleted or reused, so this
 // operation should only be used when absolutely necessary.
@@ -124,6 +124,33 @@ func (c *DirectoryService) CreateDirectory(input *CreateDirectoryInput) (*Create
 	return out, err
 }
 
+const opCreateMicrosoftAD = "CreateMicrosoftAD"
+
+// CreateMicrosoftADRequest generates a request for the CreateMicrosoftAD operation.
+func (c *DirectoryService) CreateMicrosoftADRequest(input *CreateMicrosoftADInput) (req *request.Request, output *CreateMicrosoftADOutput) {
+	op := &request.Operation{
+		Name:       opCreateMicrosoftAD,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &CreateMicrosoftADInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &CreateMicrosoftADOutput{}
+	req.Data = output
+	return
+}
+
+// Creates a Microsoft AD in the AWS cloud.
+func (c *DirectoryService) CreateMicrosoftAD(input *CreateMicrosoftADInput) (*CreateMicrosoftADOutput, error) {
+	req, out := c.CreateMicrosoftADRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opCreateSnapshot = "CreateSnapshot"
 
 // CreateSnapshotRequest generates a request for the CreateSnapshot operation.
@@ -144,11 +171,45 @@ func (c *DirectoryService) CreateSnapshotRequest(input *CreateSnapshotInput) (re
 	return
 }
 
-// Creates a snapshot of an existing directory.
+// Creates a snapshot of a Simple AD or Microsoft AD directory in the AWS cloud.
 //
-// You cannot take snapshots of extended or connected directories.
+//  You cannot take snapshots of AD Connector directories.
 func (c *DirectoryService) CreateSnapshot(input *CreateSnapshotInput) (*CreateSnapshotOutput, error) {
 	req, out := c.CreateSnapshotRequest(input)
+	err := req.Send()
+	return out, err
+}
+
+const opCreateTrust = "CreateTrust"
+
+// CreateTrustRequest generates a request for the CreateTrust operation.
+func (c *DirectoryService) CreateTrustRequest(input *CreateTrustInput) (req *request.Request, output *CreateTrustOutput) {
+	op := &request.Operation{
+		Name:       opCreateTrust,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &CreateTrustInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &CreateTrustOutput{}
+	req.Data = output
+	return
+}
+
+// AWS Directory Service for Microsoft Active Directory allows you to configure
+// trust relationships. For example, you can establish a trust between your
+// Microsoft AD in the AWS cloud, and your existing on-premises Microsoft Active
+// Directory. This would allow you to provide users and groups access to resources
+// in either domain, with a single set of credentials.
+//
+// This action initiates the creation of the AWS side of a trust relationship
+// between a Microsoft AD in the AWS cloud and an external domain.
+func (c *DirectoryService) CreateTrust(input *CreateTrustInput) (*CreateTrustOutput, error) {
+	req, out := c.CreateTrustRequest(input)
 	err := req.Send()
 	return out, err
 }
@@ -207,6 +268,61 @@ func (c *DirectoryService) DeleteSnapshot(input *DeleteSnapshotInput) (*DeleteSn
 	return out, err
 }
 
+const opDeleteTrust = "DeleteTrust"
+
+// DeleteTrustRequest generates a request for the DeleteTrust operation.
+func (c *DirectoryService) DeleteTrustRequest(input *DeleteTrustInput) (req *request.Request, output *DeleteTrustOutput) {
+	op := &request.Operation{
+		Name:       opDeleteTrust,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DeleteTrustInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &DeleteTrustOutput{}
+	req.Data = output
+	return
+}
+
+// Deletes an existing trust relationship between your Microsoft AD in the AWS
+// cloud and an external domain.
+func (c *DirectoryService) DeleteTrust(input *DeleteTrustInput) (*DeleteTrustOutput, error) {
+	req, out := c.DeleteTrustRequest(input)
+	err := req.Send()
+	return out, err
+}
+
+const opDeregisterEventTopic = "DeregisterEventTopic"
+
+// DeregisterEventTopicRequest generates a request for the DeregisterEventTopic operation.
+func (c *DirectoryService) DeregisterEventTopicRequest(input *DeregisterEventTopicInput) (req *request.Request, output *DeregisterEventTopicOutput) {
+	op := &request.Operation{
+		Name:       opDeregisterEventTopic,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DeregisterEventTopicInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &DeregisterEventTopicOutput{}
+	req.Data = output
+	return
+}
+
+// Removes the specified directory as a publisher to the specified SNS topic.
+func (c *DirectoryService) DeregisterEventTopic(input *DeregisterEventTopicInput) (*DeregisterEventTopicOutput, error) {
+	req, out := c.DeregisterEventTopicRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opDescribeDirectories = "DescribeDirectories"
 
 // DescribeDirectoriesRequest generates a request for the DescribeDirectories operation.
@@ -245,6 +361,37 @@ func (c *DirectoryService) DescribeDirectories(input *DescribeDirectoriesInput) 
 	return out, err
 }
 
+const opDescribeEventTopics = "DescribeEventTopics"
+
+// DescribeEventTopicsRequest generates a request for the DescribeEventTopics operation.
+func (c *DirectoryService) DescribeEventTopicsRequest(input *DescribeEventTopicsInput) (req *request.Request, output *DescribeEventTopicsOutput) {
+	op := &request.Operation{
+		Name:       opDescribeEventTopics,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DescribeEventTopicsInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &DescribeEventTopicsOutput{}
+	req.Data = output
+	return
+}
+
+// Obtains information about which SNS topics receive status messages from the
+// specified directory.
+//
+// If no input parameters are provided, such as DirectoryId or TopicName, this
+// request describes all of the associations in the account.
+func (c *DirectoryService) DescribeEventTopics(input *DescribeEventTopicsInput) (*DescribeEventTopicsOutput, error) {
+	req, out := c.DescribeEventTopicsRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opDescribeSnapshots = "DescribeSnapshots"
 
 // DescribeSnapshotsRequest generates a request for the DescribeSnapshots operation.
@@ -279,6 +426,36 @@ func (c *DirectoryService) DescribeSnapshots(input *DescribeSnapshotsInput) (*De
 	return out, err
 }
 
+const opDescribeTrusts = "DescribeTrusts"
+
+// DescribeTrustsRequest generates a request for the DescribeTrusts operation.
+func (c *DirectoryService) DescribeTrustsRequest(input *DescribeTrustsInput) (req *request.Request, output *DescribeTrustsOutput) {
+	op := &request.Operation{
+		Name:       opDescribeTrusts,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DescribeTrustsInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &DescribeTrustsOutput{}
+	req.Data = output
+	return
+}
+
+// Obtains information about the trust relationships for this account.
+//
+// If no input parameters are provided, such as DirectoryId or TrustIds, this
+// request describes all the trust relationships belonging to the account.
+func (c *DirectoryService) DescribeTrusts(input *DescribeTrustsInput) (*DescribeTrustsOutput, error) {
+	req, out := c.DescribeTrustsRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opDisableRadius = "DisableRadius"
 
 // DisableRadiusRequest generates a request for the DisableRadius operation.
@@ -299,8 +476,8 @@ func (c *DirectoryService) DisableRadiusRequest(input *DisableRadiusInput) (req 
 	return
 }
 
-// Disables multi-factor authentication (MFA) with Remote Authentication Dial
-// In User Service (RADIUS) for an AD Connector directory.
+// Disables multi-factor authentication (MFA) with the Remote Authentication
+// Dial In User Service (RADIUS) server for an AD Connector directory.
 func (c *DirectoryService) DisableRadius(input *DisableRadiusInput) (*DisableRadiusOutput, error) {
 	req, out := c.DisableRadiusRequest(input)
 	err := req.Send()
@@ -354,8 +531,8 @@ func (c *DirectoryService) EnableRadiusRequest(input *EnableRadiusInput) (req *r
 	return
 }
 
-// Enables multi-factor authentication (MFA) with Remote Authentication Dial
-// In User Service (RADIUS) for an AD Connector directory.
+// Enables multi-factor authentication (MFA) with the Remote Authentication
+// Dial In User Service (RADIUS) server for an AD Connector directory.
 func (c *DirectoryService) EnableRadius(input *EnableRadiusInput) (*EnableRadiusOutput, error) {
 	req, out := c.EnableRadiusRequest(input)
 	err := req.Send()
@@ -443,6 +620,38 @@ func (c *DirectoryService) GetSnapshotLimits(input *GetSnapshotLimitsInput) (*Ge
 	return out, err
 }
 
+const opRegisterEventTopic = "RegisterEventTopic"
+
+// RegisterEventTopicRequest generates a request for the RegisterEventTopic operation.
+func (c *DirectoryService) RegisterEventTopicRequest(input *RegisterEventTopicInput) (req *request.Request, output *RegisterEventTopicOutput) {
+	op := &request.Operation{
+		Name:       opRegisterEventTopic,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &RegisterEventTopicInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &RegisterEventTopicOutput{}
+	req.Data = output
+	return
+}
+
+// Associates a directory with an SNS topic. This establishes the directory
+// as a publisher to the specified SNS topic. You can then receive email or
+// text (SMS) messages when the status of your directory changes. You get notified
+// if your directory goes from an Active status to an Impaired or Inoperable
+// status. You also receive a notification when the directory returns to an
+// Active status.
+func (c *DirectoryService) RegisterEventTopic(input *RegisterEventTopicInput) (*RegisterEventTopicOutput, error) {
+	req, out := c.RegisterEventTopicRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opRestoreFromSnapshot = "RestoreFromSnapshot"
 
 // RestoreFromSnapshotRequest generates a request for the RestoreFromSnapshot operation.
@@ -506,19 +715,46 @@ func (c *DirectoryService) UpdateRadius(input *UpdateRadiusInput) (*UpdateRadius
 	return out, err
 }
 
+const opVerifyTrust = "VerifyTrust"
+
+// VerifyTrustRequest generates a request for the VerifyTrust operation.
+func (c *DirectoryService) VerifyTrustRequest(input *VerifyTrustInput) (req *request.Request, output *VerifyTrustOutput) {
+	op := &request.Operation{
+		Name:       opVerifyTrust,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &VerifyTrustInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &VerifyTrustOutput{}
+	req.Data = output
+	return
+}
+
+// AWS Directory Service for Microsoft Active Directory allows you to configure
+// and verify trust relationships.
+//
+// This action verifies a trust relationship between your Microsoft AD in the
+// AWS cloud and an external domain.
+func (c *DirectoryService) VerifyTrust(input *VerifyTrustInput) (*VerifyTrustOutput, error) {
+	req, out := c.VerifyTrustRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 // Represents a named directory attribute.
 type Attribute struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the attribute.
 	Name *string `min:"1" type:"string"`
 
 	// The value of the attribute.
 	Value *string `type:"string"`
-
-	metadataAttribute `json:"-" xml:"-"`
-}
-
-type metadataAttribute struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -533,7 +769,9 @@ func (s Attribute) GoString() string {
 
 // Contains information about a computer account in a directory.
 type Computer struct {
-	// An array of Attribute objects that contain the LDAP attributes that belong
+	_ struct{} `type:"structure"`
+
+	// An array of Attribute objects containing the LDAP attributes that belong
 	// to the computer account.
 	ComputerAttributes []*Attribute `type:"list"`
 
@@ -542,12 +780,6 @@ type Computer struct {
 
 	// The computer name.
 	ComputerName *string `min:"1" type:"string"`
-
-	metadataComputer `json:"-" xml:"-"`
-}
-
-type metadataComputer struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -562,6 +794,8 @@ func (s Computer) GoString() string {
 
 // Contains the inputs for the ConnectDirectory operation.
 type ConnectDirectoryInput struct {
+	_ struct{} `type:"structure"`
+
 	// A DirectoryConnectSettings object that contains additional information for
 	// the operation.
 	ConnectSettings *DirectoryConnectSettings `type:"structure" required:"true"`
@@ -580,12 +814,6 @@ type ConnectDirectoryInput struct {
 
 	// The size of the directory.
 	Size *string `type:"string" required:"true" enum:"DirectorySize"`
-
-	metadataConnectDirectoryInput `json:"-" xml:"-"`
-}
-
-type metadataConnectDirectoryInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -600,14 +828,10 @@ func (s ConnectDirectoryInput) GoString() string {
 
 // Contains the results of the ConnectDirectory operation.
 type ConnectDirectoryOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The identifier of the new directory.
 	DirectoryId *string `type:"string"`
-
-	metadataConnectDirectoryOutput `json:"-" xml:"-"`
-}
-
-type metadataConnectDirectoryOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -622,20 +846,16 @@ func (s ConnectDirectoryOutput) GoString() string {
 
 // Contains the inputs for the CreateAlias operation.
 type CreateAliasInput struct {
+	_ struct{} `type:"structure"`
+
 	// The requested alias.
 	//
-	// The alias must be unique amongst all aliases in AWS. This operation will
-	// throw an EntityAlreadyExistsException if this alias already exists.
+	// The alias must be unique amongst all aliases in AWS. This operation throws
+	// an EntityAlreadyExistsException error if the alias already exists.
 	Alias *string `min:"1" type:"string" required:"true"`
 
-	// The identifier of the directory to create the alias for.
+	// The identifier of the directory for which to create the alias.
 	DirectoryId *string `type:"string" required:"true"`
-
-	metadataCreateAliasInput `json:"-" xml:"-"`
-}
-
-type metadataCreateAliasInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -650,17 +870,13 @@ func (s CreateAliasInput) GoString() string {
 
 // Contains the results of the CreateAlias operation.
 type CreateAliasOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The alias for the directory.
 	Alias *string `min:"1" type:"string"`
 
 	// The identifier of the directory.
 	DirectoryId *string `type:"string"`
-
-	metadataCreateAliasOutput `json:"-" xml:"-"`
-}
-
-type metadataCreateAliasOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -675,6 +891,8 @@ func (s CreateAliasOutput) GoString() string {
 
 // Contains the inputs for the CreateComputer operation.
 type CreateComputerInput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of Attribute objects that contain any LDAP attributes to apply to
 	// the computer account.
 	ComputerAttributes []*Attribute `type:"list"`
@@ -682,7 +900,7 @@ type CreateComputerInput struct {
 	// The name of the computer account.
 	ComputerName *string `min:"1" type:"string" required:"true"`
 
-	// The identifier of the directory to create the computer account in.
+	// The identifier of the directory in which to create the computer account.
 	DirectoryId *string `type:"string" required:"true"`
 
 	// The fully-qualified distinguished name of the organizational unit to place
@@ -692,12 +910,6 @@ type CreateComputerInput struct {
 	// A one-time password that is used to join the computer to the directory. You
 	// should generate a random, strong password to use for this parameter.
 	Password *string `min:"8" type:"string" required:"true"`
-
-	metadataCreateComputerInput `json:"-" xml:"-"`
-}
-
-type metadataCreateComputerInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -712,14 +924,10 @@ func (s CreateComputerInput) GoString() string {
 
 // Contains the results for the CreateComputer operation.
 type CreateComputerOutput struct {
-	// A Computer object the represents the computer account.
+	_ struct{} `type:"structure"`
+
+	// A Computer object that represents the computer account.
 	Computer *Computer `type:"structure"`
-
-	metadataCreateComputerOutput `json:"-" xml:"-"`
-}
-
-type metadataCreateComputerOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -734,6 +942,8 @@ func (s CreateComputerOutput) GoString() string {
 
 // Contains the inputs for the CreateDirectory operation.
 type CreateDirectoryInput struct {
+	_ struct{} `type:"structure"`
+
 	// A textual description for the directory.
 	Description *string `type:"string"`
 
@@ -754,12 +964,6 @@ type CreateDirectoryInput struct {
 	// A DirectoryVpcSettings object that contains additional information for the
 	// operation.
 	VpcSettings *DirectoryVpcSettings `type:"structure"`
-
-	metadataCreateDirectoryInput `json:"-" xml:"-"`
-}
-
-type metadataCreateDirectoryInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -774,14 +978,10 @@ func (s CreateDirectoryInput) GoString() string {
 
 // Contains the results of the CreateDirectory operation.
 type CreateDirectoryOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The identifier of the directory that was created.
 	DirectoryId *string `type:"string"`
-
-	metadataCreateDirectoryOutput `json:"-" xml:"-"`
-}
-
-type metadataCreateDirectoryOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -794,19 +994,67 @@ func (s CreateDirectoryOutput) GoString() string {
 	return s.String()
 }
 
+// Creates a Microsoft AD in the AWS cloud.
+type CreateMicrosoftADInput struct {
+	_ struct{} `type:"structure"`
+
+	// A textual description for the directory. This label will appear on the AWS
+	// console Directory Details page after the directory is created.
+	Description *string `type:"string"`
+
+	// The fully qualified domain name for the directory, such as corp.example.com.
+	// This name will resolve inside your VPC only. It does not need to be publicly
+	// resolvable.
+	Name *string `type:"string" required:"true"`
+
+	// The password for the default administrative user named Admin.
+	Password *string `type:"string" required:"true"`
+
+	// The NetBIOS name for your domain. A short identifier for your domain, such
+	// as CORP. If you don't specify a NetBIOS name, it will default to the first
+	// part of your directory DNS. For example, CORP for the directory DNS corp.example.com.
+	ShortName *string `type:"string"`
+
+	// Contains VPC information for the CreateDirectory or CreateMicrosoftAD operation.
+	VpcSettings *DirectoryVpcSettings `type:"structure" required:"true"`
+}
+
+// String returns the string representation
+func (s CreateMicrosoftADInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateMicrosoftADInput) GoString() string {
+	return s.String()
+}
+
+type CreateMicrosoftADOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The identifier of the directory that was created.
+	DirectoryId *string `type:"string"`
+}
+
+// String returns the string representation
+func (s CreateMicrosoftADOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateMicrosoftADOutput) GoString() string {
+	return s.String()
+}
+
 // Contains the inputs for the CreateSnapshot operation.
 type CreateSnapshotInput struct {
-	// The identifier of the directory to take a snapshot of.
+	_ struct{} `type:"structure"`
+
+	// The identifier of the directory of which to take a snapshot.
 	DirectoryId *string `type:"string" required:"true"`
 
 	// The descriptive name to apply to the snapshot.
 	Name *string `type:"string"`
-
-	metadataCreateSnapshotInput `json:"-" xml:"-"`
-}
-
-type metadataCreateSnapshotInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -821,14 +1069,10 @@ func (s CreateSnapshotInput) GoString() string {
 
 // Contains the results of the CreateSnapshot operation.
 type CreateSnapshotOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The identifier of the snapshot that was created.
 	SnapshotId *string `type:"string"`
-
-	metadataCreateSnapshotOutput `json:"-" xml:"-"`
-}
-
-type metadataCreateSnapshotOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -841,16 +1085,69 @@ func (s CreateSnapshotOutput) GoString() string {
 	return s.String()
 }
 
-// Contains the inputs for the DeleteDirectory operation.
-type DeleteDirectoryInput struct {
-	// The identifier of the directory to delete.
+// AWS Directory Service for Microsoft Active Directory allows you to configure
+// trust relationships. For example, you can establish a trust between your
+// Microsoft AD in the AWS cloud, and your existing on-premises Microsoft Active
+// Directory. This would allow you to provide users and groups access to resources
+// in either domain, with a single set of credentials.
+//
+// This action initiates the creation of the AWS side of a trust relationship
+// between a Microsoft AD in the AWS cloud and an external domain.
+type CreateTrustInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Directory ID of the Microsoft AD in the AWS cloud for which to establish
+	// the trust relationship.
 	DirectoryId *string `type:"string" required:"true"`
 
-	metadataDeleteDirectoryInput `json:"-" xml:"-"`
+	// The Fully Qualified Domain Name (FQDN) of the external domain for which to
+	// create the trust relationship.
+	RemoteDomainName *string `type:"string" required:"true"`
+
+	// The direction of the trust relationship.
+	TrustDirection *string `type:"string" required:"true" enum:"TrustDirection"`
+
+	// The trust password. The must be the same password that was used when creating
+	// the trust relationship on the external domain.
+	TrustPassword *string `min:"1" type:"string" required:"true"`
+
+	// The trust relationship type.
+	TrustType *string `type:"string" enum:"TrustType"`
 }
 
-type metadataDeleteDirectoryInput struct {
-	SDKShapeTraits bool `type:"structure"`
+// String returns the string representation
+func (s CreateTrustInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateTrustInput) GoString() string {
+	return s.String()
+}
+
+type CreateTrustOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A unique identifier for the trust relationship that was created.
+	TrustId *string `type:"string"`
+}
+
+// String returns the string representation
+func (s CreateTrustOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateTrustOutput) GoString() string {
+	return s.String()
+}
+
+// Contains the inputs for the DeleteDirectory operation.
+type DeleteDirectoryInput struct {
+	_ struct{} `type:"structure"`
+
+	// The identifier of the directory to delete.
+	DirectoryId *string `type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -865,14 +1162,10 @@ func (s DeleteDirectoryInput) GoString() string {
 
 // Contains the results of the DeleteDirectory operation.
 type DeleteDirectoryOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The directory identifier.
 	DirectoryId *string `type:"string"`
-
-	metadataDeleteDirectoryOutput `json:"-" xml:"-"`
-}
-
-type metadataDeleteDirectoryOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -887,14 +1180,10 @@ func (s DeleteDirectoryOutput) GoString() string {
 
 // Contains the inputs for the DeleteSnapshot operation.
 type DeleteSnapshotInput struct {
+	_ struct{} `type:"structure"`
+
 	// The identifier of the directory snapshot to be deleted.
 	SnapshotId *string `type:"string" required:"true"`
-
-	metadataDeleteSnapshotInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteSnapshotInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -909,14 +1198,10 @@ func (s DeleteSnapshotInput) GoString() string {
 
 // Contains the results of the DeleteSnapshot operation.
 type DeleteSnapshotOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The identifier of the directory snapshot that was deleted.
 	SnapshotId *string `type:"string"`
-
-	metadataDeleteSnapshotOutput `json:"-" xml:"-"`
-}
-
-type metadataDeleteSnapshotOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -929,11 +1214,85 @@ func (s DeleteSnapshotOutput) GoString() string {
 	return s.String()
 }
 
+// Deletes the local side of an existing trust relationship between the Microsoft
+// AD in the AWS cloud and the external domain.
+type DeleteTrustInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Trust ID of the trust relationship to be deleted.
+	TrustId *string `type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s DeleteTrustInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteTrustInput) GoString() string {
+	return s.String()
+}
+
+type DeleteTrustOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Trust ID of the trust relationship that was deleted.
+	TrustId *string `type:"string"`
+}
+
+// String returns the string representation
+func (s DeleteTrustOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteTrustOutput) GoString() string {
+	return s.String()
+}
+
+// Removes the specified directory as a publisher to the specified SNS topic.
+type DeregisterEventTopicInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Directory ID to remove as a publisher. This directory will no longer
+	// send messages to the specified SNS topic.
+	DirectoryId *string `type:"string" required:"true"`
+
+	// The name of the SNS topic from which to remove the directory as a publisher.
+	TopicName *string `min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s DeregisterEventTopicInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeregisterEventTopicInput) GoString() string {
+	return s.String()
+}
+
+type DeregisterEventTopicOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s DeregisterEventTopicOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeregisterEventTopicOutput) GoString() string {
+	return s.String()
+}
+
 // Contains the inputs for the DescribeDirectories operation.
 type DescribeDirectoriesInput struct {
-	// A list of identifiers of the directories to obtain the information for. If
-	// this member is null, all directories that belong to the current account are
-	// returned.
+	_ struct{} `type:"structure"`
+
+	// A list of identifiers of the directories for which to obtain the information.
+	// If this member is null, all directories that belong to the current account
+	// are returned.
 	//
 	// An empty list results in an InvalidParameterException being thrown.
 	DirectoryIds []*string `type:"list"`
@@ -945,12 +1304,6 @@ type DescribeDirectoriesInput struct {
 	// The DescribeDirectoriesResult.NextToken value from a previous call to DescribeDirectories.
 	// Pass null if this is the first call.
 	NextToken *string `type:"string"`
-
-	metadataDescribeDirectoriesInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeDirectoriesInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -965,6 +1318,8 @@ func (s DescribeDirectoriesInput) GoString() string {
 
 // Contains the results of the DescribeDirectories operation.
 type DescribeDirectoriesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The list of DirectoryDescription objects that were retrieved.
 	//
 	// It is possible that this list contains less than the number of items specified
@@ -977,12 +1332,6 @@ type DescribeDirectoriesOutput struct {
 	// parameter in a subsequent call to DescribeDirectories to retrieve the next
 	// set of items.
 	NextToken *string `type:"string"`
-
-	metadataDescribeDirectoriesOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeDirectoriesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -995,9 +1344,53 @@ func (s DescribeDirectoriesOutput) GoString() string {
 	return s.String()
 }
 
+type DescribeEventTopicsInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Directory ID for which to get the list of associated SNS topics. If this
+	// member is null, associations for all Directory IDs are returned.
+	DirectoryId *string `type:"string"`
+
+	// A list of SNS topic names for which to obtain the information. If this member
+	// is null, all associations for the specified Directory ID are returned.
+	//
+	// An empty list results in an InvalidParameterException being thrown.
+	TopicNames []*string `type:"list"`
+}
+
+// String returns the string representation
+func (s DescribeEventTopicsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DescribeEventTopicsInput) GoString() string {
+	return s.String()
+}
+
+type DescribeEventTopicsOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A list of SNS topic names that receive status messages from the specified
+	// Directory ID.
+	EventTopics []*EventTopic `type:"list"`
+}
+
+// String returns the string representation
+func (s DescribeEventTopicsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DescribeEventTopicsOutput) GoString() string {
+	return s.String()
+}
+
 // Contains the inputs for the DescribeSnapshots operation.
 type DescribeSnapshotsInput struct {
-	// The identifier of the directory to retrieve snapshot information for.
+	_ struct{} `type:"structure"`
+
+	// The identifier of the directory for which to retrieve snapshot information.
 	DirectoryId *string `type:"string"`
 
 	// The maximum number of objects to return.
@@ -1011,12 +1404,6 @@ type DescribeSnapshotsInput struct {
 	// this member is null or empty, all snapshots are returned using the Limit
 	// and NextToken members.
 	SnapshotIds []*string `type:"list"`
-
-	metadataDescribeSnapshotsInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeSnapshotsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1031,6 +1418,8 @@ func (s DescribeSnapshotsInput) GoString() string {
 
 // Contains the results of the DescribeSnapshots operation.
 type DescribeSnapshotsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// If not null, more results are available. Pass this value in the NextToken
 	// member of a subsequent call to DescribeSnapshots.
 	NextToken *string `type:"string"`
@@ -1042,12 +1431,6 @@ type DescribeSnapshotsOutput struct {
 	// requested number of items left to retrieve, or if the limitations of the
 	// operation have been exceeded.
 	Snapshots []*Snapshot `type:"list"`
-
-	metadataDescribeSnapshotsOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeSnapshotsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1060,9 +1443,73 @@ func (s DescribeSnapshotsOutput) GoString() string {
 	return s.String()
 }
 
+// Describes the trust relationships for a particular Microsoft AD in the AWS
+// cloud. If no input parameters are are provided, such as directory ID or trust
+// ID, this request describes all the trust relationships.
+type DescribeTrustsInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Directory ID of the AWS directory that is a part of the requested trust
+	// relationship.
+	DirectoryId *string `type:"string"`
+
+	// The maximum number of objects to return.
+	Limit *int64 `type:"integer"`
+
+	// The DescribeTrustsResult.NextToken value from a previous call to DescribeTrusts.
+	// Pass null if this is the first call.
+	NextToken *string `type:"string"`
+
+	// A list of identifiers of the trust relationships for which to obtain the
+	// information. If this member is null, all trust relationships that belong
+	// to the current account are returned.
+	//
+	// An empty list results in an InvalidParameterException being thrown.
+	TrustIds []*string `type:"list"`
+}
+
+// String returns the string representation
+func (s DescribeTrustsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DescribeTrustsInput) GoString() string {
+	return s.String()
+}
+
+type DescribeTrustsOutput struct {
+	_ struct{} `type:"structure"`
+
+	// If not null, more results are available. Pass this value for the NextToken
+	// parameter in a subsequent call to DescribeTrusts to retrieve the next set
+	// of items.
+	NextToken *string `type:"string"`
+
+	// The list of Trust objects that were retrieved.
+	//
+	// It is possible that this list contains less than the number of items specified
+	// in the Limit member of the request. This occurs if there are less than the
+	// requested number of items left to retrieve, or if the limitations of the
+	// operation have been exceeded.
+	Trusts []*Trust `type:"list"`
+}
+
+// String returns the string representation
+func (s DescribeTrustsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DescribeTrustsOutput) GoString() string {
+	return s.String()
+}
+
 // Contains information for the ConnectDirectory operation when an AD Connector
 // directory is being created.
 type DirectoryConnectSettings struct {
+	_ struct{} `type:"structure"`
+
 	// A list of one or more IP addresses of DNS servers or domain controllers in
 	// the on-premises directory.
 	CustomerDnsIps []*string `type:"list" required:"true"`
@@ -1073,18 +1520,11 @@ type DirectoryConnectSettings struct {
 	//  Read users and groups Create computer objects Join computers to the domain
 	CustomerUserName *string `min:"1" type:"string" required:"true"`
 
-	// A list of subnet identifiers in the VPC that the AD Connector is created
-	// in.
+	// A list of subnet identifiers in the VPC in which the AD Connector is created.
 	SubnetIds []*string `type:"list" required:"true"`
 
-	// The identifier of the VPC that the AD Connector is created in.
+	// The identifier of the VPC in which the AD Connector is created.
 	VpcId *string `type:"string" required:"true"`
-
-	metadataDirectoryConnectSettings `json:"-" xml:"-"`
-}
-
-type metadataDirectoryConnectSettings struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1099,6 +1539,8 @@ func (s DirectoryConnectSettings) GoString() string {
 
 // Contains information about an AD Connector directory.
 type DirectoryConnectSettingsDescription struct {
+	_ struct{} `type:"structure"`
+
 	// A list of the Availability Zones that the directory is in.
 	AvailabilityZones []*string `type:"list"`
 
@@ -1116,12 +1558,6 @@ type DirectoryConnectSettingsDescription struct {
 
 	// The identifier of the VPC that the AD Connector is in.
 	VpcId *string `type:"string"`
-
-	metadataDirectoryConnectSettingsDescription `json:"-" xml:"-"`
-}
-
-type metadataDirectoryConnectSettingsDescription struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1136,10 +1572,15 @@ func (s DirectoryConnectSettingsDescription) GoString() string {
 
 // Contains information about an AWS Directory Service directory.
 type DirectoryDescription struct {
-	// The access URL for the directory, such as http://<alias>.awsapps.com.
+	_ struct{} `type:"structure"`
+
+	// The access URL for the directory, such as http://alias.awsapps.com. If no
+	// alias has been created for the directory, alias is the directory identifier,
+	// such as d-XXXXXXXXXX.
 	AccessUrl *string `min:"1" type:"string"`
 
-	// The alias for the directory.
+	// The alias for the directory. If no alias has been created for the directory,
+	// the alias is the directory identifier, such as d-XXXXXXXXXX.
 	Alias *string `min:"1" type:"string"`
 
 	// A DirectoryConnectSettingsDescription object that contains additional information
@@ -1153,11 +1594,11 @@ type DirectoryDescription struct {
 	// The directory identifier.
 	DirectoryId *string `type:"string"`
 
-	// The IP addresses of the DNS servers for the directory. For a Simple AD directory,
-	// these are the IP addresses of the Simple AD directory servers. For an AD
-	// Connector directory, these are the IP addresses of the DNS servers or domain
-	// controllers in the on-premises directory that the AD Connector is connected
-	// to.
+	// The IP addresses of the DNS servers for the directory. For a Simple AD or
+	// Microsoft AD directory, these are the IP addresses of the Simple AD or Microsoft
+	// AD directory servers. For an AD Connector directory, these are the IP addresses
+	// of the DNS servers or domain controllers in the on-premises directory to
+	// which the AD Connector is connected.
 	DnsIpAddrs []*string `type:"list"`
 
 	// Specifies when the directory was created.
@@ -1196,15 +1637,9 @@ type DirectoryDescription struct {
 	Type *string `type:"string" enum:"DirectoryType"`
 
 	// A DirectoryVpcSettingsDescription object that contains additional information
-	// about a Simple AD directory. This member is only present if the directory
-	// is a Simple AD directory.
+	// about a directory. This member is only present if the directory is a Simple
+	// AD or Managed AD directory.
 	VpcSettings *DirectoryVpcSettingsDescription `type:"structure"`
-
-	metadataDirectoryDescription `json:"-" xml:"-"`
-}
-
-type metadataDirectoryDescription struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1219,6 +1654,8 @@ func (s DirectoryDescription) GoString() string {
 
 // Contains directory limit information for a region.
 type DirectoryLimits struct {
+	_ struct{} `type:"structure"`
+
 	// The current number of cloud directories in the region.
 	CloudOnlyDirectoriesCurrentCount *int64 `type:"integer"`
 
@@ -1228,6 +1665,15 @@ type DirectoryLimits struct {
 	// Indicates if the cloud directory limit has been reached.
 	CloudOnlyDirectoriesLimitReached *bool `type:"boolean"`
 
+	// The current number of Microsoft AD directories in the region.
+	CloudOnlyMicrosoftADCurrentCount *int64 `type:"integer"`
+
+	// The maximum number of Microsoft AD directories allowed in the region.
+	CloudOnlyMicrosoftADLimit *int64 `type:"integer"`
+
+	// Indicates if the Microsoft AD directory limit has been reached.
+	CloudOnlyMicrosoftADLimitReached *bool `type:"boolean"`
+
 	// The current number of connected directories in the region.
 	ConnectedDirectoriesCurrentCount *int64 `type:"integer"`
 
@@ -1236,12 +1682,6 @@ type DirectoryLimits struct {
 
 	// Indicates if the connected directory limit has been reached.
 	ConnectedDirectoriesLimitReached *bool `type:"boolean"`
-
-	metadataDirectoryLimits `json:"-" xml:"-"`
-}
-
-type metadataDirectoryLimits struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1254,22 +1694,17 @@ func (s DirectoryLimits) GoString() string {
 	return s.String()
 }
 
-// Contains information for the CreateDirectory operation when a Simple AD directory
-// is being created.
+// Contains VPC information for the CreateDirectory or CreateMicrosoftAD operation.
 type DirectoryVpcSettings struct {
+	_ struct{} `type:"structure"`
+
 	// The identifiers of the subnets for the directory servers. The two subnets
 	// must be in different Availability Zones. AWS Directory Service creates a
 	// directory server and a DNS server in each of these subnets.
 	SubnetIds []*string `type:"list" required:"true"`
 
-	// The identifier of the VPC to create the Simple AD directory in.
+	// The identifier of the VPC in which to create the directory.
 	VpcId *string `type:"string" required:"true"`
-
-	metadataDirectoryVpcSettings `json:"-" xml:"-"`
-}
-
-type metadataDirectoryVpcSettings struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1282,12 +1717,17 @@ func (s DirectoryVpcSettings) GoString() string {
 	return s.String()
 }
 
-// Contains information about a Simple AD directory.
+// Contains information about the directory.
 type DirectoryVpcSettingsDescription struct {
+	_ struct{} `type:"structure"`
+
 	// The list of Availability Zones that the directory is in.
 	AvailabilityZones []*string `type:"list"`
 
-	// The security group identifier for the directory.
+	// The security group identifier for the directory. If the directory was created
+	// before 8/1/2014, this is the identifier of the directory members security
+	// group that was created when the directory was created. If the directory was
+	// created after this date, this value is null.
 	SecurityGroupId *string `type:"string"`
 
 	// The identifiers of the subnets for the directory servers.
@@ -1295,12 +1735,6 @@ type DirectoryVpcSettingsDescription struct {
 
 	// The identifier of the VPC that the directory is in.
 	VpcId *string `type:"string"`
-
-	metadataDirectoryVpcSettingsDescription `json:"-" xml:"-"`
-}
-
-type metadataDirectoryVpcSettingsDescription struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1315,14 +1749,10 @@ func (s DirectoryVpcSettingsDescription) GoString() string {
 
 // Contains the inputs for the DisableRadius operation.
 type DisableRadiusInput struct {
-	// The identifier of the directory to disable MFA for.
+	_ struct{} `type:"structure"`
+
+	// The identifier of the directory for which to disable MFA.
 	DirectoryId *string `type:"string" required:"true"`
-
-	metadataDisableRadiusInput `json:"-" xml:"-"`
-}
-
-type metadataDisableRadiusInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1337,11 +1767,7 @@ func (s DisableRadiusInput) GoString() string {
 
 // Contains the results of the DisableRadius operation.
 type DisableRadiusOutput struct {
-	metadataDisableRadiusOutput `json:"-" xml:"-"`
-}
-
-type metadataDisableRadiusOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1356,30 +1782,26 @@ func (s DisableRadiusOutput) GoString() string {
 
 // Contains the inputs for the DisableSso operation.
 type DisableSsoInput struct {
-	// The identifier of the directory to disable single-sign on for.
+	_ struct{} `type:"structure"`
+
+	// The identifier of the directory for which to disable single-sign on.
 	DirectoryId *string `type:"string" required:"true"`
 
 	// The password of an alternate account to use to disable single-sign on. This
-	// is only used for AD Connector directories. See the UserName parameter for
-	// more information.
+	// is only used for AD Connector directories. For more information, see the
+	// UserName parameter.
 	Password *string `min:"1" type:"string"`
 
 	// The username of an alternate account to use to disable single-sign on. This
 	// is only used for AD Connector directories. This account must have privileges
-	// to remove a service principle name.
+	// to remove a service principal name.
 	//
 	// If the AD Connector service account does not have privileges to remove a
-	// service principle name, you can specify an alternate account with the UserName
+	// service principal name, you can specify an alternate account with the UserName
 	// and Password parameters. These credentials are only used to disable single
 	// sign-on and are not stored by the service. The AD Connector service account
 	// is not changed.
 	UserName *string `min:"1" type:"string"`
-
-	metadataDisableSsoInput `json:"-" xml:"-"`
-}
-
-type metadataDisableSsoInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1394,11 +1816,7 @@ func (s DisableSsoInput) GoString() string {
 
 // Contains the results of the DisableSso operation.
 type DisableSsoOutput struct {
-	metadataDisableSsoOutput `json:"-" xml:"-"`
-}
-
-type metadataDisableSsoOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1413,17 +1831,13 @@ func (s DisableSsoOutput) GoString() string {
 
 // Contains the inputs for the EnableRadius operation.
 type EnableRadiusInput struct {
-	// The identifier of the directory to enable MFA for.
+	_ struct{} `type:"structure"`
+
+	// The identifier of the directory for which to enable MFA.
 	DirectoryId *string `type:"string" required:"true"`
 
 	// A RadiusSettings object that contains information about the RADIUS server.
 	RadiusSettings *RadiusSettings `type:"structure" required:"true"`
-
-	metadataEnableRadiusInput `json:"-" xml:"-"`
-}
-
-type metadataEnableRadiusInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1438,11 +1852,7 @@ func (s EnableRadiusInput) GoString() string {
 
 // Contains the results of the EnableRadius operation.
 type EnableRadiusOutput struct {
-	metadataEnableRadiusOutput `json:"-" xml:"-"`
-}
-
-type metadataEnableRadiusOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1457,30 +1867,26 @@ func (s EnableRadiusOutput) GoString() string {
 
 // Contains the inputs for the EnableSso operation.
 type EnableSsoInput struct {
-	// The identifier of the directory to enable single-sign on for.
+	_ struct{} `type:"structure"`
+
+	// The identifier of the directory for which to enable single-sign on.
 	DirectoryId *string `type:"string" required:"true"`
 
 	// The password of an alternate account to use to enable single-sign on. This
-	// is only used for AD Connector directories. See the UserName parameter for
-	// more information.
+	// is only used for AD Connector directories. For more information, see the
+	// UserName parameter.
 	Password *string `min:"1" type:"string"`
 
 	// The username of an alternate account to use to enable single-sign on. This
 	// is only used for AD Connector directories. This account must have privileges
-	// to add a service principle name.
+	// to add a service principal name.
 	//
 	// If the AD Connector service account does not have privileges to add a service
-	// principle name, you can specify an alternate account with the UserName and
+	// principal name, you can specify an alternate account with the UserName and
 	// Password parameters. These credentials are only used to enable single sign-on
 	// and are not stored by the service. The AD Connector service account is not
 	// changed.
 	UserName *string `min:"1" type:"string"`
-
-	metadataEnableSsoInput `json:"-" xml:"-"`
-}
-
-type metadataEnableSsoInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1495,11 +1901,7 @@ func (s EnableSsoInput) GoString() string {
 
 // Contains the results of the EnableSso operation.
 type EnableSsoOutput struct {
-	metadataEnableSsoOutput `json:"-" xml:"-"`
-}
-
-type metadataEnableSsoOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1512,13 +1914,40 @@ func (s EnableSsoOutput) GoString() string {
 	return s.String()
 }
 
-// Contains the inputs for the GetDirectoryLimits operation.
-type GetDirectoryLimitsInput struct {
-	metadataGetDirectoryLimitsInput `json:"-" xml:"-"`
+// Information about SNS topic and AWS Directory Service directory associations.
+type EventTopic struct {
+	_ struct{} `type:"structure"`
+
+	// The date and time of when you associated your directory with the SNS topic.
+	CreatedDateTime *time.Time `type:"timestamp" timestampFormat:"unix"`
+
+	// The Directory ID of an AWS Directory Service directory that will publish
+	// status messages to an SNS topic.
+	DirectoryId *string `type:"string"`
+
+	// The topic registration status.
+	Status *string `type:"string" enum:"TopicStatus"`
+
+	// The SNS topic ARN (Amazon Resource Name).
+	TopicArn *string `type:"string"`
+
+	// The name of an AWS SNS topic the receives status messages from the directory.
+	TopicName *string `min:"1" type:"string"`
 }
 
-type metadataGetDirectoryLimitsInput struct {
-	SDKShapeTraits bool `type:"structure"`
+// String returns the string representation
+func (s EventTopic) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s EventTopic) GoString() string {
+	return s.String()
+}
+
+// Contains the inputs for the GetDirectoryLimits operation.
+type GetDirectoryLimitsInput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1533,15 +1962,11 @@ func (s GetDirectoryLimitsInput) GoString() string {
 
 // Contains the results of the GetDirectoryLimits operation.
 type GetDirectoryLimitsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A DirectoryLimits object that contains the directory limits for the current
 	// region.
 	DirectoryLimits *DirectoryLimits `type:"structure"`
-
-	metadataGetDirectoryLimitsOutput `json:"-" xml:"-"`
-}
-
-type metadataGetDirectoryLimitsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1556,14 +1981,10 @@ func (s GetDirectoryLimitsOutput) GoString() string {
 
 // Contains the inputs for the GetSnapshotLimits operation.
 type GetSnapshotLimitsInput struct {
+	_ struct{} `type:"structure"`
+
 	// Contains the identifier of the directory to obtain the limits for.
 	DirectoryId *string `type:"string" required:"true"`
-
-	metadataGetSnapshotLimitsInput `json:"-" xml:"-"`
-}
-
-type metadataGetSnapshotLimitsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1578,15 +1999,11 @@ func (s GetSnapshotLimitsInput) GoString() string {
 
 // Contains the results of the GetSnapshotLimits operation.
 type GetSnapshotLimitsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A SnapshotLimits object that contains the manual snapshot limits for the
 	// specified directory.
 	SnapshotLimits *SnapshotLimits `type:"structure"`
-
-	metadataGetSnapshotLimitsOutput `json:"-" xml:"-"`
-}
-
-type metadataGetSnapshotLimitsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1602,6 +2019,8 @@ func (s GetSnapshotLimitsOutput) GoString() string {
 // Contains information about a Remote Authentication Dial In User Service (RADIUS)
 // server.
 type RadiusSettings struct {
+	_ struct{} `type:"structure"`
+
 	// The protocol specified for your RADIUS endpoints.
 	AuthenticationProtocol *string `type:"string" enum:"RadiusAuthenticationProtocol"`
 
@@ -1630,12 +2049,6 @@ type RadiusSettings struct {
 
 	// Not currently used.
 	UseSameUsername *bool `type:"boolean"`
-
-	metadataRadiusSettings `json:"-" xml:"-"`
-}
-
-type metadataRadiusSettings struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1648,16 +2061,47 @@ func (s RadiusSettings) GoString() string {
 	return s.String()
 }
 
-// An object representing the inputs for the RestoreFromSnapshot operation.
-type RestoreFromSnapshotInput struct {
-	// The identifier of the snapshot to restore from.
-	SnapshotId *string `type:"string" required:"true"`
+type RegisterEventTopicInput struct {
+	_ struct{} `type:"structure"`
 
-	metadataRestoreFromSnapshotInput `json:"-" xml:"-"`
+	// The Directory ID that will publish status messages to the SNS topic.
+	DirectoryId *string `type:"string" required:"true"`
+
+	// The SNS topic name to which the directory will publish status messages. This
+	// SNS topic must be in the same region as the specified Directory ID.
+	TopicName *string `min:"1" type:"string" required:"true"`
 }
 
-type metadataRestoreFromSnapshotInput struct {
-	SDKShapeTraits bool `type:"structure"`
+// String returns the string representation
+func (s RegisterEventTopicInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RegisterEventTopicInput) GoString() string {
+	return s.String()
+}
+
+type RegisterEventTopicOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s RegisterEventTopicOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RegisterEventTopicOutput) GoString() string {
+	return s.String()
+}
+
+// An object representing the inputs for the RestoreFromSnapshot operation.
+type RestoreFromSnapshotInput struct {
+	_ struct{} `type:"structure"`
+
+	// The identifier of the snapshot to restore from.
+	SnapshotId *string `type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1672,11 +2116,7 @@ func (s RestoreFromSnapshotInput) GoString() string {
 
 // Contains the results of the RestoreFromSnapshot operation.
 type RestoreFromSnapshotOutput struct {
-	metadataRestoreFromSnapshotOutput `json:"-" xml:"-"`
-}
-
-type metadataRestoreFromSnapshotOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1691,6 +2131,8 @@ func (s RestoreFromSnapshotOutput) GoString() string {
 
 // Describes a directory snapshot.
 type Snapshot struct {
+	_ struct{} `type:"structure"`
+
 	// The directory identifier.
 	DirectoryId *string `type:"string"`
 
@@ -1708,12 +2150,6 @@ type Snapshot struct {
 
 	// The snapshot type.
 	Type *string `type:"string" enum:"SnapshotType"`
-
-	metadataSnapshot `json:"-" xml:"-"`
-}
-
-type metadataSnapshot struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1728,6 +2164,8 @@ func (s Snapshot) GoString() string {
 
 // Contains manual snapshot limit information for a directory.
 type SnapshotLimits struct {
+	_ struct{} `type:"structure"`
+
 	// The current number of manual snapshots of the directory.
 	ManualSnapshotsCurrentCount *int64 `type:"integer"`
 
@@ -1736,12 +2174,6 @@ type SnapshotLimits struct {
 
 	// Indicates if the manual snapshot limit has been reached.
 	ManualSnapshotsLimitReached *bool `type:"boolean"`
-
-	metadataSnapshotLimits `json:"-" xml:"-"`
-}
-
-type metadataSnapshotLimits struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1754,19 +2186,59 @@ func (s SnapshotLimits) GoString() string {
 	return s.String()
 }
 
+// Describes a trust relationship between an Microsoft AD in the AWS cloud and
+// an external domain.
+type Trust struct {
+	_ struct{} `type:"structure"`
+
+	// The date and time that the trust relationship was created.
+	CreatedDateTime *time.Time `type:"timestamp" timestampFormat:"unix"`
+
+	// The Directory ID of the AWS directory involved in the trust relationship.
+	DirectoryId *string `type:"string"`
+
+	// The date and time that the trust relationship was last updated.
+	LastUpdatedDateTime *time.Time `type:"timestamp" timestampFormat:"unix"`
+
+	// The Fully Qualified Domain Name (FQDN) of the external domain involved in
+	// the trust relationship.
+	RemoteDomainName *string `type:"string"`
+
+	// The date and time that the TrustState was last updated.
+	StateLastUpdatedDateTime *time.Time `type:"timestamp" timestampFormat:"unix"`
+
+	// The trust relationship direction.
+	TrustDirection *string `type:"string" enum:"TrustDirection"`
+
+	// The unique ID of the trust relationship.
+	TrustId *string `type:"string"`
+
+	// The trust relationship state.
+	TrustState *string `type:"string" enum:"TrustState"`
+
+	// The trust relationship type.
+	TrustType *string `type:"string" enum:"TrustType"`
+}
+
+// String returns the string representation
+func (s Trust) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s Trust) GoString() string {
+	return s.String()
+}
+
 // Contains the inputs for the UpdateRadius operation.
 type UpdateRadiusInput struct {
-	// The identifier of the directory to update the RADIUS server information for.
+	_ struct{} `type:"structure"`
+
+	// The identifier of the directory for which to update the RADIUS server information.
 	DirectoryId *string `type:"string" required:"true"`
 
 	// A RadiusSettings object that contains information about the RADIUS server.
 	RadiusSettings *RadiusSettings `type:"structure" required:"true"`
-
-	metadataUpdateRadiusInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateRadiusInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1781,11 +2253,7 @@ func (s UpdateRadiusInput) GoString() string {
 
 // Contains the results of the UpdateRadius operation.
 type UpdateRadiusOutput struct {
-	metadataUpdateRadiusOutput `json:"-" xml:"-"`
-}
-
-type metadataUpdateRadiusOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1795,6 +2263,42 @@ func (s UpdateRadiusOutput) String() string {
 
 // GoString returns the string representation
 func (s UpdateRadiusOutput) GoString() string {
+	return s.String()
+}
+
+// Initiates the verification of an existing trust relationship between a Microsoft
+// AD in the AWS cloud and an external domain.
+type VerifyTrustInput struct {
+	_ struct{} `type:"structure"`
+
+	// The unique Trust ID of the trust relationship to verify.
+	TrustId *string `type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s VerifyTrustInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s VerifyTrustInput) GoString() string {
+	return s.String()
+}
+
+type VerifyTrustOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The unique Trust ID of the trust relationship that was verified.
+	TrustId *string `type:"string"`
+}
+
+// String returns the string representation
+func (s VerifyTrustOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s VerifyTrustOutput) GoString() string {
 	return s.String()
 }
 
@@ -1835,6 +2339,8 @@ const (
 	DirectoryTypeSimpleAd = "SimpleAD"
 	// @enum DirectoryType
 	DirectoryTypeAdconnector = "ADConnector"
+	// @enum DirectoryType
+	DirectoryTypeMicrosoftAd = "MicrosoftAD"
 )
 
 const (
@@ -1871,4 +2377,48 @@ const (
 	SnapshotTypeAuto = "Auto"
 	// @enum SnapshotType
 	SnapshotTypeManual = "Manual"
+)
+
+const (
+	// @enum TopicStatus
+	TopicStatusRegistered = "Registered"
+	// @enum TopicStatus
+	TopicStatusTopicnotfound = "Topic not found"
+	// @enum TopicStatus
+	TopicStatusFailed = "Failed"
+	// @enum TopicStatus
+	TopicStatusDeleted = "Deleted"
+)
+
+const (
+	// @enum TrustDirection
+	TrustDirectionOneWayOutgoing = "One-Way: Outgoing"
+	// @enum TrustDirection
+	TrustDirectionOneWayIncoming = "One-Way: Incoming"
+	// @enum TrustDirection
+	TrustDirectionTwoWay = "Two-Way"
+)
+
+const (
+	// @enum TrustState
+	TrustStateCreating = "Creating"
+	// @enum TrustState
+	TrustStateCreated = "Created"
+	// @enum TrustState
+	TrustStateVerifying = "Verifying"
+	// @enum TrustState
+	TrustStateVerifyFailed = "VerifyFailed"
+	// @enum TrustState
+	TrustStateVerified = "Verified"
+	// @enum TrustState
+	TrustStateDeleting = "Deleting"
+	// @enum TrustState
+	TrustStateDeleted = "Deleted"
+	// @enum TrustState
+	TrustStateFailed = "Failed"
+)
+
+const (
+	// @enum TrustType
+	TrustTypeForest = "Forest"
 )

@@ -8,6 +8,35 @@ import (
 	"github.com/aws/aws-sdk-go/aws/request"
 )
 
+const opAddTagsToResource = "AddTagsToResource"
+
+// AddTagsToResourceRequest generates a request for the AddTagsToResource operation.
+func (c *CloudHSM) AddTagsToResourceRequest(input *AddTagsToResourceInput) (req *request.Request, output *AddTagsToResourceOutput) {
+	op := &request.Operation{
+		Name:       opAddTagsToResource,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &AddTagsToResourceInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &AddTagsToResourceOutput{}
+	req.Data = output
+	return
+}
+
+// Adds or overwrites one or more tags for the specified resource.
+//
+// Each tag consists of a key and a value. Tag keys must be unique per resource.
+func (c *CloudHSM) AddTagsToResource(input *AddTagsToResourceInput) (*AddTagsToResourceOutput, error) {
+	req, out := c.AddTagsToResourceRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opCreateHapg = "CreateHapg"
 
 // CreateHapgRequest generates a request for the CreateHapg operation.
@@ -64,7 +93,7 @@ func (c *CloudHSM) CreateHsmRequest(input *CreateHsmInput) (req *request.Request
 // the AWS Support Center (https://console.aws.amazon.com/support/home#/), create
 // a new case, and select Account and Billing Support.
 //
-//   It can take up to 20 minutes to create and provision an HSM. You can monitor
+//  It can take up to 20 minutes to create and provision an HSM. You can monitor
 // the status of the HSM with the DescribeHsm operation. The HSM is ready to
 // be initialized when the status changes to RUNNING.
 func (c *CloudHSM) CreateHsm(input *CreateHsmInput) (*CreateHsmOutput, error) {
@@ -416,6 +445,33 @@ func (c *CloudHSM) ListLunaClients(input *ListLunaClientsInput) (*ListLunaClient
 	return out, err
 }
 
+const opListTagsForResource = "ListTagsForResource"
+
+// ListTagsForResourceRequest generates a request for the ListTagsForResource operation.
+func (c *CloudHSM) ListTagsForResourceRequest(input *ListTagsForResourceInput) (req *request.Request, output *ListTagsForResourceOutput) {
+	op := &request.Operation{
+		Name:       opListTagsForResource,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &ListTagsForResourceInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &ListTagsForResourceOutput{}
+	req.Data = output
+	return
+}
+
+// Returns a list of all tags for the specified resource.
+func (c *CloudHSM) ListTagsForResource(input *ListTagsForResourceInput) (*ListTagsForResourceOutput, error) {
+	req, out := c.ListTagsForResourceRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opModifyHapg = "ModifyHapg"
 
 // ModifyHapgRequest generates a request for the ModifyHapg operation.
@@ -465,8 +521,8 @@ func (c *CloudHSM) ModifyHsmRequest(input *ModifyHsmInput) (req *request.Request
 
 // Modifies an HSM.
 //
-//   This operation can result in the HSM being offline for up to 15 minutes
-// while the AWS CloudHSM service is reconfigured. If you are modifying a production
+//  This operation can result in the HSM being offline for up to 15 minutes
+// while the AWS CloudHSM service is reconfigured. If you are modifying a production
 // HSM, you should ensure that your AWS CloudHSM service is configured for high
 // availability, and consider executing this operation during a maintenance
 // window.
@@ -506,16 +562,79 @@ func (c *CloudHSM) ModifyLunaClient(input *ModifyLunaClientInput) (*ModifyLunaCl
 	return out, err
 }
 
-// Contains the inputs for the CreateHapgRequest action.
-type CreateHapgInput struct {
-	// The label of the new high-availability partition group.
-	Label *string `type:"string" required:"true"`
+const opRemoveTagsFromResource = "RemoveTagsFromResource"
 
-	metadataCreateHapgInput `json:"-" xml:"-"`
+// RemoveTagsFromResourceRequest generates a request for the RemoveTagsFromResource operation.
+func (c *CloudHSM) RemoveTagsFromResourceRequest(input *RemoveTagsFromResourceInput) (req *request.Request, output *RemoveTagsFromResourceOutput) {
+	op := &request.Operation{
+		Name:       opRemoveTagsFromResource,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &RemoveTagsFromResourceInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &RemoveTagsFromResourceOutput{}
+	req.Data = output
+	return
 }
 
-type metadataCreateHapgInput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Removes one or more tags from the specified resource.
+//
+// To remove a tag, specify only the tag key to remove (not the value). To
+// overwrite the value for an existing tag, use AddTagsToResource.
+func (c *CloudHSM) RemoveTagsFromResource(input *RemoveTagsFromResourceInput) (*RemoveTagsFromResourceOutput, error) {
+	req, out := c.RemoveTagsFromResourceRequest(input)
+	err := req.Send()
+	return out, err
+}
+
+type AddTagsToResourceInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the resource to tag.
+	ResourceArn *string `type:"string" required:"true"`
+
+	// One or more tags.
+	TagList []*Tag `type:"list" required:"true"`
+}
+
+// String returns the string representation
+func (s AddTagsToResourceInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s AddTagsToResourceInput) GoString() string {
+	return s.String()
+}
+
+type AddTagsToResourceOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The status of the operation.
+	Status *string `type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s AddTagsToResourceOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s AddTagsToResourceOutput) GoString() string {
+	return s.String()
+}
+
+// Contains the inputs for the CreateHapgRequest action.
+type CreateHapgInput struct {
+	_ struct{} `type:"structure"`
+
+	// The label of the new high-availability partition group.
+	Label *string `type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -530,14 +649,10 @@ func (s CreateHapgInput) GoString() string {
 
 // Contains the output of the CreateHAPartitionGroup action.
 type CreateHapgOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the high-availability partition group.
 	HapgArn *string `type:"string"`
-
-	metadataCreateHapgOutput `json:"-" xml:"-"`
-}
-
-type metadataCreateHapgOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -552,6 +667,8 @@ func (s CreateHapgOutput) GoString() string {
 
 // Contains the inputs for the CreateHsm operation.
 type CreateHsmInput struct {
+	_ struct{} `locationName:"CreateHsmRequest" type:"structure"`
+
 	// A user-defined token to ensure idempotence. Subsequent calls to this operation
 	// with the same token will be ignored.
 	ClientToken *string `locationName:"ClientToken" type:"string"`
@@ -577,19 +694,13 @@ type CreateHsmInput struct {
 
 	// Specifies the type of subscription for the HSM.
 	//
-	//   PRODUCTION - The HSM is being used in a production environment.  TRIAL
-	// - The HSM is being used in a product trial.
+	//  PRODUCTION - The HSM is being used in a production environment. TRIAL -
+	// The HSM is being used in a product trial.
 	SubscriptionType *string `locationName:"SubscriptionType" type:"string" required:"true" enum:"SubscriptionType"`
 
 	// The IP address for the syslog monitoring server. The AWS CloudHSM service
 	// only supports one syslog monitoring server.
 	SyslogIp *string `locationName:"SyslogIp" type:"string"`
-
-	metadataCreateHsmInput `json:"-" xml:"-"`
-}
-
-type metadataCreateHsmInput struct {
-	SDKShapeTraits bool `locationName:"CreateHsmRequest" type:"structure"`
 }
 
 // String returns the string representation
@@ -604,14 +715,10 @@ func (s CreateHsmInput) GoString() string {
 
 // Contains the output of the CreateHsm operation.
 type CreateHsmOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the HSM.
 	HsmArn *string `type:"string"`
-
-	metadataCreateHsmOutput `json:"-" xml:"-"`
-}
-
-type metadataCreateHsmOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -626,18 +733,14 @@ func (s CreateHsmOutput) GoString() string {
 
 // Contains the inputs for the CreateLunaClient action.
 type CreateLunaClientInput struct {
+	_ struct{} `type:"structure"`
+
 	// The contents of a Base64-Encoded X.509 v3 certificate to be installed on
 	// the HSMs used by this client.
 	Certificate *string `min:"600" type:"string" required:"true"`
 
 	// The label for the client.
 	Label *string `type:"string"`
-
-	metadataCreateLunaClientInput `json:"-" xml:"-"`
-}
-
-type metadataCreateLunaClientInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -652,14 +755,10 @@ func (s CreateLunaClientInput) GoString() string {
 
 // Contains the output of the CreateLunaClient action.
 type CreateLunaClientOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the client.
 	ClientArn *string `type:"string"`
-
-	metadataCreateLunaClientOutput `json:"-" xml:"-"`
-}
-
-type metadataCreateLunaClientOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -674,14 +773,10 @@ func (s CreateLunaClientOutput) GoString() string {
 
 // Contains the inputs for the DeleteHapg action.
 type DeleteHapgInput struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the high-availability partition group to delete.
 	HapgArn *string `type:"string" required:"true"`
-
-	metadataDeleteHapgInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteHapgInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -696,14 +791,10 @@ func (s DeleteHapgInput) GoString() string {
 
 // Contains the output of the DeleteHapg action.
 type DeleteHapgOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The status of the action.
 	Status *string `type:"string" required:"true"`
-
-	metadataDeleteHapgOutput `json:"-" xml:"-"`
-}
-
-type metadataDeleteHapgOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -718,14 +809,10 @@ func (s DeleteHapgOutput) GoString() string {
 
 // Contains the inputs for the DeleteHsm operation.
 type DeleteHsmInput struct {
+	_ struct{} `locationName:"DeleteHsmRequest" type:"structure"`
+
 	// The ARN of the HSM to delete.
 	HsmArn *string `locationName:"HsmArn" type:"string" required:"true"`
-
-	metadataDeleteHsmInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteHsmInput struct {
-	SDKShapeTraits bool `locationName:"DeleteHsmRequest" type:"structure"`
 }
 
 // String returns the string representation
@@ -740,14 +827,10 @@ func (s DeleteHsmInput) GoString() string {
 
 // Contains the output of the DeleteHsm operation.
 type DeleteHsmOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The status of the operation.
 	Status *string `type:"string" required:"true"`
-
-	metadataDeleteHsmOutput `json:"-" xml:"-"`
-}
-
-type metadataDeleteHsmOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -761,14 +844,10 @@ func (s DeleteHsmOutput) GoString() string {
 }
 
 type DeleteLunaClientInput struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the client to delete.
 	ClientArn *string `type:"string" required:"true"`
-
-	metadataDeleteLunaClientInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteLunaClientInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -782,14 +861,10 @@ func (s DeleteLunaClientInput) GoString() string {
 }
 
 type DeleteLunaClientOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The status of the action.
 	Status *string `type:"string" required:"true"`
-
-	metadataDeleteLunaClientOutput `json:"-" xml:"-"`
-}
-
-type metadataDeleteLunaClientOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -804,14 +879,10 @@ func (s DeleteLunaClientOutput) GoString() string {
 
 // Contains the inputs for the DescribeHapg action.
 type DescribeHapgInput struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the high-availability partition group to describe.
 	HapgArn *string `type:"string" required:"true"`
-
-	metadataDescribeHapgInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeHapgInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -826,6 +897,8 @@ func (s DescribeHapgInput) GoString() string {
 
 // Contains the output of the DescribeHapg action.
 type DescribeHapgOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the high-availability partition group.
 	HapgArn *string `type:"string"`
 
@@ -853,12 +926,6 @@ type DescribeHapgOutput struct {
 
 	// The state of the high-availability partition group.
 	State *string `type:"string" enum:"CloudHsmObjectState"`
-
-	metadataDescribeHapgOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeHapgOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -873,6 +940,8 @@ func (s DescribeHapgOutput) GoString() string {
 
 // Contains the inputs for the DescribeHsm operation.
 type DescribeHsmInput struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the HSM. Either the HsmArn or the SerialNumber parameter must
 	// be specified.
 	HsmArn *string `type:"string"`
@@ -880,12 +949,6 @@ type DescribeHsmInput struct {
 	// The serial number of the HSM. Either the HsmArn or the HsmSerialNumber parameter
 	// must be specified.
 	HsmSerialNumber *string `type:"string"`
-
-	metadataDescribeHsmInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeHsmInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -900,6 +963,8 @@ func (s DescribeHsmInput) GoString() string {
 
 // Contains the output of the DescribeHsm operation.
 type DescribeHsmOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The Availability Zone that the HSM is in.
 	AvailabilityZone *string `type:"string"`
 
@@ -956,8 +1021,8 @@ type DescribeHsmOutput struct {
 
 	// Specifies the type of subscription for the HSM.
 	//
-	//   PRODUCTION - The HSM is being used in a production environment.  TRIAL
-	// - The HSM is being used in a product trial.
+	//  PRODUCTION - The HSM is being used in a production environment. TRIAL -
+	// The HSM is being used in a product trial.
 	SubscriptionType *string `type:"string" enum:"SubscriptionType"`
 
 	// The name of the HSM vendor.
@@ -965,12 +1030,6 @@ type DescribeHsmOutput struct {
 
 	// The identifier of the VPC that the HSM is in.
 	VpcId *string `type:"string"`
-
-	metadataDescribeHsmOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeHsmOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -984,17 +1043,13 @@ func (s DescribeHsmOutput) GoString() string {
 }
 
 type DescribeLunaClientInput struct {
+	_ struct{} `type:"structure"`
+
 	// The certificate fingerprint.
 	CertificateFingerprint *string `type:"string"`
 
 	// The ARN of the client.
 	ClientArn *string `type:"string"`
-
-	metadataDescribeLunaClientInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeLunaClientInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1008,6 +1063,8 @@ func (s DescribeLunaClientInput) GoString() string {
 }
 
 type DescribeLunaClientOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The certificate installed on the HSMs used by this client.
 	Certificate *string `min:"600" type:"string"`
 
@@ -1022,12 +1079,6 @@ type DescribeLunaClientOutput struct {
 
 	// The date and time the client was last modified.
 	LastModifiedTimestamp *string `type:"string"`
-
-	metadataDescribeLunaClientOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeLunaClientOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1041,6 +1092,8 @@ func (s DescribeLunaClientOutput) GoString() string {
 }
 
 type GetConfigInput struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the client.
 	ClientArn *string `type:"string" required:"true"`
 
@@ -1050,12 +1103,6 @@ type GetConfigInput struct {
 	// A list of ARNs that identify the high-availability partition groups that
 	// are associated with the client.
 	HapgList []*string `type:"list" required:"true"`
-
-	metadataGetConfigInput `json:"-" xml:"-"`
-}
-
-type metadataGetConfigInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1069,6 +1116,8 @@ func (s GetConfigInput) GoString() string {
 }
 
 type GetConfigOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The certificate file containing the server.pem files of the HSMs.
 	ConfigCred *string `type:"string"`
 
@@ -1077,12 +1126,6 @@ type GetConfigOutput struct {
 
 	// The type of credentials.
 	ConfigType *string `type:"string"`
-
-	metadataGetConfigOutput `json:"-" xml:"-"`
-}
-
-type metadataGetConfigOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1097,11 +1140,7 @@ func (s GetConfigOutput) GoString() string {
 
 // Contains the inputs for the ListAvailableZones action.
 type ListAvailableZonesInput struct {
-	metadataListAvailableZonesInput `json:"-" xml:"-"`
-}
-
-type metadataListAvailableZonesInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1115,14 +1154,10 @@ func (s ListAvailableZonesInput) GoString() string {
 }
 
 type ListAvailableZonesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The list of Availability Zones that have available AWS CloudHSM capacity.
 	AZList []*string `type:"list"`
-
-	metadataListAvailableZonesOutput `json:"-" xml:"-"`
-}
-
-type metadataListAvailableZonesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1136,15 +1171,11 @@ func (s ListAvailableZonesOutput) GoString() string {
 }
 
 type ListHapgsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The NextToken value from a previous call to ListHapgs. Pass null if this
 	// is the first call.
 	NextToken *string `type:"string"`
-
-	metadataListHapgsInput `json:"-" xml:"-"`
-}
-
-type metadataListHapgsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1158,18 +1189,14 @@ func (s ListHapgsInput) GoString() string {
 }
 
 type ListHapgsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The list of high-availability partition groups.
 	HapgList []*string `type:"list" required:"true"`
 
 	// If not null, more results are available. Pass this value to ListHapgs to
 	// retrieve the next set of items.
 	NextToken *string `type:"string"`
-
-	metadataListHapgsOutput `json:"-" xml:"-"`
-}
-
-type metadataListHapgsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1183,15 +1210,11 @@ func (s ListHapgsOutput) GoString() string {
 }
 
 type ListHsmsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The NextToken value from a previous call to ListHsms. Pass null if this is
 	// the first call.
 	NextToken *string `type:"string"`
-
-	metadataListHsmsInput `json:"-" xml:"-"`
-}
-
-type metadataListHsmsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1206,18 +1229,14 @@ func (s ListHsmsInput) GoString() string {
 
 // Contains the output of the ListHsms operation.
 type ListHsmsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The list of ARNs that identify the HSMs.
 	HsmList []*string `type:"list"`
 
 	// If not null, more results are available. Pass this value to ListHsms to retrieve
 	// the next set of items.
 	NextToken *string `type:"string"`
-
-	metadataListHsmsOutput `json:"-" xml:"-"`
-}
-
-type metadataListHsmsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1231,15 +1250,11 @@ func (s ListHsmsOutput) GoString() string {
 }
 
 type ListLunaClientsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The NextToken value from a previous call to ListLunaClients. Pass null if
 	// this is the first call.
 	NextToken *string `type:"string"`
-
-	metadataListLunaClientsInput `json:"-" xml:"-"`
-}
-
-type metadataListLunaClientsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1253,18 +1268,14 @@ func (s ListLunaClientsInput) GoString() string {
 }
 
 type ListLunaClientsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The list of clients.
 	ClientList []*string `type:"list" required:"true"`
 
 	// If not null, more results are available. Pass this to ListLunaClients to
 	// retrieve the next set of items.
 	NextToken *string `type:"string"`
-
-	metadataListLunaClientsOutput `json:"-" xml:"-"`
-}
-
-type metadataListLunaClientsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1277,7 +1288,43 @@ func (s ListLunaClientsOutput) GoString() string {
 	return s.String()
 }
 
+type ListTagsForResourceInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the resource.
+	ResourceArn *string `type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s ListTagsForResourceInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ListTagsForResourceInput) GoString() string {
+	return s.String()
+}
+
+type ListTagsForResourceOutput struct {
+	_ struct{} `type:"structure"`
+
+	// One or more tags.
+	TagList []*Tag `type:"list" required:"true"`
+}
+
+// String returns the string representation
+func (s ListTagsForResourceOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ListTagsForResourceOutput) GoString() string {
+	return s.String()
+}
+
 type ModifyHapgInput struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the high-availability partition group to modify.
 	HapgArn *string `type:"string" required:"true"`
 
@@ -1287,12 +1334,6 @@ type ModifyHapgInput struct {
 	// The list of partition serial numbers to make members of the high-availability
 	// partition group.
 	PartitionSerialList []*string `type:"list"`
-
-	metadataModifyHapgInput `json:"-" xml:"-"`
-}
-
-type metadataModifyHapgInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1306,14 +1347,10 @@ func (s ModifyHapgInput) GoString() string {
 }
 
 type ModifyHapgOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the high-availability partition group.
 	HapgArn *string `type:"string"`
-
-	metadataModifyHapgOutput `json:"-" xml:"-"`
-}
-
-type metadataModifyHapgOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1328,6 +1365,8 @@ func (s ModifyHapgOutput) GoString() string {
 
 // Contains the inputs for the ModifyHsm operation.
 type ModifyHsmInput struct {
+	_ struct{} `locationName:"ModifyHsmRequest" type:"structure"`
+
 	// The new IP address for the elastic network interface (ENI) attached to the
 	// HSM.
 	//
@@ -1351,12 +1390,6 @@ type ModifyHsmInput struct {
 	// The new IP address for the syslog monitoring server. The AWS CloudHSM service
 	// only supports one syslog monitoring server.
 	SyslogIp *string `locationName:"SyslogIp" type:"string"`
-
-	metadataModifyHsmInput `json:"-" xml:"-"`
-}
-
-type metadataModifyHsmInput struct {
-	SDKShapeTraits bool `locationName:"ModifyHsmRequest" type:"structure"`
 }
 
 // String returns the string representation
@@ -1371,14 +1404,10 @@ func (s ModifyHsmInput) GoString() string {
 
 // Contains the output of the ModifyHsm operation.
 type ModifyHsmOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the HSM.
 	HsmArn *string `type:"string"`
-
-	metadataModifyHsmOutput `json:"-" xml:"-"`
-}
-
-type metadataModifyHsmOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1392,17 +1421,13 @@ func (s ModifyHsmOutput) GoString() string {
 }
 
 type ModifyLunaClientInput struct {
+	_ struct{} `type:"structure"`
+
 	// The new certificate for the client.
 	Certificate *string `min:"600" type:"string" required:"true"`
 
 	// The ARN of the client.
 	ClientArn *string `type:"string" required:"true"`
-
-	metadataModifyLunaClientInput `json:"-" xml:"-"`
-}
-
-type metadataModifyLunaClientInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1416,14 +1441,10 @@ func (s ModifyLunaClientInput) GoString() string {
 }
 
 type ModifyLunaClientOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the client.
 	ClientArn *string `type:"string"`
-
-	metadataModifyLunaClientOutput `json:"-" xml:"-"`
-}
-
-type metadataModifyLunaClientOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1433,6 +1454,67 @@ func (s ModifyLunaClientOutput) String() string {
 
 // GoString returns the string representation
 func (s ModifyLunaClientOutput) GoString() string {
+	return s.String()
+}
+
+type RemoveTagsFromResourceInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the resource.
+	ResourceArn *string `type:"string" required:"true"`
+
+	// The tag key or keys to remove.
+	//
+	// Specify only the tag key to remove (not the value). To overwrite the value
+	// for an existing tag, use AddTagsToResource.
+	TagKeyList []*string `type:"list" required:"true"`
+}
+
+// String returns the string representation
+func (s RemoveTagsFromResourceInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RemoveTagsFromResourceInput) GoString() string {
+	return s.String()
+}
+
+type RemoveTagsFromResourceOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The status of the operation.
+	Status *string `type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s RemoveTagsFromResourceOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RemoveTagsFromResourceOutput) GoString() string {
+	return s.String()
+}
+
+// A key-value pair that identifies or specifies metadata about a resource.
+type Tag struct {
+	_ struct{} `type:"structure"`
+
+	// The key of the tag.
+	Key *string `min:"1" type:"string" required:"true"`
+
+	// The value of the tag.
+	Value *string `type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s Tag) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s Tag) GoString() string {
 	return s.String()
 }
 
@@ -1471,8 +1553,8 @@ const (
 
 // Specifies the type of subscription for the HSM.
 //
-//   PRODUCTION - The HSM is being used in a production environment.  TRIAL
-// - The HSM is being used in a product trial.
+//  PRODUCTION - The HSM is being used in a production environment. TRIAL -
+// The HSM is being used in a product trial.
 const (
 	// @enum SubscriptionType
 	SubscriptionTypeProduction = "PRODUCTION"
