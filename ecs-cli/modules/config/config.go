@@ -71,7 +71,7 @@ func (cfg *CliConfig) ToServiceConfig() (*aws.Config, error) {
 		return nil, fmt.Errorf("Error getting valid credentials")
 	}
 
-	svcConfig := defaults.DefaultConfig.Copy()
+	svcConfig := defaults.Get().Config
 	svcConfig.Credentials = chainCredentials
 	svcConfig.Region = aws.String(region)
 

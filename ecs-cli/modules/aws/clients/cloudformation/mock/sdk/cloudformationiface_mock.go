@@ -65,6 +65,28 @@ func (_mr *_MockCloudFormationAPIRecorder) CancelUpdateStackRequest(arg0 interfa
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CancelUpdateStackRequest", arg0)
 }
 
+func (_m *MockCloudFormationAPI) ContinueUpdateRollback(_param0 *cloudformation.ContinueUpdateRollbackInput) (*cloudformation.ContinueUpdateRollbackOutput, error) {
+	ret := _m.ctrl.Call(_m, "ContinueUpdateRollback", _param0)
+	ret0, _ := ret[0].(*cloudformation.ContinueUpdateRollbackOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ContinueUpdateRollback(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ContinueUpdateRollback", arg0)
+}
+
+func (_m *MockCloudFormationAPI) ContinueUpdateRollbackRequest(_param0 *cloudformation.ContinueUpdateRollbackInput) (*request.Request, *cloudformation.ContinueUpdateRollbackOutput) {
+	ret := _m.ctrl.Call(_m, "ContinueUpdateRollbackRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudformation.ContinueUpdateRollbackOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ContinueUpdateRollbackRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ContinueUpdateRollbackRequest", arg0)
+}
+
 func (_m *MockCloudFormationAPI) CreateStack(_param0 *cloudformation.CreateStackInput) (*cloudformation.CreateStackOutput, error) {
 	ret := _m.ctrl.Call(_m, "CreateStack", _param0)
 	ret0, _ := ret[0].(*cloudformation.CreateStackOutput)

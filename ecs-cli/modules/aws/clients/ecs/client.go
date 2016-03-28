@@ -24,6 +24,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/utils/cache"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
 )
@@ -80,7 +81,7 @@ func NewECSClient() ECSClient {
 }
 
 func (c *ecsClient) Initialize(params *config.CliParams) {
-	client := ecs.New(params.Config)
+	client := ecs.New(session.New(params.Config))
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
 	c.client = client
 	c.params = params
