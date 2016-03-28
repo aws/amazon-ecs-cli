@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/lambda"
 )
 
@@ -15,7 +16,7 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleLambda_AddPermission() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.AddPermissionInput{
 		Action:        aws.String("Action"),       // Required
@@ -40,7 +41,7 @@ func ExampleLambda_AddPermission() {
 }
 
 func ExampleLambda_CreateAlias() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.CreateAliasInput{
 		FunctionName:    aws.String("FunctionName"), // Required
@@ -62,7 +63,7 @@ func ExampleLambda_CreateAlias() {
 }
 
 func ExampleLambda_CreateEventSourceMapping() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.CreateEventSourceMappingInput{
 		EventSourceArn:   aws.String("Arn"),                 // Required
@@ -85,7 +86,7 @@ func ExampleLambda_CreateEventSourceMapping() {
 }
 
 func ExampleLambda_CreateFunction() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.CreateFunctionInput{
 		Code: &lambda.FunctionCode{ // Required
@@ -102,6 +103,16 @@ func ExampleLambda_CreateFunction() {
 		MemorySize:   aws.Int64(1),
 		Publish:      aws.Bool(true),
 		Timeout:      aws.Int64(1),
+		VpcConfig: &lambda.VpcConfig{
+			SecurityGroupIds: []*string{
+				aws.String("SecurityGroupId"), // Required
+				// More values...
+			},
+			SubnetIds: []*string{
+				aws.String("SubnetId"), // Required
+				// More values...
+			},
+		},
 	}
 	resp, err := svc.CreateFunction(params)
 
@@ -117,7 +128,7 @@ func ExampleLambda_CreateFunction() {
 }
 
 func ExampleLambda_DeleteAlias() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.DeleteAliasInput{
 		FunctionName: aws.String("FunctionName"), // Required
@@ -137,7 +148,7 @@ func ExampleLambda_DeleteAlias() {
 }
 
 func ExampleLambda_DeleteEventSourceMapping() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.DeleteEventSourceMappingInput{
 		UUID: aws.String("String"), // Required
@@ -156,7 +167,7 @@ func ExampleLambda_DeleteEventSourceMapping() {
 }
 
 func ExampleLambda_DeleteFunction() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.DeleteFunctionInput{
 		FunctionName: aws.String("FunctionName"), // Required
@@ -176,7 +187,7 @@ func ExampleLambda_DeleteFunction() {
 }
 
 func ExampleLambda_GetAlias() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.GetAliasInput{
 		FunctionName: aws.String("FunctionName"), // Required
@@ -196,7 +207,7 @@ func ExampleLambda_GetAlias() {
 }
 
 func ExampleLambda_GetEventSourceMapping() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.GetEventSourceMappingInput{
 		UUID: aws.String("String"), // Required
@@ -215,7 +226,7 @@ func ExampleLambda_GetEventSourceMapping() {
 }
 
 func ExampleLambda_GetFunction() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.GetFunctionInput{
 		FunctionName: aws.String("FunctionName"), // Required
@@ -235,7 +246,7 @@ func ExampleLambda_GetFunction() {
 }
 
 func ExampleLambda_GetFunctionConfiguration() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.GetFunctionConfigurationInput{
 		FunctionName: aws.String("FunctionName"), // Required
@@ -255,7 +266,7 @@ func ExampleLambda_GetFunctionConfiguration() {
 }
 
 func ExampleLambda_GetPolicy() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.GetPolicyInput{
 		FunctionName: aws.String("FunctionName"), // Required
@@ -275,7 +286,7 @@ func ExampleLambda_GetPolicy() {
 }
 
 func ExampleLambda_Invoke() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.InvokeInput{
 		FunctionName:   aws.String("FunctionName"), // Required
@@ -299,7 +310,7 @@ func ExampleLambda_Invoke() {
 }
 
 func ExampleLambda_InvokeAsync() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.InvokeAsyncInput{
 		FunctionName: aws.String("FunctionName"),         // Required
@@ -319,7 +330,7 @@ func ExampleLambda_InvokeAsync() {
 }
 
 func ExampleLambda_ListAliases() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.ListAliasesInput{
 		FunctionName:    aws.String("FunctionName"), // Required
@@ -341,7 +352,7 @@ func ExampleLambda_ListAliases() {
 }
 
 func ExampleLambda_ListEventSourceMappings() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.ListEventSourceMappingsInput{
 		EventSourceArn: aws.String("Arn"),
@@ -363,7 +374,7 @@ func ExampleLambda_ListEventSourceMappings() {
 }
 
 func ExampleLambda_ListFunctions() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.ListFunctionsInput{
 		Marker:   aws.String("String"),
@@ -383,7 +394,7 @@ func ExampleLambda_ListFunctions() {
 }
 
 func ExampleLambda_ListVersionsByFunction() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.ListVersionsByFunctionInput{
 		FunctionName: aws.String("FunctionName"), // Required
@@ -404,7 +415,7 @@ func ExampleLambda_ListVersionsByFunction() {
 }
 
 func ExampleLambda_PublishVersion() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.PublishVersionInput{
 		FunctionName: aws.String("FunctionName"), // Required
@@ -425,7 +436,7 @@ func ExampleLambda_PublishVersion() {
 }
 
 func ExampleLambda_RemovePermission() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.RemovePermissionInput{
 		FunctionName: aws.String("FunctionName"), // Required
@@ -446,7 +457,7 @@ func ExampleLambda_RemovePermission() {
 }
 
 func ExampleLambda_UpdateAlias() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.UpdateAliasInput{
 		FunctionName:    aws.String("FunctionName"), // Required
@@ -468,7 +479,7 @@ func ExampleLambda_UpdateAlias() {
 }
 
 func ExampleLambda_UpdateEventSourceMapping() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.UpdateEventSourceMappingInput{
 		UUID:         aws.String("String"), // Required
@@ -490,7 +501,7 @@ func ExampleLambda_UpdateEventSourceMapping() {
 }
 
 func ExampleLambda_UpdateFunctionCode() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.UpdateFunctionCodeInput{
 		FunctionName:    aws.String("FunctionName"), // Required
@@ -514,7 +525,7 @@ func ExampleLambda_UpdateFunctionCode() {
 }
 
 func ExampleLambda_UpdateFunctionConfiguration() {
-	svc := lambda.New(nil)
+	svc := lambda.New(session.New())
 
 	params := &lambda.UpdateFunctionConfigurationInput{
 		FunctionName: aws.String("FunctionName"), // Required
@@ -523,6 +534,16 @@ func ExampleLambda_UpdateFunctionConfiguration() {
 		MemorySize:   aws.Int64(1),
 		Role:         aws.String("RoleArn"),
 		Timeout:      aws.Int64(1),
+		VpcConfig: &lambda.VpcConfig{
+			SecurityGroupIds: []*string{
+				aws.String("SecurityGroupId"), // Required
+				// More values...
+			},
+			SubnetIds: []*string{
+				aws.String("SubnetId"), // Required
+				// More values...
+			},
+		},
 	}
 	resp, err := svc.UpdateFunctionConfiguration(params)
 

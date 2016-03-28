@@ -93,6 +93,7 @@ func (c *DynamoDB) BatchGetItem(input *BatchGetItemInput) (*BatchGetItemOutput, 
 
 func (c *DynamoDB) BatchGetItemPages(input *BatchGetItemInput, fn func(p *BatchGetItemOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.BatchGetItemRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*BatchGetItemOutput), lastPage)
 	})
@@ -184,9 +185,9 @@ func (c *DynamoDB) BatchWriteItemRequest(input *BatchWriteItemInput) (req *reque
 //
 //   There are more than 25 requests in the batch.
 //
-//   Any individual item in a batch exceeds 400 KB.
+//  Any individual item in a batch exceeds 400 KB.
 //
-//   The total request size exceeds 16 MB.
+//  The total request size exceeds 16 MB.
 func (c *DynamoDB) BatchWriteItem(input *BatchWriteItemInput) (*BatchWriteItemOutput, error) {
 	req, out := c.BatchWriteItemRequest(input)
 	err := req.Send()
@@ -318,6 +319,80 @@ func (c *DynamoDB) DeleteTable(input *DeleteTableInput) (*DeleteTableOutput, err
 	return out, err
 }
 
+const opDescribeLimits = "DescribeLimits"
+
+// DescribeLimitsRequest generates a request for the DescribeLimits operation.
+func (c *DynamoDB) DescribeLimitsRequest(input *DescribeLimitsInput) (req *request.Request, output *DescribeLimitsOutput) {
+	op := &request.Operation{
+		Name:       opDescribeLimits,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DescribeLimitsInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &DescribeLimitsOutput{}
+	req.Data = output
+	return
+}
+
+// Returns the current provisioned-capacity limits for your AWS account in a
+// region, both for the region as a whole and for any one DynamoDB table that
+// you create there.
+//
+// When you establish an AWS account, the account has initial limits on the
+// maximum read capacity units and write capacity units that you can provision
+// across all of your DynamoDB tables in a given region. Also, there are per-table
+// limits that apply when you create a table there. For more information, see
+// Limits (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Limits.html)
+// page in the Amazon DynamoDB Developer Guide.
+//
+// Although you can increase these limits by filing a case at AWS Support Center
+// (https://console.aws.amazon.com/support/home#/), obtaining the increase is
+// not instantaneous. The DescribeLimits API lets you write code to compare
+// the capacity you are currently using to those limits imposed by your account
+// so that you have enough time to apply for an increase before you hit a limit.
+//
+//  For example, you could use one of the AWS SDKs to do the following:
+//
+//  Call DescribeLimits for a particular region to obtain your current account
+// limits on provisioned capacity there. Create a variable to hold the aggregate
+// read capacity units provisioned for all your tables in that region, and one
+// to hold the aggregate write capacity units. Zero them both. Call ListTables
+// to obtain a list of all your DynamoDB tables. For each table name listed
+// by ListTables, do the following:
+//
+//  Call DescribeTable with the table name. Use the data returned by DescribeTable
+// to add the read capacity units and write capacity units provisioned for the
+// table itself to your variables. If the table has one or more global secondary
+// indexes (GSIs), loop over these GSIs and add their provisioned capacity values
+// to your variables as well.   Report the account limits for that region returned
+// by DescribeLimits, along with the total current provisioned capacity levels
+// you have calculated.  This will let you see whether you are getting close
+// to your account-level limits.
+//
+// The per-table limits apply only when you are creating a new table. They
+// restrict the sum of the provisioned capacity of the new table itself and
+// all its global secondary indexes.
+//
+// For existing tables and their GSIs, DynamoDB will not let you increase provisioned
+// capacity extremely rapidly, but the only upper limit that applies is that
+// the aggregate provisioned capacity over all your tables and GSIs cannot exceed
+// either of the per-account limits.
+//
+// DescribeLimits should only be called periodically. You can expect throttling
+// errors if you call it more than once in a minute.
+//
+//  The DescribeLimits Request element has no content.
+func (c *DynamoDB) DescribeLimits(input *DescribeLimitsInput) (*DescribeLimitsOutput, error) {
+	req, out := c.DescribeLimitsRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opDescribeTable = "DescribeTable"
 
 // DescribeTableRequest generates a request for the DescribeTable operation.
@@ -423,6 +498,7 @@ func (c *DynamoDB) ListTables(input *ListTablesInput) (*ListTablesOutput, error)
 
 func (c *DynamoDB) ListTablesPages(input *ListTablesInput, fn func(p *ListTablesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListTablesRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListTablesOutput), lastPage)
 	})
@@ -468,8 +544,10 @@ func (c *DynamoDB) PutItemRequest(input *PutItemInput) (req *request.Request, ou
 // see the ReturnValues description below.
 //
 //  To prevent a new item from replacing an existing item, use a conditional
-// put operation with ComparisonOperator set to NULL for the primary key attribute,
-// or attributes.
+// expression that contains the attribute_not_exists function with the name
+// of the attribute being used as the partition key for the table. Since every
+// record must contain that attribute, the attribute_not_exists function will
+// only succeed if no matching item exists.
 //
 //  For more information about using this API, see Working with Items (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/WorkingWithItems.html)
 // in the Amazon DynamoDB Developer Guide.
@@ -508,12 +586,12 @@ func (c *DynamoDB) QueryRequest(input *QueryInput) (req *request.Request, output
 // A Query operation uses the primary key of a table or a secondary index to
 // directly access items from that table or index.
 //
-// Use the KeyConditionExpression parameter to provide a specific hash key
-// value. The Query operation will return all of the items from the table or
-// index with that hash key value. You can optionally narrow the scope of the
-// Query operation by specifying a range key value and a comparison operator
-// in KeyConditionExpression. You can use the ScanIndexForward parameter to
-// get results in forward or reverse order, by range key or by index key.
+// Use the KeyConditionExpression parameter to provide a specific value for
+// the partition key. The Query operation will return all of the items from
+// the table or index with that partition key value. You can optionally narrow
+// the scope of the Query operation by specifying a sort key value and a comparison
+// operator in KeyConditionExpression. You can use the ScanIndexForward parameter
+// to get results in forward or reverse order, by sort key.
 //
 // Queries that do not return results consume the minimum number of read capacity
 // units for that type of read operation.
@@ -538,6 +616,7 @@ func (c *DynamoDB) Query(input *QueryInput) (*QueryOutput, error) {
 
 func (c *DynamoDB) QueryPages(input *QueryInput, fn func(p *QueryOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.QueryRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*QueryOutput), lastPage)
 	})
@@ -585,9 +664,11 @@ func (c *DynamoDB) ScanRequest(input *ScanInput) (req *request.Request, output *
 // more information, see Parallel Scan (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/QueryAndScan.html#QueryAndScanParallelScan)
 // in the Amazon DynamoDB Developer Guide.
 //
-// By default, Scan uses eventually consistent reads when acessing the data
-// in the table or local secondary index. However, you can use strongly consistent
-// reads instead by setting the ConsistentRead parameter to true.
+// By default, Scan uses eventually consistent reads when accessing the data
+// in a table; therefore, the result set might not include the changes to data
+// in the table immediately before the operation began. If you need a consistent
+// copy of the data, as of the time that the Scan begins, you can set the ConsistentRead
+// parameter to true.
 func (c *DynamoDB) Scan(input *ScanInput) (*ScanOutput, error) {
 	req, out := c.ScanRequest(input)
 	err := req.Send()
@@ -596,6 +677,7 @@ func (c *DynamoDB) Scan(input *ScanInput) (*ScanOutput, error) {
 
 func (c *DynamoDB) ScanPages(input *ScanInput, fn func(p *ScanOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ScanRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ScanOutput), lastPage)
 	})
@@ -625,9 +707,7 @@ func (c *DynamoDB) UpdateItemRequest(input *UpdateItemInput) (req *request.Reque
 // does not already exist. You can put, delete, or add attribute values. You
 // can also perform a conditional update on an existing item (insert a new attribute
 // name-value pair if it doesn't exist, or replace an existing name-value pair
-// if it has certain expected attribute values). If conditions are specified
-// and the item does not exist, then the operation fails and a new item is not
-// created.
+// if it has certain expected attribute values).
 //
 // You can also return the item's attribute values in the same UpdateItem operation
 // using the ReturnValues parameter.
@@ -671,7 +751,7 @@ func (c *DynamoDB) UpdateTableRequest(input *UpdateTableInput) (req *request.Req
 //  Create a new global secondary index on the table. Once the index begins
 // backfilling, you can use UpdateTable to perform other operations.
 //
-//   UpdateTable is an asynchronous operation; while it is executing, the table
+//  UpdateTable is an asynchronous operation; while it is executing, the table
 // status changes from ACTIVE to UPDATING. While it is UPDATING, you cannot
 // issue another UpdateTable request. When the table returns to the ACTIVE state,
 // the UpdateTable operation is complete.
@@ -683,17 +763,16 @@ func (c *DynamoDB) UpdateTable(input *UpdateTableInput) (*UpdateTableOutput, err
 
 // Represents an attribute for describing the key schema for the table and indexes.
 type AttributeDefinition struct {
+	_ struct{} `type:"structure"`
+
 	// A name for the attribute.
 	AttributeName *string `min:"1" type:"string" required:"true"`
 
-	// The data type for the attribute.
+	// The data type for the attribute, where:
+	//
+	//  S - the attribute is of type String N - the attribute is of type Number
+	// B - the attribute is of type Binary
 	AttributeType *string `type:"string" required:"true" enum:"ScalarAttributeType"`
-
-	metadataAttributeDefinition `json:"-" xml:"-"`
-}
-
-type metadataAttributeDefinition struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -714,7 +793,11 @@ func (s AttributeDefinition) GoString() string {
 // attributes. Each book has one title but can have many authors. The multi-valued
 // attribute is a set; duplicate values are not allowed.
 type AttributeValue struct {
+	_ struct{} `type:"structure"`
+
 	// A Binary data type.
+	//
+	// B is automatically base64 encoded/decoded by the SDK.
 	B []byte `type:"blob"`
 
 	// A Boolean data type.
@@ -743,12 +826,6 @@ type AttributeValue struct {
 
 	// A String Set data type.
 	SS []*string `type:"list"`
-
-	metadataAttributeValue `json:"-" xml:"-"`
-}
-
-type metadataAttributeValue struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -772,6 +849,8 @@ func (s AttributeValue) GoString() string {
 // have lengths greater than zero; and set type attributes must not be empty.
 // Requests with empty values will be rejected with a ValidationException exception.
 type AttributeValueUpdate struct {
+	_ struct{} `type:"structure"`
+
 	// Specifies how to perform the update. Valid values are PUT (default), DELETE,
 	// and ADD. The behavior depends on whether the specified primary key already
 	// exists in the table.
@@ -844,12 +923,6 @@ type AttributeValueUpdate struct {
 	// attributes. Each book has one title but can have many authors. The multi-valued
 	// attribute is a set; duplicate values are not allowed.
 	Value *AttributeValue `type:"structure"`
-
-	metadataAttributeValueUpdate `json:"-" xml:"-"`
-}
-
-type metadataAttributeValueUpdate struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -864,6 +937,8 @@ func (s AttributeValueUpdate) GoString() string {
 
 // Represents the input of a BatchGetItem operation.
 type BatchGetItemInput struct {
+	_ struct{} `type:"structure"`
+
 	// A map of one or more table names and, for each table, a map that describes
 	// one or more items to retrieve from that table. Each table name can be used
 	// only once per BatchGetItem request.
@@ -911,9 +986,9 @@ type BatchGetItemInput struct {
 	//
 	//   Keys - An array of primary key attribute values that define specific items
 	// in the table. For each primary key, you must provide all of the key attributes.
-	// For example, with a hash type primary key, you only need to provide the hash
-	// attribute. For a hash-and-range type primary key, you must provide both the
-	// hash attribute and the range attribute.
+	// For example, with a simple primary key, you only need to provide the partition
+	// key value. For a composite key, you must provide both the partition key value
+	// and the sort key value.
 	//
 	//   ProjectionExpression - A string that identifies one or more attributes
 	// to retrieve from the table. These attributes can include scalars, sets, or
@@ -949,7 +1024,7 @@ type BatchGetItemInput struct {
 	// Determines the level of detail about provisioned throughput consumption that
 	// is returned in the response:
 	//
-	//   INDEXES - The response includes the aggregate ConsumedCapacity for the
+	//  INDEXES - The response includes the aggregate ConsumedCapacity for the
 	// operation, together with ConsumedCapacity for each table and secondary index
 	// that was accessed.
 	//
@@ -957,17 +1032,11 @@ type BatchGetItemInput struct {
 	// any indexes at all. In these cases, specifying INDEXES will only return ConsumedCapacity
 	// information for table(s).
 	//
-	//  TOTAL - The response includes only the aggregate ConsumedCapacity for the
+	// TOTAL - The response includes only the aggregate ConsumedCapacity for the
 	// operation.
 	//
 	// NONE - No ConsumedCapacity details are included in the response.
 	ReturnConsumedCapacity *string `type:"string" enum:"ReturnConsumedCapacity"`
-
-	metadataBatchGetItemInput `json:"-" xml:"-"`
-}
-
-type metadataBatchGetItemInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -982,6 +1051,8 @@ func (s BatchGetItemInput) GoString() string {
 
 // Represents the output of a BatchGetItem operation.
 type BatchGetItemOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The read capacity units consumed by the operation.
 	//
 	// Each element consists of:
@@ -1017,12 +1088,6 @@ type BatchGetItemOutput struct {
 	//   If there are no unprocessed keys remaining, the response contains an empty
 	// UnprocessedKeys map.
 	UnprocessedKeys map[string]*KeysAndAttributes `min:"1" type:"map"`
-
-	metadataBatchGetItemOutput `json:"-" xml:"-"`
-}
-
-type metadataBatchGetItemOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1037,6 +1102,8 @@ func (s BatchGetItemOutput) GoString() string {
 
 // Represents the input of a BatchWriteItem operation.
 type BatchWriteItemInput struct {
+	_ struct{} `type:"structure"`
+
 	// A map of one or more table names and, for each table, a list of operations
 	// to be performed (DeleteRequest or PutRequest). Each element in the map consists
 	// of the following:
@@ -1047,9 +1114,9 @@ type BatchWriteItemInput struct {
 	//   Key - A map of primary key attribute values that uniquely identify the
 	// ! item. Each entry in this map consists of an attribute name and an attribute
 	// value. For each primary key, you must provide all of the key attributes.
-	// For example, with a hash type primary key, you only need to provide the hash
-	// attribute. For a hash-and-range type primary key, you must provide both the
-	// hash attribute and the range attribute.
+	// For example, with a simple primary key, you only need to provide a value
+	// for the partition key. For a composite primary key, you must provide values
+	// for both the partition key and the sort key.
 	//
 	//     PutRequest - Perform a PutItem operation on the specified item. The
 	// item to be put is identified by an Item subelement:
@@ -1068,7 +1135,7 @@ type BatchWriteItemInput struct {
 	// Determines the level of detail about provisioned throughput consumption that
 	// is returned in the response:
 	//
-	//   INDEXES - The response includes the aggregate ConsumedCapacity for the
+	//  INDEXES - The response includes the aggregate ConsumedCapacity for the
 	// operation, together with ConsumedCapacity for each table and secondary index
 	// that was accessed.
 	//
@@ -1076,7 +1143,7 @@ type BatchWriteItemInput struct {
 	// any indexes at all. In these cases, specifying INDEXES will only return ConsumedCapacity
 	// information for table(s).
 	//
-	//  TOTAL - The response includes only the aggregate ConsumedCapacity for the
+	// TOTAL - The response includes only the aggregate ConsumedCapacity for the
 	// operation.
 	//
 	// NONE - No ConsumedCapacity details are included in the response.
@@ -1087,12 +1154,6 @@ type BatchWriteItemInput struct {
 	// modified during the operation are returned in the response. If set to NONE
 	// (the default), no statistics are returned.
 	ReturnItemCollectionMetrics *string `type:"string" enum:"ReturnItemCollectionMetrics"`
-
-	metadataBatchWriteItemInput `json:"-" xml:"-"`
-}
-
-type metadataBatchWriteItemInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1107,6 +1168,8 @@ func (s BatchWriteItemInput) GoString() string {
 
 // Represents the output of a BatchWriteItem operation.
 type BatchWriteItemOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The capacity units consumed by the operation.
 	//
 	// Each element consists of:
@@ -1122,8 +1185,8 @@ type BatchWriteItemOutput struct {
 	//
 	// Each entry consists of the following subelements:
 	//
-	//   ItemCollectionKey - The hash key value of the item collection. This is
-	// the same as the hash key of the item.
+	//   ItemCollectionKey - The partition key value of the item collection. This
+	// is the same as the partition key value of the item.
 	//
 	//   SizeEstimateRange - An estimate of item collection size, expressed in
 	// GB. This is a two-element array containing a lower bound and an upper bound
@@ -1167,12 +1230,6 @@ type BatchWriteItemOutput struct {
 	//     If there are no unprocessed items remaining, the response contains an
 	// empty UnprocessedItems map.
 	UnprocessedItems map[string][]*WriteRequest `min:"1" type:"map"`
-
-	metadataBatchWriteItemOutput `json:"-" xml:"-"`
-}
-
-type metadataBatchWriteItemOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1188,14 +1245,10 @@ func (s BatchWriteItemOutput) GoString() string {
 // Represents the amount of provisioned throughput capacity consumed on a table
 // or an index.
 type Capacity struct {
+	_ struct{} `type:"structure"`
+
 	// The total number of capacity units consumed on a table or an index.
 	CapacityUnits *float64 `type:"double"`
-
-	metadataCapacity `json:"-" xml:"-"`
-}
-
-type metadataCapacity struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1222,6 +1275,8 @@ func (s Capacity) GoString() string {
 //   For a Scan operation, Condition is used in a ScanFilter, which evaluates
 // the scan results and returns only the desired values.
 type Condition struct {
+	_ struct{} `type:"structure"`
+
 	// One or more values to evaluate against the supplied attribute. The number
 	// of values in the list depends on the ComparisonOperator being used.
 	//
@@ -1368,12 +1423,6 @@ type Condition struct {
 	// Conditional Parameters (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/LegacyConditionalParameters.html)
 	// in the Amazon DynamoDB Developer Guide.
 	ComparisonOperator *string `type:"string" required:"true" enum:"ComparisonOperator"`
-
-	metadataCondition `json:"-" xml:"-"`
-}
-
-type metadataCondition struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1393,6 +1442,8 @@ func (s Condition) GoString() string {
 // (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ProvisionedThroughputIntro.html)
 // in the Amazon DynamoDB Developer Guide.
 type ConsumedCapacity struct {
+	_ struct{} `type:"structure"`
+
 	// The total number of capacity units consumed by the operation.
 	CapacityUnits *float64 `type:"double"`
 
@@ -1407,12 +1458,6 @@ type ConsumedCapacity struct {
 
 	// The name of the table that was affected by the operation.
 	TableName *string `min:"3" type:"string"`
-
-	metadataConsumedCapacity `json:"-" xml:"-"`
-}
-
-type metadataConsumedCapacity struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1427,6 +1472,8 @@ func (s ConsumedCapacity) GoString() string {
 
 // Represents a new global secondary index to be added to an existing table.
 type CreateGlobalSecondaryIndexAction struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the global secondary index to be created.
 	IndexName *string `min:"3" type:"string" required:"true"`
 
@@ -1445,12 +1492,6 @@ type CreateGlobalSecondaryIndexAction struct {
 	// (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Limits.html)
 	// in the Amazon DynamoDB Developer Guide.
 	ProvisionedThroughput *ProvisionedThroughput `type:"structure" required:"true"`
-
-	metadataCreateGlobalSecondaryIndexAction `json:"-" xml:"-"`
-}
-
-type metadataCreateGlobalSecondaryIndexAction struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1465,6 +1506,8 @@ func (s CreateGlobalSecondaryIndexAction) GoString() string {
 
 // Represents the input of a CreateTable operation.
 type CreateTableInput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of attributes that describe the key schema for the table and indexes.
 	AttributeDefinitions []*AttributeDefinition `type:"list" required:"true"`
 
@@ -1509,12 +1552,25 @@ type CreateTableInput struct {
 	//
 	//   AttributeName - The name of this key attribute.
 	//
-	//   KeyType - Determines whether the key attribute is HASH or RANGE.
+	//   KeyType - The role that the key attribute will assume:
 	//
-	//   For a primary key that consists of a hash attribute, you must provide
-	// exactly one element with a KeyType of HASH.
+	//  HASH - partition key
 	//
-	// For a primary key that consists of hash and range attributes, you must provide
+	//  RANGE - sort key
+	//
+	//     The partition key of an item is also known as its hash attribute. The
+	// term "hash attribute" derives from DynamoDB' usage of an internal hash function
+	// to evenly distribute data items across partitions, based on their partition
+	// key values.
+	//
+	// The sort key of an item is also known as its range attribute. The term "range
+	// attribute" derives from the way DynamoDB stores items with the same partition
+	// key physically close together, in sorted order by the sort key value.
+	//
+	// For a simple primary key (partition key), you must provide exactly one element
+	// with a KeyType of HASH.
+	//
+	// For a composite primary key (partition key and sort key), you must provide
 	// exactly two elements, in this order: The first element must have a KeyType
 	// of HASH, and the second element must have a KeyType of RANGE.
 	//
@@ -1523,9 +1579,9 @@ type CreateTableInput struct {
 	KeySchema []*KeySchemaElement `min:"1" type:"list" required:"true"`
 
 	// One or more local secondary indexes (the maximum is five) to be created on
-	// the table. Each index is scoped to a given hash key value. There is a 10
-	// GB size limit per hash key; otherwise, the size of a local secondary index
-	// is unconstrained.
+	// the table. Each index is scoped to a given partition key value. There is
+	// a 10 GB size limit per partition key value; otherwise, the size of a local
+	// secondary index is unconstrained.
 	//
 	// Each local secondary index in the array includes the following:
 	//
@@ -1533,7 +1589,7 @@ type CreateTableInput struct {
 	// for this table.
 	//
 	//    KeySchema - Specifies the key schema for the local secondary index. The
-	// key schema must begin with the same hash key attribute as the table.
+	// key schema must begin with the same partition key as the table.
 	//
 	//   Projection - Specifies attributes that are copied (projected) from the
 	// table into the index. These are in addition to the primary key attributes
@@ -1588,12 +1644,6 @@ type CreateTableInput struct {
 
 	// The name of the table to create.
 	TableName *string `min:"3" type:"string" required:"true"`
-
-	metadataCreateTableInput `json:"-" xml:"-"`
-}
-
-type metadataCreateTableInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1608,14 +1658,10 @@ func (s CreateTableInput) GoString() string {
 
 // Represents the output of a CreateTable operation.
 type CreateTableOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Represents the properties of a table.
 	TableDescription *TableDescription `type:"structure"`
-
-	metadataCreateTableOutput `json:"-" xml:"-"`
-}
-
-type metadataCreateTableOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1630,14 +1676,10 @@ func (s CreateTableOutput) GoString() string {
 
 // Represents a global secondary index to be deleted from an existing table.
 type DeleteGlobalSecondaryIndexAction struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the global secondary index to be deleted.
 	IndexName *string `min:"3" type:"string" required:"true"`
-
-	metadataDeleteGlobalSecondaryIndexAction `json:"-" xml:"-"`
-}
-
-type metadataDeleteGlobalSecondaryIndexAction struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1652,6 +1694,8 @@ func (s DeleteGlobalSecondaryIndexAction) GoString() string {
 
 // Represents the input of a DeleteItem operation.
 type DeleteItemInput struct {
+	_ struct{} `type:"structure"`
+
 	// A condition that must be satisfied in order for a conditional DeleteItem
 	// to succeed.
 	//
@@ -1662,7 +1706,7 @@ type DeleteItemInput struct {
 	//
 	// These function names are case-sensitive.
 	//
-	//   Comparison operators:  = | <> | < | > | <= | >= | BETWEEN | IN
+	//   Comparison operators:  = |  |  |  | = | = | BETWEEN | IN
 	//
 	//    Logical operators: AND | OR | NOT
 	//
@@ -1951,15 +1995,15 @@ type DeleteItemInput struct {
 	// key of the item to delete.
 	//
 	// For the primary key, you must provide all of the attributes. For example,
-	// with a hash type primary key, you only need to provide the hash attribute.
-	// For a hash-and-range type primary key, you must provide both the hash attribute
-	// and the range attribute.
+	// with a simple primary key, you only need to provide a value for the partition
+	// key. For a composite primary key, you must provide values for both the partition
+	// key and the sort key.
 	Key map[string]*AttributeValue `type:"map" required:"true"`
 
 	// Determines the level of detail about provisioned throughput consumption that
 	// is returned in the response:
 	//
-	//   INDEXES - The response includes the aggregate ConsumedCapacity for the
+	//  INDEXES - The response includes the aggregate ConsumedCapacity for the
 	// operation, together with ConsumedCapacity for each table and secondary index
 	// that was accessed.
 	//
@@ -1967,7 +2011,7 @@ type DeleteItemInput struct {
 	// any indexes at all. In these cases, specifying INDEXES will only return ConsumedCapacity
 	// information for table(s).
 	//
-	//  TOTAL - The response includes only the aggregate ConsumedCapacity for the
+	// TOTAL - The response includes only the aggregate ConsumedCapacity for the
 	// operation.
 	//
 	// NONE - No ConsumedCapacity details are included in the response.
@@ -1990,12 +2034,6 @@ type DeleteItemInput struct {
 
 	// The name of the table from which to delete the item.
 	TableName *string `min:"3" type:"string" required:"true"`
-
-	metadataDeleteItemInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteItemInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2010,6 +2048,8 @@ func (s DeleteItemInput) GoString() string {
 
 // Represents the output of a DeleteItem operation.
 type DeleteItemOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A map of attribute names to AttributeValue objects, representing the item
 	// as it appeared before the DeleteItem operation. This map appears in the response
 	// only if ReturnValues was specified as ALL_OLD in the request.
@@ -2030,8 +2070,8 @@ type DeleteItemOutput struct {
 	//
 	// Each ItemCollectionMetrics element consists of:
 	//
-	//  ItemCollectionKey - The hash key value of the item collection. This is
-	// the same as the hash key of the item.
+	//  ItemCollectionKey - The partition key value of the item collection. This
+	// is the same as the partition key value of the item itself.
 	//
 	// SizeEstimateRange - An estimate of item collection size, in gigabytes. This
 	// value is a two-element array containing a lower bound and an upper bound
@@ -2043,12 +2083,6 @@ type DeleteItemOutput struct {
 	// The estimate is subject to change over time; therefore, do not rely on the
 	// precision or accuracy of the estimate.
 	ItemCollectionMetrics *ItemCollectionMetrics `type:"structure"`
-
-	metadataDeleteItemOutput `json:"-" xml:"-"`
-}
-
-type metadataDeleteItemOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2063,16 +2097,12 @@ func (s DeleteItemOutput) GoString() string {
 
 // Represents a request to perform a DeleteItem operation on an item.
 type DeleteRequest struct {
+	_ struct{} `type:"structure"`
+
 	// A map of attribute name to attribute values, representing the primary key
 	// of the item to delete. All of the table's primary key attributes must be
 	// specified, and their data types must match those of the table's key schema.
 	Key map[string]*AttributeValue `type:"map" required:"true"`
-
-	metadataDeleteRequest `json:"-" xml:"-"`
-}
-
-type metadataDeleteRequest struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2087,14 +2117,10 @@ func (s DeleteRequest) GoString() string {
 
 // Represents the input of a DeleteTable operation.
 type DeleteTableInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the table to delete.
 	TableName *string `min:"3" type:"string" required:"true"`
-
-	metadataDeleteTableInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteTableInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2109,14 +2135,10 @@ func (s DeleteTableInput) GoString() string {
 
 // Represents the output of a DeleteTable operation.
 type DeleteTableOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Represents the properties of a table.
 	TableDescription *TableDescription `type:"structure"`
-
-	metadataDeleteTableOutput `json:"-" xml:"-"`
-}
-
-type metadataDeleteTableOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2129,16 +2151,60 @@ func (s DeleteTableOutput) GoString() string {
 	return s.String()
 }
 
-// Represents the input of a DescribeTable operation.
-type DescribeTableInput struct {
-	// The name of the table to describe.
-	TableName *string `min:"3" type:"string" required:"true"`
-
-	metadataDescribeTableInput `json:"-" xml:"-"`
+// Represents the input of a DescribeLimits operation. Has no content.
+type DescribeLimitsInput struct {
+	_ struct{} `type:"structure"`
 }
 
-type metadataDescribeTableInput struct {
-	SDKShapeTraits bool `type:"structure"`
+// String returns the string representation
+func (s DescribeLimitsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DescribeLimitsInput) GoString() string {
+	return s.String()
+}
+
+// Represents the output of a DescribeLimits operation.
+type DescribeLimitsOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The maximum total read capacity units that your account allows you to provision
+	// across all of your tables in this region.
+	AccountMaxReadCapacityUnits *int64 `min:"1" type:"long"`
+
+	// The maximum total write capacity units that your account allows you to provision
+	// across all of your tables in this region.
+	AccountMaxWriteCapacityUnits *int64 `min:"1" type:"long"`
+
+	// The maximum read capacity units that your account allows you to provision
+	// for a new table that you are creating in this region, including the read
+	// capacity units provisioned for its global secondary indexes (GSIs).
+	TableMaxReadCapacityUnits *int64 `min:"1" type:"long"`
+
+	// The maximum write capacity units that your account allows you to provision
+	// for a new table that you are creating in this region, including the write
+	// capacity units provisioned for its global secondary indexes (GSIs).
+	TableMaxWriteCapacityUnits *int64 `min:"1" type:"long"`
+}
+
+// String returns the string representation
+func (s DescribeLimitsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DescribeLimitsOutput) GoString() string {
+	return s.String()
+}
+
+// Represents the input of a DescribeTable operation.
+type DescribeTableInput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the table to describe.
+	TableName *string `min:"3" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2153,14 +2219,10 @@ func (s DescribeTableInput) GoString() string {
 
 // Represents the output of a DescribeTable operation.
 type DescribeTableOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Represents the properties of a table.
 	Table *TableDescription `type:"structure"`
-
-	metadataDescribeTableOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeTableOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2194,6 +2256,8 @@ func (s DescribeTableOutput) GoString() string {
 // Note that if you use both sets of parameters at once, DynamoDB will return
 // a ValidationException exception.
 type ExpectedAttributeValue struct {
+	_ struct{} `type:"structure"`
+
 	// One or more values to evaluate against the supplied attribute. The number
 	// of values in the list depends on the ComparisonOperator being used.
 	//
@@ -2372,12 +2436,6 @@ type ExpectedAttributeValue struct {
 	// attributes. Each book has one title but can have many authors. The multi-valued
 	// attribute is a set; duplicate values are not allowed.
 	Value *AttributeValue `type:"structure"`
-
-	metadataExpectedAttributeValue `json:"-" xml:"-"`
-}
-
-type metadataExpectedAttributeValue struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2392,6 +2450,8 @@ func (s ExpectedAttributeValue) GoString() string {
 
 // Represents the input of a GetItem operation.
 type GetItemInput struct {
+	_ struct{} `type:"structure"`
+
 	// This is a legacy parameter, for backward compatibility. New applications
 	// should use ProjectionExpression instead. Do not combine legacy parameters
 	// and expression parameters in a single API call; otherwise, DynamoDB will
@@ -2454,9 +2514,9 @@ type GetItemInput struct {
 	// key of the item to retrieve.
 	//
 	// For the primary key, you must provide all of the attributes. For example,
-	// with a hash type primary key, you only need to provide the hash attribute.
-	// For a hash-and-range type primary key, you must provide both the hash attribute
-	// and the range attribute.
+	// with a simple primary key, you only need to provide a value for the partition
+	// key. For a composite primary key, you must provide values for both the partition
+	// key and the sort key.
 	Key map[string]*AttributeValue `type:"map" required:"true"`
 
 	// A string that identifies one or more attributes to retrieve from the table.
@@ -2476,7 +2536,7 @@ type GetItemInput struct {
 	// Determines the level of detail about provisioned throughput consumption that
 	// is returned in the response:
 	//
-	//   INDEXES - The response includes the aggregate ConsumedCapacity for the
+	//  INDEXES - The response includes the aggregate ConsumedCapacity for the
 	// operation, together with ConsumedCapacity for each table and secondary index
 	// that was accessed.
 	//
@@ -2484,7 +2544,7 @@ type GetItemInput struct {
 	// any indexes at all. In these cases, specifying INDEXES will only return ConsumedCapacity
 	// information for table(s).
 	//
-	//  TOTAL - The response includes only the aggregate ConsumedCapacity for the
+	// TOTAL - The response includes only the aggregate ConsumedCapacity for the
 	// operation.
 	//
 	// NONE - No ConsumedCapacity details are included in the response.
@@ -2492,12 +2552,6 @@ type GetItemInput struct {
 
 	// The name of the table containing the requested item.
 	TableName *string `min:"3" type:"string" required:"true"`
-
-	metadataGetItemInput `json:"-" xml:"-"`
-}
-
-type metadataGetItemInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2512,6 +2566,8 @@ func (s GetItemInput) GoString() string {
 
 // Represents the output of a GetItem operation.
 type GetItemOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The capacity units consumed by an operation. The data returned includes the
 	// total provisioned throughput consumed, along with statistics for the table
 	// and any indexes involved in the operation. ConsumedCapacity is only returned
@@ -2522,12 +2578,6 @@ type GetItemOutput struct {
 
 	// A map of attribute names to AttributeValue objects, as specified by AttributesToGet.
 	Item map[string]*AttributeValue `type:"map"`
-
-	metadataGetItemOutput `json:"-" xml:"-"`
-}
-
-type metadataGetItemOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2542,12 +2592,27 @@ func (s GetItemOutput) GoString() string {
 
 // Represents the properties of a global secondary index.
 type GlobalSecondaryIndex struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the global secondary index. The name must be unique among all
 	// other indexes on this table.
 	IndexName *string `min:"3" type:"string" required:"true"`
 
 	// The complete key schema for a global secondary index, which consists of one
-	// or more pairs of attribute names and key types (HASH or RANGE).
+	// or more pairs of attribute names and key types:
+	//
+	//  HASH - partition key
+	//
+	//  RANGE - sort key
+	//
+	//   The partition key of an item is also known as its hash attribute. The
+	// term "hash attribute" derives from DynamoDB' usage of an internal hash function
+	// to evenly distribute data items across partitions, based on their partition
+	// key values.
+	//
+	// The sort key of an item is also known as its range attribute. The term "range
+	// attribute" derives from the way DynamoDB stores items with the same partition
+	// key physically close together, in sorted order by the sort key value.
 	KeySchema []*KeySchemaElement `min:"1" type:"list" required:"true"`
 
 	// Represents attributes that are copied (projected) from the table into an
@@ -2562,12 +2627,6 @@ type GlobalSecondaryIndex struct {
 	// (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Limits.html)
 	// in the Amazon DynamoDB Developer Guide.
 	ProvisionedThroughput *ProvisionedThroughput `type:"structure" required:"true"`
-
-	metadataGlobalSecondaryIndex `json:"-" xml:"-"`
-}
-
-type metadataGlobalSecondaryIndex struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2582,10 +2641,12 @@ func (s GlobalSecondaryIndex) GoString() string {
 
 // Represents the properties of a global secondary index.
 type GlobalSecondaryIndexDescription struct {
+	_ struct{} `type:"structure"`
+
 	// Indicates whether the index is currently backfilling. Backfilling is the
 	// process of reading items from the table and determining whether they can
-	// be added to the index. (Not all items will qualify: For example, a hash key
-	// attribute cannot have any duplicates.) If an item can be added to the index,
+	// be added to the index. (Not all items will qualify: For example, a partition
+	// key cannot have any duplicate values.) If an item can be added to the index,
 	// DynamoDB will do so. After all items have been processed, the backfilling
 	// operation is complete and Backfilling is false.
 	//
@@ -2619,8 +2680,21 @@ type GlobalSecondaryIndexDescription struct {
 	// every six hours. Recent changes might not be reflected in this value.
 	ItemCount *int64 `type:"long"`
 
-	// The complete key schema for the global secondary index, consisting of one
-	// or more pairs of attribute names and key types (HASH or RANGE).
+	// The complete key schema for a global secondary index, which consists of one
+	// or more pairs of attribute names and key types:
+	//
+	//  HASH - partition key
+	//
+	//  RANGE - sort key
+	//
+	//   The partition key of an item is also known as its hash attribute. The
+	// term "hash attribute" derives from DynamoDB' usage of an internal hash function
+	// to evenly distribute data items across partitions, based on their partition
+	// key values.
+	//
+	// The sort key of an item is also known as its range attribute. The term "range
+	// attribute" derives from the way DynamoDB stores items with the same partition
+	// key physically close together, in sorted order by the sort key value.
 	KeySchema []*KeySchemaElement `min:"1" type:"list"`
 
 	// Represents attributes that are copied (projected) from the table into an
@@ -2631,12 +2705,6 @@ type GlobalSecondaryIndexDescription struct {
 	// Represents the provisioned throughput settings for the table, consisting
 	// of read and write capacity units, along with data about increases and decreases.
 	ProvisionedThroughput *ProvisionedThroughputDescription `type:"structure"`
-
-	metadataGlobalSecondaryIndexDescription `json:"-" xml:"-"`
-}
-
-type metadataGlobalSecondaryIndexDescription struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2657,6 +2725,8 @@ func (s GlobalSecondaryIndexDescription) GoString() string {
 //
 // An existing global secondary index to be removed from an existing table.
 type GlobalSecondaryIndexUpdate struct {
+	_ struct{} `type:"structure"`
+
 	// The parameters required for creating a global secondary index on an existing
 	// table:
 	//
@@ -2677,12 +2747,6 @@ type GlobalSecondaryIndexUpdate struct {
 	// The name of an existing global secondary index, along with new provisioned
 	// throughput settings to be applied to that index.
 	Update *UpdateGlobalSecondaryIndexAction `type:"structure"`
-
-	metadataGlobalSecondaryIndexUpdate `json:"-" xml:"-"`
-}
-
-type metadataGlobalSecondaryIndexUpdate struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2700,8 +2764,10 @@ func (s GlobalSecondaryIndexUpdate) GoString() string {
 // table does not have any local secondary indexes, this information is not
 // returned in the response.
 type ItemCollectionMetrics struct {
-	// The hash key value of the item collection. This value is the same as the
-	// hash key of the item.
+	_ struct{} `type:"structure"`
+
+	// The partition key value of the item collection. This value is the same as
+	// the partition key value of the item.
 	ItemCollectionKey map[string]*AttributeValue `type:"map"`
 
 	// An estimate of item collection size, in gigabytes. This value is a two-element
@@ -2714,12 +2780,6 @@ type ItemCollectionMetrics struct {
 	// The estimate is subject to change over time; therefore, do not rely on the
 	// precision or accuracy of the estimate.
 	SizeEstimateRangeGB []*float64 `type:"list"`
-
-	metadataItemCollectionMetrics `json:"-" xml:"-"`
-}
-
-type metadataItemCollectionMetrics struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2736,21 +2796,34 @@ func (s ItemCollectionMetrics) GoString() string {
 // that make up the primary key of a table, or the key attributes of an index.
 //
 // A KeySchemaElement represents exactly one attribute of the primary key.
-// For example, a hash type primary key would be represented by one KeySchemaElement.
-// A hash-and-range type primary key would require one KeySchemaElement for
-// the hash attribute, and another KeySchemaElement for the range attribute.
+// For example, a simple primary key would be represented by one KeySchemaElement
+// (for the partition key). A composite primary key would require one KeySchemaElement
+// for the partition key, and another KeySchemaElement for the sort key.
+//
+// A KeySchemaElement must be a scalar, top-level attribute (not a nested attribute).
+// The data type must be one of String, Number, or Binary. The attribute cannot
+// be nested within a List or a Map.
 type KeySchemaElement struct {
+	_ struct{} `type:"structure"`
+
 	// The name of a key attribute.
 	AttributeName *string `min:"1" type:"string" required:"true"`
 
-	// The attribute data, consisting of the data type and the attribute value itself.
+	// The role that this key attribute will assume:
+	//
+	//  HASH - partition key
+	//
+	//  RANGE - sort key
+	//
+	//   The partition key of an item is also known as its hash attribute. The
+	// term "hash attribute" derives from DynamoDB' usage of an internal hash function
+	// to evenly distribute data items across partitions, based on their partition
+	// key values.
+	//
+	// The sort key of an item is also known as its range attribute. The term "range
+	// attribute" derives from the way DynamoDB stores items with the same partition
+	// key physically close together, in sorted order by the sort key value.
 	KeyType *string `type:"string" required:"true" enum:"KeyType"`
-
-	metadataKeySchemaElement `json:"-" xml:"-"`
-}
-
-type metadataKeySchemaElement struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2767,10 +2840,12 @@ func (s KeySchemaElement) GoString() string {
 // from the table.
 //
 // For each primary key, you must provide all of the key attributes. For example,
-// with a hash type primary key, you only need to provide the hash attribute.
-// For a hash-and-range type primary key, you must provide both the hash attribute
-// and the range attribute.
+// with a simple primary key, you only need to provide the partition key. For
+// a composite primary key, you must provide both the partition key and the
+// sort key.
 type KeysAndAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// One or more attributes to retrieve from the table or index. If no attribute
 	// names are specified then all attributes will be returned. If any of the specified
 	// attributes are not found, they will not appear in the result.
@@ -2833,12 +2908,6 @@ type KeysAndAttributes struct {
 	//
 	// ProjectionExpression replaces the legacy AttributesToGet parameter.
 	ProjectionExpression *string `type:"string"`
-
-	metadataKeysAndAttributes `json:"-" xml:"-"`
-}
-
-type metadataKeysAndAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2853,6 +2922,8 @@ func (s KeysAndAttributes) GoString() string {
 
 // Represents the input of a ListTables operation.
 type ListTablesInput struct {
+	_ struct{} `type:"structure"`
+
 	// The first table name that this operation will evaluate. Use the value that
 	// was returned for LastEvaluatedTableName in a previous operation, so that
 	// you can obtain the next page of results.
@@ -2861,12 +2932,6 @@ type ListTablesInput struct {
 	// A maximum number of table names to return. If this parameter is not specified,
 	// the limit is 100.
 	Limit *int64 `min:"1" type:"integer"`
-
-	metadataListTablesInput `json:"-" xml:"-"`
-}
-
-type metadataListTablesInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2881,6 +2946,8 @@ func (s ListTablesInput) GoString() string {
 
 // Represents the output of a ListTables operation.
 type ListTablesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the last table in the current page of results. Use this value
 	// as the ExclusiveStartTableName in a new request to obtain the next page of
 	// results, until all the table names are returned.
@@ -2896,12 +2963,6 @@ type ListTablesOutput struct {
 	// as the ExclusiveStartTableName parameter in a subsequent ListTables request
 	// and obtain the next page of results.
 	TableNames []*string `type:"list"`
-
-	metadataListTablesOutput `json:"-" xml:"-"`
-}
-
-type metadataListTablesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2916,24 +2977,33 @@ func (s ListTablesOutput) GoString() string {
 
 // Represents the properties of a local secondary index.
 type LocalSecondaryIndex struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the local secondary index. The name must be unique among all
 	// other indexes on this table.
 	IndexName *string `min:"3" type:"string" required:"true"`
 
 	// The complete key schema for the local secondary index, consisting of one
-	// or more pairs of attribute names and key types (HASH or RANGE).
+	// or more pairs of attribute names and key types:
+	//
+	//  HASH - partition key
+	//
+	//  RANGE - sort key
+	//
+	//   The partition key of an item is also known as its hash attribute. The
+	// term "hash attribute" derives from DynamoDB' usage of an internal hash function
+	// to evenly distribute data items across partitions, based on their partition
+	// key values.
+	//
+	// The sort key of an item is also known as its range attribute. The term "range
+	// attribute" derives from the way DynamoDB stores items with the same partition
+	// key physically close together, in sorted order by the sort key value.
 	KeySchema []*KeySchemaElement `min:"1" type:"list" required:"true"`
 
 	// Represents attributes that are copied (projected) from the table into an
 	// index. These are in addition to the primary key attributes and index key
 	// attributes, which are automatically projected.
 	Projection *Projection `type:"structure" required:"true"`
-
-	metadataLocalSecondaryIndex `json:"-" xml:"-"`
-}
-
-type metadataLocalSecondaryIndex struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2948,6 +3018,8 @@ func (s LocalSecondaryIndex) GoString() string {
 
 // Represents the properties of a local secondary index.
 type LocalSecondaryIndexDescription struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) that uniquely identifies the index.
 	IndexArn *string `type:"string"`
 
@@ -2963,20 +3035,27 @@ type LocalSecondaryIndexDescription struct {
 	// every six hours. Recent changes might not be reflected in this value.
 	ItemCount *int64 `type:"long"`
 
-	// The complete index key schema, which consists of one or more pairs of attribute
-	// names and key types (HASH or RANGE).
+	// The complete key schema for the local secondary index, consisting of one
+	// or more pairs of attribute names and key types:
+	//
+	//  HASH - partition key
+	//
+	//  RANGE - sort key
+	//
+	//   The partition key of an item is also known as its hash attribute. The
+	// term "hash attribute" derives from DynamoDB' usage of an internal hash function
+	// to evenly distribute data items across partitions, based on their partition
+	// key values.
+	//
+	// The sort key of an item is also known as its range attribute. The term "range
+	// attribute" derives from the way DynamoDB stores items with the same partition
+	// key physically close together, in sorted order by the sort key value.
 	KeySchema []*KeySchemaElement `min:"1" type:"list"`
 
 	// Represents attributes that are copied (projected) from the table into an
 	// index. These are in addition to the primary key attributes and index key
 	// attributes, which are automatically projected.
 	Projection *Projection `type:"structure"`
-
-	metadataLocalSecondaryIndexDescription `json:"-" xml:"-"`
-}
-
-type metadataLocalSecondaryIndexDescription struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2993,6 +3072,8 @@ func (s LocalSecondaryIndexDescription) GoString() string {
 // index. These are in addition to the primary key attributes and index key
 // attributes, which are automatically projected.
 type Projection struct {
+	_ struct{} `type:"structure"`
+
 	// Represents the non-key attribute names which will be projected into the index.
 	//
 	// For local secondary indexes, the total count of NonKeyAttributes summed
@@ -3010,12 +3091,6 @@ type Projection struct {
 	//
 	//   ALL - All of the table attributes are projected into the index.
 	ProjectionType *string `type:"string" enum:"ProjectionType"`
-
-	metadataProjection `json:"-" xml:"-"`
-}
-
-type metadataProjection struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3035,6 +3110,8 @@ func (s Projection) GoString() string {
 // (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Limits.html)
 // in the Amazon DynamoDB Developer Guide.
 type ProvisionedThroughput struct {
+	_ struct{} `type:"structure"`
+
 	// The maximum number of strongly consistent reads consumed per second before
 	// DynamoDB returns a ThrottlingException. For more information, see Specifying
 	// Read and Write Requirements (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/WorkingWithTables.html#ProvisionedThroughput)
@@ -3046,12 +3123,6 @@ type ProvisionedThroughput struct {
 	// Requirements (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/WorkingWithTables.html#ProvisionedThroughput)
 	// in the Amazon DynamoDB Developer Guide.
 	WriteCapacityUnits *int64 `min:"1" type:"long" required:"true"`
-
-	metadataProvisionedThroughput `json:"-" xml:"-"`
-}
-
-type metadataProvisionedThroughput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3067,6 +3138,8 @@ func (s ProvisionedThroughput) GoString() string {
 // Represents the provisioned throughput settings for the table, consisting
 // of read and write capacity units, along with data about increases and decreases.
 type ProvisionedThroughputDescription struct {
+	_ struct{} `type:"structure"`
+
 	// The date and time of the last provisioned throughput decrease for this table.
 	LastDecreaseDateTime *time.Time `type:"timestamp" timestampFormat:"unix"`
 
@@ -3088,12 +3161,6 @@ type ProvisionedThroughputDescription struct {
 	// The maximum number of writes consumed per second before DynamoDB returns
 	// a ThrottlingException.
 	WriteCapacityUnits *int64 `min:"1" type:"long"`
-
-	metadataProvisionedThroughputDescription `json:"-" xml:"-"`
-}
-
-type metadataProvisionedThroughputDescription struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3108,6 +3175,8 @@ func (s ProvisionedThroughputDescription) GoString() string {
 
 // Represents the input of a PutItem operation.
 type PutItemInput struct {
+	_ struct{} `type:"structure"`
+
 	// A condition that must be satisfied in order for a conditional PutItem operation
 	// to succeed.
 	//
@@ -3118,7 +3187,7 @@ type PutItemInput struct {
 	//
 	// These function names are case-sensitive.
 	//
-	//   Comparison operators:  = | <> | < | > | <= | >= | BETWEEN | IN
+	//   Comparison operators:  = |  |  |  | = | = | BETWEEN | IN
 	//
 	//    Logical operators: AND | OR | NOT
 	//
@@ -3408,9 +3477,9 @@ type PutItemInput struct {
 	// pairs for the item.
 	//
 	// You must provide all of the attributes for the primary key. For example,
-	// with a hash type primary key, you only need to provide the hash attribute.
-	// For a hash-and-range type primary key, you must provide both the hash attribute
-	// and the range attribute.
+	// with a simple primary key, you only need to provide a value for the partition
+	// key. For a composite primary key, you must provide both values for both the
+	// partition key and the sort key.
 	//
 	// If you specify any attributes that are part of an index key, then the data
 	// types for those attributes must match those of the schema in the table's
@@ -3425,7 +3494,7 @@ type PutItemInput struct {
 	// Determines the level of detail about provisioned throughput consumption that
 	// is returned in the response:
 	//
-	//   INDEXES - The response includes the aggregate ConsumedCapacity for the
+	//  INDEXES - The response includes the aggregate ConsumedCapacity for the
 	// operation, together with ConsumedCapacity for each table and secondary index
 	// that was accessed.
 	//
@@ -3433,7 +3502,7 @@ type PutItemInput struct {
 	// any indexes at all. In these cases, specifying INDEXES will only return ConsumedCapacity
 	// information for table(s).
 	//
-	//  TOTAL - The response includes only the aggregate ConsumedCapacity for the
+	// TOTAL - The response includes only the aggregate ConsumedCapacity for the
 	// operation.
 	//
 	// NONE - No ConsumedCapacity details are included in the response.
@@ -3454,18 +3523,10 @@ type PutItemInput struct {
 	//
 	//   ALL_OLD - If PutItem overwrote an attribute name-value pair, then the
 	// content of the old item is returned.
-	//
-	//   Other "Valid Values" are not relevant to PutItem.
 	ReturnValues *string `type:"string" enum:"ReturnValue"`
 
 	// The name of the table to contain the item.
 	TableName *string `min:"3" type:"string" required:"true"`
-
-	metadataPutItemInput `json:"-" xml:"-"`
-}
-
-type metadataPutItemInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3480,6 +3541,8 @@ func (s PutItemInput) GoString() string {
 
 // Represents the output of a PutItem operation.
 type PutItemOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The attribute values as they appeared before the PutItem operation, but only
 	// if ReturnValues is specified as ALL_OLD in the request. Each element consists
 	// of an attribute name and an attribute value.
@@ -3500,8 +3563,8 @@ type PutItemOutput struct {
 	//
 	// Each ItemCollectionMetrics element consists of:
 	//
-	//  ItemCollectionKey - The hash key value of the item collection. This is
-	// the same as the hash key of the item.
+	//  ItemCollectionKey - The partition key value of the item collection. This
+	// is the same as the partition key value of the item itself.
 	//
 	// SizeEstimateRange - An estimate of item collection size, in gigabytes. This
 	// value is a two-element array containing a lower bound and an upper bound
@@ -3513,12 +3576,6 @@ type PutItemOutput struct {
 	// The estimate is subject to change over time; therefore, do not rely on the
 	// precision or accuracy of the estimate.
 	ItemCollectionMetrics *ItemCollectionMetrics `type:"structure"`
-
-	metadataPutItemOutput `json:"-" xml:"-"`
-}
-
-type metadataPutItemOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3533,18 +3590,14 @@ func (s PutItemOutput) GoString() string {
 
 // Represents a request to perform a PutItem operation on an item.
 type PutRequest struct {
+	_ struct{} `type:"structure"`
+
 	// A map of attribute name to attribute values, representing the primary key
 	// of an item to be processed by PutItem. All of the table's primary key attributes
 	// must be specified, and their data types must match those of the table's key
 	// schema. If any attributes are present in the item which are part of an index
 	// key schema for the table, their types must match the index key schema.
 	Item map[string]*AttributeValue `type:"map" required:"true"`
-
-	metadataPutRequest `json:"-" xml:"-"`
-}
-
-type metadataPutRequest struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3559,6 +3612,8 @@ func (s PutRequest) GoString() string {
 
 // Represents the input of a Query operation.
 type QueryInput struct {
+	_ struct{} `type:"structure"`
+
 	// This is a legacy parameter, for backward compatibility. New applications
 	// should use ProjectionExpression instead. Do not combine legacy parameters
 	// and expression parameters in a single API call; otherwise, DynamoDB will
@@ -3707,50 +3762,51 @@ type QueryInput struct {
 	// The condition that specifies the key value(s) for items to be retrieved by
 	// the Query action.
 	//
-	// The condition must perform an equality test on a single hash key value.
+	// The condition must perform an equality test on a single partition key value.
 	// The condition can also perform one of several comparison tests on a single
-	// range key value. Query can use KeyConditionExpression to retrieve one item
-	// with a given hash and range key value, or several items that have the same
-	// hash key value but different range key values.
+	// sort key value. Query can use KeyConditionExpression to retrieve one item
+	// with a given partition key value and sort key value, or several items that
+	// have the same partition key value but different sort key values.
 	//
-	// The hash key equality test is required, and must be specified in the following
-	// format:
+	// The partition key equality test is required, and must be specified in the
+	// following format:
 	//
-	//  hashAttributeName = :hashval
+	//  partitionKeyName = :partitionkeyval
 	//
-	// If you also want to provide a range key condition, it must be combined using
-	// AND with the hash key condition. Following is an example, using the = comparison
-	// operator for the range key:
+	// If you also want to provide a condition for the sort key, it must be combined
+	// using AND with the condition for the sort key. Following is an example, using
+	// the = comparison operator for the sort key:
 	//
-	//  hashAttributeName = :hashval AND rangeAttributeName = :rangeval
+	//  partitionKeyName = :partitionkeyval AND sortKeyName = :sortkeyval
 	//
-	// Valid comparisons for the range key condition are as follows:
+	// Valid comparisons for the sort key condition are as follows:
 	//
-	//   rangeAttributeName = :rangeval - true if the range key is equal to :rangeval.
+	//   sortKeyName = :sortkeyval - true if the sort key value is equal to :sortkeyval.
 	//
-	//   rangeAttributeName < :rangeval - true if the range key is less than :rangeval.
+	//   sortKeyName  :sortkeyval - true if the sort key value is less than :sortkeyval.
 	//
-	//   rangeAttributeName <= :rangeval - true if the range key is less than or
-	// equal to :rangeval.
+	//   sortKeyName = :sortkeyval - true if the sort key value is less than or
+	// equal to :sortkeyval.
 	//
-	//   rangeAttributeName > :rangeval - true if the range key is greater than
-	// :rangeval.
+	//   sortKeyName  :sortkeyval - true if the sort key value is greater than
+	// :sortkeyval.
 	//
-	//   rangeAttributeName >= :rangeval - true if the range key is greater than
-	// or equal to :rangeval.
+	//   sortKeyName = :sortkeyval - true if the sort key value is greater than
+	// or equal to :sortkeyval.
 	//
-	//   rangeAttributeName BETWEEN :rangeval1 AND :rangeval2 - true if the range
-	// key is greater than or equal to :rangeval1, and less than or equal to :rangeval2.
+	//   sortKeyName BETWEEN :sortkeyval1 AND :sortkeyval2 - true if the sort key
+	// value is greater than or equal to :sortkeyval1, and less than or equal to
+	// :sortkeyval2.
 	//
-	//   begins_with (rangeAttributeName, :rangeval) - true if the range key begins
-	// with a particular operand. (You cannot use this function with a range key
+	//   begins_with (sortKeyName, :sortkeyval) - true if the sort key value begins
+	// with a particular operand. (You cannot use this function with a sort key
 	// that is of type Number.) Note that the function name begins_with is case-sensitive.
 	//
 	//   Use the ExpressionAttributeValues parameter to replace tokens such as
-	// :hashval and :rangeval with actual values at runtime.
+	// :partitionval and :sortval with actual values at runtime.
 	//
 	// You can optionally use the ExpressionAttributeNames parameter to replace
-	// the names of the hash and range attributes with placeholder tokens. This
+	// the names of the partition key and sort key with placeholder tokens. This
 	// option might be necessary if an attribute name conflicts with a DynamoDB
 	// reserved word. For example, the following KeyConditionExpression parameter
 	// causes an error because Size is a reserved word:
@@ -3775,17 +3831,17 @@ type QueryInput struct {
 	//
 	//  The selection criteria for the query. For a query on a table, you can have
 	// conditions only on the table primary key attributes. You must provide the
-	// hash key attribute name and value as an EQ condition. You can optionally
-	// provide a second condition, referring to the range key attribute.
+	// partition key name and value as an EQ condition. You can optionally provide
+	// a second condition, referring to the sort key.
 	//
-	//  If you don't provide a range key condition, all of the items that match
-	// the hash key will be retrieved. If a FilterExpression or QueryFilter is present,
-	// it will be applied after the items are retrieved.
+	//  If you don't provide a sort key condition, all of the items that match
+	// the partition key will be retrieved. If a FilterExpression or QueryFilter
+	// is present, it will be applied after the items are retrieved.
 	//
 	// For a query on an index, you can have conditions only on the index key attributes.
-	// You must provide the index hash attribute name and value as an EQ condition.
-	// You can optionally provide a second condition, referring to the index key
-	// range attribute.
+	// You must provide the index partition key name and value as an EQ condition.
+	// You can optionally provide a second condition, referring to the index sort
+	// key.
 	//
 	// Each KeyConditions element consists of an attribute name to compare, along
 	// with the following:
@@ -3920,7 +3976,7 @@ type QueryInput struct {
 	// must evaluate to true, rather than all of them.)
 	//
 	// Note that QueryFilter does not allow key attributes. You cannot define a
-	// filter condition on a hash key or range key.
+	// filter condition on a partition key or a sort key.
 	//
 	// Each QueryFilter element consists of an attribute name to compare, along
 	// with the following:
@@ -3942,7 +3998,7 @@ type QueryInput struct {
 	// For information on specifying data types in JSON, see JSON Data Format (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DataFormat.html)
 	// in the Amazon DynamoDB Developer Guide.
 	//
-	//   ComparisonOperator - A comparator for evaluating attributes. For example,
+	//  ComparisonOperator - A comparator for evaluating attributes. For example,
 	// equals, greater than, less than, etc.
 	//
 	// The following comparison operators are available:
@@ -3958,7 +4014,7 @@ type QueryInput struct {
 	// Determines the level of detail about provisioned throughput consumption that
 	// is returned in the response:
 	//
-	//   INDEXES - The response includes the aggregate ConsumedCapacity for the
+	//  INDEXES - The response includes the aggregate ConsumedCapacity for the
 	// operation, together with ConsumedCapacity for each table and secondary index
 	// that was accessed.
 	//
@@ -3966,26 +4022,26 @@ type QueryInput struct {
 	// any indexes at all. In these cases, specifying INDEXES will only return ConsumedCapacity
 	// information for table(s).
 	//
-	//  TOTAL - The response includes only the aggregate ConsumedCapacity for the
+	// TOTAL - The response includes only the aggregate ConsumedCapacity for the
 	// operation.
 	//
 	// NONE - No ConsumedCapacity details are included in the response.
 	ReturnConsumedCapacity *string `type:"string" enum:"ReturnConsumedCapacity"`
 
-	// Specifies the order in which to return the query results - either ascending
-	// (true) or descending (false).
+	// Specifies the order for index traversal: If true (default), the traversal
+	// is performed in ascending order; if false, the traversal is performed in
+	// descending order.
 	//
-	// Items with the same hash key are stored in sorted order by range key .If
-	// the range key data type is Number, the results are stored in numeric order.
-	// For type String, the results are returned in order of ASCII character code
-	// values. For type Binary, DynamoDB treats each byte of the binary data as
-	// unsigned.
+	// Items with the same partition key value are stored in sorted order by sort
+	// key. If the sort key data type is Number, the results are stored in numeric
+	// order. For type String, the results are stored in order of ASCII character
+	// code values. For type Binary, DynamoDB treats each byte of the binary data
+	// as unsigned.
 	//
-	// If ScanIndexForward is true, DynamoDB returns the results in order, by range
-	// key. This is the default behavior.
-	//
-	// If ScanIndexForward is false, DynamoDB sorts the results in descending order
-	// by range key, and then returns the results to the client.
+	// If ScanIndexForward is true, DynamoDB returns the results in the order in
+	// which they are stored (by sort key value). This is the default behavior.
+	// If ScanIndexForward is false, DynamoDB reads the results in reverse order
+	// by sort key value, and then returns the results to the client.
 	ScanIndexForward *bool `type:"boolean"`
 
 	// The attributes to be returned in the result. You can retrieve all item attributes,
@@ -4035,12 +4091,6 @@ type QueryInput struct {
 
 	// The name of the table containing the requested items.
 	TableName *string `min:"3" type:"string" required:"true"`
-
-	metadataQueryInput `json:"-" xml:"-"`
-}
-
-type metadataQueryInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4055,6 +4105,8 @@ func (s QueryInput) GoString() string {
 
 // Represents the output of a Query operation.
 type QueryOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The capacity units consumed by an operation. The data returned includes the
 	// total provisioned throughput consumed, along with statistics for the table
 	// and any indexes involved in the operation. ConsumedCapacity is only returned
@@ -4067,7 +4119,7 @@ type QueryOutput struct {
 	//
 	// If you used a QueryFilter in the request, then Count is the number of items
 	// returned after the filter was applied, and ScannedCount is the number of
-	// matching items before> the filter was applied.
+	// matching items before the filter was applied.
 	//
 	// If you did not use a filter in the request, then Count and ScannedCount
 	// are the same.
@@ -4097,12 +4149,6 @@ type QueryOutput struct {
 	// If you did not use a filter in the request, then ScannedCount is the same
 	// as Count.
 	ScannedCount *int64 `type:"integer"`
-
-	metadataQueryOutput `json:"-" xml:"-"`
-}
-
-type metadataQueryOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4117,6 +4163,8 @@ func (s QueryOutput) GoString() string {
 
 // Represents the input of a Scan operation.
 type ScanInput struct {
+	_ struct{} `type:"structure"`
+
 	// This is a legacy parameter, for backward compatibility. New applications
 	// should use ProjectionExpression instead. Do not combine legacy parameters
 	// and expression parameters in a single API call; otherwise, DynamoDB will
@@ -4156,19 +4204,16 @@ type ScanInput struct {
 
 	// A Boolean value that determines the read consistency model during the scan:
 	//
-	//   If ConsistentRead is false, then Scan will use eventually consistent reads.
-	// The data returned from Scan might not contain the results of other recently
-	// completed write operations (PutItem, UpdateItem or DeleteItem). The Scan
-	// response might include some stale data.
+	//   If ConsistentRead is false, then the data returned from Scan might not
+	// contain the results from other recently completed write operations (PutItem,
+	// UpdateItem or DeleteItem).
 	//
-	//   If ConsistentRead is true, then Scan will use strongly consistent reads.
-	// All of the write operations that completed before the Scan began are guaranteed
-	// to be contained in the Scan response.
+	//   If ConsistentRead is true, then all of the write operations that completed
+	// before the Scan began are guaranteed to be contained in the Scan response.
 	//
-	//   The default setting for ConsistentRead is false, meaning that eventually
-	// consistent reads will be used.
+	//   The default setting for ConsistentRead is false.
 	//
-	// Strongly consistent reads are not supported on global secondary indexes.
+	// The ConsistentRead parameter is not supported on global secondary indexes.
 	// If you scan a global secondary index with ConsistentRead set to true, you
 	// will receive a ValidationException.
 	ConsistentRead *bool `type:"boolean"`
@@ -4289,7 +4334,7 @@ type ScanInput struct {
 	// Determines the level of detail about provisioned throughput consumption that
 	// is returned in the response:
 	//
-	//   INDEXES - The response includes the aggregate ConsumedCapacity for the
+	//  INDEXES - The response includes the aggregate ConsumedCapacity for the
 	// operation, together with ConsumedCapacity for each table and secondary index
 	// that was accessed.
 	//
@@ -4297,7 +4342,7 @@ type ScanInput struct {
 	// any indexes at all. In these cases, specifying INDEXES will only return ConsumedCapacity
 	// information for table(s).
 	//
-	//  TOTAL - The response includes only the aggregate ConsumedCapacity for the
+	// TOTAL - The response includes only the aggregate ConsumedCapacity for the
 	// operation.
 	//
 	// NONE - No ConsumedCapacity details are included in the response.
@@ -4339,7 +4384,7 @@ type ScanInput struct {
 	// For information on specifying data types in JSON, see JSON Data Format (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DataFormat.html)
 	// in the Amazon DynamoDB Developer Guide.
 	//
-	//   ComparisonOperator - A comparator for evaluating attributes. For example,
+	//  ComparisonOperator - A comparator for evaluating attributes. For example,
 	// equals, greater than, less than, etc.
 	//
 	// The following comparison operators are available:
@@ -4403,12 +4448,6 @@ type ScanInput struct {
 	//
 	// If you specify TotalSegments, you must also specify Segment.
 	TotalSegments *int64 `min:"1" type:"integer"`
-
-	metadataScanInput `json:"-" xml:"-"`
-}
-
-type metadataScanInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4423,6 +4462,8 @@ func (s ScanInput) GoString() string {
 
 // Represents the output of a Scan operation.
 type ScanOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The capacity units consumed by an operation. The data returned includes the
 	// total provisioned throughput consumed, along with statistics for the table
 	// and any indexes involved in the operation. ConsumedCapacity is only returned
@@ -4464,12 +4505,6 @@ type ScanOutput struct {
 	// If you did not use a filter in the request, then ScannedCount is the same
 	// as Count.
 	ScannedCount *int64 `type:"integer"`
-
-	metadataScanOutput `json:"-" xml:"-"`
-}
-
-type metadataScanOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4484,6 +4519,8 @@ func (s ScanOutput) GoString() string {
 
 // Represents the DynamoDB Streams configuration for a table in DynamoDB.
 type StreamSpecification struct {
+	_ struct{} `type:"structure"`
+
 	// Indicates whether DynamoDB Streams is enabled (true) or disabled (false)
 	// on the table.
 	StreamEnabled *bool `type:"boolean"`
@@ -4509,12 +4546,6 @@ type StreamSpecification struct {
 	// NEW_AND_OLD_IMAGES - Both the new and the old item images of the item are
 	// written to the stream.
 	StreamViewType *string `type:"string" enum:"StreamViewType"`
-
-	metadataStreamSpecification `json:"-" xml:"-"`
-}
-
-type metadataStreamSpecification struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4529,6 +4560,8 @@ func (s StreamSpecification) GoString() string {
 
 // Represents the properties of a table.
 type TableDescription struct {
+	_ struct{} `type:"structure"`
+
 	// An array of AttributeDefinition objects. Each of these objects describes
 	// one attribute in the table and index key schema.
 	//
@@ -4544,7 +4577,7 @@ type TableDescription struct {
 	CreationDateTime *time.Time `type:"timestamp" timestampFormat:"unix"`
 
 	// The global secondary indexes, if any, on the table. Each index is scoped
-	// to a given hash key value. Each element is composed of:
+	// to a given partition key value. Each element is composed of:
 	//
 	//   Backfilling - If true, then the index is currently in the backfilling
 	// phase. Backfilling occurs only when a new global secondary index is added
@@ -4574,7 +4607,7 @@ type TableDescription struct {
 	//
 	//   KeySchema - Specifies the complete index key schema. The attribute names
 	// in the key schema must be between 1 and 255 characters (inclusive). The key
-	// schema must begin with the same hash key attribute as the table.
+	// schema must begin with the same partition key as the table.
 	//
 	//   Projection - Specifies attributes that are copied (projected) from the
 	// table into the index. These are in addition to the primary key attributes
@@ -4612,7 +4645,20 @@ type TableDescription struct {
 	//
 	//   AttributeName - The name of the attribute.
 	//
-	//   KeyType - The key type for the attribute. Can be either HASH or RANGE.
+	//   KeyType - The role of the attribute:
+	//
+	// .  HASH - partition key
+	//
+	//  RANGE - sort key
+	//
+	//   The partition key of an item is also known as its hash attribute. The
+	// term "hash attribute" derives from DynamoDB' usage of an internal hash function
+	// to evenly distribute data items across partitions, based on their partition
+	// key values.
+	//
+	// The sort key of an item is also known as its range attribute. The term "range
+	// attribute" derives from the way DynamoDB stores items with the same partition
+	// key physically close together, in sorted order by the sort key value.
 	//
 	//   For more information about primary keys, see Primary Key (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DataModel.html#DataModelPrimaryKey)
 	// in the Amazon DynamoDB Developer Guide.
@@ -4637,7 +4683,7 @@ type TableDescription struct {
 	LatestStreamLabel *string `type:"string"`
 
 	// Represents one or more local secondary indexes on the table. Each index is
-	// scoped to a given hash key value. Tables with one or more local secondary
+	// scoped to a given partition key value. Tables with one or more local secondary
 	// indexes are subject to an item collection size limit, where the amount of
 	// data within a given item collection cannot exceed 10 GB. Each element is
 	// composed of:
@@ -4646,7 +4692,7 @@ type TableDescription struct {
 	//
 	//   KeySchema - Specifies the complete index key schema. The attribute names
 	// in the key schema must be between 1 and 255 characters (inclusive). The key
-	// schema must begin with the same hash key attribute as the table.
+	// schema must begin with the same partition key as the table.
 	//
 	//   Projection - Specifies attributes that are copied (projected) from the
 	// table into the index. These are in addition to the primary key attributes
@@ -4708,12 +4754,6 @@ type TableDescription struct {
 	//
 	//   ACTIVE - The table is ready for use.
 	TableStatus *string `type:"string" enum:"TableStatus"`
-
-	metadataTableDescription `json:"-" xml:"-"`
-}
-
-type metadataTableDescription struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4729,6 +4769,8 @@ func (s TableDescription) GoString() string {
 // Represents the new provisioned throughput settings to be applied to a global
 // secondary index.
 type UpdateGlobalSecondaryIndexAction struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the global secondary index to be updated.
 	IndexName *string `min:"3" type:"string" required:"true"`
 
@@ -4739,12 +4781,6 @@ type UpdateGlobalSecondaryIndexAction struct {
 	// (http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Limits.html)
 	// in the Amazon DynamoDB Developer Guide.
 	ProvisionedThroughput *ProvisionedThroughput `type:"structure" required:"true"`
-
-	metadataUpdateGlobalSecondaryIndexAction `json:"-" xml:"-"`
-}
-
-type metadataUpdateGlobalSecondaryIndexAction struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4759,6 +4795,8 @@ func (s UpdateGlobalSecondaryIndexAction) GoString() string {
 
 // Represents the input of an UpdateItem operation.
 type UpdateItemInput struct {
+	_ struct{} `type:"structure"`
+
 	// This is a legacy parameter, for backward compatibility. New applications
 	// should use UpdateExpression instead. Do not combine legacy parameters and
 	// expression parameters in a single API call; otherwise, DynamoDB will return
@@ -4771,7 +4809,7 @@ type UpdateItemInput struct {
 	// and the new value for each. If you are updating an attribute that is an index
 	// key attribute for any indexes on that table, the attribute type must match
 	// the index key type defined in the AttributesDefinition of the table description.
-	// You can use UpdateItem to update any nonkey attributes.
+	// You can use UpdateItem to update any non-key attributes.
 	//
 	// Attribute values cannot be null. String and Binary type attributes must
 	// have lengths greater than zero. Set type attributes must not be empty. Requests
@@ -4858,7 +4896,7 @@ type UpdateItemInput struct {
 	//
 	// These function names are case-sensitive.
 	//
-	//   Comparison operators:  = | <> | < | > | <= | >= | BETWEEN | IN
+	//   Comparison operators:  = |  |  |  | = | = | BETWEEN | IN
 	//
 	//    Logical operators: AND | OR | NOT
 	//
@@ -5147,15 +5185,15 @@ type UpdateItemInput struct {
 	// name and a value for that attribute.
 	//
 	// For the primary key, you must provide all of the attributes. For example,
-	// with a hash type primary key, you only need to provide the hash attribute.
-	// For a hash-and-range type primary key, you must provide both the hash attribute
-	// and the range attribute.
+	// with a simple primary key, you only need to provide a value for the partition
+	// key. For a composite primary key, you must provide values for both the partition
+	// key and the sort key.
 	Key map[string]*AttributeValue `type:"map" required:"true"`
 
 	// Determines the level of detail about provisioned throughput consumption that
 	// is returned in the response:
 	//
-	//   INDEXES - The response includes the aggregate ConsumedCapacity for the
+	//  INDEXES - The response includes the aggregate ConsumedCapacity for the
 	// operation, together with ConsumedCapacity for each table and secondary index
 	// that was accessed.
 	//
@@ -5163,7 +5201,7 @@ type UpdateItemInput struct {
 	// any indexes at all. In these cases, specifying INDEXES will only return ConsumedCapacity
 	// information for table(s).
 	//
-	//  TOTAL - The response includes only the aggregate ConsumedCapacity for the
+	// TOTAL - The response includes only the aggregate ConsumedCapacity for the
 	// operation.
 	//
 	// NONE - No ConsumedCapacity details are included in the response.
@@ -5190,6 +5228,12 @@ type UpdateItemInput struct {
 	//   ALL_NEW - All of the attributes of the new version of the item are returned.
 	//
 	//   UPDATED_NEW - The new versions of only the updated attributes are returned.
+	//
+	//   There is no additional cost associated with requesting a return value
+	// aside from the small network and processing overhead of receiving a larger
+	// response. No Read Capacity Units are consumed.
+	//
+	// Values returned are strongly consistent
 	ReturnValues *string `type:"string" enum:"ReturnValue"`
 
 	// The name of the table containing the item to update.
@@ -5270,12 +5314,6 @@ type UpdateItemInput struct {
 	//
 	// UpdateExpression replaces the legacy AttributeUpdates parameter.
 	UpdateExpression *string `type:"string"`
-
-	metadataUpdateItemInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateItemInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5290,6 +5328,8 @@ func (s UpdateItemInput) GoString() string {
 
 // Represents the output of an UpdateItem operation.
 type UpdateItemOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A map of attribute values as they appeared before the UpdateItem operation.
 	// This map only appears if ReturnValues was specified as something other than
 	// NONE in the request. Each element represents one attribute.
@@ -5308,12 +5348,6 @@ type UpdateItemOutput struct {
 	// table does not have any local secondary indexes, this information is not
 	// returned in the response.
 	ItemCollectionMetrics *ItemCollectionMetrics `type:"structure"`
-
-	metadataUpdateItemOutput `json:"-" xml:"-"`
-}
-
-type metadataUpdateItemOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5328,6 +5362,8 @@ func (s UpdateItemOutput) GoString() string {
 
 // Represents the input of an UpdateTable operation.
 type UpdateTableInput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of attributes that describe the key schema for the table and indexes.
 	// If you are adding a new global secondary index to the table, AttributeDefinitions
 	// must include the key element(s) of the new index.
@@ -5364,12 +5400,6 @@ type UpdateTableInput struct {
 
 	// The name of the table to be updated.
 	TableName *string `min:"3" type:"string" required:"true"`
-
-	metadataUpdateTableInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateTableInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5384,14 +5414,10 @@ func (s UpdateTableInput) GoString() string {
 
 // Represents the output of an UpdateTable operation.
 type UpdateTableOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Represents the properties of a table.
 	TableDescription *TableDescription `type:"structure"`
-
-	metadataUpdateTableOutput `json:"-" xml:"-"`
-}
-
-type metadataUpdateTableOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5409,17 +5435,13 @@ func (s UpdateTableOutput) GoString() string {
 // If you do need to perform both of these operations, you will need to provide
 // two separate WriteRequest objects.
 type WriteRequest struct {
+	_ struct{} `type:"structure"`
+
 	// A request to perform a DeleteItem operation.
 	DeleteRequest *DeleteRequest `type:"structure"`
 
 	// A request to perform a PutItem operation.
 	PutRequest *PutRequest `type:"structure"`
-
-	metadataWriteRequest `json:"-" xml:"-"`
-}
-
-type metadataWriteRequest struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5507,7 +5529,7 @@ const (
 // Determines the level of detail about provisioned throughput consumption that
 // is returned in the response:
 //
-//   INDEXES - The response includes the aggregate ConsumedCapacity for the
+//  INDEXES - The response includes the aggregate ConsumedCapacity for the
 // operation, together with ConsumedCapacity for each table and secondary index
 // that was accessed.
 //
@@ -5515,7 +5537,7 @@ const (
 // any indexes at all. In these cases, specifying INDEXES will only return ConsumedCapacity
 // information for table(s).
 //
-//  TOTAL - The response includes only the aggregate ConsumedCapacity for the
+// TOTAL - The response includes only the aggregate ConsumedCapacity for the
 // operation.
 //
 // NONE - No ConsumedCapacity details are included in the response.

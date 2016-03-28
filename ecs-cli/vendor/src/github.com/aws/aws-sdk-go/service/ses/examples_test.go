@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
 )
 
@@ -15,7 +16,7 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleSES_CloneReceiptRuleSet() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.CloneReceiptRuleSetInput{
 		OriginalRuleSetName: aws.String("ReceiptRuleSetName"), // Required
@@ -35,7 +36,7 @@ func ExampleSES_CloneReceiptRuleSet() {
 }
 
 func ExampleSES_CreateReceiptFilter() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.CreateReceiptFilterInput{
 		Filter: &ses.ReceiptFilter{ // Required
@@ -60,7 +61,7 @@ func ExampleSES_CreateReceiptFilter() {
 }
 
 func ExampleSES_CreateReceiptRule() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.CreateReceiptRuleInput{
 		Rule: &ses.ReceiptRule{ // Required
@@ -91,6 +92,7 @@ func ExampleSES_CreateReceiptRule() {
 					},
 					SNSAction: &ses.SNSAction{
 						TopicArn: aws.String("AmazonResourceName"), // Required
+						Encoding: aws.String("SNSActionEncoding"),
 					},
 					StopAction: &ses.StopAction{
 						Scope:    aws.String("StopScope"), // Required
@@ -128,7 +130,7 @@ func ExampleSES_CreateReceiptRule() {
 }
 
 func ExampleSES_CreateReceiptRuleSet() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.CreateReceiptRuleSetInput{
 		RuleSetName: aws.String("ReceiptRuleSetName"), // Required
@@ -147,7 +149,7 @@ func ExampleSES_CreateReceiptRuleSet() {
 }
 
 func ExampleSES_DeleteIdentity() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.DeleteIdentityInput{
 		Identity: aws.String("Identity"), // Required
@@ -166,7 +168,7 @@ func ExampleSES_DeleteIdentity() {
 }
 
 func ExampleSES_DeleteIdentityPolicy() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.DeleteIdentityPolicyInput{
 		Identity:   aws.String("Identity"),   // Required
@@ -186,7 +188,7 @@ func ExampleSES_DeleteIdentityPolicy() {
 }
 
 func ExampleSES_DeleteReceiptFilter() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.DeleteReceiptFilterInput{
 		FilterName: aws.String("ReceiptFilterName"), // Required
@@ -205,7 +207,7 @@ func ExampleSES_DeleteReceiptFilter() {
 }
 
 func ExampleSES_DeleteReceiptRule() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.DeleteReceiptRuleInput{
 		RuleName:    aws.String("ReceiptRuleName"),    // Required
@@ -225,7 +227,7 @@ func ExampleSES_DeleteReceiptRule() {
 }
 
 func ExampleSES_DeleteReceiptRuleSet() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.DeleteReceiptRuleSetInput{
 		RuleSetName: aws.String("ReceiptRuleSetName"), // Required
@@ -244,7 +246,7 @@ func ExampleSES_DeleteReceiptRuleSet() {
 }
 
 func ExampleSES_DeleteVerifiedEmailAddress() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.DeleteVerifiedEmailAddressInput{
 		EmailAddress: aws.String("Address"), // Required
@@ -263,7 +265,7 @@ func ExampleSES_DeleteVerifiedEmailAddress() {
 }
 
 func ExampleSES_DescribeActiveReceiptRuleSet() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	var params *ses.DescribeActiveReceiptRuleSetInput
 	resp, err := svc.DescribeActiveReceiptRuleSet(params)
@@ -280,7 +282,7 @@ func ExampleSES_DescribeActiveReceiptRuleSet() {
 }
 
 func ExampleSES_DescribeReceiptRule() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.DescribeReceiptRuleInput{
 		RuleName:    aws.String("ReceiptRuleName"),    // Required
@@ -300,7 +302,7 @@ func ExampleSES_DescribeReceiptRule() {
 }
 
 func ExampleSES_DescribeReceiptRuleSet() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.DescribeReceiptRuleSetInput{
 		RuleSetName: aws.String("ReceiptRuleSetName"), // Required
@@ -319,7 +321,7 @@ func ExampleSES_DescribeReceiptRuleSet() {
 }
 
 func ExampleSES_GetIdentityDkimAttributes() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.GetIdentityDkimAttributesInput{
 		Identities: []*string{ // Required
@@ -340,8 +342,30 @@ func ExampleSES_GetIdentityDkimAttributes() {
 	fmt.Println(resp)
 }
 
+func ExampleSES_GetIdentityMailFromDomainAttributes() {
+	svc := ses.New(session.New())
+
+	params := &ses.GetIdentityMailFromDomainAttributesInput{
+		Identities: []*string{ // Required
+			aws.String("Identity"), // Required
+			// More values...
+		},
+	}
+	resp, err := svc.GetIdentityMailFromDomainAttributes(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
+}
+
 func ExampleSES_GetIdentityNotificationAttributes() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.GetIdentityNotificationAttributesInput{
 		Identities: []*string{ // Required
@@ -363,7 +387,7 @@ func ExampleSES_GetIdentityNotificationAttributes() {
 }
 
 func ExampleSES_GetIdentityPolicies() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.GetIdentityPoliciesInput{
 		Identity: aws.String("Identity"), // Required
@@ -386,7 +410,7 @@ func ExampleSES_GetIdentityPolicies() {
 }
 
 func ExampleSES_GetIdentityVerificationAttributes() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.GetIdentityVerificationAttributesInput{
 		Identities: []*string{ // Required
@@ -408,7 +432,7 @@ func ExampleSES_GetIdentityVerificationAttributes() {
 }
 
 func ExampleSES_GetSendQuota() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	var params *ses.GetSendQuotaInput
 	resp, err := svc.GetSendQuota(params)
@@ -425,7 +449,7 @@ func ExampleSES_GetSendQuota() {
 }
 
 func ExampleSES_GetSendStatistics() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	var params *ses.GetSendStatisticsInput
 	resp, err := svc.GetSendStatistics(params)
@@ -442,7 +466,7 @@ func ExampleSES_GetSendStatistics() {
 }
 
 func ExampleSES_ListIdentities() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.ListIdentitiesInput{
 		IdentityType: aws.String("IdentityType"),
@@ -463,7 +487,7 @@ func ExampleSES_ListIdentities() {
 }
 
 func ExampleSES_ListIdentityPolicies() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.ListIdentityPoliciesInput{
 		Identity: aws.String("Identity"), // Required
@@ -482,7 +506,7 @@ func ExampleSES_ListIdentityPolicies() {
 }
 
 func ExampleSES_ListReceiptFilters() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	var params *ses.ListReceiptFiltersInput
 	resp, err := svc.ListReceiptFilters(params)
@@ -499,7 +523,7 @@ func ExampleSES_ListReceiptFilters() {
 }
 
 func ExampleSES_ListReceiptRuleSets() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.ListReceiptRuleSetsInput{
 		NextToken: aws.String("NextToken"),
@@ -518,7 +542,7 @@ func ExampleSES_ListReceiptRuleSets() {
 }
 
 func ExampleSES_ListVerifiedEmailAddresses() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	var params *ses.ListVerifiedEmailAddressesInput
 	resp, err := svc.ListVerifiedEmailAddresses(params)
@@ -535,7 +559,7 @@ func ExampleSES_ListVerifiedEmailAddresses() {
 }
 
 func ExampleSES_PutIdentityPolicy() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.PutIdentityPolicyInput{
 		Identity:   aws.String("Identity"),   // Required
@@ -556,7 +580,7 @@ func ExampleSES_PutIdentityPolicy() {
 }
 
 func ExampleSES_ReorderReceiptRuleSet() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.ReorderReceiptRuleSetInput{
 		RuleNames: []*string{ // Required
@@ -579,7 +603,7 @@ func ExampleSES_ReorderReceiptRuleSet() {
 }
 
 func ExampleSES_SendBounce() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.SendBounceInput{
 		BounceSender: aws.String("Address"), // Required
@@ -635,7 +659,7 @@ func ExampleSES_SendBounce() {
 }
 
 func ExampleSES_SendEmail() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.SendEmailInput{
 		Destination: &ses.Destination{ // Required
@@ -691,7 +715,7 @@ func ExampleSES_SendEmail() {
 }
 
 func ExampleSES_SendRawEmail() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.SendRawEmailInput{
 		RawMessage: &ses.RawMessage{ // Required
@@ -720,7 +744,7 @@ func ExampleSES_SendRawEmail() {
 }
 
 func ExampleSES_SetActiveReceiptRuleSet() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.SetActiveReceiptRuleSetInput{
 		RuleSetName: aws.String("ReceiptRuleSetName"),
@@ -739,7 +763,7 @@ func ExampleSES_SetActiveReceiptRuleSet() {
 }
 
 func ExampleSES_SetIdentityDkimEnabled() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.SetIdentityDkimEnabledInput{
 		DkimEnabled: aws.Bool(true),         // Required
@@ -759,7 +783,7 @@ func ExampleSES_SetIdentityDkimEnabled() {
 }
 
 func ExampleSES_SetIdentityFeedbackForwardingEnabled() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.SetIdentityFeedbackForwardingEnabledInput{
 		ForwardingEnabled: aws.Bool(true),         // Required
@@ -778,8 +802,29 @@ func ExampleSES_SetIdentityFeedbackForwardingEnabled() {
 	fmt.Println(resp)
 }
 
+func ExampleSES_SetIdentityMailFromDomain() {
+	svc := ses.New(session.New())
+
+	params := &ses.SetIdentityMailFromDomainInput{
+		Identity:            aws.String("Identity"), // Required
+		BehaviorOnMXFailure: aws.String("BehaviorOnMXFailure"),
+		MailFromDomain:      aws.String("MailFromDomainName"),
+	}
+	resp, err := svc.SetIdentityMailFromDomain(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
+}
+
 func ExampleSES_SetIdentityNotificationTopic() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.SetIdentityNotificationTopicInput{
 		Identity:         aws.String("Identity"),         // Required
@@ -800,7 +845,7 @@ func ExampleSES_SetIdentityNotificationTopic() {
 }
 
 func ExampleSES_SetReceiptRulePosition() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.SetReceiptRulePositionInput{
 		RuleName:    aws.String("ReceiptRuleName"),    // Required
@@ -821,7 +866,7 @@ func ExampleSES_SetReceiptRulePosition() {
 }
 
 func ExampleSES_UpdateReceiptRule() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.UpdateReceiptRuleInput{
 		Rule: &ses.ReceiptRule{ // Required
@@ -852,6 +897,7 @@ func ExampleSES_UpdateReceiptRule() {
 					},
 					SNSAction: &ses.SNSAction{
 						TopicArn: aws.String("AmazonResourceName"), // Required
+						Encoding: aws.String("SNSActionEncoding"),
 					},
 					StopAction: &ses.StopAction{
 						Scope:    aws.String("StopScope"), // Required
@@ -888,7 +934,7 @@ func ExampleSES_UpdateReceiptRule() {
 }
 
 func ExampleSES_VerifyDomainDkim() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.VerifyDomainDkimInput{
 		Domain: aws.String("Domain"), // Required
@@ -907,7 +953,7 @@ func ExampleSES_VerifyDomainDkim() {
 }
 
 func ExampleSES_VerifyDomainIdentity() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.VerifyDomainIdentityInput{
 		Domain: aws.String("Domain"), // Required
@@ -926,7 +972,7 @@ func ExampleSES_VerifyDomainIdentity() {
 }
 
 func ExampleSES_VerifyEmailAddress() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.VerifyEmailAddressInput{
 		EmailAddress: aws.String("Address"), // Required
@@ -945,7 +991,7 @@ func ExampleSES_VerifyEmailAddress() {
 }
 
 func ExampleSES_VerifyEmailIdentity() {
-	svc := ses.New(nil)
+	svc := ses.New(session.New())
 
 	params := &ses.VerifyEmailIdentityInput{
 		EmailAddress: aws.String("Address"), // Required
