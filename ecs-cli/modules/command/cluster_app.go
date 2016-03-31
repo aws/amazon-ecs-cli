@@ -44,6 +44,7 @@ func init() {
 		instanceTypeFlag:  cloudformation.ParameterKeyInstanceType,
 		keypairNameFlag:   cloudformation.ParameterKeyKeyPairName,
 		imageIdFlag:       cloudformation.ParameterKeyAmiId,
+		certificateFlag:   cloudformation.ParameterKeyCertificate,
 	}
 }
 
@@ -129,6 +130,14 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 	// Populate cfn params
 	cfnParams := cliFlagsToCfnStackParams(context)
 	cfnParams.Add(cloudformation.ParameterKeyCluster, ecsParams.Cluster)
+
+	// Check if certificate exists
+	_, err = cfnParams.GetParameter(cloudformation.ParameterKeyCertificate)
+	if err == cloudformation.ParameterNotFoundError {
+		return fmt.Errorf("Please specify the certificate-arn name with '--%s' flag", certificateFlag)
+	} else if err != nil {
+		return err
+	}
 
 	// Check if key pair exists
 	_, err = cfnParams.GetParameter(cloudformation.ParameterKeyKeyPairName)

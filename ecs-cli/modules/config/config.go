@@ -41,6 +41,7 @@ type CliConfig struct {
 // SectionKeys is the struct embedded in CliConfig. It groups all the keys in the 'ecs' section in the ini file.
 type SectionKeys struct {
 	Cluster      string `ini:"cluster"`
+	Certificate  string `ini:"certificate_arn"`
 	AwsProfile   string `ini:"aws_profile"`
 	Region       string `ini:"region"`
 	AwsAccessKey string `ini:"aws_access_key_id"`

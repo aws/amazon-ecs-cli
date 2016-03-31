@@ -13,8 +13,29 @@
 
 package cloudformation
 
+import (
+       "io/ioutil"
+       "os"
+       "path/filepath"
+
+       "github.com/Sirupsen/logrus"
+)
+
 func GetTemplate() string {
-	return template
+       templateFile := "cloudformation.tmpl"
+       if envTemplate := os.Getenv("ECS_CLOUDFORMATION_TEMPLATE"); envTemplate != "" {
+               templateFile = envTemplate
+       } else if wd, err := os.Getwd(); err != nil {
+               templateFile = filepath.Join(wd, templateFile)
+       }
+       if _, err := os.Stat(templateFile); err == nil {
+               buffer, err := ioutil.ReadFile(templateFile)
+               if err == nil && len(buffer) > 0 {
+                       logrus.Debugf("using cloudformation template file: %s", templateFile)
+                       return string(buffer)
+               }
+       }
+       return template
 }
 
 // TODO: Improvements:
@@ -131,6 +152,11 @@ var template = `
     "EcsCluster" : {
       "Type" : "String",
       "Description" : "ECS Cluster Name",
+      "Default" : "default"
+    },
+    "Certificate": {
+      "Type" : "String",
+      "Description" : "Certificate ARN for SSL certificates for ELB",
       "Default" : "default"
     }
   },
@@ -352,8 +378,80 @@ var template = `
             "IpProtocol" : "tcp",
             "FromPort" : { "Ref" : "EcsPort" },
             "ToPort" : { "Ref" : "EcsPort" },
-            "CidrIp" : { "Ref" : "SourceCidr" } 
+            "CidrIp" : { "Ref" : "SourceCidr" }
+        } ],
+        "SecurityGroupEgress":[ {
+            "IpProtocol":"tcp",
+            "FromPort":"80",
+            "ToPort":"80",
+            "CidrIp":"0.0.0.0/0"
+        },{
+            "IpProtocol":"tcp",
+            "FromPort":"443",
+            "ToPort":"443",
+            "CidrIp":"0.0.0.0/0"
         } ]
+      }
+    },
+    "ElbSecurityGroup": {
+      "Condition": "CreateSecurityGroup",
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "ECS Allowed Ports",
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "SecurityGroupIngress" : [ {
+            "IpProtocol" : "tcp",
+            "FromPort" : "443",
+            "ToPort" : "443",
+            "CidrIp" : "0.0.0.0/0"
+        } ],
+        "SecurityGroupEgress":[ {
+            "IpProtocol":"tcp",
+            "FromPort":"0",
+            "ToPort":"65535",
+            "CidrIp":"0.0.0.0/0"
+        } ]
+      }
+    },
+    "EcsElasticLoadBalancer" : {
+      "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties" : {
+        "Subnets" : [ {
+	  "Ref" : "PubSubnetAz1"
+        },
+        {
+	  "Ref" : "PubSubnetAz2"
+        } ],
+        "Listeners" : [ {
+          "InstancePort": 80,
+          "SSLCertificateId": {
+            "Ref" : "Certificate"
+          },
+          "LoadBalancerPort": 443,
+          "Protocol": "HTTPS",
+          "InstanceProtocol": "HTTP"
+        } ],
+        "HealthCheck" : {
+          "Target" : "HTTP:80/v1/health",
+          "HealthyThreshold" : "2",
+          "UnhealthyThreshold" : "10",
+          "Interval" : "30",
+          "Timeout" : "5"
+        },
+        "SecurityGroups" : [ {
+           "Ref" : "ElbSecurityGroup"
+        }, {
+           "Ref" : "EcsSecurityGroup"
+        } ],
+        "ConnectionDrainingPolicy": {
+          "Enabled" : "true",
+          "Timeout" : "60"
+        },
+        "LoadBalancerName": {
+          "Ref": "EcsCluster"
+	}
       }
     },
     "EcsInstancePolicy": {
@@ -378,7 +476,20 @@ var template = `
         "Path": "/",
         "ManagedPolicyArns": [
           "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
-        ]
+        ],
+        "Policies": [ {
+          "PolicyName": "StartTask",
+          "PolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [ {
+              "Effect": "Allow",
+              "Action": [
+                "ecs:StartTask"
+              ],
+              "Resource": "*"
+            } ]
+          }
+        } ]
       }
     },
     "EcsInstanceProfile": {
@@ -435,46 +546,6 @@ var template = `
         }
       }
     },
-    "EcsInstanceLcWithoutKeyPair": {
-      "Condition": "CreateEC2LCWithoutKeyPair",
-      "Type": "AWS::AutoScaling::LaunchConfiguration",
-      "Properties": {
-	"ImageId": { "Ref" : "EcsAmiId" },
-        "InstanceType": {
-          "Ref": "EcsInstanceType"
-        },
-        "AssociatePublicIpAddress": true,
-        "IamInstanceProfile": {
-          "Ref": "EcsInstanceProfile"
-        },
-        "SecurityGroups": {
-          "Fn::If": [
-            "CreateSecurityGroup",
-            [ {
-              "Ref": "EcsSecurityGroup"
-            } ],
-            [ {
-              "Ref": "SecurityGroup"
-            } ]
-          ]
-        },
-        "UserData": {
-          "Fn::Base64": {
-            "Fn::Join": [
-              "",
-              [
-                "#!/bin/bash\n",
-                "echo ECS_CLUSTER=",
-                {
-                  "Ref": "EcsCluster"
-                },
-                " >> /etc/ecs/ecs.config\n"
-              ]
-            ]
-          }
-        }
-      }
-    },
     "EcsInstanceAsg": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "Properties": {
@@ -502,15 +573,7 @@ var template = `
           ]
         },
         "LaunchConfigurationName": {
-          "Fn::If": [
-            "CreateEC2LCWithKeyPair",
-            {
-              "Ref": "EcsInstanceLc"
-            },
-            {
-              "Ref": "EcsInstanceLcWithoutKeyPair"
-            }
-          ]
+          "Ref": "EcsInstanceLc"
         },
         "MinSize": "1",
         "MaxSize": {

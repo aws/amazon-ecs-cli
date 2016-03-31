@@ -135,11 +135,29 @@ func (client *ecsClient) DeleteService(serviceName string) error {
 }
 
 func (client *ecsClient) CreateService(serviceName, taskDefName string) error {
-	_, err := client.client.CreateService(&ecs.CreateServiceInput{
+	taskDef, err := client.DescribeTaskDefinition(taskDefName)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"service": serviceName,
+			"error":   err,
+		}).Error("Error creating service - could not describe task definition")
+		return err
+	}
+	lbs := make([]*ecs.LoadBalancer, len(taskDef.ContainerDefinitions))
+	for i, containerDef := range taskDef.ContainerDefinitions {
+		lbs[i] = &ecs.LoadBalancer{
+			ContainerName:    aws.String(*containerDef.Name),
+			ContainerPort:    aws.Int64(*containerDef.PortMappings[0].ContainerPort),
+			LoadBalancerName: aws.String(client.params.Cluster),
+		}
+	}
+	_, err = client.client.CreateService(&ecs.CreateServiceInput{
 		DesiredCount:   aws.Int64(0),            // Required
 		ServiceName:    aws.String(serviceName), // Required
 		TaskDefinition: aws.String(taskDefName), // Required
 		Cluster:        aws.String(client.params.Cluster),
+		LoadBalancers:  lbs,
+		Role:           aws.String("ecsServiceRole"),
 	})
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -149,7 +167,8 @@ func (client *ecsClient) CreateService(serviceName, taskDefName string) error {
 		return err
 	}
 	log.WithFields(log.Fields{
-		"service": serviceName,
+		"service":     serviceName,
+		"taskDefName": taskDefName,
 	}).Debug("Created ECS service")
 	return nil
 }
