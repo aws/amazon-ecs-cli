@@ -30,11 +30,11 @@ $(LOCAL_BINARY): $(SOURCES)
 
 .PHONY: test
 test:
-	. ./scripts/shared_env && env -i PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT go test -timeout=120s -v -cover ./ecs-cli/modules/...
+	. ./scripts/shared_env && env -i PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT go test -timeout=120s -v -cover ./ecs-cli/license/... ./ecs-cli/modules/...
 
 .PHONY: generate
 generate: $(SOURCES)
-	. ./scripts/shared_env && go generate ./ecs-cli/modules/...
+	. ./scripts/shared_env && go generate ./ecs-cli/license/... ./ecs-cli/modules/...
 
 .PHONY: generate-deps
 generate-deps:

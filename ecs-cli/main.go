@@ -16,6 +16,7 @@ package main
 import (
 	"os"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/license"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/command"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/cli/ecs/app"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/version"
@@ -38,6 +39,7 @@ func main() {
 		command.DownCommand(),
 		command.ScaleCommand(),
 		command.PsCommand(),
+		license.LicenseCommand(),
 		ecscompose.ComposeCommand(composeFactory),
 	}
 	app.Run(os.Args)
