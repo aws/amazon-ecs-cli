@@ -96,6 +96,10 @@ func (p *ecsProject) Parse() error {
 		return err
 	}
 
+	if err := p.Entity().LoadContext(); err != nil {
+		return err
+	}
+
 	if err := p.load(context.Context); err != nil {
 		return err
 	}

@@ -42,6 +42,7 @@ func (projectFactory projectFactory) Create(cliContext *cli.Context, isService b
 		return nil, err
 	}
 	ecsContext.IsService = isService
+	ecsContext.CLIContext = cliContext
 
 	// creates and initializes project using the context
 	project := ecscompose.NewProject(ecsContext)

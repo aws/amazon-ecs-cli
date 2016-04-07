@@ -19,12 +19,14 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
 	libcompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/libcompose"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
+	"github.com/codegangsta/cli"
 )
 
 // Context is a wrapper around libcompose.project.Context
 type Context struct {
 	libcompose.Context
-	ECSParams *config.CliParams
+	CLIContext *cli.Context
+	ECSParams  *config.CliParams
 
 	// AWS Service Clients
 	ECSClient ecsclient.ECSClient

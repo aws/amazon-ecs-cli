@@ -41,6 +41,12 @@ func NewTask(context *Context) ProjectEntity {
 	}
 }
 
+// LoadContext is a placeholder function to read the context set by NewTask. Its a NoOp for Task entity.
+func (t *Task) LoadContext() error {
+	// NoOp
+	return nil
+}
+
 // SetTaskDefinition sets the ecs task definition to the current instance of Task
 func (t *Task) SetTaskDefinition(taskDefinition *ecs.TaskDefinition) {
 	t.taskDef = taskDefinition

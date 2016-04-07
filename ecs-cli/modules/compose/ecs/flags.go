@@ -11,22 +11,12 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package license
+package ecs
 
-import (
-	"os"
-
-	"github.com/codegangsta/cli"
+const (
+	CreateServiceCommandName                = "create"
+	DeploymentMaxPercentDefaultValue        = 200
+	DeploymentMaxPercentFlag                = "deployment-max-percent"
+	DeploymentMinHealthyPercentDefaultValue = 100
+	DeploymentMinHealthyPercentFlag         = "deployment-min-healthy-percent"
 )
-
-func LicenseCommand() cli.Command {
-	return cli.Command{
-		Name:   "license",
-		Usage:  "Prints the LICENSE files for the ECS CLI and its dependencies.",
-		Action: printLicense,
-	}
-}
-
-func printLicense(c *cli.Context) {
-	os.Stdout.WriteString(License)
-}

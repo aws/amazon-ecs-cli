@@ -48,9 +48,9 @@ type ECSClient interface {
 	IsActiveCluster(clusterName string) (bool, error)
 
 	// Service related
-	CreateService(serviceName, taskDefName string) error
-	UpdateServiceCount(serviceName string, count int64) error
-	UpdateService(serviceName, taskDefinitionName string, count int64) error
+	CreateService(serviceName, taskDefName string, deploymentConfig *ecs.DeploymentConfiguration) error
+	UpdateServiceCount(serviceName string, count int64, deploymentConfig *ecs.DeploymentConfiguration) error
+	UpdateService(serviceName, taskDefinitionName string, count int64, deploymentConfig *ecs.DeploymentConfiguration) error
 	DescribeService(serviceName string) (*ecs.DescribeServicesOutput, error)
 	DeleteService(serviceName string) error
 
@@ -134,12 +134,13 @@ func (client *ecsClient) DeleteService(serviceName string) error {
 	return nil
 }
 
-func (client *ecsClient) CreateService(serviceName, taskDefName string) error {
+func (client *ecsClient) CreateService(serviceName, taskDefName string, deploymentConfig *ecs.DeploymentConfiguration) error {
 	_, err := client.client.CreateService(&ecs.CreateServiceInput{
-		DesiredCount:   aws.Int64(0),            // Required
-		ServiceName:    aws.String(serviceName), // Required
-		TaskDefinition: aws.String(taskDefName), // Required
-		Cluster:        aws.String(client.params.Cluster),
+		DesiredCount:            aws.Int64(0),            // Required
+		ServiceName:             aws.String(serviceName), // Required
+		TaskDefinition:          aws.String(taskDefName), // Required
+		Cluster:                 aws.String(client.params.Cluster),
+		DeploymentConfiguration: deploymentConfig,
 	})
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -148,21 +149,32 @@ func (client *ecsClient) CreateService(serviceName, taskDefName string) error {
 		}).Error("Error creating service")
 		return err
 	}
-	log.WithFields(log.Fields{
-		"service": serviceName,
-	}).Debug("Created ECS service")
+
+	fields := log.Fields{
+		"service":        serviceName,
+		"taskDefinition": taskDefName,
+	}
+	if deploymentConfig != nil && deploymentConfig.MaximumPercent != nil {
+		fields["deployment-max-percent"] = aws.Int64Value(deploymentConfig.MaximumPercent)
+	}
+	if deploymentConfig != nil && deploymentConfig.MinimumHealthyPercent != nil {
+		fields["deployment-min-healthy-percent"] = aws.Int64Value(deploymentConfig.MinimumHealthyPercent)
+	}
+
+	log.WithFields(fields).Info("Created an ECS service")
 	return nil
 }
 
-func (client *ecsClient) UpdateServiceCount(serviceName string, count int64) error {
-	return client.UpdateService(serviceName, "", count)
+func (client *ecsClient) UpdateServiceCount(serviceName string, count int64, deploymentConfig *ecs.DeploymentConfiguration) error {
+	return client.UpdateService(serviceName, "", count, deploymentConfig)
 }
 
-func (client *ecsClient) UpdateService(serviceName, taskDefinition string, count int64) error {
+func (client *ecsClient) UpdateService(serviceName, taskDefinition string, count int64, deploymentConfig *ecs.DeploymentConfiguration) error {
 	input := &ecs.UpdateServiceInput{
-		DesiredCount: aws.Int64(count),
-		Service:      aws.String(serviceName),
-		Cluster:      aws.String(client.params.Cluster),
+		DesiredCount:            aws.Int64(count),
+		Service:                 aws.String(serviceName),
+		Cluster:                 aws.String(client.params.Cluster),
+		DeploymentConfiguration: deploymentConfig,
 	}
 	if taskDefinition != "" {
 		input.TaskDefinition = aws.String(taskDefinition)
@@ -181,6 +193,12 @@ func (client *ecsClient) UpdateService(serviceName, taskDefinition string, count
 	}
 	if taskDefinition != "" {
 		fields["taskDefinition"] = taskDefinition
+	}
+	if deploymentConfig != nil && deploymentConfig.MaximumPercent != nil {
+		fields["deployment-max-percent"] = aws.Int64Value(deploymentConfig.MaximumPercent)
+	}
+	if deploymentConfig != nil && deploymentConfig.MinimumHealthyPercent != nil {
+		fields["deployment-min-healthy-percent"] = aws.Int64Value(deploymentConfig.MinimumHealthyPercent)
 	}
 	log.WithFields(fields).Debug("Updated ECS service")
 	return nil
@@ -257,6 +275,10 @@ func (client *ecsClient) RegisterTaskDefinitionIfNeeded(
 func cachedTaskDefinitionRevisionIsActive(cachedTaskDefinition *ecs.TaskDefinition, client *ecsClient) bool {
 	taskDefinitionOfRecord, err := client.DescribeTaskDefinition(aws.StringValue(cachedTaskDefinition.TaskDefinitionArn))
 	if err != nil || taskDefinitionOfRecord == nil {
+		log.WithFields(log.Fields{
+			"taskDefinitionName": aws.StringValue(cachedTaskDefinition.TaskDefinitionArn),
+			"error":              err,
+		}).Error("Error describing task definition")
 		return false
 	}
 	return *taskDefinitionOfRecord.Status == ecs.TaskDefinitionStatusActive
@@ -298,10 +320,6 @@ func (client *ecsClient) DescribeTaskDefinition(taskDefinitionName string) (*ecs
 		TaskDefinition: aws.String(taskDefinitionName),
 	})
 	if err != nil {
-		log.WithFields(log.Fields{
-			"taskDefinitionName": taskDefinitionName,
-			"error":              err,
-		}).Error("Error describing task definition")
 		return nil, err
 	}
 	return resp.TaskDefinition, nil

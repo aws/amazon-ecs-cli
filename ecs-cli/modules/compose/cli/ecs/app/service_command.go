@@ -13,9 +13,12 @@
 
 package app
 
-import "github.com/codegangsta/cli"
+import (
+	"fmt"
 
-const CreateServiceCommandName = "create"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
+	"github.com/codegangsta/cli"
+)
 
 //* ----------------- COMPOSE PROJECT with ECS Service ----------------- */
 // Note: A project is scoped to a single compose yaml with multiple containers defined
@@ -40,8 +43,8 @@ const CreateServiceCommandName = "create"
 // and are integrated to run on ECS as a service
 func serviceCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
-		Name:   "service",
-		Usage:  "Manage Amazon ECS services with docker-compose-style commands on an ECS cluster.",
+		Name:  "service",
+		Usage: "Manage Amazon ECS services with docker-compose-style commands on an ECS cluster.",
 		Subcommands: []cli.Command{
 			createServiceCommand(factory),
 			startServiceCommand(factory),
@@ -56,9 +59,10 @@ func serviceCommand(factory ProjectFactory) cli.Command {
 
 func createServiceCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
-		Name:   CreateServiceCommandName,
+		Name:   ecs.CreateServiceCommandName,
 		Usage:  "Creates an ECS service from your compose file. The service is created with a desired count of 0, so no containers are started by this command.",
 		Action: WithProject(factory, ProjectCreate, true),
+		Flags:  deploymentConfigFlags(true),
 	}
 }
 
@@ -75,6 +79,7 @@ func upServiceCommand(factory ProjectFactory) cli.Command {
 		Name:   "up",
 		Usage:  "Creates an ECS service from your compose file (if it does not already exist) and runs one instance of that task on your cluster (a combination of create and start). This command updates the desired count of the service to 1.",
 		Action: WithProject(factory, ProjectUp, true),
+		Flags:  deploymentConfigFlags(true),
 	}
 }
 
@@ -92,14 +97,15 @@ func scaleServiceCommand(factory ProjectFactory) cli.Command {
 		Name:   "scale",
 		Usage:  "ecs-cli compose service scale [count] - scales the desired count of the service to the specified count",
 		Action: WithProject(factory, ProjectScale, true),
+		Flags:  deploymentConfigFlags(false),
 	}
 }
 
 func stopServiceCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
-		Name:    "stop",
-		Usage:   "Stops the running tasks that belong to the service created with the compose project. This command updates the desired count of the service to 0.",
-		Action:  WithProject(factory, ProjectStop, true),
+		Name:   "stop",
+		Usage:  "Stops the running tasks that belong to the service created with the compose project. This command updates the desired count of the service to 0.",
+		Action: WithProject(factory, ProjectStop, true),
 	}
 }
 
@@ -109,5 +115,24 @@ func rmServiceCommand(factory ProjectFactory) cli.Command {
 		Aliases: []string{"delete", "down"},
 		Usage:   "Updates the desired count of the service to 0 and then deletes the service.",
 		Action:  WithProject(factory, ProjectDown, true),
+	}
+}
+
+func deploymentConfigFlags(specifyDefaults bool) []cli.Flag {
+	maxPercentUsageString := "[Optional] Specifies the upper limit (as a percentage of the service's desiredCount) of the number of running tasks that can be running in a service during a deployment."
+	minHealthyPercentUsageString := "[Optional] Specifies the lower limit (as a percentage of the service's desiredCount) of the number of running tasks that must remain running and healthy in a service during a deployment."
+	if specifyDefaults {
+		maxPercentUsageString += fmt.Sprintf(" Defaults to %d.", ecs.DeploymentMaxPercentDefaultValue)
+		minHealthyPercentUsageString += fmt.Sprintf(" Defaults to %d.", ecs.DeploymentMinHealthyPercentDefaultValue)
+	}
+	return []cli.Flag{
+		cli.StringFlag{
+			Name:  ecs.DeploymentMaxPercentFlag,
+			Usage: maxPercentUsageString,
+		},
+		cli.StringFlag{
+			Name:  ecs.DeploymentMinHealthyPercentFlag,
+			Usage: minHealthyPercentUsageString,
+		},
 	}
 }

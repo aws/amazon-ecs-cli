@@ -15,6 +15,7 @@ package ecs
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
@@ -29,25 +30,55 @@ import (
 // Service type is placeholder for a single task definition and its cache
 // and it performs operations on ECS Service level
 type Service struct {
-	taskDef        *ecs.TaskDefinition
-	cache          cache.Cache
-	projectContext *Context
-	timeSleeper    *utils.TimeSleeper
+	taskDef          *ecs.TaskDefinition
+	cache            cache.Cache
+	projectContext   *Context
+	timeSleeper      *utils.TimeSleeper
+	deploymentConfig *ecs.DeploymentConfiguration
 }
 
 const (
-	ecsActiveResourceCode    = "ACTIVE"
-	ecsMissingResourceCode   = "MISSING"
-	createServiceCommandName = "create"
+	ecsActiveResourceCode  = "ACTIVE"
+	ecsMissingResourceCode = "MISSING"
 )
 
-// NewService creates an instance of a Task and also sets up a cache for task definition
+// NewService creates an instance of a Service and also sets up a cache for task definition
 func NewService(context *Context) ProjectEntity {
 	return &Service{
 		cache:          setupTaskDefinitionCache(),
 		projectContext: context,
 		timeSleeper:    &utils.TimeSleeper{},
 	}
+}
+
+// LoadContext reads the context set in NewService and loads DeploymentConfiguration
+func (s *Service) LoadContext() error {
+	maxPercent, err := getInt64FromCLIContext(s.Context(), DeploymentMaxPercentFlag)
+	if err != nil {
+		return err
+	}
+	minHealthyPercent, err := getInt64FromCLIContext(s.Context(), DeploymentMinHealthyPercentFlag)
+	if err != nil {
+		return err
+	}
+	s.deploymentConfig = &ecs.DeploymentConfiguration{
+		MaximumPercent:        maxPercent,
+		MinimumHealthyPercent: minHealthyPercent,
+	}
+	return nil
+}
+
+// getInt64FromCLIContext reads the flag from the cli context and typecasts into *int64
+func getInt64FromCLIContext(context *Context, flag string) (*int64, error) {
+	value := context.CLIContext.String(flag)
+	if value == "" {
+		return nil, nil
+	}
+	intValue, err := strconv.ParseInt(value, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("Please pass integer value for the flag %s", flag)
+	}
+	return aws.Int64(intValue), nil
 }
 
 // SetTaskDefinition sets the ecs task definition to the current instance of Service
@@ -77,6 +108,12 @@ func (s *Service) TaskDefinitionCache() cache.Cache {
 	return s.cache
 }
 
+// DeploymentConfig returns the configuration that control how many tasks run during the
+// deployment and the ordering of stopping and starting tasks
+func (s *Service) DeploymentConfig() *ecs.DeploymentConfiguration {
+	return s.deploymentConfig
+}
+
 // ----------- Commands' implementations --------
 
 // Create creates a task definition in ECS for the containers in the compose file
@@ -101,7 +138,7 @@ func (s *Service) Start() error {
 		// Read the custom error returned from describeService to see if the resource was missing
 		if strings.Contains(err.Error(), ecsMissingResourceCode) {
 			return fmt.Errorf("Please use '%s' command to create the service '%s' first",
-				createServiceCommandName, s.getServiceName())
+				CreateServiceCommandName, s.getServiceName())
 		}
 		return err
 	}
@@ -156,18 +193,26 @@ func (s *Service) Up() error {
 	}
 
 	ecsServiceName := aws.StringValue(ecsService.ServiceName)
-
+	deploymentConfig := s.DeploymentConfig()
 	// if the task definitions were different, updateService with new task definition
 	// this creates a deployment in ECS and slowly takes down the containers with old ones and starts new ones
-	err = s.Context().ECSClient.UpdateService(ecsServiceName, newTaskDefinitionId, newCount)
+	err = s.Context().ECSClient.UpdateService(ecsServiceName, newTaskDefinitionId, newCount, deploymentConfig)
 	if err != nil {
 		return err
 	}
-	log.WithFields(log.Fields{
+	fields := log.Fields{
 		"serviceName":    ecsServiceName,
 		"taskDefinition": newTaskDefinitionId,
 		"desiredCount":   newCount,
-	}).Info("Updated the ECS service with a new task definition. " +
+	}
+	if deploymentConfig != nil && deploymentConfig.MaximumPercent != nil {
+		fields["deployment-max-percent"] = aws.Int64Value(deploymentConfig.MaximumPercent)
+	}
+	if deploymentConfig != nil && deploymentConfig.MinimumHealthyPercent != nil {
+		fields["deployment-min-healthy-percent"] = aws.Int64Value(deploymentConfig.MinimumHealthyPercent)
+	}
+
+	log.WithFields(fields).Info("Updated the ECS service with a new task definition. " +
 		"Old containers will be stopped automatically, and replaced with new ones")
 	return waitForServiceTasks(s, ecsServiceName)
 }
@@ -234,14 +279,10 @@ func (s *Service) Run(commandOverrides map[string]string) error {
 func (s *Service) createService() error {
 	serviceName := s.getServiceName()
 	taskDefinitionId := getIdFromArn(s.TaskDefinition().TaskDefinitionArn)
-	err := s.Context().ECSClient.CreateService(serviceName, taskDefinitionId)
+	err := s.Context().ECSClient.CreateService(serviceName, taskDefinitionId, s.DeploymentConfig())
 	if err != nil {
 		return err
 	}
-	log.WithFields(log.Fields{
-		"serviceName":    serviceName,
-		"taskDefinition": taskDefinitionId,
-	}).Info("Created an ECS Service")
 	return nil
 }
 
@@ -281,13 +322,22 @@ func (s *Service) startService(ecsService *ecs.Service) error {
 // updateService calls the underlying ECS.UpdateService with the specified count
 func (s *Service) updateService(count int64) error {
 	serviceName := s.getServiceName()
-	if err := s.Context().ECSClient.UpdateServiceCount(serviceName, count); err != nil {
+	deploymentConfig := s.DeploymentConfig()
+	if err := s.Context().ECSClient.UpdateServiceCount(serviceName, count, deploymentConfig); err != nil {
 		return err
 	}
-	log.WithFields(log.Fields{
+	fields := log.Fields{
 		"serviceName":  serviceName,
 		"desiredCount": count,
-	}).Info("Updated ECS service successfully")
+	}
+	if deploymentConfig != nil && deploymentConfig.MaximumPercent != nil {
+		fields["deployment-max-percent"] = aws.Int64Value(deploymentConfig.MaximumPercent)
+	}
+	if deploymentConfig != nil && deploymentConfig.MinimumHealthyPercent != nil {
+		fields["deployment-min-healthy-percent"] = aws.Int64Value(deploymentConfig.MinimumHealthyPercent)
+	}
+
+	log.WithFields(fields).Info("Updated ECS service successfully")
 	return waitForServiceTasks(s, serviceName)
 }
 
