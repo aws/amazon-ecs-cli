@@ -32,6 +32,7 @@ func composeOptionsInit() {
 		"dns":          true,
 		"dns_search":   true,
 		"entrypoint":   true,
+		"env_file":     true,
 		"environment":  true,
 		"extra_hosts":  true,
 		"hostname":     true,

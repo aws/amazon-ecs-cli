@@ -15,6 +15,8 @@ package utils
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
 	"reflect"
 	"strconv"
 	"testing"
@@ -143,8 +145,8 @@ func TestConvertToTaskDefinitionWithDockerLabels(t *testing.T) {
 }
 
 func TestConvertToTaskDefinitionWithEnv(t *testing.T) {
-	envKey := "username"
-	envValue := "root"
+	envKey := "rails_env"
+	envValue := "development"
 	env := envKey + "=" + envValue
 	serviceConfig := &libcompose.ServiceConfig{
 		Environment: libcompose.NewMaporEqualSlice([]string{env}),
@@ -156,6 +158,60 @@ func TestConvertToTaskDefinitionWithEnv(t *testing.T) {
 	if envKey != aws.StringValue(containerDef.Environment[0].Name) ||
 		envValue != aws.StringValue(containerDef.Environment[0].Value) {
 		t.Errorf("Expected env [%s] But was [%v]", env, containerDef.Environment)
+	}
+}
+
+func TestConvertToTaskDefinitionWithEnvFromShell(t *testing.T) {
+	envKey1 := "rails_env"
+	envValue1 := "development"
+	envKey2 := "port" // skips the second one if envKey2
+	env := []string{envKey1, envKey2 + "="}
+	serviceConfig := &libcompose.ServiceConfig{
+		Environment: libcompose.NewMaporEqualSlice(env),
+	}
+
+	os.Setenv(envKey1, envValue1)
+	defer func() {
+		os.Unsetenv(envKey1)
+	}()
+
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig)
+	containerDef := *taskDefinition.ContainerDefinitions[0]
+	if containerDef.Environment == nil || len(containerDef.Environment) != 1 {
+		t.Fatalf("Expected non empty Environment, but was [%v]", containerDef.Environment)
+	}
+	if envKey1 != aws.StringValue(containerDef.Environment[0].Name) ||
+		envValue1 != aws.StringValue(containerDef.Environment[0].Value) {
+		t.Errorf("Expected env [%s]=[%s] But was [%v]", envKey1, envValue1, containerDef.Environment)
+	}
+}
+
+func TestConvertToTaskDefinitionWithEnvFile(t *testing.T) {
+	envKey := "rails_env"
+	envValue := "development"
+	envContents := []byte(envKey + "=" + envValue)
+
+	envFile, err := ioutil.TempFile("", "example")
+	if err != nil {
+		t.Fatal("Error creating tmp file:", err)
+	}
+	defer os.Remove(envFile.Name()) // clean up
+	if _, err := envFile.Write(envContents); err != nil {
+		t.Fatal("Error writing to tmp file:", err)
+	}
+
+	serviceConfig := &libcompose.ServiceConfig{
+		EnvFile: libcompose.NewStringorslice(envFile.Name()),
+	}
+
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig)
+	containerDef := *taskDefinition.ContainerDefinitions[0]
+	if containerDef.Environment == nil || len(containerDef.Environment) == 0 {
+		t.Fatalf("Expected non empty Environment, but was [%v]", containerDef.Environment)
+	}
+	if envKey != aws.StringValue(containerDef.Environment[0].Name) ||
+		envValue != aws.StringValue(containerDef.Environment[0].Value) {
+		t.Errorf("Expected env [%s]=[%s] But was [%v]", envKey, envValue, containerDef.Environment)
 	}
 }
 
@@ -255,7 +311,9 @@ func convertToTaskDefinitionInTest(t *testing.T, name string, serviceConfig *lib
 
 	projectName := "ProjectName"
 	context := libcompose.Context{
-		ProjectName: projectName,
+		ProjectName:       projectName,
+		EnvironmentLookup: &libcompose.OsEnvLookup{},
+		ConfigLookup:      &libcompose.FileConfigLookup{},
 	}
 	taskDefinition, err := ConvertToTaskDefinition(context, serviceConfigs)
 	if err != nil {

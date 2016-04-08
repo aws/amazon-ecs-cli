@@ -28,7 +28,8 @@ func TestUnmarshalComposeConfig(t *testing.T) {
 	dnsServers := []string{"1.2.3.4"}
 	dnsSearchDomains := []string{"search.example.com"}
 	entryPoint := "/code/entrypoint.sh"
-	env := []string{"RACK_ENV=development", "SESSION_SECRET=session_secret"}
+	envFiles := []string{"./common.env", "/opt/prod.env"}
+	env := []string{"RACK_ENV=development", "SESSION_PORT=session_port"}
 	extraHosts := []string{"test.local:127.10.10.10"}
 	hostname := "foobarbaz"
 	labels := map[string]string{
@@ -59,9 +60,12 @@ func TestUnmarshalComposeConfig(t *testing.T) {
    - 1.2.3.4
   dns_search: search.example.com
   entrypoint: /code/entrypoint.sh
+  env_file:
+   - ./common.env
+   - /opt/prod.env
   environment:
     RACK_ENV: development
-    SESSION_SECRET: session_secret
+    SESSION_PORT: session_port
   extra_hosts:
    - test.local:127.10.10.10
   hostname: "foobarbaz"
@@ -135,6 +139,9 @@ redis:
 	sort.Strings(webEnv)
 	if !reflect.DeepEqual(env, webEnv) {
 		t.Errorf("Expected Environment to be [%v] but got [%v]", env, webEnv)
+	}
+	if !reflect.DeepEqual(envFiles, web.EnvFile.Slice()) {
+		t.Errorf("Expected env_file to be [%v] but got [%v]", envFiles, web.EnvFile.Slice())
 	}
 
 	if !reflect.DeepEqual(extraHosts, web.ExtraHosts) {

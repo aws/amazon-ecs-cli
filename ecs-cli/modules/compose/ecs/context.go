@@ -51,6 +51,9 @@ func (context *Context) open() error {
 	context.ECSClient.Initialize(context.ECSParams)
 
 	context.EC2Client = ec2client.NewEC2Client(context.ECSParams)
+
+	context.Context.EnvironmentLookup = &libcompose.OsEnvLookup{}
+	context.Context.ConfigLookup = &libcompose.FileConfigLookup{}
 	return nil
 }
 

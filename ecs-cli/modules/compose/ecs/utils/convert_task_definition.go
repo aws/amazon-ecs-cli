@@ -19,7 +19,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	libcompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/libcompose"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -50,7 +50,7 @@ func ConvertToTaskDefinition(context libcompose.Context,
 		containerDef := &ecs.ContainerDefinition{
 			Name: aws.String(name),
 		}
-		if err := convertToContainerDef(config, volumes, containerDef); err != nil {
+		if err := convertToContainerDef(context, config, volumes, containerDef); err != nil {
 			return nil, err
 		}
 		containerDefinitions = append(containerDefinitions, containerDef)
@@ -65,7 +65,7 @@ func ConvertToTaskDefinition(context libcompose.Context,
 
 // convertToContainerDef transforms each service in the compose yml
 // to an equivalent container definition
-func convertToContainerDef(inputCfg *libcompose.ServiceConfig,
+func convertToContainerDef(context libcompose.Context, inputCfg *libcompose.ServiceConfig,
 	volumes map[string]string, outputContDef *ecs.ContainerDefinition) error {
 	// setting memory
 	var mem int64
@@ -77,20 +77,11 @@ func convertToContainerDef(inputCfg *libcompose.ServiceConfig,
 	}
 
 	// convert environment variables
-	// TODO, read env file
-	environment := []*ecs.KeyValuePair{}
-	for _, env := range inputCfg.Environment.Slice() {
-		parts := strings.SplitN(env, "=", 2)
-		name := &parts[0]
-		var value *string
-		if len(parts) > 1 {
-			value = &parts[1]
-		}
-		environment = append(environment, &ecs.KeyValuePair{
-			Name:  name,
-			Value: value,
-		})
+	envVars, err := libcompose.GetEnvVarsFromConfig(context, inputCfg)
+	if err != nil {
+		return err
 	}
+	environment := convertToKeyValuePairs(context, envVars, *outputContDef.Name, inputCfg)
 
 	// convert port mappings
 	portMappings, err := convertToPortMappings(*outputContDef.Name, inputCfg.Ports)
@@ -167,6 +158,53 @@ func convertToContainerDef(inputCfg *libcompose.ServiceConfig,
 	return nil
 }
 
+// convertToKeyValuePairs transforms the map of environment variables into list of ecs.KeyValuePair.
+// Environment variables with only a key are resolved by reading the variable from the shell where ecs-cli is executed from.
+// TODO: use this logic to generate RunTask overrides for ecs-cli compose commands (instead of always creating a new task def)
+func convertToKeyValuePairs(context libcompose.Context, envVars []string,
+	serviceName string, inputCfg *libcompose.ServiceConfig) []*ecs.KeyValuePair {
+
+	environment := []*ecs.KeyValuePair{}
+	for _, env := range envVars {
+		parts := strings.SplitN(env, "=", 2)
+		key := parts[0]
+
+		// format: key=value
+		if len(parts) > 1 && parts[1] != "" {
+			environment = append(environment, createKeyValuePair(key, parts[1]))
+			continue
+		}
+
+		// format: key
+		// format: key=
+		if context.EnvironmentLookup != nil {
+			resolvedEnvVars := context.EnvironmentLookup.Lookup(key, serviceName, inputCfg)
+
+			// couldn't resolve env var from where the command is executed. Skip the key
+			if len(resolvedEnvVars) == 0 {
+				log.WithFields(log.Fields{"key name": key}).Warn("Skipping unresolved Environment variable...")
+				continue
+			}
+
+			// found env var values from where the command is executed
+			for _, value := range resolvedEnvVars {
+				lookupParts := strings.SplitN(value, "=", 2)
+				environment = append(environment, createKeyValuePair(key, lookupParts[1]))
+			}
+		}
+
+	}
+	return environment
+}
+
+// createKeyValuePair generates an ecs.KeyValuePair object
+func createKeyValuePair(key, value string) *ecs.KeyValuePair {
+	return &ecs.KeyValuePair{
+		Name:  aws.String(key),
+		Value: aws.String(value),
+	}
+}
+
 // convertToECSVolumes transforms the map of hostPaths to the format of ecs.Volume
 func convertToECSVolumes(hostPaths map[string]string) []*ecs.Volume {
 	output := []*ecs.Volume{}
@@ -208,7 +246,7 @@ func convertToPortMappings(serviceName string, cfgPorts []string) ([]*ecs.PortMa
 			hostPort, portErr = strconv.Atoi(parts[0])
 			containerPort, portErr = strconv.Atoi(parts[1])
 		case 3: // Format "ipAddr:hostPort:containerPort" Example "127.0.0.0.1:8000:8000"
-			logrus.WithFields(logrus.Fields{
+			log.WithFields(log.Fields{
 				"container":   serviceName,
 				"portMapping": portMapping,
 			}).Warn("Ignoring the ip address while transforming it to task definition")

@@ -60,7 +60,7 @@ func serviceCommand(factory ProjectFactory) cli.Command {
 func createServiceCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:   ecs.CreateServiceCommandName,
-		Usage:  "Creates an ECS service from your compose file. The service is created with a desired count of 0, so no containers are started by this command.",
+		Usage:  "Creates an ECS service from your compose file. The service is created with a desired count of 0, so no containers are started by this command. Note that we do not recommend using plain text environment variables for sensitive information, such as credential data.",
 		Action: WithProject(factory, ProjectCreate, true),
 		Flags:  deploymentConfigFlags(true),
 	}

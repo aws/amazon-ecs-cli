@@ -102,7 +102,7 @@ func populate(ecsContext *ecscompose.Context, cliContext *cli.Context) {
 func createCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:   "create",
-		Usage:  "Creates an ECS task definition from your compose file.",
+		Usage:  "Creates an ECS task definition from your compose file. Note that we do not recommend using plain text environment variables for sensitive information, such as credential data.",
 		Action: WithProject(factory, ProjectCreate, false),
 	}
 }
