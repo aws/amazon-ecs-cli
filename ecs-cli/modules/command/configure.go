@@ -32,9 +32,9 @@ func ConfigureCommand() cli.Command {
 			cli.StringFlag{
 				Name: ecscli.RegionFlag + ", r",
 				Usage: fmt.Sprintf(
-					"Specifies the AWS region to use. If the AWS_REGION environment variable is set when ecs-cli configure is run, then the AWS region is set to the value of that environment variable.",
+					"Specifies the AWS region to use. If the " + ecscli.AwsRegionEnvVar + " environment variable is set when ecs-cli configure is run, then the AWS region is set to the value of that environment variable.",
 				),
-				EnvVar: "AWS_REGION",
+				EnvVar: ecscli.AwsRegionEnvVar,
 			},
 			cli.StringFlag{
 				Name: ecscli.AccessKeyFlag,
@@ -65,6 +65,27 @@ func ConfigureCommand() cli.Command {
 				// TODO: Override behavior for all ecs-cli commands : CommandLineFlags > EnvVar > ConfigFile > Defaults
 				// Commenting it now to avoid user misunderstanding the behavior of this env var with other ecs-cli commands
 				// EnvVar: "ECS_CLUSTER",
+			},
+			cli.StringFlag{
+				Name:  ecscli.ComposeProjectNamePrefixFlag,
+				Value: ecscli.ComposeProjectNamePrefixDefaultValue,
+				Usage: fmt.Sprintf(
+					"[Optional] Specifies the prefix added to an ECS task definition created from a compose file. Format <prefix><project-name>.",
+				),
+			},
+			cli.StringFlag{
+				Name:  ecscli.ComposeServiceNamePrefixFlag,
+				Value: ecscli.ComposeServiceNamePrefixDefaultValue,
+				Usage: fmt.Sprintf(
+					"[Optional] Specifies the prefix added to an ECS service created from a compose file. Format <prefix><project-name>.",
+				),
+			},
+			cli.StringFlag{
+				Name:  ecscli.CFNStackNamePrefixFlag,
+				Value: ecscli.CFNStackNamePrefixDefaultValue,
+				Usage: fmt.Sprintf(
+					"[Optional] Specifies the prefix added to the AWS CloudFormation stack created on ecs-cli up. Format <prefix><cluster-name>.",
+				),
 			},
 		},
 	}
@@ -113,6 +134,10 @@ func createECSConfigFromCli(context *cli.Context) (*config.CliConfig, error) {
 	ecsConfig.AwsAccessKey = accessKey
 	ecsConfig.AwsSecretKey = secretKey
 	ecsConfig.Region = region
+
+	ecsConfig.ComposeProjectNamePrefix = context.String(ecscli.ComposeProjectNamePrefixFlag)
+	ecsConfig.ComposeServiceNamePrefix = context.String(ecscli.ComposeServiceNamePrefixFlag)
+	ecsConfig.CFNStackNamePrefix = context.String(ecscli.CFNStackNamePrefixFlag)
 
 	return ecsConfig, nil
 }

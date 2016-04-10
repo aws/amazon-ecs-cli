@@ -139,3 +139,55 @@ func TestConfigInitWithProfileAndKeys(t *testing.T) {
 		t.Errorf("Expected error when both AWS Profile and access keys are specified")
 	}
 }
+
+func TestConfigInitWithPrefixes(t *testing.T) {
+	setPrefixes := flag.NewFlagSet("ecs-cli", 0)
+	setPrefixes.String(ecscli.ProfileFlag, profileName, "")
+	setPrefixes.String(ecscli.ClusterFlag, clusterName, "")
+
+	composeProjectName := "projectName"
+	composeServiceName := "serviceName"
+	cfnStackName := "stackName"
+
+	setPrefixes.String(ecscli.ComposeProjectNamePrefixFlag, composeProjectName, "")
+	setPrefixes.String(ecscli.ComposeServiceNamePrefixFlag, composeServiceName, "")
+	setPrefixes.String(ecscli.CFNStackNamePrefixFlag, cfnStackName, "")
+
+	context := cli.NewContext(nil, setPrefixes, nil)
+
+	cfg, err := createECSConfigFromCli(context)
+	if err != nil {
+		t.Errorf("Error reading config from rdwr: ", err)
+	}
+	if composeProjectName != cfg.ComposeProjectNamePrefix {
+		t.Errorf("ComposeProjectName mismtach in config. Expected [%s] Got [%s]", clusterName, cfg.ComposeProjectNamePrefix)
+	}
+	if composeServiceName != cfg.ComposeServiceNamePrefix {
+		t.Errorf("ComposeServiceName mismatch in config. Expected [%s] Got [%s]", composeServiceName, cfg.ComposeServiceNamePrefix)
+	}
+	if cfnStackName != cfg.CFNStackNamePrefix {
+		t.Errorf("CFNStackNamePrefix mismatch in config. Expected [%s] Got [%s]", cfnStackName, cfg.CFNStackNamePrefix)
+	}
+}
+
+func TestConfigInitWithoutPrefixes(t *testing.T) {
+	setNoPrefixes := flag.NewFlagSet("ecs-cli", 0)
+	setNoPrefixes.String(ecscli.ProfileFlag, profileName, "")
+	setNoPrefixes.String(ecscli.ClusterFlag, clusterName, "")
+
+	context := cli.NewContext(nil, setNoPrefixes, nil)
+
+	cfg, err := createECSConfigFromCli(context)
+	if err != nil {
+		t.Errorf("Error reading config from rdwr: ", err)
+	}
+	if "" != cfg.ComposeProjectNamePrefix {
+		t.Errorf("ComposeProjectName mismtach in config. Expected empty string Got [%s]", cfg.ComposeProjectNamePrefix)
+	}
+	if "" != cfg.ComposeServiceNamePrefix {
+		t.Errorf("ComposeServiceName mismatch in config. Expected empty string Got [%s]", cfg.ComposeServiceNamePrefix)
+	}
+	if "" != cfg.CFNStackNamePrefix {
+		t.Errorf("CFNStackNamePrefix mismatch in config. Expected empty string Got [%s]", cfg.CFNStackNamePrefix)
+	}
+}

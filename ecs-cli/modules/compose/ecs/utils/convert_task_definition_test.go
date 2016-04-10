@@ -309,13 +309,12 @@ func convertToTaskDefinitionInTest(t *testing.T, name string, serviceConfig *lib
 	serviceConfigs := make(map[string]*libcompose.ServiceConfig)
 	serviceConfigs[name] = serviceConfig
 
-	projectName := "ProjectName"
+	taskDefName := "ProjectName"
 	context := libcompose.Context{
-		ProjectName:       projectName,
 		EnvironmentLookup: &libcompose.OsEnvLookup{},
 		ConfigLookup:      &libcompose.FileConfigLookup{},
 	}
-	taskDefinition, err := ConvertToTaskDefinition(context, serviceConfigs)
+	taskDefinition, err := ConvertToTaskDefinition(taskDefName, context, serviceConfigs)
 	if err != nil {
 		t.Errorf("Expected to convert [%v] serviceConfigs without errors. But got [%v]", serviceConfigs, err)
 	}

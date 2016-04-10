@@ -33,11 +33,7 @@ func newMockDestination() (*Destination, error) {
 	return &Destination{Path: tmpPath, Mode: mode}, nil
 }
 
-func TestNewConfigReadWriter(t *testing.T) {
-	dest, err := newMockDestination()
-	if err != nil {
-		t.Fatal("Error creating mock config destination:", err)
-	}
+func setupParser(t *testing.T, dest *Destination, shouldBeInitialized bool) *IniReadWriter {
 	iniCfg, err := newIniConfig(dest)
 	if err != nil {
 		t.Fatal("Error creating config ini", err)
@@ -50,9 +46,19 @@ func TestNewConfigReadWriter(t *testing.T) {
 		t.Errorf("Error getting if initialized from ini", err)
 	}
 
-	if initialized {
-		t.Errorf("Unexpected state: initialized set to true for empty config")
+	if shouldBeInitialized != initialized {
+		t.Error("Unexpected state during parser initialization. Expected initialized to be [%s] but found [%s]", shouldBeInitialized, initialized)
 	}
+
+	return parser
+}
+
+func TestNewConfigReadWriter(t *testing.T) {
+	dest, err := newMockDestination()
+	if err != nil {
+		t.Fatal("Error creating mock config destination:", err)
+	}
+	parser := setupParser(t, dest, false)
 
 	err = os.MkdirAll(dest.Path, *dest.Mode)
 	if err != nil {
@@ -74,19 +80,7 @@ func TestNewConfigReadWriter(t *testing.T) {
 	}
 
 	// Reinitialize from the writtern file.
-	iniCfg, err = newIniConfig(dest)
-	if err != nil {
-		t.Fatal("Error creating config ini", err)
-	}
-	parser = &IniReadWriter{Destination: dest, cfg: iniCfg}
-	initialized, err = parser.IsInitialized()
-	if err != nil {
-		t.Errorf("Error getting if initialized from ini", err)
-	}
-
-	if !initialized {
-		t.Errorf("Unexpected state: initialized set to false for non-empty config")
-	}
+	parser = setupParser(t, dest, true)
 
 	readConfig, err := parser.GetConfig()
 	if err != nil {
@@ -96,4 +90,53 @@ func TestNewConfigReadWriter(t *testing.T) {
 	if clusterName != readConfig.Cluster {
 		t.Errorf("Cluster name mismatch in config. Expected [%s] Got [%s]", clusterName, readConfig.Cluster)
 	}
+	if !parser.IsKeyPresent(ecsSectionKey, composeProjectNamePrefixKey) || readConfig.ComposeProjectNamePrefix != "" {
+		t.Errorf("Compose Project prefix name mismatch in config. Expected empty string Got [%s]", readConfig.ComposeProjectNamePrefix)
+	}
+	if !parser.IsKeyPresent(ecsSectionKey, composeServiceNamePrefixKey) || readConfig.ComposeServiceNamePrefix != "" {
+		t.Errorf("Compose service name prefix mismatch in config. Expected empty string Got [%s]", readConfig.ComposeServiceNamePrefix)
+	}
+	if !parser.IsKeyPresent(ecsSectionKey, cfnStackNamePrefixKey) || readConfig.CFNStackNamePrefix != "" {
+		t.Errorf("CFNStackNamePrefix mismatch in config. Expected empty string Got [%s]", readConfig.CFNStackNamePrefix)
+	}
+}
+
+func TestMissingPrefixes(t *testing.T) {
+	configContentsNoPrefixes := `[ecs]
+cluster = test
+aws_profile =
+region = us-west-2
+aws_access_key_id =
+aws_secret_access_key =
+`
+	dest, err := newMockDestination()
+	if err != nil {
+		t.Fatal("Error creating mock config destination:", err)
+	}
+	err = os.MkdirAll(dest.Path, *dest.Mode)
+	if err != nil {
+		t.Fatalf("Could not create config directory: ", err)
+	}
+	defer os.RemoveAll(dest.Path)
+
+	if err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configContentsNoPrefixes), *dest.Mode); err != nil {
+		t.Fatal(err)
+	}
+
+	parser := setupParser(t, dest, true)
+	readConfig, err := parser.GetConfig()
+	if err != nil {
+		t.Errorf("Error reading config:", err)
+	}
+
+	if parser.IsKeyPresent(ecsSectionKey, cfnStackNamePrefixKey) {
+		t.Errorf("Expected key [%s] not to be present. Got value=[%s]", cfnStackNamePrefixKey, readConfig.CFNStackNamePrefix)
+	}
+	if parser.IsKeyPresent(ecsSectionKey, composeServiceNamePrefixKey) {
+		t.Errorf("Expected key [%s] not to be present. Got value=[%s]", composeServiceNamePrefixKey, readConfig.ComposeServiceNamePrefix)
+	}
+	if parser.IsKeyPresent(ecsSectionKey, composeProjectNamePrefixKey) {
+		t.Errorf("Expected key [%s] not to be present. Got value=[%s]", composeProjectNamePrefixKey, readConfig.ComposeProjectNamePrefix)
+	}
+
 }

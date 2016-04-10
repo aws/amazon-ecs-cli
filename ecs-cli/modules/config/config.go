@@ -18,18 +18,20 @@ import (
 	"os"
 	"time"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds"
 	"github.com/aws/aws-sdk-go/aws/defaults"
 )
 
-// TODO: This needs a better home.
-
+// This time.Minute value comes from the SDK defaults package
 const (
-	RegionFlag = "region"
-	// This time.Minute value comes from the SDK defaults package
 	eC2RoleProviderExpiryWindow = 5 * time.Minute
+	ecsSectionKey               = "ecs"
+	composeProjectNamePrefixKey = "compose-project-name-prefix"
+	composeServiceNamePrefixKey = "compose-service-name-prefix"
+	cfnStackNamePrefixKey       = "cfn-stack-name-prefix"
 )
 
 // CliConfig is the top level struct used to map to the ini config.
@@ -40,11 +42,14 @@ type CliConfig struct {
 
 // SectionKeys is the struct embedded in CliConfig. It groups all the keys in the 'ecs' section in the ini file.
 type SectionKeys struct {
-	Cluster      string `ini:"cluster"`
-	AwsProfile   string `ini:"aws_profile"`
-	Region       string `ini:"region"`
-	AwsAccessKey string `ini:"aws_access_key_id"`
-	AwsSecretKey string `ini:"aws_secret_access_key"`
+	Cluster                  string `ini:"cluster"`
+	AwsProfile               string `ini:"aws_profile"`
+	Region                   string `ini:"region"`
+	AwsAccessKey             string `ini:"aws_access_key_id"`
+	AwsSecretKey             string `ini:"aws_secret_access_key"`
+	ComposeProjectNamePrefix string `ini:"compose-project-name-prefix"`
+	ComposeServiceNamePrefix string `ini:"compose-service-name-prefix"`
+	CFNStackNamePrefix       string `ini:"cfn-stack-name-prefix"`
 }
 
 // NewCliConfig creates a new instance of CliConfig from the cluster name.
@@ -56,8 +61,7 @@ func NewCliConfig(cluster string) *CliConfig {
 func (cfg *CliConfig) ToServiceConfig() (*aws.Config, error) {
 	region := cfg.getRegion()
 	if region == "" {
-		// TODO: Move AWS_REGION to a const.
-		return nil, fmt.Errorf("Set a region with the --%s flag or AWS_REGION environment variable", RegionFlag)
+		return nil, fmt.Errorf("Set a region with the --%s flag or %s environment variable", cli.RegionFlag, cli.AwsRegionEnvVar)
 	}
 
 	chainCredentials := credentials.NewChainCredentials(cfg.getCredentialProviders())
@@ -112,8 +116,7 @@ func (cfg *CliConfig) getRegion() string {
 	region := cfg.Region
 	if region == "" {
 		// Search the chain of environment variables for region.
-		// TODO: Move these to const's
-		for _, envVar := range []string{"AWS_REGION", "AWS_DEFAULT_REGION"} {
+		for _, envVar := range []string{cli.AwsRegionEnvVar, cli.AwsDefaultRegionEnvVar} {
 			region = os.Getenv(envVar)
 			if region != "" {
 				break

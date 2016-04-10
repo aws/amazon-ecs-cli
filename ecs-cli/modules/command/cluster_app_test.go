@@ -47,6 +47,10 @@ func (rdwr *mockReadWriter) Save(dest *config.Destination) error {
 	return nil
 }
 
+func (rdwr *mockReadWriter) IsKeyPresent(section, key string) bool {
+	return true
+}
+
 func TestClusterUp(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

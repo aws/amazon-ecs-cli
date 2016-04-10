@@ -18,13 +18,16 @@ import (
 	"os"
 	"testing"
 
+	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/codegangsta/cli"
 )
 
 // mockReadWriter implements ReadWriter interface to return just the cluster
 // field whenperforming read.
-type mockReadWriter struct{}
+type mockReadWriter struct {
+	isKeyPresentValue bool
+}
 
 func (rdwr *mockReadWriter) GetConfig() (*CliConfig, error) {
 	return NewCliConfig(clusterName), nil
@@ -36,6 +39,10 @@ func (rdwr *mockReadWriter) ReadFrom(ecsConfig *CliConfig) error {
 
 func (rdwr *mockReadWriter) IsInitialized() (bool, error) {
 	return true, nil
+}
+
+func (rdwr *mockReadWriter) IsKeyPresent(section, key string) bool {
+	return rdwr.isKeyPresentValue
 }
 
 func (rdwr *mockReadWriter) Save(dest *Destination) error {
@@ -128,4 +135,70 @@ func TestNewCliParamsFromConfig(t *testing.T) {
 	if "us-east-1" != paramsRegion {
 		t.Errorf("Unexpected region set, expected: us-east-1, got: %s", paramsRegion)
 	}
+}
+
+func defaultConfig() *cli.Context {
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalContext := cli.NewContext(nil, globalSet, nil)
+	globalSet.String("region", "us-east-1", "")
+	globalContext = cli.NewContext(nil, globalSet, nil)
+	return cli.NewContext(nil, nil, globalContext)
+}
+
+func TestNewCliParamsWhenPrefixesPresent(t *testing.T) {
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "SECRET")
+	defer func() {
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+	}()
+
+	context := defaultConfig()
+
+	// Prefixes are present, and values are defaulted to empty
+	rdwr := &mockReadWriter{isKeyPresentValue: true}
+	params, err := NewCliParams(context, rdwr)
+	if err != nil {
+		t.Errorf("Unexpected error when getting new cli params", err)
+	}
+
+	if "" != params.ComposeProjectNamePrefix {
+		t.Errorf("Compose project name prefix mismatch. Expected empty string got [%s]", params.ComposeProjectNamePrefix)
+	}
+	if "" != params.ComposeServiceNamePrefix {
+		t.Errorf("Compose service name prefix mismatch. Expected empty string got [%s]", params.ComposeServiceNamePrefix)
+	}
+	if "" != params.CFNStackNamePrefix {
+		t.Errorf("stack name name prefix mismatch. Expected empty string got [%s]", params.CFNStackNamePrefix)
+	}
+
+}
+
+func TestNewCliParamsWhenPrefixKeysAreNotPresent(t *testing.T) {
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "SECRET")
+	defer func() {
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+	}()
+
+	context := defaultConfig()
+
+	// Prefixes are present, and values should be set to defaults
+	rdwr := &mockReadWriter{isKeyPresentValue: false}
+	params, err := NewCliParams(context, rdwr)
+	if err != nil {
+		t.Errorf("Unexpected error when getting new cli params", err)
+	}
+
+	if ecscli.ComposeProjectNamePrefixDefaultValue != params.ComposeProjectNamePrefix {
+		t.Errorf("Compose project name prefix mismatch. Expected [%s] got [%s]", ecscli.ComposeProjectNamePrefixDefaultValue, params.ComposeProjectNamePrefix)
+	}
+	if ecscli.ComposeServiceNamePrefixDefaultValue != params.ComposeServiceNamePrefix {
+		t.Errorf("Compose service name prefix mismatch. Expected [%s] got [%s]", ecscli.ComposeServiceNamePrefixDefaultValue, params.ComposeServiceNamePrefix)
+	}
+	if ecscli.CFNStackNamePrefixDefaultValue != params.CFNStackNamePrefix {
+		t.Errorf("stack name name prefix mismatch. Expected [%s] got [%s]", ecscli.CFNStackNamePrefixDefaultValue, params.CFNStackNamePrefix)
+	}
+
 }

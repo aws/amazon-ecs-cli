@@ -237,12 +237,17 @@ func convertMapToSlice(mapItems map[string]bool) []*string {
 // getStartedBy returns an auto-generated formatted string
 // that can be supplied while starting an ECS task and is used to identify the owner of ECS Task
 func getStartedBy(entity ProjectEntity) string {
-	return composeutils.GetStartedBy(getProjectName(entity))
+	return composeutils.GetStartedBy(getProjectPrefix(entity), getProjectName(entity))
 }
 
 // getProjectName returns the name of the project that was set in the context we are working with
 func getProjectName(entity ProjectEntity) string {
 	return entity.Context().Context.ProjectName
+}
+
+// getProjectPrefix returns the prefix for the project name
+func getProjectPrefix(entity ProjectEntity) string {
+	return entity.Context().ECSParams.ComposeProjectNamePrefix
 }
 
 // getIdFromArn gets the aws String value of the input arn and returns the id part of the arn

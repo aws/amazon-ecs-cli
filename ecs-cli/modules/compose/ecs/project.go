@@ -100,7 +100,7 @@ func (p *ecsProject) Parse() error {
 		return err
 	}
 
-	if err := p.load(context.Context); err != nil {
+	if err := p.load(context); err != nil {
 		return err
 	}
 
@@ -108,16 +108,17 @@ func (p *ecsProject) Parse() error {
 }
 
 // load parses the compose yml and transforms into task definition
-func (p *ecsProject) load(context libcompose.Context) error {
+func (p *ecsProject) load(context *Context) error {
 	logrus.Debug("Parsing the compose yaml...")
-	configs, err := utils.UnmarshalComposeConfig(context)
+	configs, err := utils.UnmarshalComposeConfig(context.Context)
 	if err != nil {
 		return err
 	}
 	p.serviceConfigs = configs
 
 	logrus.Debug("Transforming yaml to task definition...")
-	taskDefinition, err := utils.ConvertToTaskDefinition(context, p.serviceConfigs)
+	taskDefinitionName := utils.GetTaskDefinitionName(context.ECSParams.ComposeProjectNamePrefix, context.Context.ProjectName)
+	taskDefinition, err := utils.ConvertToTaskDefinition(taskDefinitionName, context.Context, p.serviceConfigs)
 	if err != nil {
 		return err
 	}

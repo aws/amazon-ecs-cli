@@ -114,7 +114,7 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 	if !isIAMAcknowledged(context) {
 		return fmt.Errorf("Please acknowledge that this command may create IAM resources with the '--%s' flag", capabilityIAMFlag)
 	}
-	ecsParams, err := config.NewCliParams(context, rdwr)
+	ecsParams, err := newCliParams(context, rdwr)
 	if err != nil {
 		return err
 	}

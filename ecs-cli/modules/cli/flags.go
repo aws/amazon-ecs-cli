@@ -16,10 +16,19 @@ package cli
 // Flag names used by the cli.
 // TODO: These need a better home.
 const (
-	ClusterFlag   = "cluster"
-	ProfileFlag   = "profile"
-	RegionFlag    = "region"
-	AccessKeyFlag = "access-key"
-	SecretKeyFlag = "secret-key"
-	VerboseFlag   = "verbose"
+	AccessKeyFlag          = "access-key"
+	SecretKeyFlag          = "secret-key"
+	RegionFlag             = "region"
+	AwsRegionEnvVar        = "AWS_REGION"
+	AwsDefaultRegionEnvVar = "AWS_DEFAULT_REGION"
+	ProfileFlag            = "profile"
+	ClusterFlag            = "cluster"
+	VerboseFlag            = "verbose"
+
+	ComposeProjectNamePrefixFlag         = "compose-project-name-prefix"
+	ComposeProjectNamePrefixDefaultValue = "ecscompose-"
+	ComposeServiceNamePrefixFlag         = "compose-service-name-prefix"
+	ComposeServiceNamePrefixDefaultValue = ComposeProjectNamePrefixDefaultValue + "service-"
+	CFNStackNamePrefixFlag               = "cfn-stack-name-prefix"
+	CFNStackNamePrefixDefaultValue       = "amazon-ecs-cli-setup-"
 )

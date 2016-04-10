@@ -21,16 +21,29 @@ import (
 	"github.com/go-ini/ini"
 )
 
+const configFileName = "config"
+
 // ReadWriter interface has methods to read and write ecs-cli config to and from the config file.
 type ReadWriter interface {
 	Save(*Destination) error
 	IsInitialized() (bool, error)
 	ReadFrom(*CliConfig) error
 	GetConfig() (*CliConfig, error)
+	IsKeyPresent(string, string) bool
 }
 
 // IniReadWriter implments the ReadWriter interfaces. It can be used to save and load
-// ecs-cli config.
+// ecs-cli config. Sample ecs-cli config:
+// [ecs]
+// cluster = test
+// aws_profile =
+// region = us-west-2
+// aws_access_key_id =
+// aws_secret_access_key =
+// compose-project-name-prefix = ecscompose-
+// compose-service-name-prefix =
+// cfn-stack-name-prefix = ecs-cli-
+
 type IniReadWriter struct {
 	*Destination
 	cfg *ini.File
@@ -74,7 +87,13 @@ func (rdwr *IniReadWriter) IsInitialized() (bool, error) {
 	if to.Cluster == "" {
 		return false, nil
 	}
+
 	return true, nil
+}
+
+// IsKeyPresent returns true if the input key is present in the input section
+func (rdwr *IniReadWriter) IsKeyPresent(section, key string) bool {
+	return rdwr.cfg.Section(section).HasKey(key)
 }
 
 // ReadFrom initializes the ini object from an existing ecs-cli config object.
@@ -89,14 +108,12 @@ func (rdwr *IniReadWriter) Save(dest *Destination) error {
 	if err != nil {
 		return err
 	}
-	// TODO: Move to const.
-	return rdwr.cfg.SaveTo(filepath.Join(dest.Path, "config"))
+	return rdwr.cfg.SaveTo(filepath.Join(dest.Path, configFileName))
 }
 
 func newIniConfig(dest *Destination) (*ini.File, error) {
 	iniCfg := ini.Empty()
-	// TODO: Move to const.
-	filename := filepath.Join(dest.Path, "config")
+	filename := filepath.Join(dest.Path, configFileName)
 	logrus.Debugf("using config file: %s", filename)
 	if _, err := os.Stat(filename); err != nil {
 		// TODO: handle os.isnotexist(filename) and other errors differently

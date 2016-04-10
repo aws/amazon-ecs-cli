@@ -22,17 +22,17 @@ import (
 	"github.com/codegangsta/cli"
 )
 
-// TODO: Should be configurable?
-const cloudformationStackNamePrefix = "amazon-ecs-cli-setup"
-
 // CliParams saves config to create an aws service clients
 type CliParams struct {
-	Cluster string
-	Config  *aws.Config
+	Cluster                  string
+	Config                   *aws.Config
+	ComposeProjectNamePrefix string
+	ComposeServiceNamePrefix string
+	CFNStackNamePrefix       string
 }
 
 func (p *CliParams) GetCfnStackName() string {
-	return fmt.Sprintf("%s-%s", cloudformationStackNamePrefix, p.Cluster)
+	return fmt.Sprintf("%s%s", p.CFNStackNamePrefix, p.Cluster)
 }
 
 // NewCliParams creates a new ECSParams object from the config file.
@@ -42,6 +42,18 @@ func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 		logrus.Error("Error loading config: ", err)
 		return nil, err
 	}
+
+	// If Prefixes not found, set to defaults.
+	if !rdwr.IsKeyPresent(ecsSectionKey, composeProjectNamePrefixKey) {
+		ecsConfig.ComposeProjectNamePrefix = ecscli.ComposeProjectNamePrefixDefaultValue
+	}
+	if !rdwr.IsKeyPresent(ecsSectionKey, composeServiceNamePrefixKey) {
+		ecsConfig.ComposeServiceNamePrefix = ecscli.ComposeServiceNamePrefixDefaultValue
+	}
+	if !rdwr.IsKeyPresent(ecsSectionKey, cfnStackNamePrefixKey) {
+		ecsConfig.CFNStackNamePrefix = ecscli.CFNStackNamePrefixDefaultValue
+	}
+
 	// The global --region flag has the highest precedence to set ecs-cli region config.
 	regionFromFlag := context.GlobalString(ecscli.RegionFlag)
 	if regionFromFlag != "" {
@@ -53,5 +65,11 @@ func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 		return nil, err
 	}
 
-	return &CliParams{Cluster: ecsConfig.Cluster, Config: svcConfig}, nil
+	return &CliParams{
+		Cluster: ecsConfig.Cluster,
+		Config:  svcConfig,
+		ComposeProjectNamePrefix: ecsConfig.ComposeProjectNamePrefix,
+		ComposeServiceNamePrefix: ecsConfig.ComposeServiceNamePrefix,
+		CFNStackNamePrefix:       ecsConfig.CFNStackNamePrefix,
+	}, nil
 }

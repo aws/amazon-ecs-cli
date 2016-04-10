@@ -21,6 +21,7 @@ import (
 	ecsClient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecs/mock"
 	libcompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/libcompose"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -51,6 +52,7 @@ func TestTaskCreate(t *testing.T) {
 
 	context := &Context{
 		ECSClient: mockEcs,
+		ECSParams: &config.CliParams{},
 	}
 	task := NewTask(context)
 	task.SetTaskDefinition(&taskDefinition)
@@ -156,6 +158,7 @@ func testInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasks
 	context := &Context{
 		ECSClient: mockEcs,
 		EC2Client: mockEc2,
+		ECSParams: &config.CliParams{},
 		Context: libcompose.Context{
 			ProjectName: projectName,
 		},

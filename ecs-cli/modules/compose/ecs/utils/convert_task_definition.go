@@ -36,14 +36,13 @@ const (
 )
 
 // ConvertToTaskDefinition transforms the yaml configs to its ecs equivalent (task definition)
-func ConvertToTaskDefinition(context libcompose.Context,
+func ConvertToTaskDefinition(taskDefinitionName string, context libcompose.Context,
 	serviceConfigs map[string]*libcompose.ServiceConfig) (*ecs.TaskDefinition, error) {
 
 	if len(serviceConfigs) == 0 {
 		return nil, errors.New("cannot create a task definition with no containers; invalid service config")
 	}
 
-	taskDefinitionName := getTaskDefinitionName(context.ProjectName)
 	containerDefinitions := []*ecs.ContainerDefinition{}
 	volumes := make(map[string]string) // map with key:=hostSourcePath value:=VolumeName
 	for name, config := range serviceConfigs {

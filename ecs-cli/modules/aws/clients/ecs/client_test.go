@@ -55,6 +55,10 @@ func (rdwr *mockReadWriter) Save(dest *config.Destination) error {
 	return nil
 }
 
+func (rdwr *mockReadWriter) IsKeyPresent(section, key string) bool {
+	return true
+}
+
 func TestNewECSClientWithRegion(t *testing.T) {
 	// TODO: Re-enable by making an integ test target in Makefile.
 	t.Skip("Integ test, Re-enable Me!")
