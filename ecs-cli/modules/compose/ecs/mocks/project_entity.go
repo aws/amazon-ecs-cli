@@ -87,6 +87,16 @@ func (_mr *_MockProjectEntityRecorder) Info(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Info", arg0)
 }
 
+func (_m *MockProjectEntity) LoadContext() error {
+	ret := _m.ctrl.Call(_m, "LoadContext")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockProjectEntityRecorder) LoadContext() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "LoadContext")
+}
+
 func (_m *MockProjectEntity) Run(_param0 map[string]string) error {
 	ret := _m.ctrl.Call(_m, "Run", _param0)
 	ret0, _ := ret[0].(error)
