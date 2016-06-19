@@ -23,11 +23,15 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds"
 	"github.com/aws/aws-sdk-go/aws/defaults"
+	"github.com/aws/aws-sdk-go/aws/ec2metadata"
+	"github.com/aws/aws-sdk-go/private/endpoints"
 )
+
+//go:generate mockgen.sh github.com/aws/aws-sdk-go/aws/ec2metadata/ec2iface EC2API mock/sdk/ec2iface_mock.go
 
 // This time.Minute value comes from the SDK defaults package
 const (
-	eC2RoleProviderExpiryWindow = 5 * time.Minute
+	ec2RoleProviderExpiryWindow = 5 * time.Minute
 	ecsSectionKey               = "ecs"
 	composeProjectNamePrefixKey = "compose-project-name-prefix"
 	composeServiceNamePrefixKey = "compose-service-name-prefix"
@@ -64,7 +68,9 @@ func (cfg *CliConfig) ToServiceConfig() (*aws.Config, error) {
 		return nil, fmt.Errorf("Set a region with the --%s flag or %s environment variable", cli.RegionFlag, cli.AwsRegionEnvVar)
 	}
 
-	chainCredentials := credentials.NewChainCredentials(cfg.getCredentialProviders())
+	awsDefaults := defaults.Get()
+	credentialProviders := cfg.getCredentialProviders(cfg.getEC2MetadataClient(&awsDefaults))
+	chainCredentials := credentials.NewChainCredentials(credentialProviders)
 	creds, err := chainCredentials.Get()
 	if err != nil {
 		return nil, err
@@ -75,15 +81,15 @@ func (cfg *CliConfig) ToServiceConfig() (*aws.Config, error) {
 		return nil, fmt.Errorf("Error getting valid credentials")
 	}
 
-	svcConfig := defaults.Get().Config
-	svcConfig.Credentials = chainCredentials
+	svcConfig := awsDefaults.Config
 	svcConfig.Region = aws.String(region)
+	svcConfig.Credentials = chainCredentials
 
 	return svcConfig, nil
 }
 
 // getCredentialProviders gets the chain of credentail provides to use when creating service clients.
-func (cfg *CliConfig) getCredentialProviders() []credentials.Provider {
+func (cfg *CliConfig) getCredentialProviders(ec2MetadataClient *ec2metadata.EC2Metadata) []credentials.Provider {
 	// Append providers in the default credential providers chain to the chain.
 	// Order of credential resolution
 	// 1) Environment Variable provider
@@ -104,11 +110,18 @@ func (cfg *CliConfig) getCredentialProviders() []credentials.Provider {
 			Profile:  cfg.AwsProfile,
 		},
 		&ec2rolecreds.EC2RoleProvider{
-			ExpiryWindow: eC2RoleProviderExpiryWindow,
+			Client:       ec2MetadataClient,
+			ExpiryWindow: ec2RoleProviderExpiryWindow,
 		},
 	}
 
 	return credentialProviders
+}
+
+// getEC2MetadataClient creates a new instance of the EC2Metadata client
+func (cfg *CliConfig) getEC2MetadataClient(awsDefaults *defaults.Defaults) *ec2metadata.EC2Metadata {
+	endpoint, signingRegion := endpoints.EndpointForRegion(ec2metadata.ServiceName, cfg.getRegion(), true)
+	return ec2metadata.NewClient(*awsDefaults.Config, awsDefaults.Handlers, endpoint, signingRegion)
 }
 
 // getRegion gets the region to use from ecs-cli's config file..
