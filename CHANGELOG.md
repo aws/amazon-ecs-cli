@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+* Feature - Update ECS-optimized AMIs to latest 2016.03.d.
+* Bug - Fix issue to read credentials/role from EC2 instance metadata.
+
 ## 0.3.0
 * Feature - Add support for compose option `env_file`.
 * Feature - Add support for session environment variables for compose option
