@@ -37,12 +37,14 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	name := "mysql"
 	cpu := int64(10)
 	command := "cmd"
+	essential := false
 	hostname := "foobarbaz"
 	image := "testimage"
 	links := []string{"container1"}
 	memory := int64(100) // 1 MiB = 1048576B
 	privileged := true
 	readOnly := true
+	restart := "no"
 	securityOpts := []string{"label:type:test_virt"}
 	user := "user"
 	workingDir := "/var"
@@ -56,6 +58,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 		MemLimit:    int64(1048576) * memory,
 		Privileged:  privileged,
 		ReadOnly:    readOnly,
+		Restart:     restart,
 		SecurityOpt: securityOpts,
 		User:        user,
 		WorkingDir:  workingDir,
@@ -74,6 +77,9 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	}
 	if len(containerDef.Command) != 1 || command != aws.StringValue(containerDef.Command[0]) {
 		t.Errorf("Expected command [%s] But was [%v]", command, containerDef.Command)
+	}
+	if essential != aws.BoolValue(containerDef.Essential) {
+		t.Errorf("Expected essential [%s] But was [%s]", essential, aws.BoolValue(containerDef.Essential))
 	}
 	if !reflect.DeepEqual(securityOpts, aws.StringValueSlice(containerDef.DockerSecurityOptions)) {
 		t.Errorf("Expected securityOpt [%v] But was [%v]", securityOpts, aws.StringValueSlice(containerDef.DockerSecurityOptions))

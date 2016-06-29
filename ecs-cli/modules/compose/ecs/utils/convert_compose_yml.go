@@ -45,6 +45,7 @@ func composeOptionsInit() {
 		"ports":        true,
 		"privileged":   true,
 		"read_only":    true,
+		"restart":      true,
 		"security_opt": true,
 		"ulimits":      true,
 		"user":         true,

@@ -133,6 +133,9 @@ func convertToContainerDef(context libcompose.Context, inputCfg *libcompose.Serv
 	outputContDef.DockerSecurityOptions = aws.StringSlice(inputCfg.SecurityOpt)
 	outputContDef.EntryPoint = aws.StringSlice(inputCfg.Entrypoint.Slice())
 	outputContDef.Environment = environment
+	if inputCfg.Restart == "no" {
+		outputContDef.Essential = aws.Bool(false)
+	}
 	outputContDef.ExtraHosts = extraHosts
 	if inputCfg.Hostname != "" {
 		outputContDef.Hostname = aws.String(inputCfg.Hostname)
