@@ -29,10 +29,12 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-type mockReadWriter struct{}
+type mockReadWriter struct {
+	clusterName string
+}
 
 func (rdwr *mockReadWriter) GetConfig() (*config.CliConfig, error) {
-	return config.NewCliConfig(clusterName), nil
+	return config.NewCliConfig(rdwr.clusterName), nil
 }
 
 func (rdwr *mockReadWriter) ReadFrom(ecsConfig *config.CliConfig) error {
@@ -49,6 +51,10 @@ func (rdwr *mockReadWriter) Save(dest *config.Destination) error {
 
 func (rdwr *mockReadWriter) IsKeyPresent(section, key string) bool {
 	return true
+}
+
+func newMockReadWriter() *mockReadWriter {
+	return &mockReadWriter{clusterName: clusterName}
 }
 
 func TestClusterUp(t *testing.T) {
@@ -89,7 +95,7 @@ func TestClusterUp(t *testing.T) {
 	flagSet.String(keypairNameFlag, "default", "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
-	err := createCluster(context, &mockReadWriter{}, mockEcs, mockCloudformation, ami.NewStaticAmiIds())
+	err := createCluster(context, newMockReadWriter(), mockEcs, mockCloudformation, ami.NewStaticAmiIds())
 	if err != nil {
 		t.Fatal("Error bringing up cluster: ", err)
 	}
@@ -120,7 +126,7 @@ func TestClusterUpWithoutKeyPair(t *testing.T) {
 	flagSet.Bool(capabilityIAMFlag, true, "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
-	err := createCluster(context, &mockReadWriter{}, mockEcs, mockCloudformation, ami.NewStaticAmiIds())
+	err := createCluster(context, newMockReadWriter(), mockEcs, mockCloudformation, ami.NewStaticAmiIds())
 	if err == nil {
 		t.Fatal("Expected error for key pair name")
 	}
@@ -204,9 +210,37 @@ func TestClusterUpForImageIdInput(t *testing.T) {
 	flagSet.String(imageIdFlag, imageId, "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
-	err := createCluster(context, &mockReadWriter{}, mockEcs, mockCloudformation, ami.NewStaticAmiIds())
+	err := createCluster(context, newMockReadWriter(), mockEcs, mockCloudformation, ami.NewStaticAmiIds())
 	if err != nil {
 		t.Fatal("Error bringing up cluster: ", err)
+	}
+}
+
+func TestClusterUpWithClusterNameEmpty(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "secret")
+	defer func() {
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+	}()
+
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalSet.String("region", "us-west-1", "")
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(capabilityIAMFlag, true, "")
+	flagSet.String(keypairNameFlag, "default", "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := createCluster(context, &mockReadWriter{clusterName: ""}, mockEcs, mockCloudformation, ami.NewStaticAmiIds())
+	if err == nil {
+		t.Fatal("Expected error bringing up cluster")
 	}
 }
 
@@ -222,7 +256,7 @@ func TestClusterUpWithoutRegion(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 
 	context := cli.NewContext(nil, flagSet, globalContext)
-	err := createCluster(context, &mockReadWriter{}, mockEcs, mockCloudformation, ami.NewStaticAmiIds())
+	err := createCluster(context, newMockReadWriter(), mockEcs, mockCloudformation, ami.NewStaticAmiIds())
 	if err == nil {
 		t.Fatal("Expected error bringing up cluster")
 	}
@@ -259,7 +293,7 @@ func TestClusterDown(t *testing.T) {
 	flagSet.Bool(forceFlag, true, "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
-	err := deleteCluster(context, &mockReadWriter{}, mockEcs, mockCloudformation)
+	err := deleteCluster(context, newMockReadWriter(), mockEcs, mockCloudformation)
 	if err != nil {
 		t.Fatal("Error deleting cluster: ", err)
 	}
@@ -278,7 +312,7 @@ func TestClusterDownWithoutForce(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli-down", 0)
 
 	context := cli.NewContext(nil, flagSet, globalContext)
-	err := deleteCluster(context, &mockReadWriter{}, mockEcs, mockCloudformation)
+	err := deleteCluster(context, newMockReadWriter(), mockEcs, mockCloudformation)
 	if err == nil {
 		t.Fatalf("Expected error deleting cluster when '--%s' is not specified", forceFlag)
 	}
@@ -312,7 +346,7 @@ func TestClusterScale(t *testing.T) {
 	flagSet.String(asgMaxSizeFlag, "1", "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
-	err := scaleCluster(context, &mockReadWriter{}, mockEcs, mockCloudformation)
+	err := scaleCluster(context, newMockReadWriter(), mockEcs, mockCloudformation)
 	if err != nil {
 		t.Fatal("Error scaling cluster: ", err)
 	}
@@ -331,7 +365,7 @@ func TestClusterScaleWithoutIamCapability(t *testing.T) {
 	flagSet.String(asgMaxSizeFlag, "1", "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
-	err := scaleCluster(context, &mockReadWriter{}, mockEcs, mockCloudformation)
+	err := scaleCluster(context, newMockReadWriter(), mockEcs, mockCloudformation)
 	if err == nil {
 		t.Fatal("Expected error scaling cluster when iam capability is not specified")
 	}
@@ -350,7 +384,7 @@ func TestClusterScaleWithoutSize(t *testing.T) {
 	flagSet.Bool(capabilityIAMFlag, true, "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
-	err := scaleCluster(context, &mockReadWriter{}, mockEcs, mockCloudformation)
+	err := scaleCluster(context, newMockReadWriter(), mockEcs, mockCloudformation)
 	if err == nil {
 		t.Fatal("Expected error scaling cluster when size is not specified")
 	}
@@ -378,7 +412,7 @@ func TestClusterPSTaskGetInfoFail(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli-down", 0)
 
 	context := cli.NewContext(nil, flagSet, globalContext)
-	_, err := clusterPS(context, &mockReadWriter{}, mockEcs)
+	_, err := clusterPS(context, newMockReadWriter(), mockEcs)
 	if err == nil {
 		t.Fatal("Expected error in cluster ps")
 	}

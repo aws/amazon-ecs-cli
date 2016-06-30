@@ -122,6 +122,11 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 		return err
 	}
 
+	// Check if cluster is specified
+	if ecsParams.Cluster == "" {
+		return fmt.Errorf("Please configure a cluster using the configure command.")
+	}
+
 	// Check if cfn stack already exists
 	cfnClient.Initialize(ecsParams)
 	stackName := ecsParams.GetCfnStackName()
