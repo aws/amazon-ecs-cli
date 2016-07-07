@@ -18,10 +18,10 @@ package mock_ecs
 
 import (
 	ecs "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
-	libcompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/libcompose"
 	utils "github.com/aws/amazon-ecs-cli/ecs-cli/utils"
 	cache "github.com/aws/amazon-ecs-cli/ecs-cli/utils/cache"
 	ecs0 "github.com/aws/aws-sdk-go/service/ecs"
+	project "github.com/docker/libcompose/project"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -76,9 +76,9 @@ func (_mr *_MockProjectEntityRecorder) Down() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Down")
 }
 
-func (_m *MockProjectEntity) Info(_param0 bool) (libcompose.InfoSet, error) {
+func (_m *MockProjectEntity) Info(_param0 bool) (project.InfoSet, error) {
 	ret := _m.ctrl.Call(_m, "Info", _param0)
-	ret0, _ := ret[0].(libcompose.InfoSet)
+	ret0, _ := ret[0].(project.InfoSet)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

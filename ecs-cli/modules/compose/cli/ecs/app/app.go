@@ -23,6 +23,9 @@ import (
 	"github.com/codegangsta/cli"
 )
 
+// displayTitle flag is used to print the title for the fields
+const displayTitle = true
+
 // ProjectAction is an adapter to allow the use of ordinary functions as libcompose actions.
 // Any function that has the appropriate signature can be register as an action on a codegansta/cli command.
 //
@@ -79,7 +82,7 @@ func ProjectPs(p ecscompose.Project, c *cli.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	os.Stdout.WriteString(allInfo.String())
+	os.Stdout.WriteString(allInfo.String(displayTitle))
 }
 
 // ProjectRun starts containers and executes one-time command against the container

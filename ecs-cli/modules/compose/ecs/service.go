@@ -20,11 +20,11 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	composeutils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
-	libcompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/libcompose"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/utils/cache"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/docker/libcompose/project"
 )
 
 // Service type is placeholder for a single task definition and its cache
@@ -218,7 +218,7 @@ func (s *Service) Up() error {
 }
 
 // Info returns a formatted list of containers (running and stopped) started by this service
-func (s *Service) Info(filterProjectTasks bool) (libcompose.InfoSet, error) {
+func (s *Service) Info(filterProjectTasks bool) (project.InfoSet, error) {
 	// filterProjectTasks is not honored for services, because ECS Services have their
 	// own custom StartedBy field, overriding that with startedBy=project will result in no tasks
 	// We should instead filter by ServiceName=service

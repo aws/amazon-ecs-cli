@@ -17,6 +17,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
 	libcompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/libcompose"
+	"github.com/docker/libcompose/project"
 )
 
 // Project is the starting point for the compose app to interact with and issue commands
@@ -33,7 +34,7 @@ type Project interface {
 	Create() error
 	Start() error
 	Up() error
-	Info() (libcompose.InfoSet, error)
+	Info() (project.InfoSet, error)
 	Run(commandOverrides map[string]string) error
 	Scale(count int) error
 	Stop() error
@@ -141,7 +142,7 @@ func (p *ecsProject) Up() error {
 	return p.entity.Up()
 }
 
-func (p *ecsProject) Info() (libcompose.InfoSet, error) {
+func (p *ecsProject) Info() (project.InfoSet, error) {
 	return p.entity.Info(true)
 }
 

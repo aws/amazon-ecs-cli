@@ -157,9 +157,67 @@
 			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
 		},
 		{
+			"ImportPath": "github.com/cloudfoundry-incubator/candiedyaml",
+			"Rev": "99c3df83b51532e3615f851d8c2dbb638f5313bf"
+		},
+		{
 			"ImportPath": "github.com/codegangsta/cli",
 			"Comment": "v1.9.0",
 			"Rev": "a65b733b303f0055f8d324d805f393cd3e7a7904"
+		},
+		{
+			"ImportPath": "github.com/docker/docker/pkg/urlutil",
+			"Comment": "v1.4.1-13457-ga04a11f",
+			"Rev": "a04a11f3e51a2c93c924384af6d4fcfa1cd42900"
+		},
+		{
+			"ImportPath": "github.com/docker/engine-api/types/strslice",
+			"Comment": "v0.3.1-230-g5cc6c11",
+			"Rev": "5cc6c1115a5035d84d5d105715a39cbdeaf6b472"
+		},
+		{
+			"ImportPath": "github.com/docker/go-connections/nat",
+			"Comment": "v0.2.1",
+			"Rev": "990a1a1a70b0da4c4cb70e117971a4f0babfbf1a"
+		},
+		{
+			"ImportPath": "github.com/docker/libcompose/config",
+			"Comment": "v0.2.0-155-g78932ca",
+			"Rev": "78932cac4f5c95fdbfbe5d8932f028a69334d9d2"
+		},
+		{
+			"ImportPath": "github.com/docker/libcompose/logger",
+			"Comment": "v0.2.0-155-g78932ca",
+			"Rev": "78932cac4f5c95fdbfbe5d8932f028a69334d9d2"
+		},
+		{
+			"ImportPath": "github.com/docker/libcompose/project",
+			"Comment": "v0.2.0-155-g78932ca",
+			"Rev": "78932cac4f5c95fdbfbe5d8932f028a69334d9d2"
+		},
+		{
+			"ImportPath": "github.com/docker/libcompose/project/events",
+			"Comment": "v0.2.0-155-g78932ca",
+			"Rev": "78932cac4f5c95fdbfbe5d8932f028a69334d9d2"
+		},
+		{
+			"ImportPath": "github.com/docker/libcompose/project/options",
+			"Comment": "v0.2.0-155-g78932ca",
+			"Rev": "78932cac4f5c95fdbfbe5d8932f028a69334d9d2"
+		},
+		{
+			"ImportPath": "github.com/docker/libcompose/utils",
+			"Comment": "v0.2.0-155-g78932ca",
+			"Rev": "78932cac4f5c95fdbfbe5d8932f028a69334d9d2"
+		},
+		{
+			"ImportPath": "github.com/docker/libcompose/yaml",
+			"Comment": "v0.2.0-155-g78932ca",
+			"Rev": "78932cac4f5c95fdbfbe5d8932f028a69334d9d2"
+		},
+		{
+			"ImportPath": "github.com/flynn/go-shlex",
+			"Rev": "3f9db97f856818214da2e1057f8ad84803971cff"
 		},
 		{
 			"ImportPath": "github.com/go-ini/ini",
@@ -179,6 +237,26 @@
 			"ImportPath": "github.com/kylelemons/go-gypsy/yaml",
 			"Comment": "go.weekly.2011-11-02-19-g42fc2c7",
 			"Rev": "42fc2c7ee9b8bd0ff636cd2d7a8c0a49491044c5"
+		},
+		{
+			"ImportPath": "github.com/xeipuuv/gojsonpointer",
+			"Rev": "e0fe6f68307607d540ed8eac07a342c33fa1b54a"
+		},
+		{
+			"ImportPath": "github.com/xeipuuv/gojsonreference",
+			"Rev": "e02fc20de94c78484cd5ffb007f8af96be030a45"
+		},
+		{
+			"ImportPath": "github.com/xeipuuv/gojsonschema",
+			"Rev": "c539bca196be50ccdd1f0bcd9076de95f9081831"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "b400c2eff1badec7022a8c8f5bea058b6315eed7"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "a408501be4d17ee978c04a618e7a1b22af058c0e"
 		}
 	]
 }

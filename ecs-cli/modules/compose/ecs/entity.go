@@ -18,11 +18,11 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	composeutils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
-	libcompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/libcompose"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/utils/cache"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/docker/libcompose/project"
 )
 
 // ProjectEntity ties closely to how operations performed with the compose yaml are integrated with ECS
@@ -31,7 +31,7 @@ type ProjectEntity interface {
 	Create() error
 	Start() error
 	Up() error
-	Info(filterComposeTasks bool) (libcompose.InfoSet, error)
+	Info(filterComposeTasks bool) (project.InfoSet, error)
 	Run(commandOverrides map[string]string) error
 	Scale(count int) error
 	Stop() error
@@ -94,7 +94,7 @@ func getOrCreateTaskDefinition(entity ProjectEntity) (*ecs.TaskDefinition, error
 
 // info returns a formatted list of containers (running and stopped) in the current cluster
 // filtered by this project if filterLocal is set to true
-func info(entity ProjectEntity, filterLocal bool) (libcompose.InfoSet, error) {
+func info(entity ProjectEntity, filterLocal bool) (project.InfoSet, error) {
 	containers, err := collectContainers(entity, filterLocal)
 	if err != nil {
 		return nil, err

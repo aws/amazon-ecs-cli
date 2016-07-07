@@ -18,9 +18,9 @@ import (
 	"strings"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
-	libcompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/libcompose"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/docker/libcompose/project"
 )
 
 // Container is a wrapper around ecsContainer
@@ -98,15 +98,15 @@ func (c *Container) PortString() string {
 }
 
 // convertContainersToInfoSet transforms the list of containers into a formatted set of fields
-func convertContainersToInfoSet(containers []Container) libcompose.InfoSet {
-	result := libcompose.InfoSet{}
+func convertContainersToInfoSet(containers []Container) project.InfoSet {
+	result := project.InfoSet{}
 	for _, cont := range containers {
-		info := libcompose.Info{}
+		info := project.Info{}
 		// TODO: Add more fields
-		info = append(info, libcompose.InfoPart{"Name", cont.Name()})
-		info = append(info, libcompose.InfoPart{"State", cont.State()})
-		info = append(info, libcompose.InfoPart{"Ports", cont.PortString()})
-		info = append(info, libcompose.InfoPart{"TaskDefinition", cont.TaskDefinition()})
+		info = append(info, project.InfoPart{"Name", cont.Name()})
+		info = append(info, project.InfoPart{"State", cont.State()})
+		info = append(info, project.InfoPart{"Ports", cont.PortString()})
+		info = append(info, project.InfoPart{"TaskDefinition", cont.TaskDefinition()})
 		result = append(result, info)
 	}
 	return result

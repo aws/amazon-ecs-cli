@@ -23,12 +23,15 @@ import (
 	ec2client "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ec2"
 	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecs"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/libcompose"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config/ami"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/codegangsta/cli"
+	"github.com/docker/libcompose/project"
 )
+
+// displayTitle flag is used to print the title for the fields
+const displayTitle = true
 
 var flagNamesToStackParameterKeys map[string]string
 
@@ -106,7 +109,7 @@ func ClusterPS(c *cli.Context) {
 		logrus.Error("Error executing 'ps ", err)
 		return
 	}
-	os.Stdout.WriteString(infoSet.String())
+	os.Stdout.WriteString(infoSet.String(displayTitle))
 }
 
 func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient, amiIds ami.ECSAmiIds) error {
@@ -261,7 +264,7 @@ func scaleCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscli
 	return cfnClient.WaitUntilUpdateComplete(stackName)
 }
 
-func clusterPS(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient.ECSClient) (libcompose.InfoSet, error) {
+func clusterPS(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient.ECSClient) (project.InfoSet, error) {
 	ecsParams, err := newCliParams(context, rdwr)
 	if err != nil {
 		return nil, err

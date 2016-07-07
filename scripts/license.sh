@@ -21,7 +21,11 @@ inputfile="$(<../../LICENSE)"
 for user in ./../vendor/github.com/*; do
   for repo in $user/*; do
     inputfile+=$'\n'"***"$'\n'"$repo"$'\n\n'
-    inputfile+="$(<$repo/LICENSE*)"$'\n'
+    if [ -f $repo/LICENSE* ]; then
+      inputfile+="$(<$repo/LICENSE*)"$'\n'
+    elif [ -f $repo/COPYING* ]; then
+      inputfile+="$(<$repo/COPYING*)"$'\n'
+    fi;
   done;
 done;
 

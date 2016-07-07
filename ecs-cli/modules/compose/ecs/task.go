@@ -16,11 +16,11 @@ package ecs
 import (
 	log "github.com/Sirupsen/logrus"
 	composeutils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
-	libcompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/libcompose"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/utils/cache"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/docker/libcompose/project"
 )
 
 // Task type is placeholder for a single task definition and its cache
@@ -97,7 +97,7 @@ func (t *Task) Up() error {
 
 // Info returns a formatted list of containers (running and stopped) in the current cluster
 // filtered by this project if filterLocal is set to true
-func (t *Task) Info(filterLocal bool) (libcompose.InfoSet, error) {
+func (t *Task) Info(filterLocal bool) (project.InfoSet, error) {
 	return info(t, filterLocal)
 }
 
