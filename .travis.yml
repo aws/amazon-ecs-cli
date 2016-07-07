@@ -4,10 +4,11 @@ os:
     - linux
     - osx
 go:
-    - 1.4
     - 1.5
+    - 1.6
 before_install: ./scripts/hack/symlink-gopath-travisci
 script:
+    - cd $HOME/gopath/src/github.com/aws/amazon-ecs-cli
     - make test
     - make
     - ./bin/local/ecs-cli --version

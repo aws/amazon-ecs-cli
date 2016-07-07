@@ -27,8 +27,6 @@ import (
 	"github.com/aws/aws-sdk-go/private/endpoints"
 )
 
-//go:generate mockgen.sh github.com/aws/aws-sdk-go/aws/ec2metadata/ec2iface EC2API mock/sdk/ec2iface_mock.go
-
 // This time.Minute value comes from the SDK defaults package
 const (
 	ec2RoleProviderExpiryWindow = 5 * time.Minute

@@ -30,7 +30,7 @@ $(LOCAL_BINARY): $(SOURCES)
 
 .PHONY: test
 test:
-	. ./scripts/shared_env && env -i PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT go test -timeout=120s -v -cover ./ecs-cli/license/... ./ecs-cli/modules/...
+	. ./scripts/shared_env && env -i GO15VENDOREXPERIMENT=$$GO15VENDOREXPERIMENT PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT go test -timeout=120s -v -cover ./ecs-cli/license/... ./ecs-cli/modules/...
 
 .PHONY: generate
 generate: $(SOURCES)
@@ -38,6 +38,7 @@ generate: $(SOURCES)
 
 .PHONY: generate-deps
 generate-deps:
+	go get github.com/tools/godep
 	go install github.com/golang/mock/mockgen
 	go get golang.org/x/tools/cmd/goimports
 
@@ -48,12 +49,12 @@ docker-build:
 		--workdir=/usr/src/app/src/github.com/aws/amazon-ecs-cli \
 		--env GOPATH=/usr/src/app \
 		--env ECS_RELEASE=$(ECS_RELEASE) \
-		golang:1.4-cross make $(LINUX_BINARY)
+		golang:1.6 make $(LINUX_BINARY)
 	docker run -v $(shell pwd):/usr/src/app/src/github.com/aws/amazon-ecs-cli \
 		--workdir=/usr/src/app/src/github.com/aws/amazon-ecs-cli \
 		--env GOPATH=/usr/src/app \
 		--env ECS_RELEASE=$(ECS_RELEASE) \
-		golang:1.4-cross make $(DARWIN_BINARY)
+		golang:1.6 make $(DARWIN_BINARY)
 
 .PHONY: supported-platforms
 supported-platforms: $(LINUX_BINARY) $(DARWIN_BINARY)
@@ -70,6 +71,4 @@ $(DARWIN_BINARY): $(SOURCES)
 
 .PHONY: clean
 clean:
-	rm -rf ./ecs-cli/vendor/pkg ||:
 	rm -rf ./bin/ ||:
-	rm -rf ./ecs-cli/vendor/bin ||:

@@ -14,6 +14,5 @@
 
 # This script should be sourced by bash or zsh prior to doing basically
 # anything
-vendor="$(pwd)/ecs-cli/vendor"
-export GOPATH="${vendor}:${GOPATH}"
-export PATH="${vendor}/bin:$(pwd)/scripts:${PATH}"
+export GO15VENDOREXPERIMENT=1
+export PATH="$(pwd)/scripts:${PATH}"

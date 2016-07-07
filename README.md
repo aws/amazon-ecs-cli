@@ -177,8 +177,9 @@ For a complete list of commands, see the
 ## Building the CLI
 ### Developing
 
-Running ``scripts/vendor.sh`` creates/updates the vendor/ directory with
-dependencies.
+Running ``godep save ./ecs-cli/...`` in `ecs-cli/` directory creates/updates the vendor/
+directory with dependencies. Make sure you are using go1.6 and you have the latest godep
+(`go get -u github.com/tools/godep`).
 
 For developing code, the correct GOPATH can be printed by running
 `./scripts/shared_env` script.

@@ -19,13 +19,13 @@ import (
 )
 
 func TestVendorDirectoryStructure(t *testing.T) {
-	directories, _ := ioutil.ReadDir("./../vendor/src")
+	directories, _ := ioutil.ReadDir("./../vendor")
 	if len(directories) != 1 {
-		t.Errorf("Should have exactly 1 directory under vendor/src. Found [%s] directories", len(directories))
+		t.Errorf("Should have exactly 1 directory under vendor/. Found [%s] directories", len(directories))
 	}
 	dir := directories[0]
 	if !dir.IsDir() {
-		t.Error("Expected only contents of vendor/src to be a directory")
+		t.Error("Expected only contents of vendor/ to be a directory")
 	}
 	if "github.com" != dir.Name() {
 		t.Errorf("directory name : Expected=github.com, Found=[%s]", dir.Name())

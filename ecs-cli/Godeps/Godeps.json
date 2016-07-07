@@ -1,0 +1,184 @@
+{
+	"ImportPath": "github.com/aws/amazon-ecs-cli/ecs-cli",
+	"GoVersion": "go1.6",
+	"GodepVersion": "v74",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.8.7",
+			"Rev": "418b41d23a1bf978c06faea5313ba194650ac088"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/aws",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/aws/awserr",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/aws/awsutil",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/aws/client",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/aws/client/metadata",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/aws/corehandlers",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/aws/credentials",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/aws/defaults",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/aws/ec2metadata",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/aws/request",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/aws/session",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/private/endpoints",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/private/protocol",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/private/protocol/ec2query",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/private/protocol/json/jsonutil",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/private/protocol/jsonrpc",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/private/protocol/query",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/private/protocol/query/queryutil",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/private/protocol/rest",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/private/protocol/xml/xmlutil",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/private/signer/v4",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/private/waiter",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/cloudformation",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/ec2",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/ec2/ec2iface",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/ecs",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/ecs/ecsiface",
+			"Comment": "v1.1.14",
+			"Rev": "6876e9922ff299adf36e43e04c94820077968b3b"
+		},
+		{
+			"ImportPath": "github.com/codegangsta/cli",
+			"Comment": "v1.9.0",
+			"Rev": "a65b733b303f0055f8d324d805f393cd3e7a7904"
+		},
+		{
+			"ImportPath": "github.com/go-ini/ini",
+			"Comment": "v1.11.0",
+			"Rev": "12f418cc7edc5a618a51407b7ac1f1f512139df3"
+		},
+		{
+			"ImportPath": "github.com/golang/mock/gomock",
+			"Rev": "bd3c8e81be01eef76d4b503f5e687d2d1354d2d9"
+		},
+		{
+			"ImportPath": "github.com/jmespath/go-jmespath",
+			"Comment": "0.2.2-12-g0b12d6b",
+			"Rev": "0b12d6b521d83fc7f755e7cfc1b1fbdd35a01a74"
+		},
+		{
+			"ImportPath": "github.com/kylelemons/go-gypsy/yaml",
+			"Comment": "go.weekly.2011-11-02-19-g42fc2c7",
+			"Rev": "42fc2c7ee9b8bd0ff636cd2d7a8c0a49491044c5"
+		}
+	]
+}

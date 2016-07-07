@@ -28,7 +28,7 @@ and limitations under the License.
 
 Note: Other license terms may apply to certain, identified software files contained within or distributed with the accompanying software if such terms are included in the directory containing the accompanying software. Such other license terms will then apply in lieu of the terms of the software license above.
 ***
-./../vendor/src/github.com/Sirupsen/logrus
+./../vendor/github.com/Sirupsen/logrus
 
 The MIT License (MIT)
 
@@ -53,7 +53,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 ***
-./../vendor/src/github.com/aws/aws-sdk-go
+./../vendor/github.com/aws/aws-sdk-go
 
 
                                  Apache License
@@ -259,7 +259,7 @@ THE SOFTWARE.
    limitations under the License.
 
 ***
-./../vendor/src/github.com/codegangsta/cli
+./../vendor/github.com/codegangsta/cli
 
 Copyright (C) 2013 Jeremy Saenz
 All Rights Reserved.
@@ -284,7 +284,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ***
-./../vendor/src/github.com/go-ini/ini
+./../vendor/github.com/go-ini/ini
 
 Apache License
 Version 2.0, January 2004
@@ -479,7 +479,7 @@ third-party archives.
    limitations under the License.
 
 ***
-./../vendor/src/github.com/golang/mock
+./../vendor/github.com/golang/mock
 
 
                                  Apache License
@@ -685,7 +685,7 @@ third-party archives.
    limitations under the License.
 
 ***
-./../vendor/src/github.com/jmespath/go-jmespath
+./../vendor/github.com/jmespath/go-jmespath
 
 Copyright 2015 James Saryerwinnie
 
@@ -702,7 +702,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ***
-./../vendor/src/github.com/kylelemons/go-gypsy
+./../vendor/github.com/kylelemons/go-gypsy
 
 
                                  Apache License

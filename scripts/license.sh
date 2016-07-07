@@ -18,7 +18,7 @@ set -e
 outputfile=${1?Must provide an output file}
 inputfile="$(<../../LICENSE)"
 
-for user in ./../vendor/src/github.com/*; do
+for user in ./../vendor/github.com/*; do
   for repo in $user/*; do
     inputfile+=$'\n'"***"$'\n'"$repo"$'\n\n'
     inputfile+="$(<$repo/LICENSE*)"$'\n'
