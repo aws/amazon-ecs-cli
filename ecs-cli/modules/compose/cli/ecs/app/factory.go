@@ -36,13 +36,12 @@ func NewProjectFactory() ProjectFactory {
 
 // Create is a factory function that creates and configures ECS Compose project using the supplied command line arguments
 func (projectFactory projectFactory) Create(cliContext *cli.Context, isService bool) (ecscompose.Project, error) {
-	// creates and populates the context
+	// creates and populates the ecs context
 	ecsContext := &ecscompose.Context{}
 	if err := projectFactory.populateContext(ecsContext, cliContext); err != nil {
 		return nil, err
 	}
 	ecsContext.IsService = isService
-	ecsContext.CLIContext = cliContext
 
 	// creates and initializes project using the context
 	project := ecscompose.NewProject(ecsContext)
@@ -56,7 +55,9 @@ func (projectFactory projectFactory) Create(cliContext *cli.Context, isService b
 
 // populateContext sets the required CLI arguments to the context
 func (projectFactory projectFactory) populateContext(ecsContext *ecscompose.Context, cliContext *cli.Context) error {
+	// populate CLI context
 	populate(ecsContext, cliContext)
+	ecsContext.CLIContext = cliContext
 
 	// reads and sets the parameters (required to create ECS Service Client) from the cli context to ecs context
 	rdwr, err := config.NewReadWriter()
@@ -70,6 +71,28 @@ func (projectFactory projectFactory) populateContext(ecsContext *ecscompose.Cont
 		return err
 	}
 	ecsContext.ECSParams = params
+
+	// populate libcompose context
+	if err = projectFactory.populateLibcomposeContext(ecsContext); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// populateLibcomposeContext sets the required Libcompose lookup utilities to the context
+func (projectFactory projectFactory) populateLibcomposeContext(ecsContext *ecscompose.Context) error {
+	envLookup, err := utils.GetDefaultEnvironmentLookup()
+	if err != nil {
+		return err
+	}
+	ecsContext.EnvironmentLookup = envLookup
+
+	resourceLookup, err := utils.GetDefaultResourceLookup()
+	if err != nil {
+		return err
+	}
+	ecsContext.ResourceLookup = resourceLookup
 	return nil
 }
 

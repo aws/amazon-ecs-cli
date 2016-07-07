@@ -18,7 +18,7 @@ package mock_ecs
 
 import (
 	ecs "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
-	libcompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/libcompose"
+	config "github.com/docker/libcompose/config"
 	project "github.com/docker/libcompose/project"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -135,9 +135,9 @@ func (_mr *_MockProjectRecorder) Scale(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Scale", arg0)
 }
 
-func (_m *MockProject) ServiceConfigs() map[string]*libcompose.ServiceConfig {
+func (_m *MockProject) ServiceConfigs() *config.ServiceConfigs {
 	ret := _m.ctrl.Call(_m, "ServiceConfigs")
-	ret0, _ := ret[0].(map[string]*libcompose.ServiceConfig)
+	ret0, _ := ret[0].(*config.ServiceConfigs)
 	return ret0
 }
 

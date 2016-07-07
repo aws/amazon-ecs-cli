@@ -16,7 +16,7 @@ package ecs
 import (
 	"github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
-	libcompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/libcompose"
+	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
 )
 
@@ -27,7 +27,7 @@ type Project interface {
 	Parse() error
 
 	Context() *Context
-	ServiceConfigs() map[string]*libcompose.ServiceConfig
+	ServiceConfigs() *config.ServiceConfigs
 	Entity() ProjectEntity
 
 	// commands
@@ -43,10 +43,9 @@ type Project interface {
 
 // ecsProject struct is an implementation of Project.
 type ecsProject struct {
-	context *Context
+	project.Project
 
-	// placeholder for compose yaml configurations map [serviceName -> composeConfigurations]
-	serviceConfigs map[string]*libcompose.ServiceConfig
+	context *Context
 
 	// TODO: track a map of entities [taskDefinition -> Entity]
 	// 1 task definition for every disjoint set of containers in the compose file
@@ -55,9 +54,11 @@ type ecsProject struct {
 
 // NewProject creates a new instance of the ECS Compose Project
 func NewProject(context *Context) Project {
+	libcomposeProject := project.NewProject(&context.Context, nil, nil)
+
 	p := &ecsProject{
-		context:        context,
-		serviceConfigs: make(map[string]*libcompose.ServiceConfig),
+		context: context,
+		Project: *libcomposeProject,
 	}
 
 	if context.IsService {
@@ -66,7 +67,6 @@ func NewProject(context *Context) Project {
 		p.entity = NewTask(context)
 	}
 
-	context.setProject(p)
 	return p
 }
 
@@ -81,8 +81,8 @@ func (p *ecsProject) Context() *Context {
 }
 
 // ServiceConfigs returns a map of Service Configuration loaded from compose yaml file
-func (p *ecsProject) ServiceConfigs() map[string]*libcompose.ServiceConfig {
-	return p.serviceConfigs
+func (p *ecsProject) ServiceConfigs() *config.ServiceConfigs {
+	return p.Project.ServiceConfigs
 }
 
 // Entity returns the project entity that operates on the compose file and integrates with ecs
@@ -93,37 +93,40 @@ func (p *ecsProject) Entity() ProjectEntity {
 // Parse reads the context and sets appropriate project fields
 func (p *ecsProject) Parse() error {
 	context := p.context
+
+	// initialize the context and project entity fields
 	if err := context.open(); err != nil {
 		return err
 	}
-
 	if err := p.Entity().LoadContext(); err != nil {
 		return err
 	}
 
-	if err := p.load(context); err != nil {
+	if err := p.parseCompose(); err != nil {
 		return err
 	}
 
-	return nil
+	return p.transformTaskDefinition()
 }
 
-// load parses the compose yml and transforms into task definition
-func (p *ecsProject) load(context *Context) error {
+// parseCompose loads and parses the compose yml files
+func (p *ecsProject) parseCompose() error {
+	// load the compose files
 	logrus.Debug("Parsing the compose yaml...")
-	configs, err := utils.UnmarshalComposeConfig(context.Context)
-	if err != nil {
-		return err
-	}
-	p.serviceConfigs = configs
+	return p.Project.Parse()
+}
 
+// transformTaskDefinition converts the compose yml into task definition
+func (p *ecsProject) transformTaskDefinition() error {
+	context := p.context
+
+	// convert to task definition
 	logrus.Debug("Transforming yaml to task definition...")
 	taskDefinitionName := utils.GetTaskDefinitionName(context.ECSParams.ComposeProjectNamePrefix, context.Context.ProjectName)
-	taskDefinition, err := utils.ConvertToTaskDefinition(taskDefinitionName, context.Context, p.serviceConfigs)
+	taskDefinition, err := utils.ConvertToTaskDefinition(taskDefinitionName, &context.Context, p.ServiceConfigs())
 	if err != nil {
 		return err
 	}
-
 	p.entity.SetTaskDefinition(taskDefinition)
 	return nil
 }

@@ -20,11 +20,11 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ec2/mock"
 	ecsClient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecs/mock"
-	libcompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/libcompose"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/docker/libcompose/project"
 	"github.com/golang/mock/gomock"
 )
 
@@ -159,7 +159,7 @@ func testInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasks
 		ECSClient: mockEcs,
 		EC2Client: mockEc2,
 		ECSParams: &config.CliParams{},
-		Context: libcompose.Context{
+		Context: project.Context{
 			ProjectName: projectName,
 		},
 	}

@@ -15,15 +15,16 @@ package utils
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"strconv"
 	"testing"
 
-	libcompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/libcompose"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/docker/libcompose/config"
+	"github.com/docker/libcompose/project"
+	"github.com/docker/libcompose/yaml"
 )
 
 const (
@@ -47,12 +48,12 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	user := "user"
 	workingDir := "/var"
 
-	serviceConfig := &libcompose.ServiceConfig{
-		CpuShares:   cpu,
-		Command:     libcompose.NewCommand(command),
+	serviceConfig := &config.ServiceConfig{
+		CPUShares:   cpu,
+		Command:     []string{command},
 		Hostname:    hostname,
 		Image:       image,
-		Links:       libcompose.NewMaporColonSlice(links),
+		Links:       links,
 		MemLimit:    int64(1048576) * memory,
 		Privileged:  privileged,
 		ReadOnly:    readOnly,
@@ -107,7 +108,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 func TestConvertToTaskDefinitionWithDnsSearch(t *testing.T) {
 	dnsSearchDomains := []string{"search.example.com"}
 
-	serviceConfig := &libcompose.ServiceConfig{DNSSearch: libcompose.NewStringorslice(dnsSearchDomains...)}
+	serviceConfig := &config.ServiceConfig{DNSSearch: dnsSearchDomains}
 
 	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig)
 	containerDef := *taskDefinition.ContainerDefinitions[0]
@@ -120,7 +121,7 @@ func TestConvertToTaskDefinitionWithDnsSearch(t *testing.T) {
 func TestConvertToTaskDefinitionWithDnsServers(t *testing.T) {
 	dnsServer := "1.2.3.4"
 
-	serviceConfig := &libcompose.ServiceConfig{DNS: libcompose.NewStringorslice(dnsServer)}
+	serviceConfig := &config.ServiceConfig{DNS: []string{dnsServer}}
 
 	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig)
 	containerDef := *taskDefinition.ContainerDefinitions[0]
@@ -135,7 +136,7 @@ func TestConvertToTaskDefinitionWithDockerLabels(t *testing.T) {
 		"com.foo.label2": "value",
 	}
 
-	serviceConfig := &libcompose.ServiceConfig{Labels: libcompose.NewSliceorMap(dockerLabels)}
+	serviceConfig := &config.ServiceConfig{Labels: dockerLabels}
 
 	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig)
 	containerDef := *taskDefinition.ContainerDefinitions[0]
@@ -148,8 +149,8 @@ func TestConvertToTaskDefinitionWithEnv(t *testing.T) {
 	envKey := "rails_env"
 	envValue := "development"
 	env := envKey + "=" + envValue
-	serviceConfig := &libcompose.ServiceConfig{
-		Environment: libcompose.NewMaporEqualSlice([]string{env}),
+	serviceConfig := &config.ServiceConfig{
+		Environment: []string{env},
 	}
 
 	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig)
@@ -164,10 +165,11 @@ func TestConvertToTaskDefinitionWithEnv(t *testing.T) {
 func TestConvertToTaskDefinitionWithEnvFromShell(t *testing.T) {
 	envKey1 := "rails_env"
 	envValue1 := "development"
-	envKey2 := "port" // skips the second one if envKey2
-	env := []string{envKey1, envKey2 + "="}
-	serviceConfig := &libcompose.ServiceConfig{
-		Environment: libcompose.NewMaporEqualSlice(env),
+	env := envKey1 + "=" + envValue1
+	envKey2 := "port"
+
+	serviceConfig := &config.ServiceConfig{
+		Environment: []string{envKey1, envKey2 + "="},
 	}
 
 	os.Setenv(envKey1, envValue1)
@@ -177,46 +179,20 @@ func TestConvertToTaskDefinitionWithEnvFromShell(t *testing.T) {
 
 	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig)
 	containerDef := *taskDefinition.ContainerDefinitions[0]
+
+	// skips the second one if envKey2
 	if containerDef.Environment == nil || len(containerDef.Environment) != 1 {
 		t.Fatalf("Expected non empty Environment, but was [%v]", containerDef.Environment)
 	}
+
 	if envKey1 != aws.StringValue(containerDef.Environment[0].Name) ||
 		envValue1 != aws.StringValue(containerDef.Environment[0].Value) {
-		t.Errorf("Expected env [%s]=[%s] But was [%v]", envKey1, envValue1, containerDef.Environment)
-	}
-}
-
-func TestConvertToTaskDefinitionWithEnvFile(t *testing.T) {
-	envKey := "rails_env"
-	envValue := "development"
-	envContents := []byte(envKey + "=" + envValue)
-
-	envFile, err := ioutil.TempFile("", "example")
-	if err != nil {
-		t.Fatal("Error creating tmp file:", err)
-	}
-	defer os.Remove(envFile.Name()) // clean up
-	if _, err := envFile.Write(envContents); err != nil {
-		t.Fatal("Error writing to tmp file:", err)
-	}
-
-	serviceConfig := &libcompose.ServiceConfig{
-		EnvFile: libcompose.NewStringorslice(envFile.Name()),
-	}
-
-	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig)
-	containerDef := *taskDefinition.ContainerDefinitions[0]
-	if containerDef.Environment == nil || len(containerDef.Environment) == 0 {
-		t.Fatalf("Expected non empty Environment, but was [%v]", containerDef.Environment)
-	}
-	if envKey != aws.StringValue(containerDef.Environment[0].Name) ||
-		envValue != aws.StringValue(containerDef.Environment[0].Value) {
-		t.Errorf("Expected env [%s]=[%s] But was [%v]", envKey, envValue, containerDef.Environment)
+		t.Errorf("Expected env [%s] But was [%v]", env, containerDef.Environment)
 	}
 }
 
 func TestConvertToTaskDefinitionWithPortMappings(t *testing.T) {
-	serviceConfig := &libcompose.ServiceConfig{Ports: []string{portMapping}}
+	serviceConfig := &config.ServiceConfig{Ports: []string{portMapping}}
 
 	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig)
 	containerDef := *taskDefinition.ContainerDefinitions[0]
@@ -228,7 +204,7 @@ func TestConvertToTaskDefinitionWithExtraHosts(t *testing.T) {
 	ipAddress := "127.10.10.10"
 
 	extraHost := hostname + ":" + ipAddress
-	serviceConfig := &libcompose.ServiceConfig{ExtraHosts: []string{extraHost}}
+	serviceConfig := &config.ServiceConfig{ExtraHosts: []string{extraHost}}
 
 	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig)
 	containerDef := *taskDefinition.ContainerDefinitions[0]
@@ -236,7 +212,7 @@ func TestConvertToTaskDefinitionWithExtraHosts(t *testing.T) {
 }
 
 func TestConvertToTaskDefinitionWithLogConfiguration(t *testing.T) {
-	taskDefinition := convertToTaskDefinitionInTest(t, "name", &libcompose.ServiceConfig{})
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", &config.ServiceConfig{})
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 
 	if containerDef.LogConfiguration != nil {
@@ -248,9 +224,11 @@ func TestConvertToTaskDefinitionWithLogConfiguration(t *testing.T) {
 		"max-file": "50",
 		"max-size": "50k",
 	}
-	serviceConfig := &libcompose.ServiceConfig{
-		LogDriver: logDriver,
-		LogOpt:    logOpts,
+	serviceConfig := &config.ServiceConfig{
+		Logging: config.Log{
+			Driver:  logDriver,
+			Options: logOpts,
+		},
 	}
 
 	taskDefinition = convertToTaskDefinitionInTest(t, "name", serviceConfig)
@@ -266,8 +244,10 @@ func TestConvertToTaskDefinitionWithLogConfiguration(t *testing.T) {
 func TestConvertToTaskDefinitionWithUlimits(t *testing.T) {
 	softLimit := int64(1024)
 	typeName := "nofile"
-	basicType := fmt.Sprintf("%s=%d", typeName, softLimit)
-	serviceConfig := &libcompose.ServiceConfig{ULimits: []string{basicType}}
+	basicType := yaml.NewUlimit(typeName, softLimit, softLimit) // "nofile=1024"
+	serviceConfig := &config.ServiceConfig{
+		Ulimits: yaml.Ulimits{Elements: []yaml.Ulimit{basicType}},
+	}
 
 	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig)
 	containerDef := *taskDefinition.ContainerDefinitions[0]
@@ -278,7 +258,7 @@ func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
 	volumes := []string{hostPath + ":" + containerPath}
 	volumesFrom := []string{"container1"}
 
-	serviceConfig := &libcompose.ServiceConfig{
+	serviceConfig := &config.ServiceConfig{
 		Volumes:     volumes,
 		VolumesFrom: volumesFrom,
 	}
@@ -303,22 +283,6 @@ func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
 			"Got Volume.Name=[%s] And MountPoint.SourceVolume=[%s]",
 			aws.StringValue(volumeDef.Name), aws.StringValue(mountPoint.SourceVolume))
 	}
-}
-
-func convertToTaskDefinitionInTest(t *testing.T, name string, serviceConfig *libcompose.ServiceConfig) *ecs.TaskDefinition {
-	serviceConfigs := make(map[string]*libcompose.ServiceConfig)
-	serviceConfigs[name] = serviceConfig
-
-	taskDefName := "ProjectName"
-	context := libcompose.Context{
-		EnvironmentLookup: &libcompose.OsEnvLookup{},
-		ConfigLookup:      &libcompose.FileConfigLookup{},
-	}
-	taskDefinition, err := ConvertToTaskDefinition(taskDefName, context, serviceConfigs)
-	if err != nil {
-		t.Errorf("Expected to convert [%v] serviceConfigs without errors. But got [%v]", serviceConfigs, err)
-	}
-	return taskDefinition
 }
 
 func TestConvertToPortMappings(t *testing.T) {
@@ -449,31 +413,21 @@ func TestConvertToUlimits(t *testing.T) {
 	softLimit := int64(1024)
 	hardLimit := int64(2048)
 	typeName := "nofile"
-	basicType := fmt.Sprintf("%s=%d", typeName, softLimit)          // "nofile=1024"
-	typeWithHardLimit := fmt.Sprintf("%s:%d", basicType, hardLimit) // "nofile=1024:2048"
+	basicType := yaml.NewUlimit(typeName, softLimit, softLimit)         // "nofile=1024"
+	typeWithHardLimit := yaml.NewUlimit(typeName, softLimit, hardLimit) // "nofile=1024:2048"
 
-	ulimitsIn := []string{basicType, typeWithHardLimit}
+	ulimitsIn := yaml.Ulimits{
+		Elements: []yaml.Ulimit{basicType, typeWithHardLimit},
+	}
 	ulimitsOut, err := convertToULimits(ulimitsIn)
 	if err != nil {
 		t.Errorf("Expected to convert [%v] ulimits without errors. But got [%v]", ulimitsIn, err)
 	}
-	if len(ulimitsIn) != len(ulimitsOut) {
+	if len(ulimitsIn.Elements) != len(ulimitsOut) {
 		t.Errorf("Incorrect conversion. Input [%v] Output [%v]", ulimitsIn, ulimitsOut)
 	}
 	verifyUlimit(t, ulimitsOut[0], typeName, softLimit, softLimit)
 	verifyUlimit(t, ulimitsOut[1], typeName, softLimit, hardLimit)
-
-	incorrectType := "incorrect"
-	_, err = convertToULimits([]string{incorrectType})
-	if err == nil {
-		t.Errorf("Expected to get formatting error for ulimit value=[%s], but got none", incorrectType)
-	}
-
-	incorrectHardLimit := basicType + ":random"
-	_, err = convertToULimits([]string{incorrectHardLimit})
-	if err == nil {
-		t.Errorf("Expected to get formatting error for the ulimit with random hardLimit=[%s], but got none", incorrectHardLimit)
-	}
 }
 
 func verifyUlimit(t *testing.T, output *ecs.Ulimit, name string, softLimit, hardLimit int64) {
@@ -486,4 +440,28 @@ func verifyUlimit(t *testing.T, output *ecs.Ulimit, name string, softLimit, hard
 	if hardLimit != *output.HardLimit {
 		t.Errorf("Expected hardLimit [%s] But was [%s]", hardLimit, *output.HardLimit)
 	}
+}
+
+func convertToTaskDefinitionInTest(t *testing.T, name string, serviceConfig *config.ServiceConfig) *ecs.TaskDefinition {
+	serviceConfigs := config.NewServiceConfigs()
+	serviceConfigs.Add(name, serviceConfig)
+
+	taskDefName := "ProjectName"
+	envLookup, err := GetDefaultEnvironmentLookup()
+	if err != nil {
+		t.Fatal("Unexpected error setting up environment lookup")
+	}
+	resourceLookup, err := GetDefaultResourceLookup()
+	if err != nil {
+		t.Fatal("Unexpected error setting up resource lookup")
+	}
+	context := &project.Context{
+		EnvironmentLookup: envLookup,
+		ResourceLookup:    resourceLookup,
+	}
+	taskDefinition, err := ConvertToTaskDefinition(taskDefName, context, serviceConfigs)
+	if err != nil {
+		t.Errorf("Expected to convert [%v] serviceConfigs without errors. But got [%v]", serviceConfig, err)
+	}
+	return taskDefinition
 }

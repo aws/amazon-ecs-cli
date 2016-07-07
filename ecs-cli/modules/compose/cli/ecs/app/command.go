@@ -95,7 +95,8 @@ func commonComposeFlags() []cli.Flag {
 
 // populate updates the specified ecs context based on command line arguments and subcommands.
 func populate(ecsContext *ecscompose.Context, cliContext *cli.Context) {
-	ecsContext.ComposeFile = cliContext.GlobalString(composeFileNameFlag)
+	// TODO: Support multiple compose files
+	ecsContext.ComposeFiles = []string{cliContext.GlobalString(composeFileNameFlag)}
 	ecsContext.ProjectName = cliContext.GlobalString(projectNameFlag)
 }
 

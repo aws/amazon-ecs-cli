@@ -16,15 +16,15 @@ package ecs
 import (
 	ec2client "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ec2"
 	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecs"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
-	libcompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/libcompose"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/codegangsta/cli"
+	"github.com/docker/libcompose/project"
 )
 
 // Context is a wrapper around libcompose.project.Context
 type Context struct {
-	libcompose.Context
+	project.Context
+
 	CLIContext *cli.Context
 	ECSParams  *config.CliParams
 
@@ -34,30 +34,15 @@ type Context struct {
 
 	// IsService would decide if the resource created by this compose project would be ECS Tasks directly or through ECS Services
 	IsService bool
-
-	// keeps track of the current instance of project
-	project Project
 }
 
-// open populates the context fields and creates an ECS Client
+// open populates the context with new ECS and EC2 Clients
 func (context *Context) open() error {
-	// perform libcomposeContext open which loads the compose file and determines projectname
-	err := context.Context.Open()
-	if err != nil {
-		utils.LogError(err, "Unable to open ECS context")
-		return err
-	}
+	// setup aws service clients
 	context.ECSClient = ecsclient.NewECSClient()
 	context.ECSClient.Initialize(context.ECSParams)
 
 	context.EC2Client = ec2client.NewEC2Client(context.ECSParams)
 
-	context.Context.EnvironmentLookup = &libcompose.OsEnvLookup{}
-	context.Context.ConfigLookup = &libcompose.FileConfigLookup{}
 	return nil
-}
-
-// setProject sets the project instance to this context
-func (context *Context) setProject(project Project) {
-	context.project = project
 }
