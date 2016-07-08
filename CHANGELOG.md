@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0
+* Feature - Add support for `services` defined in the [Compose v2 file format](https://docs.docker.com/compose/compose-file/#/version-2).
+* Feature - Add support for [variable substitution](https://docs.docker.com/compose/compose-file/#variable-substitution)
+  in Compose files.
+* Feature - Add support for [default environment file](https://docs.docker.com/compose/env-file/)
+  `.env` placed in the folder `ecs-cli compose` command is executed from (current working directory).
+* Bug - Fix several YAML parsing issues (with single quotes, JSON arrays, indentation issues)
+
 ## 0.3.1
 * Feature - Update ECS-optimized AMIs to latest 2016.03.d.
 * Bug - Fix issue to read credentials/role from EC2 instance metadata.
