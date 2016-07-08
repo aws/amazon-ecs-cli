@@ -16,6 +16,7 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -36,6 +37,24 @@ const (
 	readWriteVolumeAccessMode = "rw"
 )
 
+// supported fields/options from compose YAML file
+var supportedComposeYamlOptions = []string{
+	"cpu_shares", "command", "dns", "dns_search", "entrypoint", "env_file",
+	"environment", "extra_hosts", "hostname", "image", "labels", "links",
+	"logging", "log_driver", "log_opt", "mem_limit", "ports", "privileged", "read_only",
+	"security_opt", "ulimits", "user", "volumes", "volumes_from", "working_dir",
+}
+
+var supportedComposeYamlOptionsMap = getSupportedComposeYamlOptionsMap()
+
+func getSupportedComposeYamlOptionsMap() map[string]bool {
+	optionsMap := make(map[string]bool)
+	for _, value := range supportedComposeYamlOptions {
+		optionsMap[value] = true
+	}
+	return optionsMap
+}
+
 // ConvertToTaskDefinition transforms the yaml configs to its ecs equivalent (task definition)
 func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context,
 	serviceConfigs *config.ServiceConfigs) (*ecs.TaskDefinition, error) {
@@ -43,6 +62,8 @@ func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context
 	if serviceConfigs.Len() == 0 {
 		return nil, errors.New("cannot create a task definition with no containers; invalid service config")
 	}
+
+	logUnsupportedConfigFields(context.Project)
 
 	containerDefinitions := []*ecs.ContainerDefinition{}
 	volumes := make(map[string]string) // map with key:=hostSourcePath value:=VolumeName
@@ -52,6 +73,7 @@ func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context
 		if !ok {
 			return nil, fmt.Errorf("Couldn't get service with name=[%s]", name)
 		}
+		logUnsupportedServiceConfigFields(name, serviceConfig)
 		containerDef := &ecs.ContainerDefinition{
 			Name: aws.String(name),
 		}
@@ -66,6 +88,68 @@ func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context
 		Volumes:              convertToECSVolumes(volumes),
 	}
 	return taskDefinition, nil
+}
+
+// logUnsupportedConfigFields adds a WARNING to the customer about the fields that are unused.
+func logUnsupportedConfigFields(project *project.Project) {
+	if project.VolumeConfigs != nil && len(project.VolumeConfigs) > 0 {
+		log.WithFields(log.Fields{"option name": "volumes"}).Warn("Skipping unsupported YAML option...")
+	}
+	if project.NetworkConfigs != nil && len(project.NetworkConfigs) > 0 {
+		log.WithFields(log.Fields{"option name": "networks"}).Warn("Skipping unsupported YAML option...")
+	}
+}
+
+// logUnsupportedServiceConfigFields
+func logUnsupportedServiceConfigFields(serviceName string, config *config.ServiceConfig) {
+	configValue := reflect.ValueOf(config).Elem()
+	configType := configValue.Type()
+
+	for i := 0; i < configValue.NumField(); i++ {
+		field := configValue.Field(i)
+		fieldType := configType.Field(i)
+		// get the tag name (if any), defaults to fieldName
+		tagName := fieldType.Name
+		yamlTag := fieldType.Tag.Get("yaml") // Expected format `yaml:"tagName,omitempty"` // TODO, handle omitempty
+		if yamlTag != "" {
+			tags := strings.Split(yamlTag, ",")
+			if len(tags) > 0 {
+				tagName = tags[0]
+			}
+		}
+
+		zeroValue := isZero(field)
+		// if value is present for the field that is not in supportedYamlTags map, log a warning
+		if !zeroValue && !supportedComposeYamlOptionsMap[tagName] {
+			log.WithFields(log.Fields{
+				"option name":  tagName,
+				"service name": serviceName,
+			}).Warn("Skipping unsupported YAML option for service...")
+		}
+	}
+}
+
+// isZero checks if the value is nil or empty or zero
+func isZero(v reflect.Value) bool {
+	switch v.Kind() {
+	case reflect.Func, reflect.Map, reflect.Slice:
+		return v.IsNil()
+	case reflect.Array:
+		zero := true
+		for i := 0; i < v.Len(); i++ {
+			zero = zero && isZero(v.Index(i))
+		}
+		return zero
+	case reflect.Struct:
+		zero := true
+		for i := 0; i < v.NumField(); i++ {
+			zero = zero && isZero(v.Field(i))
+		}
+		return zero
+	}
+	// Compare other types directly:
+	zero := reflect.Zero(v.Type())
+	return v.Interface() == zero.Interface()
 }
 
 // convertToContainerDef transforms each service in the compose yml

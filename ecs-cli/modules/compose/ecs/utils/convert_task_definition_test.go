@@ -456,6 +456,7 @@ func convertToTaskDefinitionInTest(t *testing.T, name string, serviceConfig *con
 		t.Fatal("Unexpected error setting up resource lookup")
 	}
 	context := &project.Context{
+		Project:           &project.Project{},
 		EnvironmentLookup: envLookup,
 		ResourceLookup:    resourceLookup,
 	}
@@ -464,4 +465,65 @@ func convertToTaskDefinitionInTest(t *testing.T, name string, serviceConfig *con
 		t.Errorf("Expected to convert [%v] serviceConfigs without errors. But got [%v]", serviceConfig, err)
 	}
 	return taskDefinition
+}
+
+func TestIsZeroForEmptyConfig(t *testing.T) {
+	serviceConfig := &config.ServiceConfig{}
+
+	configValue := reflect.ValueOf(serviceConfig).Elem()
+	configType := configValue.Type()
+
+	for i := 0; i < configValue.NumField(); i++ {
+		f := configValue.Field(i)
+		ft := configType.Field(i)
+		isZero := isZero(f)
+		if !isZero {
+			t.Errorf("Expected field [%s] to be zero but was not", ft.Name)
+		}
+	}
+}
+
+func TestIsZeroWhenConfigHasValues(t *testing.T) {
+	hasValues := map[string]bool{
+		"CPUShares":   true,
+		"Command":     true,
+		"Hostname":    true,
+		"Image":       true,
+		"Links":       true,
+		"MemLimit":    true,
+		"Privileged":  true,
+		"ReadOnly":    true,
+		"SecurityOpt": true,
+		"User":        true,
+		"WorkingDir":  true,
+	}
+
+	serviceConfig := &config.ServiceConfig{
+		CPUShares:   int64(10),
+		Command:     []string{"cmd"},
+		Hostname:    "foobarbaz",
+		Image:       "testimage",
+		Links:       []string{"container1"},
+		MemLimit:    int64(104857600),
+		Privileged:  true,
+		ReadOnly:    true,
+		SecurityOpt: []string{"label:type:test_virt"},
+		User:        "user",
+		WorkingDir:  "/var",
+	}
+
+	configValue := reflect.ValueOf(serviceConfig).Elem()
+	configType := configValue.Type()
+
+	for i := 0; i < configValue.NumField(); i++ {
+		f := configValue.Field(i)
+		ft := configType.Field(i)
+		fieldName := ft.Name
+
+		zeroValue := isZero(f)
+		_, hasValue := hasValues[fieldName]
+		if zeroValue == hasValue {
+			t.Errorf("Expected field [%s]: hasValues[%t] but found[%t]", ft.Name, hasValues, !zeroValue)
+		}
+	}
 }
