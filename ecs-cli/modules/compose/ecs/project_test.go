@@ -14,6 +14,7 @@
 package ecs
 
 import (
+	"flag"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -21,8 +22,11 @@ import (
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
+	"github.com/codegangsta/cli"
 	"github.com/docker/libcompose/project"
 )
+
+const testProjectName = "test-project"
 
 func TestParseComposeForVersion1Files(t *testing.T) {
 	// test data
@@ -103,6 +107,10 @@ redis:
 
 	if err := project.parseCompose(); err != nil {
 		t.Fatalf("Unexpected error parsing the compose string [%s]", composeFileString, err)
+	}
+
+	if testProjectName != project.context.ProjectName {
+		t.Errorf("ProjectName not overriden. Expected [%s] Got [%s]", testProjectName, project.context.ProjectName)
 	}
 
 	configs := project.ServiceConfigs()
@@ -287,7 +295,14 @@ func setupTestProject(t *testing.T) *ecsProject {
 		t.Fatal("Unexpected error in setting up a project", err)
 	}
 
-	ecsContext := &Context{}
+	composeContext := flag.NewFlagSet("ecs-cli", 0)
+	composeContext.String(ProjectNameFlag, testProjectName, "")
+	parentContext := cli.NewContext(nil, composeContext, nil)
+	cliContext := cli.NewContext(nil, nil, parentContext)
+
+	ecsContext := &Context{
+		CLIContext: cliContext,
+	}
 	ecsContext.EnvironmentLookup = envLookup
 	ecsContext.ResourceLookup = resourceLookup
 	libcomposeProject := project.NewProject(&ecsContext.Context, nil, nil)

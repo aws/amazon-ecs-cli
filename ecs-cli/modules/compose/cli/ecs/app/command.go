@@ -86,7 +86,7 @@ func commonComposeFlags() []cli.Flag {
 			EnvVar: "COMPOSE_FILE",
 		},
 		cli.StringFlag{
-			Name:   projectNameFlag + ",p",
+			Name:   ecscompose.ProjectNameFlag + ",p",
 			Usage:  "Specifies the project name to use. Defaults to the current directory name.",
 			EnvVar: "COMPOSE_PROJECT_NAME",
 		},
@@ -97,7 +97,7 @@ func commonComposeFlags() []cli.Flag {
 func populate(ecsContext *ecscompose.Context, cliContext *cli.Context) {
 	// TODO: Support multiple compose files
 	ecsContext.ComposeFiles = []string{cliContext.GlobalString(composeFileNameFlag)}
-	ecsContext.ProjectName = cliContext.GlobalString(projectNameFlag)
+	ecsContext.ProjectName = cliContext.GlobalString(ecscompose.ProjectNameFlag)
 }
 
 func createCommand(factory ProjectFactory) cli.Command {

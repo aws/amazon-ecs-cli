@@ -111,9 +111,15 @@ func (p *ecsProject) Parse() error {
 
 // parseCompose loads and parses the compose yml files
 func (p *ecsProject) parseCompose() error {
-	// load the compose files
+	// load the compose files using libcompose
 	logrus.Debug("Parsing the compose yaml...")
-	return p.Project.Parse()
+	if err := p.Project.Parse(); err != nil {
+		return err
+	}
+
+	// libcompose sanitizes the project name and removes any non alpha-numeric character.
+	// The following undo-es that and sets the project name as user defined it.
+	return p.context.SetProjectName()
 }
 
 // transformTaskDefinition converts the compose yml into task definition

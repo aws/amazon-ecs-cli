@@ -14,12 +14,20 @@
 package ecs
 
 import (
+	"os"
+	"path"
+	"path/filepath"
+	"strings"
+
+	"github.com/Sirupsen/logrus"
 	ec2client "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ec2"
 	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/codegangsta/cli"
 	"github.com/docker/libcompose/project"
 )
+
+const ProjectNameFlag = "project-name"
 
 // Context is a wrapper around libcompose.project.Context
 type Context struct {
@@ -45,4 +53,53 @@ func (context *Context) open() error {
 	context.EC2Client = ec2client.NewEC2Client(context.ECSParams)
 
 	return nil
+}
+
+// SetProjectName sets the project name, which is resolved in the order
+// 1. Command line option
+// 2. Environment variable
+// 3. Current working directory
+func (context *Context) SetProjectName() error {
+	projectName := context.CLIContext.GlobalString(ProjectNameFlag)
+	if projectName != "" {
+		context.ProjectName = projectName
+		return nil
+	}
+	projectName, err := context.lookupProjectName()
+	if err != nil {
+		return err
+	}
+	context.ProjectName = projectName
+	return nil
+}
+
+// This following is derived from Docker's Libcompose project, Copyright 2015 Docker, Inc.
+// The original code may be found :
+// https://github.com/docker/libcompose/blob/master/project/context.go
+func (c *Context) lookupProjectName() (string, error) {
+	file := "."
+	if len(c.ComposeFiles) > 0 {
+		file = c.ComposeFiles[0]
+	}
+
+	f, err := filepath.Abs(file)
+	if err != nil {
+		logrus.Errorf("Failed to get absolute directory for: %s", file)
+		return "", err
+	}
+
+	f = toUnixPath(f)
+
+	parent := path.Base(path.Dir(f))
+	if parent != "" && parent != "." {
+		return parent, nil
+	} else if wd, err := os.Getwd(); err != nil {
+		return "", err
+	} else {
+		return path.Base(toUnixPath(wd)), nil
+	}
+}
+
+func toUnixPath(p string) string {
+	return strings.Replace(p, "\\", "/", -1)
 }
