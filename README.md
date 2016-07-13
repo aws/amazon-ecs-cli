@@ -46,17 +46,20 @@ with the `ecs-cli configure` command. These settings are stored in
 ```
 $ ecs-cli help configure
 NAME:
-   configure - Configures your AWS credentials, the AWS region to use, and the EC2 Container Service cluster name to use with the ECS CLI.
+   configure - Configures your AWS credentials, the AWS region to use, and the ECS cluster name to use with the Amazon ECS CLI. The resulting configuration is stored in the ~/.ecs/config file.
 
 USAGE:
    command configure [command options] [arguments...]
 
 OPTIONS:
-   --region, -r 	Specify the AWS Region to use. [$AWS_REGION]
-   --access-key 	Specify the AWS access key to use. [$AWS_ACCESS_KEY_ID]
-   --secret-key 	Specify the AWS secret key to use. [$AWS_SECRET_ACCESS_KEY]
-   --profile, -p 	Specify your AWS credentials with an existing named profile from ~/.aws/credentials. [$AWS_PROFILE]
-   --cluster, -c 	Specify the ECS cluster name to use. If the cluster does not exist, it will be created.
+   --region, -r 					Specifies the AWS region to use. If the AWS_REGION environment variable is set when ecs-cli configure is run, then the AWS region is set to the value of that environment variable. [$AWS_REGION]
+   --access-key 					Specifies the AWS access key to use. If the AWS_ACCESS_KEY_ID environment variable is set when ecs-cli configure is run, then the AWS access key ID is set to the value of that environment variable. [$AWS_ACCESS_KEY_ID]
+   --secret-key 					Specifies the AWS secret key to use. If the AWS_SECRET_ACCESS_KEY environment variable is set when ecs-cli configure is run, then the AWS secret access key is set to the value of that environment variable. [$AWS_SECRET_ACCESS_KEY]
+   --profile, -p 					Specifies your AWS credentials with an existing named profile from ~/.aws/credentials. If the AWS_PROFILE environment variable is set when ecs-cli configure is run, then the AWS named profile is set to the value of that environment variable. [$AWS_PROFILE]
+   --cluster, -c 					Specifies the ECS cluster name to use. If the cluster does not exist, it is created when you try to add resources to it with the ecs-cli up command.
+   --compose-project-name-prefix "ecscompose-"		[Optional] Specifies the prefix added to an ECS task definition created from a compose file. Format <prefix><project-name>.
+   --compose-service-name-prefix "ecscompose-service-"	[Optional] Specifies the prefix added to an ECS service created from a compose file. Format <prefix><project-name>.
+   --cfn-stack-name-prefix "amazon-ecs-cli-setup-"	[Optional] Specifies the prefix added to the AWS CloudFormation stack created on ecs-cli up. Format <prefix><cluster-name>.
 ```
 
 ## Using the CLI
@@ -66,22 +69,24 @@ create an ECS cluster using the ECS CLI.
 ```
 $ ecs-cli help up
 NAME:
-   up - Create the ECS Cluster (if it does not already exist) and the AWS resources required to set up the cluster.
+   up - Creates the ECS cluster (if it does not already exist) and the AWS resources required to set up the cluster.
 
 USAGE:
    command up [command options] [arguments...]
 
 OPTIONS:
-   --keypair 		Specify the name of an existing Amazon EC2 key pair to enable SSH access to the EC2 instances in your cluster.
-   --capability-iam	Acknowledge that this command may create IAM resources.
-   --size 		[Optional] Specify the number of instances to register to the cluster. The default is 1.
-   --azs 		[Optional] Specify a comma-separated list of 2 VPC availability zones in which to create subnets (these AZs must be in the 'available' status). This option is recommended if you do not specify a VPC ID with the --vpc option. WARNING: Leaving this option blank can result in failure to launch container instances if an unavailable AZ is chosen at random.
-   --security-group 	[Optional] Specify an existing security group to associate it with container instances. Defaults to creating a new one.
-   --cidr 		[Optional] Specify a CIDR/IP range for the security group to use for container instances in your cluster. Defaults to 0.0.0.0/0 if --security-group is not specified
-   --port 		[Optional] Specify a port to open on a new security group that is created for your container instances if an existing security group is not specified with the --security-group option. Defaults to port 80.
-   --subnets 		[Optional] Specify a comma-separated list of existing VPC Subnet IDs in which to launch your container instances. This option is required if you specify a VPC with the --vpc option.
-   --vpc 		[Optional] Specify the ID of an existing VPC in which to launch your container instances. If you specify a VPC ID, you must specify a list of existing subnets in that VPC with the --subnets option. If you do not specify a VPC ID, a new VPC is created with two subnets.
-   --instance-type 	[Optional] Specify the EC2 instance type for your container instances.
+   --verbose, --debug
+   --keypair 		Specifies the name of an existing Amazon EC2 key pair to enable SSH access to the EC2 instances in your cluster.
+   --capability-iam	Acknowledges that this command may create IAM resources.
+   --size 		[Optional] Specifies the number of instances to launch and register to the cluster. Defaults to 1.
+   --azs 		[Optional] Specifies a comma-separated list of 2 VPC Availability Zones in which to create subnets (these zones must have the available status). This option is recommended if you do not specify a VPC ID with the --vpc option. WARNING: Leaving this option blank can result in failure to launch container instances if an unavailable zone is chosen at random.
+   --security-group 	[Optional] Specifies an existing security group to associate with your container instances. If you do not specify a security group here, then a new one is created.
+   --cidr 		[Optional] Specifies a CIDR/IP range for the security group to use for container instances in your cluster. This parameter is ignored if an existing security group is specified with the --security-group option. Defaults to 0.0.0.0/0.
+   --port 		[Optional] Specifies a port to open on the security group to use for container instances in your cluster. This parameter is ignored if an existing security group is specified with the --security-group option. Defaults to port 80.
+   --subnets 		[Optional] Specifies a comma-separated list of existing VPC Subnet IDs in which to launch your container instances. This option is required if you specify a VPC with the --vpc option.
+   --vpc 		[Optional] Specifies the ID of an existing VPC in which to launch your container instances. If you specify a VPC ID, you must specify a list of existing subnets in that VPC with the --subnets option. If you do not specify a VPC ID, a new VPC is created with two subnets.
+   --instance-type 	[Optional] Specifies the EC2 instance type for your container instances. Defaults to t2.micro.
+   --image-id 		[Optional] Specify the AMI ID for your container instances. Defaults to amazon-ecs-optimized AMI.
 ```
 
 For example, to create an ECS cluster with two Amazon EC2 instances:
@@ -123,10 +128,12 @@ You can run the configuration file locally using Docker Compose. Here is an
 example Docker Compose configuration file that creates a web page:
 
 ```
-web:
-  image: amazon/amazon-ecs-sample
-  ports:
-   - "80:80"
+version: '2'
+services:
+  web:
+    image: amazon/amazon-ecs-sample
+    ports:
+     - "80:80"
 ```
 
 To run the configuration file on Amazon ECS use `ecs-cli compose up`. This 
@@ -135,8 +142,8 @@ that is running with `ecs-cli compose ps`, for example:
 
 ```
 $ ecs-cli compose ps
-Name                                      State    Ports
-fd8d5a69-87c5-46a4-80b6-51918092e600/web  RUNNING  54.209.244.64:80->80/tcp
+Name                                      State    Ports                     TaskDefinition
+fd8d5a69-87c5-46a4-80b6-51918092e600/web  RUNNING  54.209.244.64:80->80/tcp  ecscompose-web:1
 ```
 
 Navigate your web browser to the task’s IP address to see the sample app 
@@ -162,9 +169,9 @@ It may take a minute for the tasks to start. You can monitor the progress using
 this command:
 ```
 $ ecs-cli compose --project-name wordpress-test service ps
-Name                                            State    Ports
-34333aa6-e976-4096-991a-0ec4cd5af5bd/mysql      RUNNING  
-34333aa6-e976-4096-991a-0ec4cd5af5bd/wordpress  RUNNING  54.186.138.217:80->80/tcp
+Name                                            State    Ports                      TaskDefinition
+34333aa6-e976-4096-991a-0ec4cd5af5bd/wordpress  RUNNING  54.186.138.217:80->80/tcp  ecscompose-wordpress-test:1
+34333aa6-e976-4096-991a-0ec4cd5af5bd/mysql      RUNNING                             ecscompose-wordpress-test:1
 ```
 
 

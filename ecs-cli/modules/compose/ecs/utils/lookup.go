@@ -21,7 +21,11 @@ import (
 	"github.com/docker/libcompose/lookup"
 )
 
-// GetDefaultEnvironmentLookup returns the default Lookup mechanism for environment variables
+// GetDefaultEnvironmentLookup returns the default Lookup mechanism for environment variables.
+// Order of resolution:
+// 1. Environment values specified (in the form of 'key=value') in a '.env' file in the current working directory.
+// 2. Environment values specified in the shell (using os.Getenv). If the os environment variable does not exists,
+//    the slice is empty, and the environment variable is skipped.
 func GetDefaultEnvironmentLookup() (*lookup.ComposableEnvLookup, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -37,7 +41,9 @@ func GetDefaultEnvironmentLookup() (*lookup.ComposableEnvLookup, error) {
 	}, nil
 }
 
-// GetDefaultResourceLookup returns the default Lookup mechanism for resources
+// GetDefaultResourceLookup returns the default Lookup mechanism for resources.
+// This implements a function to load a file relative to a given path. This is used to load
+// files specified in env_file option, for example.
 func GetDefaultResourceLookup() (*lookup.FileConfigLookup, error) {
 	return &lookup.FileConfigLookup{}, nil
 }
