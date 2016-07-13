@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1
+* Feature - Update ECS-optimized AMIs to latest 2016.03.e.
+* Bug - Fix `project-name` option for `ecs-cli compose` command to accept `-` in the name.
+
 ## 0.4.0
 * Feature - Add support for `services` defined in the [Compose v2 file format](https://docs.docker.com/compose/compose-file/#/version-2).
 * Feature - Add support for [variable substitution](https://docs.docker.com/compose/compose-file/#variable-substitution)
