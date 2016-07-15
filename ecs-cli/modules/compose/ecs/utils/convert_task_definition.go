@@ -35,6 +35,7 @@ const (
 	// access mode with which the volume is mounted
 	readOnlyVolumeAccessMode  = "ro"
 	readWriteVolumeAccessMode = "rw"
+	volumeFromContainerKey    = "container"
 )
 
 // supported fields/options from compose YAML file
@@ -175,12 +176,9 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 	}
 
 	// convert volumes from
-	volumesFrom := []*ecs.VolumeFrom{}
-	for _, val := range inputCfg.VolumesFrom {
-		volumeFrom := &ecs.VolumeFrom{
-			SourceContainer: aws.String(val),
-		}
-		volumesFrom = append(volumesFrom, volumeFrom)
+	volumesFrom, err := convertToVolumesFrom(inputCfg.VolumesFrom)
+	if err != nil {
+		return err
 	}
 
 	// convert mount points
@@ -347,6 +345,73 @@ func convertToPortMappings(serviceName string, cfgPorts []string) ([]*ecs.PortMa
 		})
 	}
 	return portMappings, nil
+}
+
+// convertToVolumesFrom transforms the yml volumes from to ecs compatible VolumesFrom slice
+// Examples for compose format v2:
+// volumes_from:
+// - service_name
+// - service_name:ro
+// - container:container_name
+// - container:container_name:rw
+// Examples for compose format v1:
+// volumes_from:
+// - service_name
+// - service_name:ro
+// - container_name
+// - container_name:rw
+func convertToVolumesFrom(cfgVolumesFrom []string) ([]*ecs.VolumeFrom, error) {
+	volumesFrom := []*ecs.VolumeFrom{}
+
+	for _, cfgVolumeFrom := range cfgVolumesFrom {
+		parts := strings.Split(cfgVolumeFrom, ":")
+
+		var containerName, accessModeStr string
+
+		parseErr := fmt.Errorf(
+			"expected format [container:]SERVICE|CONTAINER[:ro|rw]. could not parse cfgVolumeFrom: %s", cfgVolumeFrom)
+
+		switch len(parts) {
+		// for the following volumes_from formats (supported by compose file formats v1 and v2),
+		// name: refers to either service_name or container_name
+		// container: is a keyword thats introduced in v2 to differentiate between service_name and container:container_name
+		// ro|rw: read-only or read-write access
+		case 1: // Format: name
+			containerName = parts[0]
+		case 2: // Format: name:ro|rw (OR) container:name
+			if parts[0] == volumeFromContainerKey {
+				containerName = parts[1]
+			} else {
+				containerName = parts[0]
+				accessModeStr = parts[1]
+			}
+		case 3: // Format: container:name:ro|rw
+			if parts[0] != volumeFromContainerKey {
+				return nil, parseErr
+			}
+			containerName = parts[1]
+			accessModeStr = parts[2]
+		default:
+			return nil, parseErr
+		}
+
+		// parse accessModeStr
+		var readOnly bool
+		if accessModeStr != "" {
+			if accessModeStr == readOnlyVolumeAccessMode {
+				readOnly = true
+			} else if accessModeStr == readWriteVolumeAccessMode {
+				readOnly = false
+			} else {
+				return nil, fmt.Errorf("Could not parse access mode %s", accessModeStr)
+			}
+		}
+		volumesFrom = append(volumesFrom, &ecs.VolumeFrom{
+			SourceContainer: aws.String(containerName),
+			ReadOnly:        aws.Bool(readOnly),
+		})
+	}
+	return volumesFrom, nil
 }
 
 // convertToMountPoints transforms the yml volumes slice to ecs compatible MountPoints slice

@@ -199,6 +199,29 @@ func TestConvertToTaskDefinitionWithPortMappings(t *testing.T) {
 	verifyPortMapping(t, containerDef.PortMappings[0], portNumber, portNumber, ecs.TransportProtocolTcp)
 }
 
+func TestConvertToTaskDefinitionWithVolumesFrom(t *testing.T) {
+	// compose file format v2
+	setupAndTestVolumesFrom(t, "service_name", "service_name", false)
+	setupAndTestVolumesFrom(t, "service_name:ro", "service_name", true)
+	setupAndTestVolumesFrom(t, "service_name:rw", "service_name", false)
+
+	setupAndTestVolumesFrom(t, "container:container_name", "container_name", false)
+	setupAndTestVolumesFrom(t, "container:container_name:ro", "container_name", true)
+	setupAndTestVolumesFrom(t, "container:container_name:rw", "container_name", false)
+
+	// compose file format v1
+	setupAndTestVolumesFrom(t, "container_name", "container_name", false)
+	setupAndTestVolumesFrom(t, "container_name:ro", "container_name", true)
+	setupAndTestVolumesFrom(t, "container_name:rw", "container_name", false)
+}
+
+func setupAndTestVolumesFrom(t *testing.T, volume, sourceContainer string, readOnly bool) {
+	serviceConfig := &config.ServiceConfig{VolumesFrom: []string{volume}}
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig)
+	containerDef := *taskDefinition.ContainerDefinitions[0]
+	verifyVolumeFrom(t, containerDef.VolumesFrom[0], sourceContainer, readOnly)
+}
+
 func TestConvertToTaskDefinitionWithExtraHosts(t *testing.T) {
 	hostname := "test.local"
 	ipAddress := "127.10.10.10"
@@ -406,6 +429,15 @@ func verifyExtraHost(t *testing.T, output *ecs.HostEntry, hostname, ipAddress st
 	}
 	if ipAddress != aws.StringValue(output.IpAddress) {
 		t.Errorf("Expected ipAddress [%s] But was [%s]", ipAddress, aws.StringValue(output.IpAddress))
+	}
+}
+
+func verifyVolumeFrom(t *testing.T, output *ecs.VolumeFrom, containerName string, readOnly bool) {
+	if containerName != aws.StringValue(output.SourceContainer) {
+		t.Errorf("Expected SourceContainer [%s] But was [%s]", containerName, aws.StringValue(output.SourceContainer))
+	}
+	if readOnly != aws.BoolValue(output.ReadOnly) {
+		t.Errorf("Expected ReadOnly [%t] But was [%t]", readOnly, aws.BoolValue(output.ReadOnly))
 	}
 }
 
