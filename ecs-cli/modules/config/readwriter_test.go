@@ -69,6 +69,53 @@ func createConfig(t *testing.T, parser *IniReadWriter, dest *Destination) {
 	}
 }
 
+func TestConfigPermissions(t *testing.T) {
+	dest, err := newMockDestination()
+	if err != nil {
+		t.Fatal("Error creating mock config destination:", err)
+	}
+	parser := setupParser(t, dest, false)
+
+	err = os.MkdirAll(dest.Path, *dest.Mode)
+	if err != nil {
+		t.Fatalf("Could not create config directory: ", err)
+	}
+	defer os.RemoveAll(dest.Path)
+
+	// Create config file and confirm it has expected initial permissions
+	createConfig(t, parser, dest)
+
+	path := configPath(dest)
+	confirmConfigMode(t, path, configFileMode)
+
+	// Now set the config mode to something bad
+	badMode := os.FileMode(0777)
+	err = os.Chmod(path, badMode)
+	if err != nil {
+		t.Fatalf("Unable to change mode of new config %v", path)
+	}
+	confirmConfigMode(t, path, badMode)
+
+	// Save the config and confirm it's fixed again
+	err = parser.Save(dest)
+	if err != nil {
+		t.Fatalf("Unable to save to new config %v", path)
+	}
+	confirmConfigMode(t, path, configFileMode)
+}
+
+func confirmConfigMode(t *testing.T, path string, expected os.FileMode) {
+	info, err := os.Stat(path)
+	if err != nil {
+		t.Fatalf("Unable to stat config file %s", path)
+	}
+
+	mode := info.Mode()
+	if mode != expected {
+		t.Fatalf("Mode of config %v not expected %v", mode, expected)
+	}
+}
+
 func TestNewConfigReadWriter(t *testing.T) {
 	dest, err := newMockDestination()
 	if err != nil {

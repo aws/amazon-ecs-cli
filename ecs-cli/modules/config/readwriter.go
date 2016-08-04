@@ -21,7 +21,10 @@ import (
 	"github.com/go-ini/ini"
 )
 
-const configFileName = "config"
+const (
+	configFileName = "config"
+	configFileMode = os.FileMode(0600)
+)
 
 // ReadWriter interface has methods to read and write ecs-cli config to and from the config file.
 type ReadWriter interface {
@@ -103,12 +106,39 @@ func (rdwr *IniReadWriter) ReadFrom(ecsConfig *CliConfig) error {
 
 // Save saves the config to a config file.
 func (rdwr *IniReadWriter) Save(dest *Destination) error {
-	mode := dest.Mode
-	err := os.MkdirAll(dest.Path, *mode)
+	destMode := dest.Mode
+	err := os.MkdirAll(dest.Path, *destMode)
 	if err != nil {
 		return err
 	}
-	return rdwr.cfg.SaveTo(configPath(dest))
+
+	path := configPath(dest)
+
+	// If config file exists, set permissions first, because we may be writing creds.
+	if _, err := os.Stat(path); err == nil {
+		err = os.Chmod(path, configFileMode)
+		if err != nil {
+			logrus.Errorf("Unable to chmod %s to mode %s", path, configFileMode)
+			return err
+		}
+	}
+
+	// Open the file, optionally creating it with our desired permissions.
+	// This will let us pass it (as io.Writer) to go-ini but let us control the file.
+	configFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, configFileMode)
+	if err != nil {
+		logrus.Errorf("Unable to open/create %s with mode %s", path, configFileMode)
+		return err
+	}
+	defer configFile.Close()
+
+	_, err = rdwr.cfg.WriteTo(configFile)
+	if err != nil {
+		logrus.Errorf("Unable to write config to %s", path)
+		return err
+	}
+
+	return nil
 }
 
 func configPath(dest *Destination) string {
