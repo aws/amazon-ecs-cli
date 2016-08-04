@@ -108,19 +108,23 @@ func (rdwr *IniReadWriter) Save(dest *Destination) error {
 	if err != nil {
 		return err
 	}
-	return rdwr.cfg.SaveTo(filepath.Join(dest.Path, configFileName))
+	return rdwr.cfg.SaveTo(configPath(dest))
+}
+
+func configPath(dest *Destination) string {
+	return filepath.Join(dest.Path, configFileName)
 }
 
 func newIniConfig(dest *Destination) (*ini.File, error) {
 	iniCfg := ini.Empty()
-	filename := filepath.Join(dest.Path, configFileName)
-	logrus.Debugf("using config file: %s", filename)
-	if _, err := os.Stat(filename); err != nil {
-		// TODO: handle os.isnotexist(filename) and other errors differently
+	path := configPath(dest)
+	logrus.Debugf("using config file: %s", path)
+	if _, err := os.Stat(path); err != nil {
+		// TODO: handle os.isnotexist(path) and other errors differently
 		// error reading config file, create empty config ini.
 		logrus.Debugf("no config files found, initializing empty ini")
 	} else {
-		err = iniCfg.Append(filename)
+		err = iniCfg.Append(path)
 		if err != nil {
 			return nil, err
 		}
