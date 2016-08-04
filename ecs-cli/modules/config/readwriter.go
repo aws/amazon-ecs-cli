@@ -51,7 +51,7 @@ type IniReadWriter struct {
 
 // NewReadWriter creates a new Parser object.
 func NewReadWriter() (*IniReadWriter, error) {
-	dest, err := newDefaultDestionation()
+	dest, err := newDefaultDestination()
 	if err != nil {
 		return nil, err
 	}

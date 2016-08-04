@@ -41,7 +41,7 @@ func GetFilePermissions(fileName string) (*os.FileMode, error) {
 }
 
 // newDefaultDestination creates a new Destination object.
-func newDefaultDestionation() (*Destination, error) {
+func newDefaultDestination() (*Destination, error) {
 	homeDir, err := utils.GetHomeDir()
 	if err != nil {
 		return nil, err

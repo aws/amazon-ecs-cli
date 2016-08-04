@@ -31,7 +31,7 @@ func TestNewDefaultDestination(t *testing.T) {
 	os.Setenv("HOME", tempDirName)
 	defer os.Unsetenv("HOME")
 
-	dest, err := newDefaultDestionation()
+	dest, err := newDefaultDestination()
 	if err != nil {
 		t.Errorf("Error creating new config path: ", err)
 	}
