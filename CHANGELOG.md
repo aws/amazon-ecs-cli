@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2
+* Feature - Update ECS-optimized AMIs to latest 2016.03.f.
+* Bug - Ensure least privilege for ~/.ecs/config file with permissions 0600.
+
 ## 0.4.1
 * Feature - Update ECS-optimized AMIs to latest 2016.03.e.
 * Bug - Fix `project-name` option for `ecs-cli compose` command to accept `-` in the name.
