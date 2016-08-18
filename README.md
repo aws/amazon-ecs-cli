@@ -26,12 +26,26 @@ Download the binary archive for your platform, decompress the archive, and
 install the binary on your `$PATH`. You can use the provided `md5` hash to 
 verify the integrity of your download.
 
+
+### Latest version
 * Linux: 
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest)
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest.md5)
 * Macintosh:
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-latest](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-latest)
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-latest.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-latest.md5)
+* Windows:
+  * (Not yet implemented)
+
+### Download specific version
+Using urls above, just replace `latest` with desired tag, for example `v0.4.1`. After download remember to rename binary to ecs-cli.
+
+* Linux: 
+  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.4.1](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.4.1)
+  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.4.1.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.4.1.md5)
+* Macintosh:
+  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-v0.4.1](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-v0.4.1)
+  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-v0.4.1.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-v0.4.1.md5)
 * Windows:
   * (Not yet implemented)
 
