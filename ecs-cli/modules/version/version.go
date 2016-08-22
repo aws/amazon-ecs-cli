@@ -22,7 +22,7 @@ package version
 // repository. Only the 'Version' const should change in checked-in source code
 
 // Version is the version of the ECS CLI
-const Version = "0.4.2"
+const Version = "0.4.3"
 
 // GitDirty indicates the cleanliness of the git repo when this ecs-cli was built
 const GitDirty = true

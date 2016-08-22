@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.3
+* Feature - Update ECS-optimized AMIs to latest 2016.03.h.
+* Feature - Add support for different volumes_from format supported by Docker compose.
+
 ## 0.4.2
 * Feature - Update ECS-optimized AMIs to latest 2016.03.f.
 * Bug - Ensure least privilege for ~/.ecs/config file with permissions 0600.
