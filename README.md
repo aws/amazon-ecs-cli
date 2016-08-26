@@ -38,7 +38,7 @@ verify the integrity of your download.
   * (Not yet implemented)
 
 ### Download specific version
-Using urls above, just replace `latest` with desired tag, for example `v0.4.1`. After download remember to rename binary to ecs-cli.
+Using the URLs above, replace `latest` with the desired tag, for example `v0.4.1`. After downloading, remember to rename the binary file to `ecs-cli`.
 
 * Linux: 
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.4.1](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.4.1)
