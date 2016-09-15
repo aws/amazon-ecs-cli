@@ -1,4 +1,7 @@
 # Changelog
+## 0.4.4
+* Feature - Update ECS-optimized AMIs to latest 2016.03.i.
+* Bug - Add validation for cluster name in `ecs-cli up` command.
 
 ## 0.4.3
 * Feature - Update ECS-optimized AMIs to latest 2016.03.h.
