@@ -87,6 +87,10 @@ func UpCommand() cli.Command {
 				Name:  imageIdFlag,
 				Usage: "[Optional] Specify the AMI ID for your container instances. Defaults to amazon-ecs-optimized AMI.",
 			},
+			cli.BoolFlag{
+				Name:  forceFlag + ", f",
+				Usage: "[Optional] Forces the recreation of any existing resources that match your current configuration. This option is useful for cleaning up stale resources from previous failed attempts.",
+			},
 		},
 	}
 }

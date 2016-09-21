@@ -23,6 +23,7 @@ import (
 
 const (
 	clusterName  = "defaultCluster"
+	stackName    = "defaultCluster"
 	profileName  = "defaultProfile"
 	region       = "us-west-1"
 	awsAccessKey = "AKID"

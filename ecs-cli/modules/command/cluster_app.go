@@ -130,8 +130,12 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 	// Check if cfn stack already exists
 	cfnClient.Initialize(ecsParams)
 	stackName := ecsParams.GetCfnStackName()
+	var deleteStack bool
 	if err := cfnClient.ValidateStackExists(stackName); err == nil {
-		return fmt.Errorf("A CloudFormation stack already exists for the cluster '%s'", ecsParams.Cluster)
+		if !isForceSet(context) {
+			return fmt.Errorf("A CloudFormation stack already exists for the cluster '%s'. Please specify '--%s' to clean up your existing resources.", ecsParams.Cluster, forceFlag)
+		}
+		deleteStack = true
 	}
 
 	// Populate cfn params
@@ -167,13 +171,24 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 		return err
 	}
 
+	// Delete cfn stack
+	if deleteStack {
+		if err := cfnClient.DeleteStack(stackName); err != nil {
+			return err
+		}
+		logrus.Info("Waiting for your CloudFormation stack resources to be deleted...")
+		if err := cfnClient.WaitUntilDeleteComplete(stackName); err != nil {
+			return err
+		}
+	}
+
 	// Create cfn stack
 	template := cloudformation.GetTemplate()
 	if _, err := cfnClient.CreateStack(template, stackName, cfnParams); err != nil {
 		return err
 	}
 
-	logrus.Info("Waiting for your cluster resources to be created")
+	logrus.Info("Waiting for your cluster resources to be created...")
 	// Wait for stack creation
 	return cfnClient.WaitUntilCreateComplete(stackName)
 }
@@ -210,7 +225,7 @@ func deleteCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 	if err := cfnClient.DeleteStack(stackName); err != nil {
 		return err
 	}
-	logrus.Info("Waiting for your cluster resources to be deleted")
+	logrus.Info("Waiting for your cluster resources to be deleted...")
 	if err := cfnClient.WaitUntilDeleteComplete(stackName); err != nil {
 		return err
 	}
@@ -265,7 +280,7 @@ func scaleCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscli
 		return err
 	}
 
-	logrus.Info("Waiting for your cluster resources to be updated")
+	logrus.Info("Waiting for your cluster resources to be updated...")
 	return cfnClient.WaitUntilUpdateComplete(stackName)
 }
 
