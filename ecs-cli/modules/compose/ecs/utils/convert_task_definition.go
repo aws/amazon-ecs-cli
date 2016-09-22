@@ -160,7 +160,7 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 	// setting memory
 	var mem int64
 	if inputCfg.MemLimit != 0 {
-		mem = inputCfg.MemLimit / kiB / kiB // convert bytes to MiB
+		mem = int64(inputCfg.MemLimit) / kiB / kiB // convert bytes to MiB
 	}
 	if mem == 0 {
 		mem = defaultMemLimit
@@ -209,7 +209,7 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 	}
 
 	// populating container definition, offloading the validation to aws-sdk
-	outputContDef.Cpu = aws.Int64(inputCfg.CPUShares)
+	outputContDef.Cpu = aws.Int64(int64(inputCfg.CPUShares))
 	outputContDef.Command = aws.StringSlice(inputCfg.Command)
 	outputContDef.DnsSearchDomains = aws.StringSlice(inputCfg.DNSSearch)
 	outputContDef.DnsServers = aws.StringSlice(inputCfg.DNS)
@@ -416,33 +416,26 @@ func convertToVolumesFrom(cfgVolumesFrom []string) ([]*ecs.VolumeFrom, error) {
 
 // convertToMountPoints transforms the yml volumes slice to ecs compatible MountPoints slice
 // It also uses the hostPath from volumes if present, else adds one to it
-func convertToMountPoints(cfgVolumes []string, volumes map[string]string) ([]*ecs.MountPoint, error) {
+func convertToMountPoints(cfgVolumes *yaml.Volumes, volumes map[string]string) ([]*ecs.MountPoint, error) {
 	mountPoints := []*ecs.MountPoint{}
-	for _, cfgVolume := range cfgVolumes {
-		parts := strings.Split(cfgVolume, ":")
-		var containerPath, hostPath string
+	if cfgVolumes == nil {
+		return mountPoints, nil
+	}
+	for _, cfgVolume := range cfgVolumes.Volumes {
+		hostPath := cfgVolume.Source
+		containerPath := cfgVolume.Destination
+
+		accessMode := cfgVolume.AccessMode
 		var readOnly bool
-		switch len(parts) {
-		case 1: // Format CONT_PATH Example- /var/lib/mysql
-			containerPath = parts[0]
-		case 2: // Format HOST_PATH:CONT_PATH Example - ./cache:/tmp/cache
-			hostPath = parts[0]
-			containerPath = parts[1]
-		case 3: // Format HOST_PATH:CONT_PATH:RO Example - ~/configs:/etc/configs/:ro
-			hostPath = parts[0]
-			containerPath = parts[1]
-			accessModeStr := parts[2]
-			if accessModeStr == readOnlyVolumeAccessMode {
+		if accessMode != "" {
+			if accessMode == readOnlyVolumeAccessMode {
 				readOnly = true
-			} else if accessModeStr == readWriteVolumeAccessMode {
+			} else if accessMode == readWriteVolumeAccessMode {
 				readOnly = false
 			} else {
 				return nil, fmt.Errorf(
 					"expected format [HOST:]CONTAINER[:ro|rw]. could not parse volume: %s", cfgVolume)
 			}
-		default:
-			return nil, fmt.Errorf(
-				"expected format [HOST:]CONTAINER[:ro]. could not parse volume: %s", cfgVolume)
 		}
 
 		var volumeName string

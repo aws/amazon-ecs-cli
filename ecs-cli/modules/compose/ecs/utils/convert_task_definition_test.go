@@ -36,12 +36,12 @@ const (
 
 func TestConvertToTaskDefinition(t *testing.T) {
 	name := "mysql"
-	cpu := int64(10)
+	cpu := int64(131072) // 128 * 1024
 	command := "cmd"
 	hostname := "foobarbaz"
 	image := "testimage"
 	links := []string{"container1"}
-	memory := int64(100) // 1 MiB = 1048576B
+	memory := int64(131072) // 128 GiB = 131072 MiB
 	privileged := true
 	readOnly := true
 	securityOpts := []string{"label:type:test_virt"}
@@ -49,12 +49,12 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	workingDir := "/var"
 
 	serviceConfig := &config.ServiceConfig{
-		CPUShares:   cpu,
+		CPUShares:   yaml.StringorInt(cpu),
 		Command:     []string{command},
 		Hostname:    hostname,
 		Image:       image,
 		Links:       links,
-		MemLimit:    int64(1048576) * memory,
+		MemLimit:    yaml.StringorInt(int64(1048576) * memory), //1 MiB = 1048576B
 		Privileged:  privileged,
 		ReadOnly:    readOnly,
 		SecurityOpt: securityOpts,
@@ -278,11 +278,11 @@ func TestConvertToTaskDefinitionWithUlimits(t *testing.T) {
 }
 
 func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
-	volumes := []string{hostPath + ":" + containerPath}
+	volume := yaml.Volume{Source: hostPath, Destination: containerPath}
 	volumesFrom := []string{"container1"}
 
 	serviceConfig := &config.ServiceConfig{
-		Volumes:     volumes,
+		Volumes:     &yaml.Volumes{Volumes: []*yaml.Volume{&volume}},
 		VolumesFrom: volumesFrom,
 	}
 
@@ -344,20 +344,21 @@ func verifyPortMapping(t *testing.T, output *ecs.PortMapping, hostPort, containe
 }
 
 func TestConvertToMountPoints(t *testing.T) {
-	hostAndContainerPath := hostPath + ":" + containerPath     // "./cache:/tmp/cache"
-	hostAndContainerPathWithRO := hostAndContainerPath + ":ro" // "./cache:/tmp/cache:ro"
-	hostAndContainerPathWithRW := hostAndContainerPath + ":rw"
+	onlyContainerPath := yaml.Volume{Destination: containerPath}
+	hostAndContainerPath := yaml.Volume{Source: hostPath, Destination: containerPath}                          // "./cache:/tmp/cache"
+	hostAndContainerPathWithRO := yaml.Volume{Source: hostPath, Destination: containerPath, AccessMode: "ro"} // "./cache:/tmp/cache:ro"
+	hostAndContainerPathWithRW := yaml.Volume{Source: hostPath, Destination: containerPath, AccessMode: "rw"}
 
 	volumes := make(map[string]string)
 
-	mountPointsIn := []string{containerPath, hostAndContainerPath,
-		hostAndContainerPathWithRO, hostAndContainerPathWithRW}
+	mountPointsIn := yaml.Volumes{Volumes: []*yaml.Volume{&onlyContainerPath, &hostAndContainerPath,
+		&hostAndContainerPathWithRO, &hostAndContainerPathWithRW}}
 
-	mountPointsOut, err := convertToMountPoints(mountPointsIn, volumes)
+	mountPointsOut, err := convertToMountPoints(&mountPointsIn, volumes)
 	if err != nil {
 		t.Fatalf("Expected to convert [%v] mountPoints without errors. But got [%v]", mountPointsIn, err)
 	}
-	if len(mountPointsIn) != len(mountPointsOut) {
+	if len(mountPointsIn.Volumes) != len(mountPointsOut) {
 		t.Errorf("Incorrect conversion. Input [%v] Output [%v]", mountPointsIn, mountPointsOut)
 	}
 	verifyMountPoint(t, mountPointsOut[0], volumes, "", containerPath, false)
@@ -365,16 +366,19 @@ func TestConvertToMountPoints(t *testing.T) {
 	verifyMountPoint(t, mountPointsOut[2], volumes, hostPath, containerPath, true)
 	verifyMountPoint(t, mountPointsOut[3], volumes, hostPath, containerPath, false)
 
-	hostAndContainerPathWithIncorrectAccess := hostAndContainerPath + ":readonly"
-	mountPointsOut, err = convertToMountPoints([]string{hostAndContainerPathWithIncorrectAccess}, volumes)
+	hostAndContainerPathWithIncorrectAccess := yaml.Volume{Source: hostPath, Destination: containerPath, AccessMode: "readonly"}
+	mountPointsIn = yaml.Volumes{Volumes: []*yaml.Volume{&hostAndContainerPathWithIncorrectAccess}}
+	mountPointsOut, err = convertToMountPoints(&mountPointsIn, volumes)
 	if err == nil {
 		t.Errorf("Expected to get error for mountPoint[%s] but didn't.", hostAndContainerPathWithIncorrectAccess)
 	}
 
-	incorrectPath := ":::"
-	mountPointsOut, err = convertToMountPoints([]string{incorrectPath}, volumes)
-	if err == nil {
-		t.Errorf("Expected to get error for mountPoint[%s] but didn't.", incorrectPath)
+	mountPointsOut, err = convertToMountPoints(nil, volumes)
+	if err != nil {
+		t.Fatalf("Expected to convert nil mountPoints without errors. But got [%v]", err)
+	}
+	if len(mountPointsOut) != 0 {
+		t.Errorf("Incorrect conversion. Input nil Output [%v]", mountPointsOut)
 	}
 }
 
@@ -531,12 +535,12 @@ func TestIsZeroWhenConfigHasValues(t *testing.T) {
 	}
 
 	serviceConfig := &config.ServiceConfig{
-		CPUShares:   int64(10),
+		CPUShares:   yaml.StringorInt(int64(10)),
 		Command:     []string{"cmd"},
 		Hostname:    "foobarbaz",
 		Image:       "testimage",
 		Links:       []string{"container1"},
-		MemLimit:    int64(104857600),
+		MemLimit:    yaml.StringorInt(int64(104857600)),
 		Privileged:  true,
 		ReadOnly:    true,
 		SecurityOpt: []string{"label:type:test_virt"},

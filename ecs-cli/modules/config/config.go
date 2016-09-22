@@ -118,7 +118,7 @@ func (cfg *CliConfig) getCredentialProviders(ec2MetadataClient *ec2metadata.EC2M
 
 // getEC2MetadataClient creates a new instance of the EC2Metadata client
 func (cfg *CliConfig) getEC2MetadataClient(awsDefaults *defaults.Defaults) *ec2metadata.EC2Metadata {
-	endpoint, signingRegion := endpoints.EndpointForRegion(ec2metadata.ServiceName, cfg.getRegion(), true)
+	endpoint, signingRegion := endpoints.EndpointForRegion(ec2metadata.ServiceName, cfg.getRegion(), true, false)
 	return ec2metadata.NewClient(*awsDefaults.Config, awsDefaults.Handlers, endpoint, signingRegion)
 }
 

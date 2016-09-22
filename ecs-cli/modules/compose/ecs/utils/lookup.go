@@ -44,6 +44,6 @@ func GetDefaultEnvironmentLookup() (*lookup.ComposableEnvLookup, error) {
 // GetDefaultResourceLookup returns the default Lookup mechanism for resources.
 // This implements a function to load a file relative to a given path. This is used to load
 // files specified in env_file option, for example.
-func GetDefaultResourceLookup() (*lookup.FileConfigLookup, error) {
-	return &lookup.FileConfigLookup{}, nil
+func GetDefaultResourceLookup() (*lookup.FileResourceLookup, error) {
+	return &lookup.FileResourceLookup{}, nil
 }

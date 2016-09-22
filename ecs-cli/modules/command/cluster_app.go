@@ -109,7 +109,7 @@ func ClusterPS(c *cli.Context) {
 		logrus.Error("Error executing 'ps ", err)
 		return
 	}
-	os.Stdout.WriteString(infoSet.String(displayTitle))
+	os.Stdout.WriteString(infoSet.String(ecscompose.ContainerInfoColumns, displayTitle))
 }
 
 func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient, amiIds ami.ECSAmiIds) error {

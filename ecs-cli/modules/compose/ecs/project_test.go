@@ -24,6 +24,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
 	"github.com/codegangsta/cli"
 	"github.com/docker/libcompose/project"
+	"github.com/docker/libcompose/yaml"
 )
 
 const testProjectName = "test-project"
@@ -55,7 +56,8 @@ func TestParseComposeForVersion1Files(t *testing.T) {
 	readonly := true
 	securityOpts := []string{"label:type:test_virt"}
 	user := "user"
-	volumes := []string{".:/code"}
+	volume := yaml.Volume{Destination: "./code"}
+	volumes := yaml.Volumes{Volumes: []*yaml.Volume{&volume}}
 	workingDir := "/var"
 
 	composeFileString := `web:
@@ -94,7 +96,7 @@ func TestParseComposeForVersion1Files(t *testing.T) {
     nofile: 1024
   user: user
   volumes:
-   - .:/code
+   - ./code
   working_dir: /var
 redis:
   image: redis`
@@ -125,7 +127,7 @@ redis:
 	if web == nil {
 		t.Fatalf("Expected [%s] as a service but got configs [%v]", "web", configs)
 	}
-	if cpuShares != web.CPUShares {
+	if cpuShares != int64(web.CPUShares) {
 		t.Errorf("Expected cpuShares to be [%s] but got [%s]", cpuShares, web.CPUShares)
 	}
 	if len(web.Command) != 1 || !reflect.DeepEqual(command[0], web.Command[0]) {
@@ -169,7 +171,7 @@ redis:
 	if !reflect.DeepEqual(logOpts, web.Logging.Options) {
 		t.Errorf("Expected logOpts to be [%v] but got [%v]", logOpts, web.Logging.Options)
 	}
-	if memLimit != web.MemLimit {
+	if memLimit != int64(web.MemLimit) {
 		t.Errorf("Expected memLimit to be [%s] but got [%s]", memLimit, web.MemLimit)
 	}
 	if !reflect.DeepEqual(ports, web.Ports) {
@@ -187,8 +189,11 @@ redis:
 	if user != web.User {
 		t.Errorf("Expected user to be [%s] but got [%s]", user, web.User)
 	}
-	if !reflect.DeepEqual(volumes, web.Volumes) {
-		t.Errorf("Expected volumes to be [%v] but got [%v]", volumes, web.Volumes)
+	if len(volumes.Volumes) != len(web.Volumes.Volumes) {
+		t.Errorf("Expected len of volumes to be [%d] but got [%d]", len(volumes.Volumes), len(web.Volumes.Volumes))
+	}
+	if !reflect.DeepEqual(*volumes.Volumes[0], *web.Volumes.Volumes[0]) {
+		t.Errorf("Expected volumes to be [%v] but got [%v]", volumes.Volumes[0], web.Volumes.Volumes[0])
 	}
 	if workingDir != web.WorkingDir {
 		t.Errorf("Expected workingDir to be [%s] but got [%s]", user, web.WorkingDir)

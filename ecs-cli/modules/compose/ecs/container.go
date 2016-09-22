@@ -23,6 +23,15 @@ import (
 	"github.com/docker/libcompose/project"
 )
 
+const (
+	containerNameKey  = "Name"
+	containerStateKey = "State"
+	containerPortsKey = "Ports"
+	taskDefinitionKey = "TaskDefinition"
+)
+
+var ContainerInfoColumns = []string{containerNameKey, containerStateKey, containerPortsKey, taskDefinitionKey}
+
 // Container is a wrapper around ecsContainer
 type Container struct {
 	task         *ecs.Task
@@ -101,12 +110,13 @@ func (c *Container) PortString() string {
 func convertContainersToInfoSet(containers []Container) project.InfoSet {
 	result := project.InfoSet{}
 	for _, cont := range containers {
-		info := project.Info{}
-		// TODO: Add more fields
-		info = append(info, project.InfoPart{"Name", cont.Name()})
-		info = append(info, project.InfoPart{"State", cont.State()})
-		info = append(info, project.InfoPart{"Ports", cont.PortString()})
-		info = append(info, project.InfoPart{"TaskDefinition", cont.TaskDefinition()})
+		info := project.Info{
+			// TODO: Add more fields
+			containerNameKey:  cont.Name(),
+			containerStateKey: cont.State(),
+			containerPortsKey: cont.PortString(),
+			taskDefinitionKey: cont.TaskDefinition(),
+		}
 		result = append(result, info)
 	}
 	return result

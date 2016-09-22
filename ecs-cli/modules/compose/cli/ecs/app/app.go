@@ -82,7 +82,7 @@ func ProjectPs(p ecscompose.Project, c *cli.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	os.Stdout.WriteString(allInfo.String(displayTitle))
+	os.Stdout.WriteString(allInfo.String(ecscompose.ContainerInfoColumns, displayTitle))
 }
 
 // ProjectRun starts containers and executes one-time command against the container
