@@ -9,8 +9,8 @@ type Build struct {
 
 // Delete holds options of compose rm.
 type Delete struct {
-	RemoveVolume         bool
-	BeforeDeleteCallback func([]string) bool
+	RemoveVolume  bool
+	RemoveRunning bool
 }
 
 // Down holds options of compose down.
@@ -25,7 +25,12 @@ type Create struct {
 	NoRecreate    bool
 	ForceRecreate bool
 	NoBuild       bool
-	// ForceBuild bool
+	ForceBuild    bool
+}
+
+// Run holds options of compose run.
+type Run struct {
+	Detached bool
 }
 
 // Up holds options of compose up.

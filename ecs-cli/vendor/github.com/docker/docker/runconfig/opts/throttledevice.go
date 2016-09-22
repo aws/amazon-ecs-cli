@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/docker/engine-api/types/blkiodev"
+	"github.com/docker/docker/api/types/blkiodev"
 	"github.com/docker/go-units"
 )
 
@@ -105,4 +105,9 @@ func (opt *ThrottledeviceOpt) GetList() []*blkiodev.ThrottleDevice {
 	}
 
 	return throttledevice
+}
+
+// Type returns the option type
+func (opt *ThrottledeviceOpt) Type() string {
+	return "throttled-device"
 }

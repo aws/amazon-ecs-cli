@@ -18,15 +18,31 @@ set -e
 outputfile=${1?Must provide an output file}
 inputfile="$(<../../LICENSE)"
 
-for user in ./../vendor/github.com/*; do
-  for repo in $user/*; do
-    inputfile+=$'\n'"***"$'\n'"$repo"$'\n\n'
-    if [ -f $repo/LICENSE* ]; then
-      inputfile+="$(<$repo/LICENSE*)"$'\n'
-    elif [ -f $repo/COPYING* ]; then
-      inputfile+="$(<$repo/COPYING*)"$'\n'
+appendRepoLicense() {
+  repo=$1
+  inputfile+=$'\n'"***"$'\n'"$repo"$'\n\n'
+  # Copy LICENSE* files
+  for licensefile in $repo/LICENSE*; do
+    if [ -f $licensefile ]; then
+      inputfile+="$(<$licensefile)"$'\n'
     fi;
   done;
+  # Copy COPYING* file
+  if [ -f $repo/COPYING* ]; then
+    inputfile+="$(<$repo/COPYING*)"$'\n'
+  fi;
+}
+
+for registry in github.com golang.org; do
+  for user in ./../vendor/$registry/*; do
+    for repo in $user/*; do
+      appendRepoLicense $repo
+    done;
+  done;
+done;
+
+for repo in ./../vendor/gopkg.in/*; do
+  appendRepoLicense $repo
 done;
 
 cat << EOF > "${outputfile}"

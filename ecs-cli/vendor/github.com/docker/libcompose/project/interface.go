@@ -14,6 +14,7 @@ type APIProject interface {
 	events.Emitter
 
 	Build(ctx context.Context, options options.Build, sevice ...string) error
+	Config() (string, error)
 	Create(ctx context.Context, options options.Create, services ...string) error
 	Delete(ctx context.Context, options options.Delete, services ...string) error
 	Down(ctx context.Context, options options.Down, services ...string) error
@@ -21,12 +22,12 @@ type APIProject interface {
 	Kill(ctx context.Context, signal string, services ...string) error
 	Log(ctx context.Context, follow bool, services ...string) error
 	Pause(ctx context.Context, services ...string) error
-	Ps(ctx context.Context, onlyID bool, services ...string) (InfoSet, error)
+	Ps(ctx context.Context, services ...string) (InfoSet, error)
 	// FIXME(vdemeester) we could use nat.Port instead ?
 	Port(ctx context.Context, index int, protocol, serviceName, privatePort string) (string, error)
 	Pull(ctx context.Context, services ...string) error
 	Restart(ctx context.Context, timeout int, services ...string) error
-	Run(ctx context.Context, serviceName string, commandParts []string) (int, error)
+	Run(ctx context.Context, serviceName string, commandParts []string, options options.Run) (int, error)
 	Scale(ctx context.Context, timeout int, servicesScale map[string]int) error
 	Start(ctx context.Context, services ...string) error
 	Stop(ctx context.Context, timeout int, services ...string) error
@@ -37,7 +38,23 @@ type APIProject interface {
 	CreateService(name string) (Service, error)
 	AddConfig(name string, config *config.ServiceConfig) error
 	Load(bytes []byte) error
+	Containers(ctx context.Context, filter Filter, services ...string) ([]string, error)
 }
+
+// Filter holds filter element to filter containers
+type Filter struct {
+	State State
+}
+
+// State defines the supported state you can filter on
+type State string
+
+// Definitions of filter states
+const (
+	AnyState = State("")
+	Running  = State("running")
+	Stopped  = State("stopped")
+)
 
 // RuntimeProject defines runtime-specific methods for a libcompose implementation.
 type RuntimeProject interface {

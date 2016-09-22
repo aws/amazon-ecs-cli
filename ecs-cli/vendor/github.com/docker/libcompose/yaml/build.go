@@ -1,8 +1,10 @@
 package yaml
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 // Build represents a build element in compose file.
@@ -14,7 +16,7 @@ type Build struct {
 }
 
 // MarshalYAML implements the Marshaller interface.
-func (b Build) MarshalYAML() (tag string, value interface{}, err error) {
+func (b Build) MarshalYAML() (interface{}, error) {
 	m := map[string]interface{}{}
 	if b.Context != "" {
 		m["context"] = b.Context
@@ -25,16 +27,20 @@ func (b Build) MarshalYAML() (tag string, value interface{}, err error) {
 	if len(b.Args) > 0 {
 		m["args"] = b.Args
 	}
-	return "", m, nil
+	return m, nil
 }
 
 // UnmarshalYAML implements the Unmarshaller interface.
-func (b *Build) UnmarshalYAML(tag string, value interface{}) error {
-	switch v := value.(type) {
-	case string:
-		b.Context = v
-	case map[interface{}]interface{}:
-		for mapKey, mapValue := range v {
+func (b *Build) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var stringType string
+	if err := unmarshal(&stringType); err == nil {
+		b.Context = stringType
+		return nil
+	}
+
+	var mapType map[interface{}]interface{}
+	if err := unmarshal(&mapType); err == nil {
+		for mapKey, mapValue := range mapType {
 			switch mapKey {
 			case "context":
 				b.Context = mapValue.(string)
@@ -51,10 +57,10 @@ func (b *Build) UnmarshalYAML(tag string, value interface{}) error {
 				continue
 			}
 		}
-	default:
-		return fmt.Errorf("Failed to unmarshal Build: %#v", value)
+		return nil
 	}
-	return nil
+
+	return errors.New("Failed to unmarshal Build")
 }
 
 func handleBuildArgs(value interface{}) (map[string]string, error) {
@@ -63,20 +69,27 @@ func handleBuildArgs(value interface{}) (map[string]string, error) {
 	case map[interface{}]interface{}:
 		return handleBuildArgMap(v)
 	case []interface{}:
-		args = map[string]string{}
-		for _, elt := range v {
-			uniqArgs, err := handleBuildArgs(elt)
-			if err != nil {
-				return args, nil
-			}
-			for mapKey, mapValue := range uniqArgs {
-				args[mapKey] = mapValue
-			}
-		}
-		return args, nil
+		return handleBuildArgSlice(v)
 	default:
 		return args, fmt.Errorf("Failed to unmarshal Build args: %#v", value)
 	}
+}
+
+func handleBuildArgSlice(s []interface{}) (map[string]string, error) {
+	var args = map[string]string{}
+	for _, arg := range s {
+		// check if a value is provided
+		switch v := strings.SplitN(arg.(string), "=", 2); len(v) {
+		case 1:
+			// if we have not specified a a value for this build arg, we assign it an ascii null value and query the environment
+			// later when we build the service
+			args[v[0]] = "\x00"
+		case 2:
+			// if we do have a value provided, we use it
+			args[v[0]] = v[1]
+		}
+	}
+	return args, nil
 }
 
 func handleBuildArgMap(m map[interface{}]interface{}) (map[string]string, error) {
@@ -90,6 +103,8 @@ func handleBuildArgMap(m map[interface{}]interface{}) (map[string]string, error)
 		switch a := mapValue.(type) {
 		case string:
 			argValue = a
+		case int:
+			argValue = strconv.Itoa(a)
 		case int64:
 			argValue = strconv.Itoa(int(a))
 		default:

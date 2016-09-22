@@ -25,6 +25,13 @@ func DefaultDependentServices(p *Project, s Service) []ServiceRelationship {
 		result = append(result, NewServiceRelationship(dependsOn, RelTypeDependsOn))
 	}
 
+	if config.NetworkMode != "" {
+		if strings.HasPrefix(config.NetworkMode, "service:") {
+			serviceName := config.NetworkMode[8:]
+			result = append(result, NewServiceRelationship(serviceName, RelTypeNetworkMode))
+		}
+	}
+
 	return result
 }
 

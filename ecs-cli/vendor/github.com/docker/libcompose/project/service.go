@@ -16,13 +16,13 @@ type Service interface {
 	Create(ctx context.Context, options options.Create) error
 	Delete(ctx context.Context, options options.Delete) error
 	Events(ctx context.Context, messages chan events.ContainerEvent) error
-	Info(ctx context.Context, qFlag bool) (InfoSet, error)
+	Info(ctx context.Context) (InfoSet, error)
 	Log(ctx context.Context, follow bool) error
 	Kill(ctx context.Context, signal string) error
 	Pause(ctx context.Context) error
 	Pull(ctx context.Context) error
 	Restart(ctx context.Context, timeout int) error
-	Run(ctx context.Context, commandParts []string) (int, error)
+	Run(ctx context.Context, commandParts []string, options options.Run) (int, error)
 	Scale(ctx context.Context, count int, timeout int) error
 	Start(ctx context.Context) error
 	Stop(ctx context.Context, timeout int) error
@@ -74,6 +74,9 @@ const RelTypeVolumesFrom = ServiceRelationshipType("volumesFrom")
 
 // RelTypeDependsOn means the dependency was explicitly set using 'depends_on'.
 const RelTypeDependsOn = ServiceRelationshipType("dependsOn")
+
+// RelTypeNetworkMode means the services depends on another service on networkMode
+const RelTypeNetworkMode = ServiceRelationshipType("networkMode")
 
 // ServiceRelationship holds the relationship information between two services.
 type ServiceRelationship struct {

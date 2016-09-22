@@ -5,8 +5,8 @@ import (
 	"path"
 
 	"github.com/Sirupsen/logrus"
-	yaml "github.com/cloudfoundry-incubator/candiedyaml"
 	"github.com/docker/libcompose/utils"
+	"gopkg.in/yaml.v2"
 )
 
 // MergeServicesV2 merges a v2 compose file into an existing set of service configs
@@ -28,6 +28,12 @@ func MergeServicesV2(existingServices *ServiceConfigs, environmentLookup Environ
 		var err error
 		datas, err = options.Preprocess(datas)
 		if err != nil {
+			return nil, err
+		}
+	}
+
+	if options.Validate {
+		if err := validateV2(datas); err != nil {
 			return nil, err
 		}
 	}
@@ -88,6 +94,12 @@ func ParseNetworks(bytes []byte) (map[string]*NetworkConfig, error) {
 		return nil, err
 	}
 
+	for key, value := range networkConfigs {
+		if value == nil {
+			networkConfigs[key] = &NetworkConfig{}
+		}
+	}
+
 	return networkConfigs, nil
 }
 
@@ -145,6 +157,12 @@ func parseV2(resourceLookup ResourceLookup, environmentLookup EnvironmentLookup,
 		if options.Interpolate {
 			err = Interpolate(environmentLookup, &baseRawServices)
 			if err != nil {
+				return nil, err
+			}
+		}
+
+		if options.Validate {
+			if err := validate(baseRawServices); err != nil {
 				return nil, err
 			}
 		}

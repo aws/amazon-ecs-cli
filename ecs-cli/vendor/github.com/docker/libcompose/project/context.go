@@ -24,6 +24,8 @@ type Context struct {
 	ProjectName         string
 	isOpen              bool
 	ServiceFactory      ServiceFactory
+	NetworksFactory     NetworksFactory
+	VolumesFactory      VolumesFactory
 	EnvironmentLookup   config.EnvironmentLookup
 	ResourceLookup      config.ResourceLookup
 	LoggerFactory       logger.Factory
