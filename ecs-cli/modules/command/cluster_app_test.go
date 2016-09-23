@@ -140,6 +140,92 @@ func TestClusterUpWithForce(t *testing.T) {
 	}
 }
 
+func TestClusterUpWithVPC(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockECS := mock_ecs.NewMockECSClient(ctrl)
+	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	vpcId := "vpc-02dd3038"
+	subnetIds := "subnet-04726b21,subnet-04346b21"
+
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "secret")
+	defer func() {
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+	}()
+
+	gomock.InOrder(
+		mockECS.EXPECT().Initialize(gomock.Any()),
+		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
+	)
+
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
+		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
+	)
+
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalSet.String("region", "us-west-1", "")
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(capabilityIAMFlag, true, "")
+	flagSet.String(keypairNameFlag, "default", "")
+	flagSet.String(vpcIdFlag, vpcId, "")
+	flagSet.String(subnetIdsFlag, subnetIds, "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
+	if err != nil {
+		t.Fatal("Error bringing up cluster: ", err)
+	}
+}
+
+func TestClusterUpWithAvailabilityZones(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockECS := mock_ecs.NewMockECSClient(ctrl)
+	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	vpcAZs := "us-west-2c,us-west-2a"
+
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "secret")
+	defer func() {
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+	}()
+
+	gomock.InOrder(
+		mockECS.EXPECT().Initialize(gomock.Any()),
+		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
+	)
+
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
+		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
+	)
+
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalSet.String("region", "us-west-1", "")
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(capabilityIAMFlag, true, "")
+	flagSet.String(keypairNameFlag, "default", "")
+	flagSet.String(vpcAzFlag, vpcAZs, "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
+	if err != nil {
+		t.Fatal("Error bringing up cluster: ", err)
+	}
+}
+
 func TestClusterUpWithoutKeyPair(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -169,6 +255,259 @@ func TestClusterUpWithoutKeyPair(t *testing.T) {
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
 	if err == nil {
 		t.Fatal("Expected error for key pair name")
+	}
+}
+
+func TestClusterUpWithSecurityGroupWithoutVPC(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockECS := mock_ecs.NewMockECSClient(ctrl)
+	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	securityGroupId := "sg-eeaabc8d"
+
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "secret")
+	defer func() {
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+	}()
+
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+	)
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalSet.String("region", "us-west-1", "")
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(capabilityIAMFlag, true, "")
+	flagSet.String(keypairNameFlag, "default", "")
+	flagSet.Bool(forceFlag, true, "")
+	flagSet.String(securityGroupFlag, securityGroupId, "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
+	if err == nil {
+		t.Fatal("Expected error for security group without VPC")
+	}
+}
+
+func TestClusterUpWith2SecurityGroups(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockECS := mock_ecs.NewMockECSClient(ctrl)
+	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	securityGroupIds := "sg-eeaabc8d,sg-eaaebc8d"
+	vpcId := "vpc-02dd3038"
+	subnetIds := "subnet-04726b21,subnet-04346b21"
+
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "secret")
+	defer func() {
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+	}()
+
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+	)
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalSet.String("region", "us-west-1", "")
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(capabilityIAMFlag, true, "")
+	flagSet.String(keypairNameFlag, "default", "")
+	flagSet.Bool(forceFlag, true, "")
+	flagSet.String(securityGroupFlag, securityGroupIds, "")
+	flagSet.String(vpcIdFlag, vpcId, "")
+	flagSet.String(subnetIdsFlag, subnetIds, "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
+	if err == nil {
+		t.Fatal("Expected error for security group without VPC")
+	}
+}
+
+func TestClusterUpWithSubnetsWithoutVPC(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockECS := mock_ecs.NewMockECSClient(ctrl)
+	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	subnetId := "subnet-72f52e32"
+
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "secret")
+	defer func() {
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+	}()
+
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+	)
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalSet.String("region", "us-west-1", "")
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(capabilityIAMFlag, true, "")
+	flagSet.String(keypairNameFlag, "default", "")
+	flagSet.Bool(forceFlag, true, "")
+	flagSet.String(subnetIdsFlag, subnetId, "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
+	if err == nil {
+		t.Fatal("Expected error for subnets without VPC")
+	}
+}
+
+func TestClusterUpWithVPCWithoutSubnets(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockECS := mock_ecs.NewMockECSClient(ctrl)
+	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	vpcId := "vpc-02dd3038"
+
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "secret")
+	defer func() {
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+	}()
+
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+	)
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalSet.String("region", "us-west-1", "")
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(capabilityIAMFlag, true, "")
+	flagSet.String(keypairNameFlag, "default", "")
+	flagSet.Bool(forceFlag, true, "")
+	flagSet.String(vpcIdFlag, vpcId, "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
+	if err == nil {
+		t.Fatal("Expected error for VPC without subnets")
+	}
+}
+
+func TestClusterUpWithout2Subnets(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockECS := mock_ecs.NewMockECSClient(ctrl)
+	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	vpcId := "vpc-02dd3038"
+	subnetId := "subnet-04726b21"
+
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "secret")
+	defer func() {
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+	}()
+
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+	)
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalSet.String("region", "us-west-1", "")
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(capabilityIAMFlag, true, "")
+	flagSet.String(keypairNameFlag, "default", "")
+	flagSet.Bool(forceFlag, true, "")
+	flagSet.String(vpcIdFlag, vpcId, "")
+	flagSet.String(subnetIdsFlag, subnetId, "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
+	if err == nil {
+		t.Fatal("Expected error for 2 subnets")
+	}
+}
+
+func TestClusterUpWithAvailabilityZonesWithVPC(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockECS := mock_ecs.NewMockECSClient(ctrl)
+	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	vpcId := "vpc-02dd3038"
+	vpcAZs := "us-west-2c,us-west-2a"
+
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "secret")
+	defer func() {
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+	}()
+
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+	)
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalSet.String("region", "us-west-1", "")
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(capabilityIAMFlag, true, "")
+	flagSet.String(keypairNameFlag, "default", "")
+	flagSet.Bool(forceFlag, true, "")
+	flagSet.String(vpcIdFlag, vpcId, "")
+	flagSet.String(vpcAzFlag, vpcAZs, "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
+	if err == nil {
+		t.Fatal("Expected error for VPC with AZs")
+	}
+}
+
+func TestClusterUpWithout2AvailabilityZones(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockECS := mock_ecs.NewMockECSClient(ctrl)
+	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	vpcAZs := "us-west-2c"
+
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "secret")
+	defer func() {
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+	}()
+
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+	)
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalSet.String("region", "us-west-1", "")
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(capabilityIAMFlag, true, "")
+	flagSet.String(keypairNameFlag, "default", "")
+	flagSet.Bool(forceFlag, true, "")
+	flagSet.String(vpcAzFlag, vpcAZs, "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
+	if err == nil {
+		t.Fatal("Expected error for 2 AZs")
 	}
 }
 
@@ -308,6 +647,7 @@ func TestClusterDown(t *testing.T) {
 	defer ctrl.Finish()
 	mockECS := mock_ecs.NewMockECSClient(ctrl)
 	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+
 	gomock.InOrder(
 		mockECS.EXPECT().Initialize(gomock.Any()),
 		mockECS.EXPECT().IsActiveCluster(gomock.Any()).Return(true, nil),
