@@ -180,14 +180,19 @@ func TestConvertToTaskDefinitionWithEnvFromShell(t *testing.T) {
 	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig)
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 
-	// skips the second one if envKey2
-	if containerDef.Environment == nil || len(containerDef.Environment) != 1 {
+	if containerDef.Environment == nil || len(containerDef.Environment) != 2 {
 		t.Fatalf("Expected non empty Environment, but was [%v]", containerDef.Environment)
 	}
 
 	if envKey1 != aws.StringValue(containerDef.Environment[0].Name) ||
 		envValue1 != aws.StringValue(containerDef.Environment[0].Value) {
 		t.Errorf("Expected env [%s] But was [%v]", env, containerDef.Environment)
+	}
+
+	// since envKey2 couldn't be resolved, value should be set to an empty string
+	if envKey2 != aws.StringValue(containerDef.Environment[1].Name) ||
+		"" != aws.StringValue(containerDef.Environment[1].Value) {
+		t.Errorf("Expected env [%s] But was [%v]", envKey2, containerDef.Environment)
 	}
 }
 
@@ -345,7 +350,7 @@ func verifyPortMapping(t *testing.T, output *ecs.PortMapping, hostPort, containe
 
 func TestConvertToMountPoints(t *testing.T) {
 	onlyContainerPath := yaml.Volume{Destination: containerPath}
-	hostAndContainerPath := yaml.Volume{Source: hostPath, Destination: containerPath}                          // "./cache:/tmp/cache"
+	hostAndContainerPath := yaml.Volume{Source: hostPath, Destination: containerPath}                         // "./cache:/tmp/cache"
 	hostAndContainerPathWithRO := yaml.Volume{Source: hostPath, Destination: containerPath, AccessMode: "ro"} // "./cache:/tmp/cache:ro"
 	hostAndContainerPathWithRW := yaml.Volume{Source: hostPath, Destination: containerPath, AccessMode: "rw"}
 
