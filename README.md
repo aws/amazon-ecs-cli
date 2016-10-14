@@ -1,32 +1,32 @@
 # Amazon ECS CLI
 
-The Amazon ECS Command Line Interface (CLI) is a command line interface for Amazon 
-EC2 Container Service (Amazon ECS) that provides high-level commands to simplify 
-creating, updating, and monitoring clusters and tasks from a local development 
-environment. The Amazon ECS CLI supports 
-[Docker Compose](https://docs.docker.com/compose/), a popular open-source tool 
-for defining and running multi-container applications. Use the CLI as part 
-of your everyday development and testing cycle as an alternative to the AWS 
+The Amazon ECS Command Line Interface (CLI) is a command line interface for Amazon
+EC2 Container Service (Amazon ECS) that provides high-level commands to simplify
+creating, updating, and monitoring clusters and tasks from a local development
+environment. The Amazon ECS CLI supports
+[Docker Compose](https://docs.docker.com/compose/), a popular open-source tool
+for defining and running multi-container applications. Use the CLI as part
+of your everyday development and testing cycle as an alternative to the AWS
 Management Console.
 
-For more information about Amazon ECS, see the 
+For more information about Amazon ECS, see the
 [Amazon ECS Developer Guide](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html).
-For information about installing and using the Amazon ECS CLI, see the 
+For information about installing and using the Amazon ECS CLI, see the
 [ECS Command Line Interface](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI.html).
 
-The AWS Command Line Interface (AWS CLI) is a unified client for AWS services 
-that provides commands for all public API operations. These commands are lower 
-level than those provided by the Amazon ECS CLI. For more information about supported 
-services and to download the AWS CLI, see the 
+The AWS Command Line Interface (AWS CLI) is a unified client for AWS services
+that provides commands for all public API operations. These commands are lower
+level than those provided by the Amazon ECS CLI. For more information about supported
+services and to download the AWS CLI, see the
 [AWS Command Line Interface](http://aws.amazon.com/cli/) product detail page.
 
 ## Installing
 
-Download the binary archive for your platform, decompress the archive, and 
-install the binary on your `$PATH`. You can use the provided `md5` hash to 
+Download the binary archive for your platform, decompress the archive, and
+install the binary on your `$PATH`. You can use the provided `md5` hash to
 verify the integrity of your download.
 
-* Linux: 
+* Linux:
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest)
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest.md5)
 * Macintosh:
@@ -37,10 +37,10 @@ verify the integrity of your download.
 
 ## Configuring the CLI
 
-Before using the CLI, you need to configure your AWS credentials, the AWS 
-region in which to create your cluster, and the name of the ECS cluster to use 
-with the `ecs-cli configure` command. These settings are stored in 
-`~/.ecs/config`. You can use any existing AWS named profiles in 
+Before using the CLI, you need to configure your AWS credentials, the AWS
+region in which to create your cluster, and the name of the ECS cluster to use
+with the `ecs-cli configure` command. These settings are stored in
+`~/.ecs/config`. You can use any existing AWS named profiles in
 `~/.aws/credentials` for your credentials with the `--profile` option.
 
 ```
@@ -63,7 +63,7 @@ OPTIONS:
 ```
 
 ## Using the CLI
-After installing the Amazon ECS CLI and configuring your credentials, you are ready to 
+After installing the Amazon ECS CLI and configuring your credentials, you are ready to
 create an ECS cluster.
 
 ```
@@ -87,6 +87,7 @@ OPTIONS:
    --vpc 		[Optional] Specifies the ID of an existing VPC in which to launch your container instances. If you specify a VPC ID, you must specify a list of existing subnets in that VPC with the --subnets option. If you do not specify a VPC ID, a new VPC is created with two subnets.
    --instance-type 	[Optional] Specifies the EC2 instance type for your container instances. Defaults to t2.micro.
    --image-id 		[Optional] Specify the AMI ID for your container instances. Defaults to amazon-ecs-optimized AMI.
+   --force 		[Optional] Forces the recreation of any existing resources that match your current configuration. This option is useful for cleaning up stale resources from previous failed attempts.
 ```
 
 For example, to create an ECS cluster with two Amazon EC2 instances, use the following command:
@@ -95,8 +96,8 @@ For example, to create an ECS cluster with two Amazon EC2 instances, use the fol
 $ ecs-cli up --keypair my-key --capability-iam --size 2
 ```
 
-It takes a few minutes to create the resources requested by `ecs-cli up`. 
-To see when the cluster is ready to run tasks, use the AWS CLI to 
+It takes a few minutes to create the resources requested by `ecs-cli up`.
+To see when the cluster is ready to run tasks, use the AWS CLI to
 confirm that the ECS instances are registered:
 
 
@@ -111,20 +112,20 @@ $ aws ecs list-container-instances --cluster your-cluster-name
 
 ```
 
-**Note:** The default security group created by `ecs-cli up` allows inbound 
-traffic on port 80 by default. To allow inbound traffic from a different port, 
-specify the port you wish to open with the `--port` option. To add more ports 
-to the default security group, go to **EC2 Security Groups** in the AWS Management 
-Console and search for the security group containing “ecs-cli”. Add a rule as 
-described in the 
+**Note:** The default security group created by `ecs-cli up` allows inbound
+traffic on port 80 by default. To allow inbound traffic from a different port,
+specify the port you wish to open with the `--port` option. To add more ports
+to the default security group, go to **EC2 Security Groups** in the AWS Management
+Console and search for the security group containing “ecs-cli”. Add a rule as
+described in the
 [Adding Rules to a Security Group](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html#adding-security-group-rule) topic.
-Alternatively, you may specify an existing security group ID with the 
+Alternatively, you may specify an existing security group ID with the
 `--security-group` option.
 
-After the cluster is created, you can run tasks – groups of containers – on the 
-ECS cluster. First, author a 
-[Docker Compose configuration file]( https://docs.docker.com/compose). 
-You can run the configuration file locally using Docker Compose. Here is an 
+After the cluster is created, you can run tasks – groups of containers – on the
+ECS cluster. First, author a
+[Docker Compose configuration file]( https://docs.docker.com/compose).
+You can run the configuration file locally using Docker Compose. Here is an
 example Docker Compose configuration file that creates a web page:
 
 ```
@@ -136,8 +137,8 @@ services:
      - "80:80"
 ```
 
-To run the configuration file on Amazon ECS, use `ecs-cli compose up`. This 
-creates an ECS task definition and starts an ECS task. You can see the task 
+To run the configuration file on Amazon ECS, use `ecs-cli compose up`. This
+creates an ECS task definition and starts an ECS task. You can see the task
 that is running with `ecs-cli compose ps`, for example:
 
 ```
@@ -146,12 +147,12 @@ Name                                      State    Ports                     Tas
 fd8d5a69-87c5-46a4-80b6-51918092e600/web  RUNNING  54.209.244.64:80->80/tcp  ecscompose-web:1
 ```
 
-Navigate your web browser to the task’s IP address to see the sample app 
+Navigate your web browser to the task’s IP address to see the sample app
 running in the ECS cluster.
 
-You can also run tasks as services. The ECS service scheduler ensures that the 
-specified number of tasks are constantly running and reschedules tasks when a 
-task fails (for example, if the underlying container instance fails for some 
+You can also run tasks as services. The ECS service scheduler ensures that the
+specified number of tasks are constantly running and reschedules tasks when a
+task fails (for example, if the underlying container instance fails for some
 reason).
 
 ```
@@ -165,7 +166,7 @@ INFO[0000] Created an ECS Service                        serviceName=ecscompose-
 You can then start the tasks in your service with the following command:
 `$ ecs-cli compose --project-name wordpress-test service start`
 
-It may take a minute for the tasks to start. You can monitor the progress using 
+It may take a minute for the tasks to start. You can monitor the progress using
 the following command:
 ```
 $ ecs-cli compose --project-name wordpress-test service ps
@@ -177,7 +178,7 @@ Name                                            State    Ports                  
 
 ## Amazon ECS CLI Commands
 
-For a complete list of commands, see the 
+For a complete list of commands, see the
 [Amazon ECS CLI documentation](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI.html).
 
 
@@ -187,14 +188,14 @@ For a complete list of commands, see the
 Running ``godep save ./ecs-cli/...`` in the `ecs-cli/` directory creates/updates the vendor/
 directory with dependencies. Make sure that you are using go1.6 and that you have the latest godep (`go get -u github.com/tools/godep`).
 
-For developing code, the correct GOPATH can be printed by running the 
+For developing code, the correct GOPATH can be printed by running the
 `./scripts/shared_env` script.
 
 This can be set as GOPATH on the dev box.
 
 ### Building
 
-Running `make build` creates a standalone executable in the `bin/local` 
+Running `make build` creates a standalone executable in the `bin/local`
 directory.
 
 ```bash
@@ -205,7 +206,7 @@ $ ls bin/local
 ecs-cli
 ```
 
-### Cross-compiling 
+### Cross-compiling
 
 The `make docker-build` target builds standalone amd64 executables for
 Darwin and Linux. The output will be in `bin/darwin-amd64` and `bin/linux-amd64`,
