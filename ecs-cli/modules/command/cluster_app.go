@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/cloudformation"
@@ -112,6 +113,39 @@ func ClusterPS(c *cli.Context) {
 	os.Stdout.WriteString(infoSet.String(ecscompose.ContainerInfoColumns, displayTitle))
 }
 
+// If param1 exists, param2 is not allowed.
+func validateMutuallyExclusiveParams(cfnParams *cloudformation.CfnStackParams, param1, param2 string) bool {
+	if _, err := cfnParams.GetParameter(param1); err != nil {
+		return false
+	}
+	if _, err := cfnParams.GetParameter(param2); err != cloudformation.ParameterNotFoundError {
+		return true
+	}
+	return false
+}
+
+// If param1 exists, param2 is required.
+func validateDependentParams(cfnParams *cloudformation.CfnStackParams, param1, param2 string) bool {
+	if _, err := cfnParams.GetParameter(param1); err != nil {
+		return false
+	}
+	if _, err := cfnParams.GetParameter(param2); err == cloudformation.ParameterNotFoundError {
+		return true
+	}
+	return false
+}
+
+func validateCommaSeparatedParam(cfnParams *cloudformation.CfnStackParams, param string, minLength, maxLength int) bool {
+	values, err := cfnParams.GetParameter(param)
+	if err != nil {
+		return false
+	}
+	if splitValues := strings.Split(*values.ParameterValue, ","); len(splitValues) < minLength || len(splitValues) > maxLength {
+		return true
+	}
+	return false
+}
+
 func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient, amiIds ami.ECSAmiIds) error {
 	// Validate cli flags
 	if !isIAMAcknowledged(context) {
@@ -148,6 +182,41 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 		return fmt.Errorf("Please specify the keypair name with '--%s' flag", keypairNameFlag)
 	} else if err != nil {
 		return err
+	}
+
+	// Check if vpc and AZs are not both specified.
+	if validateMutuallyExclusiveParams(cfnParams, cloudformation.ParameterKeyVPCAzs, cloudformation.ParameterKeyVpcId) {
+		return fmt.Errorf("You can only specify '--%s' or '--%s'", vpcIdFlag, vpcAzFlag)
+	}
+
+	// Check if 2 AZs are specified
+	if validateCommaSeparatedParam(cfnParams, cloudformation.ParameterKeyVPCAzs, 2, 2) {
+		return fmt.Errorf("You must specify 2 comma-separated availability zones with the '--%s' flag", vpcAzFlag)
+	}
+
+	// Check if vpc exists when security group is specified
+	if validateDependentParams(cfnParams, cloudformation.ParameterKeySecurityGroup, cloudformation.ParameterKeyVpcId) {
+		return fmt.Errorf("You have selected a security group. Please specify a VPC with the '--%s' flag", vpcIdFlag)
+	}
+
+	// Check only one security group is specified
+	if validateCommaSeparatedParam(cfnParams, cloudformation.ParameterKeySecurityGroup, 1, 1) {
+		return fmt.Errorf("You can only specify one security group with the '--%s' flag", securityGroupFlag)
+	}
+
+	// Check if subnets exists when vpc is specified
+	if validateDependentParams(cfnParams, cloudformation.ParameterKeyVpcId, cloudformation.ParameterKeySubnetIds) {
+		return fmt.Errorf("You have selected a VPC. Please specify 2 comma-separated subnets with the '--%s' flag", subnetIdsFlag)
+	}
+
+	// Check if vpc exists when subnets is specified
+	if validateDependentParams(cfnParams, cloudformation.ParameterKeySubnetIds, cloudformation.ParameterKeyVpcId) {
+		return fmt.Errorf("You have selected subnets. Please specify a VPC with the '--%s' flag", vpcIdFlag)
+	}
+
+	// Check if 2 subnets are specified
+	if validateCommaSeparatedParam(cfnParams, cloudformation.ParameterKeySubnetIds, 2, 2) {
+		return fmt.Errorf("You must specify 2 comma-separated subnets with the '--%s' flag", subnetIdsFlag)
 	}
 
 	// Check if image id was supplied, else populate
