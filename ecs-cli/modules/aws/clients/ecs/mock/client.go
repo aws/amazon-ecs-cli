@@ -17,10 +17,10 @@
 package mock_ecs
 
 import (
-	ecs "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecs"
+	ecs0 "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecs"
 	config "github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	cache "github.com/aws/amazon-ecs-cli/ecs-cli/utils/cache"
-	ecs0 "github.com/aws/aws-sdk-go/service/ecs"
+	ecs "github.com/aws/aws-sdk-go/service/ecs"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -56,7 +56,7 @@ func (_mr *_MockECSClientRecorder) CreateCluster(arg0 interface{}) *gomock.Call 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateCluster", arg0)
 }
 
-func (_m *MockECSClient) CreateService(_param0 string, _param1 string, _param2 *ecs0.DeploymentConfiguration) error {
+func (_m *MockECSClient) CreateService(_param0 string, _param1 string, _param2 *ecs.DeploymentConfiguration) error {
 	ret := _m.ctrl.Call(_m, "CreateService", _param0, _param1, _param2)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -87,9 +87,9 @@ func (_mr *_MockECSClientRecorder) DeleteService(arg0 interface{}) *gomock.Call 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteService", arg0)
 }
 
-func (_m *MockECSClient) DescribeService(_param0 string) (*ecs0.DescribeServicesOutput, error) {
+func (_m *MockECSClient) DescribeService(_param0 string) (*ecs.DescribeServicesOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeService", _param0)
-	ret0, _ := ret[0].(*ecs0.DescribeServicesOutput)
+	ret0, _ := ret[0].(*ecs.DescribeServicesOutput)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -98,9 +98,9 @@ func (_mr *_MockECSClientRecorder) DescribeService(arg0 interface{}) *gomock.Cal
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeService", arg0)
 }
 
-func (_m *MockECSClient) DescribeTaskDefinition(_param0 string) (*ecs0.TaskDefinition, error) {
+func (_m *MockECSClient) DescribeTaskDefinition(_param0 string) (*ecs.TaskDefinition, error) {
 	ret := _m.ctrl.Call(_m, "DescribeTaskDefinition", _param0)
-	ret0, _ := ret[0].(*ecs0.TaskDefinition)
+	ret0, _ := ret[0].(*ecs.TaskDefinition)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -109,9 +109,9 @@ func (_mr *_MockECSClientRecorder) DescribeTaskDefinition(arg0 interface{}) *gom
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeTaskDefinition", arg0)
 }
 
-func (_m *MockECSClient) DescribeTasks(_param0 []*string) ([]*ecs0.Task, error) {
+func (_m *MockECSClient) DescribeTasks(_param0 []*string) ([]*ecs.Task, error) {
 	ret := _m.ctrl.Call(_m, "DescribeTasks", _param0)
-	ret0, _ := ret[0].([]*ecs0.Task)
+	ret0, _ := ret[0].([]*ecs.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -131,7 +131,7 @@ func (_mr *_MockECSClientRecorder) GetEC2InstanceIDs(arg0 interface{}) *gomock.C
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetEC2InstanceIDs", arg0)
 }
 
-func (_m *MockECSClient) GetTasksPages(_param0 *ecs0.ListTasksInput, _param1 ecs.ProcessTasksAction) error {
+func (_m *MockECSClient) GetTasksPages(_param0 *ecs.ListTasksInput, _param1 ecs0.ProcessTasksAction) error {
 	ret := _m.ctrl.Call(_m, "GetTasksPages", _param0, _param1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -160,9 +160,9 @@ func (_mr *_MockECSClientRecorder) IsActiveCluster(arg0 interface{}) *gomock.Cal
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "IsActiveCluster", arg0)
 }
 
-func (_m *MockECSClient) RegisterTaskDefinition(_param0 *ecs0.RegisterTaskDefinitionInput) (*ecs0.TaskDefinition, error) {
+func (_m *MockECSClient) RegisterTaskDefinition(_param0 *ecs.RegisterTaskDefinitionInput) (*ecs.TaskDefinition, error) {
 	ret := _m.ctrl.Call(_m, "RegisterTaskDefinition", _param0)
-	ret0, _ := ret[0].(*ecs0.TaskDefinition)
+	ret0, _ := ret[0].(*ecs.TaskDefinition)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -171,9 +171,9 @@ func (_mr *_MockECSClientRecorder) RegisterTaskDefinition(arg0 interface{}) *gom
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "RegisterTaskDefinition", arg0)
 }
 
-func (_m *MockECSClient) RegisterTaskDefinitionIfNeeded(_param0 *ecs0.RegisterTaskDefinitionInput, _param1 cache.Cache) (*ecs0.TaskDefinition, error) {
+func (_m *MockECSClient) RegisterTaskDefinitionIfNeeded(_param0 *ecs.RegisterTaskDefinitionInput, _param1 cache.Cache) (*ecs.TaskDefinition, error) {
 	ret := _m.ctrl.Call(_m, "RegisterTaskDefinitionIfNeeded", _param0, _param1)
-	ret0, _ := ret[0].(*ecs0.TaskDefinition)
+	ret0, _ := ret[0].(*ecs.TaskDefinition)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -182,9 +182,9 @@ func (_mr *_MockECSClientRecorder) RegisterTaskDefinitionIfNeeded(arg0, arg1 int
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "RegisterTaskDefinitionIfNeeded", arg0, arg1)
 }
 
-func (_m *MockECSClient) RunTask(_param0 string, _param1 string, _param2 int) (*ecs0.RunTaskOutput, error) {
+func (_m *MockECSClient) RunTask(_param0 string, _param1 string, _param2 int) (*ecs.RunTaskOutput, error) {
 	ret := _m.ctrl.Call(_m, "RunTask", _param0, _param1, _param2)
-	ret0, _ := ret[0].(*ecs0.RunTaskOutput)
+	ret0, _ := ret[0].(*ecs.RunTaskOutput)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -193,9 +193,9 @@ func (_mr *_MockECSClientRecorder) RunTask(arg0, arg1, arg2 interface{}) *gomock
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "RunTask", arg0, arg1, arg2)
 }
 
-func (_m *MockECSClient) RunTaskWithOverrides(_param0 string, _param1 string, _param2 int, _param3 map[string]string) (*ecs0.RunTaskOutput, error) {
+func (_m *MockECSClient) RunTaskWithOverrides(_param0 string, _param1 string, _param2 int, _param3 map[string]string) (*ecs.RunTaskOutput, error) {
 	ret := _m.ctrl.Call(_m, "RunTaskWithOverrides", _param0, _param1, _param2, _param3)
-	ret0, _ := ret[0].(*ecs0.RunTaskOutput)
+	ret0, _ := ret[0].(*ecs.RunTaskOutput)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -214,7 +214,7 @@ func (_mr *_MockECSClientRecorder) StopTask(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "StopTask", arg0)
 }
 
-func (_m *MockECSClient) UpdateService(_param0 string, _param1 string, _param2 int64, _param3 *ecs0.DeploymentConfiguration) error {
+func (_m *MockECSClient) UpdateService(_param0 string, _param1 string, _param2 int64, _param3 *ecs.DeploymentConfiguration) error {
 	ret := _m.ctrl.Call(_m, "UpdateService", _param0, _param1, _param2, _param3)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -224,7 +224,7 @@ func (_mr *_MockECSClientRecorder) UpdateService(arg0, arg1, arg2, arg3 interfac
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateService", arg0, arg1, arg2, arg3)
 }
 
-func (_m *MockECSClient) UpdateServiceCount(_param0 string, _param1 int64, _param2 *ecs0.DeploymentConfiguration) error {
+func (_m *MockECSClient) UpdateServiceCount(_param0 string, _param1 int64, _param2 *ecs.DeploymentConfiguration) error {
 	ret := _m.ctrl.Call(_m, "UpdateServiceCount", _param0, _param1, _param2)
 	ret0, _ := ret[0].(error)
 	return ret0

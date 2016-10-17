@@ -610,3 +610,43 @@ func (_m *MockCloudFormationAPI) ValidateTemplateRequest(_param0 *cloudformation
 func (_mr *_MockCloudFormationAPIRecorder) ValidateTemplateRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ValidateTemplateRequest", arg0)
 }
+
+func (_m *MockCloudFormationAPI) WaitUntilStackCreateComplete(_param0 *cloudformation.DescribeStacksInput) error {
+	ret := _m.ctrl.Call(_m, "WaitUntilStackCreateComplete", _param0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) WaitUntilStackCreateComplete(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilStackCreateComplete", arg0)
+}
+
+func (_m *MockCloudFormationAPI) WaitUntilStackDeleteComplete(_param0 *cloudformation.DescribeStacksInput) error {
+	ret := _m.ctrl.Call(_m, "WaitUntilStackDeleteComplete", _param0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) WaitUntilStackDeleteComplete(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilStackDeleteComplete", arg0)
+}
+
+func (_m *MockCloudFormationAPI) WaitUntilStackExists(_param0 *cloudformation.DescribeStacksInput) error {
+	ret := _m.ctrl.Call(_m, "WaitUntilStackExists", _param0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) WaitUntilStackExists(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilStackExists", arg0)
+}
+
+func (_m *MockCloudFormationAPI) WaitUntilStackUpdateComplete(_param0 *cloudformation.DescribeStacksInput) error {
+	ret := _m.ctrl.Call(_m, "WaitUntilStackUpdateComplete", _param0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) WaitUntilStackUpdateComplete(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilStackUpdateComplete", arg0)
+}

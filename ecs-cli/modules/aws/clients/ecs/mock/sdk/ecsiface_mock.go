@@ -696,3 +696,43 @@ func (_m *MockECSAPI) UpdateServiceRequest(_param0 *ecs.UpdateServiceInput) (*re
 func (_mr *_MockECSAPIRecorder) UpdateServiceRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateServiceRequest", arg0)
 }
+
+func (_m *MockECSAPI) WaitUntilServicesInactive(_param0 *ecs.DescribeServicesInput) error {
+	ret := _m.ctrl.Call(_m, "WaitUntilServicesInactive", _param0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockECSAPIRecorder) WaitUntilServicesInactive(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilServicesInactive", arg0)
+}
+
+func (_m *MockECSAPI) WaitUntilServicesStable(_param0 *ecs.DescribeServicesInput) error {
+	ret := _m.ctrl.Call(_m, "WaitUntilServicesStable", _param0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockECSAPIRecorder) WaitUntilServicesStable(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilServicesStable", arg0)
+}
+
+func (_m *MockECSAPI) WaitUntilTasksRunning(_param0 *ecs.DescribeTasksInput) error {
+	ret := _m.ctrl.Call(_m, "WaitUntilTasksRunning", _param0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockECSAPIRecorder) WaitUntilTasksRunning(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilTasksRunning", arg0)
+}
+
+func (_m *MockECSAPI) WaitUntilTasksStopped(_param0 *ecs.DescribeTasksInput) error {
+	ret := _m.ctrl.Call(_m, "WaitUntilTasksStopped", _param0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockECSAPIRecorder) WaitUntilTasksStopped(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilTasksStopped", arg0)
+}
