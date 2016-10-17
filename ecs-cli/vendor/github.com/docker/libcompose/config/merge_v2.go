@@ -6,18 +6,10 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/docker/libcompose/utils"
-	"gopkg.in/yaml.v2"
 )
 
 // MergeServicesV2 merges a v2 compose file into an existing set of service configs
-func MergeServicesV2(existingServices *ServiceConfigs, environmentLookup EnvironmentLookup, resourceLookup ResourceLookup, file string, bytes []byte, options *ParseOptions) (map[string]*ServiceConfig, error) {
-	var config Config
-	if err := yaml.Unmarshal(bytes, &config); err != nil {
-		return nil, err
-	}
-
-	datas := config.Services
-
+func MergeServicesV2(existingServices *ServiceConfigs, environmentLookup EnvironmentLookup, resourceLookup ResourceLookup, file string, datas RawServiceMap, options *ParseOptions) (map[string]*ServiceConfig, error) {
 	if options.Interpolate {
 		if err := Interpolate(environmentLookup, &datas); err != nil {
 			return nil, err
@@ -65,44 +57,6 @@ func MergeServicesV2(existingServices *ServiceConfigs, environmentLookup Environ
 	return serviceConfigs, nil
 }
 
-// ParseVolumes parses volumes in a compose file
-func ParseVolumes(bytes []byte) (map[string]*VolumeConfig, error) {
-	volumeConfigs := make(map[string]*VolumeConfig)
-
-	var config Config
-	if err := yaml.Unmarshal(bytes, &config); err != nil {
-		return nil, err
-	}
-
-	if err := utils.Convert(config.Volumes, &volumeConfigs); err != nil {
-		return nil, err
-	}
-
-	return volumeConfigs, nil
-}
-
-// ParseNetworks parses networks in a compose file
-func ParseNetworks(bytes []byte) (map[string]*NetworkConfig, error) {
-	networkConfigs := make(map[string]*NetworkConfig)
-
-	var config Config
-	if err := yaml.Unmarshal(bytes, &config); err != nil {
-		return nil, err
-	}
-
-	if err := utils.Convert(config.Networks, &networkConfigs); err != nil {
-		return nil, err
-	}
-
-	for key, value := range networkConfigs {
-		if value == nil {
-			networkConfigs[key] = &NetworkConfig{}
-		}
-	}
-
-	return networkConfigs, nil
-}
-
 func parseV2(resourceLookup ResourceLookup, environmentLookup EnvironmentLookup, inFile string, serviceData RawService, datas RawServiceMap, options *ParseOptions) (RawService, error) {
 	serviceData, err := readEnvFile(resourceLookup, inFile, serviceData)
 	if err != nil {
@@ -147,11 +101,10 @@ func parseV2(resourceLookup ResourceLookup, environmentLookup EnvironmentLookup,
 			return nil, err
 		}
 
-		var config Config
-		if err := yaml.Unmarshal(bytes, &config); err != nil {
+		config, err := CreateConfig(bytes)
+		if err != nil {
 			return nil, err
 		}
-
 		baseRawServices := config.Services
 
 		if options.Interpolate {

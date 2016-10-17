@@ -103,6 +103,9 @@ type ContainerOptions struct {
 	healthRetries     int
 	runtime           string
 	autoRemove        bool
+	init              bool
+	initPath          string
+	credentialSpec    string
 
 	Image string
 	Args  []string
@@ -171,6 +174,7 @@ func AddFlags(flags *pflag.FlagSet) *ContainerOptions {
 	flags.BoolVar(&copts.privileged, "privileged", false, "Give extended privileges to this container")
 	flags.Var(&copts.securityOpt, "security-opt", "Security Options")
 	flags.StringVar(&copts.usernsMode, "userns", "", "User namespace to use")
+	flags.StringVar(&copts.credentialSpec, "credentialspec", "", "Credential spec for managed service account (Windows only)")
 
 	// Network and port publishing flag
 	flags.Var(&copts.extraHosts, "add-host", "Add a custom host-to-IP mapping (host:ip)")
@@ -243,6 +247,9 @@ func AddFlags(flags *pflag.FlagSet) *ContainerOptions {
 	flags.StringVar(&copts.shmSize, "shm-size", "", "Size of /dev/shm, default value is 64MB")
 	flags.StringVar(&copts.utsMode, "uts", "", "UTS namespace to use")
 	flags.StringVar(&copts.runtime, "runtime", "", "Runtime to use for this container")
+
+	flags.BoolVar(&copts.init, "init", false, "Run an init inside the container that forwards signals and reaps processes")
+	flags.StringVar(&copts.initPath, "init-path", "", "Path to the docker-init binary")
 	return copts
 }
 
@@ -593,6 +600,11 @@ func Parse(flags *pflag.FlagSet, copts *ContainerOptions) (*container.Config, *c
 		Runtime:        copts.runtime,
 	}
 
+	// only set this value if the user provided the flag, else it should default to nil
+	if flags.Changed("init") {
+		hostConfig.Init = &copts.init
+	}
+
 	// When allocating stdin in attached mode, close stdin at client disconnect
 	if config.OpenStdin && config.AttachStdin {
 		config.StdinOnce = true
@@ -685,7 +697,7 @@ func parseSecurityOpts(securityOpts []string) ([]string, error) {
 	for key, opt := range securityOpts {
 		con := strings.SplitN(opt, "=", 2)
 		if len(con) == 1 && con[0] != "no-new-privileges" {
-			if strings.Index(opt, ":") != -1 {
+			if strings.Contains(opt, ":") {
 				con = strings.SplitN(opt, ":", 2)
 			} else {
 				return securityOpts, fmt.Errorf("Invalid --security-opt: %q", opt)

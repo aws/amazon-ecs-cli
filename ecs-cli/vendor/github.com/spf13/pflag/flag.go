@@ -416,7 +416,7 @@ func Set(name, value string) error {
 // otherwise, the default values of all defined flags in the set.
 func (f *FlagSet) PrintDefaults() {
 	usages := f.FlagUsages()
-	fmt.Fprintf(f.out(), "%s", usages)
+	fmt.Fprint(f.out(), usages)
 }
 
 // defaultIsZeroValue returns true if the default value for this flag represents
