@@ -18,6 +18,7 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients"
@@ -27,13 +28,13 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/utils/cache/mocks"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/request"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/codegangsta/cli"
 	"github.com/golang/mock/gomock"
 )
 
 var clusterName = "test"
-var defaultCliConfigParams = config.CliParams{Cluster: "cluster", Config: &aws.Config{Region: aws.String("region1")}}
 
 // mockReadWriter implements ReadWriter interface to return just the cluster
 // field whenperforming read.
@@ -119,7 +120,9 @@ func setupTestController(t *testing.T, configParams *config.CliParams) (*mock_ec
 }
 
 func TestRegisterTDWithCache(t *testing.T) {
-	mockEcs, mockCache, client, ctrl := setupTestController(t, &defaultCliConfigParams)
+	defer os.Clearenv()
+
+	mockEcs, mockCache, client, ctrl := setupTestController(t, getDefaultCliConfigParams(t))
 	defer ctrl.Finish()
 
 	registerTaskDefinitionInput1 := ecs.RegisterTaskDefinitionInput{
@@ -227,7 +230,9 @@ func TestRegisterTDWithCache(t *testing.T) {
 }
 
 func TestRegisterTaskDefinitionIfNeededTDBecomesInactive(t *testing.T) {
-	mockEcs, mockCache, client, ctrl := setupTestController(t, &defaultCliConfigParams)
+	defer os.Clearenv()
+
+	mockEcs, mockCache, client, ctrl := setupTestController(t, getDefaultCliConfigParams(t))
 	defer ctrl.Finish()
 
 	registerTaskDefinitionInput1 := ecs.RegisterTaskDefinitionInput{
@@ -320,7 +325,9 @@ func TestRegisterTaskDefinitionIfNeededFamilyNameNotProvided(t *testing.T) {
 }
 
 func TestRegisterTaskDefinitionIfNeededTDLatestTDRevisionIsInactive(t *testing.T) {
-	mockEcs, mockCache, client, ctrl := setupTestController(t, &defaultCliConfigParams)
+	defer os.Clearenv()
+
+	mockEcs, mockCache, client, ctrl := setupTestController(t, getDefaultCliConfigParams(t))
 	defer ctrl.Finish()
 
 	registerTaskDefinitionInput1 := ecs.RegisterTaskDefinitionInput{
@@ -371,7 +378,9 @@ func TestRegisterTaskDefinitionIfNeededTDLatestTDRevisionIsInactive(t *testing.T
 }
 
 func TestRegisterTaskDefinitionIfNeededCachedTDIsInactive(t *testing.T) {
-	mockEcs, mockCache, client, ctrl := setupTestController(t, &defaultCliConfigParams)
+	defer os.Clearenv()
+
+	mockEcs, mockCache, client, ctrl := setupTestController(t, getDefaultCliConfigParams(t))
 	defer ctrl.Finish()
 
 	registerTaskDefinitionInput1 := ecs.RegisterTaskDefinitionInput{
@@ -577,4 +586,24 @@ func TestIsActiveCluster(t *testing.T) {
 		t.Error("Expected IsActiveCluster to return true on api returning an active cluster")
 	}
 
+}
+
+func getDefaultCliConfigParams(t *testing.T) *config.CliParams {
+	setDefaultAWSEnvVariables()
+
+	testSession, err := session.NewSession()
+	if err != nil {
+		t.Fatal("Unexpected error in creating session")
+	}
+
+	return &config.CliParams{
+		Cluster: "cluster",
+		Session: testSession,
+	}
+}
+
+func setDefaultAWSEnvVariables() {
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "secret")
+	os.Setenv("AWS_REGION", "region1")
 }

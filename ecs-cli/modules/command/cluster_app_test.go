@@ -25,6 +25,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config/ami"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/codegangsta/cli"
 	"github.com/golang/mock/gomock"
 )
@@ -763,15 +764,28 @@ func TestClusterScaleWithoutSize(t *testing.T) {
 }
 
 func TestClusterPSTaskGetInfoFail(t *testing.T) {
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "secret")
+	defer func() {
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+	}()
+
+	testSession, err := session.NewSession()
+	if err != nil {
+		t.Fatal("Unexpected error in creating session")
+	}
+
 	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CliParams, error) {
 		return &config.CliParams{
 			Cluster: clusterName,
+			Session: testSession,
 		}, nil
 	}
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
 
+	mockECS := mock_ecs.NewMockECSClient(ctrl)
 	mockECS.EXPECT().Initialize(gomock.Any())
 	mockECS.EXPECT().IsActiveCluster(gomock.Any()).Return(true, nil)
 	mockECS.EXPECT().GetTasksPages(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
@@ -784,7 +798,7 @@ func TestClusterPSTaskGetInfoFail(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli-down", 0)
 
 	context := cli.NewContext(nil, flagSet, globalContext)
-	_, err := clusterPS(context, newMockReadWriter(), mockECS)
+	_, err = clusterPS(context, newMockReadWriter(), mockECS)
 	if err == nil {
 		t.Fatal("Expected error in cluster ps")
 	}

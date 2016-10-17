@@ -18,14 +18,14 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
-	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/codegangsta/cli"
 )
 
 // CliParams saves config to create an aws service clients
 type CliParams struct {
 	Cluster                  string
-	Config                   *aws.Config
+	Session                  *session.Session
 	ComposeProjectNamePrefix string
 	ComposeServiceNamePrefix string
 	CFNStackNamePrefix       string
@@ -60,14 +60,14 @@ func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 		ecsConfig.Region = regionFromFlag
 	}
 
-	svcConfig, err := ecsConfig.ToServiceConfig()
+	svcSession, err := ecsConfig.ToAWSSession()
 	if err != nil {
 		return nil, err
 	}
 
 	return &CliParams{
-		Cluster: ecsConfig.Cluster,
-		Config:  svcConfig,
+		Cluster:                  ecsConfig.Cluster,
+		Session:                  svcSession,
 		ComposeProjectNamePrefix: ecsConfig.ComposeProjectNamePrefix,
 		ComposeServiceNamePrefix: ecsConfig.ComposeServiceNamePrefix,
 		CFNStackNamePrefix:       ecsConfig.CFNStackNamePrefix,

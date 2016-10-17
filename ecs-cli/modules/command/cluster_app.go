@@ -222,7 +222,7 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 	// Check if image id was supplied, else populate
 	_, err = cfnParams.GetParameter(cloudformation.ParameterKeyAmiId)
 	if err == cloudformation.ParameterNotFoundError {
-		amiId, err := amiIds.Get(aws.StringValue(ecsParams.Config.Region))
+		amiId, err := amiIds.Get(aws.StringValue(ecsParams.Session.Config.Region))
 		if err != nil {
 			return err
 		}

@@ -24,7 +24,6 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/utils/cache"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
 )
@@ -81,7 +80,7 @@ func NewECSClient() ECSClient {
 }
 
 func (c *ecsClient) Initialize(params *config.CliParams) {
-	client := ecs.New(session.New(params.Config))
+	client := ecs.New(params.Session)
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
 	c.client = client
 	c.params = params
@@ -289,7 +288,7 @@ func cachedTaskDefinitionRevisionIsActive(cachedTaskDefinition *ecs.TaskDefiniti
 // the request ecs.RegisterTaskDefinitionInput structure, and map iteration in Go is not deterministic. We need to fix this.
 func (client *ecsClient) constructTaskDefinitionCacheHash(taskDefinition *ecs.TaskDefinition, request *ecs.RegisterTaskDefinitionInput) string {
 	// Get the region from the ecsClient configuration
-	region := aws.StringValue(client.params.Config.Region)
+	region := aws.StringValue(client.params.Session.Config.Region)
 	awsUserAccountId := utils.GetAwsAccountIdFromArn(aws.StringValue(taskDefinition.TaskDefinitionArn))
 	tdHashInput := fmt.Sprintf("%s-%s-%s", region, awsUserAccountId, request.GoString())
 	return fmt.Sprintf("%x", md5.Sum([]byte(tdHashInput)))

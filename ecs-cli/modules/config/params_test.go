@@ -80,7 +80,7 @@ func TestNewCliParamsFromEnvVarsWithRegionSpecifiedAsEnvVariable(t *testing.T) {
 		t.Errorf("Unexpected error when region is specified using environment variable AWS_REGION: ", err)
 	}
 
-	paramsRegion := aws.StringValue(params.Config.Region)
+	paramsRegion := aws.StringValue(params.Session.Config.Region)
 	if "us-west-1" != paramsRegion {
 		t.Errorf("Unexpected region set, expected: us-west-1, got: %s", paramsRegion)
 	}
@@ -105,7 +105,7 @@ func TestNewCliParamsFromEnvVarsWithRegionSpecifiedinAwsDefaultEnvVariable(t *te
 	if err != nil {
 		t.Errorf("Unexpected error when region is specified using environment variable AWS_DEFAULT_REGION: ", err)
 	}
-	paramsRegion := aws.StringValue(params.Config.Region)
+	paramsRegion := aws.StringValue(params.Session.Config.Region)
 	if "us-west-2" != paramsRegion {
 		t.Errorf("Unexpected region set, expected: us-west-2, got: %s", paramsRegion)
 	}
@@ -131,7 +131,7 @@ func TestNewCliParamsFromConfig(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error when region is specified using environment variable AWS_DEFAULT_REGION: ", err)
 	}
-	paramsRegion := aws.StringValue(params.Config.Region)
+	paramsRegion := aws.StringValue(params.Session.Config.Region)
 	if "us-east-1" != paramsRegion {
 		t.Errorf("Unexpected region set, expected: us-east-1, got: %s", paramsRegion)
 	}

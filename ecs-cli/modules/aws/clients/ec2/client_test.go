@@ -15,19 +15,22 @@ package ec2
 
 import (
 	"errors"
+	"os"
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ec2/mock/sdk"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/golang/mock/gomock"
 )
 
 func TestDescribeInstances(t *testing.T) {
+	defer os.Clearenv()
 	ctrl := gomock.NewController(t)
 	mockEC2 := mock_ec2iface.NewMockEC2API(ctrl)
-	client := NewEC2Client(&config.CliParams{})
+	client := NewEC2Client(&config.CliParams{Session: newTestSession(t)})
 	client.(*ec2Client).client = mockEC2
 	defer ctrl.Finish()
 
@@ -54,16 +57,16 @@ func TestDescribeInstances(t *testing.T) {
 	}
 
 	mockEC2.EXPECT().DescribeInstances(gomock.Any()).Do(func(input interface{}) {
-               observedIds := input.(*ec2.DescribeInstancesInput)
-               if len(expectedIds) != len(observedIds.InstanceIds) {
-                       t.Fatalf("Expected request to have ids set to [%v] but got [%v]", expectedIds, observedIds.InstanceIds)
-               }
-               for idx, _ := range expectedIds {
-                       if aws.StringValue(expectedIds[idx]) != aws.StringValue(observedIds.InstanceIds[idx]) {
-                               t.Fatalf("Expected request to have ids set to [%s] but got [%s]",
-                                       aws.StringValue(expectedIds[idx]), aws.StringValue(observedIds.InstanceIds[idx]))
-                       }
-               }
+		observedIds := input.(*ec2.DescribeInstancesInput)
+		if len(expectedIds) != len(observedIds.InstanceIds) {
+			t.Fatalf("Expected request to have ids set to [%v] but got [%v]", expectedIds, observedIds.InstanceIds)
+		}
+		for idx, _ := range expectedIds {
+			if aws.StringValue(expectedIds[idx]) != aws.StringValue(observedIds.InstanceIds[idx]) {
+				t.Fatalf("Expected request to have ids set to [%s] but got [%s]",
+					aws.StringValue(expectedIds[idx]), aws.StringValue(observedIds.InstanceIds[idx]))
+			}
+		}
 	}).Return(result, nil)
 
 	output, err = client.DescribeInstances(expectedIds)
@@ -81,9 +84,11 @@ func TestDescribeInstances(t *testing.T) {
 }
 
 func TestDescribeInstancesErrorCases(t *testing.T) {
+	defer os.Clearenv()
+
 	ctrl := gomock.NewController(t)
 	mockEC2 := mock_ec2iface.NewMockEC2API(ctrl)
-	client := NewEC2Client(&config.CliParams{})
+	client := NewEC2Client(&config.CliParams{Session: newTestSession(t)})
 	client.(*ec2Client).client = mockEC2
 	defer ctrl.Finish()
 
@@ -110,4 +115,15 @@ func TestDescribeInstancesErrorCases(t *testing.T) {
 	if err == nil {
 		t.Error("Expected error for empty reservations, but got none")
 	}
+}
+
+func newTestSession(t *testing.T) *session.Session {
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "secret")
+
+	testSession, err := session.NewSession()
+	if err != nil {
+		t.Fatal("Unexpected error in creating session")
+	}
+	return testSession
 }
