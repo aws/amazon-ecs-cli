@@ -60,6 +60,12 @@ func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 		ecsConfig.Region = regionFromFlag
 	}
 
+	// The global --cluster flag has the highest precedence to set ecs-cli cluster config.
+	clusterFromFlag := context.GlobalString(ecscli.ClusterFlag)
+	if clusterFromFlag != "" {
+		ecsConfig.Cluster = clusterFromFlag
+	}
+
 	svcConfig, err := ecsConfig.ToServiceConfig()
 	if err != nil {
 		return nil, err

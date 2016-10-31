@@ -21,6 +21,7 @@ import (
 
 // Flag and command names used by the cli.
 const (
+	clusterNameFlag             = "cluster"
 	composeFileNameFlag         = "file"
 	composeFileNameDefaultValue = "docker-compose.yml"
 	containerNameFlag           = "name"
@@ -78,6 +79,11 @@ func commonComposeFlags() []cli.Flag {
 		cli.BoolFlag{
 			Name:  ecscli.VerboseFlag + ",debug",
 			Usage: "Increase the verbosity of command output to aid in diagnostics.",
+		},
+		cli.StringFlag{
+			Name:   clusterNameFlag + ",c",
+			Usage:  "Specifies the ECS cluster to use. Defaults to the currently configured cluster",
+			EnvVar: "ECS_CLUSTER",
 		},
 		cli.StringFlag{
 			Name:   composeFileNameFlag + ",f",
