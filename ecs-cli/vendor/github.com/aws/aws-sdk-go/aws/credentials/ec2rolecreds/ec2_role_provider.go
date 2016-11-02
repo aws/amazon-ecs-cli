@@ -86,6 +86,10 @@ func NewCredentialsWithClient(client *ec2metadata.EC2Metadata, options ...func(*
 // Error will be returned if the request fails, or unable to extract
 // the desired credentials.
 func (m *EC2RoleProvider) Retrieve() (credentials.Value, error) {
+    if m.Client == nil {
+        // Avoid dereferencing nil pointer below if m.Client is nil
+        return credentials.Value{ProviderName: ProviderName}, awserr.New("EmptyEC2RoleList", "No client for provider", nil)
+    }
 	credsList, err := requestCredList(m.Client)
 	if err != nil {
 		return credentials.Value{ProviderName: ProviderName}, err
