@@ -263,7 +263,18 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 }
 
 var newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CliParams, error) {
-	return config.NewCliParams(context, rdwr)
+	cliParams, err := config.NewCliParams(context, rdwr)
+
+    cluster := context.String("cluster")
+    if cluster != "" {
+        cliParams.Cluster = cluster
+    }
+
+    region := context.String("region")
+    if region != "" {
+        cliParams.Config.Region = &region
+    }
+    return cliParams, err
 }
 
 func deleteCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient) error {
