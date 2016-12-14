@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/docker/libcompose/utils"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -70,53 +71,20 @@ func getValue(val interface{}, context string) string {
 	return ""
 }
 
-// Converts map[interface{}]interface{} to map[string]interface{} recursively
-// gojsonschema only accepts map[string]interface{}
 func convertServiceMapKeysToStrings(serviceMap RawServiceMap) RawServiceMap {
 	newServiceMap := make(RawServiceMap)
-
 	for k, v := range serviceMap {
 		newServiceMap[k] = convertServiceKeysToStrings(v)
 	}
-
 	return newServiceMap
 }
 
 func convertServiceKeysToStrings(service RawService) RawService {
 	newService := make(RawService)
-
 	for k, v := range service {
-		newService[k] = convertKeysToStrings(v)
+		newService[k] = utils.ConvertKeysToStrings(v)
 	}
-
 	return newService
-}
-
-func convertKeysToStrings(item interface{}) interface{} {
-	switch typedDatas := item.(type) {
-
-	case map[interface{}]interface{}:
-		newMap := make(map[string]interface{})
-
-		for key, value := range typedDatas {
-			stringKey := key.(string)
-			newMap[stringKey] = convertKeysToStrings(value)
-		}
-		return newMap
-
-	case []interface{}:
-		// newArray := make([]interface{}, 0) will cause golint to complain
-		var newArray []interface{}
-		newArray = make([]interface{}, 0)
-
-		for _, value := range typedDatas {
-			newArray = append(newArray, convertKeysToStrings(value))
-		}
-		return newArray
-
-	default:
-		return item
-	}
 }
 
 var dockerConfigHints = map[string]string{
