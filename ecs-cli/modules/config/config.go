@@ -24,7 +24,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds"
 	"github.com/aws/aws-sdk-go/aws/defaults"
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
-	"github.com/aws/aws-sdk-go/private/endpoints"
+	"github.com/aws/aws-sdk-go/aws/endpoints"
 )
 
 // This time.Minute value comes from the SDK defaults package
@@ -118,8 +118,12 @@ func (cfg *CliConfig) getCredentialProviders(ec2MetadataClient *ec2metadata.EC2M
 
 // getEC2MetadataClient creates a new instance of the EC2Metadata client
 func (cfg *CliConfig) getEC2MetadataClient(awsDefaults *defaults.Defaults) *ec2metadata.EC2Metadata {
-	endpoint, signingRegion := endpoints.EndpointForRegion(ec2metadata.ServiceName, cfg.getRegion(), true, false)
-	return ec2metadata.NewClient(*awsDefaults.Config, awsDefaults.Handlers, endpoint, signingRegion)
+	opts := func(opts *endpoints.Options) {
+		opts.DisableSSL = true
+		opts.UseDualStack = false
+	}
+	endpoint, _ := endpoints.DefaultResolver().EndpointFor(ec2metadata.ServiceName, cfg.getRegion(), opts)
+	return ec2metadata.NewClient(*awsDefaults.Config, awsDefaults.Handlers, endpoint.URL, endpoint.SigningRegion)
 }
 
 // getRegion gets the region to use from ecs-cli's config file..

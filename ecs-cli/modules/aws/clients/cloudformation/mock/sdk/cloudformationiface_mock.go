@@ -459,6 +459,50 @@ func (_mr *_MockCloudFormationAPIRecorder) ListChangeSetsRequest(arg0 interface{
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListChangeSetsRequest", arg0)
 }
 
+func (_m *MockCloudFormationAPI) ListExports(_param0 *cloudformation.ListExportsInput) (*cloudformation.ListExportsOutput, error) {
+	ret := _m.ctrl.Call(_m, "ListExports", _param0)
+	ret0, _ := ret[0].(*cloudformation.ListExportsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListExports(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListExports", arg0)
+}
+
+func (_m *MockCloudFormationAPI) ListExportsRequest(_param0 *cloudformation.ListExportsInput) (*request.Request, *cloudformation.ListExportsOutput) {
+	ret := _m.ctrl.Call(_m, "ListExportsRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudformation.ListExportsOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListExportsRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListExportsRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) ListImports(_param0 *cloudformation.ListImportsInput) (*cloudformation.ListImportsOutput, error) {
+	ret := _m.ctrl.Call(_m, "ListImports", _param0)
+	ret0, _ := ret[0].(*cloudformation.ListImportsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListImports(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListImports", arg0)
+}
+
+func (_m *MockCloudFormationAPI) ListImportsRequest(_param0 *cloudformation.ListImportsInput) (*request.Request, *cloudformation.ListImportsOutput) {
+	ret := _m.ctrl.Call(_m, "ListImportsRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudformation.ListImportsOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListImportsRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListImportsRequest", arg0)
+}
+
 func (_m *MockCloudFormationAPI) ListStackResources(_param0 *cloudformation.ListStackResourcesInput) (*cloudformation.ListStackResourcesOutput, error) {
 	ret := _m.ctrl.Call(_m, "ListStackResources", _param0)
 	ret0, _ := ret[0].(*cloudformation.ListStackResourcesOutput)
