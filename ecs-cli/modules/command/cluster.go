@@ -31,6 +31,8 @@ const (
 	keypairNameFlag   = "keypair"
 	capabilityIAMFlag = "capability-iam"
 	forceFlag         = "force"
+    ClusterFlag       = "cluster"
+    RegionFlag        = "region"
 )
 
 func UpCommand() cli.Command {
@@ -91,6 +93,16 @@ func UpCommand() cli.Command {
 				Name:  forceFlag + ", f",
 				Usage: "[Optional] Forces the recreation of any existing resources that match your current configuration. This option is useful for cleaning up stale resources from previous failed attempts.",
 			},
+            cli.StringFlag{
+                Name:  ClusterFlag + ", c",
+                Usage: "[Optional] Specifies the ECS cluster name to use.",
+                EnvVar: "ECS_CLUSTER",
+            },
+            cli.StringFlag{
+                Name: RegionFlag + ", r",
+                Usage: "[Optional] Specifies the AWS region to use",
+                EnvVar: "AWS_REGION",
+            },
 		},
 	}
 }
@@ -105,6 +117,16 @@ func DownCommand() cli.Command {
 				Name:  forceFlag + ", f",
 				Usage: "Acknowledges that this command permanently deletes resources.",
 			},
+            cli.StringFlag{
+                Name:  ClusterFlag + ", c",
+                Usage: "[Optional] Specifies the ECS cluster name to use. If the cluster does not exist, it is created when you try to add resources to it with the ecs-cli up command.",
+                EnvVar: "ECS_CLUSTER",
+            },
+            cli.StringFlag{
+                Name: RegionFlag + ", r",
+                Usage: "[Optional] Specifies the AWS region to use",
+                EnvVar: "AWS_REGION",
+            },
 		},
 	}
 }
@@ -123,6 +145,16 @@ func ScaleCommand() cli.Command {
 				Name:  asgMaxSizeFlag,
 				Usage: "Specifies the number of instances to maintain in your cluster.",
 			},
+            cli.StringFlag{
+                Name:  ClusterFlag + ", c",
+                Usage: "[Optional] Specifies the ECS cluster name to use. If the cluster does not exist, it is created when you try to add resources to it with the ecs-cli up command.",
+                EnvVar: "ECS_CLUSTER",
+            },
+            cli.StringFlag{
+                Name: RegionFlag + ", r",
+                Usage: "[Optional] Specifies the AWS region to use",
+                EnvVar: "AWS_REGION",
+            },
 		},
 	}
 }
@@ -132,5 +164,17 @@ func PsCommand() cli.Command {
 		Name:   "ps",
 		Usage:  "Lists all of the running containers in your ECS cluster",
 		Action: ClusterPS,
+        Flags: []cli.Flag{
+            cli.StringFlag{
+                Name:  ClusterFlag + ", c",
+                Usage: "[Optional] Specifies the ECS cluster name to use. If the cluster does not exist, it is created when you try to add resources to it with the ecs-cli up command.",
+                EnvVar: "ECS_CLUSTER",
+            },
+            cli.StringFlag{
+                Name: RegionFlag + ", r",
+                Usage: "[Optional] Specifies the AWS region to use",
+                EnvVar: "AWS_REGION",
+            },
+        },
 	}
 }
