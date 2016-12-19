@@ -1,4 +1,10 @@
 # Changelog
+## 0.4.5
+* Feature - Update ECS-optimized AMIs to latest 2016.09.c
+* Bug - When environment variable is not resolved, set it to empty string.
+* Bug - `ecs-cli up` security group, vpc, subnets, azs validations
+* Bug - Add `--force` flag to `ecs-cli up` to delete CloudFormation stack if it exists
+
 ## 0.4.4
 * Feature - Update ECS-optimized AMIs to latest 2016.03.i.
 * Bug - Add validation for cluster name in `ecs-cli up` command.
