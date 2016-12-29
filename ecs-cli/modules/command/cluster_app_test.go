@@ -14,6 +14,8 @@
 package command
 
 import (
+	"bufio"
+	"bytes"
 	"errors"
 	"flag"
 	"os"
@@ -687,6 +689,20 @@ func TestClusterDownWithoutForce(t *testing.T) {
 	err := deleteCluster(context, newMockReadWriter(), mockECS, mockCloudformation)
 	if err == nil {
 		t.Fatalf("Expected error deleting cluster when '--%s' is not specified", forceFlag)
+	}
+}
+
+func TestDeleteClusterPrompt(t *testing.T) {
+	readBuffer := bytes.NewBuffer([]byte("yes\ny\nno\n"))
+	reader := bufio.NewReader(readBuffer)
+	if err := deleteClusterPrompt(reader); err != nil {
+		t.Error("Expected no error with prompt to delete cluster")
+	}
+	if err := deleteClusterPrompt(reader); err != nil {
+		t.Error("Expected no error with prompt to delete cluster")
+	}
+	if err := deleteClusterPrompt(reader); err == nil {
+		t.Error("Expected error with prompt to delete cluster")
 	}
 }
 
