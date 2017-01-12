@@ -18,6 +18,8 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients"
@@ -521,6 +523,53 @@ func TestRunTask(t *testing.T) {
 	_, err := client.RunTask(td, startedBy, count)
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestRunTaskWithOverrides(t *testing.T) {
+	mockEcs, _, client, ctrl := setupTestController(t, nil)
+	defer ctrl.Finish()
+
+	clusterName := "clusterName"
+	td := "taskDef"
+	startedBy := "startedBy"
+	count := 5
+	for _, overrideCommand := range []string{"single", "multi,part,command"} {
+		overrides := map[string]string{
+			td: overrideCommand,
+		}
+		client.(*ecsClient).params = &config.CliParams{
+			Cluster: clusterName,
+		}
+
+		mockEcs.EXPECT().RunTask(gomock.Any()).Do(func(input interface{}) {
+			req := input.(*ecs.RunTaskInput)
+			if clusterName != aws.StringValue(req.Cluster) {
+				t.Errorf("clusterName should be [%s]. Got [%s]", clusterName, aws.StringValue(req.Cluster))
+			}
+			if td != aws.StringValue(req.TaskDefinition) {
+				t.Errorf("taskDefinition should be [%s]. Got [%s]", td, aws.StringValue(req.TaskDefinition))
+			}
+			if startedBy != aws.StringValue(req.StartedBy) {
+				t.Errorf("startedBy should be [%s]. Got [%s]", startedBy, aws.StringValue(req.StartedBy))
+			}
+			if int64(count) != aws.Int64Value(req.Count) {
+				t.Errorf("count should be [%s]. Got [%s]", count, aws.Int64Value(req.Count))
+			}
+			for _, override := range req.Overrides.ContainerOverrides {
+				if *override.Name == td {
+					if reflect.DeepEqual(strings.Split(overrideCommand, ","), override.Command) {
+						t.Errorf("override command should be [%s]. Got [%s]", count, aws.Int64Value(req.Count))
+					}
+				}
+			}
+
+		}).Return(&ecs.RunTaskOutput{}, nil)
+
+		_, err := client.RunTaskWithOverrides(td, startedBy, count, overrides)
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
 }
 

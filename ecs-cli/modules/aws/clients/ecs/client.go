@@ -17,6 +17,7 @@ import (
 	"crypto/md5"
 	"errors"
 	"fmt"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients"
@@ -402,7 +403,7 @@ func (client *ecsClient) RunTaskWithOverrides(taskDefinition, startedBy string, 
 	for cont, command := range overrides {
 		contOverride := &ecs.ContainerOverride{
 			Name:    aws.String(cont),
-			Command: aws.StringSlice([]string{command}),
+			Command: aws.StringSlice(strings.Split(command, ",")),
 		}
 		commandOverrides = append(commandOverrides, contOverride)
 	}
