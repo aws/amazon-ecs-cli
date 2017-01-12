@@ -260,7 +260,8 @@ func convertToKeyValuePairs(context *project.Context, envVars yaml.MaporEqualSli
 		// format: key
 		// format: key=
 		if context.EnvironmentLookup != nil {
-			resolvedEnvVars := context.EnvironmentLookup.Lookup(key, serviceName, nil)
+			resolvedEnvVars := context.EnvironmentLookup.Lookup(key, nil)
+
 			// If the environment variable couldn't be resolved, set the value to an empty string
 			// Reference: https://github.com/docker/libcompose/blob/3c40e1001a2646ec6f7a6613873cf5a30122a417/config/interpolation.go#L148
 			if len(resolvedEnvVars) == 0 {

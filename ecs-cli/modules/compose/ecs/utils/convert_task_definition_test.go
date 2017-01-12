@@ -54,7 +54,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 		Hostname:    hostname,
 		Image:       image,
 		Links:       links,
-		MemLimit:    yaml.StringorInt(int64(1048576) * memory), //1 MiB = 1048576B
+		MemLimit:    yaml.MemStringorInt(int64(1048576) * memory), //1 MiB = 1048576B
 		Privileged:  privileged,
 		ReadOnly:    readOnly,
 		SecurityOpt: securityOpts,
@@ -545,7 +545,7 @@ func TestIsZeroWhenConfigHasValues(t *testing.T) {
 		Hostname:    "foobarbaz",
 		Image:       "testimage",
 		Links:       []string{"container1"},
-		MemLimit:    yaml.StringorInt(int64(104857600)),
+		MemLimit:    yaml.MemStringorInt(int64(104857600)),
 		Privileged:  true,
 		ReadOnly:    true,
 		SecurityOpt: []string{"label:type:test_virt"},

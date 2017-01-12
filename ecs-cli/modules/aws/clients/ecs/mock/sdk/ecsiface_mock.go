@@ -87,6 +87,28 @@ func (_mr *_MockECSAPIRecorder) CreateServiceRequest(arg0 interface{}) *gomock.C
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateServiceRequest", arg0)
 }
 
+func (_m *MockECSAPI) DeleteAttributes(_param0 *ecs.DeleteAttributesInput) (*ecs.DeleteAttributesOutput, error) {
+	ret := _m.ctrl.Call(_m, "DeleteAttributes", _param0)
+	ret0, _ := ret[0].(*ecs.DeleteAttributesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockECSAPIRecorder) DeleteAttributes(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteAttributes", arg0)
+}
+
+func (_m *MockECSAPI) DeleteAttributesRequest(_param0 *ecs.DeleteAttributesInput) (*request.Request, *ecs.DeleteAttributesOutput) {
+	ret := _m.ctrl.Call(_m, "DeleteAttributesRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ecs.DeleteAttributesOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockECSAPIRecorder) DeleteAttributesRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteAttributesRequest", arg0)
+}
+
 func (_m *MockECSAPI) DeleteCluster(_param0 *ecs.DeleteClusterInput) (*ecs.DeleteClusterOutput, error) {
 	ret := _m.ctrl.Call(_m, "DeleteCluster", _param0)
 	ret0, _ := ret[0].(*ecs.DeleteClusterOutput)
@@ -307,6 +329,28 @@ func (_mr *_MockECSAPIRecorder) DiscoverPollEndpointRequest(arg0 interface{}) *g
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DiscoverPollEndpointRequest", arg0)
 }
 
+func (_m *MockECSAPI) ListAttributes(_param0 *ecs.ListAttributesInput) (*ecs.ListAttributesOutput, error) {
+	ret := _m.ctrl.Call(_m, "ListAttributes", _param0)
+	ret0, _ := ret[0].(*ecs.ListAttributesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockECSAPIRecorder) ListAttributes(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListAttributes", arg0)
+}
+
+func (_m *MockECSAPI) ListAttributesRequest(_param0 *ecs.ListAttributesInput) (*request.Request, *ecs.ListAttributesOutput) {
+	ret := _m.ctrl.Call(_m, "ListAttributesRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ecs.ListAttributesOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockECSAPIRecorder) ListAttributesRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListAttributesRequest", arg0)
+}
+
 func (_m *MockECSAPI) ListClusters(_param0 *ecs.ListClustersInput) (*ecs.ListClustersOutput, error) {
 	ret := _m.ctrl.Call(_m, "ListClusters", _param0)
 	ret0, _ := ret[0].(*ecs.ListClustersOutput)
@@ -497,6 +541,28 @@ func (_m *MockECSAPI) ListTasksRequest(_param0 *ecs.ListTasksInput) (*request.Re
 
 func (_mr *_MockECSAPIRecorder) ListTasksRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListTasksRequest", arg0)
+}
+
+func (_m *MockECSAPI) PutAttributes(_param0 *ecs.PutAttributesInput) (*ecs.PutAttributesOutput, error) {
+	ret := _m.ctrl.Call(_m, "PutAttributes", _param0)
+	ret0, _ := ret[0].(*ecs.PutAttributesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockECSAPIRecorder) PutAttributes(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "PutAttributes", arg0)
+}
+
+func (_m *MockECSAPI) PutAttributesRequest(_param0 *ecs.PutAttributesInput) (*request.Request, *ecs.PutAttributesOutput) {
+	ret := _m.ctrl.Call(_m, "PutAttributesRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ecs.PutAttributesOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockECSAPIRecorder) PutAttributesRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "PutAttributesRequest", arg0)
 }
 
 func (_m *MockECSAPI) RegisterContainerInstance(_param0 *ecs.RegisterContainerInstanceInput) (*ecs.RegisterContainerInstanceOutput, error) {

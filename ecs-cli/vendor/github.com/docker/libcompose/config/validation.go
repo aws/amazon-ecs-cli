@@ -287,3 +287,36 @@ func validateServiceConstraints(service RawService, serviceName string) error {
 
 	return nil
 }
+
+func validateServiceConstraintsv2(service RawService, serviceName string) error {
+	if err := setupSchemaLoaders(servicesSchemaDataV2, &schemaV2, &schemaLoaderV2, &constraintSchemaLoaderV2); err != nil {
+		return err
+	}
+
+	service = convertServiceKeysToStrings(service)
+
+	var validationErrors []string
+
+	dataLoader := gojsonschema.NewGoLoader(service)
+
+	result, err := gojsonschema.Validate(constraintSchemaLoaderV2, dataLoader)
+	if err != nil {
+		return err
+	}
+
+	if !result.Valid() {
+		for _, err := range result.Errors() {
+			if err.Type() == "required" {
+				_, containsImage := service["image"]
+				_, containsBuild := service["build"]
+
+				if containsBuild || !containsImage && !containsBuild {
+					validationErrors = append(validationErrors, fmt.Sprintf("Service '%s' has neither an image nor a build context specified. At least one must be provided.", serviceName))
+				}
+			}
+		}
+		return fmt.Errorf(strings.Join(validationErrors, "\n"))
+	}
+
+	return nil
+}

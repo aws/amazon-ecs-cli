@@ -8,7 +8,7 @@ import (
 
 // EnvironmentLookup defines methods to provides environment variable loading.
 type EnvironmentLookup interface {
-	Lookup(key, serviceName string, config *ServiceConfig) []string
+	Lookup(key string, config *ServiceConfig) []string
 }
 
 // ResourceLookup defines methods to provides file loading.
@@ -45,9 +45,9 @@ type ServiceConfigV1 struct {
 	Links         yaml.MaporColonSlice `yaml:"links,omitempty"`
 	LogDriver     string               `yaml:"log_driver,omitempty"`
 	MacAddress    string               `yaml:"mac_address,omitempty"`
-	MemLimit      yaml.StringorInt     `yaml:"mem_limit,omitempty"`
-	MemSwapLimit  yaml.StringorInt     `yaml:"memswap_limit,omitempty"`
-	MemSwappiness yaml.StringorInt     `yaml:"mem_swappiness,omitempty"`
+	MemLimit      yaml.MemStringorInt  `yaml:"mem_limit,omitempty"`
+	MemSwapLimit  yaml.MemStringorInt  `yaml:"memswap_limit,omitempty"`
+	MemSwappiness yaml.MemStringorInt  `yaml:"mem_swappiness,omitempty"`
 	Name          string               `yaml:"name,omitempty"`
 	Net           string               `yaml:"net,omitempty"`
 	OomScoreAdj   yaml.StringorInt     `yaml:"oom_score_adj,omitempty"`
@@ -58,7 +58,7 @@ type ServiceConfigV1 struct {
 	Privileged    bool                 `yaml:"privileged,omitempty"`
 	Restart       string               `yaml:"restart,omitempty"`
 	ReadOnly      bool                 `yaml:"read_only,omitempty"`
-	ShmSize       yaml.StringorInt     `yaml:"shm_size,omitempty"`
+	ShmSize       yaml.MemStringorInt  `yaml:"shm_size,omitempty"`
 	StdinOpen     bool                 `yaml:"stdin_open,omitempty"`
 	SecurityOpt   []string             `yaml:"security_opt,omitempty"`
 	StopSignal    string               `yaml:"stop_signal,omitempty"`
@@ -115,9 +115,9 @@ type ServiceConfig struct {
 	Links         yaml.MaporColonSlice `yaml:"links,omitempty"`
 	Logging       Log                  `yaml:"logging,omitempty"`
 	MacAddress    string               `yaml:"mac_address,omitempty"`
-	MemLimit      yaml.StringorInt     `yaml:"mem_limit,omitempty"`
-	MemSwapLimit  yaml.StringorInt     `yaml:"memswap_limit,omitempty"`
-	MemSwappiness yaml.StringorInt     `yaml:"mem_swappiness,omitempty"`
+	MemLimit      yaml.MemStringorInt  `yaml:"mem_limit,omitempty"`
+	MemSwapLimit  yaml.MemStringorInt  `yaml:"memswap_limit,omitempty"`
+	MemSwappiness yaml.MemStringorInt  `yaml:"mem_swappiness,omitempty"`
 	NetworkMode   string               `yaml:"network_mode,omitempty"`
 	Networks      *yaml.Networks       `yaml:"networks,omitempty"`
 	OomScoreAdj   yaml.StringorInt     `yaml:"oom_score_adj,omitempty"`
@@ -125,7 +125,7 @@ type ServiceConfig struct {
 	Ports         []string             `yaml:"ports,omitempty"`
 	Privileged    bool                 `yaml:"privileged,omitempty"`
 	SecurityOpt   []string             `yaml:"security_opt,omitempty"`
-	ShmSize       yaml.StringorInt     `yaml:"shm_size,omitempty"`
+	ShmSize       yaml.MemStringorInt  `yaml:"shm_size,omitempty"`
 	StopSignal    string               `yaml:"stop_signal,omitempty"`
 	Tmpfs         yaml.Stringorslice   `yaml:"tmpfs,omitempty"`
 	VolumeDriver  string               `yaml:"volume_driver,omitempty"`
@@ -172,10 +172,10 @@ type NetworkConfig struct {
 
 // Config holds libcompose top level configuration
 type Config struct {
-	Version  string                    `yaml:"version,omitempty"`
-	Services RawServiceMap             `yaml:"services,omitempty"`
-	Volumes  map[string]*VolumeConfig  `yaml:"volumes,omitempty"`
-	Networks map[string]*NetworkConfig `yaml:"networks,omitempty"`
+	Version  string                 `yaml:"version,omitempty"`
+	Services RawServiceMap          `yaml:"services,omitempty"`
+	Volumes  map[string]interface{} `yaml:"volumes,omitempty"`
+	Networks map[string]interface{} `yaml:"networks,omitempty"`
 }
 
 // NewServiceConfigs initializes a new Configs struct
