@@ -1,4 +1,10 @@
 # Changelog
+## 0.4.6
+* Feature - Update ECS-optimized AMIs to latest 2016.09.d
+* Bug - Support human readable strings for mem_limit
+* Feature - Support for reading regions from aws profile
+* Feature - Support for assume role from aws profile
+
 ## 0.4.5
 * Feature - Update ECS-optimized AMIs to latest 2016.09.c
 * Bug - When environment variable is not resolved, set it to empty string.
