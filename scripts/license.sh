@@ -27,9 +27,16 @@ appendRepoLicense() {
       inputfile+="$(<$licensefile)"$'\n'
     fi;
   done;
+
   # Copy COPYING* file
   if [ -f $repo/COPYING* ]; then
     inputfile+="$(<$repo/COPYING*)"$'\n'
+  fi;
+
+  # Copy NOTICE*
+  if [ -f $repo/NOTICE* ]; then
+    inputfile+="NOTICE file reads:"$'\n'
+    inputfile+="$(<$repo/NOTICE*)"$'\n'
   fi;
 }
 
