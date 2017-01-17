@@ -170,6 +170,16 @@
 			"Rev": "5e1afe1c0a077fb2da9b5f74232b790d99397ce8"
 		},
 		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/ecr",
+			"Comment": "v1.6.2-1-g6545347",
+			"Rev": "654534755951d5af0bef2b612cf98fe529acdb7b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/ecr/ecriface",
+			"Comment": "v1.6.2-1-g6545347",
+			"Rev": "654534755951d5af0bef2b612cf98fe529acdb7b"
+		},
+		{
 			"ImportPath": "github.com/aws/aws-sdk-go/service/ecs",
 			"Comment": "v1.6.10-2-g5e1afe1",
 			"Rev": "5e1afe1c0a077fb2da9b5f74232b790d99397ce8"
