@@ -39,6 +39,8 @@ func main() {
 		command.DownCommand(),
 		command.ScaleCommand(),
 		command.PsCommand(),
+		command.PushCommand(),
+		command.PullCommand(),
 		license.LicenseCommand(),
 		ecscompose.ComposeCommand(composeFactory),
 	}
