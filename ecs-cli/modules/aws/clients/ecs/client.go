@@ -286,11 +286,20 @@ func cachedTaskDefinitionRevisionIsActive(cachedTaskDefinition *ecs.TaskDefiniti
 // constructTaskDefinitionCacheHash computes md5sum of the region, awsAccountId and the requested task definition data
 // BUG(juanrhenals) The requested Task Definition data (taskDefinitionRequest) is not created in a deterministic fashion because there are maps within
 // the request ecs.RegisterTaskDefinitionInput structure, and map iteration in Go is not deterministic. We need to fix this.
+// FIXED(pzimmermann) using a marshalled json representation for the task definition data to be deterministic
 func (client *ecsClient) constructTaskDefinitionCacheHash(taskDefinition *ecs.TaskDefinition, request *ecs.RegisterTaskDefinitionInput) string {
 	// Get the region from the ecsClient configuration
 	region := aws.StringValue(client.params.Session.Config.Region)
 	awsUserAccountId := utils.GetAwsAccountIdFromArn(aws.StringValue(taskDefinition.TaskDefinitionArn))
-	tdHashInput := fmt.Sprintf("%s-%s-%s", region, awsUserAccountId, request.GoString())
+	sortedRequestString, err := request.SortedGoString()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Warn("Error during json marshalling; fallback to non-deterministic task definition data used for cache hash")
+		tdHashInput := fmt.Sprintf("%s-%s-%s", region, awsUserAccountId, request.GoString())
+		return fmt.Sprintf("%x", md5.Sum([]byte(tdHashInput)))
+	}
+	tdHashInput := fmt.Sprintf("%s-%s-%s", region, awsUserAccountId, sortedRequestString)
 	return fmt.Sprintf("%x", md5.Sum([]byte(tdHashInput)))
 }
 

@@ -4,6 +4,7 @@
 package ecs
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -6557,6 +6558,15 @@ func (s RegisterTaskDefinitionInput) String() string {
 // GoString returns the string representation
 func (s RegisterTaskDefinitionInput) GoString() string {
 	return s.String()
+}
+
+// GoString returns deterministic string representation
+func (s RegisterTaskDefinitionInput) SortedGoString() (string, error) {
+	b, err := json.Marshal(s)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
 
 // Validate inspects the fields of the type to determine if they are valid.
