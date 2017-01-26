@@ -14,6 +14,7 @@
 package command
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strconv"
@@ -269,8 +270,10 @@ var newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.C
 func deleteCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient) error {
 	// Validate cli flags
 	if !isForceSet(context) {
-		return fmt.Errorf("Missing required flag '--%s'", forceFlag)
-		// TODO prompt override for force
+		reader := bufio.NewReader(os.Stdin)
+		if err := deleteClusterPrompt(reader); err != nil {
+			return err
+		}
 	}
 	ecsParams, err := newCliParams(context, rdwr)
 	if err != nil {
@@ -381,7 +384,20 @@ func validateCluster(clusterName string, ecsClient ecsclient.ECSClient) error {
 	if !isClusterActive {
 		return fmt.Errorf("Cluster '%s' is not active. Ensure that it exists", clusterName)
 	}
+	return nil
+}
 
+// deleteClusterPrompt prompts and checks for confirmation to delete the cluster
+func deleteClusterPrompt(reader *bufio.Reader) error {
+	fmt.Println("Are you sure you want to delete your cluster? [y/N]")
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("Error reading input: %s", err.Error())
+	}
+	formattedInput := strings.ToLower(strings.TrimSpace(input))
+	if formattedInput != "yes" && formattedInput != "y" {
+		return fmt.Errorf("Aborted cluster deletion. To delete your cluster, re-run this command and specify the '--%s' flag or confirm that you'd like to delete your cluster at the prompt.", forceFlag)
+	}
 	return nil
 }
 
