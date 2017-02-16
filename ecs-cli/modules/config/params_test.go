@@ -20,7 +20,7 @@ import (
 
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 // mockReadWriter implements ReadWriter interface to return just the cluster

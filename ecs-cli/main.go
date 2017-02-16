@@ -20,7 +20,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/command"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/cli/ecs/app"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/version"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 func main() {

@@ -23,8 +23,8 @@ import (
 	ec2client "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ec2"
 	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
-	"github.com/codegangsta/cli"
 	"github.com/docker/libcompose/project"
+	"github.com/urfave/cli"
 )
 
 const ProjectNameFlag = "project-name"

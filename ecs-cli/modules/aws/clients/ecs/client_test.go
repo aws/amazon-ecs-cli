@@ -30,8 +30,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ecs"
-	"github.com/codegangsta/cli"
 	"github.com/golang/mock/gomock"
+	"github.com/urfave/cli"
 )
 
 var clusterName = "test"

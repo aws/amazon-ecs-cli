@@ -28,8 +28,8 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config/ami"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/codegangsta/cli"
 	"github.com/docker/libcompose/project"
+	"github.com/urfave/cli"
 )
 
 // displayTitle flag is used to print the title for the fields

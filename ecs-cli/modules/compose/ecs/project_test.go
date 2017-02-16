@@ -22,9 +22,9 @@ import (
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
-	"github.com/codegangsta/cli"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
+	"github.com/urfave/cli"
 )
 
 const testProjectName = "test-project"

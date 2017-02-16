@@ -19,7 +19,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 // CliParams saves config to create an aws service clients

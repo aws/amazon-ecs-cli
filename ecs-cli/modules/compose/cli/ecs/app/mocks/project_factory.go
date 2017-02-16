@@ -18,8 +18,8 @@ package mock_app
 
 import (
 	ecs "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
-	cli "github.com/codegangsta/cli"
 	gomock "github.com/golang/mock/gomock"
+	cli "github.com/urfave/cli"
 )
 
 // Mock of ProjectFactory interface

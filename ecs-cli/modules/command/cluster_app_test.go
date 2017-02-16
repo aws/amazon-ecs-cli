@@ -28,8 +28,8 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config/ami"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/codegangsta/cli"
 	"github.com/golang/mock/gomock"
+	"github.com/urfave/cli"
 )
 
 type mockReadWriter struct {

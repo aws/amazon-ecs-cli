@@ -16,7 +16,7 @@ package app
 import (
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 // Flag and command names used by the cli.

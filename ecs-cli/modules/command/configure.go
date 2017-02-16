@@ -19,7 +19,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 // ConfigureCommand defines subcommand to configure the ecs-cli.

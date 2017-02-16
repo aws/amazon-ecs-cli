@@ -20,7 +20,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 // displayTitle flag is used to print the title for the fields

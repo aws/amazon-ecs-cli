@@ -17,7 +17,7 @@ import (
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 // ProjectFactory is an interface that surfaces a function to create ECS Compose Project (intended to make mocking easy in tests)

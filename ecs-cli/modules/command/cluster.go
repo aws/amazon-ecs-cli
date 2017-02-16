@@ -15,7 +15,7 @@ package command
 
 import (
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 const (

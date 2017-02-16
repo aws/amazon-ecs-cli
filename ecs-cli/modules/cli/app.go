@@ -15,7 +15,7 @@ package cli
 
 import (
 	log "github.com/Sirupsen/logrus"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 // BeforeApp is an action that is executed before any cli command.

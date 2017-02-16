@@ -17,7 +17,7 @@ import (
 	"fmt"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 //* ----------------- COMPOSE PROJECT with ECS Service ----------------- */
