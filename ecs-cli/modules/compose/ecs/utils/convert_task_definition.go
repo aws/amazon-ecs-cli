@@ -291,13 +291,20 @@ func createKeyValuePair(key, value string) *ecs.KeyValuePair {
 func convertToECSVolumes(hostPaths map[string]string) []*ecs.Volume {
 	output := []*ecs.Volume{}
 	for hostPath, volName := range hostPaths {
-		ecsVolume := &ecs.Volume{
-			Name: aws.String(volName),
-			Host: &ecs.HostVolumeProperties{
-				SourcePath: aws.String(hostPath),
-			},
+		if hostPath == "" {
+			ecsVolume := &ecs.Volume{
+				Name: aws.String(volName),
+			}
+			output = append(output, ecsVolume)
+		} else {
+			ecsVolume := &ecs.Volume{
+				Name: aws.String(volName),
+				Host: &ecs.HostVolumeProperties{
+					SourcePath: aws.String(hostPath),
+				},
+			}
+			output = append(output, ecsVolume)
 		}
-		output = append(output, ecsVolume)
 	}
 	return output
 }
