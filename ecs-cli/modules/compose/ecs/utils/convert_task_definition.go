@@ -29,8 +29,7 @@ import (
 )
 
 const (
-	defaultMemLimit = 512
-	kiB             = 1024
+	kiB = 1024
 
 	// access mode with which the volume is mounted
 	readOnlyVolumeAccessMode  = "ro"
@@ -42,7 +41,7 @@ const (
 var supportedComposeYamlOptions = []string{
 	"cpu_shares", "command", "dns", "dns_search", "entrypoint", "env_file",
 	"environment", "extra_hosts", "hostname", "image", "labels", "links",
-	"logging", "log_driver", "log_opt", "mem_limit", "ports", "privileged", "read_only",
+	"logging", "log_driver", "log_opt", "mem_limit", "memory_reservation", "ports", "privileged", "read_only",
 	"security_opt", "ulimits", "user", "volumes", "volumes_from", "working_dir",
 }
 
@@ -158,12 +157,17 @@ func isZero(v reflect.Value) bool {
 func convertToContainerDef(context *project.Context, inputCfg *config.ServiceConfig,
 	volumes map[string]string, outputContDef *ecs.ContainerDefinition) error {
 	// setting memory
-	var mem int64
+	var mem_l int64
 	if inputCfg.MemLimit != 0 {
-		mem = int64(inputCfg.MemLimit) / kiB / kiB // convert bytes to MiB
+		mem_l = int64(inputCfg.MemLimit) / kiB / kiB // convert bytes to MiB
 	}
-	if mem == 0 {
-		mem = defaultMemLimit
+
+	var mem_r int64
+	if inputCfg.MemoryReservation != 0 {
+		mem_r = int64(inputCfg.MemoryReservation) / kiB / kiB
+	}
+	if mem_r == 0 {
+		mem_r = mem_l // mem_limit must greater than or equal to MemoryReservation
 	}
 
 	// convert environment variables
@@ -224,7 +228,10 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 	outputContDef.Image = aws.String(inputCfg.Image)
 	outputContDef.Links = aws.StringSlice(inputCfg.Links) //TODO, read from external links
 	outputContDef.LogConfiguration = logConfig
-	outputContDef.Memory = aws.Int64(mem)
+	if mem_l != 0 {
+		outputContDef.Memory = aws.Int64(mem_l)
+	}
+	outputContDef.MemoryReservation = aws.Int64(mem_r)
 	outputContDef.MountPoints = mountPoints
 	outputContDef.Privileged = aws.Bool(inputCfg.Privileged)
 	outputContDef.PortMappings = portMappings

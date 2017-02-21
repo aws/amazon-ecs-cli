@@ -51,6 +51,7 @@ func TestParseComposeForVersion1Files(t *testing.T) {
 		"max-size": "50k",
 	}
 	memLimit := int64(1000000000)
+	memoryReservation := int64(1000000000)
 	ports := []string{"5000:5000", "127.0.0.1:8001:8001"}
 	privileged := true
 	readonly := true
@@ -85,6 +86,7 @@ func TestParseComposeForVersion1Files(t *testing.T) {
     max-file: 50
     max-size: 50k
   mem_limit: 1000000000
+  memory_reservation: 1000000000
   ports:
    - '5000:5000'
    - "127.0.0.1:8001:8001"
@@ -173,6 +175,9 @@ redis:
 	}
 	if memLimit != int64(web.MemLimit) {
 		t.Errorf("Expected memLimit to be [%s] but got [%s]", memLimit, web.MemLimit)
+	}
+	if memoryReservation != int64(web.MemoryReservation) {
+		t.Errorf("Expected memoryReservation to be [%s] but got [%s]", memoryReservation, web.MemoryReservation)
 	}
 	if !reflect.DeepEqual(ports, web.Ports) {
 		t.Errorf("Expected ports to be [%v] but got [%v]", ports, web.Ports)
