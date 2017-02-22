@@ -14,21 +14,25 @@
 package ecr
 
 import (
-	"encoding/base64"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ecr"
 	"github.com/aws/aws-sdk-go/service/ecr/ecriface"
+	login "github.com/awslabs/amazon-ecr-credential-helper/ecr-login/api"
 	"github.com/pkg/errors"
 )
 
 //go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecr Client mock/$GOFILE
+//go:generate mockgen.sh github.com/awslabs/amazon-ecr-credential-helper/ecr-login/api Client mock/credential-helper/login_mock.go
 //go:generate mockgen.sh github.com/aws/aws-sdk-go/service/ecr/ecriface ECRAPI mock/sdk/ecriface_mock.go
+
+const (
+	CacheDir = "~/.ecs"
+)
 
 // Client ECR interface
 type Client interface {
@@ -39,66 +43,53 @@ type Client interface {
 
 // ecrClient implements Client
 type ecrClient struct {
-	client ecriface.ECRAPI
-	params *config.CliParams
-	auth   *Auth
+	client      ecriface.ECRAPI
+	loginClient login.Client
+	params      *config.CliParams
+	auth        *Auth
 }
 
 // NewClient Creates a new ECR client
 func NewClient(params *config.CliParams) Client {
-	client := ecr.New(session.New(params.Session.Config))
+	client := ecr.New(params.Session, params.Session.Config)
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
-	return newClient(params, client)
+	loginClient := login.DefaultClientFactory{}.NewClientWithOptions(login.Options{
+		Session:  params.Session,
+		Config:   params.Session.Config,
+		CacheDir: CacheDir,
+	})
+	return newClient(params, client, loginClient)
 }
 
-func newClient(params *config.CliParams, client ecriface.ECRAPI) Client {
+func newClient(params *config.CliParams, client ecriface.ECRAPI, loginClient login.Client) Client {
 	return &ecrClient{
-		client: client,
-		params: params,
+		client:      client,
+		loginClient: loginClient,
+		params:      params,
 	}
 }
 
 // Auth keeps track of the ECR auth
 type Auth struct {
-	AuthorizationToken string
-	ProxyEndpoint      string
-	Username           string
-	Password           string
-	Registry           string
+	ProxyEndpoint string
+	Registry      string
+	Username      string
+	Password      string
 }
 
-func (c *ecrClient) GetAuthorizationToken(repositoryID string) (*Auth, error) {
-	log.Info("Getting authorization token...")
-	var repositoryIDs []*string
-	if repositoryID != "" {
-		repositoryIDs = []*string{aws.String(repositoryID)}
-	}
-	resp, err := c.client.GetAuthorizationToken(&ecr.GetAuthorizationTokenInput{RegistryIds: repositoryIDs})
+func (c *ecrClient) GetAuthorizationToken(registryID string) (*Auth, error) {
+	log.Debug("Getting authorization token...")
+	auth, err := c.loginClient.GetCredentialsByRegistryID(registryID)
 	if err != nil {
-		return nil, errors.Wrap(err, "ecr: failed to get authorization token")
+		return nil, errors.Wrap(err, "failed to serialize authorization token")
 	}
 
-	if len(resp.AuthorizationData) < 1 {
-		return nil, errors.New("ecr: no authorization token received")
-	}
-	ecrAuth := Auth{
-		AuthorizationToken: aws.StringValue(resp.AuthorizationData[0].AuthorizationToken),
-		ProxyEndpoint:      aws.StringValue(resp.AuthorizationData[0].ProxyEndpoint),
-	}
-
-	token, err := base64.StdEncoding.DecodeString(ecrAuth.AuthorizationToken)
-	if err != nil {
-		return nil, errors.Wrap(err, "ecr: failed to serialize authorization token")
-	}
-	auth := strings.SplitN(string(token), ":", 2)
-	if len(auth) < 2 {
-		return nil, errors.Wrap(err, "ecr: failed to serialize authorization token")
-	}
-	ecrAuth.Username = auth[0]
-	ecrAuth.Password = auth[1]
-	ecrAuth.Registry = strings.Replace(ecrAuth.ProxyEndpoint, "https://", "", -1)
-
-	return &ecrAuth, nil
+	return &Auth{
+		Username:      auth.Username,
+		Password:      auth.Password,
+		ProxyEndpoint: auth.ProxyEndpoint,
+		Registry:      strings.Replace(auth.ProxyEndpoint, "https://", "", -1),
+	}, nil
 }
 
 func (c *ecrClient) RepositoryExists(repositoryName string) bool {

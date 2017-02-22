@@ -201,15 +201,15 @@
 		},
 		{
 			"ImportPath": "github.com/awslabs/amazon-ecr-credential-helper/ecr-login/api",
-			"Rev": "b689e22ad1e9142d4836ee15baa83d1b67d08c3d"
+			"Rev": "19c5038b3c1fc63328b4eb99c507c72f12a27f66"
 		},
 		{
 			"ImportPath": "github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cache",
-			"Rev": "b689e22ad1e9142d4836ee15baa83d1b67d08c3d"
+			"Rev": "19c5038b3c1fc63328b4eb99c507c72f12a27f66"
 		},
 		{
 			"ImportPath": "github.com/awslabs/amazon-ecr-credential-helper/ecr-login/config",
-			"Rev": "b689e22ad1e9142d4836ee15baa83d1b67d08c3d"
+			"Rev": "19c5038b3c1fc63328b4eb99c507c72f12a27f66"
 		},
 		{
 			"ImportPath": "github.com/cihub/seelog",
