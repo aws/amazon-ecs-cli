@@ -14,55 +14,58 @@
 package ecr
 
 import (
-	"encoding/base64"
 	"errors"
 	"testing"
 
+	mock_login "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecr/mock/credential-helper"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecr/mock/sdk"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ecr"
+	login "github.com/awslabs/amazon-ecr-credential-helper/ecr-login/api"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	registryID = "123456789012"
+)
+
 func TestGetAuthorizationToken(t *testing.T) {
-	mockEcr, client, ctrl := setupTestController(t)
+	_, mockLogin, client, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
 	username := "username"
 	password := "password"
-	authorizationToken := base64.StdEncoding.EncodeToString([]byte(username + ":" + password))
-	proxyEndpoint := "https://proxyEndpoint"
-	mockEcr.EXPECT().GetAuthorizationToken(gomock.Any()).Return(&ecr.GetAuthorizationTokenOutput{
-		AuthorizationData: []*ecr.AuthorizationData{
-			&ecr.AuthorizationData{
-				AuthorizationToken: aws.String(authorizationToken),
-				ProxyEndpoint:      aws.String(proxyEndpoint),
-			},
-		},
+	registry := "proxyEndpoint"
+	proxyEndpoint := "https://" + registry
+	mockLogin.EXPECT().GetCredentialsByRegistryID(gomock.Any()).Return(&login.Auth{
+		Username:      username,
+		Password:      password,
+		ProxyEndpoint: proxyEndpoint,
 	}, nil)
 
-	ecrAuth, err := client.GetAuthorizationToken("")
+	ecrAuth, err := client.GetAuthorizationToken(registryID)
 	assert.NoError(t, err, "GetAuthorizationToken")
 	assert.Equal(t, username, ecrAuth.Username, "Expected username to match")
 	assert.Equal(t, password, ecrAuth.Password, "Expected password to match")
 	assert.Equal(t, proxyEndpoint, ecrAuth.ProxyEndpoint, "Expected proxyEndpoint to match")
+	assert.Equal(t, registry, ecrAuth.Registry, "Expected registry to match")
 }
 
 func TestGetAuthorizationTokenErrorCase(t *testing.T) {
-	mockEcr, client, ctrl := setupTestController(t)
+	_, mockLogin, client, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
-	mockEcr.EXPECT().GetAuthorizationToken(gomock.Any()).Return(nil, errors.New("something failed"))
+	mockLogin.EXPECT().GetCredentialsByRegistryID(gomock.Any()).Return(nil, errors.New("something failed"))
 
-	_, err := client.GetAuthorizationToken("")
+	_, err := client.GetAuthorizationToken(registryID)
 	assert.Error(t, err, "Expected error while GetAuthorizationToken is called")
 }
 
 func TestRepositoryExists(t *testing.T) {
-	mockEcr, client, ctrl := setupTestController(t)
+	mockEcr, _, client, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
 	repositoryName := "repositoryName"
@@ -76,7 +79,7 @@ func TestRepositoryExists(t *testing.T) {
 }
 
 func TestRepositoryDoesNotExists(t *testing.T) {
-	mockEcr, client, ctrl := setupTestController(t)
+	mockEcr, _, client, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
 	repositoryName := "repositoryName"
@@ -88,7 +91,7 @@ func TestRepositoryDoesNotExists(t *testing.T) {
 }
 
 func TestCreateRepository(t *testing.T) {
-	mockEcr, client, ctrl := setupTestController(t)
+	mockEcr, _, client, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
 	repositoryName := "repositoryName"
@@ -103,7 +106,7 @@ func TestCreateRepository(t *testing.T) {
 }
 
 func TestCreateRepositoryErrorCase(t *testing.T) {
-	mockEcr, client, ctrl := setupTestController(t)
+	mockEcr, _, client, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
 	repositoryName := "repositoryName"
@@ -114,13 +117,14 @@ func TestCreateRepositoryErrorCase(t *testing.T) {
 	assert.Error(t, err, "Expected error while CreateRepository is called")
 }
 
-func setupTestController(t *testing.T) (*mock_ecriface.MockECRAPI, Client, *gomock.Controller) {
+func setupTestController(t *testing.T) (*mock_ecriface.MockECRAPI, *mock_login.MockClient, Client, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 	mockEcr := mock_ecriface.NewMockECRAPI(ctrl)
+	mockLogin := mock_login.NewMockClient(ctrl)
 	mockSession, err := session.NewSession()
 	assert.NoError(t, err, "Unexpected error in creating session")
 
-	client := newClient(&config.CliParams{Session: mockSession}, mockEcr)
+	client := newClient(&config.CliParams{Session: mockSession}, mockEcr, mockLogin)
 
-	return mockEcr, client, ctrl
+	return mockEcr, mockLogin, client, ctrl
 }
