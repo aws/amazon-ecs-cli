@@ -19,6 +19,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	ecrclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecr"
+	stsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/sts"
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	dockerclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/docker"
@@ -51,8 +52,9 @@ func ImagePush(c *cli.Context) {
 		return
 	}
 	ecrClient := ecrclient.NewClient(ecsParams)
+	stsClient := stsclient.NewClient(ecsParams)
 
-	if err := pushImage(c, rdwr, dockerClient, ecrClient); err != nil {
+	if err := pushImage(c, rdwr, dockerClient, ecrClient, stsClient); err != nil {
 		logrus.Error("Error executing 'push': ", err)
 		return
 	}
@@ -78,15 +80,16 @@ func ImagePull(c *cli.Context) {
 		return
 	}
 	ecrClient := ecrclient.NewClient(ecsParams)
+	stsClient := stsclient.NewClient(ecsParams)
 
-	if err := pullImage(c, rdwr, dockerClient, ecrClient); err != nil {
+	if err := pullImage(c, rdwr, dockerClient, ecrClient, stsClient); err != nil {
 		logrus.Error("Error executing 'pull': ", err)
 		return
 	}
 }
 
-func pushImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient.Client, ecrClient ecrclient.Client) error {
-	registryId := c.String(ecscli.RegistryIdFlag)
+func pushImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient.Client, ecrClient ecrclient.Client, stsClient stsclient.Client) error {
+	registryID := c.String(ecscli.RegistryIdFlag)
 	targetImage := c.String(ecscli.ToFlag)
 	sourceImage := c.String(ecscli.FromFlag)
 	args := c.Args()
@@ -117,7 +120,12 @@ func pushImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient
 		return err
 	}
 
-	ecrAuth, err := ecrClient.GetAuthorizationToken(registryId)
+	registryID, err = getRegistryID(registryID, stsClient)
+	if err != nil {
+		return err
+	}
+
+	ecrAuth, err := ecrClient.GetAuthorizationToken(registryID)
 	if err != nil {
 		return err
 	}
@@ -142,6 +150,7 @@ func pushImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient
 		Password:      ecrAuth.Password,
 		ServerAddress: ecrAuth.ProxyEndpoint,
 	}
+
 	if err := dockerClient.PushImage(repositoryURI, tag, ecrAuth.Registry, dockerAuth); err != nil {
 		return err
 	}
@@ -149,8 +158,8 @@ func pushImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient
 	return nil
 }
 
-func pullImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient.Client, ecrClient ecrclient.Client) error {
-	registryId := c.String(ecscli.RegistryIdFlag)
+func pullImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient.Client, ecrClient ecrclient.Client, stsClient stsclient.Client) error {
+	registryID := c.String(ecscli.RegistryIdFlag)
 	args := c.Args()
 	if len(args) != 1 {
 		return fmt.Errorf("ecs-cli pull requires exactly 1 argument")
@@ -166,7 +175,12 @@ func pullImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient
 		return err
 	}
 
-	ecrAuth, err := ecrClient.GetAuthorizationToken(registryId)
+	registryID, err = getRegistryID(registryID, stsClient)
+	if err != nil {
+		return err
+	}
+
+	ecrAuth, err := ecrClient.GetAuthorizationToken(registryID)
 	if err != nil {
 		return err
 	}
@@ -185,6 +199,13 @@ func pullImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient
 	}
 
 	return nil
+}
+
+func getRegistryID(registryID string, stsClient stsclient.Client) (string, error) {
+	if registryID == "" {
+		return stsClient.GetAWSAccountID()
+	}
+	return registryID, nil
 }
 
 func splitImageName(image string, seperator string, format string) (string, string, error) {

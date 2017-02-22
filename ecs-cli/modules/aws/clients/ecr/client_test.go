@@ -27,34 +27,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const (
-	clusterName = "test"
-)
-
-// mockReadWriter implements ReadWriter interface to return just the cluster
-// field when performing read.
-type mockReadWriter struct{}
-
-func (rdwr *mockReadWriter) GetConfig() (*config.CliConfig, error) {
-	return config.NewCliConfig(clusterName), nil
-}
-
-func (rdwr *mockReadWriter) ReadFrom(ecsConfig *config.CliConfig) error {
-	return nil
-}
-
-func (rdwr *mockReadWriter) IsInitialized() (bool, error) {
-	return true, nil
-}
-
-func (rdwr *mockReadWriter) Save(dest *config.Destination) error {
-	return nil
-}
-
-func (rdwr *mockReadWriter) IsKeyPresent(section, key string) bool {
-	return true
-}
-
 func TestGetAuthorizationToken(t *testing.T) {
 	mockEcr, client, ctrl := setupTestController(t)
 	defer ctrl.Finish()
