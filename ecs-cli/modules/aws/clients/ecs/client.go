@@ -47,7 +47,7 @@ type ECSClient interface {
 	IsActiveCluster(clusterName string) (bool, error)
 
 	// Service related
-	CreateService(serviceName, taskDefName string, deploymentConfig *ecs.DeploymentConfiguration) error
+	CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration) error
 	UpdateServiceCount(serviceName string, count int64, deploymentConfig *ecs.DeploymentConfiguration) error
 	UpdateService(serviceName, taskDefinitionName string, count int64, deploymentConfig *ecs.DeploymentConfiguration) error
 	DescribeService(serviceName string) (*ecs.DescribeServicesOutput, error)
@@ -133,14 +133,28 @@ func (client *ecsClient) DeleteService(serviceName string) error {
 	return nil
 }
 
-func (client *ecsClient) CreateService(serviceName, taskDefName string, deploymentConfig *ecs.DeploymentConfiguration) error {
-	_, err := client.client.CreateService(&ecs.CreateServiceInput{
-		DesiredCount:            aws.Int64(0),            // Required
-		ServiceName:             aws.String(serviceName), // Required
-		TaskDefinition:          aws.String(taskDefName), // Required
-		Cluster:                 aws.String(client.params.Cluster),
-		DeploymentConfiguration: deploymentConfig,
-	})
+func (client *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration) error {
+	var err error
+
+	if *loadBalancer.TargetGroupArn != "" {
+		_, err = client.client.CreateService(&ecs.CreateServiceInput{
+			DesiredCount:            aws.Int64(0),            // Required
+			ServiceName:             aws.String(serviceName), // Required
+			TaskDefinition:          aws.String(taskDefName), // Required
+			Cluster:                 aws.String(client.params.Cluster),
+			DeploymentConfiguration: deploymentConfig,
+			LoadBalancers:           []*ecs.LoadBalancer{loadBalancer},
+			Role:                    aws.String(role),
+		})
+	} else {
+		_, err = client.client.CreateService(&ecs.CreateServiceInput{
+			DesiredCount:            aws.Int64(0),            // Required
+			ServiceName:             aws.String(serviceName), // Required
+			TaskDefinition:          aws.String(taskDefName), // Required
+			Cluster:                 aws.String(client.params.Cluster),
+			DeploymentConfiguration: deploymentConfig,
+		})
+	}
 	if err != nil {
 		log.WithFields(log.Fields{
 			"service": serviceName,
