@@ -134,28 +134,19 @@ func (client *ecsClient) DeleteService(serviceName string) error {
 }
 
 func (client *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration) error {
-	var err error
-
-	if *loadBalancer.TargetGroupArn != "" {
-		_, err = client.client.CreateService(&ecs.CreateServiceInput{
-			DesiredCount:            aws.Int64(0),            // Required
-			ServiceName:             aws.String(serviceName), // Required
-			TaskDefinition:          aws.String(taskDefName), // Required
-			Cluster:                 aws.String(client.params.Cluster),
-			DeploymentConfiguration: deploymentConfig,
-			LoadBalancers:           []*ecs.LoadBalancer{loadBalancer},
-			Role:                    aws.String(role),
-		})
-	} else {
-		_, err = client.client.CreateService(&ecs.CreateServiceInput{
-			DesiredCount:            aws.Int64(0),            // Required
-			ServiceName:             aws.String(serviceName), // Required
-			TaskDefinition:          aws.String(taskDefName), // Required
-			Cluster:                 aws.String(client.params.Cluster),
-			DeploymentConfiguration: deploymentConfig,
-		})
+	createServiceInput := &ecs.CreateServiceInput{
+		DesiredCount:            aws.Int64(0),            // Required
+		ServiceName:             aws.String(serviceName), // Required
+		TaskDefinition:          aws.String(taskDefName), // Required
+		Cluster:                 aws.String(client.params.Cluster),
+		DeploymentConfiguration: deploymentConfig,
 	}
-	if err != nil {
+	if *loadBalancer.TargetGroupArn != "" {
+		createServiceInput.LoadBalancers = []*ecs.LoadBalancer{loadBalancer}
+		createServiceInput.Role = aws.String(role)
+	}
+
+	if _, err := client.client.CreateService(createServiceInput); err != nil {
 		log.WithFields(log.Fields{
 			"service": serviceName,
 			"error":   err,
