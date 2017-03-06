@@ -74,11 +74,17 @@ func (s *Service) LoadContext() error {
 	if err != nil {
 		return err
 	}
+	loadBalancerName := s.Context().CLIContext.String(LoadBalancerNameFlag)
 
 	s.loadBalancer = &ecs.LoadBalancer{
-		TargetGroupArn: aws.String(targetGroupArn),
-		ContainerName:  aws.String(containerName),
-		ContainerPort:  containerPort,
+		ContainerName: aws.String(containerName),
+		ContainerPort: containerPort,
+	}
+
+	if targetGroupArn != "" {
+		s.loadBalancer.TargetGroupArn = aws.String(targetGroupArn)
+	} else if loadBalancerName != "" {
+		s.loadBalancer.LoadBalancerName = aws.String(loadBalancerName)
 	}
 
 	s.role = s.Context().CLIContext.String(RoleFlag)

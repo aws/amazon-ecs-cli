@@ -22,5 +22,6 @@ const (
 	TargetGroupArnFlag                      = "target-group-arn"
 	ContainerNameFlag                       = "container-name"
 	ContainerPortFlag                       = "container-port"
+	LoadBalancerNameFlag                    = "load-balancer-name"
 	RoleFlag                                = "role"
 )

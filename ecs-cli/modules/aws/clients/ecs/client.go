@@ -141,7 +141,8 @@ func (client *ecsClient) CreateService(serviceName, taskDefName string, loadBala
 		Cluster:                 aws.String(client.params.Cluster),
 		DeploymentConfiguration: deploymentConfig,
 	}
-	if *loadBalancer.TargetGroupArn != "" {
+
+	if *loadBalancer.TargetGroupArn != "" || *loadBalancer.LoadBalancerName != "" {
 		createServiceInput.LoadBalancers = []*ecs.LoadBalancer{loadBalancer}
 		createServiceInput.Role = aws.String(role)
 	}
