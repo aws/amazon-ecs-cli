@@ -21,7 +21,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const testClusterName = "test-cluster"
+const (
+	testClusterName = "test-cluster"
+	testAWSProfile  = "aws-profile"
+)
 
 func newMockDestination() (*Destination, error) {
 	tmpPath, err := ioutil.TempDir(os.TempDir(), "ecs-cli-test-")
@@ -51,9 +54,13 @@ func setupParser(t *testing.T, dest *Destination, shouldBeInitialized bool) *Ini
 	return parser
 }
 
-func createConfig(t *testing.T, parser *IniReadWriter, dest *Destination) {
+func saveConfigWithCluster(t *testing.T, parser *IniReadWriter, dest *Destination) {
+	saveConfig(t, parser, dest, &SectionKeys{Cluster: testClusterName})
+}
+
+func saveConfig(t *testing.T, parser *IniReadWriter, dest *Destination, sectionKeys *SectionKeys) {
 	// Create a new config file
-	newConfig := &CliConfig{&SectionKeys{Cluster: testClusterName}}
+	newConfig := &CliConfig{sectionKeys}
 	err := parser.ReadFrom(newConfig)
 	assert.NoError(t, err, "Could not create config from struct")
 
@@ -73,7 +80,7 @@ func TestConfigPermissions(t *testing.T) {
 	defer os.RemoveAll(dest.Path)
 
 	// Create config file and confirm it has expected initial permissions
-	createConfig(t, parser, dest)
+	saveConfigWithCluster(t, parser, dest)
 
 	path := configPath(dest)
 	confirmConfigMode(t, path, configFileMode)
@@ -112,7 +119,7 @@ func TestNewConfigReadWriter(t *testing.T) {
 
 	defer os.RemoveAll(dest.Path)
 
-	createConfig(t, parser, dest)
+	saveConfigWithCluster(t, parser, dest)
 
 	// Reinitialize from the written file.
 	parser = setupParser(t, dest, true)
@@ -121,11 +128,11 @@ func TestNewConfigReadWriter(t *testing.T) {
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, testClusterName, readConfig.Cluster, "Cluster name mismatch in config.")
 	assert.True(t, parser.IsKeyPresent(ecsSectionKey, composeProjectNamePrefixKey), "Compose project prefix name should exist in config.")
-	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should not be empty.")
+	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
 	assert.True(t, parser.IsKeyPresent(ecsSectionKey, composeServiceNamePrefixKey), "Compose service name prefix should exist in config.")
-	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should not be empty.")
+	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
 	assert.True(t, parser.IsKeyPresent(ecsSectionKey, cfnStackNamePrefixKey), "CFNStackNamePrefix should exist in config.")
-	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should not be empty.")
+	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
 }
 
 func TestMissingPrefixes(t *testing.T) {
@@ -153,4 +160,36 @@ aws_secret_access_key =
 	assert.False(t, parser.IsKeyPresent(ecsSectionKey, cfnStackNamePrefixKey), "CFNStackNamePrefix should not exist in config")
 	assert.False(t, parser.IsKeyPresent(ecsSectionKey, composeServiceNamePrefixKey), "Compose service name prefix should not exist in config")
 	assert.False(t, parser.IsKeyPresent(ecsSectionKey, composeProjectNamePrefixKey), "Compose project name prefix should not exist in config")
+}
+
+func TestConfigFileTruncation(t *testing.T) {
+	configContents := `[ecs]
+cluster = very-long-cluster-name
+aws_profile = some-long-profile
+region = us-west-2
+aws_access_key_id =
+aws_secret_access_key =
+compose-project-name-prefix = ecscompose-
+compose-service-name-prefix = ecscompose-service-
+cfn-stack-name-prefix = amazon-ecs-cli-setup-
+`
+	dest, err := newMockDestination()
+	assert.NoError(t, err, "Error creating mock config destination")
+
+	parser := setupParser(t, dest, false)
+
+	err = os.MkdirAll(dest.Path, *dest.Mode)
+	assert.NoError(t, err, "Could not create config directory")
+
+	defer os.RemoveAll(dest.Path)
+
+	// Save config for the first time
+	err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configContents), *dest.Mode)
+	assert.NoError(t, err)
+
+	// Save config with shorter cluster name
+	saveConfigWithCluster(t, parser, dest)
+
+	_, err = newIniConfig(dest)
+	assert.NoError(t, err)
 }
