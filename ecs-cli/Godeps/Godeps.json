@@ -200,6 +200,23 @@
 			"Rev": "5e1afe1c0a077fb2da9b5f74232b790d99397ce8"
 		},
 		{
+			"ImportPath": "github.com/awslabs/amazon-ecr-credential-helper/ecr-login/api",
+			"Rev": "b689e22ad1e9142d4836ee15baa83d1b67d08c3d"
+		},
+		{
+			"ImportPath": "github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cache",
+			"Rev": "b689e22ad1e9142d4836ee15baa83d1b67d08c3d"
+		},
+		{
+			"ImportPath": "github.com/awslabs/amazon-ecr-credential-helper/ecr-login/config",
+			"Rev": "b689e22ad1e9142d4836ee15baa83d1b67d08c3d"
+		},
+		{
+			"ImportPath": "github.com/cihub/seelog",
+			"Comment": "v2.6-11-ga98235b",
+			"Rev": "a98235bd6d927ba8379ef4f0050c32c9a2ea17b8"
+		},
+		{
 			"ImportPath": "github.com/davecgh/go-spew/spew",
 			"Comment": "v1.1.0",
 			"Rev": "346938d642f2ec3594ed81d874461961cd0faa76"
@@ -424,6 +441,10 @@
 			"ImportPath": "github.com/jmespath/go-jmespath",
 			"Comment": "0.2.2-14-gbd40a43",
 			"Rev": "bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d"
+		},
+		{
+			"ImportPath": "github.com/mitchellh/go-homedir",
+			"Rev": "981ab348d865cf048eb7d17e78ac7192632d8415"
 		},
 		{
 			"ImportPath": "github.com/opencontainers/runc/libcontainer/system",
