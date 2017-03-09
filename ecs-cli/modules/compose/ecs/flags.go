@@ -23,5 +23,6 @@ const (
 	ContainerNameFlag                       = "container-name"
 	ContainerPortFlag                       = "container-port"
 	LoadBalancerNameFlag                    = "load-balancer-name"
+	RoleDefaultValue                        = "ecsServiceRole"
 	RoleFlag                                = "role"
 )

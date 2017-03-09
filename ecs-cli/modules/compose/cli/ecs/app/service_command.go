@@ -149,7 +149,7 @@ func loadBalancerFlags(specifyDefaults bool) []cli.Flag {
 		containerNameUsageString += " Defaults to none"
 		containerPortUsageString += " Defaults to none"
 		loadBalancerNameUsageString += " Defaults to none"
-		roleUsageString += " Defaults to ecsServiceRole"
+		roleUsageString += fmt.Sprintf(" Defaults to %s.", ecs.RoleDefaultValue)
 	}
 	return []cli.Flag{
 		cli.StringFlag{
@@ -170,7 +170,7 @@ func loadBalancerFlags(specifyDefaults bool) []cli.Flag {
 		},
 		cli.StringFlag{
 			Name:  ecs.RoleFlag,
-			Value: "ecsServiceRole",
+			Value: ecs.RoleDefaultValue,
 			Usage: roleUsageString,
 		},
 	}
