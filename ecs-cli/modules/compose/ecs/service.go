@@ -81,11 +81,9 @@ func (s *Service) LoadContext() error {
 		ContainerPort: containerPort,
 	}
 
-	if targetGroupArn != "" {
-		s.loadBalancer.TargetGroupArn = aws.String(targetGroupArn)
-	} else if loadBalancerName != "" {
-		s.loadBalancer.LoadBalancerName = aws.String(loadBalancerName)
-	}
+	// AWS API server side validation will inform the user about not specifying both.
+	s.loadBalancer.TargetGroupArn = aws.String(targetGroupArn)
+	s.loadBalancer.LoadBalancerName = aws.String(loadBalancerName)
 
 	s.role = s.Context().CLIContext.String(RoleFlag)
 	return nil
