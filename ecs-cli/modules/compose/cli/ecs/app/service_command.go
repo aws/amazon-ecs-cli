@@ -142,7 +142,7 @@ func loadBalancerFlags() []cli.Flag {
 	containerNameUsageString := "[Optional] Mandatory if target-group-arn is specified. The container name (as it appears in a container definition)."
 	containerPortUsageString := "[Optional] Mandatory if target-group-arn is specified. The container port to access from the load balancer."
 	loadBalancerNameUsageString := "[Optional] The name of the load balancer."
-	roleUsageString := fmt.Sprintf("[Optional] The name or full Amazon Resource Name (ARN) of the IAM role that allows Amazon ECS to make calls to your load balancer on your behalf. This parameter is required if you are using a load balancer with your service. If you specify the role parameter, you must also specify a target-group-arn, container-name and container-port. Defaults to %s.", ecs.RoleDefaultValue)
+	roleUsageString := fmt.Sprintf("[Optional] The name or full Amazon Resource Name (ARN) of the IAM role that allows Amazon ECS to make calls to your load balancer on your behalf. This parameter is required if you are using a load balancer with your service. If you specify the role parameter, you must also specify a target-group-arn, container-name and container-port.")
 
 	return []cli.Flag{
 		cli.StringFlag{
@@ -163,7 +163,6 @@ func loadBalancerFlags() []cli.Flag {
 		},
 		cli.StringFlag{
 			Name:  ecs.RoleFlag,
-			Value: ecs.RoleDefaultValue,
 			Usage: roleUsageString,
 		},
 	}
