@@ -15,7 +15,11 @@ package command
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"strings"
+	"text/tabwriter"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 	ecrclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecr"
@@ -23,6 +27,9 @@ import (
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	dockerclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/docker"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/ecr"
+	units "github.com/docker/go-units"
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/urfave/cli"
 )
@@ -84,6 +91,27 @@ func ImagePull(c *cli.Context) {
 
 	if err := pullImage(c, rdwr, dockerClient, ecrClient, stsClient); err != nil {
 		logrus.Error("Error executing 'pull': ", err)
+		return
+	}
+}
+
+// ImageList lists images up to 1000 items from ECR repository
+func ImageList(c *cli.Context) {
+	rdwr, err := config.NewReadWriter()
+	if err != nil {
+		logrus.Error("Error executing 'images': ", err)
+		return
+	}
+
+	ecsParams, err := config.NewCliParams(c, rdwr)
+	if err != nil {
+		logrus.Error("Error executing 'images': ", err)
+		return
+	}
+
+	ecrClient := ecrclient.NewClient(ecsParams)
+	if err := getImages(c, rdwr, ecrClient); err != nil {
+		logrus.Error("Error executing 'images': ", err)
 		return
 	}
 }
@@ -199,6 +227,91 @@ func pullImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient
 	}
 
 	return nil
+}
+
+type imageInfo struct {
+	RepositoryName string
+	Tag            string
+	ImageDigest    string
+	PushedAt       string
+	Size           string
+}
+
+func getImages(c *cli.Context, rdwr config.ReadWriter, ecrClient ecrclient.Client) error {
+	registryID := c.String(ecscli.RegistryIdFlag)
+	args := c.Args() // repository names
+
+	totalCount := 0
+	w := tabwriter.NewWriter(os.Stdout, 20, 1, 3, ' ', 0)
+
+	err := ecrClient.GetImages(aws.StringSlice(args), getTagStatus(c), registryID, func(imageDetails []*ecr.ImageDetail) error {
+		// Prints all images in table
+		for _, image := range imageDetails {
+			info := imageInfo{
+				RepositoryName: aws.StringValue(image.RepositoryName),
+				ImageDigest:    aws.StringValue(image.ImageDigest),
+			}
+			info.PushedAt = units.HumanDuration(time.Now().UTC().Sub(time.Unix(image.ImagePushedAt.Unix(), 0))) + " ago"
+			info.Size = units.HumanSizeWithPrecision(float64(aws.Int64Value(image.ImageSizeInBytes)), 3)
+			if len(image.ImageTags) == 0 {
+				info.Tag = "<none>"
+				listImagesContent(w, info, totalCount)
+				totalCount++
+			}
+			for _, tag := range image.ImageTags {
+				info.Tag = aws.StringValue(tag)
+				listImagesContent(w, info, totalCount)
+				totalCount++
+			}
+		}
+		return nil
+	})
+	w.Flush()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func listImagesContent(w *tabwriter.Writer, info imageInfo, count int) {
+	if count%100 == 0 {
+		w.Flush()
+		fmt.Println()
+		printImageRow(w, imageInfo{
+			RepositoryName: "REPOSITORY NAME",
+			Tag:            "TAG",
+			ImageDigest:    "IMAGE DIGEST",
+			PushedAt:       "PUSHED AT",
+			Size:           "SIZE",
+		})
+	}
+	printImageRow(w, info)
+}
+
+func printImageRow(w io.Writer, info imageInfo) {
+	fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t\n",
+		info.RepositoryName,
+		info.Tag,
+		info.ImageDigest,
+		info.PushedAt,
+		info.Size,
+	)
+}
+
+func getTagStatus(c *cli.Context) string {
+	if c.Bool(ecscli.TaggedFlag) && c.Bool(ecscli.UntaggedFlag) {
+		return ""
+	}
+
+	if c.Bool(ecscli.TaggedFlag) {
+		return ecr.TagStatusTagged
+	}
+	if c.Bool(ecscli.UntaggedFlag) {
+		return ecr.TagStatusUntagged
+	}
+
+	return ""
 }
 
 func getRegistryID(registryID string, stsClient stsclient.Client) (string, error) {

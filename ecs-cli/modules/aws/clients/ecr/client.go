@@ -33,12 +33,18 @@ import (
 const (
 	CacheDir = "~/.ecs"
 )
+// ProcessImageDetails callback function for describe images
+type ProcessImageDetails func(images []*ecr.ImageDetail) error
+
+// ProcessRepositories callback function for describe repositories
+type ProcessRepositories func(repositories []*string) error
 
 // Client ECR interface
 type Client interface {
 	GetAuthorizationToken(repositoryID string) (*Auth, error)
 	CreateRepository(repositoryName string) (string, error)
 	RepositoryExists(repositoryName string) bool
+	GetImages(repositoryNames []*string, tagStatus string, registryID string, processFn ProcessImageDetails) error
 }
 
 // ecrClient implements Client
@@ -116,4 +122,91 @@ func (c *ecrClient) CreateRepository(repositoryName string) (string, error) {
 
 	log.Info("Repository created")
 	return aws.StringValue(resp.Repository.RepositoryName), nil
+}
+
+func (c *ecrClient) GetImages(repositoryNames []*string, tagStatus string, registryID string, processFn ProcessImageDetails) error {
+	log.Debug("Getting images")
+	numOfImageCalls := 0
+	err := c.describeRepositories(repositoryNames, registryID, func(repositories []*string) error {
+		for _, repository := range repositories {
+			err := c.describeImages(aws.StringValue(repository), tagStatus, registryID, processFn, numOfImageCalls)
+			numOfImageCalls++
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+
+	return err
+}
+
+func (c *ecrClient) describeRepositories(repositoryNames []*string, registryID string, outputFn ProcessRepositories) error {
+	var outErr error
+
+	input := &ecr.DescribeRepositoriesInput{}
+
+	// Skip DescribeRepositories calls if repositoryNames are specified
+	if repositoryNames != nil && len(repositoryNames) > 0 {
+		if err := outputFn(repositoryNames); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	if registryID != "" {
+		input.SetRegistryId(registryID)
+	}
+
+	err := c.client.DescribeRepositoriesPages(input, func(resp *ecr.DescribeRepositoriesOutput, lastPage bool) bool {
+		repositoryNames = []*string{}
+		for _, repository := range resp.Repositories {
+			repositoryNames = append(repositoryNames, repository.RepositoryName)
+		}
+		if err := outputFn(repositoryNames); err != nil {
+			outErr = err
+			return false
+		}
+		return !lastPage
+	})
+
+	if err != nil {
+		return err
+	}
+	return outErr
+}
+
+func (c *ecrClient) describeImages(repositoryName string, tagStatus string, registryID string, outputFn ProcessImageDetails, numOfCalls int) error {
+	var outErr error
+
+	filter := &ecr.DescribeImagesFilter{}
+	if tagStatus != "" {
+		filter.SetTagStatus(tagStatus)
+	}
+
+	input := &ecr.DescribeImagesInput{
+		RepositoryName: aws.String(repositoryName),
+		Filter:         filter,
+	}
+
+	if registryID != "" {
+		input.SetRegistryId(registryID)
+	}
+
+	err := c.client.DescribeImagesPages(input, func(resp *ecr.DescribeImagesOutput, lastPage bool) bool {
+		if err := outputFn(resp.ImageDetails); err != nil {
+			outErr = err
+			return false
+		}
+		if numOfCalls > 50 {
+			outErr = errors.New("please specify the repository name if you wish to see more")
+			return false
+		}
+		return !lastPage
+	})
+
+	if err != nil {
+		return err
+	}
+	return outErr
 }

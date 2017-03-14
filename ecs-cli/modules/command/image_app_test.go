@@ -18,12 +18,15 @@ import (
 	"flag"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecr"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecr/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/sts/mock"
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/docker/mock"
+	"github.com/aws/aws-sdk-go/aws"
+	ecrApi "github.com/aws/aws-sdk-go/service/ecr"
 	"github.com/fsouza/go-dockerclient"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -308,6 +311,50 @@ func TestImagePullFail(t *testing.T) {
 	context := setAllPullImageFlags(globalContext)
 	err := pullImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
 	assert.Error(t, err, "Expected error pulling image")
+}
+
+func TestImageList(t *testing.T) {
+	mockECR, _, _ := setupTestController(t)
+	setupEnvironmentVar()
+
+	imageDigest := "sha:2561234567"
+	repositoryName := "repo-name"
+	pushedAt := time.Unix(1489687380, 0)
+	size := int64(1024)
+	tags := aws.StringSlice([]string{"tag1", "tag2"})
+	gomock.InOrder(
+		mockECR.EXPECT().GetImages(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(_, _, _, x interface{}) {
+			funct := x.(ecr.ProcessImageDetails)
+			funct([]*ecrApi.ImageDetail{&ecrApi.ImageDetail{
+				ImageDigest:      aws.String(imageDigest),
+				RepositoryName:   aws.String(repositoryName),
+				ImagePushedAt:    &pushedAt,
+				ImageSizeInBytes: aws.Int64(size),
+				ImageTags:        tags,
+			}})
+		}).Return(nil),
+	)
+
+	globalContext := setGlobalFlags()
+	flagSet := flag.NewFlagSet("ecs-cli-images", 0)
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := getImages(context, newMockReadWriter(), mockECR)
+	assert.NoError(t, err, "Error listing images")
+}
+
+func TestImageListFail(t *testing.T) {
+	mockECR, _, _ := setupTestController(t)
+	setupEnvironmentVar()
+
+	gomock.InOrder(
+		mockECR.EXPECT().GetImages(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(errors.New("something failed")),
+	)
+
+	globalContext := setGlobalFlags()
+	flagSet := flag.NewFlagSet("ecs-cli-images", 0)
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := getImages(context, newMockReadWriter(), mockECR)
+	assert.Error(t, err, "Expected error listing images")
 }
 
 func setupTestController(t *testing.T) (*mock_ecr.MockClient, *mock_docker.MockClient, *mock_sts.MockClient) {
