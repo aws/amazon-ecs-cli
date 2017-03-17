@@ -1,7 +1,7 @@
 {
 	"ImportPath": "github.com/aws/amazon-ecs-cli/ecs-cli",
-	"GoVersion": "go1.6",
-	"GodepVersion": "v75",
+	"GoVersion": "go1.8",
+	"GodepVersion": "v79",
 	"Packages": [
 		"./..."
 	],
@@ -263,43 +263,43 @@
 		},
 		{
 			"ImportPath": "github.com/docker/libcompose/config",
-			"Comment": "v0.4.0",
-			"Rev": "7c59e343cd9d1f3f5577b5bfb71f6486beb4c006"
+			"Comment": "v0.4.0-19-g8e4221d",
+			"Rev": "8e4221d0435d29e6239adf9ccb4de1f0c0ab0935"
 		},
 		{
 			"ImportPath": "github.com/docker/libcompose/logger",
-			"Comment": "v0.4.0",
-			"Rev": "7c59e343cd9d1f3f5577b5bfb71f6486beb4c006"
+			"Comment": "v0.4.0-19-g8e4221d",
+			"Rev": "8e4221d0435d29e6239adf9ccb4de1f0c0ab0935"
 		},
 		{
 			"ImportPath": "github.com/docker/libcompose/lookup",
-			"Comment": "v0.4.0",
-			"Rev": "7c59e343cd9d1f3f5577b5bfb71f6486beb4c006"
+			"Comment": "v0.4.0-19-g8e4221d",
+			"Rev": "8e4221d0435d29e6239adf9ccb4de1f0c0ab0935"
 		},
 		{
 			"ImportPath": "github.com/docker/libcompose/project",
-			"Comment": "v0.4.0",
-			"Rev": "7c59e343cd9d1f3f5577b5bfb71f6486beb4c006"
+			"Comment": "v0.4.0-19-g8e4221d",
+			"Rev": "8e4221d0435d29e6239adf9ccb4de1f0c0ab0935"
 		},
 		{
 			"ImportPath": "github.com/docker/libcompose/project/events",
-			"Comment": "v0.4.0",
-			"Rev": "7c59e343cd9d1f3f5577b5bfb71f6486beb4c006"
+			"Comment": "v0.4.0-19-g8e4221d",
+			"Rev": "8e4221d0435d29e6239adf9ccb4de1f0c0ab0935"
 		},
 		{
 			"ImportPath": "github.com/docker/libcompose/project/options",
-			"Comment": "v0.4.0",
-			"Rev": "7c59e343cd9d1f3f5577b5bfb71f6486beb4c006"
+			"Comment": "v0.4.0-19-g8e4221d",
+			"Rev": "8e4221d0435d29e6239adf9ccb4de1f0c0ab0935"
 		},
 		{
 			"ImportPath": "github.com/docker/libcompose/utils",
-			"Comment": "v0.4.0",
-			"Rev": "7c59e343cd9d1f3f5577b5bfb71f6486beb4c006"
+			"Comment": "v0.4.0-19-g8e4221d",
+			"Rev": "8e4221d0435d29e6239adf9ccb4de1f0c0ab0935"
 		},
 		{
 			"ImportPath": "github.com/docker/libcompose/yaml",
-			"Comment": "v0.4.0",
-			"Rev": "7c59e343cd9d1f3f5577b5bfb71f6486beb4c006"
+			"Comment": "v0.4.0-19-g8e4221d",
+			"Rev": "8e4221d0435d29e6239adf9ccb4de1f0c0ab0935"
 		},
 		{
 			"ImportPath": "github.com/flynn/go-shlex",
@@ -357,11 +357,11 @@
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "b1a2d6e8c8b5fc8f601ead62536f02a8e1b6217d"
+			"Rev": "a6577fac2d73be281a500b310739095313165611"
 		},
 		{
 			"ImportPath": "golang.org/x/sys/unix",
-			"Rev": "478fcf54317e52ab69f40bb4c7a1520288d7f7ea"
+			"Rev": "99f16d856c9836c42d24e7ab64ea72916925fa97"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",
