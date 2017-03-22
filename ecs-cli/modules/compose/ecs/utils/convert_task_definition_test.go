@@ -50,17 +50,18 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	workingDir := "/var"
 
 	serviceConfig := &config.ServiceConfig{
-		CPUShares:   yaml.StringorInt(cpu),
-		Command:     []string{command},
-		Hostname:    hostname,
-		Image:       image,
-		Links:       links,
-		MemLimit:    yaml.MemStringorInt(int64(1048576) * memory), //1 MiB = 1048576B
-		Privileged:  privileged,
-		ReadOnly:    readOnly,
-		SecurityOpt: securityOpts,
-		User:        user,
-		WorkingDir:  workingDir,
+		CPUShares:         yaml.StringorInt(cpu),
+		Command:           []string{command},
+		Hostname:          hostname,
+		Image:             image,
+		Links:             links,
+		MemLimit:          yaml.MemStringorInt(int64(1048576) * memory), //1 MiB = 1048576B
+		MemoryReservation: yaml.MemStringorInt(int64(1048576) * memory), //1 MiB = 1048576B
+		Privileged:        privileged,
+		ReadOnly:          readOnly,
+		SecurityOpt:       securityOpts,
+		User:              user,
+		WorkingDir:        workingDir,
 	}
 
 	// convert
@@ -548,31 +549,33 @@ func TestIsZeroForEmptyConfig(t *testing.T) {
 
 func TestIsZeroWhenConfigHasValues(t *testing.T) {
 	hasValues := map[string]bool{
-		"CPUShares":   true,
-		"Command":     true,
-		"Hostname":    true,
-		"Image":       true,
-		"Links":       true,
-		"MemLimit":    true,
-		"Privileged":  true,
-		"ReadOnly":    true,
-		"SecurityOpt": true,
-		"User":        true,
-		"WorkingDir":  true,
+		"CPUShares":         true,
+		"Command":           true,
+		"Hostname":          true,
+		"Image":             true,
+		"Links":             true,
+		"MemLimit":          true,
+		"MemoryReservation": true,
+		"Privileged":        true,
+		"ReadOnly":          true,
+		"SecurityOpt":       true,
+		"User":              true,
+		"WorkingDir":        true,
 	}
 
 	serviceConfig := &config.ServiceConfig{
-		CPUShares:   yaml.StringorInt(int64(10)),
-		Command:     []string{"cmd"},
-		Hostname:    "foobarbaz",
-		Image:       "testimage",
-		Links:       []string{"container1"},
-		MemLimit:    yaml.MemStringorInt(int64(104857600)),
-		Privileged:  true,
-		ReadOnly:    true,
-		SecurityOpt: []string{"label:type:test_virt"},
-		User:        "user",
-		WorkingDir:  "/var",
+		CPUShares:         yaml.StringorInt(int64(10)),
+		Command:           []string{"cmd"},
+		Hostname:          "foobarbaz",
+		Image:             "testimage",
+		Links:             []string{"container1"},
+		MemLimit:          yaml.MemStringorInt(int64(104857600)),
+		MemoryReservation: yaml.MemStringorInt(int64(104857600)),
+		Privileged:        true,
+		ReadOnly:          true,
+		SecurityOpt:       []string{"label:type:test_virt"},
+		User:              "user",
+		WorkingDir:        "/var",
 	}
 
 	configValue := reflect.ValueOf(serviceConfig).Elem()

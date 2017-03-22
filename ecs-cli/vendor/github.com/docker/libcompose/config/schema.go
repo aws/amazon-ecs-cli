@@ -131,7 +131,8 @@ var schemaDataV1 = `{
         "volumes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
         "volume_driver": {"type": "string"},
         "volumes_from": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
-        "working_dir": {"type": "string"}
+        "working_dir": {"type": "string"},
+        "memory_reservation": {"type": "integer"}
       },
 
       "dependencies": {
@@ -371,7 +372,8 @@ var servicesSchemaDataV2 = `{
         "volumes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
         "volume_driver": {"type": "string"},
         "volumes_from": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
-        "working_dir": {"type": "string"}
+        "working_dir": {"type": "string"},
+        "memory_reservation": {"type": "integer"}
       },
 
       "dependencies": {
