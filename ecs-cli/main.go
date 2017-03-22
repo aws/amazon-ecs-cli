@@ -21,12 +21,14 @@ import (
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/cli/ecs/app"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/version"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/utils/logger"
+	"github.com/cihub/seelog"
 	"github.com/urfave/cli"
 )
 
 func main() {
 	// Setup seelog for amazon-ecr-credential-helper
 	logger.SetupLogger()
+	defer seelog.Flush()
 
 	app := cli.NewApp()
 	app.Name = version.AppName
