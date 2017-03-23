@@ -35,6 +35,8 @@ type Service struct {
 	projectContext   *Context
 	timeSleeper      *utils.TimeSleeper
 	deploymentConfig *ecs.DeploymentConfiguration
+	loadBalancer     *ecs.LoadBalancer
+	role             string
 }
 
 const (
@@ -65,6 +67,25 @@ func (s *Service) LoadContext() error {
 		MaximumPercent:        maxPercent,
 		MinimumHealthyPercent: minHealthyPercent,
 	}
+
+	targetGroupArn := s.Context().CLIContext.String(TargetGroupArnFlag)
+	containerName := s.Context().CLIContext.String(ContainerNameFlag)
+	containerPort, err := getInt64FromCLIContext(s.Context(), ContainerPortFlag)
+	if err != nil {
+		return err
+	}
+	loadBalancerName := s.Context().CLIContext.String(LoadBalancerNameFlag)
+
+	s.loadBalancer = &ecs.LoadBalancer{
+		ContainerName: aws.String(containerName),
+		ContainerPort: containerPort,
+	}
+
+	// AWS API server side validation will inform the user about not specifying both.
+	s.loadBalancer.TargetGroupArn = aws.String(targetGroupArn)
+	s.loadBalancer.LoadBalancerName = aws.String(loadBalancerName)
+
+	s.role = s.Context().CLIContext.String(RoleFlag)
 	return nil
 }
 
@@ -279,7 +300,9 @@ func (s *Service) Run(commandOverrides map[string]string) error {
 func (s *Service) createService() error {
 	serviceName := s.getServiceName()
 	taskDefinitionId := getIdFromArn(s.TaskDefinition().TaskDefinitionArn)
-	err := s.Context().ECSClient.CreateService(serviceName, taskDefinitionId, s.DeploymentConfig())
+	loadBalancer := s.loadBalancer
+	role := s.role
+	err := s.Context().ECSClient.CreateService(serviceName, taskDefinitionId, loadBalancer, role, s.DeploymentConfig())
 	if err != nil {
 		return err
 	}

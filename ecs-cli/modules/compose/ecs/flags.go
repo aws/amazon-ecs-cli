@@ -19,4 +19,9 @@ const (
 	DeploymentMaxPercentFlag                = "deployment-max-percent"
 	DeploymentMinHealthyPercentDefaultValue = 100
 	DeploymentMinHealthyPercentFlag         = "deployment-min-healthy-percent"
+	TargetGroupArnFlag                      = "target-group-arn"
+	ContainerNameFlag                       = "container-name"
+	ContainerPortFlag                       = "container-port"
+	LoadBalancerNameFlag                    = "load-balancer-name"
+	RoleFlag                                = "role"
 )

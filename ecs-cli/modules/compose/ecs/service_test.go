@@ -99,8 +99,8 @@ func createServiceTest(t *testing.T, cliContext *cli.Context, validateDeployment
 					aws.StringValue(taskDefinition.Family), aws.StringValue(req.Family))
 			}
 		}).Return(&respTaskDef, nil),
-		mockEcs.EXPECT().CreateService(gomock.Any(), gomock.Any(), gomock.Any()).Do(func(x, y, z interface{}) {
-			observedTaskDefId := y.(string)
+		mockEcs.EXPECT().CreateService(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(v, w, x, y, z interface{}) {
+			observedTaskDefId := w.(string)
 			if taskDefId != observedTaskDefId {
 				t.Errorf("Expected task definition name to be [%s] but got [%s]", taskDefId, observedTaskDefId)
 			}

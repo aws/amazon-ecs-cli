@@ -62,7 +62,7 @@ func createServiceCommand(factory ProjectFactory) cli.Command {
 		Name:   ecs.CreateServiceCommandName,
 		Usage:  "Creates an ECS service from your compose file. The service is created with a desired count of 0, so no containers are started by this command. Note that we do not recommend using plain text environment variables for sensitive information, such as credential data.",
 		Action: WithProject(factory, ProjectCreate, true),
-		Flags:  deploymentConfigFlags(true),
+		Flags:  append(deploymentConfigFlags(true), loadBalancerFlags()...),
 	}
 }
 
@@ -79,7 +79,7 @@ func upServiceCommand(factory ProjectFactory) cli.Command {
 		Name:   "up",
 		Usage:  "Creates an ECS service from your compose file (if it does not already exist) and runs one instance of that task on your cluster (a combination of create and start). This command updates the desired count of the service to 1.",
 		Action: WithProject(factory, ProjectUp, true),
-		Flags:  deploymentConfigFlags(true),
+		Flags:  append(deploymentConfigFlags(true), loadBalancerFlags()...),
 	}
 }
 
@@ -133,6 +133,37 @@ func deploymentConfigFlags(specifyDefaults bool) []cli.Flag {
 		cli.StringFlag{
 			Name:  ecs.DeploymentMinHealthyPercentFlag,
 			Usage: minHealthyPercentUsageString,
+		},
+	}
+}
+
+func loadBalancerFlags() []cli.Flag {
+	targetGroupArnUsageString := "[Optional] Specifies the full Amazon Resource Name (ARN) of a previously configured Elastic Load Balancing target group to associate with your service."
+	containerNameUsageString := "[Optional] Specifies the container name (as it appears in a container definition). This parameter is required if a load balancer or target group is specified."
+	containerPortUsageString := "[Optional] Specifies the port on the container to associate with the load balancer. This port must correspond to a containerPort in the service's task definition. This parameter is required if a load balancer or target group is specified."
+	loadBalancerNameUsageString := "[Optional] Specifies the name of a previously configured Elastic Load Balancing load balancer to associate with your service."
+	roleUsageString := "[Optional] Specifies the name or full Amazon Resource Name (ARN) of the IAM role that allows Amazon ECS to make calls to your load balancer or target group on your behalf. This parameter is required if you are using a load balancer or target group with your service. If you specify the role parameter, you must also specify a load balancer name or target group ARN, along with a container name and container port."
+
+	return []cli.Flag{
+		cli.StringFlag{
+			Name:  ecs.TargetGroupArnFlag,
+			Usage: targetGroupArnUsageString,
+		},
+		cli.StringFlag{
+			Name:  ecs.ContainerNameFlag,
+			Usage: containerNameUsageString,
+		},
+		cli.StringFlag{
+			Name:  ecs.ContainerPortFlag,
+			Usage: containerPortUsageString,
+		},
+		cli.StringFlag{
+			Name:  ecs.LoadBalancerNameFlag,
+			Usage: loadBalancerNameUsageString,
+		},
+		cli.StringFlag{
+			Name:  ecs.RoleFlag,
+			Usage: roleUsageString,
 		},
 	}
 }

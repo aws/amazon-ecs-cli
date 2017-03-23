@@ -47,7 +47,7 @@ type ECSClient interface {
 	IsActiveCluster(clusterName string) (bool, error)
 
 	// Service related
-	CreateService(serviceName, taskDefName string, deploymentConfig *ecs.DeploymentConfiguration) error
+	CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration) error
 	UpdateServiceCount(serviceName string, count int64, deploymentConfig *ecs.DeploymentConfiguration) error
 	UpdateService(serviceName, taskDefinitionName string, count int64, deploymentConfig *ecs.DeploymentConfiguration) error
 	DescribeService(serviceName string) (*ecs.DescribeServicesOutput, error)
@@ -133,15 +133,22 @@ func (client *ecsClient) DeleteService(serviceName string) error {
 	return nil
 }
 
-func (client *ecsClient) CreateService(serviceName, taskDefName string, deploymentConfig *ecs.DeploymentConfiguration) error {
-	_, err := client.client.CreateService(&ecs.CreateServiceInput{
+func (client *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration) error {
+	createServiceInput := &ecs.CreateServiceInput{
 		DesiredCount:            aws.Int64(0),            // Required
 		ServiceName:             aws.String(serviceName), // Required
 		TaskDefinition:          aws.String(taskDefName), // Required
 		Cluster:                 aws.String(client.params.Cluster),
 		DeploymentConfiguration: deploymentConfig,
-	})
-	if err != nil {
+	}
+
+	if loadBalancer != nil &&
+		(aws.StringValue(loadBalancer.TargetGroupArn) != "" || aws.StringValue(loadBalancer.LoadBalancerName) != "") {
+		createServiceInput.LoadBalancers = []*ecs.LoadBalancer{loadBalancer}
+		createServiceInput.Role = aws.String(role)
+	}
+
+	if _, err := client.client.CreateService(createServiceInput); err != nil {
 		log.WithFields(log.Fields{
 			"service": serviceName,
 			"error":   err,
