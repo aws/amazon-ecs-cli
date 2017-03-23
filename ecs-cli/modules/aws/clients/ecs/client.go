@@ -140,12 +140,8 @@ func (client *ecsClient) CreateService(serviceName, taskDefName string, loadBala
 		TaskDefinition:          aws.String(taskDefName), // Required
 		Cluster:                 aws.String(client.params.Cluster),
 		DeploymentConfiguration: deploymentConfig,
-	}
-
-	if loadBalancer != nil &&
-		(aws.StringValue(loadBalancer.TargetGroupArn) != "" || aws.StringValue(loadBalancer.LoadBalancerName) != "") {
-		createServiceInput.LoadBalancers = []*ecs.LoadBalancer{loadBalancer}
-		createServiceInput.Role = aws.String(role)
+		LoadBalancers:           []*ecs.LoadBalancer{loadBalancer},
+		Role:                    aws.String(role),
 	}
 
 	if _, err := client.client.CreateService(createServiceInput); err != nil {
