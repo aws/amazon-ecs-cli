@@ -46,6 +46,7 @@ func main() {
 		command.PsCommand(),
 		command.PushCommand(),
 		command.PullCommand(),
+		command.ImagesCommand(),
 		license.LicenseCommand(),
 		ecscompose.ComposeCommand(composeFactory),
 	}

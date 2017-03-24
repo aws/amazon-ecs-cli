@@ -19,8 +19,9 @@ import (
 )
 
 const (
-	PUSH_IMAGE_FORMAT = "REPOSITORY[:TAG]"
-	PULL_IMAGE_FORMAT = "REPOSITORY_NAME[:TAG|@DIGEST]"
+	PUSH_IMAGE_FORMAT  = "REPOSITORY[:TAG]"
+	PULL_IMAGE_FORMAT  = "REPOSITORY_NAME[:TAG|@DIGEST]"
+	LIST_IMAGES_FORMAT = "[REPOSITORY_NAME]"
 )
 
 // PushCommand push ECR image
@@ -60,6 +61,31 @@ func PullCommand() cli.Command {
 			cli.StringFlag{
 				Name:  ecscli.RegistryIdFlag,
 				Usage: "[Optional] Specifies the the Amazon ECR registry ID to pull the image from. By default, images are pulled from the current AWS account.",
+			},
+		},
+	}
+}
+
+// ImagesCommand list images in ECR
+func ImagesCommand() cli.Command {
+	return cli.Command{
+		Name:      "images",
+		Usage:     "List images an Amazon ECR repository.",
+		ArgsUsage: LIST_IMAGES_FORMAT,
+		Before:    ecscli.BeforeApp,
+		Action:    ImageList,
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:  ecscli.RegistryIdFlag,
+				Usage: "[Optional] Specifies the the Amazon ECR registry ID to pull the image from. By default, images are pulled from the current AWS account.",
+			},
+			cli.BoolFlag{
+				Name:  ecscli.TaggedFlag,
+				Usage: "[Optional] Filters the result to show only tagged images",
+			},
+			cli.BoolFlag{
+				Name:  ecscli.UntaggedFlag,
+				Usage: "[Optional] Filters the result to show only untagged images",
 			},
 		},
 	}

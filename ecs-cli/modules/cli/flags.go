@@ -27,6 +27,8 @@ const (
 	RegistryIdFlag         = "registry-id"
 	FromFlag               = "from"
 	ToFlag                 = "to"
+	TaggedFlag             = "tagged"
+	UntaggedFlag           = "untagged"
 
 	ComposeProjectNamePrefixFlag         = "compose-project-name-prefix"
 	ComposeProjectNamePrefixDefaultValue = "ecscompose-"
