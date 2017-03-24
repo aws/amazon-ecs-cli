@@ -16,7 +16,6 @@ package ecs
 import (
 	"flag"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecs/mock"
@@ -24,6 +23,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
 )
 
@@ -40,14 +40,12 @@ func TestCreateWithDeploymentConfig(t *testing.T) {
 		t,
 		cliContext,
 		func(deploymentConfig *ecs.DeploymentConfiguration) {
-			if aws.Int64Value(deploymentConfig.MaximumPercent) != int64(deploymentMaxPercent) {
-				t.Errorf("Expected DeploymentConfig.MaxPercent to be [%s] but got [%s]",
-					deploymentMaxPercent, aws.Int64Value(deploymentConfig.MaximumPercent))
-			}
-			if aws.Int64Value(deploymentConfig.MinimumHealthyPercent) != int64(deploymentMinPercent) {
-				t.Errorf("Expected DeploymentConfig.MinimumHealthyPercent to be [%s] but got [%s]",
-					deploymentMinPercent, aws.Int64Value(deploymentConfig.MinimumHealthyPercent))
-			}
+			assert.Equal(t, int64(deploymentMaxPercent), aws.Int64Value(deploymentConfig.MaximumPercent), "DeploymentConfig.MaxPercent should match")
+			assert.Equal(t, int64(deploymentMinPercent), aws.Int64Value(deploymentConfig.MinimumHealthyPercent), "DeploymentConfig.MinimumHealthyPercent should match")
+		},
+		func(loadBalancer *ecs.LoadBalancer, role string) {
+			assert.Nil(t, loadBalancer, "LoadBalancer should be nil")
+			assert.Empty(t, role, "Role should be empty")
 		},
 	)
 }
@@ -60,26 +58,94 @@ func TestCreateWithoutDeploymentConfig(t *testing.T) {
 		t,
 		cliContext,
 		func(deploymentConfig *ecs.DeploymentConfiguration) {
-			if deploymentConfig.MaximumPercent != nil {
-				t.Errorf("Expected DeploymentConfig.MaximumPercent to be nil but got [%s]",
-					aws.Int64Value(deploymentConfig.MaximumPercent))
-			}
-			if deploymentConfig.MinimumHealthyPercent != nil {
-				t.Errorf("Expected DeploymentConfig.MinimumHealthyPercent to be nil but got [%s]",
-					aws.Int64Value(deploymentConfig.MinimumHealthyPercent))
-			}
+			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
+			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
+		},
+		func(loadBalancer *ecs.LoadBalancer, role string) {
+			assert.Nil(t, loadBalancer, "LoadBalancer should be nil")
+			assert.Empty(t, role, "Role should be empty")
+		},
+	)
+}
+
+// Specifies TargeGroupArn to test ALB
+func TestCreateWithALB(t *testing.T) {
+	targetGroupArn := "targetGroupArn"
+	containerName := "containerName"
+	containerPort := 80
+	role := "role"
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(TargetGroupArnFlag, targetGroupArn, "")
+	flagSet.String(ContainerNameFlag, containerName, "")
+	flagSet.String(ContainerPortFlag, strconv.Itoa(containerPort), "")
+	flagSet.String(RoleFlag, role, "")
+
+	cliContext := cli.NewContext(nil, flagSet, nil)
+
+	createServiceTest(
+		t,
+		cliContext,
+		func(deploymentConfig *ecs.DeploymentConfiguration) {
+			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
+			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
+		},
+		func(loadBalancer *ecs.LoadBalancer, observedRole string) {
+			assert.NotNil(t, loadBalancer, "LoadBalancer should not be nil")
+			assert.Nil(t, loadBalancer.LoadBalancerName, "LoadBalancer.LoadBalancerName should be nil")
+			assert.Equal(t, targetGroupArn, aws.StringValue(loadBalancer.TargetGroupArn), "LoadBalancer.TargetGroupArn should match")
+			assert.Equal(t, containerName, aws.StringValue(loadBalancer.ContainerName), "LoadBalancer.ContainerName should match")
+			assert.Equal(t, int64(containerPort), aws.Int64Value(loadBalancer.ContainerPort), "LoadBalancer.ContainerPort should match")
+			assert.Equal(t, role, observedRole, "Role should match")
+		},
+	)
+}
+
+// Specifies LoadBalancerName to test ELB
+func TestCreateWithELB(t *testing.T) {
+	loadbalancerName := "loadbalancerName"
+	containerName := "containerName"
+	containerPort := 80
+	role := "role"
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(LoadBalancerNameFlag, loadbalancerName, "")
+	flagSet.String(ContainerNameFlag, containerName, "")
+	flagSet.String(ContainerPortFlag, strconv.Itoa(containerPort), "")
+	flagSet.String(RoleFlag, role, "")
+
+	cliContext := cli.NewContext(nil, flagSet, nil)
+
+	createServiceTest(
+		t,
+		cliContext,
+		func(deploymentConfig *ecs.DeploymentConfiguration) {
+			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
+			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
+		},
+		func(loadBalancer *ecs.LoadBalancer, observedRole string) {
+			assert.NotNil(t, loadBalancer, "LoadBalancer should not be nil")
+			assert.Nil(t, loadBalancer.TargetGroupArn, "LoadBalancer.TargetGroupArn should be nil")
+			assert.Equal(t, loadbalancerName, aws.StringValue(loadBalancer.LoadBalancerName), "LoadBalancer.LoadBalancerName should match")
+			assert.Equal(t, containerName, aws.StringValue(loadBalancer.ContainerName), "LoadBalancer.ContainerName should match")
+			assert.Equal(t, int64(containerPort), aws.Int64Value(loadBalancer.ContainerPort), "LoadBalancer.ContainerPort should match")
+			assert.Equal(t, role, observedRole, "Role should match")
 		},
 	)
 }
 
 type validateDeploymentConfiguration func(*ecs.DeploymentConfiguration)
+type validateLoadBalancer func(*ecs.LoadBalancer, string)
 
-func createServiceTest(t *testing.T, cliContext *cli.Context, validateDeploymentConfig validateDeploymentConfiguration) {
+func createServiceTest(t *testing.T, cliContext *cli.Context,
+	validateDeploymentConfig validateDeploymentConfiguration,
+	validateLB validateLoadBalancer) {
+
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	taskDefId := "taskDefinitionId"
-	taskDefArn := "arn/" + taskDefId
+	taskDefID := "taskDefinitionId"
+	taskDefArn := "arn/" + taskDefID
 
 	taskDefinition := ecs.TaskDefinition{
 		Family:               aws.String("family"),
@@ -94,18 +160,17 @@ func createServiceTest(t *testing.T, cliContext *cli.Context, validateDeployment
 		mockEcs.EXPECT().RegisterTaskDefinitionIfNeeded(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
 			// verify input fields
 			req := x.(*ecs.RegisterTaskDefinitionInput)
-			if aws.StringValue(taskDefinition.Family) != aws.StringValue(req.Family) {
-				t.Errorf("Expected taskDefintion family to be [%s] but got [%s]",
-					aws.StringValue(taskDefinition.Family), aws.StringValue(req.Family))
-			}
+			assert.Equal(t, aws.StringValue(taskDefinition.Family), aws.StringValue(req.Family), "Task Definition family should match")
 		}).Return(&respTaskDef, nil),
 		mockEcs.EXPECT().CreateService(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(v, w, x, y, z interface{}) {
-			observedTaskDefId := w.(string)
-			if taskDefId != observedTaskDefId {
-				t.Errorf("Expected task definition name to be [%s] but got [%s]", taskDefId, observedTaskDefId)
-			}
+			observedTaskDefID := w.(string)
+			assert.Equal(t, taskDefID, observedTaskDefID, "Task Definition name should match")
+			observedLB := x.(*ecs.LoadBalancer)
+			observedRole := y.(string)
+			validateLB(observedLB, observedRole)
 			observedDeploymentConfig := z.(*ecs.DeploymentConfiguration)
 			validateDeploymentConfig(observedDeploymentConfig)
+
 		}).Return(nil),
 	)
 
@@ -116,19 +181,15 @@ func createServiceTest(t *testing.T, cliContext *cli.Context, validateDeployment
 	}
 
 	service := NewService(context)
-	if err := service.LoadContext(); err != nil {
-		t.Fatal("Unexpected error while loading context in create service test")
-	}
+	err := service.LoadContext()
+	assert.NoError(t, err, "Unexpected error while loading context in create service test")
+
 	service.SetTaskDefinition(&taskDefinition)
-	if err := service.Create(); err != nil {
-		t.Fatal("Unexpected error while create")
-	}
+	err = service.Create()
+	assert.NoError(t, err, "Unexpected error while create")
 
 	// task definition should be set
-	if taskDefArn != aws.StringValue(service.TaskDefinition().TaskDefinitionArn) {
-		t.Errorf("Expected service TaskDefArn to be [%s] but got [%s]",
-			taskDefArn, aws.StringValue(service.TaskDefinition().TaskDefinitionArn))
-	}
+	assert.Equal(t, taskDefArn, aws.StringValue(service.TaskDefinition().TaskDefinitionArn), "TaskDefArn should match")
 }
 
 func TestLoadContext(t *testing.T) {
@@ -141,19 +202,15 @@ func TestLoadContext(t *testing.T) {
 		projectContext: &Context{CLIContext: cliContext},
 	}
 
-	if err := service.LoadContext(); err != nil {
-		t.Fatal("Unexpected error while loading context in load context test")
-	}
+	err := service.LoadContext()
+	assert.NoError(t, err, "Unexpected error while loading context in load context test")
 
 	observedDeploymentConfig := service.DeploymentConfig()
-	if aws.Int64Value(observedDeploymentConfig.MaximumPercent) != int64(deploymentMaxPercent) {
-		t.Errorf("Expected DeploymentConfig.MaxPercent to be [%s] but got [%s]",
-			deploymentMaxPercent, aws.Int64Value(observedDeploymentConfig.MaximumPercent))
-	}
-	if observedDeploymentConfig.MinimumHealthyPercent != nil {
-		t.Errorf("Expected DeploymentConfig.MinimumHealthyPercent to be nil but got [%s]",
-			aws.Int64Value(observedDeploymentConfig.MinimumHealthyPercent))
-	}
+	assert.Equal(t, int64(deploymentMaxPercent),
+		aws.Int64Value(observedDeploymentConfig.MaximumPercent),
+		"DeploymentConfig.MaxPercent should match")
+	assert.Nil(t, observedDeploymentConfig.MinimumHealthyPercent,
+		"DeploymentConfig.MinimumHealthyPercent should be nil")
 
 }
 
@@ -168,28 +225,36 @@ func TestLoadContextForIncorrectInput(t *testing.T) {
 	}
 
 	err := service.LoadContext()
-	if err == nil {
-		t.Error("Expected error to load context when flag is a string but got done")
+	assert.Error(t, err, "Expected error to load context when flag is a string but got done")
+}
+
+func TestLoadContextForLoadBalancerInputError(t *testing.T) {
+	targetGroupArn := "targetGroupArn"
+	loadBalancerName := "loadBalancerName"
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(TargetGroupArnFlag, targetGroupArn, "")
+	flagSet.String(LoadBalancerNameFlag, loadBalancerName, "")
+	cliContext := cli.NewContext(nil, flagSet, nil)
+	service := &Service{
+		projectContext: &Context{CLIContext: cliContext},
 	}
+
+	err := service.LoadContext()
+	assert.Error(t, err, "Expected error to load context when flag is a string but got done")
 }
 
 func TestServiceInfo(t *testing.T) {
 	testInfo(func(context *Context) ProjectEntity {
 		return NewService(context)
 	}, func(req *ecs.ListTasksInput, projectName string, t *testing.T) {
-		if !strings.Contains(aws.StringValue(req.ServiceName), projectName) {
-			t.Errorf("Expected serviceName to contain projectName [%s] but got [%s]",
-				projectName, aws.StringValue(req.ServiceName))
-		}
-		if req.StartedBy != nil {
-			t.Error("Expected startedby to be not set")
-		}
+		assert.Contains(t, aws.StringValue(req.ServiceName), projectName, "ServiceName should contain ProjectName")
+		assert.Nil(t, req.StartedBy, "StartedBy should be nil")
 	}, t, true)
 }
 
 func TestServiceRun(t *testing.T) {
 	service := NewService(&Context{})
-	if err := service.Run(map[string]string{}); err == nil {
-		t.Error("Expected unsupported error")
-	}
+	err := service.Run(map[string]string{})
+	assert.Error(t, err, "Expected unsupported error")
 }
