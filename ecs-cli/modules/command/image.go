@@ -18,10 +18,11 @@ import (
 	"github.com/urfave/cli"
 )
 
+// const formats
 const (
-	PUSH_IMAGE_FORMAT  = "REPOSITORY[:TAG]"
-	PULL_IMAGE_FORMAT  = "REPOSITORY_NAME[:TAG|@DIGEST]"
-	LIST_IMAGES_FORMAT = "[REPOSITORY_NAME]"
+	PushImageFormat = "ECR_REPOSITORY[:TAG]"
+	PullImageFormat = "ECR_REPOSITORY[:TAG|@DIGEST]"
+	ListImageFormat = "[ECR_REPOSITORY]"
 )
 
 // PushCommand push ECR image
@@ -29,7 +30,7 @@ func PushCommand() cli.Command {
 	return cli.Command{
 		Name:      "push",
 		Usage:     "Push an image to an Amazon ECR repository.",
-		ArgsUsage: "[" + PUSH_IMAGE_FORMAT + "]",
+		ArgsUsage: "[" + PushImageFormat + "]",
 		Before:    ecscli.BeforeApp,
 		Action:    ImagePush,
 		Flags: []cli.Flag{
@@ -54,7 +55,7 @@ func PullCommand() cli.Command {
 	return cli.Command{
 		Name:      "pull",
 		Usage:     "Pull an image from an Amazon ECR repository.",
-		ArgsUsage: PULL_IMAGE_FORMAT,
+		ArgsUsage: PullImageFormat,
 		Before:    ecscli.BeforeApp,
 		Action:    ImagePull,
 		Flags: []cli.Flag{
@@ -71,7 +72,7 @@ func ImagesCommand() cli.Command {
 	return cli.Command{
 		Name:      "images",
 		Usage:     "List images an Amazon ECR repository.",
-		ArgsUsage: LIST_IMAGES_FORMAT,
+		ArgsUsage: ListImageFormat,
 		Before:    ecscli.BeforeApp,
 		Action:    ImageList,
 		Flags: []cli.Flag{
