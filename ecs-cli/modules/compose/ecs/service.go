@@ -79,6 +79,8 @@ func (s *Service) LoadContext() error {
 		return err
 	}
 
+	// Validates LoadBalancerName and TargetGroupArn cannot exist at the same time
+	// The rest will be taken care off by the API call
 	if role != "" || targetGroupArn != "" || loadBalancerName != "" || containerName != "" || containerPort != nil {
 		if targetGroupArn != "" && loadBalancerName != "" {
 			return errors.Errorf("[--%s] and [--%s] flags cannot both be specified", LoadBalancerNameFlag, TargetGroupArnFlag)
