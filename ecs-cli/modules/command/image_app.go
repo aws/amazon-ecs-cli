@@ -34,6 +34,7 @@ import (
 	"github.com/urfave/cli"
 )
 
+// const symbols and widths
 const (
 	SeperatorAt    = "@"
 	SeperatorColon = ":"
@@ -149,7 +150,7 @@ func pushImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient
 		targetImage = args[0]
 	}
 
-	repository, tag, err := splitImageName(targetImage, SeperatorColon, PUSH_IMAGE_FORMAT)
+	repository, tag, err := splitImageName(targetImage, SeperatorColon, PushImageFormat)
 	if err != nil {
 		return err
 	}
@@ -204,7 +205,7 @@ func pullImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient
 	if strings.Contains(image, SeperatorAt) {
 		seperator = SeperatorAt
 	}
-	repository, tag, err := splitImageName(image, seperator, PULL_IMAGE_FORMAT)
+	repository, tag, err := splitImageName(image, seperator, PullImageFormat)
 	if err != nil {
 		return err
 	}
