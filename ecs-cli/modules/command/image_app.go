@@ -37,6 +37,12 @@ import (
 const (
 	SEPERATOR_AT    = "@"
 	SEPERATOR_COLON = ":"
+	MIN_WIDTH       = 20
+	TAB_WIDTH       = 1
+	PADDING         = 3
+	PADDING_CHAR    = ' '
+	FLAGS           = 0
+	PAGE_SIZE       = 100
 )
 
 // ImagePush does ecr login, tag image, and push image to ECR repository
@@ -242,7 +248,8 @@ func getImages(c *cli.Context, rdwr config.ReadWriter, ecrClient ecrclient.Clien
 	args := c.Args() // repository names
 
 	totalCount := 0
-	w := tabwriter.NewWriter(os.Stdout, 20, 1, 3, ' ', 0)
+
+	w := tabwriter.NewWriter(os.Stdout, MIN_WIDTH, TAB_WIDTH, PADDING, PADDING_CHAR, FLAGS)
 
 	err := ecrClient.GetImages(aws.StringSlice(args), getTagStatus(c), registryID, func(imageDetails []*ecr.ImageDetail) error {
 		// Prints all images in table
@@ -267,15 +274,11 @@ func getImages(c *cli.Context, rdwr config.ReadWriter, ecrClient ecrclient.Clien
 		return nil
 	})
 	w.Flush()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func listImagesContent(w *tabwriter.Writer, info imageInfo, count int) {
-	if count%100 == 0 {
+	if count%PAGE_SIZE == 0 {
 		w.Flush()
 		fmt.Println()
 		printImageRow(w, imageInfo{

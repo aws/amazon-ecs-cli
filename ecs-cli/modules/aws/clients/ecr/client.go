@@ -33,6 +33,7 @@ import (
 const (
 	CacheDir = "~/.ecs"
 )
+
 // ProcessImageDetails callback function for describe images
 type ProcessImageDetails func(images []*ecr.ImageDetail) error
 
@@ -125,12 +126,12 @@ func (c *ecrClient) CreateRepository(repositoryName string) (string, error) {
 }
 
 func (c *ecrClient) GetImages(repositoryNames []*string, tagStatus string, registryID string, processFn ProcessImageDetails) error {
-	log.Debug("Getting images")
-	numOfImageCalls := 0
+	log.Debug("Getting images from ECR...")
+	pageNumber := 0
 	err := c.describeRepositories(repositoryNames, registryID, func(repositories []*string) error {
 		for _, repository := range repositories {
-			err := c.describeImages(aws.StringValue(repository), tagStatus, registryID, processFn, numOfImageCalls)
-			numOfImageCalls++
+			err := c.describeImages(aws.StringValue(repository), tagStatus, registryID, processFn, pageNumber)
+			pageNumber++
 			if err != nil {
 				return err
 			}
@@ -147,7 +148,7 @@ func (c *ecrClient) describeRepositories(repositoryNames []*string, registryID s
 	input := &ecr.DescribeRepositoriesInput{}
 
 	// Skip DescribeRepositories calls if repositoryNames are specified
-	if repositoryNames != nil && len(repositoryNames) > 0 {
+	if len(repositoryNames) > 0 {
 		if err := outputFn(repositoryNames); err != nil {
 			return err
 		}
@@ -163,8 +164,7 @@ func (c *ecrClient) describeRepositories(repositoryNames []*string, registryID s
 		for _, repository := range resp.Repositories {
 			repositoryNames = append(repositoryNames, repository.RepositoryName)
 		}
-		if err := outputFn(repositoryNames); err != nil {
-			outErr = err
+		if outErr = outputFn(repositoryNames); outErr != nil {
 			return false
 		}
 		return !lastPage
@@ -194,8 +194,7 @@ func (c *ecrClient) describeImages(repositoryName string, tagStatus string, regi
 	}
 
 	err := c.client.DescribeImagesPages(input, func(resp *ecr.DescribeImagesOutput, lastPage bool) bool {
-		if err := outputFn(resp.ImageDetails); err != nil {
-			outErr = err
+		if outErr = outputFn(resp.ImageDetails); outErr != nil {
 			return false
 		}
 		if numOfCalls > 50 {
