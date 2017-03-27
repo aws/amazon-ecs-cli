@@ -32,9 +32,42 @@ const (
 	registryID     = "123456789012"
 	repositoryName = "repo-name"
 	imageDigest    = "sha:256"
+	registryURI    = "123456789012.ecr"
 )
 
 func TestGetAuthorizationToken(t *testing.T) {
+	_, mockLogin, client, ctrl := setupTestController(t)
+	defer ctrl.Finish()
+
+	username := "username"
+	password := "password"
+	registry := "proxyEndpoint"
+	proxyEndpoint := "https://" + registry
+	mockLogin.EXPECT().GetCredentials(gomock.Any()).Return(&login.Auth{
+		Username:      username,
+		Password:      password,
+		ProxyEndpoint: proxyEndpoint,
+	}, nil)
+
+	ecrAuth, err := client.GetAuthorizationToken(registryURI)
+	assert.NoError(t, err, "GetAuthorizationToken")
+	assert.Equal(t, username, ecrAuth.Username, "Expected username to match")
+	assert.Equal(t, password, ecrAuth.Password, "Expected password to match")
+	assert.Equal(t, proxyEndpoint, ecrAuth.ProxyEndpoint, "Expected proxyEndpoint to match")
+	assert.Equal(t, registry, ecrAuth.Registry, "Expected registry to match")
+}
+
+func TestGetAuthorizationTokenErrorCase(t *testing.T) {
+	_, mockLogin, client, ctrl := setupTestController(t)
+	defer ctrl.Finish()
+
+	mockLogin.EXPECT().GetCredentials(gomock.Any()).Return(nil, errors.New("something failed"))
+
+	_, err := client.GetAuthorizationToken(registryURI)
+	assert.Error(t, err, "Expected error while GetAuthorizationToken is called")
+}
+
+func TestGetAuthorizationTokenByID(t *testing.T) {
 	_, mockLogin, client, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
@@ -48,7 +81,7 @@ func TestGetAuthorizationToken(t *testing.T) {
 		ProxyEndpoint: proxyEndpoint,
 	}, nil)
 
-	ecrAuth, err := client.GetAuthorizationToken(registryID)
+	ecrAuth, err := client.GetAuthorizationTokenByID(registryID)
 	assert.NoError(t, err, "GetAuthorizationToken")
 	assert.Equal(t, username, ecrAuth.Username, "Expected username to match")
 	assert.Equal(t, password, ecrAuth.Password, "Expected password to match")
@@ -56,13 +89,13 @@ func TestGetAuthorizationToken(t *testing.T) {
 	assert.Equal(t, registry, ecrAuth.Registry, "Expected registry to match")
 }
 
-func TestGetAuthorizationTokenErrorCase(t *testing.T) {
+func TestGetAuthorizationTokenByIDErrorCase(t *testing.T) {
 	_, mockLogin, client, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
 	mockLogin.EXPECT().GetCredentialsByRegistryID(gomock.Any()).Return(nil, errors.New("something failed"))
 
-	_, err := client.GetAuthorizationToken(registryID)
+	_, err := client.GetAuthorizationTokenByID(registryID)
 	assert.Error(t, err, "Expected error while GetAuthorizationToken is called")
 }
 

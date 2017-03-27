@@ -17,10 +17,10 @@
 package mock_ecs
 
 import (
-	ecs0 "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
+	ecs "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
 	utils "github.com/aws/amazon-ecs-cli/ecs-cli/utils"
 	cache "github.com/aws/amazon-ecs-cli/ecs-cli/utils/cache"
-	ecs "github.com/aws/aws-sdk-go/service/ecs"
+	ecs0 "github.com/aws/aws-sdk-go/service/ecs"
 	project "github.com/docker/libcompose/project"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -46,9 +46,9 @@ func (_m *MockProjectEntity) EXPECT() *_MockProjectEntityRecorder {
 	return _m.recorder
 }
 
-func (_m *MockProjectEntity) Context() *ecs0.Context {
+func (_m *MockProjectEntity) Context() *ecs.Context {
 	ret := _m.ctrl.Call(_m, "Context")
-	ret0, _ := ret[0].(*ecs0.Context)
+	ret0, _ := ret[0].(*ecs.Context)
 	return ret0
 }
 
@@ -117,7 +117,7 @@ func (_mr *_MockProjectEntityRecorder) Scale(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Scale", arg0)
 }
 
-func (_m *MockProjectEntity) SetTaskDefinition(_param0 *ecs.TaskDefinition) {
+func (_m *MockProjectEntity) SetTaskDefinition(_param0 *ecs0.TaskDefinition) {
 	_m.ctrl.Call(_m, "SetTaskDefinition", _param0)
 }
 
@@ -155,9 +155,9 @@ func (_mr *_MockProjectEntityRecorder) Stop() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Stop")
 }
 
-func (_m *MockProjectEntity) TaskDefinition() *ecs.TaskDefinition {
+func (_m *MockProjectEntity) TaskDefinition() *ecs0.TaskDefinition {
 	ret := _m.ctrl.Call(_m, "TaskDefinition")
-	ret0, _ := ret[0].(*ecs.TaskDefinition)
+	ret0, _ := ret[0].(*ecs0.TaskDefinition)
 	return ret0
 }
 

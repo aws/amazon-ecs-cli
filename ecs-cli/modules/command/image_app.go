@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
+	"regexp"
 	"text/tabwriter"
 	"time"
 
@@ -36,14 +36,12 @@ import (
 
 // const symbols and widths
 const (
-	SeperatorAt    = "@"
-	SeperatorColon = ":"
-	MinWidth       = 20
-	TabWidth       = 1
-	Padding        = 3
-	PaddingChar    = ' '
-	NumOfFlags     = 0
-	PageSize       = 100
+	MinWidth    = 20
+	TabWidth    = 1
+	Padding     = 3
+	PaddingChar = ' '
+	NumOfFlags  = 0
+	PageSize    = 100
 )
 
 // ImagePush does ecr login, tag image, and push image to ECR repository
@@ -150,17 +148,12 @@ func pushImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient
 		targetImage = args[0]
 	}
 
-	repository, tag, err := splitImageName(targetImage, SeperatorColon, PushImageFormat)
+	registryURI, repository, tag, err := splitImageName(targetImage, "[:]", PushImageFormat)
 	if err != nil {
 		return err
 	}
 
-	registryID, err = getRegistryID(registryID, stsClient)
-	if err != nil {
-		return err
-	}
-
-	ecrAuth, err := ecrClient.GetAuthorizationToken(registryID)
+	ecrAuth, err := getECRAuth(registryURI, registryID, stsClient, ecrClient)
 	if err != nil {
 		return err
 	}
@@ -168,8 +161,10 @@ func pushImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient
 	repositoryURI := ecrAuth.Registry + "/" + repository
 
 	// Tag image to ECR uri
-	if err := dockerClient.TagImage(sourceImage, repositoryURI, tag); err != nil {
-		return err
+	if registryURI == "" {
+		if err := dockerClient.TagImage(sourceImage, repositoryURI, tag); err != nil {
+			return err
+		}
 	}
 
 	// Check if repo exists, create if not present
@@ -201,21 +196,12 @@ func pullImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient
 	}
 	image := args[0]
 
-	seperator := SeperatorColon
-	if strings.Contains(image, SeperatorAt) {
-		seperator = SeperatorAt
-	}
-	repository, tag, err := splitImageName(image, seperator, PullImageFormat)
+	registryURI, repository, tag, err := splitImageName(image, "[:|@]", PullImageFormat)
 	if err != nil {
 		return err
 	}
 
-	registryID, err = getRegistryID(registryID, stsClient)
-	if err != nil {
-		return err
-	}
-
-	ecrAuth, err := ecrClient.GetAuthorizationToken(registryID)
+	ecrAuth, err := getECRAuth(registryURI, registryID, stsClient, ecrClient)
 	if err != nil {
 		return err
 	}
@@ -325,15 +311,28 @@ func getRegistryID(registryID string, stsClient stsclient.Client) (string, error
 	return registryID, nil
 }
 
-func splitImageName(image string, seperator string, format string) (string, string, error) {
-	s := strings.Split(image, seperator)
-	if len(s) > 2 {
-		return "", "", fmt.Errorf("Please specify the image name in the correct format [%s]", format)
+func getECRAuth(registryURI string, registryID string,
+	stsClient stsclient.Client, ecrClient ecrclient.Client) (*ecrclient.Auth, error) {
+
+	if registryURI == "" {
+		id, err := getRegistryID(registryID, stsClient)
+		if err != nil {
+			return nil, err
+		}
+		return ecrClient.GetAuthorizationTokenByID(id)
 	}
-	repository := s[0]
-	tag := ""
-	if len(s) == 2 {
-		tag = s[1]
+
+	return ecrClient.GetAuthorizationToken(registryURI)
+}
+
+func splitImageName(image string, seperatorRegExp string,
+	format string) (registry string, repository string, tag string, err error) {
+
+	re := regexp.MustCompile("^(?:([0-9A-Za-z.-]+)/)?([0-9a-z-_/]+)(?:" + seperatorRegExp + "([0-9A-Za-z_.-:]+))?$")
+	matches := re.FindStringSubmatch(image)
+	if len(matches) == 0 {
+		return "", "", "", fmt.Errorf("Please specify the image name in the correct format [%s]", format)
 	}
-	return repository, tag, nil
+
+	return matches[1], matches[2], matches[3], nil
 }

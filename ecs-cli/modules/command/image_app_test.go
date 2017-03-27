@@ -49,7 +49,7 @@ func TestImagePush(t *testing.T) {
 
 	gomock.InOrder(
 		mockSTS.EXPECT().GetAWSAccountID().Return(registryID, nil),
-		mockECR.EXPECT().GetAuthorizationToken(gomock.Any()).Return(&ecr.Auth{
+		mockECR.EXPECT().GetAuthorizationTokenByID(gomock.Any()).Return(&ecr.Auth{
 			Registry: registry,
 		}, nil),
 		mockDocker.EXPECT().TagImage(image, repositoryURI, tag).Return(nil),
@@ -66,15 +66,15 @@ func TestImagePush(t *testing.T) {
 }
 
 func TestImagePushWithArgument(t *testing.T) {
+	repositoryWithURI := "012345678912.dkr.ecr.us-east-1.amazonaws.com/" + repositoryWithTag
+
 	mockECR, mockDocker, mockSTS := setupTestController(t)
 	setupEnvironmentVar()
 
 	gomock.InOrder(
-		mockSTS.EXPECT().GetAWSAccountID().Return(registryID, nil),
 		mockECR.EXPECT().GetAuthorizationToken(gomock.Any()).Return(&ecr.Auth{
 			Registry: registry,
 		}, nil),
-		mockDocker.EXPECT().TagImage(repositoryWithTag, repositoryURI, tag).Return(nil),
 		mockECR.EXPECT().RepositoryExists(repository).Return(false),
 		mockECR.EXPECT().CreateRepository(repository).Return(repository, nil),
 		mockDocker.EXPECT().PushImage(repositoryURI, tag, registry,
@@ -83,7 +83,7 @@ func TestImagePushWithArgument(t *testing.T) {
 
 	globalContext := setGlobalFlags()
 	flagSet := flag.NewFlagSet("ecs-cli-push", 0)
-	flagSet.Parse([]string{repositoryWithTag})
+	flagSet.Parse([]string{repositoryWithURI})
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
 	assert.NoError(t, err, "Error pushing image")
@@ -95,7 +95,7 @@ func TestImagePushWhenRepositoryExists(t *testing.T) {
 
 	gomock.InOrder(
 		mockSTS.EXPECT().GetAWSAccountID().Return(registryID, nil),
-		mockECR.EXPECT().GetAuthorizationToken(gomock.Any()).Return(&ecr.Auth{
+		mockECR.EXPECT().GetAuthorizationTokenByID(gomock.Any()).Return(&ecr.Auth{
 			Registry: registry,
 		}, nil),
 		mockDocker.EXPECT().TagImage(image, repositoryURI, tag).Return(nil),
@@ -180,7 +180,7 @@ func TestImagePushWhenGethAuthorizationTokenFail(t *testing.T) {
 
 	gomock.InOrder(
 		mockSTS.EXPECT().GetAWSAccountID().Return(registryID, nil),
-		mockECR.EXPECT().GetAuthorizationToken(gomock.Any()).Return(nil, errors.New("something failed")),
+		mockECR.EXPECT().GetAuthorizationTokenByID(gomock.Any()).Return(nil, errors.New("something failed")),
 	)
 
 	globalContext := setGlobalFlags()
@@ -195,7 +195,7 @@ func TestImagePushWhenTagImageFail(t *testing.T) {
 
 	gomock.InOrder(
 		mockSTS.EXPECT().GetAWSAccountID().Return(registryID, nil),
-		mockECR.EXPECT().GetAuthorizationToken(gomock.Any()).Return(&ecr.Auth{
+		mockECR.EXPECT().GetAuthorizationTokenByID(gomock.Any()).Return(&ecr.Auth{
 			Registry: registry,
 		}, nil),
 		mockDocker.EXPECT().TagImage(image, repositoryURI, tag).Return(errors.New("something failed")),
@@ -213,7 +213,7 @@ func TestImagePushWhenCreateRepositoryFail(t *testing.T) {
 
 	gomock.InOrder(
 		mockSTS.EXPECT().GetAWSAccountID().Return(registryID, nil),
-		mockECR.EXPECT().GetAuthorizationToken(gomock.Any()).Return(&ecr.Auth{
+		mockECR.EXPECT().GetAuthorizationTokenByID(gomock.Any()).Return(&ecr.Auth{
 			Registry: registry,
 		}, nil),
 		mockDocker.EXPECT().TagImage(image, repositoryURI, tag).Return(nil),
@@ -233,7 +233,7 @@ func TestImagePushFail(t *testing.T) {
 
 	gomock.InOrder(
 		mockSTS.EXPECT().GetAWSAccountID().Return(registryID, nil),
-		mockECR.EXPECT().GetAuthorizationToken(gomock.Any()).Return(&ecr.Auth{
+		mockECR.EXPECT().GetAuthorizationTokenByID(gomock.Any()).Return(&ecr.Auth{
 			Registry: registry,
 		}, nil),
 		mockDocker.EXPECT().TagImage(image, repositoryURI, tag).Return(nil),
@@ -255,7 +255,7 @@ func TestImagePull(t *testing.T) {
 
 	gomock.InOrder(
 		mockSTS.EXPECT().GetAWSAccountID().Return(registryID, nil),
-		mockECR.EXPECT().GetAuthorizationToken(gomock.Any()).Return(&ecr.Auth{
+		mockECR.EXPECT().GetAuthorizationTokenByID(gomock.Any()).Return(&ecr.Auth{
 			Registry: registry,
 		}, nil),
 		mockDocker.EXPECT().PullImage(repositoryURI, tag,
@@ -285,7 +285,7 @@ func TestImagePullWhenGetAuthorizationTokenFail(t *testing.T) {
 
 	gomock.InOrder(
 		mockSTS.EXPECT().GetAWSAccountID().Return(registryID, nil),
-		mockECR.EXPECT().GetAuthorizationToken(gomock.Any()).Return(nil, errors.New("something failed")),
+		mockECR.EXPECT().GetAuthorizationTokenByID(gomock.Any()).Return(nil, errors.New("something failed")),
 	)
 
 	globalContext := setGlobalFlags()
@@ -300,7 +300,7 @@ func TestImagePullFail(t *testing.T) {
 
 	gomock.InOrder(
 		mockSTS.EXPECT().GetAWSAccountID().Return(registryID, nil),
-		mockECR.EXPECT().GetAuthorizationToken(gomock.Any()).Return(&ecr.Auth{
+		mockECR.EXPECT().GetAuthorizationTokenByID(gomock.Any()).Return(&ecr.Auth{
 			Registry: registry,
 		}, nil),
 		mockDocker.EXPECT().PullImage(repositoryURI, tag,

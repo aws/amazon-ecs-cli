@@ -42,7 +42,8 @@ type ProcessRepositories func(repositories []*string) error
 
 // Client ECR interface
 type Client interface {
-	GetAuthorizationToken(repositoryID string) (*Auth, error)
+	GetAuthorizationToken(registryURI string) (*Auth, error)
+	GetAuthorizationTokenByID(registryID string) (*Auth, error)
 	CreateRepository(repositoryName string) (string, error)
 	RepositoryExists(repositoryName string) bool
 	GetImages(repositoryNames []*string, tagStatus string, registryID string, processFn ProcessImageDetails) error
@@ -84,9 +85,24 @@ type Auth struct {
 	Password      string
 }
 
-func (c *ecrClient) GetAuthorizationToken(registryID string) (*Auth, error) {
+func (c *ecrClient) GetAuthorizationTokenByID(registryID string) (*Auth, error) {
 	log.Debug("Getting authorization token...")
 	auth, err := c.loginClient.GetCredentialsByRegistryID(registryID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to serialize authorization token")
+	}
+
+	return &Auth{
+		Username:      auth.Username,
+		Password:      auth.Password,
+		ProxyEndpoint: auth.ProxyEndpoint,
+		Registry:      strings.Replace(auth.ProxyEndpoint, "https://", "", -1),
+	}, nil
+}
+
+func (c *ecrClient) GetAuthorizationToken(registryURI string) (*Auth, error) {
+	log.Debug("Getting authorization token...")
+	auth, err := c.loginClient.GetCredentials(registryURI)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to serialize authorization token")
 	}
