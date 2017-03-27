@@ -64,6 +64,17 @@ func (_mr *_MockClientRecorder) GetAuthorizationToken(arg0 interface{}) *gomock.
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetAuthorizationToken", arg0)
 }
 
+func (_m *MockClient) GetAuthorizationTokenByID(_param0 string) (*ecr.Auth, error) {
+	ret := _m.ctrl.Call(_m, "GetAuthorizationTokenByID", _param0)
+	ret0, _ := ret[0].(*ecr.Auth)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockClientRecorder) GetAuthorizationTokenByID(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetAuthorizationTokenByID", arg0)
+}
+
 func (_m *MockClient) GetImages(_param0 []*string, _param1 string, _param2 string, _param3 ecr.ProcessImageDetails) error {
 	ret := _m.ctrl.Call(_m, "GetImages", _param0, _param1, _param2, _param3)
 	ret0, _ := ret[0].(error)
