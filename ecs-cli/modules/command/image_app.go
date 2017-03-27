@@ -123,32 +123,15 @@ func ImageList(c *cli.Context) {
 
 func pushImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient.Client, ecrClient ecrclient.Client, stsClient stsclient.Client) error {
 	registryID := c.String(ecscli.RegistryIdFlag)
-	targetImage := c.String(ecscli.ToFlag)
-	sourceImage := c.String(ecscli.FromFlag)
 	args := c.Args()
 
-	if len(args) == 0 && (sourceImage == "" || targetImage == "") {
-		return fmt.Errorf("ecs-cli push requires exactly 1 argument or [--%s] and [--%s] flags", ecscli.FromFlag, ecscli.ToFlag)
-	}
-
-	if len(args) == 1 && (sourceImage != "" || targetImage != "") {
-		return fmt.Errorf("ecs-cli push does not allow [--%s] and [--%s] flags to be used with arguments", ecscli.FromFlag, ecscli.ToFlag)
-	}
-
-	if len(args) > 1 {
+	if len(args) != 1 {
 		return fmt.Errorf("ecs-cli push requires exactly 1 argument")
 	}
 
-	if (sourceImage == "" && targetImage != "") || (sourceImage != "" && targetImage == "") {
-		return fmt.Errorf("ecs-cli push requires [--%s] and [--%s] flags", ecscli.FromFlag, ecscli.ToFlag)
-	}
+	image := args[0]
 
-	if len(args) == 1 {
-		sourceImage = args[0]
-		targetImage = args[0]
-	}
-
-	registryURI, repository, tag, err := splitImageName(targetImage, "[:]", PushImageFormat)
+	registryURI, repository, tag, err := splitImageName(image, "[:]", PushImageFormat)
 	if err != nil {
 		return err
 	}
@@ -162,7 +145,7 @@ func pushImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient
 
 	// Tag image to ECR uri
 	if registryURI == "" {
-		if err := dockerClient.TagImage(sourceImage, repositoryURI, tag); err != nil {
+		if err := dockerClient.TagImage(image, repositoryURI, tag); err != nil {
 			return err
 		}
 	}

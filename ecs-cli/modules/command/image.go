@@ -38,14 +38,6 @@ func PushCommand() cli.Command {
 				Name:  ecscli.RegistryIdFlag,
 				Usage: "[Optional] Specifies the Amazon ECR registry ID to push the image to. By default, images are pushed to the current AWS account.",
 			},
-			cli.StringFlag{
-				Name:  ecscli.FromFlag,
-				Usage: "[Optional] Specifies the image to push.",
-			},
-			cli.StringFlag{
-				Name:  ecscli.ToFlag,
-				Usage: "[Optional] Specifies the ECR repository and tag to push your image to.",
-			},
 		},
 	}
 }
