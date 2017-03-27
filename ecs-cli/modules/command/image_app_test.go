@@ -317,6 +317,44 @@ func TestImageListFail(t *testing.T) {
 	assert.Error(t, err, "Expected error listing images")
 }
 
+func TestSplitImageName(t *testing.T) {
+	observedRegistryURI, observedRepo, observedTag, err := splitImageName(image, "[:]", "format")
+
+	assert.Empty(t, observedRegistryURI, "RegistryURI should be empty")
+	assert.Equal(t, repository, observedRepo, "Repository should match")
+	assert.Equal(t, tag, observedTag, "Tag should match")
+	assert.NoError(t, err, "Error splitting image name")
+}
+
+func TestSplitImageNameWithSha256(t *testing.T) {
+	sha := "sha256:0b3787ac21ffb4edbd6710e0e60f991d5ded8d8a4f558209ef5987f73db4211a"
+	expectedImage := repository + "@" + sha
+	observedRegistryURI, observedRepo, observedTag, err := splitImageName(expectedImage, "[:|@]", "format")
+
+	assert.Empty(t, observedRegistryURI, "RegistryURI should be empty")
+	assert.Equal(t, repository, observedRepo, "Repository should match")
+	assert.Equal(t, sha, observedTag, "Tag should match")
+	assert.NoError(t, err, "Error splitting image name")
+}
+
+func TestSplitImageNameWithURI(t *testing.T) {
+	uri := "012345678912.dkr.ecr.us-east-1.amazonaws.com"
+	expectedImage := uri + "/" + repository
+	observedRegistryURI, observedRepo, observedTag, err := splitImageName(expectedImage, "[:|@]", "format")
+
+	assert.Equal(t, uri, observedRegistryURI, "RegistryURI should match")
+	assert.Equal(t, repository, observedRepo, "Repository should match")
+	assert.Empty(t, observedTag, "Tag should be empty")
+	assert.NoError(t, err, "Error splitting image name")
+}
+
+func TestSplitImageNameErrorCase(t *testing.T) {
+	invalidImage := "rep@sha256:0b3787ac21ffb4edbd6710e0e60f991d5ded8d8a4f558209ef5987f73db4211a"
+	_, _, _, err := splitImageName(invalidImage, "[:]", "format")
+
+	assert.Error(t, err, "Expected error splitting image name")
+}
+
 func setupTestController(t *testing.T) (*mock_ecr.MockClient, *mock_docker.MockClient, *mock_sts.MockClient) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
