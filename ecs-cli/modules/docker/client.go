@@ -75,11 +75,11 @@ func (c *dockerClient) PushImage(repository, tag, registry string, auth docker.A
 }
 
 // Tags repository[:tag] to local docker image
-func (c *dockerClient) TagImage(sourceImage, repository, tag string) error {
+func (c *dockerClient) TagImage(image, repository, tag string) error {
 	log.WithFields(log.Fields{
-		"source-image": sourceImage,
-		"repository":   repository,
-		"tag":          tag,
+		"image":      image,
+		"repository": repository,
+		"tag":        tag,
 	}).Info("Tagging image")
 
 	opts := docker.TagImageOptions{
@@ -87,7 +87,7 @@ func (c *dockerClient) TagImage(sourceImage, repository, tag string) error {
 		Tag:  tag,
 	}
 
-	if err := c.client.TagImage(sourceImage, opts); err != nil {
+	if err := c.client.TagImage(image, opts); err != nil {
 		return errors.Wrap(err, "unable to tag image")
 	}
 	log.Info("Image tagged")
@@ -108,6 +108,6 @@ func (c *dockerClient) PullImage(repository, tag string, auth docker.AuthConfigu
 	if err := c.client.PullImage(opts, auth); err != nil {
 		return errors.Wrap(err, "unable to pull image")
 	}
-	log.Infof("Image pulled")
+	log.Info("Image pulled")
 	return nil
 }

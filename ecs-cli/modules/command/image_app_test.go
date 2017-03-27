@@ -23,7 +23,6 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecr"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecr/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/sts/mock"
-	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/docker/mock"
 	"github.com/aws/aws-sdk-go/aws"
 	ecrApi "github.com/aws/aws-sdk-go/service/ecr"
@@ -34,13 +33,12 @@ import (
 )
 
 const (
-	repository        = "repository"
-	tag               = "tag"
-	repositoryWithTag = repository + ":" + tag
-	image             = "image"
-	registry          = "registry"
-	registryID        = "123456789"
-	repositoryURI     = registry + "/" + repository
+	repository    = "repository"
+	tag           = "tag"
+	image         = repository + ":" + tag
+	registry      = "registry"
+	registryID    = "123456789"
+	repositoryURI = registry + "/" + repository
 )
 
 func TestImagePush(t *testing.T) {
@@ -65,16 +63,18 @@ func TestImagePush(t *testing.T) {
 	assert.NoError(t, err, "Error pushing image")
 }
 
-func TestImagePushWithArgument(t *testing.T) {
-	repositoryWithURI := "012345678912.dkr.ecr.us-east-1.amazonaws.com/" + repositoryWithTag
+func TestImagePushWithURI(t *testing.T) {
+	repositoryWithURI := "012345678912.dkr.ecr.us-east-1.amazonaws.com/" + image
 
 	mockECR, mockDocker, mockSTS := setupTestController(t)
 	setupEnvironmentVar()
 
 	gomock.InOrder(
+		// Skips GetAWSAccountID
 		mockECR.EXPECT().GetAuthorizationToken(gomock.Any()).Return(&ecr.Auth{
 			Registry: registry,
 		}, nil),
+		// Skips TagImage
 		mockECR.EXPECT().RepositoryExists(repository).Return(false),
 		mockECR.EXPECT().CreateRepository(repository).Return(repository, nil),
 		mockDocker.EXPECT().PushImage(repositoryURI, tag, registry,
@@ -111,34 +111,7 @@ func TestImagePushWhenRepositoryExists(t *testing.T) {
 	assert.NoError(t, err, "Error pushing image")
 }
 
-func TestImagePushWithoutTargetImage(t *testing.T) {
-	mockECR, mockDocker, mockSTS := setupTestController(t)
-	setupEnvironmentVar()
-
-	globalContext := setGlobalFlags()
-	flagSet := flag.NewFlagSet("ecs-cli-push", 0)
-	flagSet.String(ecscli.FromFlag, image, "")
-	context := cli.NewContext(nil, flagSet, globalContext)
-
-	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
-	assert.Error(t, err, "Expect error pushing image")
-
-}
-
-func TestImagePushWithoutSourceImage(t *testing.T) {
-	mockECR, mockDocker, mockSTS := setupTestController(t)
-	setupEnvironmentVar()
-
-	globalContext := setGlobalFlags()
-	flagSet := flag.NewFlagSet("ecs-cli-push", 0)
-	flagSet.String(ecscli.ToFlag, repository+":"+tag, "")
-	context := cli.NewContext(nil, flagSet, globalContext)
-
-	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
-	assert.Error(t, err, "Expect error pushing image")
-}
-
-func TestImagePushWithNoArgumentsNorFlags(t *testing.T) {
+func TestImagePushWithNoArguments(t *testing.T) {
 	mockECR, mockDocker, mockSTS := setupTestController(t)
 	setupEnvironmentVar()
 
@@ -155,20 +128,7 @@ func TestImagePushWithTooManyArguments(t *testing.T) {
 
 	globalContext := setGlobalFlags()
 	flagSet := flag.NewFlagSet("ecs-cli-push", 0)
-	context := cli.NewContext(nil, flagSet, globalContext)
-	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
-	assert.Error(t, err, "Expect error pushing image")
-}
-
-func TestImagePushWithFlagsAndArgument(t *testing.T) {
-	mockECR, mockDocker, mockSTS := setupTestController(t)
-	setupEnvironmentVar()
-
-	globalContext := setGlobalFlags()
-	flagSet := flag.NewFlagSet("ecs-cli-push", 0)
-	flagSet.Parse([]string{repository})
-	flagSet.String(ecscli.ToFlag, repository+":"+tag, "")
-	flagSet.String(ecscli.FromFlag, image, "")
+	flagSet.Parse([]string{repository, image})
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
 	assert.Error(t, err, "Expect error pushing image")
@@ -384,13 +344,12 @@ func setGlobalFlags() *cli.Context {
 
 func setAllPushImageFlags(globalContext *cli.Context) *cli.Context {
 	flagSet := flag.NewFlagSet("ecs-cli-push", 0)
-	flagSet.String(ecscli.ToFlag, repository+":"+tag, "")
-	flagSet.String(ecscli.FromFlag, image, "")
+	flagSet.Parse([]string{image})
 	return cli.NewContext(nil, flagSet, globalContext)
 }
 
 func setAllPullImageFlags(globalContext *cli.Context) *cli.Context {
 	flagSet := flag.NewFlagSet("ecs-cli-pull", 0)
-	flagSet.Parse([]string{repositoryWithTag})
+	flagSet.Parse([]string{image})
 	return cli.NewContext(nil, flagSet, globalContext)
 }

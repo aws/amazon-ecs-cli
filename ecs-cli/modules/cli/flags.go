@@ -25,8 +25,6 @@ const (
 	ClusterFlag            = "cluster"
 	VerboseFlag            = "verbose"
 	RegistryIdFlag         = "registry-id"
-	FromFlag               = "from"
-	ToFlag                 = "to"
 	TaggedFlag             = "tagged"
 	UntaggedFlag           = "untagged"
 
