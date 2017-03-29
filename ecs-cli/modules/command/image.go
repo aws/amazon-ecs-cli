@@ -30,7 +30,7 @@ func PushCommand() cli.Command {
 	return cli.Command{
 		Name:      "push",
 		Usage:     "Push an image to an Amazon ECR repository.",
-		ArgsUsage: "[" + PushImageFormat + "]",
+		ArgsUsage: PushImageFormat,
 		Before:    ecscli.BeforeApp,
 		Action:    ImagePush,
 		Flags: []cli.Flag{
