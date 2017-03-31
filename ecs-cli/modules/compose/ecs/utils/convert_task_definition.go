@@ -42,7 +42,7 @@ const (
 var supportedComposeYamlOptions = []string{
 	"cpu_shares", "command", "dns", "dns_search", "entrypoint", "env_file",
 	"environment", "extra_hosts", "hostname", "image", "labels", "links",
-	"logging", "log_driver", "log_opt", "mem_limit", "ports", "privileged", "read_only",
+	"logging", "log_driver", "log_opt", "mem_limit", "mem_reservation", "ports", "privileged", "read_only",
 	"security_opt", "ulimits", "user", "volumes", "volumes_from", "working_dir",
 }
 
@@ -167,10 +167,19 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 	volumes *volumes, outputContDef *ecs.ContainerDefinition) error {
 	// setting memory
 	var mem int64
+	var memoryReservation int64
+	// mem_limit should be > mem_reservation, if it is specified
+	if inputCfg.MemReservation != 0 {
+		memoryReservation = int64(inputCfg.MemReservation) / kiB / kiB // convert bytes to MiB
+		if inputCfg.MemLimit != 0 && inputCfg.MemLimit < inputCfg.MemReservation {
+			return errors.New("mem_limit should not be less than mem_reservation")
+		}
+	}
+
 	if inputCfg.MemLimit != 0 {
 		mem = int64(inputCfg.MemLimit) / kiB / kiB // convert bytes to MiB
 	}
-	if mem == 0 {
+	if mem == 0 && memoryReservation == 0 {
 		mem = defaultMemLimit
 	}
 
@@ -232,7 +241,12 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 	outputContDef.Image = aws.String(inputCfg.Image)
 	outputContDef.Links = aws.StringSlice(inputCfg.Links) //TODO, read from external links
 	outputContDef.LogConfiguration = logConfig
-	outputContDef.Memory = aws.Int64(mem)
+	if mem != 0 {
+		outputContDef.Memory = aws.Int64(mem)
+	}
+	if memoryReservation != 0 {
+		outputContDef.MemoryReservation = aws.Int64(memoryReservation)
+	}
 	outputContDef.MountPoints = mountPoints
 	outputContDef.Privileged = aws.Bool(inputCfg.Privileged)
 	outputContDef.PortMappings = portMappings
