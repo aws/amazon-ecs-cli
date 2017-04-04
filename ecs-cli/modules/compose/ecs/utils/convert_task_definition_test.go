@@ -43,6 +43,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	image := "testimage"
 	links := []string{"container1"}
 	memory := int64(131072) // 128 GiB = 131072 MiB
+	memoryReservation := int64(65536)
 	privileged := true
 	readOnly := true
 	securityOpts := []string{"label:type:test_virt"}
@@ -56,7 +57,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 		Image:          image,
 		Links:          links,
 		MemLimit:       yaml.MemStringorInt(int64(1048576) * memory), //1 MiB = 1048576B
-		MemReservation: yaml.MemStringorInt(int64(1048576) * memory),
+		MemReservation: yaml.MemStringorInt(int64(524288) * memory),
 		Privileged:     privileged,
 		ReadOnly:       readOnly,
 		SecurityOpt:    securityOpts,
@@ -92,6 +93,9 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	}
 	if memory != aws.Int64Value(containerDef.Memory) {
 		t.Errorf("Expected memory [%s] But was [%s]", memory, aws.Int64Value(containerDef.Memory))
+	}
+	if memoryReservation != aws.Int64Value(containerDef.MemoryReservation) {
+		t.Errorf("Expected memoryReservation [%s] But was [%s]", memoryReservation, aws.Int64Value(containerDef.MemoryReservation))
 	}
 	if privileged != aws.BoolValue(containerDef.Privileged) {
 		t.Errorf("Expected privileged [%s] But was [%s]", privileged, aws.BoolValue(containerDef.Privileged))

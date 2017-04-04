@@ -205,12 +205,14 @@ func TestParseComposeForVersion2Files(t *testing.T) {
 	wordpressImage := "wordpress"
 	mysqlImage := "mysql"
 	ports := []string{"80:80"}
+	memoryReservation := int64(500000000)
 
 	composeFileString := `version: '2'
 services:
   wordpress:
     image: wordpress
     ports: ["80:80"]
+    mem_reservation: 500000000
   mysql:
     image: mysql`
 
@@ -233,6 +235,9 @@ services:
 	}
 	if !reflect.DeepEqual(ports, wordpress.Ports) {
 		t.Errorf("Expected ports to be [%v] but got [%v]", ports, wordpress.Ports)
+	}
+	if memoryReservation != int64(wordpress.MemReservation) {
+		t.Errorf("Expected memoryReservation to be [%s] but got [%s]", memoryReservation, wordpress.MemReservation)
 	}
 
 	// verify mysql ServiceConfig
