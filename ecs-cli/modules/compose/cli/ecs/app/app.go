@@ -88,14 +88,10 @@ func ProjectPs(p ecscompose.Project, c *cli.Context) {
 // ProjectRun starts containers and executes one-time command against the container
 func ProjectRun(p ecscompose.Project, c *cli.Context) {
 	args := c.Args()
-	if len(args)%2 != 0 {
-		log.Fatal("Please pass arguments in the form: CONTAINER COMMAND [CONTAINER COMMAND]...")
+	if len(args)<1 {
+		log.Fatal("Please pass arguments in the form: CONTAINER [COMMAND...]")
 	}
-	commandOverrides := make(map[string]string)
-	for i := 0; i < len(args); i += 2 {
-		commandOverrides[args[i]] = args[i+1]
-	}
-	err := p.Run(commandOverrides)
+	err := p.Run(args[0], args[1:])
 	if err != nil {
 		log.Fatal(err)
 	}

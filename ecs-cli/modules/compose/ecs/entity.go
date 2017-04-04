@@ -32,7 +32,7 @@ type ProjectEntity interface {
 	Start() error
 	Up() error
 	Info(filterComposeTasks bool) (project.InfoSet, error)
-	Run(commandOverrides map[string]string) error
+	Run(container string, commands []string) error
 	Scale(count int) error
 	Stop() error
 	Down() error

@@ -136,7 +136,7 @@ func startCommand(factory ProjectFactory) cli.Command {
 func runCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name: "run",
-		Usage: "ecs-cli compose run [containerName] [command] [containerName] [command] ..." +
+		Usage: "ecs-cli compose run [containerName] [command]..." +
 			"- starts all containers overriding commands with the supplied one-off commands for the containers.",
 		Action: WithProject(factory, ProjectRun, false),
 	}

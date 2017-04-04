@@ -115,14 +115,14 @@ func (_mr *_MockProjectRecorder) Parse() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Parse")
 }
 
-func (_m *MockProject) Run(_param0 map[string]string) error {
-	ret := _m.ctrl.Call(_m, "Run", _param0)
+func (_m *MockProject) Run(_param0 string, _param1 []string) error {
+	ret := _m.ctrl.Call(_m, "Run", _param0, _param1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-func (_mr *_MockProjectRecorder) Run(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Run", arg0)
+func (_mr *_MockProjectRecorder) Run(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Run", arg0, arg1)
 }
 
 func (_m *MockProject) Scale(_param0 int) error {
