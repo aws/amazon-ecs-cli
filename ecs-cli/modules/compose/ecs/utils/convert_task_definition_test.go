@@ -25,6 +25,7 @@ import (
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -94,9 +95,9 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	if memory != aws.Int64Value(containerDef.Memory) {
 		t.Errorf("Expected memory [%s] But was [%s]", memory, aws.Int64Value(containerDef.Memory))
 	}
-	if memoryReservation != aws.Int64Value(containerDef.MemoryReservation) {
-		t.Errorf("Expected memoryReservation [%s] But was [%s]", memoryReservation, aws.Int64Value(containerDef.MemoryReservation))
-	}
+
+	assert.Equal(t, memoryReservation, aws.Int64Value(containerDef.MemoryReservation), "Expected memoryReservation to match")
+
 	if privileged != aws.BoolValue(containerDef.Privileged) {
 		t.Errorf("Expected privileged [%s] But was [%s]", privileged, aws.BoolValue(containerDef.Privileged))
 	}
@@ -596,4 +597,51 @@ func TestIsZeroWhenConfigHasValues(t *testing.T) {
 			t.Errorf("Expected field [%s]: hasValues[%t] but found[%t]", ft.Name, hasValues, !zeroValue)
 		}
 	}
+}
+
+func TestMemReservationHigherThanMemLimit(t *testing.T) {
+
+	name := "api"
+	cpu := int64(131072) // 128 * 1024
+	command := "cmd"
+	hostname := "local360"
+	image := "testimage"
+	memory := int64(65536) // 64mb
+	privileged := true
+	readOnly := true
+	user := "user"
+	workingDir := "/var"
+
+	serviceConfig := &config.ServiceConfig{
+		CPUShares:      yaml.StringorInt(cpu),
+		Command:        []string{command},
+		Hostname:       hostname,
+		Image:          image,
+		MemLimit:       yaml.MemStringorInt(int64(524288) * memory),
+		MemReservation: yaml.MemStringorInt(int64(1048576) * memory),
+		Privileged:     privileged,
+		ReadOnly:       readOnly,
+		User:           user,
+		WorkingDir:     workingDir,
+	}
+
+	serviceConfigs := config.NewServiceConfigs()
+	serviceConfigs.Add(name, serviceConfig)
+
+	taskDefName := "ProjectName"
+	envLookup, err := GetDefaultEnvironmentLookup()
+	if err != nil {
+		t.Fatal("Unexpected error setting up environment lookup")
+	}
+	resourceLookup, err := GetDefaultResourceLookup()
+	if err != nil {
+		t.Fatal("Unexpected error setting up resource lookup")
+	}
+	context := &project.Context{
+		Project:           &project.Project{},
+		EnvironmentLookup: envLookup,
+		ResourceLookup:    resourceLookup,
+	}
+	_, err = ConvertToTaskDefinition(taskDefName, context, serviceConfigs)
+	assert.EqualError(t, err, "mem_limit should not be less than mem_reservation")
 }

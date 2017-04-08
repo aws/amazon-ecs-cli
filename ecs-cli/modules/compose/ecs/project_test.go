@@ -24,6 +24,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
+	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
 )
 
@@ -236,9 +237,8 @@ services:
 	if !reflect.DeepEqual(ports, wordpress.Ports) {
 		t.Errorf("Expected ports to be [%v] but got [%v]", ports, wordpress.Ports)
 	}
-	if memoryReservation != int64(wordpress.MemReservation) {
-		t.Errorf("Expected memoryReservation to be [%s] but got [%s]", memoryReservation, wordpress.MemReservation)
-	}
+
+	assert.Equal(t, memoryReservation, int64(wordpress.MemReservation), "Expected memoryReservation to match")
 
 	// verify mysql ServiceConfig
 	mysql, ok := configs.Get("mysql")
