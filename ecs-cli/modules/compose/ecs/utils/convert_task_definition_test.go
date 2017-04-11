@@ -630,13 +630,9 @@ func TestMemReservationHigherThanMemLimit(t *testing.T) {
 
 	taskDefName := "ProjectName"
 	envLookup, err := GetDefaultEnvironmentLookup()
-	if err != nil {
-		t.Fatal("Unexpected error setting up environment lookup")
-	}
+	assert.NoError(t, err, "Unexpected error setting up environment lookup")
 	resourceLookup, err := GetDefaultResourceLookup()
-	if err != nil {
-		t.Fatal("Unexpected error setting up resource lookup")
-	}
+	assert.NoError(t, err, "Unexpected error setting up resource lookup")
 	context := &project.Context{
 		Project:           &project.Project{},
 		EnvironmentLookup: envLookup,
