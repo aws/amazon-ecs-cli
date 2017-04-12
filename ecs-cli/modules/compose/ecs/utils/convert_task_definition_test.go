@@ -25,6 +25,7 @@ import (
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -43,6 +44,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	image := "testimage"
 	links := []string{"container1"}
 	memory := int64(131072) // 128 GiB = 131072 MiB
+	memoryReservation := int64(65536)
 	privileged := true
 	readOnly := true
 	securityOpts := []string{"label:type:test_virt"}
@@ -50,17 +52,18 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	workingDir := "/var"
 
 	serviceConfig := &config.ServiceConfig{
-		CPUShares:   yaml.StringorInt(cpu),
-		Command:     []string{command},
-		Hostname:    hostname,
-		Image:       image,
-		Links:       links,
-		MemLimit:    yaml.MemStringorInt(int64(1048576) * memory), //1 MiB = 1048576B
-		Privileged:  privileged,
-		ReadOnly:    readOnly,
-		SecurityOpt: securityOpts,
-		User:        user,
-		WorkingDir:  workingDir,
+		CPUShares:      yaml.StringorInt(cpu),
+		Command:        []string{command},
+		Hostname:       hostname,
+		Image:          image,
+		Links:          links,
+		MemLimit:       yaml.MemStringorInt(int64(1048576) * memory), //1 MiB = 1048576B
+		MemReservation: yaml.MemStringorInt(int64(524288) * memory),
+		Privileged:     privileged,
+		ReadOnly:       readOnly,
+		SecurityOpt:    securityOpts,
+		User:           user,
+		WorkingDir:     workingDir,
 	}
 
 	// convert
@@ -92,6 +95,9 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	if memory != aws.Int64Value(containerDef.Memory) {
 		t.Errorf("Expected memory [%s] But was [%s]", memory, aws.Int64Value(containerDef.Memory))
 	}
+
+	assert.Equal(t, memoryReservation, aws.Int64Value(containerDef.MemoryReservation), "Expected memoryReservation to match")
+
 	if privileged != aws.BoolValue(containerDef.Privileged) {
 		t.Errorf("Expected privileged [%s] But was [%s]", privileged, aws.BoolValue(containerDef.Privileged))
 	}
@@ -548,31 +554,33 @@ func TestIsZeroForEmptyConfig(t *testing.T) {
 
 func TestIsZeroWhenConfigHasValues(t *testing.T) {
 	hasValues := map[string]bool{
-		"CPUShares":   true,
-		"Command":     true,
-		"Hostname":    true,
-		"Image":       true,
-		"Links":       true,
-		"MemLimit":    true,
-		"Privileged":  true,
-		"ReadOnly":    true,
-		"SecurityOpt": true,
-		"User":        true,
-		"WorkingDir":  true,
+		"CPUShares":      true,
+		"Command":        true,
+		"Hostname":       true,
+		"Image":          true,
+		"Links":          true,
+		"MemLimit":       true,
+		"MemReservation": true,
+		"Privileged":     true,
+		"ReadOnly":       true,
+		"SecurityOpt":    true,
+		"User":           true,
+		"WorkingDir":     true,
 	}
 
 	serviceConfig := &config.ServiceConfig{
-		CPUShares:   yaml.StringorInt(int64(10)),
-		Command:     []string{"cmd"},
-		Hostname:    "foobarbaz",
-		Image:       "testimage",
-		Links:       []string{"container1"},
-		MemLimit:    yaml.MemStringorInt(int64(104857600)),
-		Privileged:  true,
-		ReadOnly:    true,
-		SecurityOpt: []string{"label:type:test_virt"},
-		User:        "user",
-		WorkingDir:  "/var",
+		CPUShares:      yaml.StringorInt(int64(10)),
+		Command:        []string{"cmd"},
+		Hostname:       "foobarbaz",
+		Image:          "testimage",
+		Links:          []string{"container1"},
+		MemLimit:       yaml.MemStringorInt(int64(104857600)),
+		MemReservation: yaml.MemStringorInt(int64(52428800)),
+		Privileged:     true,
+		ReadOnly:       true,
+		SecurityOpt:    []string{"label:type:test_virt"},
+		User:           "user",
+		WorkingDir:     "/var",
 	}
 
 	configValue := reflect.ValueOf(serviceConfig).Elem()
@@ -589,4 +597,47 @@ func TestIsZeroWhenConfigHasValues(t *testing.T) {
 			t.Errorf("Expected field [%s]: hasValues[%t] but found[%t]", ft.Name, hasValues, !zeroValue)
 		}
 	}
+}
+
+func TestMemReservationHigherThanMemLimit(t *testing.T) {
+
+	name := "api"
+	cpu := int64(131072) // 128 * 1024
+	command := "cmd"
+	hostname := "local360"
+	image := "testimage"
+	memory := int64(65536) // 64mb
+	privileged := true
+	readOnly := true
+	user := "user"
+	workingDir := "/var"
+
+	serviceConfig := &config.ServiceConfig{
+		CPUShares:      yaml.StringorInt(cpu),
+		Command:        []string{command},
+		Hostname:       hostname,
+		Image:          image,
+		MemLimit:       yaml.MemStringorInt(int64(524288) * memory),
+		MemReservation: yaml.MemStringorInt(int64(1048576) * memory),
+		Privileged:     privileged,
+		ReadOnly:       readOnly,
+		User:           user,
+		WorkingDir:     workingDir,
+	}
+
+	serviceConfigs := config.NewServiceConfigs()
+	serviceConfigs.Add(name, serviceConfig)
+
+	taskDefName := "ProjectName"
+	envLookup, err := GetDefaultEnvironmentLookup()
+	assert.NoError(t, err, "Unexpected error setting up environment lookup")
+	resourceLookup, err := GetDefaultResourceLookup()
+	assert.NoError(t, err, "Unexpected error setting up resource lookup")
+	context := &project.Context{
+		Project:           &project.Project{},
+		EnvironmentLookup: envLookup,
+		ResourceLookup:    resourceLookup,
+	}
+	_, err = ConvertToTaskDefinition(taskDefName, context, serviceConfigs)
+	assert.EqualError(t, err, "mem_limit should not be less than mem_reservation")
 }

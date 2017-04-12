@@ -24,6 +24,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
+	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
 )
 
@@ -205,12 +206,14 @@ func TestParseComposeForVersion2Files(t *testing.T) {
 	wordpressImage := "wordpress"
 	mysqlImage := "mysql"
 	ports := []string{"80:80"}
+	memoryReservation := int64(500000000)
 
 	composeFileString := `version: '2'
 services:
   wordpress:
     image: wordpress
     ports: ["80:80"]
+    mem_reservation: 500000000
   mysql:
     image: mysql`
 
@@ -234,6 +237,8 @@ services:
 	if !reflect.DeepEqual(ports, wordpress.Ports) {
 		t.Errorf("Expected ports to be [%v] but got [%v]", ports, wordpress.Ports)
 	}
+
+	assert.Equal(t, memoryReservation, int64(wordpress.MemReservation), "Expected memoryReservation to match")
 
 	// verify mysql ServiceConfig
 	mysql, ok := configs.Get("mysql")
