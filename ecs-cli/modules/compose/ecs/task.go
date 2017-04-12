@@ -157,13 +157,13 @@ func (t *Task) Scale(expectedCount int) error {
 
 // Run starts all containers defined in the task definition once regardless of if they were started before
 // It also overrides the commands for the specified containers
-func (t *Task) Run(commandOverrides map[string]string) error {
+func (t *Task) Run(container string, commands []string) error {
 	taskDef, err := getOrCreateTaskDefinition(t)
 	if err != nil {
 		return err
 	}
 	taskDefinitionId := aws.StringValue(taskDef.TaskDefinitionArn)
-	ecsTasks, err := t.Context().ECSClient.RunTaskWithOverrides(taskDefinitionId, getStartedBy(t), 1, commandOverrides)
+	ecsTasks, err := t.Context().ECSClient.RunTaskWithOverrides(taskDefinitionId, getStartedBy(t), 1, container, commands)
 	if err != nil {
 		return nil
 	}

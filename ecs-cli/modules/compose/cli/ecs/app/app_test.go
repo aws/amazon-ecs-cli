@@ -64,18 +64,18 @@ func TestWithProject(t *testing.T) {
 }
 
 func TestRun(t *testing.T) {
-	containers := []string{"cont1", "cont2"}
-	commands := []string{"cmd1", "cmd2"}
+	container := "cont1"
+	commands := []string{"cmd1", "cmd2", "cmd3"}
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockProject := mock_ecs.NewMockProject(ctrl)
-	mockProject.EXPECT().Run(map[string]string{"cont1": "cmd1", "cont2": "cmd2"}).Return(nil)
+	mockProject.EXPECT().Run("cont1", []string{"cmd1", "cmd2", "cmd3"}).Return(nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli", 0)
 	cliContext := cli.NewContext(nil, flagSet, nil)
 	// flag with 2 containers with 2 commands
-	flagSet.Parse([]string{containers[0], commands[0], containers[1], commands[1]})
+	flagSet.Parse([]string{container, commands[0], commands[1], commands[2]})
 
 	ProjectRun(mockProject, cliContext)
 }

@@ -61,7 +61,7 @@ type ECSClient interface {
 	// Tasks related
 	GetTasksPages(listTasksInput *ecs.ListTasksInput, fn ProcessTasksAction) error
 	RunTask(taskDefinition, startedBy string, count int) (*ecs.RunTaskOutput, error)
-	RunTaskWithOverrides(taskDefinition, startedBy string, count int, overrides map[string]string) (*ecs.RunTaskOutput, error)
+	RunTaskWithOverrides(taskDefinition, startedBy string, count int, container string, commands []string) (*ecs.RunTaskOutput, error)
 	StopTask(taskId string) error
 	DescribeTasks(taskIds []*string) ([]*ecs.Task, error)
 
@@ -398,16 +398,13 @@ func (client *ecsClient) RunTask(taskDefinition, startedBy string, count int) (*
 }
 
 // RunTask issues a run task request for the input task definition
-func (client *ecsClient) RunTaskWithOverrides(taskDefinition, startedBy string, count int, overrides map[string]string) (*ecs.RunTaskOutput, error) {
+func (client *ecsClient) RunTaskWithOverrides(taskDefinition, startedBy string, count int, container string, commands []string) (*ecs.RunTaskOutput, error) {
 
-	commandOverrides := []*ecs.ContainerOverride{}
-	for cont, command := range overrides {
-		contOverride := &ecs.ContainerOverride{
-			Name:    aws.String(cont),
-			Command: aws.StringSlice([]string{command}),
-		}
-		commandOverrides = append(commandOverrides, contOverride)
-	}
+	commandOverrides := []*ecs.ContainerOverride{
+		{
+			Name:    aws.String(container),
+			Command: aws.StringSlice(commands),
+		}}
 	ecsOverrides := &ecs.TaskOverride{
 		ContainerOverrides: commandOverrides,
 	}
