@@ -183,6 +183,7 @@ func getContainersForTasks(entity ProjectEntity, ecsTasks []*ecs.Task) ([]Contai
 	}
 
 	ec2InstanceIds := listEC2Ids(containerToEC2InstanceIDs)
+
 	ec2Instances, err := entity.Context().EC2Client.DescribeInstances(ec2InstanceIds)
 	if err != nil {
 		return nil, err
@@ -190,8 +191,9 @@ func getContainersForTasks(entity ProjectEntity, ecsTasks []*ecs.Task) ([]Contai
 
 	for _, ecsTask := range ecsTasks {
 		ec2ID := containerToEC2InstanceIDs[aws.StringValue(ecsTask.ContainerInstanceArn)]
+
 		var ec2IPAddress string
-		if ec2ID != "" {
+		if ec2ID != "" && ec2Instances[ec2ID] != nil {
 			ec2IPAddress = aws.StringValue(ec2Instances[ec2ID].PublicIpAddress)
 		}
 		for _, container := range ecsTask.Containers {
