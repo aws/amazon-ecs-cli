@@ -20,6 +20,8 @@ import (
 	"github.com/docker/libcompose/project"
 )
 
+//go:generate ../../../../scripts/mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs Project mocks/$GOFILE
+
 // Project is the starting point for the compose app to interact with and issue commands
 // It acts as a blanket for the context and entities created as a part of this compose project
 type Project interface {
@@ -35,7 +37,7 @@ type Project interface {
 	Start() error
 	Up() error
 	Info() (project.InfoSet, error)
-	Run(commandOverrides map[string]string) error
+	Run(commandOverrides map[string][]string) error
 	Scale(count int) error
 	Stop() error
 	Down() error
@@ -155,7 +157,7 @@ func (p *ecsProject) Info() (project.InfoSet, error) {
 	return p.entity.Info(true)
 }
 
-func (p *ecsProject) Run(commandOverrides map[string]string) error {
+func (p *ecsProject) Run(commandOverrides map[string][]string) error {
 	return p.entity.Run(commandOverrides)
 }
 

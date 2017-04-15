@@ -28,8 +28,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
 )
 
-//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecs ECSClient mock/$GOFILE
-//go:generate mockgen.sh github.com/aws/aws-sdk-go/service/ecs/ecsiface ECSAPI mock/sdk/ecsiface_mock.go
+//go:generate ../../../../../scripts/mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecs ECSClient mock/$GOFILE
+//go:generate ../../../../../scripts/mockgen.sh github.com/aws/aws-sdk-go/service/ecs/ecsiface ECSAPI mock/sdk/ecsiface_mock.go
 
 // ecsChunkSize is the maximum number of elements to pass into a describe api
 const ecsChunkSize = 100
@@ -61,7 +61,7 @@ type ECSClient interface {
 	// Tasks related
 	GetTasksPages(listTasksInput *ecs.ListTasksInput, fn ProcessTasksAction) error
 	RunTask(taskDefinition, startedBy string, count int) (*ecs.RunTaskOutput, error)
-	RunTaskWithOverrides(taskDefinition, startedBy string, count int, overrides map[string]string) (*ecs.RunTaskOutput, error)
+	RunTaskWithOverrides(taskDefinition, startedBy string, count int, overrides map[string][]string) (*ecs.RunTaskOutput, error)
 	StopTask(taskId string) error
 	DescribeTasks(taskIds []*string) ([]*ecs.Task, error)
 
@@ -398,13 +398,13 @@ func (client *ecsClient) RunTask(taskDefinition, startedBy string, count int) (*
 }
 
 // RunTask issues a run task request for the input task definition
-func (client *ecsClient) RunTaskWithOverrides(taskDefinition, startedBy string, count int, overrides map[string]string) (*ecs.RunTaskOutput, error) {
+func (client *ecsClient) RunTaskWithOverrides(taskDefinition, startedBy string, count int, overrides map[string][]string) (*ecs.RunTaskOutput, error) {
 
 	commandOverrides := []*ecs.ContainerOverride{}
 	for cont, command := range overrides {
 		contOverride := &ecs.ContainerOverride{
 			Name:    aws.String(cont),
-			Command: aws.StringSlice([]string{command}),
+			Command: aws.StringSlice(command),
 		}
 		commandOverrides = append(commandOverrides, contOverride)
 	}

@@ -302,7 +302,7 @@ func (s *Service) Down() error {
 }
 
 // Run expects to issue a command override and start containers. But that doesnt apply to the context of ECS Services
-func (s *Service) Run(commandOverrides map[string]string) error {
+func (s *Service) Run(commandOverrides map[string][]string) error {
 	return composeutils.ErrUnsupported
 }
 

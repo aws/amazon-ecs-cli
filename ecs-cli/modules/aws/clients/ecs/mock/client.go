@@ -193,7 +193,7 @@ func (_mr *_MockECSClientRecorder) RunTask(arg0, arg1, arg2 interface{}) *gomock
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "RunTask", arg0, arg1, arg2)
 }
 
-func (_m *MockECSClient) RunTaskWithOverrides(_param0 string, _param1 string, _param2 int, _param3 map[string]string) (*ecs.RunTaskOutput, error) {
+func (_m *MockECSClient) RunTaskWithOverrides(_param0 string, _param1 string, _param2 int, _param3 map[string][]string) (*ecs.RunTaskOutput, error) {
 	ret := _m.ctrl.Call(_m, "RunTaskWithOverrides", _param0, _param1, _param2, _param3)
 	ret0, _ := ret[0].(*ecs.RunTaskOutput)
 	ret1, _ := ret[1].(error)
