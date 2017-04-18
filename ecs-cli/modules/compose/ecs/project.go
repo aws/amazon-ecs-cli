@@ -20,7 +20,7 @@ import (
 	"github.com/docker/libcompose/project"
 )
 
-//go:generate ../../../../scripts/mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs Project mocks/$GOFILE
+//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs Project mocks/$GOFILE
 
 // Project is the starting point for the compose app to interact with and issue commands
 // It acts as a blanket for the context and entities created as a part of this compose project

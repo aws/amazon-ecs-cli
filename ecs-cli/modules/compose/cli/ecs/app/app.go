@@ -90,13 +90,15 @@ func ProjectPs(p ecscompose.Project, c *cli.Context) {
 func ProjectRun(p ecscompose.Project, c *cli.Context) {
 	args := c.Args()
 	if len(args) % 2 != 0 {
-		log.Fatal("Please pass arguments in the form: CONTAINER COMMAND [CONTAINER COMMAND]...")
+		log.Fatal("Please pass arguments in the form: CONTAINER \"COMMAND ...\" [CONTAINER \"COMMAND...\"] ...")
 	}
 	commandOverrides := make(map[string][]string)
 	for i := 0; i < len(args); i += 2 {
 		parts, err := shlex.Split(args[i + 1])
 		if err != nil {
-			log.Fatal(err)
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Fatal("Unable to parse run commands")
 		}
 		commandOverrides[args[i]] = parts
 	}

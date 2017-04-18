@@ -28,8 +28,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
 )
 
-//go:generate ../../../../../scripts/mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecs ECSClient mock/$GOFILE
-//go:generate ../../../../../scripts/mockgen.sh github.com/aws/aws-sdk-go/service/ecs/ecsiface ECSAPI mock/sdk/ecsiface_mock.go
+//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecs ECSClient mock/$GOFILE
+//go:generate mockgen.sh github.com/aws/aws-sdk-go/service/ecs/ecsiface ECSAPI mock/sdk/ecsiface_mock.go
 
 // ecsChunkSize is the maximum number of elements to pass into a describe api
 const ecsChunkSize = 100
