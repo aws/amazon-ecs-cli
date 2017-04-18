@@ -15,7 +15,6 @@ package ec2
 
 import (
 	"errors"
-	"os"
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ec2/mock/sdk"
@@ -28,9 +27,7 @@ import (
 )
 
 func TestDescribeInstances(t *testing.T) {
-	defer os.Clearenv()
-	mockEC2, client, ctrl := setupTest(t)
-	defer ctrl.Finish()
+	mockEC2, client := setupTest(t)
 
 	// 2 ids in the input list
 	expectedIds := []*string{aws.String("id1"), aws.String("id2")}
@@ -64,9 +61,7 @@ func TestDescribeInstances(t *testing.T) {
 }
 
 func TestDescribeInstancesWithEmptyList(t *testing.T) {
-	defer os.Clearenv()
-	_, client, ctrl := setupTest(t)
-	defer ctrl.Finish()
+	_, client := setupTest(t)
 
 	// empty list of input ids
 	output, err := client.DescribeInstances([]*string{})
@@ -76,9 +71,7 @@ func TestDescribeInstancesWithEmptyList(t *testing.T) {
 }
 
 func TestDescribeInstancesErrorCase(t *testing.T) {
-	defer os.Clearenv()
-	mockEC2, client, ctrl := setupTest(t)
-	defer ctrl.Finish()
+	mockEC2, client := setupTest(t)
 
 	expectedIds := []*string{aws.String("id1"), aws.String("id2")}
 
@@ -90,9 +83,7 @@ func TestDescribeInstancesErrorCase(t *testing.T) {
 }
 
 func TestDescribeInstancesErrorCaseWithEmptyOutput(t *testing.T) {
-	defer os.Clearenv()
-	mockEC2, client, ctrl := setupTest(t)
-	defer ctrl.Finish()
+	mockEC2, client := setupTest(t)
 
 	expectedIds := []*string{aws.String("id1"), aws.String("id2")}
 
@@ -105,9 +96,7 @@ func TestDescribeInstancesErrorCaseWithEmptyOutput(t *testing.T) {
 }
 
 func TestDescribeInstancesErrorCaseWithEmptyReservation(t *testing.T) {
-	defer os.Clearenv()
-	mockEC2, client, ctrl := setupTest(t)
-	defer ctrl.Finish()
+	mockEC2, client := setupTest(t)
 
 	expectedIds := []*string{aws.String("id1"), aws.String("id2")}
 
@@ -120,20 +109,14 @@ func TestDescribeInstancesErrorCaseWithEmptyReservation(t *testing.T) {
 	assert.Error(t, err, "Expected error for empty reservations")
 }
 
-func newTestSession(t *testing.T) *session.Session {
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "secret")
-
-	testSession, err := session.NewSession()
+func setupTest(t *testing.T) (*mock_ec2iface.MockEC2API, EC2Client) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockEC2 := mock_ec2iface.NewMockEC2API(ctrl)
+	mockSession, err := session.NewSession()
 	assert.NoError(t, err, "Unexpected error in creating session")
 
-	return testSession
-}
+	client := newClient(&config.CliParams{Session: mockSession}, mockEC2)
 
-func setupTest(t *testing.T) (*mock_ec2iface.MockEC2API, EC2Client, *gomock.Controller) {
-	ctrl := gomock.NewController(t)
-	mockEC2 := mock_ec2iface.NewMockEC2API(ctrl)
-	client := newClient(&config.CliParams{Session: newTestSession(t)}, mockEC2)
-
-	return mockEC2, client, ctrl
+	return mockEC2, client
 }
