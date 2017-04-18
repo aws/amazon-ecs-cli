@@ -14,6 +14,7 @@
 package ecs
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ec2/mock"
@@ -25,7 +26,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TODO: add error cases from ECS to EC2
 func TestGetContainersForTasks(t *testing.T) {
 	containerInstanceArn := "containerInstanceArn"
 	ec2InstanceID := "ec2InstanceId"
@@ -47,8 +47,8 @@ func TestGetContainersForTasks(t *testing.T) {
 	ec2InstancesMap := make(map[string]*ec2.Instance)
 	ec2InstancesMap[ec2InstanceID] = ec2Instance
 
-	projectEntity := setupMocks(t, []*string{&containerInstanceArn}, containerInstancesMap,
-		[]*string{&ec2InstanceID}, ec2InstancesMap)
+	projectEntity := setupMocks(t, []*string{aws.String(containerInstanceArn)}, containerInstancesMap,
+		[]*string{aws.String(ec2InstanceID)}, ec2InstancesMap)
 
 	containers, err := getContainersForTasks(projectEntity, ecsTasks)
 	assert.NoError(t, err, "Unexpected error when calling getContainersForTasks")
@@ -56,7 +56,7 @@ func TestGetContainersForTasks(t *testing.T) {
 	assert.Equal(t, containers[0].ec2IPAddress, aws.StringValue(ec2Instance.PublicIpAddress), "Expects PublicIpAddress to match")
 }
 
-func TestGetContainersForTasksWithMissingEc2InstanceID(t *testing.T) {
+func TestGetContainersForTasksWithoutEc2InstanceID(t *testing.T) {
 	containerInstanceArn := "containerInstanceArn"
 	ec2InstanceID := "ec2InstanceId"
 
@@ -76,13 +76,46 @@ func TestGetContainersForTasksWithMissingEc2InstanceID(t *testing.T) {
 	// No ec2InstanceID is found
 	ec2InstancesMap := make(map[string]*ec2.Instance)
 
-	projectEntity := setupMocks(t, []*string{&containerInstanceArn}, containerInstancesMap,
-		[]*string{&ec2InstanceID}, ec2InstancesMap)
+	projectEntity := setupMocks(t, []*string{aws.String(containerInstanceArn)}, containerInstancesMap,
+		[]*string{aws.String(ec2InstanceID)}, ec2InstancesMap)
 
 	containers, err := getContainersForTasks(projectEntity, ecsTasks)
 	assert.NoError(t, err, "Unexpected error when calling getContainersForTasks")
 	assert.Len(t, containers, 1, "Expects to have 1 containers")
 	assert.Empty(t, containers[0].ec2IPAddress, "Expects ec2IpAddress to be empty")
+}
+
+func TestGetContainersForTasksErrorCases(t *testing.T) {
+	containerInstanceArn := "containerInstanceArn"
+	ec2InstanceID := "ec2InstanceId"
+
+	ecsTasks := []*ecs.Task{
+		&ecs.Task{
+			Containers: []*ecs.Container{
+				&ecs.Container{
+					Name: aws.String("containerName"),
+				},
+			},
+			ContainerInstanceArn: aws.String(containerInstanceArn),
+		},
+	}
+	containerInstancesMap := make(map[string]string)
+	containerInstancesMap[containerInstanceArn] = ec2InstanceID
+
+	mockEc2, mockEcs, projectEntity := setupTest(t)
+
+	// GetEC2InstanceIDs failed
+	mockEcs.EXPECT().GetEC2InstanceIDs(gomock.Any()).Return(nil, errors.New("something wrong"))
+	_, err := getContainersForTasks(projectEntity, ecsTasks)
+	assert.Error(t, err, "Expected error when calling getContainersForTasks")
+
+	// DescribeInstances failed
+	gomock.InOrder(
+		mockEcs.EXPECT().GetEC2InstanceIDs(gomock.Any()).Return(containerInstancesMap, nil),
+		mockEc2.EXPECT().DescribeInstances(gomock.Any()).Return(nil, errors.New("something wrong")),
+	)
+	_, err = getContainersForTasks(projectEntity, ecsTasks)
+	assert.Error(t, err, "Expected error when calling getContainersForTasks")
 }
 
 func setupTest(t *testing.T) (*mock_ec2.MockEC2Client, *mock_ecs.MockECSClient, ProjectEntity) {
@@ -98,13 +131,13 @@ func setupTest(t *testing.T) (*mock_ec2.MockEC2Client, *mock_ecs.MockECSClient, 
 	return mockEc2, mockEcs, projectEntity
 }
 
-func setupMocks(t *testing.T, getEc2InstanceIDRequest []*string, getEc2InstanceIDResult map[string]string,
+func setupMocks(t *testing.T, getEc2InstanceIDsRequest []*string, getEc2InstanceIDsResult map[string]string,
 	describeInstancesRequest []*string, describeInstancesResult map[string]*ec2.Instance) ProjectEntity {
 
 	mockEc2, mockEcs, projectEntity := setupTest(t)
 
 	gomock.InOrder(
-		mockEcs.EXPECT().GetEC2InstanceIDs(getEc2InstanceIDRequest).Return(getEc2InstanceIDResult, nil),
+		mockEcs.EXPECT().GetEC2InstanceIDs(getEc2InstanceIDsRequest).Return(getEc2InstanceIDsResult, nil),
 		mockEc2.EXPECT().DescribeInstances(describeInstancesRequest).Return(describeInstancesResult, nil),
 	)
 	return projectEntity

@@ -31,10 +31,11 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
 )
 
-var clusterName = "test"
+const clusterName = "clusterName"
 
 // mockReadWriter implements ReadWriter interface to return just the cluster
 // field whenperforming read.
@@ -68,25 +69,21 @@ func TestNewECSClientWithRegion(t *testing.T) {
 	context := cli.NewContext(nil, nil, globalContext)
 	rdwr := &mockReadWriter{}
 	_, err := config.NewCliParams(context, rdwr)
-	if err == nil {
-		t.Errorf("Expected error when region not specified")
-	}
+	assert.Error(t, err, "Expected error when region not specified")
 
 	globalSet.String("region", "us-east-1", "")
 	globalContext = cli.NewContext(nil, globalSet, nil)
 	context = cli.NewContext(nil, nil, globalContext)
 	params, err := config.NewCliParams(context, rdwr)
-	if err != nil {
-		t.Errorf("Unexpected error creating opts: ", err)
-	}
+	assert.NoError(t, err, "Unexpected error creating opts")
+
 	client := NewECSClient()
 	client.Initialize(params)
 
 	// test for UserAgent
 	realClient, ok := client.(*ecsClient).client.(*ecs.ECS)
-	if !ok {
-		t.Fatal("Could not cast client to ecs.ECS")
-	}
+	assert.True(t, ok, "Could not cast client to ecs.ECS")
+
 	buildHandlerList := realClient.Handlers.Build
 	request := &request.Request{
 		HTTPRequest: &http.Request{
@@ -97,26 +94,7 @@ func TestNewECSClientWithRegion(t *testing.T) {
 	expectedUserAgentString := fmt.Sprintf("%s %s %s/%s",
 		version.AppName, version.Version, aws.SDKName, aws.SDKVersion)
 	userAgent := request.HTTPRequest.Header.Get(clients.UserAgentHeader)
-	if userAgent != expectedUserAgentString {
-		t.Errorf("Wrong User-Agent string, expected \"%s\" but was \"%s\"",
-			expectedUserAgentString, userAgent)
-	}
-}
-
-func setupTestController(t *testing.T, configParams *config.CliParams) (*mock_ecsiface.MockECSAPI, *mock_cache.MockCache,
-	ECSClient, *gomock.Controller) {
-	ctrl := gomock.NewController(t)
-	mockEcs := mock_ecsiface.NewMockECSAPI(ctrl)
-	mockCache := mock_cache.NewMockCache(ctrl)
-	client := NewECSClient()
-
-	if configParams != nil {
-		client.Initialize(configParams)
-	}
-
-	client.(*ecsClient).client = mockEcs
-
-	return mockEcs, mockCache, client, ctrl
+	assert.Equal(t, expectedUserAgentString, userAgent, "Wrong User-Agent string")
 }
 
 func TestRegisterTDWithCache(t *testing.T) {
@@ -204,29 +182,21 @@ func TestRegisterTDWithCache(t *testing.T) {
 			Return(&ecs.RegisterTaskDefinitionOutput{TaskDefinition: &taskDefinition2}, nil),
 
 		mockCache.EXPECT().Put(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
-			if _, ok := cache[x.(string)]; ok {
-				t.Fatal("there shouldn't be a cached family2 entry")
-			}
+			_, ok := cache[x.(string)]
+			assert.False(t, ok, "there shouldn't be a cached family2 entry")
 		}).Return(nil),
 	)
 
 	resp1, err := client.RegisterTaskDefinitionIfNeeded(&registerTaskDefinitionInput1, mockCache)
-	if err != nil {
-		t.Fatal(err)
-	}
-	resp2, err := client.RegisterTaskDefinitionIfNeeded(&registerTaskDefinitionInput1, mockCache)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, err, "Unexpected error when calling RegisterTaskDefinition")
 
-	if *resp1.Family != *resp2.Family || *resp1.Revision != *resp2.Revision {
-		t.Errorf("Expected family/revision to match: %v:%v, %v:%v", *resp1.Family, *resp1.Revision, *resp2.Family, *resp2.Revision)
-	}
+	resp2, err := client.RegisterTaskDefinitionIfNeeded(&registerTaskDefinitionInput1, mockCache)
+	assert.NoError(t, err, "Unexpected error when calling RegisterTaskDefinition")
+	assert.Equal(t, aws.StringValue(resp1.Family), aws.StringValue(resp2.Family), "Expected family to match")
+	assert.Equal(t, aws.Int64Value(resp1.Revision), aws.Int64Value(resp2.Revision), "Expected revision to match")
 
 	_, err = client.RegisterTaskDefinitionIfNeeded(&registerTaskDefinitionInput2, mockCache)
-	if err != nil {
-		t.Error(err)
-	}
+	assert.NoError(t, err, "Unexpected error when calling RegisterTaskDefinition")
 }
 
 func TestRegisterTaskDefinitionIfNeededTDBecomesInactive(t *testing.T) {
@@ -298,19 +268,12 @@ func TestRegisterTaskDefinitionIfNeededTDBecomesInactive(t *testing.T) {
 	)
 
 	resp1, err := client.RegisterTaskDefinitionIfNeeded(&registerTaskDefinitionInput1, mockCache)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, err, "Unexpected error when calling RegisterTaskDefinition")
+
 	resp2, err := client.RegisterTaskDefinitionIfNeeded(&registerTaskDefinitionInput1, mockCache)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, err, "Unexpected error when calling RegisterTaskDefinition")
 
-	if *resp1.Revision == *resp2.Revision {
-		t.Errorf("Expected revison of second response to be incremented because the task definition is INACTIVE: %v:%v, %v:%v",
-			*resp1.Family, *resp1.Revision, *resp2.Family, *resp2.Revision)
-	}
-
+	assert.NotEqual(t, aws.Int64Value(resp1.Revision), aws.Int64Value(resp2.Revision), "Expected revision to be incremented")
 }
 
 func TestRegisterTaskDefinitionIfNeededFamilyNameNotProvided(t *testing.T) {
@@ -318,10 +281,8 @@ func TestRegisterTaskDefinitionIfNeededFamilyNameNotProvided(t *testing.T) {
 	defer ctrl.Finish()
 
 	_, err := client.RegisterTaskDefinitionIfNeeded(&ecs.RegisterTaskDefinitionInput{}, nil)
-	if err == nil {
-		t.Fatal("Expected an error if the Family name was not provided.", err)
-	}
 
+	assert.Error(t, err, "Expected an error if the Family name was not provided.")
 }
 
 func TestRegisterTaskDefinitionIfNeededTDLatestTDRevisionIsInactive(t *testing.T) {
@@ -366,15 +327,10 @@ func TestRegisterTaskDefinitionIfNeededTDLatestTDRevisionIsInactive(t *testing.T
 	)
 
 	resp1, err := client.RegisterTaskDefinitionIfNeeded(&registerTaskDefinitionInput1, mockCache)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if *resp1.Revision <= *taskDefinition1Inactive.Revision {
-		t.Errorf("Expected revison of response to be incremented because the latest task definition was INACTIVE: %v:%v",
-			*taskDefinition1Inactive.Revision, *resp1.Revision)
-	}
-
+	assert.NoError(t, err, "Unexpected error when calling RegisterTaskDefinition")
+	assert.Condition(t, func() (success bool) {
+		return aws.Int64Value(resp1.Revision) > aws.Int64Value(taskDefinition1Inactive.Revision)
+	}, "Expected revison of response to be incremented because the latest task definition was INACTIVE")
 }
 
 func TestRegisterTaskDefinitionIfNeededCachedTDIsInactive(t *testing.T) {
@@ -428,25 +384,15 @@ func TestRegisterTaskDefinitionIfNeededCachedTDIsInactive(t *testing.T) {
 	)
 
 	resp1, err := client.RegisterTaskDefinitionIfNeeded(&registerTaskDefinitionInput1, mockCache)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if *resp1.Revision <= *taskDefinition1CachedInactive.Revision {
-		t.Errorf("Expected revison of response to be incremented because the cached task definition is INACTIVE: %v:%v",
-			*taskDefinition1CachedInactive.Revision, *resp1.Revision)
-	}
-
+	assert.NoError(t, err, "Unexpected error when calling RegisterTaskDefinition")
+	assert.Condition(t, func() (success bool) {
+		return aws.Int64Value(resp1.Revision) > aws.Int64Value(taskDefinition1CachedInactive.Revision)
+	}, "Expected revison of response to be incremented because the cached task definition is INACTIVE")
 }
 
 func TestGetTasksPages(t *testing.T) {
-	mockEcs, _, client, ctrl := setupTestController(t, nil)
+	mockEcs, _, client, ctrl := setupTestController(t, getDefaultCliConfigParams(t))
 	defer ctrl.Finish()
-
-	clusterName := "clusterName"
-	client.(*ecsClient).params = &config.CliParams{
-		Cluster: clusterName,
-	}
 
 	startedBy := "startedBy"
 	taskIds := []*string{aws.String("taskId")}
@@ -459,15 +405,9 @@ func TestGetTasksPages(t *testing.T) {
 
 	mockEcs.EXPECT().ListTasksPages(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
 		// verify input fields
-		input := x.(*ecs.ListTasksInput)
-		if clusterName != *input.Cluster {
-			t.Errorf("Expected request.cluster to be [%s] but got [%s]",
-				clusterName, *input.Cluster)
-		}
-		if *listTasksInput.StartedBy != *input.StartedBy {
-			t.Errorf("Expected request.StartedBy to be [%v] but got [%v]",
-				*listTasksInput.StartedBy, *input.StartedBy)
-		}
+		req := x.(*ecs.ListTasksInput)
+		assert.Equal(t, clusterName, aws.StringValue(req.Cluster), "Expected clusterName to match")
+		assert.Equal(t, aws.StringValue(listTasksInput.StartedBy), aws.StringValue(req.StartedBy), "Expected StartedBy to match")
 
 		// execute the function passed as input
 		funct := y.(func(page *ecs.ListTasksOutput, end bool) bool)
@@ -477,60 +417,38 @@ func TestGetTasksPages(t *testing.T) {
 	mockEcs.EXPECT().DescribeTasks(gomock.Any()).Do(func(input interface{}) {
 		// verify input fields
 		req := input.(*ecs.DescribeTasksInput)
-		if clusterName != *req.Cluster {
-			t.Errorf("Expected request.cluster to be [%s] but got [%s]",
-				clusterName, *req.Cluster)
-		}
-		if len(taskIds) != len(req.Tasks) || *taskIds[0] != *req.Tasks[0] {
-			t.Errorf("Expected request.tasks to be [%v] but got [%v]", taskIds, req.Tasks)
-		}
+		assert.Equal(t, clusterName, aws.StringValue(req.Cluster), "Expected clusterName to match")
+		assert.Equal(t, len(taskIds), len(req.Tasks), "Expected tasks length to match")
+		assert.Equal(t, aws.StringValue(taskIds[0]), aws.StringValue(req.Tasks[0]), "Expected taskId to match")
 	}).Return(&ecs.DescribeTasksOutput{Tasks: []*ecs.Task{taskDetail}}, nil)
 
 	// make actual call
 	client.GetTasksPages(listTasksInput, func(tasks []*ecs.Task) error {
-		if len(tasks) != 1 {
-			t.Fatalf("Expected tasks [%v] but got [%v]", taskDetail, tasks)
-		}
-		if *taskDetail.TaskArn != *tasks[0].TaskArn {
-			t.Errorf("Expected TaskArn [%s] but got [%s]", *taskDetail.TaskArn, *tasks[0].TaskArn)
-		}
+		assert.Len(t, tasks, 1, "Expected exactly 1 task")
+		assert.Equal(t, aws.StringValue(taskDetail.TaskArn), aws.StringValue(tasks[0].TaskArn), "Expected TaskArn to match")
 		return nil
 	})
 
 }
 
 func TestRunTask(t *testing.T) {
-	mockEcs, _, client, ctrl := setupTestController(t, nil)
+	mockEcs, _, client, ctrl := setupTestController(t, getDefaultCliConfigParams(t))
 	defer ctrl.Finish()
 
-	clusterName := "clusterName"
 	td := "taskDef"
 	startedBy := "startedBy"
 	count := 5
-	client.(*ecsClient).params = &config.CliParams{
-		Cluster: clusterName,
-	}
 
 	mockEcs.EXPECT().RunTask(gomock.Any()).Do(func(input interface{}) {
 		req := input.(*ecs.RunTaskInput)
-		if clusterName != aws.StringValue(req.Cluster) {
-			t.Errorf("clusterName should be [%s]. Got [%s]", clusterName, aws.StringValue(req.Cluster))
-		}
-		if td != aws.StringValue(req.TaskDefinition) {
-			t.Errorf("taskDefinition should be [%s]. Got [%s]", td, aws.StringValue(req.TaskDefinition))
-		}
-		if startedBy != aws.StringValue(req.StartedBy) {
-			t.Errorf("startedBy should be [%s]. Got [%s]", startedBy, aws.StringValue(req.StartedBy))
-		}
-		if int64(count) != aws.Int64Value(req.Count) {
-			t.Errorf("count should be [%s]. Got [%s]", count, aws.Int64Value(req.Count))
-		}
+		assert.Equal(t, clusterName, aws.StringValue(req.Cluster), "Expected clusterName to match")
+		assert.Equal(t, td, aws.StringValue(req.TaskDefinition), "Expected taskDefinition to match")
+		assert.Equal(t, startedBy, aws.StringValue(req.StartedBy), "Expected startedBy to match")
+		assert.Equal(t, int64(count), aws.Int64Value(req.Count), "Expected count to match")
 	}).Return(&ecs.RunTaskOutput{}, nil)
 
 	_, err := client.RunTask(td, startedBy, count)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, err, "Unexpected error when calling RunTask")
 }
 
 func TestIsActiveCluster(t *testing.T) {
@@ -540,9 +458,7 @@ func TestIsActiveCluster(t *testing.T) {
 	// API error
 	mockEcs.EXPECT().DescribeClusters(gomock.Any()).Return(nil, errors.New("describe-clusters error"))
 	_, err := client.IsActiveCluster("")
-	if err == nil {
-		t.Error("Expected IsActiveCluster to return error on api error")
-	}
+	assert.Error(t, err, "Expected error when calling IsActiveCluster")
 
 	// Non 0 failures
 	output := &ecs.DescribeClustersOutput{
@@ -550,13 +466,8 @@ func TestIsActiveCluster(t *testing.T) {
 	}
 	mockEcs.EXPECT().DescribeClusters(gomock.Any()).Return(output, nil)
 	active, err := client.IsActiveCluster("")
-	if err != nil {
-		t.Fatal("Error in IsActiveCluster: ", err)
-	}
-
-	if active {
-		t.Error("Expected IsActiveCluster to return false on api returning failures")
-	}
+	assert.NoError(t, err, "Unexpected error when calling IsActiveCluster")
+	assert.False(t, active, "Expected IsActiveCluster to return false when API returned failures")
 
 	// Inactive cluster
 	output = &ecs.DescribeClustersOutput{
@@ -564,13 +475,8 @@ func TestIsActiveCluster(t *testing.T) {
 	}
 	mockEcs.EXPECT().DescribeClusters(gomock.Any()).Return(output, nil)
 	active, err = client.IsActiveCluster("")
-	if err != nil {
-		t.Fatal("Error in IsActiveCluster: ", err)
-	}
-
-	if active {
-		t.Error("Expected IsActiveCluster to return false on api returning an inactive cluster")
-	}
+	assert.NoError(t, err, "Unexpected error when calling IsActiveCluster")
+	assert.False(t, active, "Expected IsActiveCluster to return false when API returned inactive cluster")
 
 	// Active cluster
 	output = &ecs.DescribeClustersOutput{
@@ -578,26 +484,108 @@ func TestIsActiveCluster(t *testing.T) {
 	}
 	mockEcs.EXPECT().DescribeClusters(gomock.Any()).Return(output, nil)
 	active, err = client.IsActiveCluster("")
-	if err != nil {
-		t.Fatal("Error in IsActiveCluster: ", err)
+	assert.NoError(t, err, "Unexpected error when calling IsActiveCluster")
+	assert.True(t, active, "Expected IsActiveCluster to return true when API returned active cluster")
+}
+
+func TestGetEC2InstanceIDs(t *testing.T) {
+	mockEcs, _, client, ctrl := setupTestController(t, getDefaultCliConfigParams(t))
+	defer ctrl.Finish()
+
+	containerInstanceArn := "containerInstanceArn"
+	containerInstanceArns := []*string{aws.String(containerInstanceArn)}
+	ec2InstanceID := "ec2InstanceId"
+	containerInstances := []*ecs.ContainerInstance{
+		&ecs.ContainerInstance{
+			ContainerInstanceArn: aws.String(containerInstanceArn),
+			Ec2InstanceId:        aws.String(ec2InstanceID),
+		},
 	}
 
-	if !active {
-		t.Error("Expected IsActiveCluster to return true on api returning an active cluster")
+	mockEcs.EXPECT().DescribeContainerInstances(gomock.Any()).Do(func(input interface{}) {
+		req := input.(*ecs.DescribeContainerInstancesInput)
+		assert.Equal(t, clusterName, aws.StringValue(req.Cluster), "Expected clusterName to match")
+		assert.Equal(t, len(containerInstanceArns), len(req.ContainerInstances), "Expected ContainerInstances to be the same length")
+		assert.Equal(t, containerInstanceArn, aws.StringValue(req.ContainerInstances[0]), "Expected containerInstanceArn to match")
+	}).Return(&ecs.DescribeContainerInstancesOutput{
+		ContainerInstances: containerInstances,
+	}, nil)
+
+	containerToEC2InstanceMap, err := client.GetEC2InstanceIDs(containerInstanceArns)
+	assert.NoError(t, err, "Unexpected error when calling GetEC2InstanceIDs")
+	assert.Equal(t, ec2InstanceID, containerToEC2InstanceMap[containerInstanceArn], "Ec2InstanceId should match")
+}
+
+func TestGetEC2InstanceIDsWithEmptyArns(t *testing.T) {
+	_, _, client, ctrl := setupTestController(t, nil)
+	defer ctrl.Finish()
+
+	containerToEC2InstanceMap, err := client.GetEC2InstanceIDs([]*string{})
+	assert.NoError(t, err, "Unexpected error when calling GetEC2InstanceIDs")
+	assert.Empty(t, containerToEC2InstanceMap, "containerToEC2InstanceMap should be empty")
+}
+
+func TestGetEC2InstanceIDsWithNoEc2InstanceID(t *testing.T) {
+	mockEcs, _, client, ctrl := setupTestController(t, getDefaultCliConfigParams(t))
+	defer ctrl.Finish()
+
+	containerInstanceArn := "containerInstanceArn"
+	containerInstanceArns := []*string{aws.String(containerInstanceArn)}
+	containerInstances := []*ecs.ContainerInstance{
+		&ecs.ContainerInstance{
+			ContainerInstanceArn: aws.String(containerInstanceArn),
+		},
 	}
 
+	mockEcs.EXPECT().DescribeContainerInstances(gomock.Any()).Return(&ecs.DescribeContainerInstancesOutput{
+		ContainerInstances: containerInstances,
+	}, nil)
+
+	containerToEC2InstanceMap, err := client.GetEC2InstanceIDs(containerInstanceArns)
+	assert.NoError(t, err, "Unexpected error when calling GetEC2InstanceIDs")
+	assert.Empty(t, containerToEC2InstanceMap, "containerToEC2InstanceMap should be empty")
+}
+
+func TestGetEC2InstanceIDsErrorCase(t *testing.T) {
+	mockEcs, _, client, ctrl := setupTestController(t, getDefaultCliConfigParams(t))
+	defer ctrl.Finish()
+
+	containerInstanceArn := "containerInstanceArn"
+	containerInstanceArns := []*string{aws.String(containerInstanceArn)}
+
+	mockEcs.EXPECT().DescribeContainerInstances(gomock.Any()).Return(nil, errors.New("something wrong"))
+
+	_, err := client.GetEC2InstanceIDs(containerInstanceArns)
+	assert.Error(t, err, "Expected error when calling GetEC2InstanceIDs")
+}
+
+/*
+	Helpers
+*/
+func setupTestController(t *testing.T, configParams *config.CliParams) (*mock_ecsiface.MockECSAPI, *mock_cache.MockCache,
+	ECSClient, *gomock.Controller) {
+	ctrl := gomock.NewController(t)
+	mockEcs := mock_ecsiface.NewMockECSAPI(ctrl)
+	mockCache := mock_cache.NewMockCache(ctrl)
+	client := NewECSClient()
+
+	if configParams != nil {
+		client.Initialize(configParams)
+	}
+
+	client.(*ecsClient).client = mockEcs
+
+	return mockEcs, mockCache, client, ctrl
 }
 
 func getDefaultCliConfigParams(t *testing.T) *config.CliParams {
 	setDefaultAWSEnvVariables()
 
 	testSession, err := session.NewSession()
-	if err != nil {
-		t.Fatal("Unexpected error in creating session")
-	}
+	assert.NoError(t, err, "Unexpected error in creating session")
 
 	return &config.CliParams{
-		Cluster: "cluster",
+		Cluster: clusterName,
 		Session: testSession,
 	}
 }
