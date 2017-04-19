@@ -183,7 +183,7 @@ func getContainersForTasks(entity ProjectEntity, ecsTasks []*ecs.Task) ([]Contai
 	}
 
 	ec2InstanceIds := listEC2Ids(containerToEC2InstanceIDs)
-	fmt.Println(ec2InstanceIds)
+
 	ec2Instances, err := entity.Context().EC2Client.DescribeInstances(ec2InstanceIds)
 	if err != nil {
 		return nil, err
