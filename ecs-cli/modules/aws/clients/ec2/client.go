@@ -40,6 +40,10 @@ type ec2Client struct {
 func NewEC2Client(params *config.CliParams) EC2Client {
 	client := ec2.New(params.Session)
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
+	return newClient(params, client)
+}
+
+func newClient(params *config.CliParams, client ec2iface.EC2API) EC2Client {
 	return &ec2Client{
 		client: client,
 	}
