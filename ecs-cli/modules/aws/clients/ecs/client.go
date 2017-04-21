@@ -62,7 +62,7 @@ type ECSClient interface {
 	GetTasksPages(listTasksInput *ecs.ListTasksInput, fn ProcessTasksAction) error
 	RunTask(taskDefinition, startedBy string, count int) (*ecs.RunTaskOutput, error)
 	RunTaskWithOverrides(taskDefinition, startedBy string, count int, overrides map[string][]string) (*ecs.RunTaskOutput, error)
-	StopTask(taskId string) error
+	StopTask(taskID string) error
 	DescribeTasks(taskIds []*string) ([]*ecs.Task, error)
 
 	// Container Instance related
@@ -75,6 +75,7 @@ type ecsClient struct {
 	params *config.CliParams
 }
 
+// NewECSClient creates a new ECS client
 func NewECSClient() ECSClient {
 	return &ecsClient{}
 }
@@ -117,10 +118,10 @@ func (c *ecsClient) DeleteCluster(clusterName string) (string, error) {
 	return *resp.Cluster.ClusterName, nil
 }
 
-func (client *ecsClient) DeleteService(serviceName string) error {
-	_, err := client.client.DeleteService(&ecs.DeleteServiceInput{
+func (c *ecsClient) DeleteService(serviceName string) error {
+	_, err := c.client.DeleteService(&ecs.DeleteServiceInput{
 		Service: aws.String(serviceName),
-		Cluster: aws.String(client.params.Cluster),
+		Cluster: aws.String(c.params.Cluster),
 	})
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -133,18 +134,18 @@ func (client *ecsClient) DeleteService(serviceName string) error {
 	return nil
 }
 
-func (client *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration) error {
+func (c *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration) error {
 	createServiceInput := &ecs.CreateServiceInput{
 		DesiredCount:            aws.Int64(0),            // Required
 		ServiceName:             aws.String(serviceName), // Required
 		TaskDefinition:          aws.String(taskDefName), // Required
-		Cluster:                 aws.String(client.params.Cluster),
+		Cluster:                 aws.String(c.params.Cluster),
 		DeploymentConfiguration: deploymentConfig,
 		LoadBalancers:           []*ecs.LoadBalancer{loadBalancer},
 		Role:                    aws.String(role),
 	}
 
-	if _, err := client.client.CreateService(createServiceInput); err != nil {
+	if _, err := c.client.CreateService(createServiceInput); err != nil {
 		log.WithFields(log.Fields{
 			"service": serviceName,
 			"error":   err,
@@ -167,21 +168,21 @@ func (client *ecsClient) CreateService(serviceName, taskDefName string, loadBala
 	return nil
 }
 
-func (client *ecsClient) UpdateServiceCount(serviceName string, count int64, deploymentConfig *ecs.DeploymentConfiguration) error {
-	return client.UpdateService(serviceName, "", count, deploymentConfig)
+func (c *ecsClient) UpdateServiceCount(serviceName string, count int64, deploymentConfig *ecs.DeploymentConfiguration) error {
+	return c.UpdateService(serviceName, "", count, deploymentConfig)
 }
 
-func (client *ecsClient) UpdateService(serviceName, taskDefinition string, count int64, deploymentConfig *ecs.DeploymentConfiguration) error {
+func (c *ecsClient) UpdateService(serviceName, taskDefinition string, count int64, deploymentConfig *ecs.DeploymentConfiguration) error {
 	input := &ecs.UpdateServiceInput{
 		DesiredCount:            aws.Int64(count),
 		Service:                 aws.String(serviceName),
-		Cluster:                 aws.String(client.params.Cluster),
+		Cluster:                 aws.String(c.params.Cluster),
 		DeploymentConfiguration: deploymentConfig,
 	}
 	if taskDefinition != "" {
 		input.TaskDefinition = aws.String(taskDefinition)
 	}
-	_, err := client.client.UpdateService(input)
+	_, err := c.client.UpdateService(input)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"service": serviceName,
@@ -206,10 +207,10 @@ func (client *ecsClient) UpdateService(serviceName, taskDefinition string, count
 	return nil
 }
 
-func (client *ecsClient) DescribeService(serviceName string) (*ecs.DescribeServicesOutput, error) {
-	output, err := client.client.DescribeServices(&ecs.DescribeServicesInput{
+func (c *ecsClient) DescribeService(serviceName string) (*ecs.DescribeServicesOutput, error) {
+	output, err := c.client.DescribeServices(&ecs.DescribeServicesInput{
 		Services: []*string{aws.String(serviceName)},
-		Cluster:  aws.String(client.params.Cluster),
+		Cluster:  aws.String(c.params.Cluster),
 	})
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -221,8 +222,8 @@ func (client *ecsClient) DescribeService(serviceName string) (*ecs.DescribeServi
 	return output, err
 }
 
-func (client *ecsClient) RegisterTaskDefinition(request *ecs.RegisterTaskDefinitionInput) (*ecs.TaskDefinition, error) {
-	resp, err := client.client.RegisterTaskDefinition(request)
+func (c *ecsClient) RegisterTaskDefinition(request *ecs.RegisterTaskDefinitionInput) (*ecs.TaskDefinition, error) {
+	resp, err := c.client.RegisterTaskDefinition(request)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"family": aws.StringValue(request.Family),
@@ -239,31 +240,31 @@ func (client *ecsClient) RegisterTaskDefinition(request *ecs.RegisterTaskDefinit
 //
 // This exists to avoid an explosion of task definitions for automatically
 // registered inputs.
-func (client *ecsClient) RegisterTaskDefinitionIfNeeded(
+func (c *ecsClient) RegisterTaskDefinitionIfNeeded(
 	request *ecs.RegisterTaskDefinitionInput,
 	taskDefinitionCache cache.Cache) (*ecs.TaskDefinition, error) {
 	if request.Family == nil {
 		return nil, errors.New("invalid task definitions: family is required")
 	}
 
-	taskDefResp, err := client.DescribeTaskDefinition(aws.StringValue(request.Family))
+	taskDefResp, err := c.DescribeTaskDefinition(aws.StringValue(request.Family))
 
 	// If there are no task definitions for this family OR the task definition exists and is marked as 'INACTIVE',
 	// register the task definition and create a cache entry
 	if err != nil || *taskDefResp.Status == ecs.TaskDefinitionStatusInactive {
-		return persistTaskDefinition(request, client, taskDefinitionCache)
+		return persistTaskDefinition(request, c, taskDefinitionCache)
 	}
 
-	tdHash := client.constructTaskDefinitionCacheHash(taskDefResp, request)
+	tdHash := c.constructTaskDefinitionCacheHash(taskDefResp, request)
 
 	td := &ecs.TaskDefinition{}
 	err = taskDefinitionCache.Get(tdHash, td)
-	if err != nil || !cachedTaskDefinitionRevisionIsActive(td, client) {
+	if err != nil || !cachedTaskDefinitionRevisionIsActive(td, c) {
 		log.WithFields(log.Fields{
 			"taskDefHash": tdHash,
 			"taskDef":     td,
 		}).Debug("cache miss")
-		return persistTaskDefinition(request, client, taskDefinitionCache)
+		return persistTaskDefinition(request, c, taskDefinitionCache)
 	}
 
 	log.WithFields(log.Fields{
@@ -289,11 +290,11 @@ func cachedTaskDefinitionRevisionIsActive(cachedTaskDefinition *ecs.TaskDefiniti
 // constructTaskDefinitionCacheHash computes md5sum of the region, awsAccountId and the requested task definition data
 // BUG(juanrhenals) The requested Task Definition data (taskDefinitionRequest) is not created in a deterministic fashion because there are maps within
 // the request ecs.RegisterTaskDefinitionInput structure, and map iteration in Go is not deterministic. We need to fix this.
-func (client *ecsClient) constructTaskDefinitionCacheHash(taskDefinition *ecs.TaskDefinition, request *ecs.RegisterTaskDefinitionInput) string {
+func (c *ecsClient) constructTaskDefinitionCacheHash(taskDefinition *ecs.TaskDefinition, request *ecs.RegisterTaskDefinitionInput) string {
 	// Get the region from the ecsClient configuration
-	region := aws.StringValue(client.params.Session.Config.Region)
-	awsUserAccountId := utils.GetAwsAccountIdFromArn(aws.StringValue(taskDefinition.TaskDefinitionArn))
-	tdHashInput := fmt.Sprintf("%s-%s-%s", region, awsUserAccountId, request.GoString())
+	region := aws.StringValue(c.params.Session.Config.Region)
+	awsUserAccountID := utils.GetAwsAccountIdFromArn(aws.StringValue(taskDefinition.TaskDefinitionArn))
+	tdHashInput := fmt.Sprintf("%s-%s-%s", region, awsUserAccountID, request.GoString())
 	return fmt.Sprintf("%x", md5.Sum([]byte(tdHashInput)))
 }
 
@@ -317,8 +318,8 @@ func persistTaskDefinition(request *ecs.RegisterTaskDefinitionInput, client *ecs
 
 }
 
-func (client *ecsClient) DescribeTaskDefinition(taskDefinitionName string) (*ecs.TaskDefinition, error) {
-	resp, err := client.client.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
+func (c *ecsClient) DescribeTaskDefinition(taskDefinitionName string) (*ecs.TaskDefinition, error) {
+	resp, err := c.client.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
 		TaskDefinition: aws.String(taskDefinitionName),
 	})
 	if err != nil {
@@ -330,15 +331,15 @@ func (client *ecsClient) DescribeTaskDefinition(taskDefinitionName string) (*ecs
 
 // GetTasksPages lists and describe tasks per page and executes the custom function supplied
 // any time any call returns error, the processing stops and appropriate error is returned
-func (client *ecsClient) GetTasksPages(listTasksInput *ecs.ListTasksInput, tasksFunc ProcessTasksAction) error {
-	listTasksInput.Cluster = aws.String(client.params.Cluster)
+func (c *ecsClient) GetTasksPages(listTasksInput *ecs.ListTasksInput, tasksFunc ProcessTasksAction) error {
+	listTasksInput.Cluster = aws.String(c.params.Cluster)
 	var outErr error
-	err := client.client.ListTasksPages(listTasksInput, func(page *ecs.ListTasksOutput, end bool) bool {
+	err := c.client.ListTasksPages(listTasksInput, func(page *ecs.ListTasksOutput, end bool) bool {
 		if len(page.TaskArns) == 0 {
 			return false
 		}
 		// describe this page of tasks
-		resp, err := client.DescribeTasks(page.TaskArns)
+		resp, err := c.DescribeTasks(page.TaskArns)
 		if err != nil {
 			outErr = err
 			return false
@@ -364,12 +365,12 @@ func (client *ecsClient) GetTasksPages(listTasksInput *ecs.ListTasksInput, tasks
 	return nil
 }
 
-func (client *ecsClient) DescribeTasks(taskArns []*string) ([]*ecs.Task, error) {
+func (c *ecsClient) DescribeTasks(taskArns []*string) ([]*ecs.Task, error) {
 	descTasksRequest := &ecs.DescribeTasksInput{
 		Tasks:   taskArns,
-		Cluster: aws.String(client.params.Cluster),
+		Cluster: aws.String(c.params.Cluster),
 	}
-	descTasksResp, err := client.client.DescribeTasks(descTasksRequest)
+	descTasksResp, err := c.client.DescribeTasks(descTasksRequest)
 	if descTasksResp == nil || err != nil {
 		log.WithFields(log.Fields{
 			"request": descTasksResp,
@@ -381,9 +382,9 @@ func (client *ecsClient) DescribeTasks(taskArns []*string) ([]*ecs.Task, error) 
 }
 
 // RunTask issues a run task request for the input task definition
-func (client *ecsClient) RunTask(taskDefinition, startedBy string, count int) (*ecs.RunTaskOutput, error) {
-	resp, err := client.client.RunTask(&ecs.RunTaskInput{
-		Cluster:        aws.String(client.params.Cluster),
+func (c *ecsClient) RunTask(taskDefinition, startedBy string, count int) (*ecs.RunTaskOutput, error) {
+	resp, err := c.client.RunTask(&ecs.RunTaskInput{
+		Cluster:        aws.String(c.params.Cluster),
 		TaskDefinition: aws.String(taskDefinition),
 		StartedBy:      aws.String(startedBy),
 		Count:          aws.Int64(int64(count)),
@@ -412,8 +413,8 @@ func (client *ecsClient) RunTaskWithOverrides(taskDefinition, startedBy string, 
 		ContainerOverrides: commandOverrides,
 	}
 
-	resp, err := client.client.RunTask(&ecs.RunTaskInput{
-		Cluster:        aws.String(client.params.Cluster),
+	resp, err := c.client.RunTask(&ecs.RunTaskInput{
+		Cluster:        aws.String(c.params.Cluster),
 		TaskDefinition: aws.String(taskDefinition),
 		StartedBy:      aws.String(startedBy),
 		Count:          aws.Int64(int64(count)),
@@ -428,14 +429,14 @@ func (client *ecsClient) RunTaskWithOverrides(taskDefinition, startedBy string, 
 	return resp, err
 }
 
-func (client *ecsClient) StopTask(taskId string) error {
-	_, err := client.client.StopTask(&ecs.StopTaskInput{
-		Cluster: aws.String(client.params.Cluster),
-		Task:    aws.String(taskId),
+func (c *ecsClient) StopTask(taskID string) error {
+	_, err := c.client.StopTask(&ecs.StopTaskInput{
+		Cluster: aws.String(c.params.Cluster),
+		Task:    aws.String(taskID),
 	})
 	if err != nil {
 		log.WithFields(log.Fields{
-			"taskId": taskId,
+			"taskId": taskID,
 			"error":  err,
 		}).Error("Stop task failed")
 	}
@@ -443,7 +444,7 @@ func (client *ecsClient) StopTask(taskId string) error {
 }
 
 // GetEC2InstanceIds returns a map of container instance arn to ec2 instance id
-func (client *ecsClient) GetEC2InstanceIDs(containerInstanceArns []*string) (map[string]string, error) {
+func (c *ecsClient) GetEC2InstanceIDs(containerInstanceArns []*string) (map[string]string, error) {
 	containerToEC2InstanceMap := map[string]string{}
 	for i := 0; i < len(containerInstanceArns); i += ecsChunkSize {
 		var chunk []*string
@@ -452,8 +453,8 @@ func (client *ecsClient) GetEC2InstanceIDs(containerInstanceArns []*string) (map
 		} else {
 			chunk = containerInstanceArns[i : i+ecsChunkSize]
 		}
-		descrContainerInstances, err := client.client.DescribeContainerInstances(&ecs.DescribeContainerInstancesInput{
-			Cluster:            aws.String(client.params.Cluster),
+		descrContainerInstances, err := c.client.DescribeContainerInstances(&ecs.DescribeContainerInstancesInput{
+			Cluster:            aws.String(c.params.Cluster),
 			ContainerInstances: chunk,
 		})
 		if err != nil {
@@ -473,8 +474,8 @@ func (client *ecsClient) GetEC2InstanceIDs(containerInstanceArns []*string) (map
 }
 
 // IsActiveCluster returns true if the cluster exists and can be described.
-func (client *ecsClient) IsActiveCluster(clusterName string) (bool, error) {
-	output, err := client.client.DescribeClusters(&ecs.DescribeClustersInput{
+func (c *ecsClient) IsActiveCluster(clusterName string) (bool, error) {
+	output, err := c.client.DescribeClusters(&ecs.DescribeClustersInput{
 		Clusters: []*string{aws.String(clusterName)},
 	})
 
