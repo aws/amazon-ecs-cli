@@ -97,6 +97,7 @@ func ProjectRun(p ecscompose.Project, c *cli.Context) {
 		parts, err := shlex.Split(args[i + 1])
 		if err != nil {
 			log.WithFields(log.Fields{
+				"container-name": args[i],
 				"error": err,
 			}).Fatal("Unable to parse run commands")
 		}

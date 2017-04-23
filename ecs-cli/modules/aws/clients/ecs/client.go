@@ -399,8 +399,7 @@ func (c *ecsClient) RunTask(taskDefinition, startedBy string, count int) (*ecs.R
 }
 
 // RunTask issues a run task request for the input task definition
-func (client *ecsClient) RunTaskWithOverrides(taskDefinition, startedBy string, count int, overrides map[string][]string) (*ecs.RunTaskOutput, error) {
-
+func (c *ecsClient) RunTaskWithOverrides(taskDefinition, startedBy string, count int, overrides map[string][]string) (*ecs.RunTaskOutput, error) {
 	commandOverrides := []*ecs.ContainerOverride{}
 	for cont, command := range overrides {
 		contOverride := &ecs.ContainerOverride{
