@@ -115,7 +115,7 @@ func (_mr *_MockProjectRecorder) Parse() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Parse")
 }
 
-func (_m *MockProject) Run(_param0 map[string]string) error {
+func (_m *MockProject) Run(_param0 map[string][]string) error {
 	ret := _m.ctrl.Call(_m, "Run", _param0)
 	ret0, _ := ret[0].(error)
 	return ret0

@@ -157,7 +157,7 @@ func (t *Task) Scale(expectedCount int) error {
 
 // Run starts all containers defined in the task definition once regardless of if they were started before
 // It also overrides the commands for the specified containers
-func (t *Task) Run(commandOverrides map[string]string) error {
+func (t *Task) Run(commandOverrides map[string][]string) error {
 	taskDef, err := getOrCreateTaskDefinition(t)
 	if err != nil {
 		return err

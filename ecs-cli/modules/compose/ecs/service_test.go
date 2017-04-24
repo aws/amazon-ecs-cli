@@ -255,6 +255,6 @@ func TestServiceInfo(t *testing.T) {
 
 func TestServiceRun(t *testing.T) {
 	service := NewService(&Context{})
-	err := service.Run(map[string]string{})
+	err := service.Run(map[string][]string{})
 	assert.Error(t, err, "Expected unsupported error")
 }
