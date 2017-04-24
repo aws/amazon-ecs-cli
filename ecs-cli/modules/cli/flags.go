@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -24,6 +24,9 @@ const (
 	ProfileFlag            = "profile"
 	ClusterFlag            = "cluster"
 	VerboseFlag            = "verbose"
+	RegistryIdFlag         = "registry-id"
+	TaggedFlag             = "tagged"
+	UntaggedFlag           = "untagged"
 
 	ComposeProjectNamePrefixFlag         = "compose-project-name-prefix"
 	ComposeProjectNamePrefixDefaultValue = "ecscompose-"

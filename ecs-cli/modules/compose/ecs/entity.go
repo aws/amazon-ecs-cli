@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -32,7 +32,7 @@ type ProjectEntity interface {
 	Start() error
 	Up() error
 	Info(filterComposeTasks bool) (project.InfoSet, error)
-	Run(commandOverrides map[string]string) error
+	Run(commandOverrides map[string][]string) error
 	Scale(count int) error
 	Stop() error
 	Down() error
@@ -183,6 +183,7 @@ func getContainersForTasks(entity ProjectEntity, ecsTasks []*ecs.Task) ([]Contai
 	}
 
 	ec2InstanceIds := listEC2Ids(containerToEC2InstanceIDs)
+
 	ec2Instances, err := entity.Context().EC2Client.DescribeInstances(ec2InstanceIds)
 	if err != nil {
 		return nil, err
@@ -190,8 +191,9 @@ func getContainersForTasks(entity ProjectEntity, ecsTasks []*ecs.Task) ([]Contai
 
 	for _, ecsTask := range ecsTasks {
 		ec2ID := containerToEC2InstanceIDs[aws.StringValue(ecsTask.ContainerInstanceArn)]
+
 		var ec2IPAddress string
-		if ec2ID != "" {
+		if ec2ID != "" && ec2Instances[ec2ID] != nil {
 			ec2IPAddress = aws.StringValue(ec2Instances[ec2ID].PublicIpAddress)
 		}
 		for _, container := range ecsTask.Containers {

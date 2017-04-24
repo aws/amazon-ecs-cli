@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -23,8 +23,8 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/cli/ecs/app/mocks"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/mocks"
-	"github.com/codegangsta/cli"
 	"github.com/golang/mock/gomock"
+	"github.com/urfave/cli"
 )
 
 func TestBeforeApp(t *testing.T) {
@@ -65,12 +65,12 @@ func TestWithProject(t *testing.T) {
 
 func TestRun(t *testing.T) {
 	containers := []string{"cont1", "cont2"}
-	commands := []string{"cmd1", "cmd2"}
+	commands := []string{"cmd1 cmd2", "cmd3"}
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockProject := mock_ecs.NewMockProject(ctrl)
-	mockProject.EXPECT().Run(map[string]string{"cont1": "cmd1", "cont2": "cmd2"}).Return(nil)
+	mockProject.EXPECT().Run(map[string][]string{"cont1": {"cmd1", "cmd2"}, "cont2": {"cmd3"}}).Return(nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli", 0)
 	cliContext := cli.NewContext(nil, flagSet, nil)

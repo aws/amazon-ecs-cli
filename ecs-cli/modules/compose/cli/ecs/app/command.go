@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -16,7 +16,7 @@ package app
 import (
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 // Flag and command names used by the cli.
@@ -136,8 +136,8 @@ func startCommand(factory ProjectFactory) cli.Command {
 func runCommand(factory ProjectFactory) cli.Command {
 	return cli.Command{
 		Name: "run",
-		Usage: "ecs-cli compose run [containerName] [command] [containerName] [command] ..." +
-			"- starts all containers overriding commands with the supplied one-off commands for the containers.",
+		Usage: "Starts all containers overriding commands with the supplied one-off commands for the containers.",
+		ArgsUsage: "[CONTAINER_NAME] [\"COMMAND ...\"] [CONTAINER_NAME] [\"COMMAND ...\"] ...",
 		Action: WithProject(factory, ProjectRun, false),
 	}
 }

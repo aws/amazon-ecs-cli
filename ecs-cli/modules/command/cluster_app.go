@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -14,6 +14,7 @@
 package command
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strconv"
@@ -27,8 +28,8 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config/ami"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/codegangsta/cli"
 	"github.com/docker/libcompose/project"
+	"github.com/urfave/cli"
 )
 
 // displayTitle flag is used to print the title for the fields
@@ -269,8 +270,10 @@ var newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.C
 func deleteCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient) error {
 	// Validate cli flags
 	if !isForceSet(context) {
-		return fmt.Errorf("Missing required flag '--%s'", forceFlag)
-		// TODO prompt override for force
+		reader := bufio.NewReader(os.Stdin)
+		if err := deleteClusterPrompt(reader); err != nil {
+			return err
+		}
 	}
 	ecsParams, err := newCliParams(context, rdwr)
 	if err != nil {
@@ -381,7 +384,20 @@ func validateCluster(clusterName string, ecsClient ecsclient.ECSClient) error {
 	if !isClusterActive {
 		return fmt.Errorf("Cluster '%s' is not active. Ensure that it exists", clusterName)
 	}
+	return nil
+}
 
+// deleteClusterPrompt prompts and checks for confirmation to delete the cluster
+func deleteClusterPrompt(reader *bufio.Reader) error {
+	fmt.Println("Are you sure you want to delete your cluster? [y/N]")
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("Error reading input: %s", err.Error())
+	}
+	formattedInput := strings.ToLower(strings.TrimSpace(input))
+	if formattedInput != "yes" && formattedInput != "y" {
+		return fmt.Errorf("Aborted cluster deletion. To delete your cluster, re-run this command and specify the '--%s' flag or confirm that you'd like to delete your cluster at the prompt.", forceFlag)
+	}
 	return nil
 }
 

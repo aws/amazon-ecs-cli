@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -22,9 +22,10 @@ import (
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
-	"github.com/codegangsta/cli"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
+	"github.com/stretchr/testify/assert"
+	"github.com/urfave/cli"
 )
 
 const testProjectName = "test-project"
@@ -205,12 +206,14 @@ func TestParseComposeForVersion2Files(t *testing.T) {
 	wordpressImage := "wordpress"
 	mysqlImage := "mysql"
 	ports := []string{"80:80"}
+	memoryReservation := int64(500000000)
 
 	composeFileString := `version: '2'
 services:
   wordpress:
     image: wordpress
     ports: ["80:80"]
+    mem_reservation: 500000000
   mysql:
     image: mysql`
 
@@ -234,6 +237,8 @@ services:
 	if !reflect.DeepEqual(ports, wordpress.Ports) {
 		t.Errorf("Expected ports to be [%v] but got [%v]", ports, wordpress.Ports)
 	}
+
+	assert.Equal(t, memoryReservation, int64(wordpress.MemReservation), "Expected memoryReservation to match")
 
 	// verify mysql ServiceConfig
 	mysql, ok := configs.Get("mysql")

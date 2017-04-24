@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -17,10 +17,10 @@
 package mock_ecs
 
 import (
-	ecs "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
+	ecs0 "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
 	utils "github.com/aws/amazon-ecs-cli/ecs-cli/utils"
 	cache "github.com/aws/amazon-ecs-cli/ecs-cli/utils/cache"
-	ecs0 "github.com/aws/aws-sdk-go/service/ecs"
+	ecs "github.com/aws/aws-sdk-go/service/ecs"
 	project "github.com/docker/libcompose/project"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -46,9 +46,9 @@ func (_m *MockProjectEntity) EXPECT() *_MockProjectEntityRecorder {
 	return _m.recorder
 }
 
-func (_m *MockProjectEntity) Context() *ecs.Context {
+func (_m *MockProjectEntity) Context() *ecs0.Context {
 	ret := _m.ctrl.Call(_m, "Context")
-	ret0, _ := ret[0].(*ecs.Context)
+	ret0, _ := ret[0].(*ecs0.Context)
 	return ret0
 }
 
@@ -97,7 +97,7 @@ func (_mr *_MockProjectEntityRecorder) LoadContext() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "LoadContext")
 }
 
-func (_m *MockProjectEntity) Run(_param0 map[string]string) error {
+func (_m *MockProjectEntity) Run(_param0 map[string][]string) error {
 	ret := _m.ctrl.Call(_m, "Run", _param0)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -117,7 +117,7 @@ func (_mr *_MockProjectEntityRecorder) Scale(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Scale", arg0)
 }
 
-func (_m *MockProjectEntity) SetTaskDefinition(_param0 *ecs0.TaskDefinition) {
+func (_m *MockProjectEntity) SetTaskDefinition(_param0 *ecs.TaskDefinition) {
 	_m.ctrl.Call(_m, "SetTaskDefinition", _param0)
 }
 
@@ -155,9 +155,9 @@ func (_mr *_MockProjectEntityRecorder) Stop() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Stop")
 }
 
-func (_m *MockProjectEntity) TaskDefinition() *ecs0.TaskDefinition {
+func (_m *MockProjectEntity) TaskDefinition() *ecs.TaskDefinition {
 	ret := _m.ctrl.Call(_m, "TaskDefinition")
-	ret0, _ := ret[0].(*ecs0.TaskDefinition)
+	ret0, _ := ret[0].(*ecs.TaskDefinition)
 	return ret0
 }
 

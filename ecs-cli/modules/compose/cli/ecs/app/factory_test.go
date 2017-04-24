@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -21,8 +21,8 @@ import (
 
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/mocks"
-	"github.com/codegangsta/cli"
 	"github.com/golang/mock/gomock"
+	"github.com/urfave/cli"
 )
 
 const testProjectName = "projectName"

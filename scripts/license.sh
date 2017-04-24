@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"). You may
 # not use this file except in compliance with the License. A copy of the
@@ -27,9 +27,16 @@ appendRepoLicense() {
       inputfile+="$(<$licensefile)"$'\n'
     fi;
   done;
+
   # Copy COPYING* file
   if [ -f $repo/COPYING* ]; then
     inputfile+="$(<$repo/COPYING*)"$'\n'
+  fi;
+
+  # Copy NOTICE*
+  if [ -f $repo/NOTICE* ]; then
+    inputfile+="NOTICE file reads:"$'\n'
+    inputfile+="$(<$repo/NOTICE*)"$'\n'
   fi;
 }
 
@@ -46,7 +53,7 @@ for repo in ./../vendor/gopkg.in/*; do
 done;
 
 cat << EOF > "${outputfile}"
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the

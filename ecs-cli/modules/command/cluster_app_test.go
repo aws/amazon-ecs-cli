@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -14,6 +14,8 @@
 package command
 
 import (
+	"bufio"
+	"bytes"
 	"errors"
 	"flag"
 	"os"
@@ -26,8 +28,8 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config/ami"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/codegangsta/cli"
 	"github.com/golang/mock/gomock"
+	"github.com/urfave/cli"
 )
 
 type mockReadWriter struct {
@@ -688,6 +690,20 @@ func TestClusterDownWithoutForce(t *testing.T) {
 	err := deleteCluster(context, newMockReadWriter(), mockECS, mockCloudformation)
 	if err == nil {
 		t.Fatalf("Expected error deleting cluster when '--%s' is not specified", forceFlag)
+	}
+}
+
+func TestDeleteClusterPrompt(t *testing.T) {
+	readBuffer := bytes.NewBuffer([]byte("yes\ny\nno\n"))
+	reader := bufio.NewReader(readBuffer)
+	if err := deleteClusterPrompt(reader); err != nil {
+		t.Error("Expected no error with prompt to delete cluster")
+	}
+	if err := deleteClusterPrompt(reader); err != nil {
+		t.Error("Expected no error with prompt to delete cluster")
+	}
+	if err := deleteClusterPrompt(reader); err == nil {
+		t.Error("Expected error with prompt to delete cluster")
 	}
 }
 

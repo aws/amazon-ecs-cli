@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -20,7 +20,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
+	"github.com/flynn/go-shlex"
 )
 
 // displayTitle flag is used to print the title for the fields
@@ -88,12 +89,19 @@ func ProjectPs(p ecscompose.Project, c *cli.Context) {
 // ProjectRun starts containers and executes one-time command against the container
 func ProjectRun(p ecscompose.Project, c *cli.Context) {
 	args := c.Args()
-	if len(args)%2 != 0 {
-		log.Fatal("Please pass arguments in the form: CONTAINER COMMAND [CONTAINER COMMAND]...")
+	if len(args) % 2 != 0 {
+		log.Fatal("Please pass arguments in the form: CONTAINER \"COMMAND ...\" [CONTAINER \"COMMAND...\"] ...")
 	}
-	commandOverrides := make(map[string]string)
+	commandOverrides := make(map[string][]string)
 	for i := 0; i < len(args); i += 2 {
-		commandOverrides[args[i]] = args[i+1]
+		parts, err := shlex.Split(args[i + 1])
+		if err != nil {
+			log.WithFields(log.Fields{
+				"container-name": args[i],
+				"error": err,
+			}).Fatal("Unable to parse run commands")
+		}
+		commandOverrides[args[i]] = parts
 	}
 	err := p.Run(commandOverrides)
 	if err != nil {

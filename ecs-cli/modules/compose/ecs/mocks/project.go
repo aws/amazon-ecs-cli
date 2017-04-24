@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -115,7 +115,7 @@ func (_mr *_MockProjectRecorder) Parse() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Parse")
 }
 
-func (_m *MockProject) Run(_param0 map[string]string) error {
+func (_m *MockProject) Run(_param0 map[string][]string) error {
 	ret := _m.ctrl.Call(_m, "Run", _param0)
 	ret0, _ := ret[0].(error)
 	return ret0

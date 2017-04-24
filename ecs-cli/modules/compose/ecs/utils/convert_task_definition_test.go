@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -25,13 +25,15 @@ import (
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
-	portNumber    = 8000
-	portMapping   = "8000:8000"
-	containerPath = "/tmp/cache"
-	hostPath      = "./cache"
+	portNumber     = 8000
+	portMapping    = "8000:8000"
+	containerPath  = "/tmp/cache"
+	containerPath2 = "/tmp/cache2"
+	hostPath       = "./cache"
 )
 
 func TestConvertToTaskDefinition(t *testing.T) {
@@ -42,6 +44,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	image := "testimage"
 	links := []string{"container1"}
 	memory := int64(131072) // 128 GiB = 131072 MiB
+	memoryReservation := int64(65536)
 	privileged := true
 	readOnly := true
 	securityOpts := []string{"label:type:test_virt"}
@@ -49,17 +52,18 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	workingDir := "/var"
 
 	serviceConfig := &config.ServiceConfig{
-		CPUShares:   yaml.StringorInt(cpu),
-		Command:     []string{command},
-		Hostname:    hostname,
-		Image:       image,
-		Links:       links,
-		MemLimit:    yaml.MemStringorInt(int64(1048576) * memory), //1 MiB = 1048576B
-		Privileged:  privileged,
-		ReadOnly:    readOnly,
-		SecurityOpt: securityOpts,
-		User:        user,
-		WorkingDir:  workingDir,
+		CPUShares:      yaml.StringorInt(cpu),
+		Command:        []string{command},
+		Hostname:       hostname,
+		Image:          image,
+		Links:          links,
+		MemLimit:       yaml.MemStringorInt(int64(1048576) * memory), //1 MiB = 1048576B
+		MemReservation: yaml.MemStringorInt(int64(524288) * memory),
+		Privileged:     privileged,
+		ReadOnly:       readOnly,
+		SecurityOpt:    securityOpts,
+		User:           user,
+		WorkingDir:     workingDir,
 	}
 
 	// convert
@@ -91,6 +95,9 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	if memory != aws.Int64Value(containerDef.Memory) {
 		t.Errorf("Expected memory [%s] But was [%s]", memory, aws.Int64Value(containerDef.Memory))
 	}
+
+	assert.Equal(t, memoryReservation, aws.Int64Value(containerDef.MemoryReservation), "Expected memoryReservation to match")
+
 	if privileged != aws.BoolValue(containerDef.Privileged) {
 		t.Errorf("Expected privileged [%s] But was [%s]", privileged, aws.BoolValue(containerDef.Privileged))
 	}
@@ -262,7 +269,7 @@ func TestConvertToTaskDefinitionWithLogConfiguration(t *testing.T) {
 	taskDefinition = convertToTaskDefinitionInTest(t, "name", serviceConfig)
 	containerDef = *taskDefinition.ContainerDefinitions[0]
 	if logDriver != aws.StringValue(containerDef.LogConfiguration.LogDriver) {
-		t.Errorf("Expected Log driver [%s]. But was [%s]", containerDef.LogConfiguration)
+		t.Errorf("Expected Log driver [%s]. But was [%s]", logDriver, aws.StringValue(containerDef.LogConfiguration.LogDriver))
 	}
 	if !reflect.DeepEqual(logOpts, aws.StringValueMap(containerDef.LogConfiguration.Options)) {
 		t.Errorf("Expected Log options [%v]. But was [%v]", logOpts, aws.StringValueMap(containerDef.LogConfiguration.Options))
@@ -350,14 +357,19 @@ func verifyPortMapping(t *testing.T, output *ecs.PortMapping, hostPort, containe
 
 func TestConvertToMountPoints(t *testing.T) {
 	onlyContainerPath := yaml.Volume{Destination: containerPath}
-	hostAndContainerPath := yaml.Volume{Source: hostPath, Destination: containerPath}                         // "./cache:/tmp/cache"
+	onlyContainerPath2 := yaml.Volume{Destination: containerPath2}
+	hostAndContainerPath := yaml.Volume{Source: hostPath, Destination: containerPath} // "./cache:/tmp/cache"
+	onlyContainerPathWithRO := yaml.Volume{Destination: containerPath, AccessMode: "ro"}
 	hostAndContainerPathWithRO := yaml.Volume{Source: hostPath, Destination: containerPath, AccessMode: "ro"} // "./cache:/tmp/cache:ro"
 	hostAndContainerPathWithRW := yaml.Volume{Source: hostPath, Destination: containerPath, AccessMode: "rw"}
 
-	volumes := make(map[string]string)
+	volumes := &volumes{
+		volumeWithHost: make(map[string]string), // map with key:=hostSourcePath value:=VolumeName
+	}
 
-	mountPointsIn := yaml.Volumes{Volumes: []*yaml.Volume{&onlyContainerPath, &hostAndContainerPath,
-		&hostAndContainerPathWithRO, &hostAndContainerPathWithRW}}
+	// Valid inputs with host and container paths set
+	mountPointsIn := yaml.Volumes{Volumes: []*yaml.Volume{&onlyContainerPath, &onlyContainerPath2, &hostAndContainerPath,
+		&onlyContainerPathWithRO, &hostAndContainerPathWithRO, &hostAndContainerPathWithRW}}
 
 	mountPointsOut, err := convertToMountPoints(&mountPointsIn, volumes)
 	if err != nil {
@@ -366,11 +378,23 @@ func TestConvertToMountPoints(t *testing.T) {
 	if len(mountPointsIn.Volumes) != len(mountPointsOut) {
 		t.Errorf("Incorrect conversion. Input [%v] Output [%v]", mountPointsIn, mountPointsOut)
 	}
-	verifyMountPoint(t, mountPointsOut[0], volumes, "", containerPath, false)
-	verifyMountPoint(t, mountPointsOut[1], volumes, hostPath, containerPath, false)
-	verifyMountPoint(t, mountPointsOut[2], volumes, hostPath, containerPath, true)
-	verifyMountPoint(t, mountPointsOut[3], volumes, hostPath, containerPath, false)
 
+	verifyMountPoint(t, mountPointsOut[0], volumes, "", containerPath, false, 0)  // 0 is the counter for the first volume with an empty host path
+	verifyMountPoint(t, mountPointsOut[1], volumes, "", containerPath2, false, 1) // 1 is the counter for the second volume with an empty host path
+	verifyMountPoint(t, mountPointsOut[2], volumes, hostPath, containerPath, false, 1)
+	verifyMountPoint(t, mountPointsOut[3], volumes, "", containerPath, true, 2) // 2 is the counter for the third volume with an empty host path
+	verifyMountPoint(t, mountPointsOut[4], volumes, hostPath, containerPath, true, 2)
+	verifyMountPoint(t, mountPointsOut[5], volumes, hostPath, containerPath, false, 2)
+
+	if mountPointsOut[0].SourceVolume == mountPointsOut[1].SourceVolume {
+		t.Errorf("Expected volume %v (onlyContainerPath) and %v (onlyContainerPath2) to be different", mountPointsOut[0].SourceVolume, mountPointsOut[1].SourceVolume)
+	}
+
+	if mountPointsOut[1].SourceVolume == mountPointsOut[3].SourceVolume {
+		t.Errorf("Expected volume %v (onlyContainerPath2) and %v (onlyContainerPathWithRO) to be different", mountPointsOut[0].SourceVolume, mountPointsOut[1].SourceVolume)
+	}
+
+	// Invalid access mode input
 	hostAndContainerPathWithIncorrectAccess := yaml.Volume{Source: hostPath, Destination: containerPath, AccessMode: "readonly"}
 	mountPointsIn = yaml.Volumes{Volumes: []*yaml.Volume{&hostAndContainerPathWithIncorrectAccess}}
 	mountPointsOut, err = convertToMountPoints(&mountPointsIn, volumes)
@@ -387,18 +411,22 @@ func TestConvertToMountPoints(t *testing.T) {
 	}
 }
 
-func verifyMountPoint(t *testing.T, output *ecs.MountPoint, volumes map[string]string,
-	hostPath, containerPath string, readonly bool) {
-
+func verifyMountPoint(t *testing.T, output *ecs.MountPoint, volumes *volumes,
+	hostPath, containerPath string, readonly bool, EmptyHostCtr int) {
+	sourceVolume := ""
 	if containerPath != *output.ContainerPath {
 		t.Errorf("Expected containerPath [%s] But was [%s]", containerPath, *output.ContainerPath)
 	}
-	sourceVolume := volumes[hostPath]
+	if hostPath != "" {
+		sourceVolume = volumes.volumeWithHost[hostPath]
+	} else {
+		sourceVolume = volumes.volumeEmptyHost[EmptyHostCtr]
+	}
 	if sourceVolume != *output.SourceVolume {
 		t.Errorf("Expected sourceVolume [%s] But was [%s]", sourceVolume, *output.SourceVolume)
 	}
 	if readonly != *output.ReadOnly {
-		t.Errorf("Expected readonly [%s] But was [%s]", readonly, *output.ReadOnly)
+		t.Errorf("Expected readonly [%v] But was [%v]", readonly, *output.ReadOnly)
 	}
 }
 
@@ -526,31 +554,33 @@ func TestIsZeroForEmptyConfig(t *testing.T) {
 
 func TestIsZeroWhenConfigHasValues(t *testing.T) {
 	hasValues := map[string]bool{
-		"CPUShares":   true,
-		"Command":     true,
-		"Hostname":    true,
-		"Image":       true,
-		"Links":       true,
-		"MemLimit":    true,
-		"Privileged":  true,
-		"ReadOnly":    true,
-		"SecurityOpt": true,
-		"User":        true,
-		"WorkingDir":  true,
+		"CPUShares":      true,
+		"Command":        true,
+		"Hostname":       true,
+		"Image":          true,
+		"Links":          true,
+		"MemLimit":       true,
+		"MemReservation": true,
+		"Privileged":     true,
+		"ReadOnly":       true,
+		"SecurityOpt":    true,
+		"User":           true,
+		"WorkingDir":     true,
 	}
 
 	serviceConfig := &config.ServiceConfig{
-		CPUShares:   yaml.StringorInt(int64(10)),
-		Command:     []string{"cmd"},
-		Hostname:    "foobarbaz",
-		Image:       "testimage",
-		Links:       []string{"container1"},
-		MemLimit:    yaml.MemStringorInt(int64(104857600)),
-		Privileged:  true,
-		ReadOnly:    true,
-		SecurityOpt: []string{"label:type:test_virt"},
-		User:        "user",
-		WorkingDir:  "/var",
+		CPUShares:      yaml.StringorInt(int64(10)),
+		Command:        []string{"cmd"},
+		Hostname:       "foobarbaz",
+		Image:          "testimage",
+		Links:          []string{"container1"},
+		MemLimit:       yaml.MemStringorInt(int64(104857600)),
+		MemReservation: yaml.MemStringorInt(int64(52428800)),
+		Privileged:     true,
+		ReadOnly:       true,
+		SecurityOpt:    []string{"label:type:test_virt"},
+		User:           "user",
+		WorkingDir:     "/var",
 	}
 
 	configValue := reflect.ValueOf(serviceConfig).Elem()
@@ -567,4 +597,47 @@ func TestIsZeroWhenConfigHasValues(t *testing.T) {
 			t.Errorf("Expected field [%s]: hasValues[%t] but found[%t]", ft.Name, hasValues, !zeroValue)
 		}
 	}
+}
+
+func TestMemReservationHigherThanMemLimit(t *testing.T) {
+
+	name := "api"
+	cpu := int64(131072) // 128 * 1024
+	command := "cmd"
+	hostname := "local360"
+	image := "testimage"
+	memory := int64(65536) // 64mb
+	privileged := true
+	readOnly := true
+	user := "user"
+	workingDir := "/var"
+
+	serviceConfig := &config.ServiceConfig{
+		CPUShares:      yaml.StringorInt(cpu),
+		Command:        []string{command},
+		Hostname:       hostname,
+		Image:          image,
+		MemLimit:       yaml.MemStringorInt(int64(524288) * memory),
+		MemReservation: yaml.MemStringorInt(int64(1048576) * memory),
+		Privileged:     privileged,
+		ReadOnly:       readOnly,
+		User:           user,
+		WorkingDir:     workingDir,
+	}
+
+	serviceConfigs := config.NewServiceConfigs()
+	serviceConfigs.Add(name, serviceConfig)
+
+	taskDefName := "ProjectName"
+	envLookup, err := GetDefaultEnvironmentLookup()
+	assert.NoError(t, err, "Unexpected error setting up environment lookup")
+	resourceLookup, err := GetDefaultResourceLookup()
+	assert.NoError(t, err, "Unexpected error setting up resource lookup")
+	context := &project.Context{
+		Project:           &project.Project{},
+		EnvironmentLookup: envLookup,
+		ResourceLookup:    resourceLookup,
+	}
+	_, err = ConvertToTaskDefinition(taskDefName, context, serviceConfigs)
+	assert.EqualError(t, err, "mem_limit should not be less than mem_reservation")
 }

@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -25,6 +25,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/docker/libcompose/project"
+	"github.com/pkg/errors"
 )
 
 // Service type is placeholder for a single task definition and its cache
@@ -35,6 +36,8 @@ type Service struct {
 	projectContext   *Context
 	timeSleeper      *utils.TimeSleeper
 	deploymentConfig *ecs.DeploymentConfiguration
+	loadBalancer     *ecs.LoadBalancer
+	role             string
 }
 
 const (
@@ -51,7 +54,7 @@ func NewService(context *Context) ProjectEntity {
 	}
 }
 
-// LoadContext reads the context set in NewService and loads DeploymentConfiguration
+// LoadContext reads the context set in NewService and loads DeploymentConfiguration and LoadBalnacer
 func (s *Service) LoadContext() error {
 	maxPercent, err := getInt64FromCLIContext(s.Context(), DeploymentMaxPercentFlag)
 	if err != nil {
@@ -64,6 +67,36 @@ func (s *Service) LoadContext() error {
 	s.deploymentConfig = &ecs.DeploymentConfiguration{
 		MaximumPercent:        maxPercent,
 		MinimumHealthyPercent: minHealthyPercent,
+	}
+
+	// Load Balancer
+	role := s.Context().CLIContext.String(RoleFlag)
+	targetGroupArn := s.Context().CLIContext.String(TargetGroupArnFlag)
+	loadBalancerName := s.Context().CLIContext.String(LoadBalancerNameFlag)
+	containerName := s.Context().CLIContext.String(ContainerNameFlag)
+	containerPort, err := getInt64FromCLIContext(s.Context(), ContainerPortFlag)
+	if err != nil {
+		return err
+	}
+
+	// Validates LoadBalancerName and TargetGroupArn cannot exist at the same time
+	// The rest will be taken care off by the API call
+	if role != "" || targetGroupArn != "" || loadBalancerName != "" || containerName != "" || containerPort != nil {
+		if targetGroupArn != "" && loadBalancerName != "" {
+			return errors.Errorf("[--%s] and [--%s] flags cannot both be specified", LoadBalancerNameFlag, TargetGroupArnFlag)
+		}
+
+		s.loadBalancer = &ecs.LoadBalancer{
+			ContainerName: aws.String(containerName),
+			ContainerPort: containerPort,
+		}
+		if targetGroupArn != "" {
+			s.loadBalancer.TargetGroupArn = aws.String(targetGroupArn)
+		}
+		if loadBalancerName != "" {
+			s.loadBalancer.LoadBalancerName = aws.String(loadBalancerName)
+		}
+		s.role = role
 	}
 	return nil
 }
@@ -269,7 +302,7 @@ func (s *Service) Down() error {
 }
 
 // Run expects to issue a command override and start containers. But that doesnt apply to the context of ECS Services
-func (s *Service) Run(commandOverrides map[string]string) error {
+func (s *Service) Run(commandOverrides map[string][]string) error {
 	return composeutils.ErrUnsupported
 }
 
@@ -278,8 +311,9 @@ func (s *Service) Run(commandOverrides map[string]string) error {
 // createService calls the underlying ECS.CreateService
 func (s *Service) createService() error {
 	serviceName := s.getServiceName()
-	taskDefinitionId := getIdFromArn(s.TaskDefinition().TaskDefinitionArn)
-	err := s.Context().ECSClient.CreateService(serviceName, taskDefinitionId, s.DeploymentConfig())
+	taskDefinitionID := getIdFromArn(s.TaskDefinition().TaskDefinitionArn)
+
+	err := s.Context().ECSClient.CreateService(serviceName, taskDefinitionID, s.loadBalancer, s.role, s.DeploymentConfig())
 	if err != nil {
 		return err
 	}

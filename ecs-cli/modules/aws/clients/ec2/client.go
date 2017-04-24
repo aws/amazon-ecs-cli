@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -40,6 +40,10 @@ type ec2Client struct {
 func NewEC2Client(params *config.CliParams) EC2Client {
 	client := ec2.New(params.Session)
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
+	return newClient(params, client)
+}
+
+func newClient(params *config.CliParams, client ec2iface.EC2API) EC2Client {
 	return &ec2Client{
 		client: client,
 	}

@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -35,7 +35,7 @@ type Project interface {
 	Start() error
 	Up() error
 	Info() (project.InfoSet, error)
-	Run(commandOverrides map[string]string) error
+	Run(commandOverrides map[string][]string) error
 	Scale(count int) error
 	Stop() error
 	Down() error
@@ -155,7 +155,7 @@ func (p *ecsProject) Info() (project.InfoSet, error) {
 	return p.entity.Info(true)
 }
 
-func (p *ecsProject) Run(commandOverrides map[string]string) error {
+func (p *ecsProject) Run(commandOverrides map[string][]string) error {
 	return p.entity.Run(commandOverrides)
 }
 

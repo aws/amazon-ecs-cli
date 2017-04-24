@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -17,7 +17,7 @@ import (
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 // ProjectFactory is an interface that surfaces a function to create ECS Compose Project (intended to make mocking easy in tests)

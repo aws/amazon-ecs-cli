@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -126,6 +126,11 @@ func (rdwr *IniReadWriter) Save(dest *Destination) error {
 	// Open the file, optionally creating it with our desired permissions.
 	// This will let us pass it (as io.Writer) to go-ini but let us control the file.
 	configFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, configFileMode)
+
+	// Truncate the file in case the earlier contents are longer than the new
+	// contents, so there will not be any trash at the end of the file
+	configFile.Truncate(0)
+
 	if err != nil {
 		logrus.Errorf("Unable to open/create %s with mode %s", path, configFileMode)
 		return err

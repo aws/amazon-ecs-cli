@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -19,4 +19,9 @@ const (
 	DeploymentMaxPercentFlag                = "deployment-max-percent"
 	DeploymentMinHealthyPercentDefaultValue = 100
 	DeploymentMinHealthyPercentFlag         = "deployment-min-healthy-percent"
+	TargetGroupArnFlag                      = "target-group-arn"
+	ContainerNameFlag                       = "container-name"
+	ContainerPortFlag                       = "container-port"
+	LoadBalancerNameFlag                    = "load-balancer-name"
+	RoleFlag                                = "role"
 )

@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -23,8 +23,8 @@ import (
 	ec2client "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ec2"
 	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
-	"github.com/codegangsta/cli"
 	"github.com/docker/libcompose/project"
+	"github.com/urfave/cli"
 )
 
 const ProjectNameFlag = "project-name"

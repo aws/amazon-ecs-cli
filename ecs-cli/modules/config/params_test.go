@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -20,7 +20,7 @@ import (
 
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 // mockReadWriter implements ReadWriter interface to return just the cluster

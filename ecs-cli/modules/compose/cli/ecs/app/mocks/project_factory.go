@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -18,8 +18,8 @@ package mock_app
 
 import (
 	ecs "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/ecs"
-	cli "github.com/codegangsta/cli"
 	gomock "github.com/golang/mock/gomock"
+	cli "github.com/urfave/cli"
 )
 
 // Mock of ProjectFactory interface

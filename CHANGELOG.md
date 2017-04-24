@@ -1,4 +1,14 @@
 # Changelog
+
+## 0.5.0
+* Feature - Support ECR push, pull, and list images
+* Feature - Support existing ELB/ALB in CreateService
+* Feature - Update ami to amzn-ami-2016.09.g-amazon-ecs-optimized
+* Enhancement - Added r4 instance types
+* Bug - Add prompt to delete cluster [#186](https://github.com/aws/amazon-ecs-cli/pull/186)
+* Bug - Creates new volume when there's no host path [#201](https://github.com/aws/amazon-ecs-cli/pull/201)
+* Bug - `ecs-cli configure` truncates the file to avoid messing up the config file [#216](https://github.com/aws/amazon-ecs-cli/pull/216)
+
 ## 0.4.6
 * Feature - Update ECS-optimized AMIs to latest 2016.09.d
 * Bug - Support human readable strings for mem_limit
