@@ -34,7 +34,7 @@ import (
 
 const (
 	repository    = "repository"
-	tag           = "tag"
+	tag           = "tag-v0.1.0"
 	image         = repository + ":" + tag
 	registry      = "registry"
 	registryID    = "123456789"
