@@ -311,7 +311,7 @@ func getECRAuth(registryURI string, registryID string,
 func splitImageName(image string, seperatorRegExp string,
 	format string) (registry string, repository string, tag string, err error) {
 
-	re := regexp.MustCompile("^(?:([0-9A-Za-z.-]+)/)?([0-9a-z-_/]+)(?:" + seperatorRegExp + "([0-9A-Za-z_.-:]+))?$")
+	re := regexp.MustCompile(`^(?:([0-9A-Za-z.\-]+)/)?([0-9a-z\-_/]+)(?:` + seperatorRegExp + `([0-9A-Za-z_.\-:]+))?$`)
 	matches := re.FindStringSubmatch(image)
 	if len(matches) == 0 {
 		return "", "", "", fmt.Errorf("Please specify the image name in the correct format [%s]", format)
