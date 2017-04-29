@@ -18,7 +18,7 @@ import (
 	"path/filepath"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/utils"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 )
 
 // Destination stores the config destination path to write to and the permissions to create the

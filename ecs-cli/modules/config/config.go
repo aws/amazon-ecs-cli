@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
+	cli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"

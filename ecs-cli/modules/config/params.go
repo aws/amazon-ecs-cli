@@ -17,7 +17,7 @@ import (
 	"fmt"
 
 	"github.com/Sirupsen/logrus"
-	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
+	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/urfave/cli"
 )

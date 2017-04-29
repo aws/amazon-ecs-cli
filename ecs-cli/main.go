@@ -17,10 +17,13 @@ import (
 	"os"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/license"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/command"
-	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/cli/ecs/app"
+	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/factory"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/cluster"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/compose"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/configure"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/image"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/logger"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/version"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/utils/logger"
 	"github.com/cihub/seelog"
 	"github.com/urfave/cli"
 )
@@ -39,16 +42,16 @@ func main() {
 	composeFactory := ecscompose.NewProjectFactory()
 
 	app.Commands = []cli.Command{
-		command.ConfigureCommand(),
-		command.UpCommand(),
-		command.DownCommand(),
-		command.ScaleCommand(),
-		command.PsCommand(),
-		command.PushCommand(),
-		command.PullCommand(),
-		command.ImagesCommand(),
+		configureCommand.ConfigureCommand(),
+		clusterCommand.UpCommand(),
+		clusterCommand.DownCommand(),
+		clusterCommand.ScaleCommand(),
+		clusterCommand.PsCommand(),
+		imageCommand.PushCommand(),
+		imageCommand.PullCommand(),
+		imageCommand.ImagesCommand(),
 		license.LicenseCommand(),
-		ecscompose.ComposeCommand(composeFactory),
+		composeCommand.ComposeCommand(composeFactory),
 	}
 	app.Run(os.Args)
 }
