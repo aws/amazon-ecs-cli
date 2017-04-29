@@ -11,6 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package compose
+package sts
 
-//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/compose/cli/ecs/app ProjectFactory mocks/project_factory.go
+//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/sts Client mock/client.go
+//go:generate mockgen.sh github.com/aws/aws-sdk-go/service/sts/stsiface STSAPI mock/sdk/stsiface_mock.go

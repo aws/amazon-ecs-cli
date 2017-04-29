@@ -20,9 +20,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/docker Client mock/$GOFILE
-//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/docker/dockeriface DockerAPI dockeriface/mock/dockeriface_mock.go
-
 const (
 	DockerVersion_1_17 = "1.17"
 )

@@ -28,9 +28,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
 )
 
-//go:generate mockgen.sh github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface CloudFormationAPI mock/sdk/cloudformationiface_mock.go
-//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/cloudformation CloudformationClient mock/$GOFILE
-
 const (
 	// maxRetriesCreate is the maximum number of DescribeStackEvents API will be invoked by the WaitUntilCreateComplete method
 	// to determine if the stack was created successfully before giving up. This value reflects the values set in the

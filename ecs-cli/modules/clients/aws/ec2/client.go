@@ -23,9 +23,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 )
 
-//go:generate mockgen.sh github.com/aws/aws-sdk-go/service/ec2/ec2iface EC2API mock/sdk/ec2iface_mock.go
-//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ec2 EC2Client mock/$GOFILE
-
 // EC2Client defines methods to interact with the EC2 API interface.
 type EC2Client interface {
 	DescribeInstances(ec2InstanceIds []*string) (map[string]*ec2.Instance, error)

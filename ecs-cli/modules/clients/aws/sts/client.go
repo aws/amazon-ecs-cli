@@ -23,9 +23,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts/stsiface"
 )
 
-//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/sts Client mock/$GOFILE
-//go:generate mockgen.sh github.com/aws/aws-sdk-go/service/sts/stsiface STSAPI mock/sdk/stsiface_mock.go
-
 // Client sts interface
 type Client interface {
 	GetAWSAccountID() (string, error)

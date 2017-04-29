@@ -26,10 +26,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecr Client mock/$GOFILE
-//go:generate mockgen.sh github.com/awslabs/amazon-ecr-credential-helper/ecr-login/api Client mock/credential-helper/login_mock.go
-//go:generate mockgen.sh github.com/aws/aws-sdk-go/service/ecr/ecriface ECRAPI mock/sdk/ecriface_mock.go
-
 const (
 	CacheDir = "~/.ecs"
 )
