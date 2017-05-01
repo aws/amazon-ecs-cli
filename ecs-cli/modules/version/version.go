@@ -28,4 +28,4 @@ const Version = "0.5.0"
 const GitDirty = true
 
 // GitShortHash is the short hash of this ecs-cli build
-const GitShortHash = "93fe470"
+const GitShortHash = "UNKNOWN"
