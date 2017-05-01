@@ -17,7 +17,7 @@ import (
 	"flag"
 	"testing"
 
-	flags "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/urfave/cli"
 )
 
@@ -33,8 +33,8 @@ const (
 func TestConfigureWithoutKeysOrProfile(t *testing.T) {
 	// Config init when just cluster and region are specified
 	setNoKeysNoProfile := flag.NewFlagSet("ecs-cli", 0)
-	setNoKeysNoProfile.String(flags.RegionFlag, region, "")
-	setNoKeysNoProfile.String(flags.ClusterFlag, clusterName, "")
+	setNoKeysNoProfile.String(command.RegionFlag, region, "")
+	setNoKeysNoProfile.String(command.ClusterFlag, clusterName, "")
 	context := cli.NewContext(nil, setNoKeysNoProfile, nil)
 	cfg, err := createECSConfigFromCli(context)
 	if err != nil {
@@ -60,10 +60,10 @@ func TestConfigureWithoutKeysOrProfile(t *testing.T) {
 func TestConfigtWithSecretAndAccessKeys(t *testing.T) {
 	// Config init when all non profile params are specified.
 	setSecretAndAccessKeys := flag.NewFlagSet("ecs-cli", 0)
-	setSecretAndAccessKeys.String(flags.ClusterFlag, clusterName, "")
-	setSecretAndAccessKeys.String(flags.RegionFlag, region, "")
-	setSecretAndAccessKeys.String(flags.SecretKeyFlag, awsSecretKey, "")
-	setSecretAndAccessKeys.String(flags.AccessKeyFlag, awsAccessKey, "")
+	setSecretAndAccessKeys.String(command.ClusterFlag, clusterName, "")
+	setSecretAndAccessKeys.String(command.RegionFlag, region, "")
+	setSecretAndAccessKeys.String(command.SecretKeyFlag, awsSecretKey, "")
+	setSecretAndAccessKeys.String(command.AccessKeyFlag, awsAccessKey, "")
 	context := cli.NewContext(nil, setSecretAndAccessKeys, nil)
 	cfg, err := createECSConfigFromCli(context)
 	if err != nil {
@@ -89,9 +89,9 @@ func TestConfigtWithSecretAndAccessKeys(t *testing.T) {
 func TestConfigInitWithProfile(t *testing.T) {
 	// Config init with profile.
 	setProfile := flag.NewFlagSet("ecs-cli", 0)
-	setProfile.String(flags.ProfileFlag, profileName, "")
-	setProfile.String(flags.ClusterFlag, clusterName, "")
-	setProfile.String(flags.RegionFlag, region, "")
+	setProfile.String(command.ProfileFlag, profileName, "")
+	setProfile.String(command.ClusterFlag, clusterName, "")
+	setProfile.String(command.RegionFlag, region, "")
 	context := cli.NewContext(nil, setProfile, nil)
 	cfg, err := createECSConfigFromCli(context)
 	if err != nil {
@@ -117,8 +117,8 @@ func TestConfigInitWithProfile(t *testing.T) {
 func TestConfigInitWithoutCluster(t *testing.T) {
 	// Config init with no cluster should fail.
 	setProfileNoCluster := flag.NewFlagSet("ecs-cli", 0)
-	setProfileNoCluster.String(flags.ProfileFlag, profileName, "")
-	setProfileNoCluster.String(flags.RegionFlag, region, "")
+	setProfileNoCluster.String(command.ProfileFlag, profileName, "")
+	setProfileNoCluster.String(command.RegionFlag, region, "")
 	context := cli.NewContext(nil, setProfileNoCluster, nil)
 	_, err := createECSConfigFromCli(context)
 	if err == nil {
@@ -129,11 +129,11 @@ func TestConfigInitWithoutCluster(t *testing.T) {
 func TestConfigInitWithProfileAndKeys(t *testing.T) {
 	// Config init with all params will attempt to use the credentials keys specified in the ecs profile
 	setEverything := flag.NewFlagSet("ecs-cli", 0)
-	setEverything.String(flags.ProfileFlag, profileName, "")
-	setEverything.String(flags.ClusterFlag, clusterName, "")
-	setEverything.String(flags.RegionFlag, region, "")
-	setEverything.String(flags.SecretKeyFlag, awsSecretKey, "")
-	setEverything.String(flags.AccessKeyFlag, awsAccessKey, "")
+	setEverything.String(command.ProfileFlag, profileName, "")
+	setEverything.String(command.ClusterFlag, clusterName, "")
+	setEverything.String(command.RegionFlag, region, "")
+	setEverything.String(command.SecretKeyFlag, awsSecretKey, "")
+	setEverything.String(command.AccessKeyFlag, awsAccessKey, "")
 	context := cli.NewContext(nil, setEverything, nil)
 	_, err := createECSConfigFromCli(context)
 	if err == nil {
@@ -143,16 +143,16 @@ func TestConfigInitWithProfileAndKeys(t *testing.T) {
 
 func TestConfigInitWithPrefixes(t *testing.T) {
 	setPrefixes := flag.NewFlagSet("ecs-cli", 0)
-	setPrefixes.String(flags.ProfileFlag, profileName, "")
-	setPrefixes.String(flags.ClusterFlag, clusterName, "")
+	setPrefixes.String(command.ProfileFlag, profileName, "")
+	setPrefixes.String(command.ClusterFlag, clusterName, "")
 
 	composeProjectName := "projectName"
 	composeServiceName := "serviceName"
 	cfnStackName := "stackName"
 
-	setPrefixes.String(flags.ComposeProjectNamePrefixFlag, composeProjectName, "")
-	setPrefixes.String(flags.ComposeServiceNamePrefixFlag, composeServiceName, "")
-	setPrefixes.String(flags.CFNStackNamePrefixFlag, cfnStackName, "")
+	setPrefixes.String(command.ComposeProjectNamePrefixFlag, composeProjectName, "")
+	setPrefixes.String(command.ComposeServiceNamePrefixFlag, composeServiceName, "")
+	setPrefixes.String(command.CFNStackNamePrefixFlag, cfnStackName, "")
 
 	context := cli.NewContext(nil, setPrefixes, nil)
 
@@ -173,8 +173,8 @@ func TestConfigInitWithPrefixes(t *testing.T) {
 
 func TestConfigInitWithoutPrefixes(t *testing.T) {
 	setNoPrefixes := flag.NewFlagSet("ecs-cli", 0)
-	setNoPrefixes.String(flags.ProfileFlag, profileName, "")
-	setNoPrefixes.String(flags.ClusterFlag, clusterName, "")
+	setNoPrefixes.String(command.ProfileFlag, profileName, "")
+	setNoPrefixes.String(command.ClusterFlag, clusterName, "")
 
 	context := cli.NewContext(nil, setNoPrefixes, nil)
 

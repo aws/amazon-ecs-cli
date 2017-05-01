@@ -13,11 +13,37 @@
 
 package utils
 
-import "testing"
+import (
+	"io/ioutil"
+	"os"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestGetHomeDir(t *testing.T) {
+	tempDirName := tempDir(t)
+	defer os.Remove(tempDirName)
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+
 	_, err := GetHomeDir()
-	if err != nil {
-		t.Errorf("Error getting home dir: ", err)
-	}
+	assert.NoError(t, err, "Unexpected error getting home dir")
+}
+
+func TestGetHomeDirInWindows(t *testing.T) {
+	tempDirName := tempDir(t)
+	defer os.Remove(tempDirName)
+	os.Setenv("USERPROFILE", tempDirName)
+	defer os.Unsetenv("USERPROFILE")
+
+	_, err := GetHomeDir()
+	assert.NoError(t, err, "Unexpected error getting home dir")
+}
+
+func tempDir(t *testing.T) string {
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	assert.NoError(t, err, "Unexpected error while creating the dummy ecs config directory")
+	return tempDirName
 }

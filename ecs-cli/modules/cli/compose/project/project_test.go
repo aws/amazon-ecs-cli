@@ -21,6 +21,8 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/context"
+	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
@@ -306,11 +308,11 @@ func setupTestProject(t *testing.T) *ecsProject {
 	}
 
 	composeContext := flag.NewFlagSet("ecs-cli", 0)
-	composeContext.String(ProjectNameFlag, testProjectName, "")
+	composeContext.String(command.ProjectNameFlag, testProjectName, "")
 	parentContext := cli.NewContext(nil, composeContext, nil)
 	cliContext := cli.NewContext(nil, nil, parentContext)
 
-	ecsContext := &Context{
+	ecsContext := &context.Context{
 		CLIContext: cliContext,
 	}
 	ecsContext.EnvironmentLookup = envLookup

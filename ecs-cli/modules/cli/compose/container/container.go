@@ -35,7 +35,7 @@ var ContainerInfoColumns = []string{containerNameKey, containerStateKey, contain
 // Container is a wrapper around ecsContainer
 type Container struct {
 	task         *ecs.Task
-	ec2IPAddress string
+	Ec2IPAddress string
 	ecsContainer *ecs.Container
 }
 
@@ -43,7 +43,7 @@ type Container struct {
 func NewContainer(task *ecs.Task, ec2IPAddress string, container *ecs.Container) Container {
 	return Container{
 		task:         task,
-		ec2IPAddress: ec2IPAddress,
+		Ec2IPAddress: ec2IPAddress,
 		ecsContainer: container,
 	}
 }
@@ -94,8 +94,8 @@ func (c *Container) PortString() string {
 			protocol = aws.StringValue(port.Protocol)
 		}
 		ipAddr := aws.StringValue(port.BindIP)
-		if c.ec2IPAddress != "" {
-			ipAddr = c.ec2IPAddress
+		if c.Ec2IPAddress != "" {
+			ipAddr = c.Ec2IPAddress
 		}
 		result = append(result, fmt.Sprintf("%s:%d->%d/%s",
 			ipAddr,

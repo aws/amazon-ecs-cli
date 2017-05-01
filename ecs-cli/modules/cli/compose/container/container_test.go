@@ -117,7 +117,7 @@ func TestPortString(t *testing.T) {
 
 	// container without ec2IPAddress
 	container = setupContainer()
-	container.ec2IPAddress = ""
+	container.Ec2IPAddress = ""
 	container.ecsContainer.NetworkBindings = []*ecs.NetworkBinding{binding1}
 	expectedBinding1WithoutEC2IpAddr := ipAddr + ":80->8000/udp"
 	portString = container.PortString()

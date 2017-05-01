@@ -17,7 +17,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/docker/dockeriface/mock"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/docker/dockeriface/mock"
 	"github.com/fsouza/go-dockerclient"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"

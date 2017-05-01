@@ -17,6 +17,10 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/context"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/entity/mock"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ec2/mock"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -45,13 +49,13 @@ func TestGetContainersForTasks(t *testing.T) {
 	ec2InstancesMap := make(map[string]*ec2.Instance)
 	ec2InstancesMap[ec2InstanceID] = ec2Instance
 
-	projectEntity := setupMocks(t, []*string{aws.String(containerInstanceArn)}, containerInstancesMap,
+	mockProjectEntity := setupMocks(t, []*string{aws.String(containerInstanceArn)}, containerInstancesMap,
 		[]*string{aws.String(ec2InstanceID)}, ec2InstancesMap)
 
-	containers, err := getContainersForTasks(projectEntity, ecsTasks)
+	containers, err := getContainersForTasks(mockProjectEntity, ecsTasks)
 	assert.NoError(t, err, "Unexpected error when calling getContainersForTasks")
 	assert.Len(t, containers, 1, "Expects to have 1 containers")
-	assert.Equal(t, containers[0].ec2IPAddress, aws.StringValue(ec2Instance.PublicIpAddress), "Expects PublicIpAddress to match")
+	assert.Equal(t, containers[0].Ec2IPAddress, aws.StringValue(ec2Instance.PublicIpAddress), "Expects PublicIpAddress to match")
 }
 
 func TestGetContainersForTasksWithoutEc2InstanceID(t *testing.T) {
@@ -80,7 +84,7 @@ func TestGetContainersForTasksWithoutEc2InstanceID(t *testing.T) {
 	containers, err := getContainersForTasks(projectEntity, ecsTasks)
 	assert.NoError(t, err, "Unexpected error when calling getContainersForTasks")
 	assert.Len(t, containers, 1, "Expects to have 1 containers")
-	assert.Empty(t, containers[0].ec2IPAddress, "Expects ec2IpAddress to be empty")
+	assert.Empty(t, containers[0].Ec2IPAddress, "Expects ec2IpAddress to be empty")
 }
 
 func TestGetContainersForTasksErrorCases(t *testing.T) {
@@ -100,43 +104,64 @@ func TestGetContainersForTasksErrorCases(t *testing.T) {
 	containerInstancesMap := make(map[string]string)
 	containerInstancesMap[containerInstanceArn] = ec2InstanceID
 
-	mockEc2, mockEcs, projectEntity := setupTest(t)
+	mockEc2, mockEcs, mockProjectEntity := setupTest(t)
 
 	// GetEC2InstanceIDs failed
-	mockEcs.EXPECT().GetEC2InstanceIDs(gomock.Any()).Return(nil, errors.New("something wrong"))
-	_, err := getContainersForTasks(projectEntity, ecsTasks)
+	gomock.InOrder(
+		mockProjectEntity.EXPECT().Context().Return(&context.Context{
+			ECSClient: mockEcs,
+			EC2Client: mockEc2,
+		}),
+		mockEcs.EXPECT().GetEC2InstanceIDs(gomock.Any()).Return(nil, errors.New("something wrong")),
+	)
+
+	_, err := getContainersForTasks(mockProjectEntity, ecsTasks)
 	assert.Error(t, err, "Expected error when calling getContainersForTasks")
 
 	// DescribeInstances failed
 	gomock.InOrder(
+		mockProjectEntity.EXPECT().Context().Return(&context.Context{
+			ECSClient: mockEcs,
+			EC2Client: mockEc2,
+		}),
 		mockEcs.EXPECT().GetEC2InstanceIDs(gomock.Any()).Return(containerInstancesMap, nil),
+		mockProjectEntity.EXPECT().Context().Return(&context.Context{
+			ECSClient: mockEcs,
+			EC2Client: mockEc2,
+		}),
 		mockEc2.EXPECT().DescribeInstances(gomock.Any()).Return(nil, errors.New("something wrong")),
 	)
-	_, err = getContainersForTasks(projectEntity, ecsTasks)
+	_, err = getContainersForTasks(mockProjectEntity, ecsTasks)
 	assert.Error(t, err, "Expected error when calling getContainersForTasks")
 }
 
-func setupTest(t *testing.T) (*mock_ec2.MockEC2Client, *mock_ecs.MockECSClient, ProjectEntity) {
+func setupTest(t *testing.T) (*mock_ec2.MockEC2Client, *mock_ecs.MockECSClient, *mock_entity.MockProjectEntity) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	mockEc2 := mock_ec2.NewMockEC2Client(ctrl)
-	context := &Context{
-		ECSClient: mockEcs,
-		EC2Client: mockEc2,
-	}
-	projectEntity := NewTask(context)
-	return mockEc2, mockEcs, projectEntity
+
+	mockProjectEntity := mock_entity.NewMockProjectEntity(ctrl) //task.NewTask(context)
+
+	return mockEc2, mockEcs, mockProjectEntity
 }
 
 func setupMocks(t *testing.T, getEc2InstanceIDsRequest []*string, getEc2InstanceIDsResult map[string]string,
-	describeInstancesRequest []*string, describeInstancesResult map[string]*ec2.Instance) ProjectEntity {
+	describeInstancesRequest []*string, describeInstancesResult map[string]*ec2.Instance) *mock_entity.MockProjectEntity {
 
-	mockEc2, mockEcs, projectEntity := setupTest(t)
+	mockEc2, mockEcs, mockProjectEntity := setupTest(t)
 
 	gomock.InOrder(
+		mockProjectEntity.EXPECT().Context().Return(&context.Context{
+			ECSClient: mockEcs,
+			EC2Client: mockEc2,
+		}),
 		mockEcs.EXPECT().GetEC2InstanceIDs(getEc2InstanceIDsRequest).Return(getEc2InstanceIDsResult, nil),
+		mockProjectEntity.EXPECT().Context().Return(&context.Context{
+			ECSClient: mockEcs,
+			EC2Client: mockEc2,
+		}),
 		mockEc2.EXPECT().DescribeInstances(describeInstancesRequest).Return(describeInstancesResult, nil),
 	)
-	return projectEntity
+	return mockProjectEntity
 }

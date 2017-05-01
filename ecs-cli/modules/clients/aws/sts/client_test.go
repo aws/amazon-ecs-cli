@@ -17,7 +17,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/sts/mock/sdk"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/sts/mock/sdk"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"

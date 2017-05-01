@@ -20,7 +20,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecr"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecr"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecr/mock"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/sts/mock"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/docker/mock"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
 	ecrApi "github.com/aws/aws-sdk-go/service/ecr"
 	"github.com/fsouza/go-dockerclient"
@@ -36,7 +40,36 @@ const (
 	registry      = "registry"
 	registryID    = "123456789"
 	repositoryURI = registry + "/" + repository
+	clusterName   = "defaultCluster"
 )
+
+type mockReadWriter struct {
+	clusterName string
+}
+
+func (rdwr *mockReadWriter) GetConfig() (*config.CliConfig, error) {
+	return config.NewCliConfig(rdwr.clusterName), nil
+}
+
+func (rdwr *mockReadWriter) ReadFrom(ecsConfig *config.CliConfig) error {
+	return nil
+}
+
+func (rdwr *mockReadWriter) IsInitialized() (bool, error) {
+	return true, nil
+}
+
+func (rdwr *mockReadWriter) Save(dest *config.Destination) error {
+	return nil
+}
+
+func (rdwr *mockReadWriter) IsKeyPresent(section, key string) bool {
+	return true
+}
+
+func newMockReadWriter() *mockReadWriter {
+	return &mockReadWriter{clusterName: clusterName}
+}
 
 func TestImagePush(t *testing.T) {
 	mockECR, mockDocker, mockSTS := setupTestController(t)

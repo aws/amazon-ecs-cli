@@ -14,11 +14,19 @@
 package cache
 
 import (
+	"io/ioutil"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCacheCreatesDir(t *testing.T) {
+	tempDirName := tempDir(t)
+	defer os.Remove(tempDirName)
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+
 	created := make(chan string)
 	osMkdirAll = func(path string, perms os.FileMode) error {
 		if perms != 0700 {
@@ -34,4 +42,11 @@ func TestCacheCreatesDir(t *testing.T) {
 	if dir != expected {
 		t.Errorf("expected %v, got %v", expected, dir)
 	}
+}
+
+func tempDir(t *testing.T) string {
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	assert.NoError(t, err, "Unexpected error while creating the dummy ecs config directory")
+	return tempDirName
 }

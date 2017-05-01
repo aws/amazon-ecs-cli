@@ -18,7 +18,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/cloudformation/mock/sdk"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudformation/mock/sdk"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/golang/mock/gomock"

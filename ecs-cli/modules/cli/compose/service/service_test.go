@@ -19,7 +19,9 @@ import (
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/context"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/entity"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"
+	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -197,10 +199,10 @@ func TestLoadContext(t *testing.T) {
 	deploymentMaxPercent := 150
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(DeploymentMaxPercentFlag, strconv.Itoa(deploymentMaxPercent), "")
+	flagSet.String(command.DeploymentMaxPercentFlag, strconv.Itoa(deploymentMaxPercent), "")
 	cliContext := cli.NewContext(nil, flagSet, nil)
 	service := &Service{
-		projectContext: &Context{CLIContext: cliContext},
+		projectContext: &context.Context{CLIContext: cliContext},
 	}
 
 	err := service.LoadContext()
@@ -219,10 +221,10 @@ func TestLoadContextForIncorrectInput(t *testing.T) {
 	deploymentMaxPercent := "string"
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(DeploymentMaxPercentFlag, deploymentMaxPercent, "")
+	flagSet.String(command.DeploymentMaxPercentFlag, deploymentMaxPercent, "")
 	cliContext := cli.NewContext(nil, flagSet, nil)
 	service := &Service{
-		projectContext: &Context{CLIContext: cliContext},
+		projectContext: &context.Context{CLIContext: cliContext},
 	}
 
 	err := service.LoadContext()
@@ -234,11 +236,11 @@ func TestLoadContextForLoadBalancerInputError(t *testing.T) {
 	loadBalancerName := "loadBalancerName"
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(TargetGroupArnFlag, targetGroupArn, "")
-	flagSet.String(LoadBalancerNameFlag, loadBalancerName, "")
+	flagSet.String(command.TargetGroupArnFlag, targetGroupArn, "")
+	flagSet.String(command.LoadBalancerNameFlag, loadBalancerName, "")
 	cliContext := cli.NewContext(nil, flagSet, nil)
 	service := &Service{
-		projectContext: &Context{CLIContext: cliContext},
+		projectContext: &context.Context{CLIContext: cliContext},
 	}
 
 	err := service.LoadContext()
@@ -246,7 +248,7 @@ func TestLoadContextForLoadBalancerInputError(t *testing.T) {
 }
 
 func TestServiceInfo(t *testing.T) {
-	testInfo(func(context *Context) ProjectEntity {
+	entity.TestInfo(func(context *context.Context) entity.ProjectEntity {
 		return NewService(context)
 	}, func(req *ecs.ListTasksInput, projectName string, t *testing.T) {
 		assert.Contains(t, aws.StringValue(req.ServiceName), projectName, "ServiceName should contain ProjectName")
@@ -255,7 +257,7 @@ func TestServiceInfo(t *testing.T) {
 }
 
 func TestServiceRun(t *testing.T) {
-	service := NewService(&Context{})
+	service := NewService(&context.Context{})
 	err := service.Run(map[string][]string{})
 	assert.Error(t, err, "Expected unsupported error")
 }

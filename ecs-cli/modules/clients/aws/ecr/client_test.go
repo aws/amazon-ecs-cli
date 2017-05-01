@@ -17,8 +17,8 @@ import (
 	"errors"
 	"testing"
 
-	mock_login "github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecr/mock/credential-helper"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/aws/clients/ecr/mock/sdk"
+	mock_login "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecr/mock/credential-helper"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecr/mock/sdk"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
