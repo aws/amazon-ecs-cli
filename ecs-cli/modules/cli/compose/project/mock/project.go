@@ -17,8 +17,8 @@
 package mock_project
 
 import (
-	context "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/context"
-	entity "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/entity"
+	context "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
+	entity "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	config "github.com/docker/libcompose/config"
 	project "github.com/docker/libcompose/project"
 	gomock "github.com/golang/mock/gomock"

@@ -14,7 +14,7 @@
 package entity
 
 import (
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/context"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
 	"github.com/aws/aws-sdk-go/service/ecs"

@@ -15,8 +15,8 @@ package task
 
 import (
 	log "github.com/Sirupsen/logrus"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/context"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/entity"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
 	composeutils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"

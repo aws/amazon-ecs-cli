@@ -17,8 +17,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/context"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/entity"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"

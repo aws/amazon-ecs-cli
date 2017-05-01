@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/entity"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 )
 
 const (

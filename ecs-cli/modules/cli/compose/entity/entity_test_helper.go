@@ -16,7 +16,7 @@ package entity
 import (
 	"testing"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/context"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ec2/mock"
 	ecsClient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"

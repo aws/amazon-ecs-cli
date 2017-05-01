@@ -15,7 +15,7 @@ package factory
 
 import (
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/context"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"

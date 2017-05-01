@@ -19,7 +19,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/context"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/mock"
 	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/golang/mock/gomock"

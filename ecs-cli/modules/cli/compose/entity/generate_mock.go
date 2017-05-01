@@ -13,4 +13,4 @@
 
 package entity
 
-//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/entity ProjectEntity mock/entity.go
+//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity ProjectEntity mock/entity.go

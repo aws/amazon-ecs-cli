@@ -18,8 +18,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/context"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/entity"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"
 	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"

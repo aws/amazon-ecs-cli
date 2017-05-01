@@ -17,8 +17,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/context"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/entity/mock"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ec2/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"
 	"github.com/aws/aws-sdk-go/aws"
