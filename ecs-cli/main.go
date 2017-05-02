@@ -16,12 +16,12 @@ package main
 import (
 	"os"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/license"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/factory"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/cluster"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/compose"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/configure"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/image"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/license"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/logger"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/version"
 	"github.com/cihub/seelog"
@@ -50,7 +50,7 @@ func main() {
 		imageCommand.PushCommand(),
 		imageCommand.PullCommand(),
 		imageCommand.ImagesCommand(),
-		license.LicenseCommand(),
+		licenseCommand.LicenseCommand(),
 		composeCommand.ComposeCommand(composeFactory),
 	}
 	app.Run(os.Args)

@@ -105,13 +105,13 @@ func TestGetContainersForTasksErrorCases(t *testing.T) {
 	containerInstancesMap[containerInstanceArn] = ec2InstanceID
 
 	mockEc2, mockEcs, mockProjectEntity := setupTest(t)
-
+	mockContext := &context.Context{
+		ECSClient: mockEcs,
+		EC2Client: mockEc2,
+	}
 	// GetEC2InstanceIDs failed
 	gomock.InOrder(
-		mockProjectEntity.EXPECT().Context().Return(&context.Context{
-			ECSClient: mockEcs,
-			EC2Client: mockEc2,
-		}),
+		mockProjectEntity.EXPECT().Context().Return(mockContext),
 		mockEcs.EXPECT().GetEC2InstanceIDs(gomock.Any()).Return(nil, errors.New("something wrong")),
 	)
 
@@ -120,15 +120,9 @@ func TestGetContainersForTasksErrorCases(t *testing.T) {
 
 	// DescribeInstances failed
 	gomock.InOrder(
-		mockProjectEntity.EXPECT().Context().Return(&context.Context{
-			ECSClient: mockEcs,
-			EC2Client: mockEc2,
-		}),
+		mockProjectEntity.EXPECT().Context().Return(mockContext),
 		mockEcs.EXPECT().GetEC2InstanceIDs(gomock.Any()).Return(containerInstancesMap, nil),
-		mockProjectEntity.EXPECT().Context().Return(&context.Context{
-			ECSClient: mockEcs,
-			EC2Client: mockEc2,
-		}),
+		mockProjectEntity.EXPECT().Context().Return(mockContext),
 		mockEc2.EXPECT().DescribeInstances(gomock.Any()).Return(nil, errors.New("something wrong")),
 	)
 	_, err = getContainersForTasks(mockProjectEntity, ecsTasks)
@@ -141,7 +135,7 @@ func setupTest(t *testing.T) (*mock_ec2.MockEC2Client, *mock_ecs.MockECSClient, 
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	mockEc2 := mock_ec2.NewMockEC2Client(ctrl)
 
-	mockProjectEntity := mock_entity.NewMockProjectEntity(ctrl) //task.NewTask(context)
+	mockProjectEntity := mock_entity.NewMockProjectEntity(ctrl)
 
 	return mockEc2, mockEcs, mockProjectEntity
 }
@@ -151,16 +145,15 @@ func setupMocks(t *testing.T, getEc2InstanceIDsRequest []*string, getEc2Instance
 
 	mockEc2, mockEcs, mockProjectEntity := setupTest(t)
 
+	mockContext := &context.Context{
+		ECSClient: mockEcs,
+		EC2Client: mockEc2,
+	}
+
 	gomock.InOrder(
-		mockProjectEntity.EXPECT().Context().Return(&context.Context{
-			ECSClient: mockEcs,
-			EC2Client: mockEc2,
-		}),
+		mockProjectEntity.EXPECT().Context().Return(mockContext),
 		mockEcs.EXPECT().GetEC2InstanceIDs(getEc2InstanceIDsRequest).Return(getEc2InstanceIDsResult, nil),
-		mockProjectEntity.EXPECT().Context().Return(&context.Context{
-			ECSClient: mockEcs,
-			EC2Client: mockEc2,
-		}),
+		mockProjectEntity.EXPECT().Context().Return(mockContext),
 		mockEc2.EXPECT().DescribeInstances(describeInstancesRequest).Return(describeInstancesResult, nil),
 	)
 	return mockProjectEntity

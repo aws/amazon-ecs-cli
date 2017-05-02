@@ -19,14 +19,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-func LicenseCommand() cli.Command {
-	return cli.Command{
-		Name:   "license",
-		Usage:  "Prints the LICENSE files for the ECS CLI and its dependencies.",
-		Action: printLicense,
-	}
-}
-
-func printLicense(c *cli.Context) {
+// PrintLicense prints the license
+func PrintLicense(c *cli.Context) {
 	os.Stdout.WriteString(License)
 }

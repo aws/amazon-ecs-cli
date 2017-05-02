@@ -17,8 +17,8 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/service"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/task"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/service"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/task"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/docker/libcompose/config"

@@ -15,6 +15,7 @@ package command
 
 // Flag names used by the cli.
 const (
+	// Configure
 	AccessKeyFlag          = "access-key"
 	SecretKeyFlag          = "secret-key"
 	RegionFlag             = "region"
