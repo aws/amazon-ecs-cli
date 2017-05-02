@@ -127,39 +127,6 @@ func TestNewConfigReadWriter(t *testing.T) {
 	readConfig, err := parser.GetConfig()
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, testClusterName, readConfig.Cluster, "Cluster name mismatch in config.")
-	assert.True(t, parser.IsKeyPresent(ecsSectionKey, composeProjectNamePrefixKey), "Compose project prefix name should exist in config.")
-	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
-	assert.True(t, parser.IsKeyPresent(ecsSectionKey, composeServiceNamePrefixKey), "Compose service name prefix should exist in config.")
-	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
-	assert.True(t, parser.IsKeyPresent(ecsSectionKey, cfnStackNamePrefixKey), "CFNStackNamePrefix should exist in config.")
-	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
-}
-
-func TestMissingPrefixes(t *testing.T) {
-	configContentsNoPrefixes := `[ecs]
-cluster = test
-aws_profile =
-region = us-west-2
-aws_access_key_id =
-aws_secret_access_key =
-`
-	dest, err := newMockDestination()
-	assert.NoError(t, err, "Error creating mock config destination")
-
-	err = os.MkdirAll(dest.Path, *dest.Mode)
-	assert.NoError(t, err, "Could not create config directory")
-
-	defer os.RemoveAll(dest.Path)
-
-	err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configContentsNoPrefixes), *dest.Mode)
-	assert.NoError(t, err)
-
-	parser := setupParser(t, dest, true)
-	_, err = parser.GetConfig()
-	assert.NoError(t, err, "Error reading config")
-	assert.False(t, parser.IsKeyPresent(ecsSectionKey, cfnStackNamePrefixKey), "CFNStackNamePrefix should not exist in config")
-	assert.False(t, parser.IsKeyPresent(ecsSectionKey, composeServiceNamePrefixKey), "Compose service name prefix should not exist in config")
-	assert.False(t, parser.IsKeyPresent(ecsSectionKey, composeProjectNamePrefixKey), "Compose project name prefix should not exist in config")
 }
 
 func TestConfigFileTruncation(t *testing.T) {
@@ -169,9 +136,6 @@ aws_profile = some-long-profile
 region = us-west-2
 aws_access_key_id =
 aws_secret_access_key =
-compose-project-name-prefix = ecscompose-
-compose-service-name-prefix = ecscompose-service-
-cfn-stack-name-prefix = amazon-ecs-cli-setup-
 `
 	dest, err := newMockDestination()
 	assert.NoError(t, err, "Error creating mock config destination")

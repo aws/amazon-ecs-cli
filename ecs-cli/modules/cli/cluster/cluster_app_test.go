@@ -36,7 +36,7 @@ import (
 
 const (
 	clusterName = "defaultCluster"
-	stackName   = "defaultCluster"
+	stackName   = cfnStackNamePrefix + "defaultCluster"
 )
 
 type mockReadWriter struct {

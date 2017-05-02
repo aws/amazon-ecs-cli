@@ -66,10 +66,6 @@ func createECSConfigFromCli(context *cli.Context) (*config.CliConfig, error) {
 	ecsConfig.AwsSecretKey = secretKey
 	ecsConfig.Region = region
 
-	ecsConfig.ComposeProjectNamePrefix = context.String(command.ComposeProjectNamePrefixFlag)
-	ecsConfig.ComposeServiceNamePrefix = context.String(command.ComposeServiceNamePrefixFlag)
-	ecsConfig.CFNStackNamePrefix = context.String(command.CFNStackNamePrefixFlag)
-
 	return ecsConfig, nil
 }
 

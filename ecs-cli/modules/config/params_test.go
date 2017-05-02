@@ -18,7 +18,6 @@ import (
 	"os"
 	"testing"
 
-	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
@@ -109,48 +108,6 @@ func TestNewCliParamsFromConfig(t *testing.T) {
 
 	paramsRegion := aws.StringValue(params.Session.Config.Region)
 	assert.Equal(t, region, paramsRegion, "Region should match")
-}
-
-func TestNewCliParamsWhenPrefixesPresent(t *testing.T) {
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "SECRET")
-	defer os.Clearenv()
-
-	context := defaultConfig()
-
-	// Prefixes are present, and values are defaulted to empty
-	rdwr := &mockReadWriter{isKeyPresentValue: true}
-	params, err := NewCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error when getting new cli params")
-	assert.Empty(t, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
-	assert.Empty(t, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
-	assert.Empty(t, params.CFNStackNamePrefix, "Expected CFNStackNamePrefix to be empty")
-}
-
-func TestNewCliParamsWhenPrefixKeysAreNotPresent(t *testing.T) {
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "SECRET")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
-
-	context := defaultConfig()
-
-	// Prefixes are present, and values should be set to defaults
-	rdwr := &mockReadWriter{isKeyPresentValue: false}
-	params, err := NewCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error when getting new cli params")
-	assert.Equal(t, command.ComposeProjectNamePrefixDefaultValue, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to match")
-	assert.Equal(t, command.ComposeServiceNamePrefixDefaultValue, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to match")
-	assert.Equal(t, command.CFNStackNamePrefixDefaultValue, params.CFNStackNamePrefix, "Expected CFNStackNamePrefix to match")
-}
-
-func defaultConfig() *cli.Context {
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-east-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
-	return cli.NewContext(nil, nil, globalContext)
 }
 
 func setupTest(t *testing.T) (*cli.Context, *mockReadWriter) {

@@ -175,7 +175,7 @@ func (s *Service) Start() error {
 		// Read the custom error returned from describeService to see if the resource was missing
 		if strings.Contains(err.Error(), ecsMissingResourceCode) {
 			return fmt.Errorf("Please use '%s' command to create the service '%s' first",
-				command.CreateServiceCommandName, entity.GetServiceName(s))
+				command.CreateServiceCommandName, entity.GetProjectName(s))
 		}
 		return err
 	}
@@ -319,7 +319,7 @@ func (s *Service) EntityType() string {
 
 // createService calls the underlying ECS.CreateService
 func (s *Service) createService() error {
-	serviceName := entity.GetServiceName(s)
+	serviceName := entity.GetProjectName(s)
 	taskDefinitionID := entity.GetIdFromArn(s.TaskDefinition().TaskDefinitionArn)
 
 	err := s.Context().ECSClient.CreateService(serviceName, taskDefinitionID, s.loadBalancer, s.role, s.DeploymentConfig())
@@ -332,7 +332,7 @@ func (s *Service) createService() error {
 // describeService calls underlying ECS.DescribeService and expects the service to be present,
 // returns error otherwise
 func (s *Service) describeService() (*ecs.Service, error) {
-	serviceName := entity.GetServiceName(s)
+	serviceName := entity.GetProjectName(s)
 	output, err := s.Context().ECSClient.DescribeService(serviceName)
 	if err != nil {
 		return nil, err
@@ -364,7 +364,7 @@ func (s *Service) startService(ecsService *ecs.Service) error {
 
 // updateService calls the underlying ECS.UpdateService with the specified count
 func (s *Service) updateService(count int64) error {
-	serviceName := entity.GetServiceName(s)
+	serviceName := entity.GetProjectName(s)
 	deploymentConfig := s.DeploymentConfig()
 	if err := s.Context().ECSClient.UpdateServiceCount(serviceName, count, deploymentConfig); err != nil {
 		return err

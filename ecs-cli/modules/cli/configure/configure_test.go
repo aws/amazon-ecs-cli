@@ -101,39 +101,3 @@ func TestConfigInitWithProfileAndKeys(t *testing.T) {
 	_, err := createECSConfigFromCli(context)
 	assert.Error(t, err, "Expected error when both AWS Profile and access keys are specified")
 }
-
-func TestConfigInitWithPrefixes(t *testing.T) {
-	setPrefixes := flag.NewFlagSet("ecs-cli", 0)
-	setPrefixes.String(command.ProfileFlag, profileName, "")
-	setPrefixes.String(command.ClusterFlag, clusterName, "")
-
-	composeProjectName := "projectName"
-	composeServiceName := "serviceName"
-	cfnStackName := "stackName"
-
-	setPrefixes.String(command.ComposeProjectNamePrefixFlag, composeProjectName, "")
-	setPrefixes.String(command.ComposeServiceNamePrefixFlag, composeServiceName, "")
-	setPrefixes.String(command.CFNStackNamePrefixFlag, cfnStackName, "")
-
-	context := cli.NewContext(nil, setPrefixes, nil)
-
-	cfg, err := createECSConfigFromCli(context)
-	assert.NoError(t, err, "Unexpected error reading config from rdwr")
-	assert.Equal(t, composeProjectName, cfg.ComposeProjectNamePrefix, "Expected ComposeProjectName to match in config")
-	assert.Equal(t, composeServiceName, cfg.ComposeServiceNamePrefix, "Expected ComposeServiceName to match in config")
-	assert.Equal(t, cfnStackName, cfg.CFNStackNamePrefix, "Expected CfnStackName to match in config")
-}
-
-func TestConfigInitWithoutPrefixes(t *testing.T) {
-	setNoPrefixes := flag.NewFlagSet("ecs-cli", 0)
-	setNoPrefixes.String(command.ProfileFlag, profileName, "")
-	setNoPrefixes.String(command.ClusterFlag, clusterName, "")
-
-	context := cli.NewContext(nil, setNoPrefixes, nil)
-
-	cfg, err := createECSConfigFromCli(context)
-	assert.NoError(t, err, "Unexpected error reading config from rdwr")
-	assert.Empty(t, cfg.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
-	assert.Empty(t, cfg.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
-	assert.Empty(t, cfg.CFNStackNamePrefix, "Expected CFNStackNamePrefix to be empty")
-}

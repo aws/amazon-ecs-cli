@@ -14,8 +14,6 @@
 package config
 
 import (
-	"fmt"
-
 	"github.com/Sirupsen/logrus"
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -24,15 +22,8 @@ import (
 
 // CliParams saves config to create an aws service clients
 type CliParams struct {
-	Cluster                  string
-	Session                  *session.Session
-	ComposeProjectNamePrefix string
-	ComposeServiceNamePrefix string
-	CFNStackNamePrefix       string
-}
-
-func (p *CliParams) GetCfnStackName() string {
-	return fmt.Sprintf("%s%s", p.CFNStackNamePrefix, p.Cluster)
+	Cluster string
+	Session *session.Session
 }
 
 // NewCliParams creates a new ECSParams object from the config file.
@@ -41,17 +32,6 @@ func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 	if err != nil {
 		logrus.Error("Error loading config: ", err)
 		return nil, err
-	}
-
-	// If Prefixes not found, set to defaults.
-	if !rdwr.IsKeyPresent(ecsSectionKey, composeProjectNamePrefixKey) {
-		ecsConfig.ComposeProjectNamePrefix = ecscli.ComposeProjectNamePrefixDefaultValue
-	}
-	if !rdwr.IsKeyPresent(ecsSectionKey, composeServiceNamePrefixKey) {
-		ecsConfig.ComposeServiceNamePrefix = ecscli.ComposeServiceNamePrefixDefaultValue
-	}
-	if !rdwr.IsKeyPresent(ecsSectionKey, cfnStackNamePrefixKey) {
-		ecsConfig.CFNStackNamePrefix = ecscli.CFNStackNamePrefixDefaultValue
 	}
 
 	// The global --region flag has the highest precedence to set ecs-cli region config.
@@ -66,10 +46,7 @@ func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 	}
 
 	return &CliParams{
-		Cluster:                  ecsConfig.Cluster,
-		Session:                  svcSession,
-		ComposeProjectNamePrefix: ecsConfig.ComposeProjectNamePrefix,
-		ComposeServiceNamePrefix: ecsConfig.ComposeServiceNamePrefix,
-		CFNStackNamePrefix:       ecsConfig.CFNStackNamePrefix,
+		Cluster: ecsConfig.Cluster,
+		Session: svcSession,
 	}, nil
 }
