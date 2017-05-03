@@ -106,6 +106,10 @@ func clusterUpFlags() []cli.Flag {
 			Usage: "[Optional] Specify the AMI ID for your container instances. Defaults to amazon-ecs-optimized AMI.",
 		},
 		cli.BoolFlag{
+			Name:  command.NoAutoAssignPublicIPAddress,
+			Usage: "[Optional] The new instance instances will not have an Auto-assigned public address. By default, new instances will have an Auto-assigned public IP adress",
+		},
+		cli.BoolFlag{
 			Name:  command.ForceFlag + ", f",
 			Usage: "[Optional] Forces the recreation of any existing resources that match your current configuration. This option is useful for cleaning up stale resources from previous failed attempts.",
 		},
