@@ -18,7 +18,7 @@ import (
 	"os"
 	"testing"
 
-	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli"
+	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/urfave/cli"
 )
@@ -191,14 +191,14 @@ func TestNewCliParamsWhenPrefixKeysAreNotPresent(t *testing.T) {
 		t.Errorf("Unexpected error when getting new cli params", err)
 	}
 
-	if ecscli.ComposeProjectNamePrefixDefaultValue != params.ComposeProjectNamePrefix {
-		t.Errorf("Compose project name prefix mismatch. Expected [%s] got [%s]", ecscli.ComposeProjectNamePrefixDefaultValue, params.ComposeProjectNamePrefix)
+	if command.ComposeProjectNamePrefixDefaultValue != params.ComposeProjectNamePrefix {
+		t.Errorf("Compose project name prefix mismatch. Expected [%s] got [%s]", command.ComposeProjectNamePrefixDefaultValue, params.ComposeProjectNamePrefix)
 	}
-	if ecscli.ComposeServiceNamePrefixDefaultValue != params.ComposeServiceNamePrefix {
-		t.Errorf("Compose service name prefix mismatch. Expected [%s] got [%s]", ecscli.ComposeServiceNamePrefixDefaultValue, params.ComposeServiceNamePrefix)
+	if command.ComposeServiceNamePrefixDefaultValue != params.ComposeServiceNamePrefix {
+		t.Errorf("Compose service name prefix mismatch. Expected [%s] got [%s]", command.ComposeServiceNamePrefixDefaultValue, params.ComposeServiceNamePrefix)
 	}
-	if ecscli.CFNStackNamePrefixDefaultValue != params.CFNStackNamePrefix {
-		t.Errorf("stack name name prefix mismatch. Expected [%s] got [%s]", ecscli.CFNStackNamePrefixDefaultValue, params.CFNStackNamePrefix)
+	if command.CFNStackNamePrefixDefaultValue != params.CFNStackNamePrefix {
+		t.Errorf("stack name name prefix mismatch. Expected [%s] got [%s]", command.CFNStackNamePrefixDefaultValue, params.CFNStackNamePrefix)
 	}
 
 }
