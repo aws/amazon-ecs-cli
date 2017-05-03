@@ -28,7 +28,7 @@ and limitations under the License.
 
 Note: Other license terms may apply to certain, identified software files contained within or distributed with the accompanying software if such terms are included in the directory containing the accompanying software. Such other license terms will then apply in lieu of the terms of the software license above.
 ***
-./../vendor/github.com/Azure/go-ansiterm
+./../../../vendor/github.com/Azure/go-ansiterm
 
 The MIT License (MIT)
 
@@ -53,7 +53,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 ***
-./../vendor/github.com/Microsoft/go-winio
+./../../../vendor/github.com/Microsoft/go-winio
 
 The MIT License (MIT)
 
@@ -78,7 +78,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ***
-./../vendor/github.com/Sirupsen/logrus
+./../../../vendor/github.com/Sirupsen/logrus
 
 The MIT License (MIT)
 
@@ -103,7 +103,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 ***
-./../vendor/github.com/aws/aws-sdk-go
+./../../../vendor/github.com/aws/aws-sdk-go
 
 
                                  Apache License
@@ -313,7 +313,7 @@ Copyright 2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Copyright 2014-2015 Stripe, Inc.
 
 ***
-./../vendor/github.com/awslabs/amazon-ecr-credential-helper
+./../../../vendor/github.com/awslabs/amazon-ecr-credential-helper
 
 Apache License
 
@@ -371,7 +371,7 @@ Amazon ECR Credential Helper
 Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved. 
 
 ***
-./../vendor/github.com/cihub/seelog
+./../../../vendor/github.com/cihub/seelog
 
 Copyright (c) 2012, Cloud Instruments Co., Ltd. <info@cin.io>
 All rights reserved.
@@ -399,7 +399,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***
-./../vendor/github.com/davecgh/go-spew
+./../../../vendor/github.com/davecgh/go-spew
 
 ISC License
 
@@ -418,7 +418,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 ***
-./../vendor/github.com/docker/docker
+./../../../vendor/github.com/docker/docker
 
 
                                  Apache License
@@ -633,7 +633,7 @@ For more information, please see https://www.bis.doc.gov
 See also https://www.apache.org/dev/crypto.html and/or seek legal counsel.
 
 ***
-./../vendor/github.com/docker/go-connections
+./../../../vendor/github.com/docker/go-connections
 
 
                                  Apache License
@@ -828,7 +828,7 @@ See also https://www.apache.org/dev/crypto.html and/or seek legal counsel.
    limitations under the License.
 
 ***
-./../vendor/github.com/docker/go-units
+./../../../vendor/github.com/docker/go-units
 
 
                                  Apache License
@@ -1023,7 +1023,7 @@ See also https://www.apache.org/dev/crypto.html and/or seek legal counsel.
    limitations under the License.
 
 ***
-./../vendor/github.com/docker/libcompose
+./../../../vendor/github.com/docker/libcompose
 
 
                                  Apache License
@@ -1218,7 +1218,7 @@ See also https://www.apache.org/dev/crypto.html and/or seek legal counsel.
    limitations under the License.
 
 ***
-./../vendor/github.com/flynn/go-shlex
+./../../../vendor/github.com/flynn/go-shlex
 
 
                                  Apache License
@@ -1424,7 +1424,7 @@ See also https://www.apache.org/dev/crypto.html and/or seek legal counsel.
    limitations under the License.
 
 ***
-./../vendor/github.com/fsouza/go-dockerclient
+./../../../vendor/github.com/fsouza/go-dockerclient
 
 Copyright (c) 2013-2016, go-dockerclient authors
 All rights reserved.
@@ -1450,7 +1450,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***
-./../vendor/github.com/go-ini/ini
+./../../../vendor/github.com/go-ini/ini
 
 Apache License
 Version 2.0, January 2004
@@ -1645,7 +1645,7 @@ third-party archives.
    limitations under the License.
 
 ***
-./../vendor/github.com/golang/mock
+./../../../vendor/github.com/golang/mock
 
 
                                  Apache License
@@ -1851,7 +1851,7 @@ third-party archives.
    limitations under the License.
 
 ***
-./../vendor/github.com/hashicorp/go-cleanhttp
+./../../../vendor/github.com/hashicorp/go-cleanhttp
 
 Mozilla Public License, version 2.0
 
@@ -2217,7 +2217,7 @@ Exhibit B - "Incompatible With Secondary Licenses" Notice
       the Mozilla Public License, v. 2.0.
 
 ***
-./../vendor/github.com/jmespath/go-jmespath
+./../../../vendor/github.com/jmespath/go-jmespath
 
 Copyright 2015 James Saryerwinnie
 
@@ -2234,7 +2234,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ***
-./../vendor/github.com/mitchellh/go-homedir
+./../../../vendor/github.com/mitchellh/go-homedir
 
 The MIT License (MIT)
 
@@ -2259,7 +2259,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 ***
-./../vendor/github.com/opencontainers/runc
+./../../../vendor/github.com/opencontainers/runc
 
 
                                  Apache License
@@ -2472,7 +2472,7 @@ For more information, please see http://www.bis.doc.gov
 See also http://www.apache.org/dev/crypto.html and/or seek legal counsel.
 
 ***
-./../vendor/github.com/pkg/errors
+./../../../vendor/github.com/pkg/errors
 
 Copyright (c) 2015, Dave Cheney <dave@cheney.net>
 All rights reserved.
@@ -2499,7 +2499,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***
-./../vendor/github.com/pmezard/go-difflib
+./../../../vendor/github.com/pmezard/go-difflib
 
 Copyright (c) 2013, Patrick Mezard
 All rights reserved.
@@ -2530,7 +2530,7 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***
-./../vendor/github.com/spf13/pflag
+./../../../vendor/github.com/spf13/pflag
 
 Copyright (c) 2012 Alex Ogier. All rights reserved.
 Copyright (c) 2012 The Go Authors. All rights reserved.
@@ -2562,7 +2562,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***
-./../vendor/github.com/stretchr/testify
+./../../../vendor/github.com/stretchr/testify
 
 Copyright (c) 2012 - 2013 Mat Ryer and Tyler Bunnell
 
@@ -2588,7 +2588,7 @@ OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ***
-./../vendor/github.com/urfave/cli
+./../../../vendor/github.com/urfave/cli
 
 MIT License
 
@@ -2613,7 +2613,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ***
-./../vendor/github.com/xeipuuv/gojsonpointer
+./../../../vendor/github.com/xeipuuv/gojsonpointer
 
 
                                  Apache License
@@ -2819,7 +2819,7 @@ SOFTWARE.
    limitations under the License.
 
 ***
-./../vendor/github.com/xeipuuv/gojsonreference
+./../../../vendor/github.com/xeipuuv/gojsonreference
 
 
                                  Apache License
@@ -3025,7 +3025,7 @@ SOFTWARE.
    limitations under the License.
 
 ***
-./../vendor/github.com/xeipuuv/gojsonschema
+./../../../vendor/github.com/xeipuuv/gojsonschema
 
 
                                  Apache License
@@ -3231,7 +3231,7 @@ SOFTWARE.
    limitations under the License.
 
 ***
-./../vendor/golang.org/x/net
+./../../../vendor/golang.org/x/net
 
 Copyright (c) 2009 The Go Authors. All rights reserved.
 
@@ -3262,7 +3262,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***
-./../vendor/golang.org/x/sys
+./../../../vendor/golang.org/x/sys
 
 Copyright (c) 2009 The Go Authors. All rights reserved.
 
@@ -3293,7 +3293,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***
-./../vendor/gopkg.in/yaml.v2
+./../../../vendor/gopkg.in/yaml.v2
 
 Copyright 2011-2016 Canonical Ltd.
 

@@ -14,7 +14,7 @@
 package licenseCommand
 
 import (
-	"github.com/aws/amazon-ecs-cli/ecs-cli/license"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/license"
 	"github.com/urfave/cli"
 )
 

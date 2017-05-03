@@ -22,7 +22,7 @@ func TestVendorDirectoryStructure(t *testing.T) {
 	expectedDirectories := map[string]bool{"github.com": true, "golang.org": true, "gopkg.in": true}
 	expectedDirCount := len(expectedDirectories)
 
-	directories, _ := ioutil.ReadDir("./../vendor")
+	directories, _ := ioutil.ReadDir("./../../../vendor")
 	if len(directories) != expectedDirCount {
 		t.Errorf("Should have exactly 3 directories under vendor/. Found [%s] directories", len(directories))
 	}

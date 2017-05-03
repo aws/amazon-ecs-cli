@@ -31,11 +31,11 @@ $(LOCAL_BINARY): $(SOURCES)
 
 .PHONY: test
 test:
-	env -i PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT go test -timeout=120s -v -cover ./ecs-cli/license/... ./ecs-cli/modules/...
+	env -i PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT go test -timeout=120s -v -cover ./ecs-cli/modules/...
 
 .PHONY: generate
 generate: $(SOURCES)
-	PATH=$(LOCAL_PATH) go generate ./ecs-cli/license/... ./ecs-cli/modules/...
+	PATH=$(LOCAL_PATH) go generate ./ecs-cli/modules/...
 
 .PHONY: generate-deps
 generate-deps:
