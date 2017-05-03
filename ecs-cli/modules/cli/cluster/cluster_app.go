@@ -36,7 +36,10 @@ import (
 )
 
 // displayTitle flag is used to print the title for the fields
-const displayTitle = true
+const (
+	displayTitle       = true
+	cfnStackNamePrefix = "amazon-ecs-cli-setup-"
+)
 
 var flagNamesToStackParameterKeys map[string]string
 
@@ -167,7 +170,7 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 
 	// Check if cfn stack already exists
 	cfnClient.Initialize(ecsParams)
-	stackName := ecsParams.GetCfnStackName()
+	stackName := getCfnStackName(ecsParams.Cluster)
 	var deleteStack bool
 	if err := cfnClient.ValidateStackExists(stackName); err == nil {
 		if !isForceSet(context) {
@@ -291,7 +294,7 @@ func deleteCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 
 	// Validate that a cfn stack exists for the cluster
 	cfnClient.Initialize(ecsParams)
-	stackName := ecsParams.GetCfnStackName()
+	stackName := getCfnStackName(ecsParams.Cluster)
 	if err := cfnClient.ValidateStackExists(stackName); err != nil {
 		return fmt.Errorf("CloudFormation stack not found for cluster '%s'", ecsParams.Cluster)
 	}
@@ -341,7 +344,7 @@ func scaleCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscli
 
 	// Validate that we have a cfn stack for the cluster
 	cfnClient.Initialize(ecsParams)
-	stackName := ecsParams.GetCfnStackName()
+	stackName := getCfnStackName(ecsParams.Cluster)
 	if err := cfnClient.ValidateStackExists(stackName); err != nil {
 		return fmt.Errorf("CloudFormation stack not found for cluster '%s'", ecsParams.Cluster)
 	}
@@ -437,4 +440,8 @@ func getClusterSize(context *cli.Context) (string, error) {
 	}
 
 	return size, nil
+}
+
+func getCfnStackName(cluster string) string {
+	return fmt.Sprintf("%s%s", cfnStackNamePrefix, cluster)
 }

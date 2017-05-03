@@ -27,7 +27,7 @@ install the binary on your `$PATH`. You can use the provided `md5` hash to
 verify the integrity of your download.
 
 ### Latest version
-* Linux: 
+* Linux:
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest)
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest.md5)
 * Macintosh:
@@ -39,7 +39,7 @@ verify the integrity of your download.
 ### Download specific version
 Using the URLs above, replace `latest` with the desired tag, for example `v0.4.1`. After downloading, remember to rename the binary file to `ecs-cli`.
 
-* Linux: 
+* Linux:
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.4.1](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.4.1)
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.4.1.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.4.1.md5)
 * Macintosh:
@@ -70,9 +70,6 @@ OPTIONS:
    --secret-key 					Specifies the AWS secret key to use. If the AWS_SECRET_ACCESS_KEY environment variable is set when ecs-cli configure is run, then the AWS secret access key is set to the value of that environment variable. [$AWS_SECRET_ACCESS_KEY]
    --profile, -p 					Specifies your AWS credentials with an existing named profile from ~/.aws/credentials. If the AWS_PROFILE environment variable is set when ecs-cli configure is run, then the AWS named profile is set to the value of that environment variable. [$AWS_PROFILE]
    --cluster, -c 					Specifies the ECS cluster name to use. If the cluster does not exist, it is created when you try to add resources to it with the ecs-cli up command.
-   --compose-project-name-prefix "ecscompose-"		[Optional] Specifies the prefix added to an ECS task definition created from a compose file. Format <prefix><project-name>.
-   --compose-service-name-prefix "ecscompose-service-"	[Optional] Specifies the prefix added to an ECS service created from a compose file. Format <prefix><project-name>.
-   --cfn-stack-name-prefix "amazon-ecs-cli-setup-"	[Optional] Specifies the prefix added to the AWS CloudFormation stack created on ecs-cli up. Format <prefix><cluster-name>.
 ```
 
 ## Using the CLI
@@ -157,7 +154,7 @@ that is running with `ecs-cli compose ps`, for example:
 ```
 $ ecs-cli compose ps
 Name                                      State    Ports                     TaskDefinition
-fd8d5a69-87c5-46a4-80b6-51918092e600/web  RUNNING  54.209.244.64:80->80/tcp  ecscompose-web:1
+fd8d5a69-87c5-46a4-80b6-51918092e600/web  RUNNING  54.209.244.64:80->80/tcp  web:1
 ```
 
 Navigate your web browser to the task’s IP address to see the sample app
@@ -171,8 +168,8 @@ reason).
 ```
 $ ecs-cli compose --project-name wordpress-test service create
 
-INFO[0000] Using Task definition                         TaskDefinition=ecscompose-wordpress-test:1
-INFO[0000] Created an ECS Service                        serviceName=ecscompose-service-wordpress-test taskDefinition=ecscompose-wordpress-test:1
+INFO[0000] Using Task definition                         TaskDefinition=wordpress-test:1
+INFO[0000] Created an ECS Service                        serviceName=service-wordpress-test taskDefinition=wordpress-test:1
 
 ```
 
@@ -184,8 +181,8 @@ the following command:
 ```
 $ ecs-cli compose --project-name wordpress-test service ps
 Name                                            State    Ports                      TaskDefinition
-34333aa6-e976-4096-991a-0ec4cd5af5bd/wordpress  RUNNING  54.186.138.217:80->80/tcp  ecscompose-wordpress-test:1
-34333aa6-e976-4096-991a-0ec4cd5af5bd/mysql      RUNNING                             ecscompose-wordpress-test:1
+34333aa6-e976-4096-991a-0ec4cd5af5bd/wordpress  RUNNING  54.186.138.217:80->80/tcp  wordpress-test:1
+34333aa6-e976-4096-991a-0ec4cd5af5bd/mysql      RUNNING                             wordpress-test:1
 ```
 
 

@@ -134,9 +134,9 @@ func constructListPagesRequest(entity ProjectEntity, status string, filterLocal 
 
 	// if service set ServiceName to the request, else set StartedBy to filter out (provided filterLocal is true)
 	if entity.EntityType() == "service" {
-		request.ServiceName = aws.String(GetServiceName(entity))
+		request.ServiceName = aws.String(GetProjectName(entity))
 	} else if filterLocal {
-		request.StartedBy = aws.String(GetStartedBy(entity))
+		request.StartedBy = aws.String(GetProjectName(entity))
 	}
 	return request
 }
@@ -215,29 +215,9 @@ func ConvertMapToSlice(mapItems map[string]bool) []*string {
 
 // ---------- naming utils -----------
 
-// GetStartedBy returns an auto-generated formatted string
-// that can be supplied while starting an ECS task and is used to identify the owner of ECS Task
-func GetStartedBy(entity ProjectEntity) string {
-	return composeutils.GetStartedBy(getProjectPrefix(entity), GetProjectName(entity))
-}
-
 // GetProjectName returns the name of the project that was set in the context we are working with
 func GetProjectName(entity ProjectEntity) string {
 	return entity.Context().Context.ProjectName
-}
-
-// getProjectPrefix returns the prefix for the project name
-func getProjectPrefix(entity ProjectEntity) string {
-	return entity.Context().ECSParams.ComposeProjectNamePrefix
-}
-
-// GetServiceName using project entity
-func GetServiceName(entity ProjectEntity) string {
-	return composeutils.GetServiceName(getServicePrefix(entity), GetProjectName(entity))
-}
-
-func getServicePrefix(entity ProjectEntity) string {
-	return entity.Context().ECSParams.ComposeServiceNamePrefix
 }
 
 // GetIdFromArn gets the aws String value of the input arn and returns the id part of the arn

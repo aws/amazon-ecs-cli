@@ -43,9 +43,6 @@ type ReadWriter interface {
 // region = us-west-2
 // aws_access_key_id =
 // aws_secret_access_key =
-// compose-project-name-prefix = ecscompose-
-// compose-service-name-prefix =
-// cfn-stack-name-prefix = ecs-cli-
 
 type IniReadWriter struct {
 	*Destination
@@ -115,7 +112,7 @@ func (rdwr *IniReadWriter) Save(dest *Destination) error {
 	path := configPath(dest)
 
 	// If config file exists, set permissions first, because we may be writing creds.
-	if _, err := os.Stat(path); err == nil {
+	if _, err = os.Stat(path); err == nil {
 		err = os.Chmod(path, configFileMode)
 		if err != nil {
 			logrus.Errorf("Unable to chmod %s to mode %s", path, configFileMode)

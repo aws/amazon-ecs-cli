@@ -24,6 +24,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -78,10 +79,7 @@ func TestRegionWhenUsingEnvVariable(t *testing.T) {
 
 	// set variable for test
 	os.Setenv("AWS_REGION", envAwsRegion)
-	// Clear env variables as they persist past the individual test boundary
-	defer func() {
-		os.Unsetenv("AWS_REGION")
-	}()
+	defer os.Clearenv()
 
 	// invoke test and verify
 	testRegionInSession(t, ecsConfig, envAwsRegion)
@@ -96,9 +94,7 @@ func TestRegionWhenUsingDefaultEnvVariable(t *testing.T) {
 
 	// set variable for test
 	os.Setenv("AWS_DEFAULT_REGION", envAwsRegion)
-	defer func() {
-		os.Unsetenv("AWS_DEFAULT_REGION")
-	}()
+	defer os.Clearenv()
 
 	// invoke test and verify
 	testRegionInSession(t, ecsConfig, envAwsRegion)
@@ -127,10 +123,7 @@ func TestRegionWhenUsingECSConfigProfile(t *testing.T) {
 	ecsConfig.AwsProfile = customProfileName
 	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
 	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
-	defer func() {
-		os.Unsetenv("AWS_CONFIG_FILE")
-		os.Unsetenv("AWS_SHARED_CREDENTIALS_FILE")
-	}()
+	defer os.Clearenv()
 
 	// invoke test and verify
 	testRegionInSession(t, ecsConfig, customAwsRegion)
@@ -145,11 +138,7 @@ func TestRegionWhenUsingAWSProfileEnvVariable(t *testing.T) {
 	os.Setenv("AWS_PROFILE", customProfileName)
 	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
 	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
-	defer func() {
-		os.Unsetenv("AWS_PROFILE")
-		os.Unsetenv("AWS_CONFIG_FILE")
-		os.Unsetenv("AWS_SHARED_CREDENTIALS_FILE")
-	}()
+	defer os.Clearenv()
 
 	// invoke test and verify
 	testRegionInSession(t, ecsConfig, customAwsRegion)
@@ -164,11 +153,7 @@ func TestRegionWhenUsingDefaultAWSProfileEnvVariable(t *testing.T) {
 	os.Setenv("AWS_DEFAULT_PROFILE", defaultProfileName)
 	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
 	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
-	defer func() {
-		os.Unsetenv("AWS_DEFAULT_PROFILE")
-		os.Unsetenv("AWS_CONFIG_FILE")
-		os.Unsetenv("AWS_SHARED_CREDENTIALS_FILE")
-	}()
+	defer os.Clearenv()
 
 	// invoke test and verify
 	testRegionInSession(t, ecsConfig, defaultAwsRegion)
@@ -184,9 +169,8 @@ func TestRegionWhenNoneSpecified(t *testing.T) {
 	// NOTE: no region set
 
 	// invoke test and verify
-	if _, err := ecsConfig.ToAWSSession(); err == nil {
-		t.Error("There should always be an error when region is not specified or resolved.")
-	}
+	_, err := ecsConfig.ToAWSSession()
+	assert.Error(t, err, "Expected error when region is not specified or resolved")
 }
 
 func testRegionInSession(t *testing.T, inputConfig *CliConfig, expectedRegion string) {
@@ -196,9 +180,7 @@ func testRegionInSession(t *testing.T, inputConfig *CliConfig, expectedRegion st
 	}
 	awsConfig := awsSession.Config
 
-	if expectedRegion != *awsConfig.Region {
-		t.Errorf("Invalid region. Expected [%s]. Got [%s]", expectedRegion, *awsConfig.Region)
-	}
+	assert.Equal(t, expectedRegion, aws.StringValue(awsConfig.Region), "Expected region to match")
 }
 
 //-------------------------------END OF REGION TESTS----------------------------
@@ -220,9 +202,7 @@ func TestGetInitialCredentialProvidersVerifyProviderCountHasNotChanged(t *testin
 	ecsConfig := NewCliConfig(clusterName)
 	ecsConfig.Region = region
 	credentialProviders := ecsConfig.getInitialCredentialProviders()
-	if len(credentialProviders) != credentialProviderCount {
-		t.Fatal("Unexpected number of credential providers in the chain: ", len(credentialProviders))
-	}
+	assert.Len(t, credentialProviders, credentialProviderCount, "Expected the correct number of credential providers in the chain")
 }
 
 // 1a) Use AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY env variables
@@ -234,10 +214,7 @@ func TestCredentialsWhenUsingEnvVariable(t *testing.T) {
 	// set variables for test
 	os.Setenv("AWS_ACCESS_KEY_ID", envAwsAccessKey)
 	os.Setenv("AWS_SECRET_ACCESS_KEY", envAwsSecretKey)
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY_ID")
-		os.Unsetenv("AWS_SECRET_ACCESS_KEY")
-	}()
+	defer os.Clearenv()
 
 	// invoke test and verify
 	testCredentialsInSession(t, ecsConfig, envAwsAccessKey, envAwsSecretKey)
@@ -252,10 +229,7 @@ func TestCredentialsWhenUsingDefaultEnvVariable(t *testing.T) {
 	// set variables for test
 	os.Setenv("AWS_ACCESS_KEY", envAwsAccessKey)
 	os.Setenv("AWS_SECRET_KEY", envAwsSecretKey)
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
+	defer os.Clearenv()
 
 	// invoke test and verify
 	testCredentialsInSession(t, ecsConfig, envAwsAccessKey, envAwsSecretKey)
@@ -284,10 +258,7 @@ func TestCredentialsWhenUsingECSConfigProfile(t *testing.T) {
 	// set variables for test
 	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
 	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
-	defer func() {
-		os.Unsetenv("AWS_CONFIG_FILE")
-		os.Unsetenv("AWS_SHARED_CREDENTIALS_FILE")
-	}()
+	defer os.Clearenv()
 
 	// invoke test and verify
 	testCredentialsInSession(t, ecsConfig, customAwsAccessKey, customAwsSecretKey)
@@ -302,11 +273,7 @@ func TestCredentialsWhenUsingAWSProfileEnvVariable(t *testing.T) {
 	os.Setenv("AWS_PROFILE", customProfileName)
 	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
 	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
-	defer func() {
-		os.Unsetenv("AWS_PROFILE")
-		os.Unsetenv("AWS_CONFIG_FILE")
-		os.Unsetenv("AWS_SHARED_CREDENTIALS_FILE")
-	}()
+	defer os.Clearenv()
 
 	// invoke test and verify
 	testCredentialsInSession(t, ecsConfig, customAwsAccessKey, customAwsSecretKey)
@@ -321,11 +288,7 @@ func TestCredentialsWhenUsingDefaultAWSProfileEnvVariable(t *testing.T) {
 	os.Setenv("AWS_DEFAULT_PROFILE", defaultProfileName)
 	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
 	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
-	defer func() {
-		os.Unsetenv("AWS_DEFAULT_PROFILE")
-		os.Unsetenv("AWS_CONFIG_FILE")
-		os.Unsetenv("AWS_SHARED_CREDENTIALS_FILE")
-	}()
+	defer os.Clearenv()
 
 	// invoke test and verify
 	testCredentialsInSession(t, ecsConfig, defaultAwsAccessKey, defaultAwsSecretKey)
@@ -340,11 +303,7 @@ func TestCredentialsWhenUsingAssumeRoleProfile(t *testing.T) {
 	os.Setenv("AWS_DEFAULT_PROFILE", assumeRoleName)
 	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
 	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
-	defer func() {
-		os.Unsetenv("AWS_DEFAULT_PROFILE")
-		os.Unsetenv("AWS_CONFIG_FILE")
-		os.Unsetenv("AWS_SHARED_CREDENTIALS_FILE")
-	}()
+	defer os.Clearenv()
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		const respMsg = `
@@ -386,11 +345,7 @@ func TestCredentialsWhenUsingEC2InstanceRole(t *testing.T) {
 	os.Setenv("AWS_DEFAULT_PROFILE", ec2InstanceRoleName)
 	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
 	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
-	defer func() {
-		os.Unsetenv("AWS_DEFAULT_PROFILE")
-		os.Unsetenv("AWS_CONFIG_FILE")
-		os.Unsetenv("AWS_SHARED_CREDENTIALS_FILE")
-	}()
+	defer os.Clearenv()
 
 	ec2Creds := `{
 	  "Code": "Success",
@@ -436,43 +391,32 @@ func TestCredentialsWhenNoneSpecified(t *testing.T) {
 
 	// invoke test and verify
 	awsSession, err := ecsConfig.ToAWSSession()
-	if err != nil {
-		t.Fatal("Error generating a new session")
-	}
+	assert.NoError(t, err, "Unexpected error generating a new session")
+
 	awsConfig := awsSession.Config
-	if _, err = awsConfig.Credentials.Get(); err == nil {
-		t.Fatal("Should have error getting credentials")
-	}
+	_, err = awsConfig.Credentials.Get()
+	assert.Error(t, err, "Expected error getting credentials")
 }
 
 func testCredentialsInSession(t *testing.T, inputConfig *CliConfig, expectedAccessKey, expectedSecretKey string) {
 	awsSession, err := inputConfig.ToAWSSession()
-	if err != nil {
-		t.Fatal("Error generating a new session")
-	}
+	assert.NoError(t, err, "Unexpected error generating a new session")
+
 	verifyCredentialsInSession(t, awsSession, expectedAccessKey, expectedSecretKey)
 }
 
 func testCredentialsInSessionWithConfig(t *testing.T, inputConfig *CliConfig, ecsConfig *aws.Config,
 	expectedAccessKey, expectedSecretKey string) {
 	awsSession, err := inputConfig.toAWSSessionWithConfig(*ecsConfig)
-	if err != nil {
-		t.Fatalf("Error generating a new session", err)
-	}
+	assert.NoError(t, err, "Unexpected error generating a new session")
+
 	verifyCredentialsInSession(t, awsSession, expectedAccessKey, expectedSecretKey)
 }
 
 func verifyCredentialsInSession(t *testing.T, awsSession *session.Session, expectedAccessKey, expectedSecretKey string) {
 	awsConfig := awsSession.Config
 	resolvedCredentials, err := awsConfig.Credentials.Get()
-	if err != nil {
-		t.Fatal("Error fetching credentials from the chain provider")
-	}
-
-	if expectedAccessKey != resolvedCredentials.AccessKeyID {
-		t.Errorf("Invalid access key set. Expected [%s]. Got [%s]", expectedAccessKey, resolvedCredentials.AccessKeyID)
-	}
-	if expectedSecretKey != resolvedCredentials.SecretAccessKey {
-		t.Errorf("Invalid secret key set. Expected [%s]. Got [%s]", expectedSecretKey, resolvedCredentials.SecretAccessKey)
-	}
+	assert.NoError(t, err, "Unexpected error fetching credentials from the chain provider")
+	assert.Equal(t, expectedAccessKey, resolvedCredentials.AccessKeyID, "Expected access key to match")
+	assert.Equal(t, expectedSecretKey, resolvedCredentials.SecretAccessKey, "Expected secret key to match")
 }

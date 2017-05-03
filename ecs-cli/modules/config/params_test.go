@@ -18,8 +18,8 @@ import (
 	"os"
 	"testing"
 
-	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
 )
 
@@ -50,10 +50,8 @@ func (rdwr *mockReadWriter) Save(dest *Destination) error {
 }
 
 func TestNewCliParamsFromEnvVarsWithRegionNotSpecified(t *testing.T) {
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalContext := cli.NewContext(nil, globalSet, nil)
-	context := cli.NewContext(nil, nil, globalContext)
-	rdwr := &mockReadWriter{}
+	context, rdwr := setupTest(t)
+
 	_, err := NewCliParams(context, rdwr)
 	if err == nil {
 		t.Errorf("Expected error when region not specified")
@@ -61,144 +59,61 @@ func TestNewCliParamsFromEnvVarsWithRegionNotSpecified(t *testing.T) {
 }
 
 func TestNewCliParamsFromEnvVarsWithRegionSpecifiedAsEnvVariable(t *testing.T) {
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalContext := cli.NewContext(nil, globalSet, nil)
-	context := cli.NewContext(nil, nil, globalContext)
-	rdwr := &mockReadWriter{}
+	region := "us-west-1"
+	context, rdwr := setupTest(t)
 
-	os.Setenv("AWS_REGION", "us-west-1")
+	os.Setenv("AWS_REGION", region)
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
-	defer func() {
-		os.Unsetenv("AWS_REGION")
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
+	defer os.Clearenv()
 
 	params, err := NewCliParams(context, rdwr)
-	if err != nil {
-		t.Errorf("Unexpected error when region is specified using environment variable AWS_REGION: ", err)
-	}
+	assert.NoError(t, err, "Unexpected error when region is specified using environment variable AWS_REGION")
 
 	paramsRegion := aws.StringValue(params.Session.Config.Region)
-	if "us-west-1" != paramsRegion {
-		t.Errorf("Unexpected region set, expected: us-west-1, got: %s", paramsRegion)
-	}
+	assert.Equal(t, region, paramsRegion, "Region should match")
 }
 
 func TestNewCliParamsFromEnvVarsWithRegionSpecifiedinAwsDefaultEnvVariable(t *testing.T) {
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalContext := cli.NewContext(nil, globalSet, nil)
-	context := cli.NewContext(nil, nil, globalContext)
-	rdwr := &mockReadWriter{}
+	region := "us-west-2"
+	context, rdwr := setupTest(t)
 
-	os.Setenv("AWS_DEFAULT_REGION", "us-west-2")
+	os.Setenv("AWS_DEFAULT_REGION", region)
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
-	defer func() {
-		os.Unsetenv("AWS_DEFAULT_REGION")
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
+	defer os.Clearenv()
 
 	params, err := NewCliParams(context, rdwr)
-	if err != nil {
-		t.Errorf("Unexpected error when region is specified using environment variable AWS_DEFAULT_REGION: ", err)
-	}
+	assert.NoError(t, err, "Unexpected error when region is specified using environment variable AWS_DEFAULT_REGION")
+
 	paramsRegion := aws.StringValue(params.Session.Config.Region)
-	if "us-west-2" != paramsRegion {
-		t.Errorf("Unexpected region set, expected: us-west-2, got: %s", paramsRegion)
-	}
+	assert.Equal(t, region, paramsRegion, "Region should match")
 }
 
 func TestNewCliParamsFromConfig(t *testing.T) {
+	region := "us-east-1"
+
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalSet.String("region", region, "")
 	globalContext := cli.NewContext(nil, globalSet, nil)
 	context := cli.NewContext(nil, nil, globalContext)
 	rdwr := &mockReadWriter{}
 
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
+	defer os.Clearenv()
 
-	globalSet.String("region", "us-east-1", "")
-	globalContext = cli.NewContext(nil, globalSet, nil)
-	context = cli.NewContext(nil, nil, globalContext)
 	params, err := NewCliParams(context, rdwr)
-	if err != nil {
-		t.Errorf("Unexpected error when region is specified using environment variable AWS_DEFAULT_REGION: ", err)
-	}
+	assert.NoError(t, err, "Unexpected error when region is specified")
+
 	paramsRegion := aws.StringValue(params.Session.Config.Region)
-	if "us-east-1" != paramsRegion {
-		t.Errorf("Unexpected region set, expected: us-east-1, got: %s", paramsRegion)
-	}
+	assert.Equal(t, region, paramsRegion, "Region should match")
 }
 
-func defaultConfig() *cli.Context {
+func setupTest(t *testing.T) (*cli.Context, *mockReadWriter) {
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)
-	globalSet.String("region", "us-east-1", "")
-	globalContext = cli.NewContext(nil, globalSet, nil)
-	return cli.NewContext(nil, nil, globalContext)
-}
-
-func TestNewCliParamsWhenPrefixesPresent(t *testing.T) {
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "SECRET")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
-
-	context := defaultConfig()
-
-	// Prefixes are present, and values are defaulted to empty
-	rdwr := &mockReadWriter{isKeyPresentValue: true}
-	params, err := NewCliParams(context, rdwr)
-	if err != nil {
-		t.Errorf("Unexpected error when getting new cli params", err)
-	}
-
-	if "" != params.ComposeProjectNamePrefix {
-		t.Errorf("Compose project name prefix mismatch. Expected empty string got [%s]", params.ComposeProjectNamePrefix)
-	}
-	if "" != params.ComposeServiceNamePrefix {
-		t.Errorf("Compose service name prefix mismatch. Expected empty string got [%s]", params.ComposeServiceNamePrefix)
-	}
-	if "" != params.CFNStackNamePrefix {
-		t.Errorf("stack name name prefix mismatch. Expected empty string got [%s]", params.CFNStackNamePrefix)
-	}
-
-}
-
-func TestNewCliParamsWhenPrefixKeysAreNotPresent(t *testing.T) {
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "SECRET")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
-
-	context := defaultConfig()
-
-	// Prefixes are present, and values should be set to defaults
-	rdwr := &mockReadWriter{isKeyPresentValue: false}
-	params, err := NewCliParams(context, rdwr)
-	if err != nil {
-		t.Errorf("Unexpected error when getting new cli params", err)
-	}
-
-	if command.ComposeProjectNamePrefixDefaultValue != params.ComposeProjectNamePrefix {
-		t.Errorf("Compose project name prefix mismatch. Expected [%s] got [%s]", command.ComposeProjectNamePrefixDefaultValue, params.ComposeProjectNamePrefix)
-	}
-	if command.ComposeServiceNamePrefixDefaultValue != params.ComposeServiceNamePrefix {
-		t.Errorf("Compose service name prefix mismatch. Expected [%s] got [%s]", command.ComposeServiceNamePrefixDefaultValue, params.ComposeServiceNamePrefix)
-	}
-	if command.CFNStackNamePrefixDefaultValue != params.CFNStackNamePrefix {
-		t.Errorf("stack name name prefix mismatch. Expected [%s] got [%s]", command.CFNStackNamePrefixDefaultValue, params.CFNStackNamePrefix)
-	}
-
+	context := cli.NewContext(nil, nil, globalContext)
+	rdwr := &mockReadWriter{}
+	return context, rdwr
 }

@@ -69,26 +69,5 @@ func configureFlags() []cli.Flag {
 			// Commenting it now to avoid user misunderstanding the behavior of this env var with other ecs-cli commands
 			// EnvVar: "ECS_CLUSTER",
 		},
-		cli.StringFlag{
-			Name:  flags.ComposeProjectNamePrefixFlag,
-			Value: flags.ComposeProjectNamePrefixDefaultValue,
-			Usage: fmt.Sprintf(
-				"[Optional] Specifies the prefix added to an ECS task definition created from a compose file. Format <prefix><project-name>.",
-			),
-		},
-		cli.StringFlag{
-			Name:  flags.ComposeServiceNamePrefixFlag,
-			Value: flags.ComposeServiceNamePrefixDefaultValue,
-			Usage: fmt.Sprintf(
-				"[Optional] Specifies the prefix added to an ECS service created from a compose file. Format <prefix><project-name>.",
-			),
-		},
-		cli.StringFlag{
-			Name:  flags.CFNStackNamePrefixFlag,
-			Value: flags.CFNStackNamePrefixDefaultValue,
-			Usage: fmt.Sprintf(
-				"[Optional] Specifies the prefix added to the AWS CloudFormation stack created on ecs-cli up. Format <prefix><cluster-name>.",
-			),
-		},
 	}
 }

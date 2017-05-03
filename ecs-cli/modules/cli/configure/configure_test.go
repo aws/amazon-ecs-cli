@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
 )
 
@@ -37,24 +38,12 @@ func TestConfigureWithoutKeysOrProfile(t *testing.T) {
 	setNoKeysNoProfile.String(command.ClusterFlag, clusterName, "")
 	context := cli.NewContext(nil, setNoKeysNoProfile, nil)
 	cfg, err := createECSConfigFromCli(context)
-	if err != nil {
-		t.Error("Error initializing region and cluster: ", err)
-	}
-	if clusterName != cfg.Cluster {
-		t.Errorf("Cluster name mismtach in config. Expected [%s] Got [%s]", clusterName, cfg.Cluster)
-	}
-	if region != cfg.Region {
-		t.Errorf("Region mismatch in config. Expected [%s] Got [%s]", region, cfg.Region)
-	}
-	if "" != cfg.AwsProfile {
-		t.Errorf("Expected empty string for profile. Got [%s]", cfg.AwsProfile)
-	}
-	if "" != cfg.AwsAccessKey {
-		t.Errorf("Expected empty string for acess key. Got [%s]", cfg.AwsAccessKey)
-	}
-	if "" != cfg.AwsSecretKey {
-		t.Errorf("Expected empty string for profile. Got [%s]", cfg.AwsSecretKey)
-	}
+	assert.NoError(t, err, "Unexpected error initializing region and cluster")
+	assert.Equal(t, clusterName, cfg.Cluster, "Expected cluster name to match")
+	assert.Equal(t, region, cfg.Region, "Expected region to match")
+	assert.Empty(t, cfg.AwsProfile, "Expected AWS profile to be empty")
+	assert.Empty(t, cfg.AwsAccessKey, "Expected access key to be empty")
+	assert.Empty(t, cfg.AwsSecretKey, "Expected secret key to be empty")
 }
 
 func TestConfigtWithSecretAndAccessKeys(t *testing.T) {
@@ -66,24 +55,12 @@ func TestConfigtWithSecretAndAccessKeys(t *testing.T) {
 	setSecretAndAccessKeys.String(command.AccessKeyFlag, awsAccessKey, "")
 	context := cli.NewContext(nil, setSecretAndAccessKeys, nil)
 	cfg, err := createECSConfigFromCli(context)
-	if err != nil {
-		t.Errorf("Error reading config from rdwr: ", err)
-	}
-	if clusterName != cfg.Cluster {
-		t.Errorf("Cluster name mismtach in config. Expected [%s] Got [%s]", clusterName, cfg.Cluster)
-	}
-	if region != cfg.Region {
-		t.Errorf("Region mismatch in config. Expected [%s] Got [%s]", region, cfg.Region)
-	}
-	if awsAccessKey != cfg.AwsAccessKey {
-		t.Errorf("Access key mismatch in config. Expected [%s] Got [%s]", awsSecretKey, cfg.AwsAccessKey)
-	}
-	if awsSecretKey != cfg.AwsSecretKey {
-		t.Errorf("Secret key mismatch in config. Expected [%s] Got [%s]", awsSecretKey, cfg.AwsSecretKey)
-	}
-	if "" != cfg.AwsProfile {
-		t.Errorf("Expected empty string for profile. Got [%s]", cfg.AwsProfile)
-	}
+	assert.NoError(t, err, "Unexpected error reading config from rdwr")
+	assert.Equal(t, clusterName, cfg.Cluster, "Expected cluster name to match")
+	assert.Equal(t, region, cfg.Region, "Expected region to match")
+	assert.Empty(t, cfg.AwsProfile, "Expected AWS profile to be empty")
+	assert.Equal(t, awsAccessKey, cfg.AwsAccessKey, "Expected access key to match")
+	assert.Equal(t, awsSecretKey, cfg.AwsSecretKey, "Expected secret key to match")
 }
 
 func TestConfigInitWithProfile(t *testing.T) {
@@ -94,24 +71,12 @@ func TestConfigInitWithProfile(t *testing.T) {
 	setProfile.String(command.RegionFlag, region, "")
 	context := cli.NewContext(nil, setProfile, nil)
 	cfg, err := createECSConfigFromCli(context)
-	if err != nil {
-		t.Errorf("Error reading config from rdwr: ", err)
-	}
-	if clusterName != cfg.Cluster {
-		t.Errorf("Cluster name mismtach in config. Expected [%s] Got [%s]", clusterName, cfg.Cluster)
-	}
-	if profileName != cfg.AwsProfile {
-		t.Errorf("Profile name mismatch in config. Expected [%s] Got [%s]", profileName, cfg.AwsProfile)
-	}
-	if region != cfg.Region {
-		t.Errorf("Region mismatch in config. Expected [%s] Got [%s]", region, cfg.Region)
-	}
-	if "" != cfg.AwsAccessKey {
-		t.Errorf("Expected empty string for acess key. Got [%s]", cfg.AwsAccessKey)
-	}
-	if "" != cfg.AwsSecretKey {
-		t.Errorf("Expected empty string for profile. Got [%s]", cfg.AwsSecretKey)
-	}
+	assert.NoError(t, err, "Unexpected error reading config from rdwr")
+	assert.Equal(t, clusterName, cfg.Cluster, "Expected cluster name to match")
+	assert.Equal(t, region, cfg.Region, "Expected region to match")
+	assert.Equal(t, profileName, cfg.AwsProfile, "Expected AWS profile to match")
+	assert.Empty(t, cfg.AwsAccessKey, "Expected access key to be empty")
+	assert.Empty(t, cfg.AwsSecretKey, "Expected secret key to be empty")
 }
 
 func TestConfigInitWithoutCluster(t *testing.T) {
@@ -121,9 +86,7 @@ func TestConfigInitWithoutCluster(t *testing.T) {
 	setProfileNoCluster.String(command.RegionFlag, region, "")
 	context := cli.NewContext(nil, setProfileNoCluster, nil)
 	_, err := createECSConfigFromCli(context)
-	if err == nil {
-		t.Errorf("Expected error when cluster is not specified")
-	}
+	assert.Error(t, err, "Expected error when cluster is not specified")
 }
 
 func TestConfigInitWithProfileAndKeys(t *testing.T) {
@@ -136,59 +99,5 @@ func TestConfigInitWithProfileAndKeys(t *testing.T) {
 	setEverything.String(command.AccessKeyFlag, awsAccessKey, "")
 	context := cli.NewContext(nil, setEverything, nil)
 	_, err := createECSConfigFromCli(context)
-	if err == nil {
-		t.Errorf("Expected error when both AWS Profile and access keys are specified")
-	}
-}
-
-func TestConfigInitWithPrefixes(t *testing.T) {
-	setPrefixes := flag.NewFlagSet("ecs-cli", 0)
-	setPrefixes.String(command.ProfileFlag, profileName, "")
-	setPrefixes.String(command.ClusterFlag, clusterName, "")
-
-	composeProjectName := "projectName"
-	composeServiceName := "serviceName"
-	cfnStackName := "stackName"
-
-	setPrefixes.String(command.ComposeProjectNamePrefixFlag, composeProjectName, "")
-	setPrefixes.String(command.ComposeServiceNamePrefixFlag, composeServiceName, "")
-	setPrefixes.String(command.CFNStackNamePrefixFlag, cfnStackName, "")
-
-	context := cli.NewContext(nil, setPrefixes, nil)
-
-	cfg, err := createECSConfigFromCli(context)
-	if err != nil {
-		t.Errorf("Error reading config from rdwr: ", err)
-	}
-	if composeProjectName != cfg.ComposeProjectNamePrefix {
-		t.Errorf("ComposeProjectName mismtach in config. Expected [%s] Got [%s]", clusterName, cfg.ComposeProjectNamePrefix)
-	}
-	if composeServiceName != cfg.ComposeServiceNamePrefix {
-		t.Errorf("ComposeServiceName mismatch in config. Expected [%s] Got [%s]", composeServiceName, cfg.ComposeServiceNamePrefix)
-	}
-	if cfnStackName != cfg.CFNStackNamePrefix {
-		t.Errorf("CFNStackNamePrefix mismatch in config. Expected [%s] Got [%s]", cfnStackName, cfg.CFNStackNamePrefix)
-	}
-}
-
-func TestConfigInitWithoutPrefixes(t *testing.T) {
-	setNoPrefixes := flag.NewFlagSet("ecs-cli", 0)
-	setNoPrefixes.String(command.ProfileFlag, profileName, "")
-	setNoPrefixes.String(command.ClusterFlag, clusterName, "")
-
-	context := cli.NewContext(nil, setNoPrefixes, nil)
-
-	cfg, err := createECSConfigFromCli(context)
-	if err != nil {
-		t.Errorf("Error reading config from rdwr: ", err)
-	}
-	if "" != cfg.ComposeProjectNamePrefix {
-		t.Errorf("ComposeProjectName mismtach in config. Expected empty string Got [%s]", cfg.ComposeProjectNamePrefix)
-	}
-	if "" != cfg.ComposeServiceNamePrefix {
-		t.Errorf("ComposeServiceName mismatch in config. Expected empty string Got [%s]", cfg.ComposeServiceNamePrefix)
-	}
-	if "" != cfg.CFNStackNamePrefix {
-		t.Errorf("CFNStackNamePrefix mismatch in config. Expected empty string Got [%s]", cfg.CFNStackNamePrefix)
-	}
+	assert.Error(t, err, "Expected error when both AWS Profile and access keys are specified")
 }

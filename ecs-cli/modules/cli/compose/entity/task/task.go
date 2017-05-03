@@ -167,7 +167,7 @@ func (t *Task) Run(commandOverrides map[string][]string) error {
 		return err
 	}
 	taskDefinitionId := aws.StringValue(taskDef.TaskDefinitionArn)
-	ecsTasks, err := t.Context().ECSClient.RunTaskWithOverrides(taskDefinitionId, entity.GetStartedBy(t), 1, commandOverrides)
+	ecsTasks, err := t.Context().ECSClient.RunTaskWithOverrides(taskDefinitionId, entity.GetProjectName(t), 1, commandOverrides)
 	if err != nil {
 		return nil
 	}
@@ -245,7 +245,7 @@ func (t *Task) runTasks(taskDefinitionId string, totalCount int) ([]*ecs.Task, e
 		if i+chunkSize > totalCount {
 			count = totalCount - i
 		}
-		ecsTasks, err := t.Context().ECSClient.RunTask(taskDefinitionId, entity.GetStartedBy(t), count)
+		ecsTasks, err := t.Context().ECSClient.RunTask(taskDefinitionId, entity.GetProjectName(t), count)
 		if err != nil {
 			return nil, err
 		}
@@ -336,6 +336,6 @@ func (t *Task) up(updateTasks bool) error {
 // ---------- naming utils -----------
 
 func getFormattedContainerName(task *ecs.Task, container *ecs.Container) string {
-	taskId := entity.GetIdFromArn(task.TaskArn)
-	return composeutils.GetFormattedContainerName(taskId, aws.StringValue(container.Name))
+	taskID := entity.GetIdFromArn(task.TaskArn)
+	return composeutils.GetFormattedContainerName(taskID, aws.StringValue(container.Name))
 }

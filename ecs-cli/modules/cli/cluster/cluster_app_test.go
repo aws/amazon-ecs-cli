@@ -30,12 +30,13 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
 )
 
 const (
 	clusterName = "defaultCluster"
-	stackName   = "defaultCluster"
+	stackName   = cfnStackNamePrefix + "defaultCluster"
 )
 
 type mockReadWriter struct {
@@ -66,7 +67,7 @@ func newMockReadWriter() *mockReadWriter {
 	return &mockReadWriter{clusterName: clusterName}
 }
 
-func TestClusterUp(t *testing.T) {
+func setupTest(t *testing.T) (*mock_ecs.MockECSClient, *mock_cloudformation.MockCloudformationClient) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockECS := mock_ecs.NewMockECSClient(ctrl)
@@ -74,10 +75,12 @@ func TestClusterUp(t *testing.T) {
 
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "secret")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
+	return mockECS, mockCloudformation
+}
+
+func TestClusterUp(t *testing.T) {
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
 	gomock.InOrder(
 		mockECS.EXPECT().Initialize(gomock.Any()),
@@ -101,23 +104,12 @@ func TestClusterUp(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	if err != nil {
-		t.Fatal("Error bringing up cluster: ", err)
-	}
+	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
 func TestClusterUpWithForce(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
-
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "secret")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
 	gomock.InOrder(
 		mockECS.EXPECT().Initialize(gomock.Any()),
@@ -144,25 +136,15 @@ func TestClusterUpWithForce(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	if err != nil {
-		t.Fatal("Error bringing up cluster: ", err)
-	}
+	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
 func TestClusterUpWithVPC(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
-	vpcId := "vpc-02dd3038"
-	subnetIds := "subnet-04726b21,subnet-04346b21"
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "secret")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
+	vpcID := "vpc-02dd3038"
+	subnetIds := "subnet-04726b21,subnet-04346b21"
 
 	gomock.InOrder(
 		mockECS.EXPECT().Initialize(gomock.Any()),
@@ -183,29 +165,19 @@ func TestClusterUpWithVPC(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
 	flagSet.String(command.KeypairNameFlag, "default", "")
-	flagSet.String(command.VpcIdFlag, vpcId, "")
+	flagSet.String(command.VpcIdFlag, vpcID, "")
 	flagSet.String(command.SubnetIdsFlag, subnetIds, "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	if err != nil {
-		t.Fatal("Error bringing up cluster: ", err)
-	}
+	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
 func TestClusterUpWithAvailabilityZones(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
-	vpcAZs := "us-west-2c,us-west-2a"
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "secret")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
+	vpcAZs := "us-west-2c,us-west-2a"
 
 	gomock.InOrder(
 		mockECS.EXPECT().Initialize(gomock.Any()),
@@ -230,23 +202,12 @@ func TestClusterUpWithAvailabilityZones(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	if err != nil {
-		t.Fatal("Error bringing up cluster: ", err)
-	}
+	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
 func TestClusterUpWithoutKeyPair(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
-
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "secret")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
 	gomock.InOrder(
 		mockCloudformation.EXPECT().Initialize(gomock.Any()),
@@ -262,24 +223,14 @@ func TestClusterUpWithoutKeyPair(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	if err == nil {
-		t.Fatal("Expected error for key pair name")
-	}
+	assert.Error(t, err, "Expected error for key pair name")
 }
 
 func TestClusterUpWithSecurityGroupWithoutVPC(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
-	securityGroupId := "sg-eeaabc8d"
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "secret")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
+	securityGroupID := "sg-eeaabc8d"
 
 	gomock.InOrder(
 		mockCloudformation.EXPECT().Initialize(gomock.Any()),
@@ -293,30 +244,20 @@ func TestClusterUpWithSecurityGroupWithoutVPC(t *testing.T) {
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
 	flagSet.String(command.KeypairNameFlag, "default", "")
 	flagSet.Bool(command.ForceFlag, true, "")
-	flagSet.String(command.SecurityGroupFlag, securityGroupId, "")
+	flagSet.String(command.SecurityGroupFlag, securityGroupID, "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	if err == nil {
-		t.Fatal("Expected error for security group without VPC")
-	}
+	assert.Error(t, err, "Expected error for security group without VPC")
 }
 
 func TestClusterUpWith2SecurityGroups(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
+
 	securityGroupIds := "sg-eeaabc8d,sg-eaaebc8d"
 	vpcId := "vpc-02dd3038"
 	subnetIds := "subnet-04726b21,subnet-04346b21"
-
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "secret")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
 
 	gomock.InOrder(
 		mockCloudformation.EXPECT().Initialize(gomock.Any()),
@@ -336,24 +277,14 @@ func TestClusterUpWith2SecurityGroups(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	if err == nil {
-		t.Fatal("Expected error for security group without VPC")
-	}
+	assert.Error(t, err, "Expected error for too many security groups")
 }
 
 func TestClusterUpWithSubnetsWithoutVPC(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
-	subnetId := "subnet-72f52e32"
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "secret")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
+	subnetID := "subnet-72f52e32"
 
 	gomock.InOrder(
 		mockCloudformation.EXPECT().Initialize(gomock.Any()),
@@ -367,28 +298,18 @@ func TestClusterUpWithSubnetsWithoutVPC(t *testing.T) {
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
 	flagSet.String(command.KeypairNameFlag, "default", "")
 	flagSet.Bool(command.ForceFlag, true, "")
-	flagSet.String(command.SubnetIdsFlag, subnetId, "")
+	flagSet.String(command.SubnetIdsFlag, subnetID, "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	if err == nil {
-		t.Fatal("Expected error for subnets without VPC")
-	}
+	assert.Error(t, err, "Expected error for subnets without VPC")
 }
 
 func TestClusterUpWithVPCWithoutSubnets(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
-	vpcId := "vpc-02dd3038"
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "secret")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
+	vpcID := "vpc-02dd3038"
 
 	gomock.InOrder(
 		mockCloudformation.EXPECT().Initialize(gomock.Any()),
@@ -402,29 +323,19 @@ func TestClusterUpWithVPCWithoutSubnets(t *testing.T) {
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
 	flagSet.String(command.KeypairNameFlag, "default", "")
 	flagSet.Bool(command.ForceFlag, true, "")
-	flagSet.String(command.VpcIdFlag, vpcId, "")
+	flagSet.String(command.VpcIdFlag, vpcID, "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	if err == nil {
-		t.Fatal("Expected error for VPC without subnets")
-	}
+	assert.Error(t, err, "Expected error for VPC without subnets")
 }
 
 func TestClusterUpWithout2Subnets(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
-	vpcId := "vpc-02dd3038"
-	subnetId := "subnet-04726b21"
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "secret")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
+	vpcID := "vpc-02dd3038"
+	subnetID := "subnet-04726b21"
 
 	gomock.InOrder(
 		mockCloudformation.EXPECT().Initialize(gomock.Any()),
@@ -438,30 +349,20 @@ func TestClusterUpWithout2Subnets(t *testing.T) {
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
 	flagSet.String(command.KeypairNameFlag, "default", "")
 	flagSet.Bool(command.ForceFlag, true, "")
-	flagSet.String(command.VpcIdFlag, vpcId, "")
-	flagSet.String(command.SubnetIdsFlag, subnetId, "")
+	flagSet.String(command.VpcIdFlag, vpcID, "")
+	flagSet.String(command.SubnetIdsFlag, subnetID, "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	if err == nil {
-		t.Fatal("Expected error for 2 subnets")
-	}
+	assert.Error(t, err, "Expected error for 2 subnets")
 }
 
 func TestClusterUpWithAvailabilityZonesWithVPC(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
-	vpcId := "vpc-02dd3038"
-	vpcAZs := "us-west-2c,us-west-2a"
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "secret")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
+	vpcID := "vpc-02dd3038"
+	vpcAZs := "us-west-2c,us-west-2a"
 
 	gomock.InOrder(
 		mockCloudformation.EXPECT().Initialize(gomock.Any()),
@@ -475,29 +376,19 @@ func TestClusterUpWithAvailabilityZonesWithVPC(t *testing.T) {
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
 	flagSet.String(command.KeypairNameFlag, "default", "")
 	flagSet.Bool(command.ForceFlag, true, "")
-	flagSet.String(command.VpcIdFlag, vpcId, "")
+	flagSet.String(command.VpcIdFlag, vpcID, "")
 	flagSet.String(command.VpcAzFlag, vpcAZs, "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	if err == nil {
-		t.Fatal("Expected error for VPC with AZs")
-	}
+	assert.Error(t, err, "Expected error for VPC with AZs")
 }
 
 func TestClusterUpWithout2AvailabilityZones(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
-	vpcAZs := "us-west-2c"
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "secret")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
+	vpcAZs := "us-west-2c"
 
 	gomock.InOrder(
 		mockCloudformation.EXPECT().Initialize(gomock.Any()),
@@ -515,9 +406,7 @@ func TestClusterUpWithout2AvailabilityZones(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	if err == nil {
-		t.Fatal("Expected error for 2 AZs")
-	}
+	assert.Error(t, err, "Expected error for 2 AZs")
 }
 
 func TestCliFlagsToCfnStackParams(t *testing.T) {
@@ -533,35 +422,21 @@ func TestCliFlagsToCfnStackParams(t *testing.T) {
 	params := cliFlagsToCfnStackParams(context)
 
 	_, err := params.GetParameter(cloudformation.ParameterKeyAsgMaxSize)
-	if err == nil {
-		t.Fatalf("Expected error for parameter '%s'", cloudformation.ParameterKeyAsgMaxSize)
-	}
-	if cloudformation.ParameterNotFoundError != err {
-		t.Error("Enexpected error returned: ", err)
-	}
+	assert.Error(t, err, "Expected error for parameter ParameterKeyAsgMaxSize")
+	assert.Equal(t, cloudformation.ParameterNotFoundError, err, "Expect error to be ParameterNotFoundError")
 
 	flagSet.String(command.AsgMaxSizeFlag, "2", "")
 	context = cli.NewContext(nil, flagSet, globalContext)
 	params = cliFlagsToCfnStackParams(context)
 	_, err = params.GetParameter(cloudformation.ParameterKeyAsgMaxSize)
-	if err != nil {
-		t.Error("Error getting parameter '%s'", cloudformation.ParameterKeyAsgMaxSize)
-	}
+	assert.NoError(t, err, "Unexpected error getting parameter ParameterKeyAsgMaxSize")
 }
 
 func TestClusterUpForImageIdInput(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
-	imageId := "ami-12345"
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "secret")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
+	imageID := "ami-12345"
 
 	gomock.InOrder(
 		mockECS.EXPECT().Initialize(gomock.Any()),
@@ -574,12 +449,8 @@ func TestClusterUpForImageIdInput(t *testing.T) {
 		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Do(func(x, y, z interface{}) {
 			cfnStackParams := z.(*cloudformation.CfnStackParams)
 			param, err := cfnStackParams.GetParameter(cloudformation.ParameterKeyAmiId)
-			if err != nil {
-				t.Fatal("Expected image id params to be present")
-			}
-			if imageId != aws.StringValue(param.ParameterValue) {
-				t.Fatalf("Expected image id to equal %s but got %s", imageId, aws.StringValue(param.ParameterValue))
-			}
+			assert.NoError(t, err, "Expected image id params to be present")
+			assert.Equal(t, imageID, aws.StringValue(param.ParameterValue), "Expected image id to match")
 		}).Return("", nil),
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
@@ -591,27 +462,16 @@ func TestClusterUpForImageIdInput(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
 	flagSet.String(command.KeypairNameFlag, "default", "")
-	flagSet.String(command.ImageIdFlag, imageId, "")
+	flagSet.String(command.ImageIdFlag, imageID, "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	if err != nil {
-		t.Fatal("Error bringing up cluster: ", err)
-	}
+	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
 func TestClusterUpWithClusterNameEmpty(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
-
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "secret")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalSet.String("region", "us-west-1", "")
@@ -623,16 +483,12 @@ func TestClusterUpWithClusterNameEmpty(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, &mockReadWriter{clusterName: ""}, mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	if err == nil {
-		t.Fatal("Expected error bringing up cluster")
-	}
+	assert.Error(t, err, "Expected error bringing up cluster")
 }
 
 func TestClusterUpWithoutRegion(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)
@@ -641,9 +497,7 @@ func TestClusterUpWithoutRegion(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	if err == nil {
-		t.Fatal("Expected error bringing up cluster")
-	}
+	assert.Error(t, err, "Expected error bringing up cluster")
 }
 
 func TestClusterDown(t *testing.T) {
@@ -652,10 +506,9 @@ func TestClusterDown(t *testing.T) {
 			Cluster: clusterName,
 		}, nil
 	}
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
 	gomock.InOrder(
 		mockECS.EXPECT().Initialize(gomock.Any()),
@@ -675,16 +528,12 @@ func TestClusterDown(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := deleteCluster(context, newMockReadWriter(), mockECS, mockCloudformation)
-	if err != nil {
-		t.Fatal("Error deleting cluster: ", err)
-	}
+	assert.NoError(t, err, "Unexpected error deleting cluster")
 }
 
 func TestClusterDownWithoutForce(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalSet.String("region", "us-west-1", "")
@@ -694,23 +543,18 @@ func TestClusterDownWithoutForce(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := deleteCluster(context, newMockReadWriter(), mockECS, mockCloudformation)
-	if err == nil {
-		t.Fatalf("Expected error deleting cluster when '--%s' is not specified", command.ForceFlag)
-	}
+	assert.Error(t, err, "Expected error when force deleting cluster")
 }
 
 func TestDeleteClusterPrompt(t *testing.T) {
 	readBuffer := bytes.NewBuffer([]byte("yes\ny\nno\n"))
 	reader := bufio.NewReader(readBuffer)
-	if err := deleteClusterPrompt(reader); err != nil {
-		t.Error("Expected no error with prompt to delete cluster")
-	}
-	if err := deleteClusterPrompt(reader); err != nil {
-		t.Error("Expected no error with prompt to delete cluster")
-	}
-	if err := deleteClusterPrompt(reader); err == nil {
-		t.Error("Expected error with prompt to delete cluster")
-	}
+	err := deleteClusterPrompt(reader)
+	assert.NoError(t, err, "Expected no error with prompt to delete cluster")
+	err = deleteClusterPrompt(reader)
+	assert.NoError(t, err, "Expected no error with prompt to delete cluster")
+	err = deleteClusterPrompt(reader)
+	assert.Error(t, err, "Expected error with prompt to delete cluster")
 }
 
 func TestClusterScale(t *testing.T) {
@@ -719,10 +563,8 @@ func TestClusterScale(t *testing.T) {
 			Cluster: clusterName,
 		}, nil
 	}
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
 	mockECS.EXPECT().Initialize(gomock.Any())
 	mockECS.EXPECT().IsActiveCluster(gomock.Any()).Return(true, nil)
@@ -742,16 +584,12 @@ func TestClusterScale(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := scaleCluster(context, newMockReadWriter(), mockECS, mockCloudformation)
-	if err != nil {
-		t.Fatal("Error scaling cluster: ", err)
-	}
+	assert.NoError(t, err, "Unexpected error scaling cluster")
 }
 
 func TestClusterScaleWithoutIamCapability(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)
@@ -761,16 +599,12 @@ func TestClusterScaleWithoutIamCapability(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := scaleCluster(context, newMockReadWriter(), mockECS, mockCloudformation)
-	if err == nil {
-		t.Fatal("Expected error scaling cluster when iam capability is not specified")
-	}
+	assert.Error(t, err, "Expected error scaling cluster when iam capability is not specified")
 }
 
 func TestClusterScaleWithoutSize(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
-	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
 
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)
@@ -780,23 +614,12 @@ func TestClusterScaleWithoutSize(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := scaleCluster(context, newMockReadWriter(), mockECS, mockCloudformation)
-	if err == nil {
-		t.Fatal("Expected error scaling cluster when size is not specified")
-	}
+	assert.Error(t, err, "Expected error scaling cluster when size is not specified")
 }
 
 func TestClusterPSTaskGetInfoFail(t *testing.T) {
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "secret")
-	defer func() {
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-	}()
-
 	testSession, err := session.NewSession()
-	if err != nil {
-		t.Fatal("Unexpected error in creating session")
-	}
+	assert.NoError(t, err, "Unexpected error in creating session")
 
 	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CliParams, error) {
 		return &config.CliParams{
@@ -804,10 +627,9 @@ func TestClusterPSTaskGetInfoFail(t *testing.T) {
 			Session: testSession,
 		}, nil
 	}
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+	defer os.Clearenv()
+	mockECS, _ := setupTest(t)
 
-	mockECS := mock_ecs.NewMockECSClient(ctrl)
 	mockECS.EXPECT().Initialize(gomock.Any())
 	mockECS.EXPECT().IsActiveCluster(gomock.Any()).Return(true, nil)
 	mockECS.EXPECT().GetTasksPages(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
@@ -821,7 +643,5 @@ func TestClusterPSTaskGetInfoFail(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	_, err = clusterPS(context, newMockReadWriter(), mockECS)
-	if err == nil {
-		t.Fatal("Expected error in cluster ps")
-	}
+	assert.Error(t, err, "Expected error in cluster ps")
 }

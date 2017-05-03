@@ -23,13 +23,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 )
 
-const (
-	ecsSectionKey               = "ecs"
-	composeProjectNamePrefixKey = "compose-project-name-prefix"
-	composeServiceNamePrefixKey = "compose-service-name-prefix"
-	cfnStackNamePrefixKey       = "cfn-stack-name-prefix"
-)
-
 // CliConfig is the top level struct used to map to the ini config.
 type CliConfig struct {
 	// TODO Add metadata information like version etc.
@@ -38,14 +31,11 @@ type CliConfig struct {
 
 // SectionKeys is the struct embedded in CliConfig. It groups all the keys in the 'ecs' section in the ini file.
 type SectionKeys struct {
-	Cluster                  string `ini:"cluster"`
-	AwsProfile               string `ini:"aws_profile"`
-	Region                   string `ini:"region"`
-	AwsAccessKey             string `ini:"aws_access_key_id"`
-	AwsSecretKey             string `ini:"aws_secret_access_key"`
-	ComposeProjectNamePrefix string `ini:"compose-project-name-prefix"`
-	ComposeServiceNamePrefix string `ini:"compose-service-name-prefix"`
-	CFNStackNamePrefix       string `ini:"cfn-stack-name-prefix"`
+	Cluster      string `ini:"cluster"`
+	AwsProfile   string `ini:"aws_profile"`
+	Region       string `ini:"region"`
+	AwsAccessKey string `ini:"aws_access_key_id"`
+	AwsSecretKey string `ini:"aws_secret_access_key"`
 }
 
 // NewCliConfig creates a new instance of CliConfig from the cluster name.
