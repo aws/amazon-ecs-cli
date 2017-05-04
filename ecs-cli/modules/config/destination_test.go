@@ -18,6 +18,8 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewDefaultDestination(t *testing.T) {
@@ -32,15 +34,9 @@ func TestNewDefaultDestination(t *testing.T) {
 	defer os.Unsetenv("HOME")
 
 	dest, err := newDefaultDestination()
-	if err != nil {
-		t.Errorf("Error creating new config path: ", err)
-	}
-
-	if !strings.HasSuffix(dest.Path, "ecs") {
-		t.Errorf("Invalid suffix for ecs config path: ", dest.Path)
-	}
-
-	if !dest.Mode.IsDir() {
-		t.Errorf("user home directory expected to have directory in mode")
-	}
+	assert.NoError(t, err, "Unexpected error creating new config path")
+	assert.Condition(t, func() bool {
+		return strings.HasSuffix(dest.Path, "ecs")
+	}, "Invalid suffix for ecs config path")
+	assert.True(t, dest.Mode.IsDir(), "Expected user home directory to be in directory mode")
 }
