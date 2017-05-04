@@ -16,6 +16,7 @@ package config
 import (
 	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -34,6 +35,8 @@ func TestNewDefaultDestination(t *testing.T) {
 
 	dest, err := newDefaultDestination()
 	assert.NoError(t, err, "Unexpected error creating new config path")
-	assert.Contains(t, dest.Path, "ecs", "Invalid suffix for ecs config path")
+	assert.Condition(t, func() bool {
+		return strings.HasSuffix(dest.Path, "ecs")
+	}, "Invalid suffix for ecs config path")
 	assert.True(t, dest.Mode.IsDir(), "Expected user home directory to be in directory mode")
 }
