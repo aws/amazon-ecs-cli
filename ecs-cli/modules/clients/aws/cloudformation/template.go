@@ -402,7 +402,7 @@ var template = `
       "Condition": "CreateEC2LCWithKeyPair",
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
-	"ImageId": { "Ref" : "EcsAmiId" },
+        "ImageId": { "Ref" : "EcsAmiId" },
         "InstanceType": {
           "Ref": "EcsInstanceType"
         },
@@ -445,7 +445,7 @@ var template = `
       "Condition": "CreateEC2LCWithoutKeyPair",
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
-	"ImageId": { "Ref" : "EcsAmiId" },
+        "ImageId": { "Ref" : "EcsAmiId" },
         "InstanceType": {
           "Ref": "EcsInstanceType"
         },
