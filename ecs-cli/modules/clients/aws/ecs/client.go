@@ -288,11 +288,11 @@ func cachedTaskDefinitionRevisionIsActive(cachedTaskDefinition *ecs.TaskDefiniti
 // BUG(juanrhenals) The requested Task Definition data (taskDefinitionRequest) is not created in a deterministic fashion because there are maps within
 // the request ecs.RegisterTaskDefinitionInput structure, and map iteration in Go is not deterministic. We need to fix this.
 // FIXED(pzimmermann) using a marshalled json representation for the task definition data to be deterministic
-func (client *ecsClient) constructTaskDefinitionCacheHash(taskDefinition *ecs.TaskDefinition, request *ecs.RegisterTaskDefinitionInput) string {
+func (c *ecsClient) constructTaskDefinitionCacheHash(taskDefinition *ecs.TaskDefinition, request *ecs.RegisterTaskDefinitionInput) string {
 	// Get the region from the ecsClient configuration
-	region := aws.StringValue(client.params.Session.Config.Region)
+	region := aws.StringValue(c.params.Session.Config.Region)
 	awsUserAccountId := utils.GetAwsAccountIdFromArn(aws.StringValue(taskDefinition.TaskDefinitionArn))
-	sortedRequestString, err := request.SortedGoString()
+	sortedRequestString, err := utils.SortedGoString(request)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,

@@ -57,6 +57,14 @@ docker-build:
 		--env ECS_RELEASE=$(ECS_RELEASE) \
 		golang:1.8 make $(DARWIN_BINARY)
 
+.PHONY: docker-test
+docker-test:
+	docker run -v $(shell pwd):/usr/src/app/src/github.com/aws/amazon-ecs-cli \
+		--workdir=/usr/src/app/src/github.com/aws/amazon-ecs-cli \
+		--env GOPATH=/usr/src/app \
+		--env ECS_RELEASE=$(ECS_RELEASE) \
+		golang:1.8 make test
+
 .PHONY: supported-platforms
 supported-platforms: $(LINUX_BINARY) $(DARWIN_BINARY)
 
