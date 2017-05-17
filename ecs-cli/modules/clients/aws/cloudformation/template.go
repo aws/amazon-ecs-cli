@@ -134,11 +134,11 @@ var template = `
       "Description": "Optional - Comma-delimited list of VPC availability zones in which to create subnets.  Required if setting VpcId.",
       "Default": ""
     },
-		"AssociatePublicIpAddress": {
-			"Type": "String",
-			"Description": "Auto assign public address to instances",
-			"Default": "true"
-		},
+    "AssociatePublicIpAddress": {
+      "Type": "String",
+      "Description": "Optional - Automatically assign public IP addresses to new instances in this VPC.",
+      "Default": "true"
+    },
     "EcsCluster" : {
       "Type" : "String",
       "Description" : "ECS Cluster Name",
@@ -407,13 +407,13 @@ var template = `
       "Condition": "CreateEC2LCWithKeyPair",
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
-				"ImageId": { "Ref" : "EcsAmiId" },
+        "ImageId": { "Ref" : "EcsAmiId" },
         "InstanceType": {
           "Ref": "EcsInstanceType"
         },
-				"AssociatePublicIpAddress": {
-					"Ref": "AssociatePublicIpAddress"
-				},
+        "AssociatePublicIpAddress": {
+          "Ref": "AssociatePublicIpAddress"
+        },
         "IamInstanceProfile": {
           "Ref": "EcsInstanceProfile"
         },
@@ -452,13 +452,13 @@ var template = `
       "Condition": "CreateEC2LCWithoutKeyPair",
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
-	"ImageId": { "Ref" : "EcsAmiId" },
+        "ImageId": { "Ref" : "EcsAmiId" },
         "InstanceType": {
           "Ref": "EcsInstanceType"
         },
         "AssociatePublicIpAddress": {
-					"Ref": "AssociatePublicIpAddress"
-				},
+          "Ref": "AssociatePublicIpAddress"
+        },
         "IamInstanceProfile": {
           "Ref": "EcsInstanceProfile"
         },

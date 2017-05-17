@@ -139,6 +139,41 @@ func TestClusterUpWithForce(t *testing.T) {
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
+func TestClusterUpWithoutPublicIP(t *testing.T) {
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
+
+	gomock.InOrder(
+		mockECS.EXPECT().Initialize(gomock.Any()),
+		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
+	)
+
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Do(func(x, y, z interface{}) {
+			cfnParams := z.(*cloudformation.CfnStackParams)
+			associateIPAddress, err := cfnParams.GetParameter(cloudformation.ParameterKeyAssociatePublicIPAddress)
+			assert.NoError(t, err, "Unexpected error getting cfn parameter")
+			assert.Equal(t, "false", aws.StringValue(associateIPAddress.ParameterValue), "Should not associate public IP address")
+		}).Return("", nil),
+		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
+	)
+
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalSet.String("region", "us-west-1", "")
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(command.CapabilityIAMFlag, true, "")
+	flagSet.String(command.KeypairNameFlag, "default", "")
+	flagSet.Bool(command.NoAutoAssignPublicIPAddressFlag, true, "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
+	assert.NoError(t, err, "Unexpected error bringing up cluster")
+}
+
 func TestClusterUpWithVPC(t *testing.T) {
 	defer os.Clearenv()
 	mockECS, mockCloudformation := setupTest(t)

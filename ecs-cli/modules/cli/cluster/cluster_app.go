@@ -179,7 +179,7 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 	// Populate cfn params
 	cfnParams := cliFlagsToCfnStackParams(context)
 	cfnParams.Add(cloudformation.ParameterKeyCluster, ecsParams.Cluster)
-	if context.Bool(command.NoAutoAssignPublicIPAddress) {
+	if context.Bool(command.NoAutoAssignPublicIPAddressFlag) {
 		cfnParams.Add(cloudformation.ParameterKeyAssociatePublicIPAddress, "false")
 	}
 
