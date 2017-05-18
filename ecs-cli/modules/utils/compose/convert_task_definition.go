@@ -19,6 +19,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"encoding/json"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/aws/aws-sdk-go/aws"
@@ -529,4 +530,13 @@ func convertToULimits(cfgUlimits yaml.Ulimits) ([]*ecs.Ulimit, error) {
 	}
 
 	return ulimits, nil
+}
+
+// GoString returns deterministic string representation
+func SortedGoString(v interface{}) (string, error) {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
