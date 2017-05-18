@@ -297,8 +297,7 @@ func (c *ecsClient) constructTaskDefinitionCacheHash(taskDefinition *ecs.TaskDef
 		log.WithFields(log.Fields{
 			"error": err,
 		}).Warn("Error during json marshalling; fallback to non-deterministic task definition data used for cache hash")
-		tdHashInput := fmt.Sprintf("%s-%s-%s", region, awsUserAccountId, request.GoString())
-		return fmt.Sprintf("%x", md5.Sum([]byte(tdHashInput)))
+		sortedRequestString = request.GoString()
 	}
 	tdHashInput := fmt.Sprintf("%s-%s-%s", region, awsUserAccountId, sortedRequestString)
 	return fmt.Sprintf("%x", md5.Sum([]byte(tdHashInput)))

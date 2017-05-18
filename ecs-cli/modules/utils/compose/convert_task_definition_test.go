@@ -643,27 +643,33 @@ func TestMemReservationHigherThanMemLimit(t *testing.T) {
 }
 
 func TestSortedGoString(t *testing.T) {
+	family := aws.String("family1")
+	name := aws.String("foo")
+	command := aws.StringSlice([]string{"dark", "side", "of", "the", "moon"})
+
 	inputA := ecs.RegisterTaskDefinitionInput{
-		Family: aws.String("family1"),
+		Family: family,
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
-				Name: aws.String("foo"),
-				Command: aws.StringSlice([]string{"dark","side","of","the","moon"}),
+				Name:    name,
+				Command: command,
 			},
 		},
 	}
 	inputB := ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
-				Command: aws.StringSlice([]string{"dark","side","of","the","moon"}),
-				Name: aws.String("foo"),
+				Command: command,
+				Name:    name,
 			},
 		},
-		Family: aws.String("family1"),
+		Family: family,
 	}
 
-	strA, _ := SortedGoString(inputA)
-	strB, _ := SortedGoString(inputB)
+	strA, err := SortedGoString(inputA)
+	assert.NoError(t, err, "Unexpected error generating sorted map string")
+	strB, err := SortedGoString(inputB)
+	assert.NoError(t, err, "Unexpected error generating sorted map string")
 
-	assert.Equal(t, strA, strB, "Same same, but different")
+	assert.Equal(t, strA, strB, "Sorted inputs should match")
 }
