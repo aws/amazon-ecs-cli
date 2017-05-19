@@ -646,6 +646,10 @@ func TestSortedGoString(t *testing.T) {
 	family := aws.String("family1")
 	name := aws.String("foo")
 	command := aws.StringSlice([]string{"dark", "side", "of", "the", "moon"})
+	dockerLabels := map[string]string{
+		"label1":         "",
+		"com.foo.label2": "value",
+	}
 
 	inputA := ecs.RegisterTaskDefinitionInput{
 		Family: family,
@@ -653,6 +657,7 @@ func TestSortedGoString(t *testing.T) {
 			{
 				Name:    name,
 				Command: command,
+				DockerLabels:aws.StringMap(dockerLabels),
 			},
 		},
 	}
@@ -661,6 +666,7 @@ func TestSortedGoString(t *testing.T) {
 			{
 				Command: command,
 				Name:    name,
+				DockerLabels:aws.StringMap(dockerLabels),
 			},
 		},
 		Family: family,
