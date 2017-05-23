@@ -655,18 +655,18 @@ func TestSortedGoString(t *testing.T) {
 		Family: family,
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
-				Name:    name,
-				Command: command,
-				DockerLabels:aws.StringMap(dockerLabels),
+				Name:         name,
+				Command:      command,
+				DockerLabels: aws.StringMap(dockerLabels),
 			},
 		},
 	}
 	inputB := ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
-				Command: command,
-				Name:    name,
-				DockerLabels:aws.StringMap(dockerLabels),
+				Command:      command,
+				Name:         name,
+				DockerLabels: aws.StringMap(dockerLabels),
 			},
 		},
 		Family: family,

@@ -533,6 +533,7 @@ func convertToULimits(cfgUlimits yaml.Ulimits) ([]*ecs.Ulimit, error) {
 }
 
 // GoString returns deterministic string representation
+// json Marshal sorts map keys, making it deterministic
 func SortedGoString(v interface{}) (string, error) {
 	b, err := json.Marshal(v)
 	if err != nil {
