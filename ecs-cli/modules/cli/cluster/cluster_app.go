@@ -221,11 +221,6 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 		return fmt.Errorf("You have selected subnets. Please specify a VPC with the '--%s' flag", command.VpcIdFlag)
 	}
 
-	// Check if 2 subnets are specified
-	if validateCommaSeparatedParam(cfnParams, cloudformation.ParameterKeySubnetIds, 2, 2) {
-		return fmt.Errorf("You must specify 2 comma-separated subnets with the '--%s' flag", command.SubnetIdsFlag)
-	}
-
 	// Check if image id was supplied, else populate
 	_, err = cfnParams.GetParameter(cloudformation.ParameterKeyAmiId)
 	if err == cloudformation.ParameterNotFoundError {

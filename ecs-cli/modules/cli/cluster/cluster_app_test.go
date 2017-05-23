@@ -365,33 +365,6 @@ func TestClusterUpWithVPCWithoutSubnets(t *testing.T) {
 	assert.Error(t, err, "Expected error for VPC without subnets")
 }
 
-func TestClusterUpWithout2Subnets(t *testing.T) {
-	defer os.Clearenv()
-	mockECS, mockCloudformation := setupTest(t)
-
-	vpcID := "vpc-02dd3038"
-	subnetID := "subnet-04726b21"
-
-	gomock.InOrder(
-		mockCloudformation.EXPECT().Initialize(gomock.Any()),
-		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-	)
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
-
-	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.String(command.KeypairNameFlag, "default", "")
-	flagSet.Bool(command.ForceFlag, true, "")
-	flagSet.String(command.VpcIdFlag, vpcID, "")
-	flagSet.String(command.SubnetIdsFlag, subnetID, "")
-
-	context := cli.NewContext(nil, flagSet, globalContext)
-	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	assert.Error(t, err, "Expected error for 2 subnets")
-}
-
 func TestClusterUpWithAvailabilityZonesWithVPC(t *testing.T) {
 	defer os.Clearenv()
 	mockECS, mockCloudformation := setupTest(t)
