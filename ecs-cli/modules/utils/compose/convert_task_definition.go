@@ -14,6 +14,7 @@
 package utils
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
@@ -529,4 +530,14 @@ func convertToULimits(cfgUlimits yaml.Ulimits) ([]*ecs.Ulimit, error) {
 	}
 
 	return ulimits, nil
+}
+
+// GoString returns deterministic string representation
+// json Marshal sorts map keys, making it deterministic
+func SortedGoString(v interface{}) (string, error) {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }

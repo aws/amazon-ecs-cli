@@ -641,3 +641,41 @@ func TestMemReservationHigherThanMemLimit(t *testing.T) {
 	_, err = ConvertToTaskDefinition(taskDefName, context, serviceConfigs)
 	assert.EqualError(t, err, "mem_limit should not be less than mem_reservation")
 }
+
+func TestSortedGoString(t *testing.T) {
+	family := aws.String("family1")
+	name := aws.String("foo")
+	command := aws.StringSlice([]string{"dark", "side", "of", "the", "moon"})
+	dockerLabels := map[string]string{
+		"label1":         "",
+		"com.foo.label2": "value",
+	}
+
+	inputA := ecs.RegisterTaskDefinitionInput{
+		Family: family,
+		ContainerDefinitions: []*ecs.ContainerDefinition{
+			{
+				Name:         name,
+				Command:      command,
+				DockerLabels: aws.StringMap(dockerLabels),
+			},
+		},
+	}
+	inputB := ecs.RegisterTaskDefinitionInput{
+		ContainerDefinitions: []*ecs.ContainerDefinition{
+			{
+				Command:      command,
+				Name:         name,
+				DockerLabels: aws.StringMap(dockerLabels),
+			},
+		},
+		Family: family,
+	}
+
+	strA, err := SortedGoString(inputA)
+	assert.NoError(t, err, "Unexpected error generating sorted map string")
+	strB, err := SortedGoString(inputB)
+	assert.NoError(t, err, "Unexpected error generating sorted map string")
+
+	assert.Equal(t, strA, strB, "Sorted inputs should match")
+}
