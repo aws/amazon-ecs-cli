@@ -179,6 +179,9 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 	// Populate cfn params
 	cfnParams := cliFlagsToCfnStackParams(context)
 	cfnParams.Add(cloudformation.ParameterKeyCluster, ecsParams.Cluster)
+	if context.Bool(command.NoAutoAssignPublicIPAddressFlag) {
+		cfnParams.Add(cloudformation.ParameterKeyAssociatePublicIPAddress, "false")
+	}
 
 	// Check if key pair exists
 	_, err = cfnParams.GetParameter(cloudformation.ParameterKeyKeyPairName)
@@ -216,11 +219,6 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 	// Check if vpc exists when subnets is specified
 	if validateDependentParams(cfnParams, cloudformation.ParameterKeySubnetIds, cloudformation.ParameterKeyVpcId) {
 		return fmt.Errorf("You have selected subnets. Please specify a VPC with the '--%s' flag", command.VpcIdFlag)
-	}
-
-	// Check if 2 subnets are specified
-	if validateCommaSeparatedParam(cfnParams, cloudformation.ParameterKeySubnetIds, 2, 2) {
-		return fmt.Errorf("You must specify 2 comma-separated subnets with the '--%s' flag", command.SubnetIdsFlag)
 	}
 
 	// Check if image id was supplied, else populate

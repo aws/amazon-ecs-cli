@@ -23,17 +23,18 @@ import (
 
 // Parameter Key Names used by the template.
 const (
-	ParameterKeyAsgMaxSize    = "AsgMaxSize"
-	ParameterKeyVPCAzs        = "VpcAvailabilityZones"
-	ParameterKeySecurityGroup = "SecurityGroup"
-	ParameterKeySourceCidr    = "SourceCidr"
-	ParameterKeyEcsPort       = "EcsPort"
-	ParameterKeySubnetIds     = "SubnetIds"
-	ParameterKeyVpcId         = "VpcId"
-	ParameterKeyInstanceType  = "EcsInstanceType"
-	ParameterKeyKeyPairName   = "KeyName"
-	ParameterKeyCluster       = "EcsCluster"
-	ParameterKeyAmiId         = "EcsAmiId"
+	ParameterKeyAsgMaxSize               = "AsgMaxSize"
+	ParameterKeyVPCAzs                   = "VpcAvailabilityZones"
+	ParameterKeySecurityGroup            = "SecurityGroup"
+	ParameterKeySourceCidr               = "SourceCidr"
+	ParameterKeyEcsPort                  = "EcsPort"
+	ParameterKeySubnetIds                = "SubnetIds"
+	ParameterKeyVpcId                    = "VpcId"
+	ParameterKeyInstanceType             = "EcsInstanceType"
+	ParameterKeyKeyPairName              = "KeyName"
+	ParameterKeyCluster                  = "EcsCluster"
+	ParameterKeyAmiId                    = "EcsAmiId"
+	ParameterKeyAssociatePublicIPAddress = "AssociatePublicIpAddress"
 )
 
 var ParameterNotFoundError = errors.New("Parameter not found")
@@ -67,6 +68,7 @@ func init() {
 		ParameterKeyKeyPairName,
 		ParameterKeyCluster,
 		ParameterKeyAmiId,
+		ParameterKeyAssociatePublicIPAddress,
 	}
 }
 
