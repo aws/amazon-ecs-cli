@@ -127,7 +127,7 @@ func (cfg *CliConfig) getInitialCredentialProviders() []credentials.Provider {
 
 // getRegion gets the region to use from environment variables or ecs-cli's config file..
 func (cfg *CliConfig) getRegion() string {
-	// Order of credential resolution
+	// Order of region resolution
 	//  1) Environment Variable
 	//  2) ECS Config
 	// the rest are handled by session.NewSessionWithOptions invoked in ToAWSSession()

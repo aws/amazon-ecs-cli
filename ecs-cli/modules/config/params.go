@@ -15,6 +15,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/Sirupsen/logrus"
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
@@ -31,6 +32,7 @@ type CliParams struct {
 	CFNStackNamePrefix       string
 }
 
+// GetCfnStackName <cfn_stack_name_prefix> + <cluster_name>
 func (p *CliParams) GetCfnStackName() string {
 	return fmt.Sprintf("%s%s", p.CFNStackNamePrefix, p.Cluster)
 }
@@ -54,9 +56,19 @@ func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 		ecsConfig.CFNStackNamePrefix = ecscli.CFNStackNamePrefixDefaultValue
 	}
 
-	// The global --region flag has the highest precedence to set ecs-cli region config.
-	regionFromFlag := context.GlobalString(ecscli.RegionFlag)
-	if regionFromFlag != "" {
+	// Order of cluster resolution
+	//  1) Inline flag
+	//  2) Environment Variable
+	//  3) ECS Config
+	if clusterFromEnv := os.Getenv(ecscli.ClusterEnvVar); clusterFromEnv != "" {
+		ecsConfig.Cluster = clusterFromEnv
+	}
+	if clusterFromFlag := context.String(ecscli.ClusterFlag); clusterFromFlag != "" {
+		ecsConfig.Cluster = clusterFromFlag
+	}
+
+	// local --region flag has the highest precedence to set ecs-cli region config.
+	if regionFromFlag := context.String(ecscli.RegionFlag); regionFromFlag != "" {
 		ecsConfig.Region = regionFromFlag
 	}
 

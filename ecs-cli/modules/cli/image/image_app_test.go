@@ -87,8 +87,7 @@ func TestImagePush(t *testing.T) {
 			docker.AuthConfiguration{}).Return(nil),
 	)
 
-	globalContext := setGlobalFlags()
-	context := setAllPushImageFlags(globalContext)
+	context := setAllPushImageFlags()
 	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
 	assert.NoError(t, err, "Error pushing image")
 }
@@ -111,10 +110,9 @@ func TestImagePushWithURI(t *testing.T) {
 			docker.AuthConfiguration{}).Return(nil),
 	)
 
-	globalContext := setGlobalFlags()
 	flagSet := flag.NewFlagSet("ecs-cli-push", 0)
 	flagSet.Parse([]string{repositoryWithURI})
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
 	assert.NoError(t, err, "Error pushing image")
 }
@@ -135,8 +133,7 @@ func TestImagePushWhenRepositoryExists(t *testing.T) {
 			docker.AuthConfiguration{}).Return(nil),
 	)
 
-	globalContext := setGlobalFlags()
-	context := setAllPushImageFlags(globalContext)
+	context := setAllPushImageFlags()
 	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
 	assert.NoError(t, err, "Error pushing image")
 }
@@ -145,9 +142,8 @@ func TestImagePushWithNoArguments(t *testing.T) {
 	mockECR, mockDocker, mockSTS := setupTestController(t)
 	setupEnvironmentVar()
 
-	globalContext := setGlobalFlags()
 	flagSet := flag.NewFlagSet("ecs-cli-push", 0)
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
 	assert.Error(t, err, "Expect error pushing image")
 }
@@ -156,10 +152,9 @@ func TestImagePushWithTooManyArguments(t *testing.T) {
 	mockECR, mockDocker, mockSTS := setupTestController(t)
 	setupEnvironmentVar()
 
-	globalContext := setGlobalFlags()
 	flagSet := flag.NewFlagSet("ecs-cli-push", 0)
 	flagSet.Parse([]string{repository, image})
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
 	assert.Error(t, err, "Expect error pushing image")
 }
@@ -173,8 +168,7 @@ func TestImagePushWhenGethAuthorizationTokenFail(t *testing.T) {
 		mockECR.EXPECT().GetAuthorizationTokenByID(gomock.Any()).Return(nil, errors.New("something failed")),
 	)
 
-	globalContext := setGlobalFlags()
-	context := setAllPushImageFlags(globalContext)
+	context := setAllPushImageFlags()
 	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
 	assert.Error(t, err, "Expect error pushing image")
 }
@@ -191,8 +185,7 @@ func TestImagePushWhenTagImageFail(t *testing.T) {
 		mockDocker.EXPECT().TagImage(image, repositoryURI, tag).Return(errors.New("something failed")),
 	)
 
-	globalContext := setGlobalFlags()
-	context := setAllPushImageFlags(globalContext)
+	context := setAllPushImageFlags()
 	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
 	assert.Error(t, err, "Expect error pushing image")
 }
@@ -211,8 +204,7 @@ func TestImagePushWhenCreateRepositoryFail(t *testing.T) {
 		mockECR.EXPECT().CreateRepository(repository).Return("", errors.New("something failed")),
 	)
 
-	globalContext := setGlobalFlags()
-	context := setAllPushImageFlags(globalContext)
+	context := setAllPushImageFlags()
 	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
 	assert.Error(t, err, "Expect error pushing image")
 }
@@ -233,8 +225,7 @@ func TestImagePushFail(t *testing.T) {
 			docker.AuthConfiguration{}).Return(errors.New("something failed")),
 	)
 
-	globalContext := setGlobalFlags()
-	context := setAllPushImageFlags(globalContext)
+	context := setAllPushImageFlags()
 	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
 	assert.Error(t, err, "Expect error pushing image")
 }
@@ -252,8 +243,7 @@ func TestImagePull(t *testing.T) {
 			docker.AuthConfiguration{}).Return(nil),
 	)
 
-	globalContext := setGlobalFlags()
-	context := setAllPullImageFlags(globalContext)
+	context := setAllPullImageFlags()
 	err := pullImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
 	assert.NoError(t, err, "Error pulling image")
 }
@@ -262,9 +252,8 @@ func TestImagePullWithoutImage(t *testing.T) {
 	mockECR, mockDocker, mockSTS := setupTestController(t)
 	setupEnvironmentVar()
 
-	globalContext := setGlobalFlags()
 	flagSet := flag.NewFlagSet("ecs-cli-pull", 0)
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := pullImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
 	assert.Error(t, err, "Expected error pulling image")
 }
@@ -278,8 +267,7 @@ func TestImagePullWhenGetAuthorizationTokenFail(t *testing.T) {
 		mockECR.EXPECT().GetAuthorizationTokenByID(gomock.Any()).Return(nil, errors.New("something failed")),
 	)
 
-	globalContext := setGlobalFlags()
-	context := setAllPullImageFlags(globalContext)
+	context := setAllPullImageFlags()
 	err := pullImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
 	assert.Error(t, err, "Expected error pulling image")
 }
@@ -297,8 +285,7 @@ func TestImagePullFail(t *testing.T) {
 			docker.AuthConfiguration{}).Return(errors.New("something failed")),
 	)
 
-	globalContext := setGlobalFlags()
-	context := setAllPullImageFlags(globalContext)
+	context := setAllPullImageFlags()
 	err := pullImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
 	assert.Error(t, err, "Expected error pulling image")
 }
@@ -325,9 +312,8 @@ func TestImageList(t *testing.T) {
 		}).Return(nil),
 	)
 
-	globalContext := setGlobalFlags()
 	flagSet := flag.NewFlagSet("ecs-cli-images", 0)
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := getImages(context, newMockReadWriter(), mockECR)
 	assert.NoError(t, err, "Error listing images")
 }
@@ -340,9 +326,8 @@ func TestImageListFail(t *testing.T) {
 		mockECR.EXPECT().GetImages(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(errors.New("something failed")),
 	)
 
-	globalContext := setGlobalFlags()
 	flagSet := flag.NewFlagSet("ecs-cli-images", 0)
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := getImages(context, newMockReadWriter(), mockECR)
 	assert.Error(t, err, "Expected error listing images")
 }
@@ -404,20 +389,14 @@ func setupEnvironmentVar() {
 	}()
 }
 
-func setGlobalFlags() *cli.Context {
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	return cli.NewContext(nil, globalSet, nil)
-}
-
-func setAllPushImageFlags(globalContext *cli.Context) *cli.Context {
+func setAllPushImageFlags() *cli.Context {
 	flagSet := flag.NewFlagSet("ecs-cli-push", 0)
 	flagSet.Parse([]string{image})
-	return cli.NewContext(nil, flagSet, globalContext)
+	return cli.NewContext(nil, flagSet, nil)
 }
 
-func setAllPullImageFlags(globalContext *cli.Context) *cli.Context {
+func setAllPullImageFlags() *cli.Context {
 	flagSet := flag.NewFlagSet("ecs-cli-pull", 0)
 	flagSet.Parse([]string{image})
-	return cli.NewContext(nil, flagSet, globalContext)
+	return cli.NewContext(nil, flagSet, nil)
 }

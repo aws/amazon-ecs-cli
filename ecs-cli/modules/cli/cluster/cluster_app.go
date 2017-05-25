@@ -162,16 +162,16 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 
 	// Check if cluster is specified
 	if ecsParams.Cluster == "" {
-		return fmt.Errorf("Please configure a cluster using the configure command.")
+		return fmt.Errorf("Please configure a cluster using the configure command or with '--%s' flag", command.ClusterFlag)
 	}
 
 	// Check if cfn stack already exists
 	cfnClient.Initialize(ecsParams)
 	stackName := ecsParams.GetCfnStackName()
 	var deleteStack bool
-	if err := cfnClient.ValidateStackExists(stackName); err == nil {
+	if err = cfnClient.ValidateStackExists(stackName); err == nil {
 		if !isForceSet(context) {
-			return fmt.Errorf("A CloudFormation stack already exists for the cluster '%s'. Please specify '--%s' to clean up your existing resources.", ecsParams.Cluster, command.ForceFlag)
+			return fmt.Errorf("A CloudFormation stack already exists for the cluster '%s'. Please specify '--%s' to clean up your existing resources", ecsParams.Cluster, command.ForceFlag)
 		}
 		deleteStack = true
 	}

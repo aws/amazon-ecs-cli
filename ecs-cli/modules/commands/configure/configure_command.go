@@ -21,6 +21,7 @@ import (
 	"github.com/urfave/cli"
 )
 
+// ConfigureCommand configure command help
 func ConfigureCommand() cli.Command {
 	return cli.Command{
 		Name:   "configure",
@@ -32,6 +33,13 @@ func ConfigureCommand() cli.Command {
 
 func configureFlags() []cli.Flag {
 	return []cli.Flag{
+		cli.StringFlag{
+			Name: flags.ClusterFlag + ", c",
+			Usage: fmt.Sprintf(
+				"Specifies the ECS cluster name to use. If the cluster does not exist, it is created when you try to add resources to it with the ecs-cli up command.",
+			),
+			EnvVar: "ECS_CLUSTER",
+		},
 		cli.StringFlag{
 			Name: flags.RegionFlag + ", r",
 			Usage: fmt.Sprintf(
@@ -60,15 +68,7 @@ func configureFlags() []cli.Flag {
 			),
 			EnvVar: "AWS_PROFILE",
 		},
-		cli.StringFlag{
-			Name: flags.ClusterFlag + ", c",
-			Usage: fmt.Sprintf(
-				"Specifies the ECS cluster name to use. If the cluster does not exist, it is created when you try to add resources to it with the ecs-cli up command.",
-			),
-			// TODO: Override behavior for all ecs-cli commands : CommandLineFlags > EnvVar > ConfigFile > Defaults
-			// Commenting it now to avoid user misunderstanding the behavior of this env var with other ecs-cli commands
-			// EnvVar: "ECS_CLUSTER",
-		},
+
 		cli.StringFlag{
 			Name:  flags.ComposeProjectNamePrefixFlag,
 			Value: flags.ComposeProjectNamePrefixDefaultValue,

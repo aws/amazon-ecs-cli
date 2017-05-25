@@ -95,9 +95,10 @@ func TestNewCliParamsFromConfig(t *testing.T) {
 	region := "us-east-1"
 
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", region, "")
 	globalContext := cli.NewContext(nil, globalSet, nil)
-	context := cli.NewContext(nil, nil, globalContext)
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String("region", region, "")
+	context := cli.NewContext(nil, flagSet, globalContext)
 	rdwr := &mockReadWriter{}
 
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
@@ -148,15 +149,17 @@ func TestNewCliParamsWhenPrefixKeysAreNotPresent(t *testing.T) {
 
 func defaultConfig() *cli.Context {
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-east-1", "")
 	globalContext := cli.NewContext(nil, globalSet, nil)
-	return cli.NewContext(nil, nil, globalContext)
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String("region", "us-east-1", "")
+	return cli.NewContext(nil, flagSet, globalContext)
 }
 
 func setupTest(t *testing.T) (*cli.Context, *mockReadWriter) {
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)
-	context := cli.NewContext(nil, nil, globalContext)
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	context := cli.NewContext(nil, flagSet, globalContext)
 	rdwr := &mockReadWriter{}
 	return context, rdwr
 }

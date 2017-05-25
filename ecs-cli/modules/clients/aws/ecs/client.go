@@ -94,7 +94,8 @@ func (c *ecsClient) CreateCluster(clusterName string) (string, error) {
 		return "", err
 	}
 	log.WithFields(log.Fields{
-		"cluster": *resp.Cluster.ClusterName,
+		"cluster": aws.StringValue(resp.Cluster.ClusterName),
+		"region":  aws.StringValue(c.params.Session.Config.Region),
 	}).Info("Created cluster")
 
 	return *resp.Cluster.ClusterName, nil
