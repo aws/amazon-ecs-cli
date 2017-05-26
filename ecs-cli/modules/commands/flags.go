@@ -55,6 +55,7 @@ const (
 	// Compose
 	ProjectNameFlag     = "project-name"
 	ComposeFileNameFlag = "file"
+	TaskRoleArnFlag     = "task-role-arn"
 
 	// Compose Service
 	CreateServiceCommandName                = "create"

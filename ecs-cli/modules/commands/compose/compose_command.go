@@ -90,6 +90,10 @@ func composeFlags() []cli.Flag {
 			Usage:  "Specifies the project name to use. Defaults to the current directory name.",
 			EnvVar: "COMPOSE_PROJECT_NAME",
 		},
+		cli.StringFlag{
+			Name:   command.TaskRoleArnFlag,
+			Usage:  "[Optional] Specifies the short name or full Amazon Resource Name (ARN) of the IAM role that containers in this task can assume. All containers in this task are granted the permissions that are specified in this role.",
+		},
 	}
 }
 

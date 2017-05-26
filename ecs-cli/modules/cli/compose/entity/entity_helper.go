@@ -56,6 +56,7 @@ func GetOrCreateTaskDefinition(entity ProjectEntity) (*ecs.TaskDefinition, error
 		Family:               taskDefinition.Family,
 		ContainerDefinitions: taskDefinition.ContainerDefinitions,
 		Volumes:              taskDefinition.Volumes,
+		TaskRoleArn:          taskDefinition.TaskRoleArn,
 	}, entity.TaskDefinitionCache())
 
 	if err != nil {

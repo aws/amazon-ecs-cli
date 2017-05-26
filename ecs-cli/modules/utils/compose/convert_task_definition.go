@@ -64,7 +64,7 @@ func getSupportedComposeYamlOptionsMap() map[string]bool {
 
 // ConvertToTaskDefinition transforms the yaml configs to its ecs equivalent (task definition)
 func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context,
-	serviceConfigs *config.ServiceConfigs) (*ecs.TaskDefinition, error) {
+	serviceConfigs *config.ServiceConfigs, taskRoleArn string) (*ecs.TaskDefinition, error) {
 
 	if serviceConfigs.Len() == 0 {
 		return nil, errors.New("cannot create a task definition with no containers; invalid service config")
@@ -96,6 +96,7 @@ func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context
 		Family:               aws.String(taskDefinitionName),
 		ContainerDefinitions: containerDefinitions,
 		Volumes:              convertToECSVolumes(volumes),
+		TaskRoleArn:          aws.String(taskRoleArn),
 	}
 	return taskDefinition, nil
 }
