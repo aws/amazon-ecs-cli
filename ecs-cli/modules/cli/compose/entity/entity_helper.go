@@ -114,7 +114,7 @@ func collectTasks(entity ProjectEntity, filterLocal bool) ([]*ecs.Task, error) {
 }
 
 // CollectTasksWithStatus gets all the tasks of specified desired status
-// If filterLocal is true, it filters out with startedBy as this project
+// If filterLocal is true, it filters out with Task Definition family as this project
 func CollectTasksWithStatus(entity ProjectEntity, status string, filterLocal bool) ([]*ecs.Task, error) {
 	request := constructListPagesRequest(entity, status, filterLocal)
 	result := []*ecs.Task{}
@@ -133,11 +133,11 @@ func constructListPagesRequest(entity ProjectEntity, status string, filterLocal 
 		DesiredStatus: aws.String(status),
 	}
 
-	// if service set ServiceName to the request, else set StartedBy to filter out (provided filterLocal is true)
+	// if service set ServiceName to the request, else set Task Definition family to filter out (provided filterLocal is true)
 	if entity.EntityType() == "service" {
-		request.ServiceName = aws.String(GetServiceName(entity))
+		request.SetServiceName(GetServiceName(entity))
 	} else if filterLocal {
-		request.StartedBy = aws.String(GetStartedBy(entity))
+		request.SetFamily(GetTaskDefinitionFamily(entity))
 	}
 	return request
 }
@@ -216,10 +216,9 @@ func ConvertMapToSlice(mapItems map[string]bool) []*string {
 
 // ---------- naming utils -----------
 
-// GetStartedBy returns an auto-generated formatted string
-// that can be supplied while starting an ECS task and is used to identify the owner of ECS Task
-func GetStartedBy(entity ProjectEntity) string {
-	return composeutils.GetStartedBy(getProjectPrefix(entity), GetProjectName(entity))
+// GetTaskDefinitionFamily returns an auto-generated formatted string
+func GetTaskDefinitionFamily(entity ProjectEntity) string {
+	return composeutils.GetTaskDefinitionFamily(getProjectPrefix(entity), GetProjectName(entity))
 }
 
 // GetProjectName returns the name of the project that was set in the context we are working with

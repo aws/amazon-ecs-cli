@@ -182,26 +182,26 @@ func (_mr *_MockECSClientRecorder) RegisterTaskDefinitionIfNeeded(arg0, arg1 int
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "RegisterTaskDefinitionIfNeeded", arg0, arg1)
 }
 
-func (_m *MockECSClient) RunTask(_param0 string, _param1 string, _param2 int) (*ecs.RunTaskOutput, error) {
-	ret := _m.ctrl.Call(_m, "RunTask", _param0, _param1, _param2)
+func (_m *MockECSClient) RunTask(_param0 string, _param1 int) (*ecs.RunTaskOutput, error) {
+	ret := _m.ctrl.Call(_m, "RunTask", _param0, _param1)
 	ret0, _ := ret[0].(*ecs.RunTaskOutput)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockECSClientRecorder) RunTask(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "RunTask", arg0, arg1, arg2)
+func (_mr *_MockECSClientRecorder) RunTask(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RunTask", arg0, arg1)
 }
 
-func (_m *MockECSClient) RunTaskWithOverrides(_param0 string, _param1 string, _param2 int, _param3 map[string][]string) (*ecs.RunTaskOutput, error) {
-	ret := _m.ctrl.Call(_m, "RunTaskWithOverrides", _param0, _param1, _param2, _param3)
+func (_m *MockECSClient) RunTaskWithOverrides(_param0 string, _param1 int, _param2 map[string][]string) (*ecs.RunTaskOutput, error) {
+	ret := _m.ctrl.Call(_m, "RunTaskWithOverrides", _param0, _param1, _param2)
 	ret0, _ := ret[0].(*ecs.RunTaskOutput)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockECSClientRecorder) RunTaskWithOverrides(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "RunTaskWithOverrides", arg0, arg1, arg2, arg3)
+func (_mr *_MockECSClientRecorder) RunTaskWithOverrides(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RunTaskWithOverrides", arg0, arg1, arg2)
 }
 
 func (_m *MockECSClient) StopTask(_param0 string) error {

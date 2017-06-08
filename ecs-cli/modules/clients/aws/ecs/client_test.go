@@ -394,20 +394,20 @@ func TestGetTasksPages(t *testing.T) {
 	mockEcs, _, client, ctrl := setupTestController(t, getDefaultCliConfigParams(t))
 	defer ctrl.Finish()
 
-	startedBy := "startedBy"
+	family := "taskDefinitionFamily"
 	taskIds := []*string{aws.String("taskId")}
 	taskDetail := &ecs.Task{
 		TaskArn: taskIds[0],
 	}
 	listTasksInput := &ecs.ListTasksInput{
-		StartedBy: aws.String(startedBy),
+		Family: aws.String(family),
 	}
 
 	mockEcs.EXPECT().ListTasksPages(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
 		// verify input fields
 		req := x.(*ecs.ListTasksInput)
 		assert.Equal(t, clusterName, aws.StringValue(req.Cluster), "Expected clusterName to match")
-		assert.Equal(t, aws.StringValue(listTasksInput.StartedBy), aws.StringValue(req.StartedBy), "Expected StartedBy to match")
+		assert.Equal(t, aws.StringValue(listTasksInput.Family), aws.StringValue(req.Family), "Expected Task Definition family to match")
 
 		// execute the function passed as input
 		funct := y.(func(page *ecs.ListTasksOutput, end bool) bool)
@@ -436,18 +436,16 @@ func TestRunTask(t *testing.T) {
 	defer ctrl.Finish()
 
 	td := "taskDef"
-	startedBy := "startedBy"
 	count := 5
 
 	mockEcs.EXPECT().RunTask(gomock.Any()).Do(func(input interface{}) {
 		req := input.(*ecs.RunTaskInput)
 		assert.Equal(t, clusterName, aws.StringValue(req.Cluster), "Expected clusterName to match")
 		assert.Equal(t, td, aws.StringValue(req.TaskDefinition), "Expected taskDefinition to match")
-		assert.Equal(t, startedBy, aws.StringValue(req.StartedBy), "Expected startedBy to match")
 		assert.Equal(t, int64(count), aws.Int64Value(req.Count), "Expected count to match")
 	}).Return(&ecs.RunTaskOutput{}, nil)
 
-	_, err := client.RunTask(td, startedBy, count)
+	_, err := client.RunTask(td, count)
 	assert.NoError(t, err, "Unexpected error when calling RunTask")
 }
 
