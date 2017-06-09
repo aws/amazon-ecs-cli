@@ -215,6 +215,13 @@ func (s *Service) Up() error {
 		return s.Start()
 	}
 
+	ecsServiceName := aws.StringValue(ecsService.ServiceName)
+	if s.loadBalancer != nil {
+		log.WithFields(log.Fields{
+			"serviceName": ecsServiceName,
+		}).Warn("You cannot update the load balancer configuration on an existing service.")
+	}
+
 	oldTaskDefinitionId := entity.GetIdFromArn(ecsService.TaskDefinition)
 	newTaskDefinitionId := entity.GetIdFromArn(newTaskDefinition.TaskDefinitionArn)
 
@@ -229,7 +236,6 @@ func (s *Service) Up() error {
 		return s.startService(ecsService)
 	}
 
-	ecsServiceName := aws.StringValue(ecsService.ServiceName)
 	deploymentConfig := s.DeploymentConfig()
 	// if the task definitions were different, updateService with new task definition
 	// this creates a deployment in ECS and slowly takes down the containers with old ones and starts new ones
