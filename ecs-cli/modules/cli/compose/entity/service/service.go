@@ -219,7 +219,7 @@ func (s *Service) Up() error {
 	if s.loadBalancer != nil {
 		log.WithFields(log.Fields{
 			"serviceName": ecsServiceName,
-		}).Warn("Unable to update load balancer on existing service.")
+		}).Warn("You cannot update the load balancer configuration on an existing service.")
 	}
 
 	oldTaskDefinitionId := entity.GetIdFromArn(ecsService.TaskDefinition)
