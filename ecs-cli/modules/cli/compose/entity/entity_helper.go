@@ -120,7 +120,18 @@ func CollectTasksWithStatus(entity ProjectEntity, status string, filterLocal boo
 	result := []*ecs.Task{}
 
 	err := entity.Context().ECSClient.GetTasksPages(request, func(respTasks []*ecs.Task) error {
-		result = append(result, respTasks...)
+		// Filter the results by task.Group
+		if entity.EntityType() == "task" && filterLocal {
+			for _, task := range respTasks {
+				if aws.StringValue(task.Group) == GetTaskGroup(entity) {
+					result = append(result, task)
+				} else if aws.StringValue(task.StartedBy) == GetTaskDefinitionFamily(entity) { // Deprecated, filter by StartedBy
+					result = append(result, task)
+				}
+			}
+		} else {
+			result = append(result, respTasks...)
+		}
 		return nil
 	})
 
@@ -133,11 +144,12 @@ func constructListPagesRequest(entity ProjectEntity, status string, filterLocal 
 		DesiredStatus: aws.String(status),
 	}
 
-	// if service set ServiceName to the request, else set StartedBy to filter out (provided filterLocal is true)
+	// if service set ServiceName to the request, else set Task definition family to filter out (provided filterLocal is true)
 	if entity.EntityType() == "service" {
-		request.ServiceName = aws.String(GetServiceName(entity))
+		request.SetServiceName(GetServiceName(entity))
 	} else if filterLocal {
-		request.StartedBy = aws.String(GetStartedBy(entity))
+		// TODO: filter by Group when available in API
+		request.SetFamily(GetTaskDefinitionFamily(entity))
 	}
 	return request
 }
@@ -216,10 +228,15 @@ func ConvertMapToSlice(mapItems map[string]bool) []*string {
 
 // ---------- naming utils -----------
 
-// GetStartedBy returns an auto-generated formatted string
+// GetTaskGroup returns an auto-generated formatted string
 // that can be supplied while starting an ECS task and is used to identify the owner of ECS Task
-func GetStartedBy(entity ProjectEntity) string {
-	return composeutils.GetStartedBy(getProjectPrefix(entity), GetProjectName(entity))
+func GetTaskGroup(entity ProjectEntity) string {
+	return composeutils.GetTaskGroup(getProjectPrefix(entity), GetProjectName(entity))
+}
+
+// GetTaskDefinitionFamily returns the family name
+func GetTaskDefinitionFamily(entity ProjectEntity) string {
+	return composeutils.GetTaskDefinitionFamily(getProjectPrefix(entity), GetProjectName(entity))
 }
 
 // GetProjectName returns the name of the project that was set in the context we are working with

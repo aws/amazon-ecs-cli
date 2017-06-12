@@ -257,7 +257,7 @@ func (s *Service) Up() error {
 // Info returns a formatted list of containers (running and stopped) started by this service
 func (s *Service) Info(filterProjectTasks bool) (project.InfoSet, error) {
 	// filterProjectTasks is not honored for services, because ECS Services have their
-	// own custom StartedBy field, overriding that with startedBy=project will result in no tasks
+	// own custom Group field, overriding that with startedBy=project will result in no tasks
 	// We should instead filter by ServiceName=service
 	return entity.Info(s, false)
 }
