@@ -18,6 +18,7 @@ package mock_entity
 
 import (
 	context "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
+	entityType "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/entityType"
 	utils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	cache "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
 	ecs "github.com/aws/aws-sdk-go/service/ecs"
@@ -76,9 +77,9 @@ func (_mr *_MockProjectEntityRecorder) Down() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Down")
 }
 
-func (_m *MockProjectEntity) EntityType() string {
+func (_m *MockProjectEntity) EntityType() entityType.Type {
 	ret := _m.ctrl.Call(_m, "EntityType")
-	ret0, _ := ret[0].(string)
+	ret0, _ := ret[0].(entityType.Type)
 	return ret0
 }
 

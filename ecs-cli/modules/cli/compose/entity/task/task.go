@@ -17,6 +17,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/entityType"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
 	composeutils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
@@ -24,8 +25,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/docker/libcompose/project"
 )
-
-const entityType = "task"
 
 // Task type is placeholder for a single task definition and its cache
 // and it performs compose operations at a task definition level
@@ -196,8 +195,8 @@ func (t *Task) Down() error {
 }
 
 // EntityType returns the type of the entity
-func (t *Task) EntityType() string {
-	return entityType
+func (t *Task) EntityType() entityType.Type {
+	return entityType.Task
 }
 
 // ----------- Commands' helper functions --------
