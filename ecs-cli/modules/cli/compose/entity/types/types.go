@@ -11,12 +11,12 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package entityType
+package types
 
 // Type is the type of entity
 type Type int32
 
-// Type enum
+// Entity types
 const (
 	Task Type = iota
 	Service

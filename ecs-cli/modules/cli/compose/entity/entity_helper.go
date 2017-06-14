@@ -18,7 +18,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	composecontainer "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/container"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/entityType"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
 	composeutils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
@@ -122,7 +122,7 @@ func CollectTasksWithStatus(entity ProjectEntity, status string, filterLocal boo
 
 	err := entity.Context().ECSClient.GetTasksPages(request, func(respTasks []*ecs.Task) error {
 		// Filter the results by task.Group
-		if entity.EntityType() == entityType.Task && filterLocal {
+		if entity.EntityType() == types.Task && filterLocal {
 			for _, task := range respTasks {
 				if aws.StringValue(task.Group) == GetTaskGroup(entity) {
 					result = append(result, task)
@@ -146,7 +146,7 @@ func constructListPagesRequest(entity ProjectEntity, status string, filterLocal 
 	}
 
 	// if service set ServiceName to the request, else set Task definition family to filter out (provided filterLocal is true)
-	if entity.EntityType() == entityType.Service {
+	if entity.EntityType() == types.Service {
 		request.SetServiceName(GetServiceName(entity))
 	} else if filterLocal {
 		// TODO: filter by Group when available in API

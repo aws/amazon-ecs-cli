@@ -21,7 +21,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/entityType"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
@@ -311,8 +311,8 @@ func (s *Service) Run(commandOverrides map[string][]string) error {
 }
 
 // EntityType returns service as the type
-func (s *Service) EntityType() entityType.Type {
-	return entityType.Service
+func (s *Service) EntityType() types.Type {
+	return types.Service
 }
 
 // ----------- Commands' helper functions --------

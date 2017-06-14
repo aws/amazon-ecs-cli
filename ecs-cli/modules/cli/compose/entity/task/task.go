@@ -17,7 +17,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/entityType"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
 	composeutils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
@@ -195,8 +195,8 @@ func (t *Task) Down() error {
 }
 
 // EntityType returns the type of the entity
-func (t *Task) EntityType() entityType.Type {
-	return entityType.Task
+func (t *Task) EntityType() types.Type {
+	return types.Task
 }
 
 // ----------- Commands' helper functions --------
