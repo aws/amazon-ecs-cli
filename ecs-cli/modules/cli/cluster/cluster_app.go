@@ -162,7 +162,7 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 
 	// Check if cluster is specified
 	if ecsParams.Cluster == "" {
-		return fmt.Errorf("Please configure a cluster using the configure command or with '--%s' flag", command.ClusterFlag)
+		return fmt.Errorf("Please configure a cluster using the configure command or the '--%s' flag", command.ClusterFlag)
 	}
 
 	// Check if cfn stack already exists
