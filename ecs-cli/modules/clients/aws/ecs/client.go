@@ -57,8 +57,8 @@ type ECSClient interface {
 
 	// Tasks related
 	GetTasksPages(listTasksInput *ecs.ListTasksInput, fn ProcessTasksAction) error
-	RunTask(taskDefinition, startedBy string, count int) (*ecs.RunTaskOutput, error)
-	RunTaskWithOverrides(taskDefinition, startedBy string, count int, overrides map[string][]string) (*ecs.RunTaskOutput, error)
+	RunTask(taskDefinition, taskGroup string, count int) (*ecs.RunTaskOutput, error)
+	RunTaskWithOverrides(taskDefinition, taskGroup string, count int, overrides map[string][]string) (*ecs.RunTaskOutput, error)
 	StopTask(taskID string) error
 	DescribeTasks(taskIds []*string) ([]*ecs.Task, error)
 
@@ -387,11 +387,11 @@ func (c *ecsClient) DescribeTasks(taskArns []*string) ([]*ecs.Task, error) {
 }
 
 // RunTask issues a run task request for the input task definition
-func (c *ecsClient) RunTask(taskDefinition, startedBy string, count int) (*ecs.RunTaskOutput, error) {
+func (c *ecsClient) RunTask(taskDefinition, group string, count int) (*ecs.RunTaskOutput, error) {
 	resp, err := c.client.RunTask(&ecs.RunTaskInput{
 		Cluster:        aws.String(c.params.Cluster),
 		TaskDefinition: aws.String(taskDefinition),
-		StartedBy:      aws.String(startedBy),
+		Group:          aws.String(group),
 		Count:          aws.Int64(int64(count)),
 	})
 	if err != nil {
@@ -404,7 +404,7 @@ func (c *ecsClient) RunTask(taskDefinition, startedBy string, count int) (*ecs.R
 }
 
 // RunTask issues a run task request for the input task definition
-func (c *ecsClient) RunTaskWithOverrides(taskDefinition, startedBy string, count int, overrides map[string][]string) (*ecs.RunTaskOutput, error) {
+func (c *ecsClient) RunTaskWithOverrides(taskDefinition, group string, count int, overrides map[string][]string) (*ecs.RunTaskOutput, error) {
 	commandOverrides := []*ecs.ContainerOverride{}
 	for cont, command := range overrides {
 		contOverride := &ecs.ContainerOverride{
@@ -420,7 +420,7 @@ func (c *ecsClient) RunTaskWithOverrides(taskDefinition, startedBy string, count
 	resp, err := c.client.RunTask(&ecs.RunTaskInput{
 		Cluster:        aws.String(c.params.Cluster),
 		TaskDefinition: aws.String(taskDefinition),
-		StartedBy:      aws.String(startedBy),
+		Group:          aws.String(group),
 		Count:          aws.Int64(int64(count)),
 		Overrides:      ecsOverrides,
 	})

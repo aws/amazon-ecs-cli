@@ -15,6 +15,7 @@ package entity
 
 import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -39,5 +40,5 @@ type ProjectEntity interface {
 	TaskDefinition() *ecs.TaskDefinition
 	TaskDefinitionCache() cache.Cache
 	SetTaskDefinition(taskDefinition *ecs.TaskDefinition)
-	EntityType() string
+	EntityType() types.Type
 }

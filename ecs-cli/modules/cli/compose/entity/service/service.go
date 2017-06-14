@@ -21,6 +21,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
@@ -46,7 +47,6 @@ type Service struct {
 const (
 	ecsActiveResourceCode  = "ACTIVE"
 	ecsMissingResourceCode = "MISSING"
-	entityType             = "service"
 )
 
 // NewService creates an instance of a Service and also sets up a cache for task definition
@@ -263,7 +263,7 @@ func (s *Service) Up() error {
 // Info returns a formatted list of containers (running and stopped) started by this service
 func (s *Service) Info(filterProjectTasks bool) (project.InfoSet, error) {
 	// filterProjectTasks is not honored for services, because ECS Services have their
-	// own custom StartedBy field, overriding that with startedBy=project will result in no tasks
+	// own custom Group field, overriding that with startedBy=project will result in no tasks
 	// We should instead filter by ServiceName=service
 	return entity.Info(s, false)
 }
@@ -317,8 +317,8 @@ func (s *Service) Run(commandOverrides map[string][]string) error {
 }
 
 // EntityType returns service as the type
-func (s *Service) EntityType() string {
-	return entityType
+func (s *Service) EntityType() types.Type {
+	return types.Service
 }
 
 // ----------- Commands' helper functions --------

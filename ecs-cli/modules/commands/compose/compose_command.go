@@ -33,7 +33,7 @@ import (
 //   ecs-cli compose start       : invokes ECS.RunTask if count(running tasks) == 0
 //   ecs-cli compose up          : compose create ; compose start and does a deployment of new compose yml if changes were found
 // List containers in or view details of the project:
-//   ecs-cli compose ps          : calls ECS.ListTasks (running and stopped) with startedBy: this project
+//   ecs-cli compose ps          : calls ECS.ListTasks (running and stopped) filtered with Task group: this project
 // Modify containers
 //   ecs-cli compose scale       : calls ECS.RunTask/StopTask based on the count
 //   ecs-cli compose run         : calls ECS.RunTask with overrides
@@ -91,8 +91,8 @@ func composeFlags() []cli.Flag {
 			EnvVar: "COMPOSE_PROJECT_NAME",
 		},
 		cli.StringFlag{
-			Name:   command.TaskRoleArnFlag,
-			Usage:  "[Optional] Specifies the short name or full Amazon Resource Name (ARN) of the IAM role that containers in this task can assume. All containers in this task are granted the permissions that are specified in this role.",
+			Name:  command.TaskRoleArnFlag,
+			Usage: "[Optional] Specifies the short name or full Amazon Resource Name (ARN) of the IAM role that containers in this task can assume. All containers in this task are granted the permissions that are specified in this role.",
 		},
 	}
 }

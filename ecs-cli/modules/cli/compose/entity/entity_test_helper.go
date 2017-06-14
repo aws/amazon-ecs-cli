@@ -21,11 +21,13 @@ import (
 	ecsClient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
+	composeutils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/docker/libcompose/project"
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 )
 
 type validateListTasksInput func(*ecs.ListTasksInput, string, *testing.T)
@@ -34,16 +36,16 @@ type setupEntityForTestInfo func(*context.Context) ProjectEntity
 func TestInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasksInput, t *testing.T, filterLocal bool) {
 	projectName := "project"
 	containerInstance := "containerInstance"
-	ec2InstanceId := "ec2instanceId"
+	ec2InstanceID := "ec2InstanceID"
 	ec2Instance := &ec2.Instance{
 		PublicIpAddress: aws.String("publicIpAddress"),
 	}
 
 	instanceIdsMap := make(map[string]string)
-	instanceIdsMap[containerInstance] = ec2InstanceId
+	instanceIdsMap[containerInstance] = ec2InstanceID
 
 	ec2InstancesMap := make(map[string]*ec2.Instance)
-	ec2InstancesMap[ec2InstanceId] = ec2Instance
+	ec2InstancesMap[ec2InstanceID] = ec2Instance
 
 	container := &ecs.Container{
 		Name:         aws.String("contName"),
@@ -55,10 +57,19 @@ func TestInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasks
 		TaskArn:              aws.String("taskArn/taskId"),
 		Containers:           []*ecs.Container{container},
 		ContainerInstanceArn: aws.String(containerInstance),
+		Group:                aws.String(composeutils.GetTaskGroup("", projectName)),
+	}
+
+	// Deperecated
+	ecsTaskWithStartedBy := &ecs.Task{
+		TaskArn:              aws.String("taskArn/taskId"),
+		Containers:           []*ecs.Container{container},
+		ContainerInstanceArn: aws.String(containerInstance),
+		StartedBy:            aws.String(projectName),
 	}
 
 	runningTasks := []*ecs.Task{ecsTask}
-	stoppedTasks := []*ecs.Task{ecsTask, ecsTask}
+	stoppedTasks := []*ecs.Task{ecsTask, ecsTaskWithStartedBy}
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -71,10 +82,8 @@ func TestInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasks
 			// verify input fields
 			req := x.(*ecs.ListTasksInput)
 			validateFunc(req, projectName, t)
-			if ecs.DesiredStatusRunning != aws.StringValue(req.DesiredStatus) {
-				t.Errorf("Expected DesiredStatus to be [%s] but got [%s]",
-					ecs.DesiredStatusRunning, aws.StringValue(req.DesiredStatus))
-			}
+			assert.Equal(t, ecs.DesiredStatusRunning, aws.StringValue(req.DesiredStatus), "Expected DesiredStatus to match")
+
 			// execute the function passed as input
 			funct := y.(ecsClient.ProcessTasksAction)
 			funct(runningTasks)
@@ -83,16 +92,14 @@ func TestInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasks
 			// verify input fields
 			req := x.(*ecs.ListTasksInput)
 			validateFunc(req, projectName, t)
-			if ecs.DesiredStatusStopped != aws.StringValue(req.DesiredStatus) {
-				t.Errorf("Expected DesiredStatus to be [%s] but got [%s]",
-					ecs.DesiredStatusStopped, aws.StringValue(req.DesiredStatus))
-			}
+			assert.Equal(t, ecs.DesiredStatusStopped, aws.StringValue(req.DesiredStatus), "Expected DesiredStatus to match")
+
 			// execute the function passed as input
 			funct := y.(ecsClient.ProcessTasksAction)
 			funct(stoppedTasks)
 		}).Return(nil),
 		mockEcs.EXPECT().GetEC2InstanceIDs([]*string{&containerInstance}).Return(instanceIdsMap, nil),
-		mockEc2.EXPECT().DescribeInstances([]*string{&ec2InstanceId}).Return(ec2InstancesMap, nil),
+		mockEc2.EXPECT().DescribeInstances([]*string{&ec2InstanceID}).Return(ec2InstancesMap, nil),
 	)
 
 	context := &context.Context{
@@ -105,12 +112,8 @@ func TestInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasks
 	}
 	entity := setupEntity(context)
 	infoSet, err := entity.Info(filterLocal)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, err, "Unexpected error when getting info")
+
 	expectedCountOfContainers := len(runningTasks) + len(stoppedTasks)
-	if expectedCountOfContainers != len(infoSet) {
-		t.Errorf("Expected count to be [%s] but got [%s]",
-			expectedCountOfContainers, len(infoSet))
-	}
+	assert.Len(t, infoSet, expectedCountOfContainers, "Expected containers count to match")
 }
