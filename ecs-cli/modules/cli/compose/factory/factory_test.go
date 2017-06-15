@@ -35,7 +35,8 @@ const (
 func TestPopulateContext(t *testing.T) {
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)
-	cliContext := cli.NewContext(nil, nil, globalContext)
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	cliContext := cli.NewContext(nil, flagSet, globalContext)
 	ecsContext := &context.Context{}
 
 	// Create a temprorary directory for the dummy ecs config
@@ -49,12 +50,7 @@ func TestPopulateContext(t *testing.T) {
 	os.Setenv("AWS_REGION", "us-east-1")
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "secret")
-	defer func() {
-		os.Unsetenv("AWS_REGION")
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-		os.Unsetenv("HOME")
-	}()
+	defer os.Clearenv()
 
 	projectFactory := projectFactory{}
 	err = projectFactory.populateContext(ecsContext, cliContext)
@@ -74,7 +70,8 @@ func TestPopulateContextWithGlobalFlagOverrides(t *testing.T) {
 	overrides.String(command.ComposeFileNameFlag, composeFileNameTest, "")
 	overrides.String(command.ProjectNameFlag, projectNameTest, "")
 	parentContext := cli.NewContext(nil, overrides, nil)
-	cliContext := cli.NewContext(nil, nil, parentContext)
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	cliContext := cli.NewContext(nil, flagSet, parentContext)
 	ecsContext := &context.Context{}
 
 	// Create a temprorary directory for the dummy ecs config

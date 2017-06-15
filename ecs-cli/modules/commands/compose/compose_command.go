@@ -53,7 +53,7 @@ func ComposeCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:   "compose",
 		Usage:  "Executes docker-compose-style commands on an ECS cluster.",
 		Before: ecscli.BeforeApp,
-		Flags:  composeFlags(),
+		Flags:  append(composeFlags(), command.OptionalClusterFlag(), command.OptionalRegionFlag()),
 		Subcommands: []cli.Command{
 			createCommand(factory),
 			psCommand(factory),

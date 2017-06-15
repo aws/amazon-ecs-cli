@@ -75,6 +75,7 @@ func setupTest(t *testing.T) (*mock_ecs.MockECSClient, *mock_cloudformation.Mock
 
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "secret")
+	os.Setenv("AWS_REGION", "us-west-1")
 	return mockECS, mockCloudformation
 }
 
@@ -94,15 +95,11 @@ func TestClusterUp(t *testing.T) {
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
 
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
-
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
 	flagSet.String(command.KeypairNameFlag, "default", "")
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
@@ -125,16 +122,12 @@ func TestClusterUpWithForce(t *testing.T) {
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
 
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
-
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
 	flagSet.String(command.KeypairNameFlag, "default", "")
 	flagSet.Bool(command.ForceFlag, true, "")
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
@@ -193,17 +186,13 @@ func TestClusterUpWithVPC(t *testing.T) {
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
 
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
-
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
 	flagSet.String(command.KeypairNameFlag, "default", "")
 	flagSet.String(command.VpcIdFlag, vpcID, "")
 	flagSet.String(command.SubnetIdsFlag, subnetIds, "")
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
@@ -226,16 +215,12 @@ func TestClusterUpWithAvailabilityZones(t *testing.T) {
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
 
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
-
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
 	flagSet.String(command.KeypairNameFlag, "default", "")
 	flagSet.String(command.VpcAzFlag, vpcAZs, "")
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
@@ -248,15 +233,12 @@ func TestClusterUpWithoutKeyPair(t *testing.T) {
 		mockCloudformation.EXPECT().Initialize(gomock.Any()),
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
 	)
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
 	flagSet.Bool(command.ForceFlag, true, "")
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
 	assert.Error(t, err, "Expected error for key pair name")
 }
@@ -271,9 +253,6 @@ func TestClusterUpWithSecurityGroupWithoutVPC(t *testing.T) {
 		mockCloudformation.EXPECT().Initialize(gomock.Any()),
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
 	)
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
@@ -281,7 +260,7 @@ func TestClusterUpWithSecurityGroupWithoutVPC(t *testing.T) {
 	flagSet.Bool(command.ForceFlag, true, "")
 	flagSet.String(command.SecurityGroupFlag, securityGroupID, "")
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
 	assert.Error(t, err, "Expected error for security group without VPC")
 }
@@ -298,9 +277,6 @@ func TestClusterUpWith2SecurityGroups(t *testing.T) {
 		mockCloudformation.EXPECT().Initialize(gomock.Any()),
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
 	)
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
@@ -310,7 +286,7 @@ func TestClusterUpWith2SecurityGroups(t *testing.T) {
 	flagSet.String(command.VpcIdFlag, vpcId, "")
 	flagSet.String(command.SubnetIdsFlag, subnetIds, "")
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
 	assert.Error(t, err, "Expected error for too many security groups")
 }
@@ -325,9 +301,6 @@ func TestClusterUpWithSubnetsWithoutVPC(t *testing.T) {
 		mockCloudformation.EXPECT().Initialize(gomock.Any()),
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
 	)
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
@@ -335,7 +308,7 @@ func TestClusterUpWithSubnetsWithoutVPC(t *testing.T) {
 	flagSet.Bool(command.ForceFlag, true, "")
 	flagSet.String(command.SubnetIdsFlag, subnetID, "")
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
 	assert.Error(t, err, "Expected error for subnets without VPC")
 }
@@ -350,9 +323,6 @@ func TestClusterUpWithVPCWithoutSubnets(t *testing.T) {
 		mockCloudformation.EXPECT().Initialize(gomock.Any()),
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
 	)
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
@@ -360,7 +330,7 @@ func TestClusterUpWithVPCWithoutSubnets(t *testing.T) {
 	flagSet.Bool(command.ForceFlag, true, "")
 	flagSet.String(command.VpcIdFlag, vpcID, "")
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
 	assert.Error(t, err, "Expected error for VPC without subnets")
 }
@@ -376,9 +346,6 @@ func TestClusterUpWithAvailabilityZonesWithVPC(t *testing.T) {
 		mockCloudformation.EXPECT().Initialize(gomock.Any()),
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
 	)
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
@@ -387,7 +354,7 @@ func TestClusterUpWithAvailabilityZonesWithVPC(t *testing.T) {
 	flagSet.String(command.VpcIdFlag, vpcID, "")
 	flagSet.String(command.VpcAzFlag, vpcAZs, "")
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
 	assert.Error(t, err, "Expected error for VPC with AZs")
 }
@@ -402,9 +369,6 @@ func TestClusterUpWithout2AvailabilityZones(t *testing.T) {
 		mockCloudformation.EXPECT().Initialize(gomock.Any()),
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
 	)
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
@@ -412,21 +376,18 @@ func TestClusterUpWithout2AvailabilityZones(t *testing.T) {
 	flagSet.Bool(command.ForceFlag, true, "")
 	flagSet.String(command.VpcAzFlag, vpcAZs, "")
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
 	assert.Error(t, err, "Expected error for 2 AZs")
 }
 
 func TestCliFlagsToCfnStackParams(t *testing.T) {
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
 	flagSet.String(command.KeypairNameFlag, "default", "")
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	params := cliFlagsToCfnStackParams(context)
 
 	_, err := params.GetParameter(cloudformation.ParameterKeyAsgMaxSize)
@@ -434,7 +395,7 @@ func TestCliFlagsToCfnStackParams(t *testing.T) {
 	assert.Equal(t, cloudformation.ParameterNotFoundError, err, "Expect error to be ParameterNotFoundError")
 
 	flagSet.String(command.AsgMaxSizeFlag, "2", "")
-	context = cli.NewContext(nil, flagSet, globalContext)
+	context = cli.NewContext(nil, flagSet, nil)
 	params = cliFlagsToCfnStackParams(context)
 	_, err = params.GetParameter(cloudformation.ParameterKeyAsgMaxSize)
 	assert.NoError(t, err, "Unexpected error getting parameter ParameterKeyAsgMaxSize")
@@ -463,16 +424,12 @@ func TestClusterUpForImageIdInput(t *testing.T) {
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
 
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
-
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
 	flagSet.String(command.KeypairNameFlag, "default", "")
 	flagSet.String(command.ImageIdFlag, imageID, "")
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
@@ -482,7 +439,6 @@ func TestClusterUpWithClusterNameEmpty(t *testing.T) {
 	mockECS, mockCloudformation := setupTest(t)
 
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
 	globalContext := cli.NewContext(nil, globalSet, nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
@@ -497,13 +453,11 @@ func TestClusterUpWithClusterNameEmpty(t *testing.T) {
 func TestClusterUpWithoutRegion(t *testing.T) {
 	defer os.Clearenv()
 	mockECS, mockCloudformation := setupTest(t)
-
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalContext := cli.NewContext(nil, globalSet, nil)
+	os.Unsetenv("AWS_REGION")
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
 	assert.Error(t, err, "Expected error bringing up cluster")
 }
@@ -527,14 +481,10 @@ func TestClusterDown(t *testing.T) {
 		mockCloudformation.EXPECT().WaitUntilDeleteComplete(stackName).Return(nil),
 		mockECS.EXPECT().DeleteCluster(clusterName).Return(clusterName, nil),
 	)
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
-
 	flagSet := flag.NewFlagSet("ecs-cli-down", 0)
 	flagSet.Bool(command.ForceFlag, true, "")
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := deleteCluster(context, newMockReadWriter(), mockECS, mockCloudformation)
 	assert.NoError(t, err, "Unexpected error deleting cluster")
 }
@@ -543,13 +493,8 @@ func TestClusterDownWithoutForce(t *testing.T) {
 	defer os.Clearenv()
 	mockECS, mockCloudformation := setupTest(t)
 
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
-
 	flagSet := flag.NewFlagSet("ecs-cli-down", 0)
-
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := deleteCluster(context, newMockReadWriter(), mockECS, mockCloudformation)
 	assert.Error(t, err, "Expected error when force deleting cluster")
 }
@@ -582,15 +527,11 @@ func TestClusterScale(t *testing.T) {
 	mockCloudformation.EXPECT().UpdateStack(stackName, gomock.Any()).Return("", nil)
 	mockCloudformation.EXPECT().WaitUntilUpdateComplete(stackName).Return(nil)
 
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
-
 	flagSet := flag.NewFlagSet("ecs-cli-down", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
 	flagSet.String(command.AsgMaxSizeFlag, "1", "")
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := scaleCluster(context, newMockReadWriter(), mockECS, mockCloudformation)
 	assert.NoError(t, err, "Unexpected error scaling cluster")
 }
@@ -599,13 +540,10 @@ func TestClusterScaleWithoutIamCapability(t *testing.T) {
 	defer os.Clearenv()
 	mockECS, mockCloudformation := setupTest(t)
 
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalContext := cli.NewContext(nil, globalSet, nil)
-
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.String(command.AsgMaxSizeFlag, "1", "")
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := scaleCluster(context, newMockReadWriter(), mockECS, mockCloudformation)
 	assert.Error(t, err, "Expected error scaling cluster when iam capability is not specified")
 }
@@ -614,13 +552,10 @@ func TestClusterScaleWithoutSize(t *testing.T) {
 	defer os.Clearenv()
 	mockECS, mockCloudformation := setupTest(t)
 
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalContext := cli.NewContext(nil, globalSet, nil)
-
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	err := scaleCluster(context, newMockReadWriter(), mockECS, mockCloudformation)
 	assert.Error(t, err, "Expected error scaling cluster when size is not specified")
 }
@@ -643,13 +578,9 @@ func TestClusterPSTaskGetInfoFail(t *testing.T) {
 	mockECS.EXPECT().GetTasksPages(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
 	}).Return(errors.New("error"))
 
-	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
-	globalContext := cli.NewContext(nil, globalSet, nil)
-
 	flagSet := flag.NewFlagSet("ecs-cli-down", 0)
 
-	context := cli.NewContext(nil, flagSet, globalContext)
+	context := cli.NewContext(nil, flagSet, nil)
 	_, err = clusterPS(context, newMockReadWriter(), mockECS)
 	assert.Error(t, err, "Expected error in cluster ps")
 }

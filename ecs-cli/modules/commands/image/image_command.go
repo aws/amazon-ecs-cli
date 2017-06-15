@@ -28,7 +28,7 @@ func PushCommand() cli.Command {
 		ArgsUsage: image.PushImageFormat,
 		Before:    app.BeforeApp,
 		Action:    image.ImagePush,
-		Flags:     imagePushFlags(),
+		Flags:     append(imagePushFlags(), command.OptionalRegionFlag()),
 	}
 }
 
@@ -40,7 +40,7 @@ func PullCommand() cli.Command {
 		ArgsUsage: image.PullImageFormat,
 		Before:    app.BeforeApp,
 		Action:    image.ImagePull,
-		Flags:     imagePullFlags(),
+		Flags:     append(imagePullFlags(), command.OptionalRegionFlag()),
 	}
 }
 
@@ -52,7 +52,7 @@ func ImagesCommand() cli.Command {
 		ArgsUsage: image.ListImageFormat,
 		Before:    app.BeforeApp,
 		Action:    image.ImageList,
-		Flags:     imagesFlags(),
+		Flags:     append(imageListFlags(), command.OptionalRegionFlag()),
 	}
 }
 
@@ -74,12 +74,8 @@ func imagePullFlags() []cli.Flag {
 	}
 }
 
-func imagesFlags() []cli.Flag {
+func imageListFlags() []cli.Flag {
 	return []cli.Flag{
-		cli.StringFlag{
-			Name:  command.RegistryIdFlag,
-			Usage: "[Optional] Specifies the the Amazon ECR registry ID to pull the image from. By default, images are pulled from the current AWS account.",
-		},
 		cli.BoolFlag{
 			Name:  command.TaggedFlag,
 			Usage: "[Optional] Filters the result to show only tagged images",

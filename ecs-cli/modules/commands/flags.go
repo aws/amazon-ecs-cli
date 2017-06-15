@@ -13,6 +13,12 @@
 
 package command
 
+import (
+	"fmt"
+
+	"github.com/urfave/cli"
+)
+
 // Flag names used by the cli.
 const (
 	// Configure
@@ -23,6 +29,7 @@ const (
 	AwsDefaultRegionEnvVar = "AWS_DEFAULT_REGION"
 	ProfileFlag            = "profile"
 	ClusterFlag            = "cluster"
+	ClusterEnvVar          = "ECS_CLUSTER"
 	VerboseFlag            = "verbose"
 
 	ComposeProjectNamePrefixFlag         = "compose-project-name-prefix"
@@ -69,3 +76,23 @@ const (
 	LoadBalancerNameFlag                    = "load-balancer-name"
 	RoleFlag                                = "role"
 )
+
+// OptionalClusterFlag inline overrides cluster
+func OptionalClusterFlag() cli.Flag {
+	return cli.StringFlag{
+		Name: ClusterFlag + ", c",
+		Usage: fmt.Sprintf(
+			"[Optional] Specifies the ECS cluster name to use. Defaults to the cluster configured using the configure command",
+		),
+	}
+}
+
+// OptionalRegionFlag inline overrides region
+func OptionalRegionFlag() cli.Flag {
+	return cli.StringFlag{
+		Name: RegionFlag + ", r",
+		Usage: fmt.Sprintf(
+			"[Optional] Specifies the AWS region to use. Defaults to the region configured using the configure command",
+		),
+	}
+}
