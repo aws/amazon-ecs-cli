@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.6.0
+* Feature - Update ami to amzn-ami-2017.03.c-amazon-ecs-optimized
+* Feature - Support cluster and region runtime flag for all ECS commands
+* Feature - Support `--task-role-arn` in compose commands
+* Feature - Support memory reservation in compose
+* Feature - `ecs-cli up` without auto-assigned IP address
+* Enhancement - Support Multiple Security Groups in the `ecs-cli up`
+* Enhancement - Support `ecs-cli compose run` with multiple containers and run command overrides
+* Enhancement - Support additional instance types p2, g2, and x1
+* Bug - Avoid SIGSEGV error when ec2InstanceID does not exist #231
+* Bug - Allow dashes “-“ in `ecs-cli push` #238
+* Bug - Allow `ecs-cli compose up` to have project name longer than 36 characters #97
+
 ## 0.5.0
 * Feature - Support ECR push, pull, and list images
 * Feature - Support existing ELB/ALB in CreateService
