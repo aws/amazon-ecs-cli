@@ -206,11 +206,6 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 		return fmt.Errorf("You have selected a security group. Please specify a VPC with the '--%s' flag", command.VpcIdFlag)
 	}
 
-	// Check only one security group is specified
-	if validateCommaSeparatedParam(cfnParams, cloudformation.ParameterKeySecurityGroup, 1, 1) {
-		return fmt.Errorf("You can only specify one security group with the '--%s' flag", command.SecurityGroupFlag)
-	}
-
 	// Check if subnets exists when vpc is specified
 	if validateDependentParams(cfnParams, cloudformation.ParameterKeyVpcId, cloudformation.ParameterKeySubnetIds) {
 		return fmt.Errorf("You have selected a VPC. Please specify 2 comma-separated subnets with the '--%s' flag", command.SubnetIdsFlag)
