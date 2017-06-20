@@ -121,8 +121,8 @@ var template = `
       "Description": "Maximum size and initial Desired Capacity of ECS Auto Scaling Group",
       "Default": "1"
     },
-    "SecurityGroup": {
-      "Type": "String",
+    "SecurityGroupIds": {
+      "Type": "CommaDelimitedList",
       "Description": "Optional - Existing security group to associate the container instances. Creates one by default.",
       "Default": ""
     },
@@ -163,11 +163,16 @@ var template = `
     },
     "CreateSecurityGroup": {
       "Fn::Equals": [
-        {
-          "Ref": "SecurityGroup"
+				{
+          "Fn::Join": [
+            "",
+            {
+              "Ref": "SecurityGroupIds"
+            }
+          ]
         },
         ""
-      ]
+        ]
     },
     "CreateEC2LCWithKeyPair": {
       "Fn::Not": [
@@ -433,9 +438,9 @@ var template = `
             [ {
               "Ref": "EcsSecurityGroup"
             } ],
-            [ {
-              "Ref": "SecurityGroup"
-            } ]
+            {
+              "Ref": "SecurityGroupIds"
+            }
           ]
         },
         "UserData": {
@@ -475,9 +480,9 @@ var template = `
             [ {
               "Ref": "EcsSecurityGroup"
             } ],
-            [ {
-              "Ref": "SecurityGroup"
-            } ]
+            {
+              "Ref": "SecurityGroupIds"
+            }
           ]
         },
         "UserData": {

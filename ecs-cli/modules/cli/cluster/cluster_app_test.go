@@ -154,7 +154,6 @@ func TestClusterUpWithoutPublicIP(t *testing.T) {
 	)
 
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
-	globalSet.String("region", "us-west-1", "")
 	globalContext := cli.NewContext(nil, globalSet, nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
@@ -276,6 +275,13 @@ func TestClusterUpWith2SecurityGroups(t *testing.T) {
 	gomock.InOrder(
 		mockCloudformation.EXPECT().Initialize(gomock.Any()),
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
+		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
+	)
+
+	gomock.InOrder(
+		mockECS.EXPECT().Initialize(gomock.Any()),
+		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
@@ -288,7 +294,7 @@ func TestClusterUpWith2SecurityGroups(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	assert.Error(t, err, "Expected error for too many security groups")
+	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
 func TestClusterUpWithSubnetsWithoutVPC(t *testing.T) {

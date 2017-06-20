@@ -27,7 +27,7 @@ install the binary on your `$PATH`. You can use the provided `md5` hash to
 verify the integrity of your download.
 
 ### Latest version
-* Linux: 
+* Linux:
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest)
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest.md5)
 * Macintosh:
@@ -39,7 +39,7 @@ verify the integrity of your download.
 ### Download specific version
 Using the URLs above, replace `latest` with the desired tag, for example `v0.4.1`. After downloading, remember to rename the binary file to `ecs-cli`.
 
-* Linux: 
+* Linux:
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.4.1](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.4.1)
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.4.1.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.4.1.md5)
 * Macintosh:
@@ -93,7 +93,7 @@ OPTIONS:
    --capability-iam	Acknowledges that this command may create IAM resources.
    --size 		[Optional] Specifies the number of instances to launch and register to the cluster. Defaults to 1.
    --azs 		[Optional] Specifies a comma-separated list of 2 VPC Availability Zones in which to create subnets (these zones must have the available status). This option is recommended if you do not specify a VPC ID with the --vpc option. WARNING: Leaving this option blank can result in failure to launch container instances if an unavailable zone is chosen at random.
-   --security-group 	[Optional] Specifies an existing security group to associate with your container instances. If you do not specify a security group here, then a new one is created.
+   --security-group 	[Optional] Specifies a comma-separated list of existing security groups to associate with your container instances. If you do not specify a security group here, then a new one is created.
    --cidr 		[Optional] Specifies a CIDR/IP range for the security group to use for container instances in your cluster. This parameter is ignored if an existing security group is specified with the --security-group option. Defaults to 0.0.0.0/0.
    --port 		[Optional] Specifies a port to open on the security group to use for container instances in your cluster. This parameter is ignored if an existing security group is specified with the --security-group option. Defaults to port 80.
    --subnets 		[Optional] Specifies a comma-separated list of existing VPC subnet IDs in which to launch your container instances. This option is required if you specify a VPC with the --vpc option.
@@ -132,7 +132,7 @@ to the default security group, go to **EC2 Security Groups** in the AWS Manageme
 Console and search for the security group containing “ecs-cli”. Add a rule as
 described in the
 [Adding Rules to a Security Group](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html#adding-security-group-rule) topic.
-Alternatively, you may specify an existing security group ID with the
+Alternatively, you may specify one or more existing security group IDs with the
 `--security-group` option.
 
 After the cluster is created, you can run tasks – groups of containers – on the

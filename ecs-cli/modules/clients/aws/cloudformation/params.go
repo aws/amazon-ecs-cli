@@ -25,7 +25,7 @@ import (
 const (
 	ParameterKeyAsgMaxSize               = "AsgMaxSize"
 	ParameterKeyVPCAzs                   = "VpcAvailabilityZones"
-	ParameterKeySecurityGroup            = "SecurityGroup"
+	ParameterKeySecurityGroup            = "SecurityGroupIds"
 	ParameterKeySourceCidr               = "SourceCidr"
 	ParameterKeyEcsPort                  = "EcsPort"
 	ParameterKeySubnetIds                = "SubnetIds"
