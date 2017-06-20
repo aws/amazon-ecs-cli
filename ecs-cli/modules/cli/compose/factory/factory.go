@@ -14,12 +14,12 @@
 package factory
 
 import (
-	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
+	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project"
 	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
-
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
+	libcomposecommand "github.com/docker/libcompose/cli/command"
 	"github.com/urfave/cli"
 )
 
@@ -59,8 +59,7 @@ func (projectFactory projectFactory) Create(cliContext *cli.Context, isService b
 // populateContext sets the required CLI arguments to the context
 func (projectFactory projectFactory) populateContext(ecsContext *context.Context, cliContext *cli.Context) error {
 	// populate CLI context
-	// TODO: Support multiple compose files
-	ecsContext.ComposeFiles = []string{cliContext.GlobalString(command.ComposeFileNameFlag)}
+	libcomposecommand.Populate(&ecsContext.Context, cliContext)
 	ecsContext.ProjectName = cliContext.GlobalString(command.ProjectNameFlag)
 	ecsContext.CLIContext = cliContext
 

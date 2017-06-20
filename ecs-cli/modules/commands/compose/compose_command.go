@@ -79,10 +79,10 @@ func composeFlags() []cli.Flag {
 			Name:  command.VerboseFlag + ",debug",
 			Usage: "Increase the verbosity of command output to aid in diagnostics.",
 		},
-		cli.StringFlag{
+		cli.StringSliceFlag{
 			Name:   command.ComposeFileNameFlag + ",f",
 			Usage:  "Specifies the Docker compose file to use. Defaults to " + composeFileNameDefaultValue + " file.",
-			Value:  composeFileNameDefaultValue,
+			Value:  &cli.StringSlice{},
 			EnvVar: "COMPOSE_FILE",
 		},
 		cli.StringFlag{
