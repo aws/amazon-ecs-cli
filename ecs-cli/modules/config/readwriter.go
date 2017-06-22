@@ -14,8 +14,11 @@
 package config
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	yaml "gopkg.in/yaml.v2"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/go-ini/ini"
@@ -45,7 +48,7 @@ type ReadWriter interface {
 // compose-service-name-prefix:
 // cfn-stack-name-prefix: ecs-cli-
 type YamlReadWriter struct {
-	*Destination
+	destination *Destination
 }
 
 // NewReadWriter creates a new Parser object.
@@ -55,13 +58,19 @@ func NewReadWriter() (*YamlReadWriter, error) {
 		return nil, err
 	}
 
-	return &YamlReadWriter{Destination: dest}, nil
+	return &YamlReadWriter{destination: dest}, nil
 }
 
 // GetConfig gets the ecs-cli config object from the config file.
 func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, error) {
 	to := new(CliConfig)
-	err := rdwr.cfg.MapTo(to)
+	// read the raw bytes of the config file
+	path := configPath(rdwr.destination)
+	dat, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	err = yaml.Unmarshal(dat, to)
 	if err != nil {
 		return nil, err
 	}
@@ -69,8 +78,10 @@ func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, error) {
 	return to, nil
 }
 
-// IniReadWriter implments the ReadWriter interfaces. It can be used to save and load
-// ecs-cli config. Sample ecs-cli config:
+// IniReadWriter implments the ReadWriter interfaces.
+// It can now only be used to load ecs-cli config.
+// The config files is being migrated to use Yaml
+// Sample ecs-cli config:
 // [ecs]
 // cluster = test
 // aws_profile =
@@ -86,7 +97,7 @@ type IniReadWriter struct {
 	cfg *ini.File
 }
 
-// NewReadWriter creates a new Parser object.
+// NewIniReadWriter creates a new Ini Parser object for the old ini configs
 func NewIniReadWriter() (*IniReadWriter, error) {
 	dest, err := newDefaultDestination()
 	if err != nil {
