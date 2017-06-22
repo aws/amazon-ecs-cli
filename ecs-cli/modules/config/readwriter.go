@@ -28,11 +28,45 @@ const (
 
 // ReadWriter interface has methods to read and write ecs-cli config to and from the config file.
 type ReadWriter interface {
-	Save(*Destination) error
+	Save(*CliConfig, *Destination) error
 	IsInitialized() (bool, error)
-	ReadFrom(*CliConfig) error
 	GetConfig() (*CliConfig, error)
 	IsKeyPresent(string, string) bool
+}
+
+// YamlReadWriter implments the ReadWriter interfaces. It can be used to save and load
+// ecs-cli config. Sample ecs-cli config:
+// cluster: test
+// aws_profile:
+// region: us-west-2
+// aws_access_key_id:
+// aws_secret_access_key:
+// compose-project-name-prefix: ecscompose-
+// compose-service-name-prefix:
+// cfn-stack-name-prefix: ecs-cli-
+type YamlReadWriter struct {
+	*Destination
+}
+
+// NewReadWriter creates a new Parser object.
+func NewReadWriter() (*YamlReadWriter, error) {
+	dest, err := newDefaultDestination()
+	if err != nil {
+		return nil, err
+	}
+
+	return &YamlReadWriter{Destination: dest}, nil
+}
+
+// GetConfig gets the ecs-cli config object from the config file.
+func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, error) {
+	to := new(CliConfig)
+	err := rdwr.cfg.MapTo(to)
+	if err != nil {
+		return nil, err
+	}
+
+	return to, nil
 }
 
 // IniReadWriter implments the ReadWriter interfaces. It can be used to save and load
@@ -53,7 +87,7 @@ type IniReadWriter struct {
 }
 
 // NewReadWriter creates a new Parser object.
-func NewReadWriter() (*IniReadWriter, error) {
+func NewIniReadWriter() (*IniReadWriter, error) {
 	dest, err := newDefaultDestination()
 	if err != nil {
 		return nil, err
