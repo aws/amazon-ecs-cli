@@ -80,7 +80,7 @@ func clusterUpFlags() []cli.Flag {
 		},
 		cli.StringFlag{
 			Name:  command.SecurityGroupFlag,
-			Usage: "[Optional] Specifies an existing security group to associate with your container instances. If you do not specify a security group here, then a new one is created.",
+			Usage: "[Optional] Specifies a comma-separated list of existing security groups to associate with your container instances. If you do not specify a security group here, then a new one is created.",
 		},
 		cli.StringFlag{
 			Name:  command.SourceCidrFlag,
