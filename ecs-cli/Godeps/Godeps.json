@@ -2,9 +2,6 @@
 	"ImportPath": "github.com/aws/amazon-ecs-cli/ecs-cli",
 	"GoVersion": "go1.8",
 	"GodepVersion": "v79",
-	"Packages": [
-		"./..."
-	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/Azure/go-ansiterm",
@@ -313,11 +310,6 @@
 		},
 		{
 			"ImportPath": "github.com/docker/docker/pkg/longpath",
-			"Comment": "docs-v1.12.0-rc4-2016-07-15-3943-g59ba895",
-			"Rev": "59ba895a0f610f5bf34ef6748540af1509910bea"
-		},
-		{
-			"ImportPath": "github.com/docker/docker/pkg/mount",
 			"Comment": "docs-v1.12.0-rc4-2016-07-15-3943-g59ba895",
 			"Rev": "59ba895a0f610f5bf34ef6748540af1509910bea"
 		},
