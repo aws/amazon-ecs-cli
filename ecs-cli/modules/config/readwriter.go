@@ -127,14 +127,6 @@ func (rdwr *YamlReadWriter) Save(cliConfig *CliConfig) error {
 		}
 	}
 
-	// Open the file, optionally creating it with our desired permissions.
-	// This will let us pass it (as io.Writer) to go-ini but let us control the file.
-	configFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, configFileMode)
-
-	// Truncate the file in case the earlier contents are longer than the new
-	// contents, so there will not be any trash at the end of the file
-	configFile.Truncate(0)
-
 	if err != nil {
 		logrus.Errorf("Unable to open/create %s with mode %s", path, configFileMode)
 		return err
@@ -142,7 +134,7 @@ func (rdwr *YamlReadWriter) Save(cliConfig *CliConfig) error {
 	defer configFile.Close()
 
 	data, err := yaml.Marshal(cliConfig)
-	err = ioutil.WriteFile(path, data, destMode.Perm())
+	err = ioutil.WriteFile(path, data, configFileMode.Perm())
 	if err != nil {
 		logrus.Errorf("Unable to write config to %s", path)
 		return err
