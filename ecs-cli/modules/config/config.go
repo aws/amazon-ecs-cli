@@ -30,22 +30,22 @@ const (
 	cfnStackNamePrefixKey       = "cfn-stack-name-prefix"
 )
 
-// CliConfig is the top level struct used to map to the ini config.
+// CliConfig is the top level struct used to map to the yaml config.
 type CliConfig struct {
 	// TODO Add metadata information like version etc.
-	*SectionKeys `ini:"ecs"`
+	*SectionKeys `yaml:"ecs"`
 }
 
-// SectionKeys is the struct embedded in CliConfig. It groups all the keys in the 'ecs' section in the ini file.
+// SectionKeys is the struct embedded in CliConfig. It groups all the keys in the 'ecs' section in the yaml file.
 type SectionKeys struct {
-	Cluster                  string `ini:"cluster"`
-	AwsProfile               string `ini:"aws_profile"`
-	Region                   string `ini:"region"`
-	AwsAccessKey             string `ini:"aws_access_key_id"`
-	AwsSecretKey             string `ini:"aws_secret_access_key"`
-	ComposeProjectNamePrefix string `ini:"compose-project-name-prefix"`
-	ComposeServiceNamePrefix string `ini:"compose-service-name-prefix"`
-	CFNStackNamePrefix       string `ini:"cfn-stack-name-prefix"`
+	Cluster                  string `yaml:"cluster"`
+	AwsProfile               string `yaml:"aws_profile"`
+	Region                   string `yaml:"region"`
+	AwsAccessKey             string `yaml:"aws_access_key_id"`
+	AwsSecretKey             string `yaml:"aws_secret_access_key"`
+	ComposeProjectNamePrefix string `yaml:"compose-project-name-prefix"`
+	ComposeServiceNamePrefix string `yaml:"compose-service-name-prefix"`
+	CFNStackNamePrefix       string `yaml:"cfn-stack-name-prefix"`
 }
 
 // NewCliConfig creates a new instance of CliConfig from the cluster name.
