@@ -34,7 +34,7 @@ func Configure(context *cli.Context) {
 		logrus.Error("Error initializing: ", err)
 		return
 	}
-	err = saveConfig(ecsConfig, rdwr, rdwr.Destination)
+	err = saveConfig(ecsConfig, rdwr)
 	if err != nil {
 		logrus.Error("Error initializing: ", err)
 	}
@@ -74,13 +74,9 @@ func createECSConfigFromCli(context *cli.Context) (*config.CliConfig, error) {
 }
 
 // saveConfig does the actual configuration setup. This isolated method is useful for testing.
-func saveConfig(ecsConfig *config.CliConfig, rdwr config.ReadWriter, dest *config.Destination) error {
-	err := rdwr.ReadFrom(ecsConfig)
-	if err != nil {
-		return err
-	}
+func saveConfig(ecsConfig *config.CliConfig, rdwr config.ReadWriter) error {
 
-	err = rdwr.Save(dest)
+	err := rdwr.Save(ecsConfig)
 	if err != nil {
 		return err
 	}

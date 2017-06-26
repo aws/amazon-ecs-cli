@@ -30,23 +30,13 @@ type mockReadWriter struct {
 	isKeyPresentValue bool
 }
 
-func (rdwr *mockReadWriter) GetConfig() (*CliConfig, error) {
-	return NewCliConfig(clusterName), nil
+func (rdwr *mockReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}, error) {
+	m := make(map[interface{}]interface{})
+	m["cluster"] = clusterName
+	return NewCliConfig(clusterName), m, nil
 }
 
-func (rdwr *mockReadWriter) ReadFrom(ecsConfig *CliConfig) error {
-	return nil
-}
-
-func (rdwr *mockReadWriter) IsInitialized() (bool, error) {
-	return true, nil
-}
-
-func (rdwr *mockReadWriter) IsKeyPresent(section, key string) bool {
-	return rdwr.isKeyPresentValue
-}
-
-func (rdwr *mockReadWriter) Save(dest *Destination) error {
+func (rdwr *mockReadWriter) Save(ecsConfig *CliConfig) error {
 	return nil
 }
 

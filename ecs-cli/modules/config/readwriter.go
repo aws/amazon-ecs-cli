@@ -14,6 +14,7 @@
 package config
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -131,7 +132,6 @@ func (rdwr *YamlReadWriter) Save(cliConfig *CliConfig) error {
 		logrus.Errorf("Unable to open/create %s with mode %s", path, configFileMode)
 		return err
 	}
-	defer configFile.Close()
 
 	data, err := yaml.Marshal(cliConfig)
 	err = ioutil.WriteFile(path, data, configFileMode.Perm())
@@ -219,7 +219,8 @@ func NewIniReadWriter() (*IniReadWriter, error) {
 
 // GetConfig gets the ecs-cli config object from the config file.
 func (rdwr *IniReadWriter) GetConfig() (*CliConfig, error) {
-	to := new(CliConfig)
+	//to := new(CliConfig)
+	to := &CliConfig{SectionKeys: new(SectionKeys)}
 
 	// read old ini formatted file
 	oldFormat := new(oldCliConfig)
@@ -243,12 +244,14 @@ func (rdwr *IniReadWriter) GetConfig() (*CliConfig, error) {
 		oldFormat.CFNStackNamePrefix = ecscli.CFNStackNamePrefixDefaultValue
 	}
 	to.Cluster = oldFormat.Cluster
+	to.Region = oldFormat.Region
 	to.AwsProfile = oldFormat.AwsProfile
 	to.AwsAccessKey = oldFormat.AwsAccessKey
 	to.AwsSecretKey = oldFormat.AwsSecretKey
 	to.ComposeProjectNamePrefix = oldFormat.ComposeProjectNamePrefix
 	to.ComposeServiceNamePrefix = oldFormat.ComposeServiceNamePrefix
 	to.CFNStackNamePrefix = oldFormat.CFNStackNamePrefix
+	logrus.Warn("to: " + fmt.Sprintf("%#v", to.SectionKeys) + " \noldFormat: " + fmt.Sprintf("%#v", oldFormat.oldSectionKeys))
 	return to, nil
 }
 

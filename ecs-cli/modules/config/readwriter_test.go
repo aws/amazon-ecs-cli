@@ -18,6 +18,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/Sirupsen/logrus"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -40,31 +42,22 @@ func newMockDestination() (*Destination, error) {
 	return &Destination{Path: tmpPath, Mode: mode}, nil
 }
 
-func setupParser(t *testing.T, dest *Destination, shouldBeInitialized bool) *IniReadWriter {
-	iniCfg, err := newIniConfig(dest)
-	assert.NoError(t, err, "Error creating config ini")
+func setupParser(t *testing.T, dest *Destination, shouldBeInitialized bool) *YamlReadWriter {
 
-	parser := &IniReadWriter{Destination: dest, cfg: iniCfg}
-
-	// Test when unitialized.
-	initialized, err := parser.IsInitialized()
-	assert.NoError(t, err, "Error getting if initialized from ini")
-	assert.Equal(t, shouldBeInitialized, initialized, "Unexpected state during parser initialization.")
+	parser := &YamlReadWriter{destination: dest}
 
 	return parser
 }
 
-func saveConfigWithCluster(t *testing.T, parser *IniReadWriter, dest *Destination) {
-	saveConfig(t, parser, dest, &SectionKeys{Cluster: testClusterName})
+func saveConfigWithCluster(t *testing.T, parser *YamlReadWriter, dest *Destination) {
+	saveConfig(t, parser, dest, &SectionKeys{Cluster: testClusterName, ComposeProjectNamePrefix: "", ComposeServiceNamePrefix: "", CFNStackNamePrefix: ""})
 }
 
-func saveConfig(t *testing.T, parser *IniReadWriter, dest *Destination, sectionKeys *SectionKeys) {
+func saveConfig(t *testing.T, parser *YamlReadWriter, dest *Destination, sectionKeys *SectionKeys) {
 	// Create a new config file
 	newConfig := &CliConfig{sectionKeys}
-	err := parser.ReadFrom(newConfig)
-	assert.NoError(t, err, "Could not create config from struct")
 
-	err = parser.Save(dest)
+	err := parser.Save(newConfig)
 	assert.NoError(t, err, "Could not save config file")
 }
 
@@ -93,7 +86,9 @@ func TestConfigPermissions(t *testing.T) {
 	confirmConfigMode(t, path, badMode)
 
 	// Save the config and confirm it's fixed again
-	err = parser.Save(dest)
+	sectionKeys := &SectionKeys{Cluster: testClusterName}
+	cliConfig := &CliConfig{sectionKeys}
+	err = parser.Save(cliConfig)
 	assert.NoError(t, err, "Unable to save to new config %v", path)
 
 	confirmConfigMode(t, path, configFileMode)
@@ -124,14 +119,20 @@ func TestNewConfigReadWriter(t *testing.T) {
 	// Reinitialize from the written file.
 	parser = setupParser(t, dest, true)
 
-	readConfig, err := parser.GetConfig()
+	readConfig, configMap, err := parser.GetConfig()
+	logrus.Warnf("line 120: readConfig: %v", *(readConfig.SectionKeys))
+	logrus.Warnf("line 120: configMap: %v", configMap)
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, testClusterName, readConfig.Cluster, "Cluster name mismatch in config.")
-	assert.True(t, parser.IsKeyPresent(ecsSectionKey, composeProjectNamePrefixKey), "Compose project prefix name should exist in config.")
+	_, ok := configMap[composeProjectNamePrefixKey]
+	logrus.Warn(ok)
+	assert.True(t, ok, "Compose project prefix name should exist in config.")
 	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
-	assert.True(t, parser.IsKeyPresent(ecsSectionKey, composeServiceNamePrefixKey), "Compose service name prefix should exist in config.")
+	_, ok = configMap[composeServiceNamePrefixKey]
+	assert.True(t, ok, "Compose service name prefix should exist in config.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
-	assert.True(t, parser.IsKeyPresent(ecsSectionKey, cfnStackNamePrefixKey), "CFNStackNamePrefix should exist in config.")
+	_, ok = configMap[cfnStackNamePrefixKey]
+	assert.True(t, ok, "CFNStackNamePrefix should exist in config.")
 	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
 }
 
@@ -155,11 +156,14 @@ aws_secret_access_key =
 	assert.NoError(t, err)
 
 	parser := setupParser(t, dest, true)
-	_, err = parser.GetConfig()
+	_, configMap, err := parser.GetConfig()
 	assert.NoError(t, err, "Error reading config")
-	assert.False(t, parser.IsKeyPresent(ecsSectionKey, cfnStackNamePrefixKey), "CFNStackNamePrefix should not exist in config")
-	assert.False(t, parser.IsKeyPresent(ecsSectionKey, composeServiceNamePrefixKey), "Compose service name prefix should not exist in config")
-	assert.False(t, parser.IsKeyPresent(ecsSectionKey, composeProjectNamePrefixKey), "Compose project name prefix should not exist in config")
+	_, ok := configMap[cfnStackNamePrefixKey]
+	assert.False(t, ok, "CFNStackNamePrefix should not exist in config")
+	_, ok = configMap[composeServiceNamePrefixKey]
+	assert.False(t, ok, "Compose service name prefix should not exist in config")
+	_, ok = configMap[composeProjectNamePrefixKey]
+	assert.False(t, ok, "Compose project name prefix should not exist in config")
 }
 
 func TestConfigFileTruncation(t *testing.T) {
