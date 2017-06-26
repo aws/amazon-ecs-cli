@@ -2,9 +2,6 @@
 	"ImportPath": "github.com/aws/amazon-ecs-cli/ecs-cli",
 	"GoVersion": "go1.8",
 	"GodepVersion": "v79",
-	"Packages": [
-		"./..."
-	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/Azure/go-ansiterm",
@@ -317,11 +314,6 @@
 			"Rev": "59ba895a0f610f5bf34ef6748540af1509910bea"
 		},
 		{
-			"ImportPath": "github.com/docker/docker/pkg/mount",
-			"Comment": "docs-v1.12.0-rc4-2016-07-15-3943-g59ba895",
-			"Rev": "59ba895a0f610f5bf34ef6748540af1509910bea"
-		},
-		{
 			"ImportPath": "github.com/docker/docker/pkg/pools",
 			"Comment": "docs-v1.12.0-rc4-2016-07-15-3943-g59ba895",
 			"Rev": "59ba895a0f610f5bf34ef6748540af1509910bea"
@@ -378,43 +370,43 @@
 		},
 		{
 			"ImportPath": "github.com/docker/libcompose/config",
-			"Comment": "v0.4.0-19-g8e4221d",
-			"Rev": "8e4221d0435d29e6239adf9ccb4de1f0c0ab0935"
+			"Comment": "v0.4.0-44-g9e64d2c",
+			"Rev": "9e64d2cd796891a526a35749de10dfa89c3d9fe0"
 		},
 		{
 			"ImportPath": "github.com/docker/libcompose/logger",
-			"Comment": "v0.4.0-19-g8e4221d",
-			"Rev": "8e4221d0435d29e6239adf9ccb4de1f0c0ab0935"
+			"Comment": "v0.4.0-44-g9e64d2c",
+			"Rev": "9e64d2cd796891a526a35749de10dfa89c3d9fe0"
 		},
 		{
 			"ImportPath": "github.com/docker/libcompose/lookup",
-			"Comment": "v0.4.0-19-g8e4221d",
-			"Rev": "8e4221d0435d29e6239adf9ccb4de1f0c0ab0935"
+			"Comment": "v0.4.0-44-g9e64d2c",
+			"Rev": "9e64d2cd796891a526a35749de10dfa89c3d9fe0"
 		},
 		{
 			"ImportPath": "github.com/docker/libcompose/project",
-			"Comment": "v0.4.0-19-g8e4221d",
-			"Rev": "8e4221d0435d29e6239adf9ccb4de1f0c0ab0935"
+			"Comment": "v0.4.0-44-g9e64d2c",
+			"Rev": "9e64d2cd796891a526a35749de10dfa89c3d9fe0"
 		},
 		{
 			"ImportPath": "github.com/docker/libcompose/project/events",
-			"Comment": "v0.4.0-19-g8e4221d",
-			"Rev": "8e4221d0435d29e6239adf9ccb4de1f0c0ab0935"
+			"Comment": "v0.4.0-44-g9e64d2c",
+			"Rev": "9e64d2cd796891a526a35749de10dfa89c3d9fe0"
 		},
 		{
 			"ImportPath": "github.com/docker/libcompose/project/options",
-			"Comment": "v0.4.0-19-g8e4221d",
-			"Rev": "8e4221d0435d29e6239adf9ccb4de1f0c0ab0935"
+			"Comment": "v0.4.0-44-g9e64d2c",
+			"Rev": "9e64d2cd796891a526a35749de10dfa89c3d9fe0"
 		},
 		{
 			"ImportPath": "github.com/docker/libcompose/utils",
-			"Comment": "v0.4.0-19-g8e4221d",
-			"Rev": "8e4221d0435d29e6239adf9ccb4de1f0c0ab0935"
+			"Comment": "v0.4.0-44-g9e64d2c",
+			"Rev": "9e64d2cd796891a526a35749de10dfa89c3d9fe0"
 		},
 		{
 			"ImportPath": "github.com/docker/libcompose/yaml",
-			"Comment": "v0.4.0-19-g8e4221d",
-			"Rev": "8e4221d0435d29e6239adf9ccb4de1f0c0ab0935"
+			"Comment": "v0.4.0-44-g9e64d2c",
+			"Rev": "9e64d2cd796891a526a35749de10dfa89c3d9fe0"
 		},
 		{
 			"ImportPath": "github.com/flynn/go-shlex",
