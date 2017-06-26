@@ -58,7 +58,14 @@ func (projectFactory projectFactory) Create(cliContext *cli.Context, isService b
 
 // populateContext sets the required CLI arguments to the context
 func (projectFactory projectFactory) populateContext(ecsContext *context.Context, cliContext *cli.Context) error {
-	// populate CLI context
+	/*
+	  populate CLI context
+	  libcomposecommand.Populate updates the composeFiles field in the context
+	  with the files specified by --file (or -f), or if no files are specfied,
+	  it looks for a docker-compose.yml and a docker-compose.override.yml.
+	  We rely on libcompose for this functionality; it should correctly mimic
+	  the behavior of docker-compose.
+	*/
 	libcomposecommand.Populate(&ecsContext.Context, cliContext)
 	ecsContext.ProjectName = cliContext.GlobalString(command.ProjectNameFlag)
 	ecsContext.CLIContext = cliContext
