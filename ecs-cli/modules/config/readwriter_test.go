@@ -120,8 +120,6 @@ func TestNewConfigReadWriter(t *testing.T) {
 	parser = setupParser(t, dest, true)
 
 	readConfig, configMap, err := parser.GetConfig()
-	logrus.Warnf("line 120: readConfig: %v", *(readConfig.SectionKeys))
-	logrus.Warnf("line 120: configMap: %v", configMap)
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, testClusterName, readConfig.Cluster, "Cluster name mismatch in config.")
 	_, ok := configMap[composeProjectNamePrefixKey]

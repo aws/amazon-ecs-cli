@@ -107,6 +107,7 @@ func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}
 		return nil, nil, err
 	}
 
+	configMap = configMap[ecsSectionKey].(map[interface{}]interface{})
 	return to, configMap, nil
 }
 

@@ -33,6 +33,11 @@ type mockReadWriter struct {
 func (rdwr *mockReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}, error) {
 	m := make(map[interface{}]interface{})
 	m["cluster"] = clusterName
+	if rdwr.isKeyPresentValue {
+		m[composeProjectNamePrefixKey] = ""
+		m[composeServiceNamePrefixKey] = ""
+		m[cfnStackNamePrefixKey] = ""
+	}
 	return NewCliConfig(clusterName), m, nil
 }
 
