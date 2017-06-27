@@ -58,8 +58,9 @@ func (projectFactory projectFactory) Create(cliContext *cli.Context, isService b
 // populateContext sets the required CLI arguments to the context
 func (projectFactory projectFactory) populateContext(ecsContext *context.Context, cliContext *cli.Context) error {
 	/*
-		Populate the following libcompose fields to context
-		- ComposeFiles: reads from `--file` or `-f` flags. Defaults to `docker-compose.yml` and `docker-compose.override.yml` if no flags are specified.
+				Populate the following libcompose fields to context
+				- ComposeFiles: reads from `--file` or `-f` flags. Defaults to `docker-compose.yml` and `docker-compose.override.yml` if no flags are specified.
+		    - ProjectName: reads from `--project-name` or `-p` flags.
 	*/
 	libcomposecommand.Populate(&ecsContext.Context, cliContext)
 	ecsContext.CLIContext = cliContext
