@@ -16,7 +16,6 @@ package factory
 import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project"
-	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	libcomposecommand "github.com/docker/libcompose/cli/command"
@@ -67,7 +66,6 @@ func (projectFactory projectFactory) populateContext(ecsContext *context.Context
 	  the behavior of docker-compose.
 	*/
 	libcomposecommand.Populate(&ecsContext.Context, cliContext)
-	ecsContext.ProjectName = cliContext.GlobalString(command.ProjectNameFlag)
 	ecsContext.CLIContext = cliContext
 
 	// reads and sets the parameters (required to create ECS Service Client) from the cli context to ecs context

@@ -369,6 +369,16 @@
 			"Rev": "e30f1e79f3cd72542f2026ceec18d3bd67ab859c"
 		},
 		{
+			"ImportPath": "github.com/docker/libcompose/cli/app",
+			"Comment": "v0.4.0-44-g9e64d2c",
+			"Rev": "9e64d2cd796891a526a35749de10dfa89c3d9fe0"
+		},
+		{
+			"ImportPath": "github.com/docker/libcompose/cli/command",
+			"Comment": "v0.4.0-44-g9e64d2c",
+			"Rev": "9e64d2cd796891a526a35749de10dfa89c3d9fe0"
+		},
+		{
 			"ImportPath": "github.com/docker/libcompose/config",
 			"Comment": "v0.4.0-44-g9e64d2c",
 			"Rev": "9e64d2cd796891a526a35749de10dfa89c3d9fe0"
@@ -400,6 +410,11 @@
 		},
 		{
 			"ImportPath": "github.com/docker/libcompose/utils",
+			"Comment": "v0.4.0-44-g9e64d2c",
+			"Rev": "9e64d2cd796891a526a35749de10dfa89c3d9fe0"
+		},
+		{
+			"ImportPath": "github.com/docker/libcompose/version",
 			"Comment": "v0.4.0-44-g9e64d2c",
 			"Rev": "9e64d2cd796891a526a35749de10dfa89c3d9fe0"
 		},
