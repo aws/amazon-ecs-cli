@@ -168,6 +168,7 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 	// Check if cfn stack already exists
 	cfnClient.Initialize(ecsParams)
 	stackName := ecsParams.GetCfnStackName()
+	logrus.Warnf("line 171 in cluster_app.go: stackName: %v", stackName)
 	var deleteStack bool
 	if err = cfnClient.ValidateStackExists(stackName); err == nil {
 		if !isForceSet(context) {
