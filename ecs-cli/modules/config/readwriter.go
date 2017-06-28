@@ -201,6 +201,7 @@ func (rdwr *IniReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{},
 	}
 
 	// Create the configMap
+	logrus.Info(ecsSectionKey)
 	if rdwr.IsKeyPresent(ecsSectionKey, "cluster") {
 		configMap["cluster"] = oldFormat.Cluster
 	}
