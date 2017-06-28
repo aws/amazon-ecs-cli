@@ -22,6 +22,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/mock"
 	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
@@ -44,6 +45,7 @@ func TestPopulateContext(t *testing.T) {
 	if err != nil {
 		t.Fatal("Error while creating the dummy ecs config directory")
 	}
+
 	defer os.Remove(tempDirName)
 	os.Setenv("HOME", tempDirName)
 
@@ -51,6 +53,11 @@ func TestPopulateContext(t *testing.T) {
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "secret")
 	defer os.Clearenv()
+
+	// write a dummy ecs config file
+	rdwr, err := config.NewReadWriter()
+	dummyConfig := &config.CliConfig{&config.SectionKeys{Cluster: "testCluster", Region: "us-west-2", AwsAccessKey: "***", AwsSecretKey: "***"}}
+	rdwr.Save(dummyConfig)
 
 	projectFactory := projectFactory{}
 	err = projectFactory.populateContext(ecsContext, cliContext)
@@ -88,6 +95,11 @@ func TestPopulateContextWithGlobalFlagOverrides(t *testing.T) {
 	os.Setenv("AWS_REGION", "us-east-1")
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "secret")
+
+	// write a dummy ecs config file
+	rdwr, err := config.NewReadWriter()
+	dummyConfig := &config.CliConfig{&config.SectionKeys{Cluster: "testCluster", Region: "us-west-2", AwsAccessKey: "***", AwsSecretKey: "***"}}
+	rdwr.Save(dummyConfig)
 
 	defer func() {
 		os.Unsetenv("AWS_REGION")
