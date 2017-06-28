@@ -134,6 +134,48 @@ func TestNewConfigReadWriter(t *testing.T) {
 	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
 }
 
+func TestPrefixesDefaultOldIniFormat(t *testing.T) {
+	configContents := `[ecs]
+cluster = test
+aws_profile =
+region = us-west-2
+aws_access_key_id =
+aws_secret_access_key =
+compose-project-name-prefix = cats
+compose-service-name-prefix = catcats
+cfn-stack-name-prefix = catcatscats
+`
+	dest, err := newMockDestination()
+	assert.NoError(t, err, "Error creating mock config destination")
+
+	logrus.Warn("In Test PrefixesDeafult")
+
+	os.Setenv("HOME", dest.Path)
+	defer os.Clearenv()
+
+	err = os.MkdirAll(dest.Path, *dest.Mode)
+	assert.NoError(t, err, "Could not create config directory")
+
+	defer os.RemoveAll(dest.Path)
+
+	err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configContents), *dest.Mode)
+	assert.NoError(t, err)
+
+	parser := setupParser(t, dest, true)
+	readConfig, configMap, err := parser.GetConfig()
+	logrus.Warnf("rdwrtest line 166: map: %s", configMap)
+	assert.NoError(t, err, "Error reading config")
+	_, ok := configMap[cfnStackNamePrefixKey]
+	assert.True(t, ok, "CFNStackNamePrefix should exist in config")
+	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
+	_, ok = configMap[composeServiceNamePrefixKey]
+	assert.True(t, ok, "Compose service name prefix should exist in config")
+	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
+	_, ok = configMap[composeProjectNamePrefixKey]
+	assert.True(t, ok, "Compose project name prefix should exist in config")
+	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+}
+
 func TestMissingPrefixesOldIniFormat(t *testing.T) {
 	configContentsNoPrefixes := `[ecs]
 cluster = test
@@ -158,7 +200,6 @@ aws_secret_access_key =
 
 	parser := setupParser(t, dest, true)
 	_, configMap, err := parser.GetConfig()
-	logrus.Warnf("rdwrtest line 161: map: %s", configMap)
 	assert.NoError(t, err, "Error reading config")
 	_, ok := configMap[cfnStackNamePrefixKey]
 	assert.False(t, ok, "CFNStackNamePrefix should not exist in config")
