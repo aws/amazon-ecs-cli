@@ -134,7 +134,7 @@ func TestNewConfigReadWriter(t *testing.T) {
 	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
 }
 
-func TestMissingPrefixes(t *testing.T) {
+func TestMissingPrefixesOldIniFormat(t *testing.T) {
 	configContentsNoPrefixes := `[ecs]
 cluster = test
 aws_profile =
@@ -144,6 +144,9 @@ aws_secret_access_key =
 `
 	dest, err := newMockDestination()
 	assert.NoError(t, err, "Error creating mock config destination")
+
+	os.Setenv("HOME", dest.Path)
+	defer os.Clearenv()
 
 	err = os.MkdirAll(dest.Path, *dest.Mode)
 	assert.NoError(t, err, "Could not create config directory")
@@ -155,6 +158,7 @@ aws_secret_access_key =
 
 	parser := setupParser(t, dest, true)
 	_, configMap, err := parser.GetConfig()
+	logrus.Warnf("rdwrtest line 161: map: %s", configMap)
 	assert.NoError(t, err, "Error reading config")
 	_, ok := configMap[cfnStackNamePrefixKey]
 	assert.False(t, ok, "CFNStackNamePrefix should not exist in config")

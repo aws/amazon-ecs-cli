@@ -14,15 +14,12 @@
 package config
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 
 	yaml "gopkg.in/yaml.v2"
-
-	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/go-ini/ini"
@@ -74,40 +71,33 @@ func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}
 		return nil, nil, err
 	}
 
-	// Unfortunately we have to handle the old ini config
+	// Handle the case where the old ini config is still there
 	if strings.HasPrefix(string(dat), "["+ecsSectionKey+"]") {
 		// old ini config
-		iniReadWriter, er := NewIniReadWriter()
-		if er != nil {
-			return nil, nil, err
-		}
-		to, err = iniReadWriter.GetConfig()
+		iniReadWriter, err := NewIniReadWriter()
 		if err != nil {
 			return nil, nil, err
 		}
-		// we will need a map version to return, the yaml ReadWriter makes this Easy
-		// but for ini we need to do it in a more annoying way
-		// (converting the config value we read into yaml bytes)
-		dat, err = yaml.Marshal(&to)
+		to, configMap, err = iniReadWriter.GetConfig()
 		if err != nil {
 			return nil, nil, err
 		}
 
-	}
+	} else {
+		// convert yaml to CliConfig
+		err = yaml.Unmarshal(dat, to)
+		if err != nil {
+			return nil, nil, err
+		}
 
-	// convert yaml to CliConfig
-	err = yaml.Unmarshal(dat, to)
-	if err != nil {
-		return nil, nil, err
-	}
+		// convert yaml to a map (replaces IsKeyPresent functionality)
+		err = yaml.Unmarshal(dat, &configMap)
+		if err != nil {
+			return nil, nil, err
+		}
 
-	// convert yaml to a map (replaces IsKeyPresent functionality)
-	err = yaml.Unmarshal(dat, &configMap)
-	if err != nil {
-		return nil, nil, err
+		configMap = configMap[ecsSectionKey].(map[interface{}]interface{})
 	}
-
-	configMap = configMap[ecsSectionKey].(map[interface{}]interface{})
 	return to, configMap, nil
 }
 
@@ -144,31 +134,10 @@ func (rdwr *YamlReadWriter) Save(cliConfig *CliConfig) error {
 	return nil
 }
 
-//IsKeyPresent returns true if the input key is present in the input section
-// func (rdwr *YamlReadWriter) IsKeyPresent(key string) (bool, error) {
-// 	// read the raw bytes of the config file
-// 	path := configPath(rdwr.destination)
-// 	dat, err := ioutil.ReadFile(path)
-// 	if err != nil {
-// 		return false, err
-// 	}
-// 	// convert yaml to a map
-// 	m := make(map[interface{}]interface{})
-// 	err = yaml.Unmarshal(dat, &m)
-// 	if err != nil {
-// 		return false, err
-// 	}
-//
-// 	_, ok := m[key]
-//
-// 	return ok, nil
-//
-// }
-
-// IniReadWriter implments the ReadWriter interfaces.
+// IniReadWriter
 // It can now only be used to load ecs-cli config.
 // The config files is being migrated to use Yaml
-// Sample ecs-cli config:
+// Sample old ini ecs-cli config:
 // [ecs]
 // cluster = test
 // aws_profile =
@@ -219,31 +188,55 @@ func NewIniReadWriter() (*IniReadWriter, error) {
 }
 
 // GetConfig gets the ecs-cli config object from the config file.
-func (rdwr *IniReadWriter) GetConfig() (*CliConfig, error) {
-	//to := new(CliConfig)
+func (rdwr *IniReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}, error) {
+	configMap := make(map[interface{}]interface{})
 	to := &CliConfig{SectionKeys: new(SectionKeys)}
 
 	// read old ini formatted file
 	oldFormat := new(oldCliConfig)
 	err := rdwr.cfg.MapTo(oldFormat)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+
+	// Sample old ini ecs-cli config:
+	// [ecs]
+	// cluster = test
+	// aws_profile =
+	// region = us-west-2
+	// aws_access_key_id =
+	// aws_secret_access_key =
+	// compose-project-name-prefix = ecscompose-
+	// compose-service-name-prefix =
+	// cfn-stack-name-prefix = ecs-cli-
+
+	// Create the configMap
+	if rdwr.IsKeyPresent(ecsSectionKey, "cluster") {
+		configMap["cluster"] = oldFormat.Cluster
+	}
+	if rdwr.IsKeyPresent(ecsSectionKey, "aws_profile") {
+		configMap["aws_profile"] = oldFormat.AwsProfile
+	}
+	if rdwr.IsKeyPresent(ecsSectionKey, "region") {
+		configMap["region"] = oldFormat.Region
+	}
+	if rdwr.IsKeyPresent(ecsSectionKey, "aws_access_key_id") {
+		configMap["aws_access_key_id"] = oldFormat.AwsAccessKey
+	}
+	if rdwr.IsKeyPresent(ecsSectionKey, "aws_secret_access_key") {
+		configMap["aws_secret_access_key"] = oldFormat.AwsSecretKey
+	}
+	if rdwr.IsKeyPresent(ecsSectionKey, "compose-project-name-prefix") {
+		configMap["compose-project-name-prefix"] = oldFormat.ComposeProjectNamePrefix
+	}
+	if rdwr.IsKeyPresent(ecsSectionKey, "compose-service-name-prefix") {
+		configMap["compose-service-name-prefix"] = oldFormat.ComposeServiceNamePrefix
+	}
+	if rdwr.IsKeyPresent(ecsSectionKey, "cfn-stack-name-prefix") {
+		configMap["cfn-stack-name-prefix"] = oldFormat.CFNStackNamePrefix
 	}
 
 	// Convert to the new CliConfig
-	// Unfortunately we have to handle putting in the default values here
-	// thanfully, this code will eventually be removed one day
-	// (when we no longer support the old ini configs)
-	// If Prefixes not found, set to defaults.
-	if !rdwr.IsKeyPresent(ecsSectionKey, composeProjectNamePrefixKey) {
-		oldFormat.ComposeProjectNamePrefix = ecscli.ComposeProjectNamePrefixDefaultValue
-	}
-	if !rdwr.IsKeyPresent(ecsSectionKey, composeServiceNamePrefixKey) {
-		oldFormat.ComposeServiceNamePrefix = ecscli.ComposeServiceNamePrefixDefaultValue
-	}
-	if !rdwr.IsKeyPresent(ecsSectionKey, cfnStackNamePrefixKey) {
-		oldFormat.CFNStackNamePrefix = ecscli.CFNStackNamePrefixDefaultValue
-	}
 	to.Cluster = oldFormat.Cluster
 	to.Region = oldFormat.Region
 	to.AwsProfile = oldFormat.AwsProfile
@@ -252,8 +245,7 @@ func (rdwr *IniReadWriter) GetConfig() (*CliConfig, error) {
 	to.ComposeProjectNamePrefix = oldFormat.ComposeProjectNamePrefix
 	to.ComposeServiceNamePrefix = oldFormat.ComposeServiceNamePrefix
 	to.CFNStackNamePrefix = oldFormat.CFNStackNamePrefix
-	logrus.Warn("to: " + fmt.Sprintf("%#v", to.SectionKeys) + " \noldFormat: " + fmt.Sprintf("%#v", oldFormat.oldSectionKeys))
-	return to, nil
+	return to, configMap, nil
 }
 
 // IsInitialized returns true if the config file can be read and if all the key config fields
@@ -275,59 +267,6 @@ func (rdwr *IniReadWriter) IsInitialized() (bool, error) {
 // IsKeyPresent returns true if the input key is present in the input section
 func (rdwr *IniReadWriter) IsKeyPresent(section, key string) bool {
 	return rdwr.cfg.Section(section).HasKey(key)
-}
-
-// ReadFrom initializes the ini object from an existing ecs-cli config object.
-// NOTE: This method should not be used anymore since we have moved to YAML.
-// IniReadWriter is only used to read old ini formmatted config files; all
-// writes should be to YAML formatted files.
-func (rdwr *IniReadWriter) ReadFrom(ecsConfig *CliConfig) error {
-	return rdwr.cfg.ReflectFrom(ecsConfig)
-}
-
-// Save saves the config to a config file.
-// NOTE: This method should not be used anymore since we have moved to YAML.
-// IniReadWriter is only used to read old ini formmatted config files; all
-// writes should be to YAML formatted files.
-func (rdwr *IniReadWriter) Save(dest *Destination) error {
-	destMode := dest.Mode
-	err := os.MkdirAll(dest.Path, *destMode)
-	if err != nil {
-		return err
-	}
-
-	path := configPath(dest)
-
-	// If config file exists, set permissions first, because we may be writing creds.
-	if _, err := os.Stat(path); err == nil {
-		err = os.Chmod(path, configFileMode)
-		if err != nil {
-			logrus.Errorf("Unable to chmod %s to mode %s", path, configFileMode)
-			return err
-		}
-	}
-
-	// Open the file, optionally creating it with our desired permissions.
-	// This will let us pass it (as io.Writer) to go-ini but let us control the file.
-	configFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, configFileMode)
-
-	// Truncate the file in case the earlier contents are longer than the new
-	// contents, so there will not be any trash at the end of the file
-	configFile.Truncate(0)
-
-	if err != nil {
-		logrus.Errorf("Unable to open/create %s with mode %s", path, configFileMode)
-		return err
-	}
-	defer configFile.Close()
-
-	_, err = rdwr.cfg.WriteTo(configFile)
-	if err != nil {
-		logrus.Errorf("Unable to write config to %s", path)
-		return err
-	}
-
-	return nil
 }
 
 func configPath(dest *Destination) string {
