@@ -14,12 +14,11 @@
 package factory
 
 import (
-	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
-	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
-
+	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
+	libcomposecommand "github.com/docker/libcompose/cli/command"
 	"github.com/urfave/cli"
 )
 
@@ -58,10 +57,12 @@ func (projectFactory projectFactory) Create(cliContext *cli.Context, isService b
 
 // populateContext sets the required CLI arguments to the context
 func (projectFactory projectFactory) populateContext(ecsContext *context.Context, cliContext *cli.Context) error {
-	// populate CLI context
-	// TODO: Support multiple compose files
-	ecsContext.ComposeFiles = []string{cliContext.GlobalString(command.ComposeFileNameFlag)}
-	ecsContext.ProjectName = cliContext.GlobalString(command.ProjectNameFlag)
+	/*
+	 Populate the following libcompose fields to context
+	 - ComposeFiles: reads from `--file` or `-f` flags. Defaults to `docker-compose.yml` and `docker-compose.override.yml` if no flags are specified.
+	 - ProjectName: reads from `--project-name` or `-p` flags.
+	*/
+	libcomposecommand.Populate(&ecsContext.Context, cliContext)
 	ecsContext.CLIContext = cliContext
 
 	// reads and sets the parameters (required to create ECS Service Client) from the cli context to ecs context

@@ -67,7 +67,11 @@ func TestPopulateContext(t *testing.T) {
 func TestPopulateContextWithGlobalFlagOverrides(t *testing.T) {
 	// populate when compose file and project name flag overrides are provided
 	overrides := flag.NewFlagSet("ecs-cli", 0)
-	overrides.String(command.ComposeFileNameFlag, composeFileNameTest, "")
+	composeFiles := &cli.StringSlice{}
+	composeFiles.Set(composeFileNameTest)
+	// test multiple --file
+	composeFiles.Set("docker-compose-test2.yml")
+	overrides.Var(composeFiles, command.ComposeFileNameFlag, "")
 	overrides.String(command.ProjectNameFlag, projectNameTest, "")
 	parentContext := cli.NewContext(nil, overrides, nil)
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
@@ -96,7 +100,7 @@ func TestPopulateContextWithGlobalFlagOverrides(t *testing.T) {
 	err = projectFactory.populateContext(ecsContext, cliContext)
 
 	assert.NoError(t, err, "Unexpected error")
-	assert.Len(t, ecsContext.ComposeFiles, 1, "Expected composeFiles to be set")
+	assert.Len(t, ecsContext.ComposeFiles, 2, "Expected composeFiles to be set")
 	assert.Equal(t, composeFileNameTest, ecsContext.ComposeFiles[0], "Expected compose file to match")
 	assert.Equal(t, projectNameTest, ecsContext.ProjectName, "Expected project name to match")
 }

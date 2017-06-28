@@ -42,8 +42,9 @@ import (
 //* --------------------------------------------------- */
 
 const (
-	composeFileNameDefaultValue = "docker-compose.yml"
-	containerNameFlag           = "name"
+	composeFileNameDefaultValue         = "docker-compose.yml"
+	composeOverrideFileNameDefaultValue = "docker-compose.override.yml"
+	containerNameFlag                   = "name"
 )
 
 // ComposeCommand provides a list of commands that operate on docker-compose.yml file and are integrated to run on ECS.
@@ -79,10 +80,10 @@ func composeFlags() []cli.Flag {
 			Name:  command.VerboseFlag + ",debug",
 			Usage: "Increase the verbosity of command output to aid in diagnostics.",
 		},
-		cli.StringFlag{
+		cli.StringSliceFlag{
 			Name:   command.ComposeFileNameFlag + ",f",
-			Usage:  "Specifies the Docker compose file to use. Defaults to " + composeFileNameDefaultValue + " file.",
-			Value:  composeFileNameDefaultValue,
+			Usage:  "Specifies one or more Docker compose files to use. Defaults to " + composeFileNameDefaultValue + " file, and an optional " + composeOverrideFileNameDefaultValue + " file.",
+			Value:  &cli.StringSlice{},
 			EnvVar: "COMPOSE_FILE",
 		},
 		cli.StringFlag{
