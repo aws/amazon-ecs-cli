@@ -25,6 +25,7 @@ import (
 
 const (
 	ecsSectionKey               = "ecs"
+	ecsVersionKey               = "v1"
 	composeProjectNamePrefixKey = "compose-project-name-prefix"
 	composeServiceNamePrefixKey = "compose-service-name-prefix"
 	cfnStackNamePrefixKey       = "cfn-stack-name-prefix"
@@ -33,7 +34,7 @@ const (
 // CliConfig is the top level struct used to map to the yaml config.
 type CliConfig struct {
 	// TODO Add metadata information like version etc.
-	*SectionKeys `yaml:"ecs"`
+	*SectionKeys `yaml:"v1"`
 }
 
 // SectionKeys is the struct embedded in CliConfig. It groups all the keys in the 'ecs' section in the yaml file.

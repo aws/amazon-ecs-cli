@@ -283,7 +283,7 @@ aws_secret_access_key =
 }
 
 func TestMissingPrefixesNewYamlFormat(t *testing.T) {
-	configContentsNoPrefixes := `ecs:
+	configContentsNoPrefixes := `v1:
    cluster: test
    aws_profile:
    region:us-west-2:
@@ -320,7 +320,7 @@ func TestMissingPrefixesNewYamlFormat(t *testing.T) {
 }
 
 func TestPrefixesDefaultNewYamlFormat(t *testing.T) {
-	configContents := `ecs:
+	configContents := `v1:
   cluster: test
   aws_profile:
   region: us-west-2
@@ -328,7 +328,7 @@ func TestPrefixesDefaultNewYamlFormat(t *testing.T) {
   aws_secret_access_key:
   compose-project-name-prefix:
   compose-service-name-prefix:
-  cfn-stack-name-prefix: 
+  cfn-stack-name-prefix:
 `
 	dest, err := newMockDestination()
 	assert.NoError(t, err, "Error creating mock config destination")

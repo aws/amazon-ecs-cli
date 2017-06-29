@@ -14,6 +14,7 @@
 package config
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -93,8 +94,12 @@ func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}
 		if err != nil {
 			return nil, nil, err
 		}
+		tmpMap, ok := configMap[ecsVersionKey].(map[interface{}]interface{})
+		if !ok {
+			return nil, nil, errors.New("Interface conversion panic; config file may not be the right version.")
+		}
+		configMap = tmpMap
 
-		configMap = configMap[ecsSectionKey].(map[interface{}]interface{})
 	}
 	return to, configMap, nil
 }
