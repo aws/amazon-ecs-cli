@@ -61,19 +61,19 @@ func NewReadWriter() (*YamlReadWriter, error) {
 
 // GetConfig gets the ecs-cli config object from the config file.
 func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}, error) {
-	logrus.Warn("Called GetConfig")
-
 	to := new(CliConfig)
 	configMap := make(map[interface{}]interface{})
 	// read the raw bytes of the config file
 	iniPath := iniConfigPath(rdwr.destination)
-
-	logrus.Warnf("rdwrv1: iniPath: %s", iniPath)
+	yamlPath := yamlConfigPath(rdwr.destination)
 
 	// Handle the case where the old ini config is still there
+	// if ini exists and yaml does not exist, read ini
+	// if both exist, read yaml
+	// if neither exist, try to read yaml and then return file not found
 	_, err := os.Stat(iniPath)
-	if err == nil { // file exists
-		logrus.Warn("File is ini")
+	_, yamlErr := os.Stat(yamlPath)
+	if err == nil && yamlErr != nil { // file exists
 		// old ini config
 		iniReadWriter, err := NewIniReadWriter()
 		if err != nil {
@@ -85,12 +85,9 @@ func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}
 		}
 
 	} else {
-		logrus.Warn("file is yaml")
 		// If the ini file didn't exist, then we assume the yaml file exists
 		// if it doesn't, then throw error
 		// convert yaml to CliConfig
-		yamlPath := yamlConfigPath(rdwr.destination)
-		logrus.Warnf("rdwrv1: yamlPath: %s", yamlPath)
 		dat, err := ioutil.ReadFile(yamlPath)
 		if err != nil {
 			return nil, nil, err

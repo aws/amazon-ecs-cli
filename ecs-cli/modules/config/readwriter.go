@@ -55,8 +55,6 @@ func NewIniReadWriter() (*IniReadWriter, error) {
 		return nil, err
 	}
 
-	logrus.Warnf("defaultDestination: %s", dest.Path)
-
 	iniCfg, err := newIniConfig(dest)
 	if err != nil {
 		return nil, err

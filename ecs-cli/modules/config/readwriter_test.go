@@ -19,7 +19,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -114,8 +113,6 @@ func saveConfigOldIniFormat(t *testing.T, dest *Destination, cliConfig *oldCliCo
 	// Open the file, optionally creating it with our desired permissions.
 	// This will let us pass it (as io.Writer) to go-ini but let us control the file.
 	configFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, configFileMode)
-	logrus.Warnf("saveConfigOldIniFormat: Writing to path: %s", path)
-
 	// Truncate the file in case the earlier contents are longer than the new
 	// contents, so there will not be any trash at the end of the file
 	configFile.Truncate(0)
@@ -166,8 +163,6 @@ func TestPrefixesEmptyNewYamlFormat(t *testing.T) {
 func TestPrefixesEmptyOldIniFormat(t *testing.T) {
 	dest, err := newMockDestination()
 	assert.NoError(t, err, "Error creating mock config destination")
-	logrus.Warnf("-----In PrefixesEmptyIni")
-
 	//set HOME
 	os.Setenv("HOME", dest.Path)
 	defer os.Clearenv()
