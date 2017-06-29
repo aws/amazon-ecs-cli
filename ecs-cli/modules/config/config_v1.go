@@ -17,85 +17,126 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Sirupsen/logrus"
-	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	cli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/urfave/cli"
 )
 
-// CliParams saves config to create an aws service clients
-type CliParams struct {
-	Cluster                  string
-	Session                  *session.Session
-	ComposeProjectNamePrefix string
-	ComposeServiceNamePrefix string
-	CFNStackNamePrefix       string
+const (
+	configVersion               = "v1"
+	composeProjectNamePrefixKey = "compose-project-name-prefix"
+	composeServiceNamePrefixKey = "compose-service-name-prefix"
+	cfnStackNamePrefixKey       = "cfn-stack-name-prefix"
+)
+
+// CliConfig is the top level struct used to map to the yaml config.
+// Version: v1 = YAML formatted configs split profile and cluster
+type CliConfig struct {
+	Version                  string `yaml:"version"`
+	Cluster                  string `yaml:"cluster"`
+	AwsProfile               string `yaml:"aws_profile"`
+	Region                   string `yaml:"region"`
+	AwsAccessKey             string `yaml:"aws_access_key_id"`
+	AwsSecretKey             string `yaml:"aws_secret_access_key"`
+	ComposeProjectNamePrefix string `yaml:"compose-project-name-prefix"`
+	ComposeServiceNamePrefix string `yaml:"compose-service-name-prefix"`
+	CFNStackNamePrefix       string `yaml:"cfn-stack-name-prefix"`
 }
 
-// GetCfnStackName <cfn_stack_name_prefix> + <cluster_name>
-func (p *CliParams) GetCfnStackName() string {
-	return fmt.Sprintf("%s%s", p.CFNStackNamePrefix, p.Cluster)
+// NewCliConfig creates a new instance of CliConfig from the cluster name.
+func NewCliConfig(cluster string) *CliConfig {
+	return &CliConfig{Cluster: cluster}
 }
 
-// Searches as far up the context as necesarry. This function works no matter
-// how many layers of nested subcommands there are. It is more powerful
-// than merely calling context.String and context.GlobalString
-func recursiveFlagSearch(context *cli.Context, flag string) string {
-	if context == nil {
-		return ""
-	} else if value := context.String(flag); value != "" {
-		return value
-	} else {
-		return recursiveFlagSearch(context.Parent(), flag)
+// ToAWSSession creates a new Session object from the CliConfig object.
+//
+// Region: Order of resolution
+//  1) Environment Variable - attempts to fetch the region from environment variables:
+//    a) AWS_REGION (OR)
+//    b) AWS_DEFAULT_REGION
+//  2) ECS Config - attempts to fetch the region from the ECS config file
+//  3) AWS Profile - attempts to use region from AWS profile name
+//    a) profile name from ECS config file (OR)
+//    b) AWS_PROFILE environment variable (OR)
+//    c) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
+//
+// Credentials: Order of resolution
+//  1) Environment Variable - attempts to fetch the credentials from environment variables:
+//   a) AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY (OR)
+//   b) AWS_ACCESS_KEY and AWS_SECRET_KEY
+//  2) ECS Config - attempts to fetch the credentials from the ECS config file
+//  3) AWS Profile - attempts to use credentials (aws_access_key_id, aws_secret_access_key) or assume_role (role_arn, source_profile) from AWS profile name
+//    a) profile name from ECS config file (OR)
+//    b) AWS_PROFILE environment variable (OR)
+//    c) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
+//  4) EC2 Instance role
+func (cfg *CliConfig) ToAWSSession() (*session.Session, error) {
+	svcConfig := aws.Config{}
+	return cfg.toAWSSessionWithConfig(svcConfig)
+}
+
+func (cfg *CliConfig) toAWSSessionWithConfig(svcConfig aws.Config) (*session.Session, error) {
+	credentialProviders := cfg.getInitialCredentialProviders()
+	chainCredentials := credentials.NewChainCredentials(credentialProviders)
+	if _, err := chainCredentials.Get(); err == nil {
+		svcConfig.Credentials = chainCredentials
 	}
-}
 
-// NewCliParams creates a new ECSParams object from the config file.
-func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
-	ecsConfig, configMap, err := rdwr.GetConfig()
+	svcConfig.Region = aws.String(cfg.getRegion())
+
+	svcSession, err := session.NewSessionWithOptions(session.Options{
+		Config:            svcConfig,
+		Profile:           cfg.AwsProfile,
+		SharedConfigState: session.SharedConfigEnable,
+	})
 	if err != nil {
-		logrus.Error("Error loading config: ", err)
 		return nil, err
 	}
-
-	// If Prefixes not found, set to defaults.
-	if _, ok := configMap[composeProjectNamePrefixKey]; !ok {
-		ecsConfig.ComposeProjectNamePrefix = ecscli.ComposeProjectNamePrefixDefaultValue
-	}
-	if _, ok := configMap[composeServiceNamePrefixKey]; !ok {
-		ecsConfig.ComposeServiceNamePrefix = ecscli.ComposeServiceNamePrefixDefaultValue
-	}
-	if _, ok := configMap[cfnStackNamePrefixKey]; !ok {
-		ecsConfig.CFNStackNamePrefix = ecscli.CFNStackNamePrefixDefaultValue
+	region := *svcSession.Config.Region
+	if region == "" {
+		return nil, fmt.Errorf("Set a region using ecs-cli configure command with the --%s flag or %s environment variable or --%s flag", cli.RegionFlag, cli.AwsRegionEnvVar, cli.ProfileFlag)
 	}
 
-	// Order of cluster resolution
-	//  1) Inline flag
-	//  2) Environment Variable
-	//  3) ECS Config
-	if clusterFromEnv := os.Getenv(ecscli.ClusterEnvVar); clusterFromEnv != "" {
-		ecsConfig.Cluster = clusterFromEnv
+	return svcSession, nil
+}
+
+// getInitialCredentialProviders gets the starting chain of credential providers to use when creating service clients.
+func (cfg *CliConfig) getInitialCredentialProviders() []credentials.Provider {
+	// Append providers in the default credential providers chain to the chain.
+	// Order of credential resolution
+	//  1) Environment Variable
+	//  2) ECS Config
+	// the rest are handled by session.NewSessionWithOptions invoked in ToAWSSession()
+	credentialProviders := []credentials.Provider{
+		&credentials.EnvProvider{},
+		&credentials.StaticProvider{
+			Value: credentials.Value{
+				AccessKeyID:     cfg.AwsAccessKey,
+				SecretAccessKey: cfg.AwsSecretKey,
+			},
+		},
 	}
 
-	if clusterFromFlag := recursiveFlagSearch(context, ecscli.ClusterFlag); clusterFromFlag != "" {
-		ecsConfig.Cluster = clusterFromFlag
-	}
+	return credentialProviders
+}
 
-	//--region flag has the highest precedence to set ecs-cli region config.
-	if regionFromFlag := recursiveFlagSearch(context, ecscli.RegionFlag); regionFromFlag != "" {
-		ecsConfig.Region = regionFromFlag
+// getRegion gets the region to use from environment variables or ecs-cli's config file..
+func (cfg *CliConfig) getRegion() string {
+	// Order of region resolution
+	//  1) Environment Variable
+	//  2) ECS Config
+	// the rest are handled by session.NewSessionWithOptions invoked in ToAWSSession()
+	region := ""
+	// Search the chain of environment variables for region.
+	for _, envVar := range []string{cli.AwsRegionEnvVar, cli.AwsDefaultRegionEnvVar} {
+		region = os.Getenv(envVar)
+		if region != "" {
+			break
+		}
 	}
-
-	svcSession, err := ecsConfig.ToAWSSession()
-	if err != nil {
-		return nil, err
+	if region == "" {
+		region = cfg.Region
 	}
-
-	return &CliParams{
-		Cluster:                  ecsConfig.Cluster,
-		Session:                  svcSession,
-		ComposeProjectNamePrefix: ecsConfig.ComposeProjectNamePrefix,
-		ComposeServiceNamePrefix: ecsConfig.ComposeServiceNamePrefix,
-		CFNStackNamePrefix:       ecsConfig.CFNStackNamePrefix,
-	}, nil
+	return region
 }
