@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -75,7 +76,7 @@ func TestConfigPermissions(t *testing.T) {
 	// Create config file and confirm it has expected initial permissions
 	saveConfigWithCluster(t, parser, dest)
 
-	path := configPath(dest)
+	path := yamlConfigPath(dest)
 	confirmConfigMode(t, path, configFileMode)
 
 	// Now set the config mode to something bad
@@ -108,11 +109,12 @@ func saveConfigOldIniFormat(t *testing.T, dest *Destination, cliConfig *oldCliCo
 	assert.NoError(t, err, "Unable to create Ini Config for %s", dest.Path)
 	// set the CliConfig
 	iniConfig.ReflectFrom(cliConfig)
-	path := configPath(dest)
+	path := iniConfigPath(dest)
 
 	// Open the file, optionally creating it with our desired permissions.
 	// This will let us pass it (as io.Writer) to go-ini but let us control the file.
 	configFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, configFileMode)
+	logrus.Warnf("saveConfigOldIniFormat: Writing to path: %s", path)
 
 	// Truncate the file in case the earlier contents are longer than the new
 	// contents, so there will not be any trash at the end of the file
@@ -130,6 +132,10 @@ func saveConfigOldIniFormat(t *testing.T, dest *Destination, cliConfig *oldCliCo
 func TestPrefixesEmptyNewYamlFormat(t *testing.T) {
 	dest, err := newMockDestination()
 	assert.NoError(t, err, "Error creating mock config destination")
+
+	//set HOME
+	os.Setenv("HOME", dest.Path)
+	defer os.Clearenv()
 
 	parser := setupParser(t, dest, false)
 
@@ -160,6 +166,7 @@ func TestPrefixesEmptyNewYamlFormat(t *testing.T) {
 func TestPrefixesEmptyOldIniFormat(t *testing.T) {
 	dest, err := newMockDestination()
 	assert.NoError(t, err, "Error creating mock config destination")
+	logrus.Warnf("-----In PrefixesEmptyIni")
 
 	//set HOME
 	os.Setenv("HOME", dest.Path)
@@ -228,7 +235,7 @@ cfn-stack-name-prefix =
 
 	defer os.RemoveAll(dest.Path)
 
-	err = ioutil.WriteFile(configPath(dest), []byte(configContents), *dest.Mode)
+	err = ioutil.WriteFile(iniConfigPath(dest), []byte(configContents), *dest.Mode)
 	assert.NoError(t, err)
 
 	parser := setupParser(t, dest, true)
@@ -268,7 +275,7 @@ aws_secret_access_key =
 
 	defer os.RemoveAll(dest.Path)
 
-	err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configContentsNoPrefixes), *dest.Mode)
+	err = ioutil.WriteFile(dest.Path+"/"+iniConfigFileName, []byte(configContentsNoPrefixes), *dest.Mode)
 	assert.NoError(t, err)
 
 	parser := setupParser(t, dest, true)
@@ -305,7 +312,7 @@ func TestMissingPrefixesNewYamlFormat(t *testing.T) {
 
 	defer os.RemoveAll(dest.Path)
 
-	err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configContentsNoPrefixes), *dest.Mode)
+	err = ioutil.WriteFile(dest.Path+"/"+yamlConfigFileName, []byte(configContentsNoPrefixes), *dest.Mode)
 	assert.NoError(t, err)
 
 	parser := setupParser(t, dest, true)
@@ -345,7 +352,7 @@ func TestPrefixesDefaultNewYamlFormat(t *testing.T) {
 
 	defer os.RemoveAll(dest.Path)
 
-	err = ioutil.WriteFile(configPath(dest), []byte(configContents), *dest.Mode)
+	err = ioutil.WriteFile(yamlConfigPath(dest), []byte(configContents), *dest.Mode)
 	assert.NoError(t, err)
 
 	parser := setupParser(t, dest, true)
@@ -384,7 +391,7 @@ cfn-stack-name-prefix = amazon-ecs-cli-setup-
 	defer os.RemoveAll(dest.Path)
 
 	// Save config for the first time
-	err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configContents), *dest.Mode)
+	err = ioutil.WriteFile(dest.Path+"/"+iniConfigFileName, []byte(configContents), *dest.Mode)
 	assert.NoError(t, err)
 
 	// Save config with shorter cluster name

@@ -18,7 +18,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 
 	yaml "gopkg.in/yaml.v2"
 
@@ -26,8 +25,8 @@ import (
 )
 
 const (
-	configFileName = "config"
-	configFileMode = os.FileMode(0600)
+	yamlConfigFileName = "config.yml"
+	configFileMode     = os.FileMode(0600)
 )
 
 // ReadWriter interface has methods to read and write ecs-cli config to and from the config file.
@@ -62,16 +61,19 @@ func NewReadWriter() (*YamlReadWriter, error) {
 
 // GetConfig gets the ecs-cli config object from the config file.
 func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}, error) {
+	logrus.Warn("Called GetConfig")
+
 	to := new(CliConfig)
 	configMap := make(map[interface{}]interface{})
 	// read the raw bytes of the config file
-	path := configPath(rdwr.destination)
-	dat, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, nil, err
-	}
+	iniPath := iniConfigPath(rdwr.destination)
+
+	logrus.Warnf("rdwrv1: iniPath: %s", iniPath)
+
 	// Handle the case where the old ini config is still there
-	if strings.HasPrefix(string(dat), "["+ecsSectionKey+"]") {
+	_, err := os.Stat(iniPath)
+	if err == nil { // file exists
+		logrus.Warn("File is ini")
 		// old ini config
 		iniReadWriter, err := NewIniReadWriter()
 		if err != nil {
@@ -83,7 +85,16 @@ func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}
 		}
 
 	} else {
+		logrus.Warn("file is yaml")
+		// If the ini file didn't exist, then we assume the yaml file exists
+		// if it doesn't, then throw error
 		// convert yaml to CliConfig
+		yamlPath := yamlConfigPath(rdwr.destination)
+		logrus.Warnf("rdwrv1: yamlPath: %s", yamlPath)
+		dat, err := ioutil.ReadFile(yamlPath)
+		if err != nil {
+			return nil, nil, err
+		}
 		err = yaml.Unmarshal(dat, to)
 		if err != nil {
 			return nil, nil, err
@@ -111,7 +122,7 @@ func (rdwr *YamlReadWriter) Save(cliConfig *CliConfig) error {
 		return err
 	}
 
-	path := configPath(rdwr.destination)
+	path := yamlConfigPath(rdwr.destination)
 
 	// If config file exists, set permissions first, because we may be writing creds.
 	if _, err := os.Stat(path); err == nil {
@@ -137,6 +148,10 @@ func (rdwr *YamlReadWriter) Save(cliConfig *CliConfig) error {
 	return nil
 }
 
-func configPath(dest *Destination) string {
-	return filepath.Join(dest.Path, configFileName)
+func yamlConfigPath(dest *Destination) string {
+	return filepath.Join(dest.Path, yamlConfigFileName)
+}
+
+func iniConfigPath(dest *Destination) string {
+	return filepath.Join(dest.Path, iniConfigFileName)
 }

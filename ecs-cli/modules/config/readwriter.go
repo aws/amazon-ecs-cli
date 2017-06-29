@@ -25,6 +25,10 @@ import (
 	"github.com/go-ini/ini"
 )
 
+const (
+	iniConfigFileName = "config"
+)
+
 // IniReadWriter
 // It can now only be used to load ecs-cli config.
 // The config files is being migrated to use Yaml
@@ -50,6 +54,8 @@ func NewIniReadWriter() (*IniReadWriter, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	logrus.Warnf("defaultDestination: %s", dest.Path)
 
 	iniCfg, err := newIniConfig(dest)
 	if err != nil {
@@ -132,7 +138,7 @@ func (rdwr *IniReadWriter) IsKeyPresent(section, key string) bool {
 
 func newIniConfig(dest *Destination) (*ini.File, error) {
 	iniCfg := ini.Empty()
-	path := configPath(dest)
+	path := iniConfigPath(dest)
 	logrus.Debugf("using config file: %s", path)
 	if _, err := os.Stat(path); err != nil {
 		// TODO: handle os.isnotexist(path) and other errors differently
