@@ -70,8 +70,6 @@ func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}
 	if err != nil {
 		return nil, nil, err
 	}
-	logrus.Warn("Raw file read: " + string(dat))
-
 	// Handle the case where the old ini config is still there
 	if strings.HasPrefix(string(dat), "["+ecsSectionKey+"]") {
 		// old ini config
@@ -201,7 +199,6 @@ func (rdwr *IniReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{},
 	}
 
 	// Create the configMap
-	logrus.Info(ecsSectionKey)
 	if rdwr.IsKeyPresent(ecsSectionKey, "cluster") {
 		configMap["cluster"] = oldFormat.Cluster
 	}
@@ -236,9 +233,6 @@ func (rdwr *IniReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{},
 	to.ComposeProjectNamePrefix = oldFormat.ComposeProjectNamePrefix
 	to.ComposeServiceNamePrefix = oldFormat.ComposeServiceNamePrefix
 	to.CFNStackNamePrefix = oldFormat.CFNStackNamePrefix
-	logrus.Warnf("RDRW line 238: map: %s", configMap)
-	logrus.Warnf("RDRW line 238: config: %s", *(to.SectionKeys))
-	logrus.Warnf("RDRW line 238: config: %s", *(oldFormat.oldSectionKeys))
 	return to, configMap, nil
 }
 

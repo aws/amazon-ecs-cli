@@ -16,9 +16,8 @@ package config
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"testing"
-
-	"github.com/Sirupsen/logrus"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -148,7 +147,6 @@ func TestPrefixesEmptyNewYamlFormat(t *testing.T) {
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, testClusterName, readConfig.Cluster, "Cluster name mismatch in config.")
 	_, ok := configMap[composeProjectNamePrefixKey]
-	logrus.Warn(ok)
 	assert.True(t, ok, "Compose project prefix name should exist in config.")
 	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
 	_, ok = configMap[composeServiceNamePrefixKey]
@@ -160,8 +158,6 @@ func TestPrefixesEmptyNewYamlFormat(t *testing.T) {
 }
 
 func TestPrefixesEmptyOldIniFormat(t *testing.T) {
-	logrus.Info("In PrefixesIni")
-
 	dest, err := newMockDestination()
 	assert.NoError(t, err, "Error creating mock config destination")
 
@@ -169,27 +165,25 @@ func TestPrefixesEmptyOldIniFormat(t *testing.T) {
 	os.Setenv("HOME", dest.Path)
 	defer os.Clearenv()
 
+	// we are using newMockDestination to be "HOME"
+	// append .ecs to it to create the ecs config directory
+	dest.Path = filepath.Join(dest.Path, ".ecs")
+
 	err = os.MkdirAll(dest.Path, *dest.Mode)
 	assert.NoError(t, err, "Could not create config directory")
-
-	path := configPath(dest)
-
 	//defer os.RemoveAll(dest.Path)
 
-	keys := oldSectionKeys{Cluster: testClusterName, Region: testRegion, AwsProfile: testAWSProfile}
-	// keys.Cluster = testClusterName
-	// keys.Region = testRegion
-	// keys.AwsProfile = testAWSProfile
-	// keys.ComposeProjectNamePrefix = ""
-	// keys.ComposeServiceNamePrefix = ""
-	// keys.CFNStackNamePrefix = "narnia"
+	keys := oldSectionKeys{}
+	keys.Cluster = testClusterName
+	keys.Region = testRegion
+	keys.AwsProfile = testAWSProfile
+	keys.ComposeProjectNamePrefix = ""
+	keys.ComposeServiceNamePrefix = ""
+	keys.CFNStackNamePrefix = ""
 	ecsConfig := &oldCliConfig{oldSectionKeys: &keys}
 
 	// save to file
 	saveConfigOldIniFormat(t, dest, ecsConfig)
-
-	dat, err := ioutil.ReadFile(path)
-	logrus.Warnf("Raw File Contents; TestPrefixesEmptyOldIniFormat\n %s", string(dat))
 
 	// Reinitialize from the written file.
 	parser := setupParser(t, dest, true)
@@ -198,93 +192,175 @@ func TestPrefixesEmptyOldIniFormat(t *testing.T) {
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, testClusterName, readConfig.Cluster, "Cluster name mismatch in config.")
 	_, ok := configMap[composeProjectNamePrefixKey]
-	logrus.Warn(ok)
 	assert.True(t, ok, "Compose project prefix name should exist in config.")
 	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
-	// _, ok = configMap[composeServiceNamePrefixKey]
-	// assert.True(t, ok, "Compose service name prefix should exist in config.")
-	// assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
-	// _, ok = configMap[cfnStackNamePrefixKey]
-	// assert.True(t, ok, "CFNStackNamePrefix should exist in config.")
-	// assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+	_, ok = configMap[composeServiceNamePrefixKey]
+	assert.True(t, ok, "Compose service name prefix should exist in config.")
+	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
+	_, ok = configMap[cfnStackNamePrefixKey]
+	assert.True(t, ok, "CFNStackNamePrefix should exist in config.")
+	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
 }
 
-// func TestPrefixesDefaultOldIniFormat(t *testing.T) {
-// 	configContents := `[ecs]
-// cluster = test
-// aws_profile =
-// region = us-west-2
-// aws_access_key_id =
-// aws_secret_access_key =
-// compose-project-name-prefix =
-// compose-service-name-prefix =
-// cfn-stack-name-prefix =
-// `
-// 	dest, err := newMockDestination()
-// 	assert.NoError(t, err, "Error creating mock config destination")
-//
-// 	logrus.Warn("In Test PrefixesDeafult")
-//
-// 	os.Setenv("HOME", dest.Path)
-// 	defer os.Clearenv()
-//
-// 	logrus.Info("path= " + dest.Path)
-//
-// 	err = os.MkdirAll(dest.Path, *dest.Mode)
-// 	assert.NoError(t, err, "Could not create config directory")
-//
-// 	defer os.RemoveAll(dest.Path)
-//
-// 	err = ioutil.WriteFile(configPath(dest), []byte(configContents), *dest.Mode)
-// 	assert.NoError(t, err)
-//
-// 	parser := setupParser(t, dest, true)
-// 	readConfig, configMap, err := parser.GetConfig()
-// 	logrus.Warnf("rdwrtest line 166: map: %s", configMap)
-// 	assert.NoError(t, err, "Error reading config")
-// 	_, ok := configMap[cfnStackNamePrefixKey]
-// 	assert.True(t, ok, "CFNStackNamePrefix should exist in config")
-// 	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
-// 	_, ok = configMap[composeServiceNamePrefixKey]
-// 	assert.True(t, ok, "Compose service name prefix should exist in config")
-// 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
-// 	_, ok = configMap[composeProjectNamePrefixKey]
-// 	assert.True(t, ok, "Compose project name prefix should exist in config")
-// 	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
-// }
-//
-// func TestMissingPrefixesOldIniFormat(t *testing.T) {
-// 	configContentsNoPrefixes := `[ecs]
-// cluster = test
-// aws_profile =
-// region = us-west-2
-// aws_access_key_id =
-// aws_secret_access_key =
-// `
-// 	dest, err := newMockDestination()
-// 	assert.NoError(t, err, "Error creating mock config destination")
-//
-// 	os.Setenv("HOME", dest.Path)
-// 	defer os.Clearenv()
-//
-// 	err = os.MkdirAll(dest.Path, *dest.Mode)
-// 	assert.NoError(t, err, "Could not create config directory")
-//
-// 	defer os.RemoveAll(dest.Path)
-//
-// 	err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configContentsNoPrefixes), *dest.Mode)
-// 	assert.NoError(t, err)
-//
-// 	parser := setupParser(t, dest, true)
-// 	_, configMap, err := parser.GetConfig()
-// 	assert.NoError(t, err, "Error reading config")
-// 	_, ok := configMap[cfnStackNamePrefixKey]
-// 	assert.False(t, ok, "CFNStackNamePrefix should not exist in config")
-// 	_, ok = configMap[composeServiceNamePrefixKey]
-// 	assert.False(t, ok, "Compose service name prefix should not exist in config")
-// 	_, ok = configMap[composeProjectNamePrefixKey]
-// 	assert.False(t, ok, "Compose project name prefix should not exist in config")
-// }
+func TestPrefixesDefaultOldIniFormat(t *testing.T) {
+	configContents := `[ecs]
+cluster = test
+aws_profile =
+region = us-west-2
+aws_access_key_id =
+aws_secret_access_key =
+compose-project-name-prefix =
+compose-service-name-prefix =
+cfn-stack-name-prefix =
+`
+	dest, err := newMockDestination()
+	assert.NoError(t, err, "Error creating mock config destination")
+
+	os.Setenv("HOME", dest.Path)
+	defer os.Clearenv()
+
+	// we are using newMockDestination to be "HOME"
+	// append .ecs to it to create the ecs config directory
+	dest.Path = filepath.Join(dest.Path, ".ecs")
+
+	err = os.MkdirAll(dest.Path, *dest.Mode)
+	assert.NoError(t, err, "Could not create config directory")
+
+	defer os.RemoveAll(dest.Path)
+
+	err = ioutil.WriteFile(configPath(dest), []byte(configContents), *dest.Mode)
+	assert.NoError(t, err)
+
+	parser := setupParser(t, dest, true)
+	readConfig, configMap, err := parser.GetConfig()
+	assert.NoError(t, err, "Error reading config")
+	_, ok := configMap[cfnStackNamePrefixKey]
+	assert.True(t, ok, "CFNStackNamePrefix should exist in config")
+	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
+	_, ok = configMap[composeServiceNamePrefixKey]
+	assert.True(t, ok, "Compose service name prefix should exist in config")
+	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
+	_, ok = configMap[composeProjectNamePrefixKey]
+	assert.True(t, ok, "Compose project name prefix should exist in config")
+	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+}
+
+func TestMissingPrefixesOldIniFormat(t *testing.T) {
+	configContentsNoPrefixes := `[ecs]
+cluster = test
+aws_profile =
+region = us-west-2
+aws_access_key_id =
+aws_secret_access_key =
+`
+	dest, err := newMockDestination()
+	assert.NoError(t, err, "Error creating mock config destination")
+
+	os.Setenv("HOME", dest.Path)
+	defer os.Clearenv()
+
+	// we are using newMockDestination to be "HOME"
+	// append .ecs to it to create the ecs config directory
+	dest.Path = filepath.Join(dest.Path, ".ecs")
+
+	err = os.MkdirAll(dest.Path, *dest.Mode)
+	assert.NoError(t, err, "Could not create config directory")
+
+	defer os.RemoveAll(dest.Path)
+
+	err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configContentsNoPrefixes), *dest.Mode)
+	assert.NoError(t, err)
+
+	parser := setupParser(t, dest, true)
+	_, configMap, err := parser.GetConfig()
+	assert.NoError(t, err, "Error reading config")
+	_, ok := configMap[cfnStackNamePrefixKey]
+	assert.False(t, ok, "CFNStackNamePrefix should not exist in config")
+	_, ok = configMap[composeServiceNamePrefixKey]
+	assert.False(t, ok, "Compose service name prefix should not exist in config")
+	_, ok = configMap[composeProjectNamePrefixKey]
+	assert.False(t, ok, "Compose project name prefix should not exist in config")
+}
+
+func TestMissingPrefixesNewYamlFormat(t *testing.T) {
+	configContentsNoPrefixes := `ecs:
+   cluster: test
+   aws_profile:
+   region:us-west-2:
+   aws_access_key_id:
+   aws_secret_access_key:
+`
+	dest, err := newMockDestination()
+	assert.NoError(t, err, "Error creating mock config destination")
+
+	os.Setenv("HOME", dest.Path)
+	defer os.Clearenv()
+
+	// we are using newMockDestination to be "HOME"
+	// append .ecs to it to create the ecs config directory
+	dest.Path = filepath.Join(dest.Path, ".ecs")
+
+	err = os.MkdirAll(dest.Path, *dest.Mode)
+	assert.NoError(t, err, "Could not create config directory")
+
+	defer os.RemoveAll(dest.Path)
+
+	err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configContentsNoPrefixes), *dest.Mode)
+	assert.NoError(t, err)
+
+	parser := setupParser(t, dest, true)
+	_, configMap, err := parser.GetConfig()
+	assert.NoError(t, err, "Error reading config")
+	_, ok := configMap[cfnStackNamePrefixKey]
+	assert.False(t, ok, "CFNStackNamePrefix should not exist in config")
+	_, ok = configMap[composeServiceNamePrefixKey]
+	assert.False(t, ok, "Compose service name prefix should not exist in config")
+	_, ok = configMap[composeProjectNamePrefixKey]
+	assert.False(t, ok, "Compose project name prefix should not exist in config")
+}
+
+func TestPrefixesDefaultNewYamlFormat(t *testing.T) {
+	configContents := `ecs:
+  cluster: test
+  aws_profile:
+  region: us-west-2
+  aws_access_key_id:
+  aws_secret_access_key:
+  compose-project-name-prefix:
+  compose-service-name-prefix:
+  cfn-stack-name-prefix: 
+`
+	dest, err := newMockDestination()
+	assert.NoError(t, err, "Error creating mock config destination")
+
+	os.Setenv("HOME", dest.Path)
+	defer os.Clearenv()
+
+	// we are using newMockDestination to be "HOME"
+	// append .ecs to it to create the ecs config directory
+	dest.Path = filepath.Join(dest.Path, ".ecs")
+
+	err = os.MkdirAll(dest.Path, *dest.Mode)
+	assert.NoError(t, err, "Could not create config directory")
+
+	defer os.RemoveAll(dest.Path)
+
+	err = ioutil.WriteFile(configPath(dest), []byte(configContents), *dest.Mode)
+	assert.NoError(t, err)
+
+	parser := setupParser(t, dest, true)
+	readConfig, configMap, err := parser.GetConfig()
+	assert.NoError(t, err, "Error reading config")
+	_, ok := configMap[cfnStackNamePrefixKey]
+	assert.True(t, ok, "CFNStackNamePrefix should exist in config")
+	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
+	_, ok = configMap[composeServiceNamePrefixKey]
+	assert.True(t, ok, "Compose service name prefix should exist in config")
+	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
+	_, ok = configMap[composeProjectNamePrefixKey]
+	assert.True(t, ok, "Compose project name prefix should exist in config")
+	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+}
 
 func TestConfigFileTruncation(t *testing.T) {
 	configContents := `[ecs]
