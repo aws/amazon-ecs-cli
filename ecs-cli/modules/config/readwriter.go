@@ -1,8 +1,3 @@
-// NOTE: DEPRECATED. These functions are only left here so that
-// we can read old ini based config files for customers who have
-// still been using older versions of the CLI. All new config files
-// will be written in the YAML format.
-
 // Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
@@ -30,8 +25,11 @@ const (
 )
 
 // IniReadWriter
-// It can now only be used to load ecs-cli config.
-// The config files is being migrated to use Yaml
+// NOTE: DEPRECATED. These functions are only left here so that
+// we can read old ini based config files for customers who have
+// still been using older versions of the CLI. All new config files
+// will be written in the YAML format. IniReadWriter can now only
+// be used to load ecs-cli config.
 // Sample old ini ecs-cli config:
 // [ecs]
 // cluster = test
@@ -49,11 +47,7 @@ type IniReadWriter struct {
 }
 
 // NewIniReadWriter creates a new Ini Parser object for the old ini configs
-func NewIniReadWriter() (*IniReadWriter, error) {
-	dest, err := newDefaultDestination()
-	if err != nil {
-		return nil, err
-	}
+func NewIniReadWriter(dest *Destination) (*IniReadWriter, error) {
 
 	iniCfg, err := newIniConfig(dest)
 	if err != nil {

@@ -75,7 +75,7 @@ func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}
 	_, yamlErr := os.Stat(yamlPath)
 	if err == nil && yamlErr != nil { // file exists
 		// old ini config
-		iniReadWriter, err := NewIniReadWriter()
+		iniReadWriter, err := NewIniReadWriter(rdwr.destination)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -98,8 +98,7 @@ func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}
 		}
 
 		// convert yaml to a map (replaces IsKeyPresent functionality)
-		err = yaml.Unmarshal(dat, &configMap)
-		if err != nil {
+		if err = yaml.Unmarshal(dat, &configMap); err != nil {
 			return nil, nil, err
 		}
 		tmpMap, ok := configMap[ecsVersionKey].(map[interface{}]interface{})
@@ -121,18 +120,19 @@ func (rdwr *YamlReadWriter) Save(cliConfig *CliConfig) error {
 
 	path := yamlConfigPath(rdwr.destination)
 
+	// Warn the user if in path also exists
+	iniPath := iniConfigPath(rdwr.destination)
+	_, iniErr := os.Stat(iniPath)
+	if iniErr == nil {
+		logrus.Warnf("Writing yaml formatted config to %s/.ecs/%s.\nIni formatted config still exists in %s/.ecs/%s.", os.Getenv("HOME"), yamlConfigFileName, os.Getenv("HOME"), iniConfigFileName)
+	}
+
 	// If config file exists, set permissions first, because we may be writing creds.
 	if _, err := os.Stat(path); err == nil {
-		err = os.Chmod(path, configFileMode)
-		if err != nil {
+		if err = os.Chmod(path, configFileMode); err != nil {
 			logrus.Errorf("Unable to chmod %s to mode %s", path, configFileMode)
 			return err
 		}
-	}
-
-	if err != nil {
-		logrus.Errorf("Unable to open/create %s with mode %s", path, configFileMode)
-		return err
 	}
 
 	data, err := yaml.Marshal(cliConfig)

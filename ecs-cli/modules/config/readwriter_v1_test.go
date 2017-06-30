@@ -16,7 +16,6 @@ package config
 import (
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -25,7 +24,7 @@ import (
 const (
 	testClusterName = "test-cluster"
 	testAWSProfile  = "aws-profile"
-	testRegion      = "narnia-west-1"
+	testRegion      = "us-west-2"
 )
 
 func newMockDestination() (*Destination, error) {
@@ -103,36 +102,9 @@ func confirmConfigMode(t *testing.T, path string, expected os.FileMode) {
 
 }
 
-func saveConfigOldIniFormat(t *testing.T, dest *Destination, cliConfig *oldCliConfig) {
-	iniConfig, err := newIniConfig(dest)
-	assert.NoError(t, err, "Unable to create Ini Config for %s", dest.Path)
-	// set the CliConfig
-	iniConfig.ReflectFrom(cliConfig)
-	path := iniConfigPath(dest)
-
-	// Open the file, optionally creating it with our desired permissions.
-	// This will let us pass it (as io.Writer) to go-ini but let us control the file.
-	configFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, configFileMode)
-	// Truncate the file in case the earlier contents are longer than the new
-	// contents, so there will not be any trash at the end of the file
-	configFile.Truncate(0)
-
-	assert.NoError(t, err, "Unable to open/create %s with mode %s", path, configFileMode)
-
-	defer configFile.Close()
-
-	_, err = iniConfig.WriteTo(configFile)
-	assert.NoError(t, err, "Unable to write config to %s", path)
-
-}
-
 func TestPrefixesEmptyNewYamlFormat(t *testing.T) {
 	dest, err := newMockDestination()
 	assert.NoError(t, err, "Error creating mock config destination")
-
-	//set HOME
-	os.Setenv("HOME", dest.Path)
-	defer os.Clearenv()
 
 	parser := setupParser(t, dest, false)
 
@@ -161,31 +133,25 @@ func TestPrefixesEmptyNewYamlFormat(t *testing.T) {
 }
 
 func TestPrefixesEmptyOldIniFormat(t *testing.T) {
+	configContents := `[ecs]
+cluster = test-cluster
+aws_profile = testProfile
+region = us-west-2
+aws_access_key_id =
+aws_secret_access_key =
+compose-project-name-prefix =
+compose-service-name-prefix =
+cfn-stack-name-prefix =
+`
 	dest, err := newMockDestination()
 	assert.NoError(t, err, "Error creating mock config destination")
-	//set HOME
-	os.Setenv("HOME", dest.Path)
-	defer os.Clearenv()
-
-	// we are using newMockDestination to be "HOME"
-	// append .ecs to it to create the ecs config directory
-	dest.Path = filepath.Join(dest.Path, ".ecs")
 
 	err = os.MkdirAll(dest.Path, *dest.Mode)
 	assert.NoError(t, err, "Could not create config directory")
-	//defer os.RemoveAll(dest.Path)
+	defer os.RemoveAll(dest.Path)
 
-	keys := oldSectionKeys{}
-	keys.Cluster = testClusterName
-	keys.Region = testRegion
-	keys.AwsProfile = testAWSProfile
-	keys.ComposeProjectNamePrefix = ""
-	keys.ComposeServiceNamePrefix = ""
-	keys.CFNStackNamePrefix = ""
-	ecsConfig := &oldCliConfig{oldSectionKeys: &keys}
-
-	// save to file
-	saveConfigOldIniFormat(t, dest, ecsConfig)
+	err = ioutil.WriteFile(iniConfigPath(dest), []byte(configContents), *dest.Mode)
+	assert.NoError(t, err)
 
 	// Reinitialize from the written file.
 	parser := setupParser(t, dest, true)
@@ -217,13 +183,6 @@ cfn-stack-name-prefix =
 `
 	dest, err := newMockDestination()
 	assert.NoError(t, err, "Error creating mock config destination")
-
-	os.Setenv("HOME", dest.Path)
-	defer os.Clearenv()
-
-	// we are using newMockDestination to be "HOME"
-	// append .ecs to it to create the ecs config directory
-	dest.Path = filepath.Join(dest.Path, ".ecs")
 
 	err = os.MkdirAll(dest.Path, *dest.Mode)
 	assert.NoError(t, err, "Could not create config directory")
@@ -258,13 +217,6 @@ aws_secret_access_key =
 	dest, err := newMockDestination()
 	assert.NoError(t, err, "Error creating mock config destination")
 
-	os.Setenv("HOME", dest.Path)
-	defer os.Clearenv()
-
-	// we are using newMockDestination to be "HOME"
-	// append .ecs to it to create the ecs config directory
-	dest.Path = filepath.Join(dest.Path, ".ecs")
-
 	err = os.MkdirAll(dest.Path, *dest.Mode)
 	assert.NoError(t, err, "Could not create config directory")
 
@@ -294,13 +246,6 @@ func TestMissingPrefixesNewYamlFormat(t *testing.T) {
 `
 	dest, err := newMockDestination()
 	assert.NoError(t, err, "Error creating mock config destination")
-
-	os.Setenv("HOME", dest.Path)
-	defer os.Clearenv()
-
-	// we are using newMockDestination to be "HOME"
-	// append .ecs to it to create the ecs config directory
-	dest.Path = filepath.Join(dest.Path, ".ecs")
 
 	err = os.MkdirAll(dest.Path, *dest.Mode)
 	assert.NoError(t, err, "Could not create config directory")
@@ -334,13 +279,6 @@ func TestPrefixesDefaultNewYamlFormat(t *testing.T) {
 `
 	dest, err := newMockDestination()
 	assert.NoError(t, err, "Error creating mock config destination")
-
-	os.Setenv("HOME", dest.Path)
-	defer os.Clearenv()
-
-	// we are using newMockDestination to be "HOME"
-	// append .ecs to it to create the ecs config directory
-	dest.Path = filepath.Join(dest.Path, ".ecs")
 
 	err = os.MkdirAll(dest.Path, *dest.Mode)
 	assert.NoError(t, err, "Could not create config directory")
