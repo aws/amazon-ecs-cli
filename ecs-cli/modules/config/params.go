@@ -63,12 +63,18 @@ func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 	if clusterFromEnv := os.Getenv(ecscli.ClusterEnvVar); clusterFromEnv != "" {
 		ecsConfig.Cluster = clusterFromEnv
 	}
-	if clusterFromFlag := context.String(ecscli.ClusterFlag); clusterFromFlag != "" {
+	// First try to find the flag in the global string, then try to find the flag locally
+	if clusterFromFlag := context.GlobalString(ecscli.ClusterFlag); clusterFromFlag != "" {
+		ecsConfig.Cluster = clusterFromFlag
+	} else if clusterFromFlag := context.String(ecscli.ClusterFlag); clusterFromFlag != "" {
 		ecsConfig.Cluster = clusterFromFlag
 	}
 
-	// local --region flag has the highest precedence to set ecs-cli region config.
-	if regionFromFlag := context.String(ecscli.RegionFlag); regionFromFlag != "" {
+	//--region flag has the highest precedence to set ecs-cli region config.
+	// First try to find the flag in the global string, then try to find the flag locally
+	if regionFromFlag := context.GlobalString(ecscli.RegionFlag); regionFromFlag != "" {
+		ecsConfig.Region = regionFromFlag
+	} else if regionFromFlag := context.String(ecscli.RegionFlag); regionFromFlag != "" {
 		ecsConfig.Region = regionFromFlag
 	}
 
