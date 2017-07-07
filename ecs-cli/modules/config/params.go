@@ -37,6 +37,19 @@ func (p *CliParams) GetCfnStackName() string {
 	return fmt.Sprintf("%s%s", p.CFNStackNamePrefix, p.Cluster)
 }
 
+// Searches as far up the context as necesarry. This function works no matter
+// how many layers of nested subcommands there are. It is more powerful
+// than merely calling context.String and context.GlobalString
+func recursiveFlagSearch(context *cli.Context, flag string) string {
+	if context == nil {
+		return ""
+	} else if value := context.String(flag); value != "" {
+		return value
+	} else {
+		return recursiveFlagSearch(context.Parent(), flag)
+	}
+}
+
 // NewCliParams creates a new ECSParams object from the config file.
 func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 	ecsConfig, err := rdwr.GetConfig()
@@ -63,12 +76,13 @@ func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 	if clusterFromEnv := os.Getenv(ecscli.ClusterEnvVar); clusterFromEnv != "" {
 		ecsConfig.Cluster = clusterFromEnv
 	}
-	if clusterFromFlag := context.String(ecscli.ClusterFlag); clusterFromFlag != "" {
+
+	if clusterFromFlag := recursiveFlagSearch(context, ecscli.ClusterFlag); clusterFromFlag != "" {
 		ecsConfig.Cluster = clusterFromFlag
 	}
 
-	// local --region flag has the highest precedence to set ecs-cli region config.
-	if regionFromFlag := context.String(ecscli.RegionFlag); regionFromFlag != "" {
+	//--region flag has the highest precedence to set ecs-cli region config.
+	if regionFromFlag := recursiveFlagSearch(context, ecscli.RegionFlag); regionFromFlag != "" {
 		ecsConfig.Region = regionFromFlag
 	}
 
