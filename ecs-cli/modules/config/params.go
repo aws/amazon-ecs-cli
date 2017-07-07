@@ -37,6 +37,16 @@ func (p *CliParams) GetCfnStackName() string {
 	return fmt.Sprintf("%s%s", p.CFNStackNamePrefix, p.Cluster)
 }
 
+func recursiveFlagSearch(context *cli.Context, flag string) string {
+	if context == nil {
+		return ""
+	} else if value := context.String(flag); value != "" {
+		return value
+	} else {
+		return recursiveFlagSearch(context.Parent(), flag)
+	}
+}
+
 // NewCliParams creates a new ECSParams object from the config file.
 func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 	ecsConfig, err := rdwr.GetConfig()
@@ -63,18 +73,13 @@ func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 	if clusterFromEnv := os.Getenv(ecscli.ClusterEnvVar); clusterFromEnv != "" {
 		ecsConfig.Cluster = clusterFromEnv
 	}
-	// First try to find the flag in the global string, then try to find the flag locally
-	if clusterFromFlag := context.GlobalString(ecscli.ClusterFlag); clusterFromFlag != "" {
-		ecsConfig.Cluster = clusterFromFlag
-	} else if clusterFromFlag := context.String(ecscli.ClusterFlag); clusterFromFlag != "" {
+
+	if clusterFromFlag := recursiveFlagSearch(context, ecscli.ClusterFlag); clusterFromFlag != "" {
 		ecsConfig.Cluster = clusterFromFlag
 	}
 
 	//--region flag has the highest precedence to set ecs-cli region config.
-	// First try to find the flag in the global string, then try to find the flag locally
-	if regionFromFlag := context.GlobalString(ecscli.RegionFlag); regionFromFlag != "" {
-		ecsConfig.Region = regionFromFlag
-	} else if regionFromFlag := context.String(ecscli.RegionFlag); regionFromFlag != "" {
+	if regionFromFlag := recursiveFlagSearch(context, ecscli.RegionFlag); regionFromFlag != "" {
 		ecsConfig.Region = regionFromFlag
 	}
 
