@@ -49,12 +49,10 @@ func setupParser(t *testing.T, dest *Destination, shouldBeInitialized bool) *Yam
 }
 
 func saveConfigWithCluster(t *testing.T, parser *YamlReadWriter, dest *Destination) {
-	saveConfig(t, parser, dest, &SectionKeys{Cluster: testClusterName, ComposeProjectNamePrefix: "", ComposeServiceNamePrefix: "", CFNStackNamePrefix: ""})
+	saveConfig(t, parser, dest, &CliConfig{Cluster: testClusterName, ComposeProjectNamePrefix: "", ComposeServiceNamePrefix: "", CFNStackNamePrefix: ""})
 }
 
-func saveConfig(t *testing.T, parser *YamlReadWriter, dest *Destination, sectionKeys *SectionKeys) {
-	// Create a new config file
-	newConfig := &CliConfig{sectionKeys}
+func saveConfig(t *testing.T, parser *YamlReadWriter, dest *Destination, newConfig *CliConfig) {
 
 	err := parser.Save(newConfig)
 	assert.NoError(t, err, "Could not save config file")
@@ -85,8 +83,7 @@ func TestConfigPermissions(t *testing.T) {
 	confirmConfigMode(t, path, badMode)
 
 	// Save the config and confirm it's fixed again
-	sectionKeys := &SectionKeys{Cluster: testClusterName}
-	cliConfig := &CliConfig{sectionKeys}
+	cliConfig := &CliConfig{Cluster: testClusterName}
 	err = parser.Save(cliConfig)
 	assert.NoError(t, err, "Unable to save to new config %v", path)
 
@@ -237,12 +234,13 @@ aws_secret_access_key =
 }
 
 func TestMissingPrefixesNewYamlFormat(t *testing.T) {
-	configContentsNoPrefixes := `v1:
-   cluster: test
-   aws_profile:
-   region:us-west-2:
-   aws_access_key_id:
-   aws_secret_access_key:
+	configContentsNoPrefixes := `
+version: v0
+cluster: test
+aws_profile:
+region:us-west-2:
+aws_access_key_id:
+aws_secret_access_key:
 `
 	dest, err := newMockDestination()
 	assert.NoError(t, err, "Error creating mock config destination")
@@ -267,15 +265,16 @@ func TestMissingPrefixesNewYamlFormat(t *testing.T) {
 }
 
 func TestPrefixesDefaultNewYamlFormat(t *testing.T) {
-	configContents := `v1:
-  cluster: test
-  aws_profile:
-  region: us-west-2
-  aws_access_key_id:
-  aws_secret_access_key:
-  compose-project-name-prefix:
-  compose-service-name-prefix:
-  cfn-stack-name-prefix:
+	configContents := `
+version: v0
+cluster: test
+aws_profile:
+region: us-west-2
+aws_access_key_id:
+aws_secret_access_key:
+compose-project-name-prefix:
+compose-service-name-prefix:
+cfn-stack-name-prefix:
 `
 	dest, err := newMockDestination()
 	assert.NoError(t, err, "Error creating mock config destination")

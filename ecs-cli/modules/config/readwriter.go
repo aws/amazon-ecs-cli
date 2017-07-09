@@ -61,7 +61,7 @@ func NewIniReadWriter(dest *Destination) (*IniReadWriter, error) {
 // GetConfig gets the ecs-cli config object from the config file.
 func (rdwr *IniReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}, error) {
 	configMap := make(map[interface{}]interface{})
-	to := &CliConfig{SectionKeys: new(SectionKeys)}
+	to := &CliConfig{}
 
 	// read old ini formatted file
 	oldFormat := &oldCliConfig{oldSectionKeys: new(oldSectionKeys)}
