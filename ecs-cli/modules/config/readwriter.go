@@ -15,6 +15,7 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/go-ini/ini"
@@ -144,4 +145,8 @@ func newIniConfig(dest *Destination) (*ini.File, error) {
 	}
 
 	return iniCfg, nil
+}
+
+func iniConfigPath(dest *Destination) string {
+	return filepath.Join(dest.Path, iniConfigFileName)
 }

@@ -46,13 +46,8 @@ func TestPopulateContext(t *testing.T) {
 		t.Fatal("Error while creating the dummy ecs config directory")
 	}
 
-	defer os.Remove(tempDirName)
-	os.Setenv("HOME", tempDirName)
-
-	os.Setenv("AWS_REGION", "us-east-1")
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "secret")
-	defer os.Clearenv()
+	setUpTempEnvironment(t, tempDirName)
+	defer removeTempEnvironmant(tempDirName)
 
 	// write a dummy ecs config file
 	rdwr, err := config.NewReadWriter()
@@ -71,6 +66,22 @@ func TestPopulateContext(t *testing.T) {
 	}
 }
 
+func setUpTempEnvironment(t *testing.T, tempDirName string) {
+	// Create a temprorary directory for the dummy ecs config
+	os.Setenv("HOME", tempDirName)
+	os.Setenv("AWS_REGION", "us-east-1")
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "secret")
+}
+
+func removeTempEnvironmant(tempDirName string) {
+	os.Unsetenv("AWS_REGION")
+	os.Unsetenv("AWS_ACCESS_KEY")
+	os.Unsetenv("AWS_SECRET_KEY")
+	os.Unsetenv("HOME")
+	os.Remove(tempDirName)
+}
+
 func TestPopulateContextWithGlobalFlagOverrides(t *testing.T) {
 	// populate when compose file and project name flag overrides are provided
 	overrides := flag.NewFlagSet("ecs-cli", 0)
@@ -85,28 +96,17 @@ func TestPopulateContextWithGlobalFlagOverrides(t *testing.T) {
 	cliContext := cli.NewContext(nil, flagSet, parentContext)
 	ecsContext := &context.Context{}
 
-	// Create a temprorary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
 		t.Fatal("Error while creating the dummy ecs config directory")
 	}
-	defer os.Remove(tempDirName)
-	os.Setenv("HOME", tempDirName)
-	os.Setenv("AWS_REGION", "us-east-1")
-	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
-	os.Setenv("AWS_SECRET_KEY", "secret")
+	setUpTempEnvironment(t, tempDirName)
+	defer removeTempEnvironmant(tempDirName)
 
 	// write a dummy ecs config file
 	rdwr, err := config.NewReadWriter()
 	dummyConfig := &config.CliConfig{&config.SectionKeys{Cluster: "testCluster", Region: "us-west-2", AwsAccessKey: "***", AwsSecretKey: "***"}}
 	rdwr.Save(dummyConfig)
-
-	defer func() {
-		os.Unsetenv("AWS_REGION")
-		os.Unsetenv("AWS_ACCESS_KEY")
-		os.Unsetenv("AWS_SECRET_KEY")
-		os.Unsetenv("HOME")
-	}()
 
 	projectFactory := projectFactory{}
 	err = projectFactory.populateContext(ecsContext, cliContext)

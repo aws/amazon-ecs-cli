@@ -46,7 +46,7 @@ type mockReadWriter struct {
 
 func (rdwr *mockReadWriter) GetConfig() (*config.CliConfig, map[interface{}]interface{}, error) {
 	m := make(map[interface{}]interface{})
-	m["Cluster"] = rdwr.clusterName
+	m["cluster"] = rdwr.clusterName
 	m["cfn-stack-name-prefix"] = ""
 	cliConfig := config.NewCliConfig(rdwr.clusterName)
 	cliConfig.CFNStackNamePrefix = ""

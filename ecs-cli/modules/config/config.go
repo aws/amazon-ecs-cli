@@ -18,6 +18,10 @@
 
 package config
 
+const (
+	ecsSectionKey = "ecs"
+)
+
 // oldCliConfig is the struct used to map to the ini config.
 // This is to allow us to read old ini based config files
 // CliConfig has been updated to use the yaml annotations

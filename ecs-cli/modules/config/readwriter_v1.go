@@ -113,17 +113,15 @@ func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}
 
 func (rdwr *YamlReadWriter) Save(cliConfig *CliConfig) error {
 	destMode := rdwr.destination.Mode
-	err := os.MkdirAll(rdwr.destination.Path, *destMode)
-	if err != nil {
+	if err := os.MkdirAll(rdwr.destination.Path, *destMode); err != nil {
 		return err
 	}
 
 	path := yamlConfigPath(rdwr.destination)
 
-	// Warn the user if in path also exists
+	// Warn the user if ini path also exists
 	iniPath := iniConfigPath(rdwr.destination)
-	_, iniErr := os.Stat(iniPath)
-	if iniErr == nil {
+	if _, iniErr := os.Stat(iniPath); iniErr == nil {
 		logrus.Warnf("Writing yaml formatted config to %s/.ecs/%s.\nIni formatted config still exists in %s/.ecs/%s.", os.Getenv("HOME"), yamlConfigFileName, os.Getenv("HOME"), iniConfigFileName)
 	}
 
@@ -136,8 +134,10 @@ func (rdwr *YamlReadWriter) Save(cliConfig *CliConfig) error {
 	}
 
 	data, err := yaml.Marshal(cliConfig)
-	err = ioutil.WriteFile(path, data, configFileMode.Perm())
 	if err != nil {
+		return err
+	}
+	if err = ioutil.WriteFile(path, data, configFileMode.Perm()); err != nil {
 		logrus.Errorf("Unable to write config to %s", path)
 		return err
 	}
@@ -147,8 +147,4 @@ func (rdwr *YamlReadWriter) Save(cliConfig *CliConfig) error {
 
 func yamlConfigPath(dest *Destination) string {
 	return filepath.Join(dest.Path, yamlConfigFileName)
-}
-
-func iniConfigPath(dest *Destination) string {
-	return filepath.Join(dest.Path, iniConfigFileName)
 }
