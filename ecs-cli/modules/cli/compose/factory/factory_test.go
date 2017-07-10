@@ -51,7 +51,7 @@ func TestPopulateContext(t *testing.T) {
 
 	// write a dummy ecs config file
 	rdwr, err := config.NewReadWriter()
-	dummyConfig := &config.CliConfig{&config.SectionKeys{Cluster: "testCluster", Region: "us-west-2", AwsAccessKey: "***", AwsSecretKey: "***"}}
+	dummyConfig := &config.CliConfig{Cluster: "testCluster", Region: "us-west-2", AwsAccessKey: "***", AwsSecretKey: "***"}
 	rdwr.Save(dummyConfig)
 
 	projectFactory := projectFactory{}
@@ -105,7 +105,7 @@ func TestPopulateContextWithGlobalFlagOverrides(t *testing.T) {
 
 	// write a dummy ecs config file
 	rdwr, err := config.NewReadWriter()
-	dummyConfig := &config.CliConfig{&config.SectionKeys{Cluster: "testCluster", Region: "us-west-2", AwsAccessKey: "***", AwsSecretKey: "***"}}
+	dummyConfig := &config.CliConfig{Cluster: "testCluster", Region: "us-west-2", AwsAccessKey: "***", AwsSecretKey: "***"}
 	rdwr.Save(dummyConfig)
 
 	projectFactory := projectFactory{}
