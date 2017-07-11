@@ -87,7 +87,9 @@ func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}
 	_, iniErr := os.Stat(iniPath)
 	_, yamlErr := os.Stat(yamlPath)
 	if yamlErr == nil {
-		readYaml(yamlPath, configMap, to)
+		if err := readYaml(yamlPath, configMap, to); err != nil {
+			return nil, nil, err
+		}
 	} else if iniErr == nil { // file exists
 		// old ini config
 		iniReadWriter, err := NewIniReadWriter(rdwr.destination)
