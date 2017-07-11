@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.1
+* Enhancement - Support multiple compose files in compose commands
+* Enhancement - Support `docker-compose.override.yml` with compose commands
+* Bug - `--cluster` and `--region` flags can be specified both before and after compose and compose service subcommands
+
 ## 0.6.0
 * Feature - Update ami to amzn-ami-2017.03.c-amazon-ecs-optimized
 * Feature - Support cluster and region runtime flag for all ECS commands
