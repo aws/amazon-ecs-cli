@@ -58,6 +58,24 @@ func NewReadWriter() (*YamlReadWriter, error) {
 	return &YamlReadWriter{destination: dest}, nil
 }
 
+func readYaml(yamlPath string, configMap map[interface{}]interface{}, cliConfig *CliConfig) error {
+	// convert yaml to CliConfig
+	dat, err := ioutil.ReadFile(yamlPath)
+	if err != nil {
+		return err
+	}
+	if err = yaml.Unmarshal(dat, cliConfig); err != nil {
+		return err
+	}
+
+	// convert yaml to a map (replaces IsKeyPresent functionality)
+	if err = yaml.Unmarshal(dat, &configMap); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // GetConfig gets the ecs-cli config object from the config file.
 func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}, error) {
 	to := new(CliConfig)
@@ -66,13 +84,11 @@ func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}
 	iniPath := iniConfigPath(rdwr.destination)
 	yamlPath := yamlConfigPath(rdwr.destination)
 
-	// Handle the case where the old ini config is still there
-	// if ini exists and yaml does not exist, read ini
-	// if both exist, read yaml
-	// if neither exist, try to read yaml and then return file not found
-	_, err := os.Stat(iniPath)
+	_, iniErr := os.Stat(iniPath)
 	_, yamlErr := os.Stat(yamlPath)
-	if err == nil && yamlErr != nil { // file exists
+	if yamlErr == nil {
+		readYaml(yamlPath, configMap, to)
+	} else if iniErr == nil { // file exists
 		// old ini config
 		iniReadWriter, err := NewIniReadWriter(rdwr.destination)
 		if err != nil {
@@ -84,23 +100,8 @@ func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}
 		}
 
 	} else {
-		// If the ini file didn't exist, then we assume the yaml file exists
-		// if it doesn't, then throw error
-		// convert yaml to CliConfig
-		dat, err := ioutil.ReadFile(yamlPath)
-		if err != nil {
-			return nil, nil, err
-		}
-		err = yaml.Unmarshal(dat, to)
-		if err != nil {
-			return nil, nil, err
-		}
-
-		// convert yaml to a map (replaces IsKeyPresent functionality)
-		if err = yaml.Unmarshal(dat, &configMap); err != nil {
-			return nil, nil, err
-		}
-
+		// if neither file existed we return the yaml error
+		return nil, nil, yamlErr
 	}
 	return to, configMap, nil
 }
@@ -111,7 +112,7 @@ func (rdwr *YamlReadWriter) Save(cliConfig *CliConfig) error {
 		return err
 	}
 	// set version
-	cliConfig.Version = "v0"
+	cliConfig.Version = configVersion
 
 	path := yamlConfigPath(rdwr.destination)
 

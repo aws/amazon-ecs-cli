@@ -312,10 +312,16 @@ compose-project-name-prefix = ecscompose-
 compose-service-name-prefix = ecscompose-service-
 cfn-stack-name-prefix = amazon-ecs-cli-setup-
 `
+	configSmallerContents := `[ecs]
+cluster = short-name
+aws_profile = profile
+region = us-west-2
+aws_access_key_id =
+aws_secret_access_key =
+`
+
 	dest, err := newMockDestination()
 	assert.NoError(t, err, "Error creating mock config destination")
-
-	parser := setupParser(t, dest, false)
 
 	err = os.MkdirAll(dest.Path, *dest.Mode)
 	assert.NoError(t, err, "Could not create config directory")
@@ -327,7 +333,8 @@ cfn-stack-name-prefix = amazon-ecs-cli-setup-
 	assert.NoError(t, err)
 
 	// Save config with shorter cluster name
-	saveConfigWithCluster(t, parser, dest)
+	err = ioutil.WriteFile(dest.Path+"/"+iniConfigFileName, []byte(configSmallerContents), *dest.Mode)
+	assert.NoError(t, err)
 
 	_, err = newIniConfig(dest)
 	assert.NoError(t, err)
