@@ -41,26 +41,20 @@ const (
 
 type mockReadWriter struct {
 	clusterName string
+	stackName   string
 }
 
-func (rdwr *mockReadWriter) GetConfig() (*config.CliConfig, error) {
-	return config.NewCliConfig(rdwr.clusterName), nil
+func (rdwr *mockReadWriter) GetConfig() (*config.CliConfig, map[interface{}]interface{}, error) {
+	m := make(map[interface{}]interface{})
+	m["cluster"] = rdwr.clusterName
+	m["cfn-stack-name-prefix"] = ""
+	cliConfig := config.NewCliConfig(rdwr.clusterName)
+	cliConfig.CFNStackNamePrefix = ""
+	return cliConfig, m, nil
 }
 
-func (rdwr *mockReadWriter) ReadFrom(ecsConfig *config.CliConfig) error {
+func (rdwr *mockReadWriter) Save(*config.CliConfig) error {
 	return nil
-}
-
-func (rdwr *mockReadWriter) IsInitialized() (bool, error) {
-	return true, nil
-}
-
-func (rdwr *mockReadWriter) Save(dest *config.Destination) error {
-	return nil
-}
-
-func (rdwr *mockReadWriter) IsKeyPresent(section, key string) bool {
-	return true
 }
 
 func newMockReadWriter() *mockReadWriter {

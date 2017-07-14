@@ -22,21 +22,16 @@ import (
 )
 
 const (
-	configFileName = "config"
-	configFileMode = os.FileMode(0600)
+	iniConfigFileName = "config"
 )
 
-// ReadWriter interface has methods to read and write ecs-cli config to and from the config file.
-type ReadWriter interface {
-	Save(*Destination) error
-	IsInitialized() (bool, error)
-	ReadFrom(*CliConfig) error
-	GetConfig() (*CliConfig, error)
-	IsKeyPresent(string, string) bool
-}
-
-// IniReadWriter implments the ReadWriter interfaces. It can be used to save and load
-// ecs-cli config. Sample ecs-cli config:
+// IniReadWriter
+// NOTE: DEPRECATED. These functions are only left here so that
+// we can read old ini based config files for customers who have
+// still been using older versions of the CLI. All new config files
+// will be written in the YAML format. IniReadWriter can now only
+// be used to load ecs-cli config.
+// Sample old ini ecs-cli config:
 // [ecs]
 // cluster = test
 // aws_profile =
@@ -52,12 +47,8 @@ type IniReadWriter struct {
 	cfg *ini.File
 }
 
-// NewReadWriter creates a new Parser object.
-func NewReadWriter() (*IniReadWriter, error) {
-	dest, err := newDefaultDestination()
-	if err != nil {
-		return nil, err
-	}
+// NewIniReadWriter creates a new Ini Parser object for the old ini configs
+func NewIniReadWriter(dest *Destination) (*IniReadWriter, error) {
 
 	iniCfg, err := newIniConfig(dest)
 	if err != nil {
@@ -68,14 +59,53 @@ func NewReadWriter() (*IniReadWriter, error) {
 }
 
 // GetConfig gets the ecs-cli config object from the config file.
-func (rdwr *IniReadWriter) GetConfig() (*CliConfig, error) {
-	to := new(CliConfig)
-	err := rdwr.cfg.MapTo(to)
+func (rdwr *IniReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}, error) {
+	configMap := make(map[interface{}]interface{})
+	to := &CliConfig{}
+
+	// read old ini formatted file
+	oldFormat := &oldCliConfig{oldSectionKeys: new(oldSectionKeys)}
+	err := rdwr.cfg.MapTo(oldFormat)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return to, nil
+	// Create the configMap
+	if rdwr.IsKeyPresent(ecsSectionKey, "cluster") {
+		configMap["cluster"] = oldFormat.Cluster
+	}
+	if rdwr.IsKeyPresent(ecsSectionKey, "aws_profile") {
+		configMap["aws_profile"] = oldFormat.AwsProfile
+	}
+	if rdwr.IsKeyPresent(ecsSectionKey, "region") {
+		configMap["region"] = oldFormat.Region
+	}
+	if rdwr.IsKeyPresent(ecsSectionKey, "aws_access_key_id") {
+		configMap["aws_access_key_id"] = oldFormat.AwsAccessKey
+	}
+	if rdwr.IsKeyPresent(ecsSectionKey, "aws_secret_access_key") {
+		configMap["aws_secret_access_key"] = oldFormat.AwsSecretKey
+	}
+	if rdwr.IsKeyPresent(ecsSectionKey, "compose-project-name-prefix") {
+		configMap["compose-project-name-prefix"] = oldFormat.ComposeProjectNamePrefix
+	}
+	if rdwr.IsKeyPresent(ecsSectionKey, "compose-service-name-prefix") {
+		configMap["compose-service-name-prefix"] = oldFormat.ComposeServiceNamePrefix
+	}
+	if rdwr.IsKeyPresent(ecsSectionKey, "cfn-stack-name-prefix") {
+		configMap["cfn-stack-name-prefix"] = oldFormat.CFNStackNamePrefix
+	}
+
+	// Convert to the new CliConfig
+	to.Cluster = oldFormat.Cluster
+	to.Region = oldFormat.Region
+	to.AwsProfile = oldFormat.AwsProfile
+	to.AwsAccessKey = oldFormat.AwsAccessKey
+	to.AwsSecretKey = oldFormat.AwsSecretKey
+	to.ComposeProjectNamePrefix = oldFormat.ComposeProjectNamePrefix
+	to.ComposeServiceNamePrefix = oldFormat.ComposeServiceNamePrefix
+	to.CFNStackNamePrefix = oldFormat.CFNStackNamePrefix
+	return to, configMap, nil
 }
 
 // IsInitialized returns true if the config file can be read and if all the key config fields
@@ -99,60 +129,9 @@ func (rdwr *IniReadWriter) IsKeyPresent(section, key string) bool {
 	return rdwr.cfg.Section(section).HasKey(key)
 }
 
-// ReadFrom initializes the ini object from an existing ecs-cli config object.
-func (rdwr *IniReadWriter) ReadFrom(ecsConfig *CliConfig) error {
-	return rdwr.cfg.ReflectFrom(ecsConfig)
-}
-
-// Save saves the config to a config file.
-func (rdwr *IniReadWriter) Save(dest *Destination) error {
-	destMode := dest.Mode
-	err := os.MkdirAll(dest.Path, *destMode)
-	if err != nil {
-		return err
-	}
-
-	path := configPath(dest)
-
-	// If config file exists, set permissions first, because we may be writing creds.
-	if _, err := os.Stat(path); err == nil {
-		err = os.Chmod(path, configFileMode)
-		if err != nil {
-			logrus.Errorf("Unable to chmod %s to mode %s", path, configFileMode)
-			return err
-		}
-	}
-
-	// Open the file, optionally creating it with our desired permissions.
-	// This will let us pass it (as io.Writer) to go-ini but let us control the file.
-	configFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, configFileMode)
-
-	// Truncate the file in case the earlier contents are longer than the new
-	// contents, so there will not be any trash at the end of the file
-	configFile.Truncate(0)
-
-	if err != nil {
-		logrus.Errorf("Unable to open/create %s with mode %s", path, configFileMode)
-		return err
-	}
-	defer configFile.Close()
-
-	_, err = rdwr.cfg.WriteTo(configFile)
-	if err != nil {
-		logrus.Errorf("Unable to write config to %s", path)
-		return err
-	}
-
-	return nil
-}
-
-func configPath(dest *Destination) string {
-	return filepath.Join(dest.Path, configFileName)
-}
-
 func newIniConfig(dest *Destination) (*ini.File, error) {
 	iniCfg := ini.Empty()
-	path := configPath(dest)
+	path := iniConfigPath(dest)
 	logrus.Debugf("using config file: %s", path)
 	if _, err := os.Stat(path); err != nil {
 		// TODO: handle os.isnotexist(path) and other errors differently
@@ -166,4 +145,8 @@ func newIniConfig(dest *Destination) (*ini.File, error) {
 	}
 
 	return iniCfg, nil
+}
+
+func iniConfigPath(dest *Destination) string {
+	return filepath.Join(dest.Path, iniConfigFileName)
 }
