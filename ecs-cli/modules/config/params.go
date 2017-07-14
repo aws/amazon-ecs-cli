@@ -52,20 +52,20 @@ func recursiveFlagSearch(context *cli.Context, flag string) string {
 
 // NewCliParams creates a new ECSParams object from the config file.
 func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
-	ecsConfig, err := rdwr.GetConfig()
+	ecsConfig, configMap, err := rdwr.GetConfig()
 	if err != nil {
 		logrus.Error("Error loading config: ", err)
 		return nil, err
 	}
 
 	// If Prefixes not found, set to defaults.
-	if !rdwr.IsKeyPresent(ecsSectionKey, composeProjectNamePrefixKey) {
+	if _, ok := configMap[composeProjectNamePrefixKey]; !ok {
 		ecsConfig.ComposeProjectNamePrefix = ecscli.ComposeProjectNamePrefixDefaultValue
 	}
-	if !rdwr.IsKeyPresent(ecsSectionKey, composeServiceNamePrefixKey) {
+	if _, ok := configMap[composeServiceNamePrefixKey]; !ok {
 		ecsConfig.ComposeServiceNamePrefix = ecscli.ComposeServiceNamePrefixDefaultValue
 	}
-	if !rdwr.IsKeyPresent(ecsSectionKey, cfnStackNamePrefixKey) {
+	if _, ok := configMap[cfnStackNamePrefixKey]; !ok {
 		ecsConfig.CFNStackNamePrefix = ecscli.CFNStackNamePrefixDefaultValue
 	}
 
@@ -76,7 +76,6 @@ func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 	if clusterFromEnv := os.Getenv(ecscli.ClusterEnvVar); clusterFromEnv != "" {
 		ecsConfig.Cluster = clusterFromEnv
 	}
-
 	if clusterFromFlag := recursiveFlagSearch(context, ecscli.ClusterFlag); clusterFromFlag != "" {
 		ecsConfig.Cluster = clusterFromFlag
 	}
