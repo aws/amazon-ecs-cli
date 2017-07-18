@@ -30,23 +30,23 @@ const (
 	cfnStackNamePrefixKey       = "cfn-stack-name-prefix"
 )
 
-// CliConfig is the top level struct used to map to the yaml config.
+// CLIConfig is the top level struct used to map to the yaml config.
 // Version: v1 = YAML formatted configs split profile and cluster
-type CliConfig struct {
+type CLIConfig struct {
 	Version                  string `yaml:"version"`
 	Cluster                  string `yaml:"cluster"`
-	AwsProfile               string `yaml:"aws_profile"`
+	AWSProfile               string `yaml:"aws_profile"`
 	Region                   string `yaml:"region"`
-	AwsAccessKey             string `yaml:"aws_access_key_id"`
-	AwsSecretKey             string `yaml:"aws_secret_access_key"`
+	AWSAccessKey             string `yaml:"aws_access_key_id"`
+	AWSSecretKey             string `yaml:"aws_secret_access_key"`
 	ComposeProjectNamePrefix string `yaml:"compose-project-name-prefix"`
 	ComposeServiceNamePrefix string `yaml:"compose-service-name-prefix"`
 	CFNStackNamePrefix       string `yaml:"cfn-stack-name-prefix"`
 }
 
-// NewCliConfig creates a new instance of CliConfig from the cluster name.
-func NewCliConfig(cluster string) *CliConfig {
-	return &CliConfig{Cluster: cluster}
+// NewCLIConfig creates a new instance of CliConfig from the cluster name.
+func NewCLIConfig(cluster string) *CLIConfig {
+	return &CLIConfig{Cluster: cluster}
 }
 
 // ToAWSSession creates a new Session object from the CliConfig object.
@@ -71,12 +71,12 @@ func NewCliConfig(cluster string) *CliConfig {
 //    b) AWS_PROFILE environment variable (OR)
 //    c) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
 //  4) EC2 Instance role
-func (cfg *CliConfig) ToAWSSession() (*session.Session, error) {
+func (cfg *CLIConfig) ToAWSSession() (*session.Session, error) {
 	svcConfig := aws.Config{}
 	return cfg.toAWSSessionWithConfig(svcConfig)
 }
 
-func (cfg *CliConfig) toAWSSessionWithConfig(svcConfig aws.Config) (*session.Session, error) {
+func (cfg *CLIConfig) toAWSSessionWithConfig(svcConfig aws.Config) (*session.Session, error) {
 	credentialProviders := cfg.getInitialCredentialProviders()
 	chainCredentials := credentials.NewChainCredentials(credentialProviders)
 	if _, err := chainCredentials.Get(); err == nil {
@@ -87,7 +87,7 @@ func (cfg *CliConfig) toAWSSessionWithConfig(svcConfig aws.Config) (*session.Ses
 
 	svcSession, err := session.NewSessionWithOptions(session.Options{
 		Config:            svcConfig,
-		Profile:           cfg.AwsProfile,
+		Profile:           cfg.AWSProfile,
 		SharedConfigState: session.SharedConfigEnable,
 	})
 	if err != nil {
@@ -102,7 +102,7 @@ func (cfg *CliConfig) toAWSSessionWithConfig(svcConfig aws.Config) (*session.Ses
 }
 
 // getInitialCredentialProviders gets the starting chain of credential providers to use when creating service clients.
-func (cfg *CliConfig) getInitialCredentialProviders() []credentials.Provider {
+func (cfg *CLIConfig) getInitialCredentialProviders() []credentials.Provider {
 	// Append providers in the default credential providers chain to the chain.
 	// Order of credential resolution
 	//  1) Environment Variable
@@ -112,8 +112,8 @@ func (cfg *CliConfig) getInitialCredentialProviders() []credentials.Provider {
 		&credentials.EnvProvider{},
 		&credentials.StaticProvider{
 			Value: credentials.Value{
-				AccessKeyID:     cfg.AwsAccessKey,
-				SecretAccessKey: cfg.AwsSecretKey,
+				AccessKeyID:     cfg.AWSAccessKey,
+				SecretAccessKey: cfg.AWSSecretKey,
 			},
 		},
 	}
@@ -122,7 +122,7 @@ func (cfg *CliConfig) getInitialCredentialProviders() []credentials.Provider {
 }
 
 // getRegion gets the region to use from environment variables or ecs-cli's config file..
-func (cfg *CliConfig) getRegion() string {
+func (cfg *CLIConfig) getRegion() string {
 	// Order of region resolution
 	//  1) Environment Variable
 	//  2) ECS Config

@@ -30,11 +30,11 @@ const (
 
 // ReadWriter interface has methods to read and write ecs-cli config to and from the config file.
 type ReadWriter interface {
-	Save(*CliConfig) error
-	GetConfig() (*CliConfig, map[interface{}]interface{}, error)
+	Save(*CLIConfig) error
+	GetConfig() (*CLIConfig, map[interface{}]interface{}, error)
 }
 
-// YamlReadWriter implments the ReadWriter interfaces. It can be used to save and load
+// YAMLReadWriter implments the ReadWriter interfaces. It can be used to save and load
 // ecs-cli config. Sample ecs-cli config:
 // cluster: test
 // aws_profile:
@@ -44,21 +44,21 @@ type ReadWriter interface {
 // compose-project-name-prefix: ecscompose-
 // compose-service-name-prefix:
 // cfn-stack-name-prefix: ecs-cli-
-type YamlReadWriter struct {
+type YAMLReadWriter struct {
 	destination *Destination
 }
 
 // NewReadWriter creates a new Parser object.
-func NewReadWriter() (*YamlReadWriter, error) {
+func NewReadWriter() (*YAMLReadWriter, error) {
 	dest, err := newDefaultDestination()
 	if err != nil {
 		return nil, err
 	}
 
-	return &YamlReadWriter{destination: dest}, nil
+	return &YAMLReadWriter{destination: dest}, nil
 }
 
-func readYaml(yamlPath string, configMap map[interface{}]interface{}, cliConfig *CliConfig) error {
+func readYAML(yamlPath string, configMap map[interface{}]interface{}, cliConfig *CLIConfig) error {
 	// convert yaml to CliConfig
 	dat, err := ioutil.ReadFile(yamlPath)
 	if err != nil {
@@ -77,8 +77,11 @@ func readYaml(yamlPath string, configMap map[interface{}]interface{}, cliConfig 
 }
 
 // GetConfig gets the ecs-cli config object from the config file.
-func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}, error) {
-	to := new(CliConfig)
+// map contains the keys that are present in the config file (maps string field name to string field value)
+// map is type map[interface{}]interface{} to ensure fowards compatibility with changes that will
+// cause certain keys to be mapped to maps of keys
+func (rdwr *YAMLReadWriter) GetConfig() (*CLIConfig, map[interface{}]interface{}, error) {
+	to := new(CLIConfig)
 	configMap := make(map[interface{}]interface{})
 	// read the raw bytes of the config file
 	iniPath := iniConfigPath(rdwr.destination)
@@ -87,12 +90,12 @@ func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}
 	_, iniErr := os.Stat(iniPath)
 	_, yamlErr := os.Stat(yamlPath)
 	if yamlErr == nil {
-		if err := readYaml(yamlPath, configMap, to); err != nil {
+		if err := readYAML(yamlPath, configMap, to); err != nil {
 			return nil, nil, err
 		}
 	} else if iniErr == nil { // file exists
 		// old ini config
-		iniReadWriter, err := NewIniReadWriter(rdwr.destination)
+		iniReadWriter, err := NewINIReadWriter(rdwr.destination)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -108,7 +111,8 @@ func (rdwr *YamlReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}
 	return to, configMap, nil
 }
 
-func (rdwr *YamlReadWriter) Save(cliConfig *CliConfig) error {
+// Save saves the CLIConfig to a yaml formatted file
+func (rdwr *YAMLReadWriter) Save(cliConfig *CLIConfig) error {
 	destMode := rdwr.destination.Mode
 	if err := os.MkdirAll(rdwr.destination.Path, *destMode); err != nil {
 		return err
@@ -128,6 +132,7 @@ func (rdwr *YamlReadWriter) Save(cliConfig *CliConfig) error {
 	if _, err := os.Stat(path); err == nil {
 		if err = os.Chmod(path, configFileMode); err != nil {
 			logrus.Errorf("Unable to chmod %s to mode %s", path, configFileMode)
+			logrus.Error(err.Error())
 			return err
 		}
 	}
@@ -138,6 +143,7 @@ func (rdwr *YamlReadWriter) Save(cliConfig *CliConfig) error {
 	}
 	if err = ioutil.WriteFile(path, data, configFileMode.Perm()); err != nil {
 		logrus.Errorf("Unable to write config to %s", path)
+		logrus.Error(err.Error())
 		return err
 	}
 

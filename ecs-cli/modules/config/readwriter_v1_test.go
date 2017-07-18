@@ -41,18 +41,18 @@ func newMockDestination() (*Destination, error) {
 	return &Destination{Path: tmpPath, Mode: mode}, nil
 }
 
-func setupParser(t *testing.T, dest *Destination, shouldBeInitialized bool) *YamlReadWriter {
+func setupParser(t *testing.T, dest *Destination, shouldBeInitialized bool) *YAMLReadWriter {
 
-	parser := &YamlReadWriter{destination: dest}
+	parser := &YAMLReadWriter{destination: dest}
 
 	return parser
 }
 
-func saveConfigWithCluster(t *testing.T, parser *YamlReadWriter, dest *Destination) {
-	saveConfig(t, parser, dest, &CliConfig{Cluster: testClusterName, ComposeProjectNamePrefix: "", ComposeServiceNamePrefix: "", CFNStackNamePrefix: ""})
+func saveConfigWithCluster(t *testing.T, parser *YAMLReadWriter, dest *Destination) {
+	saveConfig(t, parser, dest, &CLIConfig{Cluster: testClusterName, ComposeProjectNamePrefix: "", ComposeServiceNamePrefix: "", CFNStackNamePrefix: ""})
 }
 
-func saveConfig(t *testing.T, parser *YamlReadWriter, dest *Destination, newConfig *CliConfig) {
+func saveConfig(t *testing.T, parser *YAMLReadWriter, dest *Destination, newConfig *CLIConfig) {
 
 	err := parser.Save(newConfig)
 	assert.NoError(t, err, "Could not save config file")
@@ -83,7 +83,7 @@ func TestConfigPermissions(t *testing.T) {
 	confirmConfigMode(t, path, badMode)
 
 	// Save the config and confirm it's fixed again
-	cliConfig := &CliConfig{Cluster: testClusterName}
+	cliConfig := &CLIConfig{Cluster: testClusterName}
 	err = parser.Save(cliConfig)
 	assert.NoError(t, err, "Unable to save to new config %v", path)
 
@@ -336,6 +336,6 @@ aws_secret_access_key =
 	err = ioutil.WriteFile(dest.Path+"/"+iniConfigFileName, []byte(configSmallerContents), *dest.Mode)
 	assert.NoError(t, err)
 
-	_, err = newIniConfig(dest)
+	_, err = newINIConfig(dest)
 	assert.NoError(t, err)
 }

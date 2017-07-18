@@ -25,11 +25,11 @@ const (
 	iniConfigFileName = "config"
 )
 
-// IniReadWriter
+// INIReadWriter
 // NOTE: DEPRECATED. These functions are only left here so that
 // we can read old ini based config files for customers who have
 // still been using older versions of the CLI. All new config files
-// will be written in the YAML format. IniReadWriter can now only
+// will be written in the YAML format. INIReadWriter can now only
 // be used to load ecs-cli config.
 // Sample old ini ecs-cli config:
 // [ecs]
@@ -41,30 +41,32 @@ const (
 // compose-project-name-prefix = ecscompose-
 // compose-service-name-prefix =
 // cfn-stack-name-prefix = ecs-cli-
-
-type IniReadWriter struct {
+type INIReadWriter struct {
 	*Destination
 	cfg *ini.File
 }
 
-// NewIniReadWriter creates a new Ini Parser object for the old ini configs
-func NewIniReadWriter(dest *Destination) (*IniReadWriter, error) {
+// NewINIReadWriter creates a new Ini Parser object for the old ini configs
+func NewINIReadWriter(dest *Destination) (*INIReadWriter, error) {
 
-	iniCfg, err := newIniConfig(dest)
+	iniCfg, err := newINIConfig(dest)
 	if err != nil {
 		return nil, err
 	}
 
-	return &IniReadWriter{Destination: dest, cfg: iniCfg}, nil
+	return &INIReadWriter{Destination: dest, cfg: iniCfg}, nil
 }
 
 // GetConfig gets the ecs-cli config object from the config file.
-func (rdwr *IniReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{}, error) {
+// map contains the keys that are present in the config file (maps string field name to string field value)
+// map is type map[interface{}]interface{} to ensure fowards compatibility with changes that will
+// cause certain keys to be mapped to maps of keys
+func (rdwr *INIReadWriter) GetConfig() (*CLIConfig, map[interface{}]interface{}, error) {
 	configMap := make(map[interface{}]interface{})
-	to := &CliConfig{}
+	to := &CLIConfig{}
 
 	// read old ini formatted file
-	oldFormat := &oldCliConfig{oldSectionKeys: new(oldSectionKeys)}
+	oldFormat := &iniCLIConfig{iniSectionKeys: new(iniSectionKeys)}
 	err := rdwr.cfg.MapTo(oldFormat)
 	if err != nil {
 		return nil, nil, err
@@ -99,9 +101,9 @@ func (rdwr *IniReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{},
 	// Convert to the new CliConfig
 	to.Cluster = oldFormat.Cluster
 	to.Region = oldFormat.Region
-	to.AwsProfile = oldFormat.AwsProfile
-	to.AwsAccessKey = oldFormat.AwsAccessKey
-	to.AwsSecretKey = oldFormat.AwsSecretKey
+	to.AWSProfile = oldFormat.AwsProfile
+	to.AWSAccessKey = oldFormat.AwsAccessKey
+	to.AWSSecretKey = oldFormat.AwsSecretKey
 	to.ComposeProjectNamePrefix = oldFormat.ComposeProjectNamePrefix
 	to.ComposeServiceNamePrefix = oldFormat.ComposeServiceNamePrefix
 	to.CFNStackNamePrefix = oldFormat.CFNStackNamePrefix
@@ -110,8 +112,8 @@ func (rdwr *IniReadWriter) GetConfig() (*CliConfig, map[interface{}]interface{},
 
 // IsInitialized returns true if the config file can be read and if all the key config fields
 // have been initialized.
-func (rdwr *IniReadWriter) IsInitialized() (bool, error) {
-	to := new(CliConfig)
+func (rdwr *INIReadWriter) IsInitialized() (bool, error) {
+	to := new(CLIConfig)
 	err := rdwr.cfg.MapTo(to)
 	if err != nil {
 		return false, err
@@ -125,11 +127,11 @@ func (rdwr *IniReadWriter) IsInitialized() (bool, error) {
 }
 
 // IsKeyPresent returns true if the input key is present in the input section
-func (rdwr *IniReadWriter) IsKeyPresent(section, key string) bool {
+func (rdwr *INIReadWriter) IsKeyPresent(section, key string) bool {
 	return rdwr.cfg.Section(section).HasKey(key)
 }
 
-func newIniConfig(dest *Destination) (*ini.File, error) {
+func newINIConfig(dest *Destination) (*ini.File, error) {
 	iniCfg := ini.Empty()
 	path := iniConfigPath(dest)
 	logrus.Debugf("using config file: %s", path)

@@ -42,7 +42,7 @@ func Configure(context *cli.Context) {
 
 // createECSConfigFromCli creates a new CliConfig object from the CLI context.
 // It reads CLI flags to validate the ecs-cli config fields.
-func createECSConfigFromCli(context *cli.Context) (*config.CliConfig, error) {
+func createECSConfigFromCli(context *cli.Context) (*config.CLIConfig, error) {
 	accessKey := context.String(command.AccessKeyFlag)
 	secretKey := context.String(command.SecretKeyFlag)
 	region := context.String(command.RegionFlag)
@@ -60,10 +60,10 @@ func createECSConfigFromCli(context *cli.Context) (*config.CliConfig, error) {
 		return nil, fmt.Errorf("Both AWS Access/Secret Keys and Profile were provided; only one of the two can be specified")
 	}
 
-	ecsConfig := config.NewCliConfig(cluster)
-	ecsConfig.AwsProfile = profile
-	ecsConfig.AwsAccessKey = accessKey
-	ecsConfig.AwsSecretKey = secretKey
+	ecsConfig := config.NewCLIConfig(cluster)
+	ecsConfig.AWSProfile = profile
+	ecsConfig.AWSAccessKey = accessKey
+	ecsConfig.AWSSecretKey = secretKey
 	ecsConfig.Region = region
 
 	ecsConfig.ComposeProjectNamePrefix = context.String(command.ComposeProjectNamePrefixFlag)
@@ -74,7 +74,7 @@ func createECSConfigFromCli(context *cli.Context) (*config.CliConfig, error) {
 }
 
 // saveConfig does the actual configuration setup. This isolated method is useful for testing.
-func saveConfig(ecsConfig *config.CliConfig, rdwr config.ReadWriter) error {
+func saveConfig(ecsConfig *config.CLIConfig, rdwr config.ReadWriter) error {
 
 	err := rdwr.Save(ecsConfig)
 	if err != nil {

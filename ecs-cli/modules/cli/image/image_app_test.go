@@ -47,13 +47,13 @@ type mockReadWriter struct {
 	clusterName string
 }
 
-func (rdwr *mockReadWriter) GetConfig() (*config.CliConfig, map[interface{}]interface{}, error) {
+func (rdwr *mockReadWriter) GetConfig() (*config.CLIConfig, map[interface{}]interface{}, error) {
 	m := make(map[interface{}]interface{})
 	m["cluster"] = rdwr.clusterName
-	return config.NewCliConfig(rdwr.clusterName), m, nil
+	return config.NewCLIConfig(rdwr.clusterName), m, nil
 }
 
-func (rdwr *mockReadWriter) Save(*config.CliConfig) error {
+func (rdwr *mockReadWriter) Save(*config.CLIConfig) error {
 	return nil
 }
 

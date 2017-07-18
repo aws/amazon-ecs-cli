@@ -41,16 +41,16 @@ const clusterName = "clusterName"
 // field whenperforming read.
 type mockReadWriter struct{}
 
-func (rdwr *mockReadWriter) GetConfig() (*config.CliConfig, map[interface{}]interface{}, error) {
+func (rdwr *mockReadWriter) GetConfig() (*config.CLIConfig, map[interface{}]interface{}, error) {
 	m := make(map[interface{}]interface{})
 	m["cluster"] = clusterName
 	m["compose-project-name-prefix"] = ""
 	m["compose-service-name-prefix"] = ""
 	m["cfn-stack-name-prefix"] = ""
-	return config.NewCliConfig(clusterName), m, nil
+	return config.NewCLIConfig(clusterName), m, nil
 }
 
-func (rdwr *mockReadWriter) Save(ecsConfig *config.CliConfig) error {
+func (rdwr *mockReadWriter) Save(ecsConfig *config.CLIConfig) error {
 	return nil
 }
 

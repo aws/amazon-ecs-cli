@@ -41,9 +41,9 @@ func TestConfigureWithoutKeysOrProfile(t *testing.T) {
 	assert.NoError(t, err, "Unexpected error initializing region and cluster")
 	assert.Equal(t, clusterName, cfg.Cluster, "Expected cluster name to match")
 	assert.Equal(t, region, cfg.Region, "Expected region to match")
-	assert.Empty(t, cfg.AwsProfile, "Expected AWS profile to be empty")
-	assert.Empty(t, cfg.AwsAccessKey, "Expected access key to be empty")
-	assert.Empty(t, cfg.AwsSecretKey, "Expected secret key to be empty")
+	assert.Empty(t, cfg.AWSProfile, "Expected AWS profile to be empty")
+	assert.Empty(t, cfg.AWSAccessKey, "Expected access key to be empty")
+	assert.Empty(t, cfg.AWSSecretKey, "Expected secret key to be empty")
 }
 
 func TestConfigtWithSecretAndAccessKeys(t *testing.T) {
@@ -58,9 +58,9 @@ func TestConfigtWithSecretAndAccessKeys(t *testing.T) {
 	assert.NoError(t, err, "Unexpected error reading config from rdwr")
 	assert.Equal(t, clusterName, cfg.Cluster, "Expected cluster name to match")
 	assert.Equal(t, region, cfg.Region, "Expected region to match")
-	assert.Empty(t, cfg.AwsProfile, "Expected AWS profile to be empty")
-	assert.Equal(t, awsAccessKey, cfg.AwsAccessKey, "Expected access key to match")
-	assert.Equal(t, awsSecretKey, cfg.AwsSecretKey, "Expected secret key to match")
+	assert.Empty(t, cfg.AWSProfile, "Expected AWS profile to be empty")
+	assert.Equal(t, awsAccessKey, cfg.AWSAccessKey, "Expected access key to match")
+	assert.Equal(t, awsSecretKey, cfg.AWSSecretKey, "Expected secret key to match")
 }
 
 func TestConfigInitWithProfile(t *testing.T) {
@@ -74,9 +74,9 @@ func TestConfigInitWithProfile(t *testing.T) {
 	assert.NoError(t, err, "Unexpected error reading config from rdwr")
 	assert.Equal(t, clusterName, cfg.Cluster, "Expected cluster name to match")
 	assert.Equal(t, region, cfg.Region, "Expected region to match")
-	assert.Equal(t, profileName, cfg.AwsProfile, "Expected AWS profile to match")
-	assert.Empty(t, cfg.AwsAccessKey, "Expected access key to be empty")
-	assert.Empty(t, cfg.AwsSecretKey, "Expected secret key to be empty")
+	assert.Equal(t, profileName, cfg.AWSProfile, "Expected AWS profile to match")
+	assert.Empty(t, cfg.AWSAccessKey, "Expected access key to be empty")
+	assert.Empty(t, cfg.AWSSecretKey, "Expected secret key to be empty")
 }
 
 func TestConfigInitWithoutCluster(t *testing.T) {
