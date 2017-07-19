@@ -23,8 +23,8 @@ import (
 	"github.com/urfave/cli"
 )
 
-// CliParams saves config to create an aws service clients
-type CliParams struct {
+// CLIParams saves config to create an aws service clients
+type CLIParams struct {
 	Cluster                  string
 	Session                  *session.Session
 	ComposeProjectNamePrefix string
@@ -32,8 +32,8 @@ type CliParams struct {
 	CFNStackNamePrefix       string
 }
 
-// GetCfnStackName <cfn_stack_name_prefix> + <cluster_name>
-func (p *CliParams) GetCfnStackName() string {
+// GetCFNStackName <cfn_stack_name_prefix> + <cluster_name>
+func (p *CLIParams) GetCFNStackName() string {
 	return fmt.Sprintf("%s%s", p.CFNStackNamePrefix, p.Cluster)
 }
 
@@ -50,11 +50,13 @@ func recursiveFlagSearch(context *cli.Context, flag string) string {
 	}
 }
 
-// NewCliParams creates a new ECSParams object from the config file.
-func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
+// NewCLIParams creates a new ECSParams object from the config file.
+func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 	ecsConfig, configMap, err := rdwr.GetConfig()
 	if err != nil {
-		logrus.Error("Error loading config: ", err)
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("Error loading config")
 		return nil, err
 	}
 
@@ -90,7 +92,7 @@ func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 		return nil, err
 	}
 
-	return &CliParams{
+	return &CLIParams{
 		Cluster:                  ecsConfig.Cluster,
 		Session:                  svcSession,
 		ComposeProjectNamePrefix: ecsConfig.ComposeProjectNamePrefix,

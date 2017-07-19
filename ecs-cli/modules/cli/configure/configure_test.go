@@ -37,7 +37,7 @@ func TestConfigureWithoutKeysOrProfile(t *testing.T) {
 	setNoKeysNoProfile.String(command.RegionFlag, region, "")
 	setNoKeysNoProfile.String(command.ClusterFlag, clusterName, "")
 	context := cli.NewContext(nil, setNoKeysNoProfile, nil)
-	cfg, err := createECSConfigFromCli(context)
+	cfg, err := createECSConfigFromCLI(context)
 	assert.NoError(t, err, "Unexpected error initializing region and cluster")
 	assert.Equal(t, clusterName, cfg.Cluster, "Expected cluster name to match")
 	assert.Equal(t, region, cfg.Region, "Expected region to match")
@@ -54,7 +54,7 @@ func TestConfigtWithSecretAndAccessKeys(t *testing.T) {
 	setSecretAndAccessKeys.String(command.SecretKeyFlag, awsSecretKey, "")
 	setSecretAndAccessKeys.String(command.AccessKeyFlag, awsAccessKey, "")
 	context := cli.NewContext(nil, setSecretAndAccessKeys, nil)
-	cfg, err := createECSConfigFromCli(context)
+	cfg, err := createECSConfigFromCLI(context)
 	assert.NoError(t, err, "Unexpected error reading config from rdwr")
 	assert.Equal(t, clusterName, cfg.Cluster, "Expected cluster name to match")
 	assert.Equal(t, region, cfg.Region, "Expected region to match")
@@ -70,7 +70,7 @@ func TestConfigInitWithProfile(t *testing.T) {
 	setProfile.String(command.ClusterFlag, clusterName, "")
 	setProfile.String(command.RegionFlag, region, "")
 	context := cli.NewContext(nil, setProfile, nil)
-	cfg, err := createECSConfigFromCli(context)
+	cfg, err := createECSConfigFromCLI(context)
 	assert.NoError(t, err, "Unexpected error reading config from rdwr")
 	assert.Equal(t, clusterName, cfg.Cluster, "Expected cluster name to match")
 	assert.Equal(t, region, cfg.Region, "Expected region to match")
@@ -85,7 +85,7 @@ func TestConfigInitWithoutCluster(t *testing.T) {
 	setProfileNoCluster.String(command.ProfileFlag, profileName, "")
 	setProfileNoCluster.String(command.RegionFlag, region, "")
 	context := cli.NewContext(nil, setProfileNoCluster, nil)
-	_, err := createECSConfigFromCli(context)
+	_, err := createECSConfigFromCLI(context)
 	assert.Error(t, err, "Expected error when cluster is not specified")
 }
 
@@ -98,7 +98,7 @@ func TestConfigInitWithProfileAndKeys(t *testing.T) {
 	setEverything.String(command.SecretKeyFlag, awsSecretKey, "")
 	setEverything.String(command.AccessKeyFlag, awsAccessKey, "")
 	context := cli.NewContext(nil, setEverything, nil)
-	_, err := createECSConfigFromCli(context)
+	_, err := createECSConfigFromCLI(context)
 	assert.Error(t, err, "Expected error when both AWS Profile and access keys are specified")
 }
 
@@ -117,7 +117,7 @@ func TestConfigInitWithPrefixes(t *testing.T) {
 
 	context := cli.NewContext(nil, setPrefixes, nil)
 
-	cfg, err := createECSConfigFromCli(context)
+	cfg, err := createECSConfigFromCLI(context)
 	assert.NoError(t, err, "Unexpected error reading config from rdwr")
 	assert.Equal(t, composeProjectName, cfg.ComposeProjectNamePrefix, "Expected ComposeProjectName to match in config")
 	assert.Equal(t, composeServiceName, cfg.ComposeServiceNamePrefix, "Expected ComposeServiceName to match in config")
@@ -131,7 +131,7 @@ func TestConfigInitWithoutPrefixes(t *testing.T) {
 
 	context := cli.NewContext(nil, setNoPrefixes, nil)
 
-	cfg, err := createECSConfigFromCli(context)
+	cfg, err := createECSConfigFromCLI(context)
 	assert.NoError(t, err, "Unexpected error reading config from rdwr")
 	assert.Empty(t, cfg.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
 	assert.Empty(t, cfg.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")

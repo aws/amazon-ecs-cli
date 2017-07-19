@@ -72,7 +72,7 @@ func (projectFactory projectFactory) populateContext(ecsContext *context.Context
 		utils.LogError(err, "Error loading config")
 		return err
 	}
-	params, err := config.NewCliParams(cliContext, rdwr)
+	params, err := config.NewCLIParams(cliContext, rdwr)
 	if err != nil {
 		utils.LogError(err, "Unable to create an instance of ECSParams given the cli context")
 		return err

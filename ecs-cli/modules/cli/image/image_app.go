@@ -57,7 +57,7 @@ func ImagePush(c *cli.Context) {
 		return
 	}
 
-	ecsParams, err := config.NewCliParams(c, rdwr)
+	ecsParams, err := config.NewCLIParams(c, rdwr)
 	if err != nil {
 		logrus.Error("Error executing 'push': ", err)
 		return
@@ -85,7 +85,7 @@ func ImagePull(c *cli.Context) {
 		return
 	}
 
-	ecsParams, err := config.NewCliParams(c, rdwr)
+	ecsParams, err := config.NewCLIParams(c, rdwr)
 	if err != nil {
 		logrus.Error("Error executing 'pull': ", err)
 		return
@@ -113,7 +113,7 @@ func ImageList(c *cli.Context) {
 		return
 	}
 
-	ecsParams, err := config.NewCliParams(c, rdwr)
+	ecsParams, err := config.NewCLIParams(c, rdwr)
 	if err != nil {
 		logrus.Error("Error executing 'images': ", err)
 		return

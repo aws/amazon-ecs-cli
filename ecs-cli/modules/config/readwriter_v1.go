@@ -19,13 +19,11 @@ import (
 	"path/filepath"
 
 	yaml "gopkg.in/yaml.v2"
-
-	"github.com/Sirupsen/logrus"
 )
 
 const (
 	yamlConfigFileName = "config.yml"
-	configFileMode     = os.FileMode(0600)
+	configFileMode     = os.FileMode(0600) // Owner=read/write, Other=None
 )
 
 // ReadWriter interface has methods to read and write ecs-cli config to and from the config file.
@@ -122,17 +120,9 @@ func (rdwr *YAMLReadWriter) Save(cliConfig *CLIConfig) error {
 
 	path := yamlConfigPath(rdwr.destination)
 
-	// Warn the user if ini path also exists
-	iniPath := iniConfigPath(rdwr.destination)
-	if _, iniErr := os.Stat(iniPath); iniErr == nil {
-		logrus.Warnf("Writing yaml formatted config to %s/.ecs/%s.\nIni formatted config still exists in %s/.ecs/%s.", os.Getenv("HOME"), yamlConfigFileName, os.Getenv("HOME"), iniConfigFileName)
-	}
-
 	// If config file exists, set permissions first, because we may be writing creds.
 	if _, err := os.Stat(path); err == nil {
 		if err = os.Chmod(path, configFileMode); err != nil {
-			logrus.Errorf("Unable to chmod %s to mode %s", path, configFileMode)
-			logrus.Error(err.Error())
 			return err
 		}
 	}
@@ -142,8 +132,6 @@ func (rdwr *YAMLReadWriter) Save(cliConfig *CLIConfig) error {
 		return err
 	}
 	if err = ioutil.WriteFile(path, data, configFileMode.Perm()); err != nil {
-		logrus.Errorf("Unable to write config to %s", path)
-		logrus.Error(err.Error())
 		return err
 	}
 

@@ -99,7 +99,7 @@ func confirmConfigMode(t *testing.T, path string, expected os.FileMode) {
 
 }
 
-func TestPrefixesEmptyNewYamlFormat(t *testing.T) {
+func TestPrefixesEmptyNewYAMLFormat(t *testing.T) {
 	dest, err := newMockDestination()
 	assert.NoError(t, err, "Error creating mock config destination")
 
@@ -129,7 +129,7 @@ func TestPrefixesEmptyNewYamlFormat(t *testing.T) {
 	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
 }
 
-func TestPrefixesEmptyOldIniFormat(t *testing.T) {
+func TestPrefixesEmptyOldINIFormat(t *testing.T) {
 	configContents := `[ecs]
 cluster = test-cluster
 aws_profile = testProfile
@@ -167,7 +167,7 @@ cfn-stack-name-prefix =
 	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
 }
 
-func TestPrefixesDefaultOldIniFormat(t *testing.T) {
+func TestPrefixesDefaultOldINIFormat(t *testing.T) {
 	configContents := `[ecs]
 cluster = test
 aws_profile =
@@ -203,7 +203,7 @@ cfn-stack-name-prefix =
 	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
 }
 
-func TestMissingPrefixesOldIniFormat(t *testing.T) {
+func TestMissingPrefixesOldINIFormat(t *testing.T) {
 	configContentsNoPrefixes := `[ecs]
 cluster = test
 aws_profile =
@@ -233,7 +233,7 @@ aws_secret_access_key =
 	assert.False(t, ok, "Compose project name prefix should not exist in config")
 }
 
-func TestMissingPrefixesNewYamlFormat(t *testing.T) {
+func TestMissingPrefixesNewYAMLFormat(t *testing.T) {
 	configContentsNoPrefixes := `
 version: v0
 cluster: test
@@ -264,7 +264,7 @@ aws_secret_access_key:
 	assert.False(t, ok, "Compose project name prefix should not exist in config")
 }
 
-func TestPrefixesDefaultNewYamlFormat(t *testing.T) {
+func TestPrefixesDefaultNewYAMLFormat(t *testing.T) {
 	configContents := `
 version: v0
 cluster: test

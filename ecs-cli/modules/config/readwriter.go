@@ -83,10 +83,10 @@ func (rdwr *INIReadWriter) GetConfig() (*CLIConfig, map[interface{}]interface{},
 		configMap["region"] = oldFormat.Region
 	}
 	if rdwr.IsKeyPresent(ecsSectionKey, "aws_access_key_id") {
-		configMap["aws_access_key_id"] = oldFormat.AwsAccessKey
+		configMap["aws_access_key_id"] = oldFormat.AWSAccessKey
 	}
 	if rdwr.IsKeyPresent(ecsSectionKey, "aws_secret_access_key") {
-		configMap["aws_secret_access_key"] = oldFormat.AwsSecretKey
+		configMap["aws_secret_access_key"] = oldFormat.AWSSecretKey
 	}
 	if rdwr.IsKeyPresent(ecsSectionKey, "compose-project-name-prefix") {
 		configMap["compose-project-name-prefix"] = oldFormat.ComposeProjectNamePrefix
@@ -102,8 +102,8 @@ func (rdwr *INIReadWriter) GetConfig() (*CLIConfig, map[interface{}]interface{},
 	to.Cluster = oldFormat.Cluster
 	to.Region = oldFormat.Region
 	to.AWSProfile = oldFormat.AwsProfile
-	to.AWSAccessKey = oldFormat.AwsAccessKey
-	to.AWSSecretKey = oldFormat.AwsSecretKey
+	to.AWSAccessKey = oldFormat.AWSAccessKey
+	to.AWSSecretKey = oldFormat.AWSSecretKey
 	to.ComposeProjectNamePrefix = oldFormat.ComposeProjectNamePrefix
 	to.ComposeServiceNamePrefix = oldFormat.ComposeServiceNamePrefix
 	to.CFNStackNamePrefix = oldFormat.CFNStackNamePrefix
@@ -134,7 +134,6 @@ func (rdwr *INIReadWriter) IsKeyPresent(section, key string) bool {
 func newINIConfig(dest *Destination) (*ini.File, error) {
 	iniCfg := ini.Empty()
 	path := iniConfigPath(dest)
-	logrus.Debugf("using config file: %s", path)
 	if _, err := os.Stat(path); err != nil {
 		// TODO: handle os.isnotexist(path) and other errors differently
 		// error reading config file, create empty config ini.

@@ -24,25 +24,31 @@ import (
 
 // Configure is the callback for ConfigureCommand.
 func Configure(context *cli.Context) {
-	ecsConfig, err := createECSConfigFromCli(context)
+	ecsConfig, err := createECSConfigFromCLI(context)
 	if err != nil {
-		logrus.Error("Error initializing: ", err)
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("Error saving config.")
 		return
 	}
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
-		logrus.Error("Error initializing: ", err)
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("Error saving config.")
 		return
 	}
 	err = saveConfig(ecsConfig, rdwr)
 	if err != nil {
-		logrus.Error("Error initializing: ", err)
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("Error saving config.")
 	}
 }
 
-// createECSConfigFromCli creates a new CliConfig object from the CLI context.
+// createECSConfigFromCLI creates a new CliConfig object from the CLI context.
 // It reads CLI flags to validate the ecs-cli config fields.
-func createECSConfigFromCli(context *cli.Context) (*config.CLIConfig, error) {
+func createECSConfigFromCLI(context *cli.Context) (*config.CLIConfig, error) {
 	accessKey := context.String(command.AccessKeyFlag)
 	secretKey := context.String(command.SecretKeyFlag)
 	region := context.String(command.RegionFlag)
@@ -80,6 +86,8 @@ func saveConfig(ecsConfig *config.CLIConfig, rdwr config.ReadWriter) error {
 	if err != nil {
 		return err
 	}
-	logrus.Infof("Saved ECS CLI configuration for cluster (%s)", ecsConfig.Cluster)
+	logrus.WithFields(logrus.Fields{
+		"cluster": ecsConfig.Cluster,
+	}).Info("Saved ECS CLI configuration for")
 	return nil
 }

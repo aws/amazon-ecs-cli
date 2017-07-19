@@ -463,8 +463,8 @@ func TestClusterUpWithoutRegion(t *testing.T) {
 }
 
 func TestClusterDown(t *testing.T) {
-	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CliParams, error) {
-		return &config.CliParams{
+	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CLIParams, error) {
+		return &config.CLIParams{
 			Cluster: clusterName,
 		}, nil
 	}
@@ -511,8 +511,8 @@ func TestDeleteClusterPrompt(t *testing.T) {
 }
 
 func TestClusterScale(t *testing.T) {
-	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CliParams, error) {
-		return &config.CliParams{
+	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CLIParams, error) {
+		return &config.CLIParams{
 			Cluster: clusterName,
 		}, nil
 	}
@@ -564,8 +564,8 @@ func TestClusterPSTaskGetInfoFail(t *testing.T) {
 	testSession, err := session.NewSession()
 	assert.NoError(t, err, "Unexpected error in creating session")
 
-	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CliParams, error) {
-		return &config.CliParams{
+	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CLIParams, error) {
+		return &config.CLIParams{
 			Cluster: clusterName,
 			Session: testSession,
 		}, nil

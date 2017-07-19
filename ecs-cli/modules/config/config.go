@@ -29,13 +29,13 @@ type iniCLIConfig struct {
 	*iniSectionKeys `ini:"ecs"`
 }
 
-// SectionKeys is the struct embedded in oldCliConfig. It groups all the keys in the 'ecs' section in the ini file.
+// SectionKeys is the struct embedded in iniCLIConfig. It groups all the keys in the 'ecs' section in the ini file.
 type iniSectionKeys struct {
 	Cluster                  string `ini:"cluster"`
 	AwsProfile               string `ini:"aws_profile"`
 	Region                   string `ini:"region"`
-	AwsAccessKey             string `ini:"aws_access_key_id"`
-	AwsSecretKey             string `ini:"aws_secret_access_key"`
+	AWSAccessKey             string `ini:"aws_access_key_id"`
+	AWSSecretKey             string `ini:"aws_secret_access_key"`
 	ComposeProjectNamePrefix string `ini:"compose-project-name-prefix"`
 	ComposeServiceNamePrefix string `ini:"compose-service-name-prefix"`
 	CFNStackNamePrefix       string `ini:"cfn-stack-name-prefix"`
