@@ -18,6 +18,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/pkg/errors"
+
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -60,15 +62,15 @@ func readYAML(yamlPath string, configMap map[interface{}]interface{}, cliConfig 
 	// convert yaml to CliConfig
 	dat, err := ioutil.ReadFile(yamlPath)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "Error reading yaml file %s", yamlPath)
 	}
 	if err = yaml.Unmarshal(dat, cliConfig); err != nil {
-		return err
+		return errors.Wrapf(err, "Error parsing yaml file %s", yamlPath)
 	}
 
 	// convert yaml to a map (replaces IsKeyPresent functionality)
 	if err = yaml.Unmarshal(dat, &configMap); err != nil {
-		return err
+		return errors.Wrapf(err, "Error parsing yaml file %s", yamlPath)
 	}
 
 	return nil
@@ -88,32 +90,26 @@ func (rdwr *YAMLReadWriter) GetConfig() (*CLIConfig, map[interface{}]interface{}
 	_, iniErr := os.Stat(iniPath)
 	_, yamlErr := os.Stat(yamlPath)
 	if yamlErr == nil {
-		if err := readYAML(yamlPath, configMap, to); err != nil {
-			return nil, nil, err
-		}
+		err := readYAML(yamlPath, configMap, to)
+		return to, configMap, err
 	} else if iniErr == nil { // file exists
 		// old ini config
 		iniReadWriter, err := NewINIReadWriter(rdwr.destination)
 		if err != nil {
 			return nil, nil, err
 		}
-		to, configMap, err = iniReadWriter.GetConfig()
-		if err != nil {
-			return nil, nil, err
-		}
-
+		return iniReadWriter.GetConfig()
 	} else {
 		// if neither file existed we return the yaml error
-		return nil, nil, yamlErr
+		return nil, nil, errors.Wrap(yamlErr, "No config file found")
 	}
-	return to, configMap, nil
 }
 
 // Save saves the CLIConfig to a yaml formatted file
 func (rdwr *YAMLReadWriter) Save(cliConfig *CLIConfig) error {
 	destMode := rdwr.destination.Mode
 	if err := os.MkdirAll(rdwr.destination.Path, *destMode); err != nil {
-		return err
+		return errors.Wrapf(err, "Could not make directory %s", rdwr.destination.Path)
 	}
 	// set version
 	cliConfig.Version = configVersion
@@ -123,16 +119,16 @@ func (rdwr *YAMLReadWriter) Save(cliConfig *CLIConfig) error {
 	// If config file exists, set permissions first, because we may be writing creds.
 	if _, err := os.Stat(path); err == nil {
 		if err = os.Chmod(path, configFileMode); err != nil {
-			return err
+			return errors.Wrapf(err, "Could not set file permissions, %s, for path %s", configFileMode, path)
 		}
 	}
 
 	data, err := yaml.Marshal(cliConfig)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "Could not convert config to YAML")
 	}
 	if err = ioutil.WriteFile(path, data, configFileMode.Perm()); err != nil {
-		return err
+		return errors.Wrapf(err, "Could not write config file %s", path)
 	}
 
 	return nil

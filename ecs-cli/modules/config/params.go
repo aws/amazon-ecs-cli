@@ -20,6 +20,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 )
 
@@ -54,9 +55,8 @@ func recursiveFlagSearch(context *cli.Context, flag string) string {
 func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 	ecsConfig, configMap, err := rdwr.GetConfig()
 	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"error": err,
-		}).Error("Error loading config")
+		errors.Wrap(err, "Error loading config")
+		logrus.Error(err)
 		return nil, err
 	}
 

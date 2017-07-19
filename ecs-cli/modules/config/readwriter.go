@@ -17,8 +17,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/go-ini/ini"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -48,7 +48,6 @@ type INIReadWriter struct {
 
 // NewINIReadWriter creates a new Ini Parser object for the old ini configs
 func NewINIReadWriter(dest *Destination) (*INIReadWriter, error) {
-
 	iniCfg, err := newINIConfig(dest)
 	if err != nil {
 		return nil, err
@@ -134,14 +133,10 @@ func (rdwr *INIReadWriter) IsKeyPresent(section, key string) bool {
 func newINIConfig(dest *Destination) (*ini.File, error) {
 	iniCfg := ini.Empty()
 	path := iniConfigPath(dest)
-	if _, err := os.Stat(path); err != nil {
-		// TODO: handle os.isnotexist(path) and other errors differently
-		// error reading config file, create empty config ini.
-		logrus.Debugf("no config files found, initializing empty ini")
-	} else {
+	if _, err := os.Stat(path); err == nil {
 		err = iniCfg.Append(path)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "Failed to initialize ini reader")
 		}
 	}
 
