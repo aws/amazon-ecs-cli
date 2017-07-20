@@ -105,6 +105,7 @@ func (rdwr *YAMLReadWriter) GetConfig() (*CLIConfig, map[interface{}]interface{}
 	if err != nil {
 		return nil, nil, err
 	}
+	isIni = true
 	if !isIni { // assume it is yaml
 		err := readYAML(path, configMap, to)
 		logrus.Warnf("Is YAML")

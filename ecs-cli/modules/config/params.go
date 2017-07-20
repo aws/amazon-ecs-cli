@@ -56,6 +56,9 @@ func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 	ecsConfig, configMap, err := rdwr.GetConfig()
 	logrus.Warnf("ecsConfig: %s", ecsConfig)
 	logrus.Warnf("map: %s", configMap)
+	logrus.Warnf("access: %s", ecsConfig.AWSAccessKey)
+	logrus.Warnf("secret: %s", ecsConfig.AWSSecretKey)
+
 	if err != nil {
 		errors.Wrap(err, "Error loading config")
 		logrus.Error(err)
