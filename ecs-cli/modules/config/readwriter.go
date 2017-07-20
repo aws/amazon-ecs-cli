@@ -15,14 +15,9 @@ package config
 
 import (
 	"os"
-	"path/filepath"
 
 	"github.com/go-ini/ini"
 	"github.com/pkg/errors"
-)
-
-const (
-	iniConfigFileName = "config"
 )
 
 // INIReadWriter
@@ -132,7 +127,7 @@ func (rdwr *INIReadWriter) IsKeyPresent(section, key string) bool {
 
 func newINIConfig(dest *Destination) (*ini.File, error) {
 	iniCfg := ini.Empty()
-	path := iniConfigPath(dest)
+	path := configPath(dest)
 	if _, err := os.Stat(path); err == nil {
 		err = iniCfg.Append(path)
 		if err != nil {
@@ -141,8 +136,4 @@ func newINIConfig(dest *Destination) (*ini.File, error) {
 	}
 
 	return iniCfg, nil
-}
-
-func iniConfigPath(dest *Destination) string {
-	return filepath.Join(dest.Path, iniConfigFileName)
 }

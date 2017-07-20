@@ -72,7 +72,7 @@ func TestConfigPermissions(t *testing.T) {
 	// Create config file and confirm it has expected initial permissions
 	saveConfigWithCluster(t, parser, dest)
 
-	path := yamlConfigPath(dest)
+	path := configPath(dest)
 	confirmConfigMode(t, path, configFileMode)
 
 	// Now set the config mode to something bad
@@ -147,7 +147,7 @@ cfn-stack-name-prefix =
 	assert.NoError(t, err, "Could not create config directory")
 	defer os.RemoveAll(dest.Path)
 
-	err = ioutil.WriteFile(iniConfigPath(dest), []byte(configContents), *dest.Mode)
+	err = ioutil.WriteFile(configPath(dest), []byte(configContents), *dest.Mode)
 	assert.NoError(t, err)
 
 	// Reinitialize from the written file.
@@ -186,7 +186,7 @@ cfn-stack-name-prefix =
 
 	defer os.RemoveAll(dest.Path)
 
-	err = ioutil.WriteFile(iniConfigPath(dest), []byte(configContents), *dest.Mode)
+	err = ioutil.WriteFile(configPath(dest), []byte(configContents), *dest.Mode)
 	assert.NoError(t, err)
 
 	parser := setupParser(t, dest, true)
@@ -219,7 +219,7 @@ aws_secret_access_key =
 
 	defer os.RemoveAll(dest.Path)
 
-	err = ioutil.WriteFile(dest.Path+"/"+iniConfigFileName, []byte(configContentsNoPrefixes), *dest.Mode)
+	err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configContentsNoPrefixes), *dest.Mode)
 	assert.NoError(t, err)
 
 	parser := setupParser(t, dest, true)
@@ -250,7 +250,7 @@ aws_secret_access_key:
 
 	defer os.RemoveAll(dest.Path)
 
-	err = ioutil.WriteFile(dest.Path+"/"+yamlConfigFileName, []byte(configContentsNoPrefixes), *dest.Mode)
+	err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configContentsNoPrefixes), *dest.Mode)
 	assert.NoError(t, err)
 
 	parser := setupParser(t, dest, true)
@@ -284,7 +284,7 @@ cfn-stack-name-prefix:
 
 	defer os.RemoveAll(dest.Path)
 
-	err = ioutil.WriteFile(yamlConfigPath(dest), []byte(configContents), *dest.Mode)
+	err = ioutil.WriteFile(configPath(dest), []byte(configContents), *dest.Mode)
 	assert.NoError(t, err)
 
 	parser := setupParser(t, dest, true)
@@ -329,11 +329,11 @@ aws_secret_access_key =
 	defer os.RemoveAll(dest.Path)
 
 	// Save config for the first time
-	err = ioutil.WriteFile(dest.Path+"/"+iniConfigFileName, []byte(configContents), *dest.Mode)
+	err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configContents), *dest.Mode)
 	assert.NoError(t, err)
 
 	// Save config with shorter cluster name
-	err = ioutil.WriteFile(dest.Path+"/"+iniConfigFileName, []byte(configSmallerContents), *dest.Mode)
+	err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configSmallerContents), *dest.Mode)
 	assert.NoError(t, err)
 
 	_, err = newINIConfig(dest)

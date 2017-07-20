@@ -17,6 +17,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -24,8 +25,8 @@ import (
 )
 
 const (
-	yamlConfigFileName = "config.yml"
-	configFileMode     = os.FileMode(0600) // Owner=read/write, Other=None
+	configFileName = "config"
+	configFileMode = os.FileMode(0600) // Owner=read/write, Other=None
 )
 
 // ReadWriter interface has methods to read and write ecs-cli config to and from the config file.
@@ -58,6 +59,19 @@ func NewReadWriter() (*YAMLReadWriter, error) {
 	return &YAMLReadWriter{destination: dest}, nil
 }
 
+func isFileINI(path string) (bool, error) {
+	// convert yaml to CliConfig
+	dat, err := ioutil.ReadFile(path)
+	if err != nil {
+		return false, errors.Wrapf(err, "Error reading file %s", path)
+	}
+	if strings.HasPrefix(string(dat), "["+ecsSectionKey+"]") { // is INI
+		return true, nil
+	} else {
+		return false, nil
+	}
+}
+
 func readYAML(yamlPath string, configMap map[interface{}]interface{}, cliConfig *CLIConfig) error {
 	// convert yaml to CliConfig
 	dat, err := ioutil.ReadFile(yamlPath)
@@ -84,24 +98,22 @@ func (rdwr *YAMLReadWriter) GetConfig() (*CLIConfig, map[interface{}]interface{}
 	to := new(CLIConfig)
 	configMap := make(map[interface{}]interface{})
 	// read the raw bytes of the config file
-	iniPath := iniConfigPath(rdwr.destination)
-	yamlPath := yamlConfigPath(rdwr.destination)
+	path := configPath(rdwr.destination)
 
-	_, iniErr := os.Stat(iniPath)
-	_, yamlErr := os.Stat(yamlPath)
-	if yamlErr == nil {
-		err := readYAML(yamlPath, configMap, to)
+	isIni, err := isFileINI(path)
+	if err != nil {
+		return nil, nil, err
+	}
+	if !isIni { // assume it is yaml
+		err := readYAML(path, configMap, to)
 		return to, configMap, err
-	} else if iniErr == nil { // file exists
+	} else { // its ini
 		// old ini config
 		iniReadWriter, err := NewINIReadWriter(rdwr.destination)
 		if err != nil {
 			return nil, nil, err
 		}
 		return iniReadWriter.GetConfig()
-	} else {
-		// if neither file existed we return the yaml error
-		return nil, nil, errors.Wrap(yamlErr, "No config file found")
 	}
 }
 
@@ -114,7 +126,7 @@ func (rdwr *YAMLReadWriter) Save(cliConfig *CLIConfig) error {
 	// set version
 	cliConfig.Version = configVersion
 
-	path := yamlConfigPath(rdwr.destination)
+	path := configPath(rdwr.destination)
 
 	// If config file exists, set permissions first, because we may be writing creds.
 	if _, err := os.Stat(path); err == nil {
@@ -134,6 +146,6 @@ func (rdwr *YAMLReadWriter) Save(cliConfig *CLIConfig) error {
 	return nil
 }
 
-func yamlConfigPath(dest *Destination) string {
-	return filepath.Join(dest.Path, yamlConfigFileName)
+func configPath(dest *Destination) string {
+	return filepath.Join(dest.Path, configFileName)
 }
