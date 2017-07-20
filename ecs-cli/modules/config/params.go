@@ -54,6 +54,8 @@ func recursiveFlagSearch(context *cli.Context, flag string) string {
 // NewCLIParams creates a new ECSParams object from the config file.
 func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 	ecsConfig, configMap, err := rdwr.GetConfig()
+	logrus.Warnf("ecsConfig: %s", ecsConfig)
+	logrus.Warnf("map: %s", configMap)
 	if err != nil {
 		errors.Wrap(err, "Error loading config")
 		logrus.Error(err)

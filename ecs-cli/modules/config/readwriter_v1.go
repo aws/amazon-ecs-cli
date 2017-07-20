@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 
 	yaml "gopkg.in/yaml.v2"
@@ -106,9 +107,11 @@ func (rdwr *YAMLReadWriter) GetConfig() (*CLIConfig, map[interface{}]interface{}
 	}
 	if !isIni { // assume it is yaml
 		err := readYAML(path, configMap, to)
+		logrus.Warnf("Is YAML")
 		return to, configMap, err
 	} else { // its ini
 		// old ini config
+		logrus.Warnf("Is INI")
 		iniReadWriter, err := NewINIReadWriter(rdwr.destination)
 		if err != nil {
 			return nil, nil, err
