@@ -741,6 +741,28 @@ func (_mr *_MockECSAPIRecorder) UpdateContainerAgentRequest(arg0 interface{}) *g
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateContainerAgentRequest", arg0)
 }
 
+func (_m *MockECSAPI) UpdateContainerInstancesState(_param0 *ecs.UpdateContainerInstancesStateInput) (*ecs.UpdateContainerInstancesStateOutput, error) {
+	ret := _m.ctrl.Call(_m, "UpdateContainerInstancesState", _param0)
+	ret0, _ := ret[0].(*ecs.UpdateContainerInstancesStateOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockECSAPIRecorder) UpdateContainerInstancesState(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateContainerInstancesState", arg0)
+}
+
+func (_m *MockECSAPI) UpdateContainerInstancesStateRequest(_param0 *ecs.UpdateContainerInstancesStateInput) (*request.Request, *ecs.UpdateContainerInstancesStateOutput) {
+	ret := _m.ctrl.Call(_m, "UpdateContainerInstancesStateRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ecs.UpdateContainerInstancesStateOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockECSAPIRecorder) UpdateContainerInstancesStateRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateContainerInstancesStateRequest", arg0)
+}
+
 func (_m *MockECSAPI) UpdateService(_param0 *ecs.UpdateServiceInput) (*ecs.UpdateServiceOutput, error) {
 	ret := _m.ctrl.Call(_m, "UpdateService", _param0)
 	ret0, _ := ret[0].(*ecs.UpdateServiceOutput)
