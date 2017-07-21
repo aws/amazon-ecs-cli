@@ -384,6 +384,7 @@ func TestCredentialsWhenUsingEC2InstanceRole(t *testing.T) {
 func TestCredentialsWhenNoneSpecified(t *testing.T) {
 	// defaults
 	os.Clearenv()
+	os.Setenv("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI", "somevalue")
 	ecsConfig := NewCliConfig(clusterName)
 	ecsConfig.Region = region
 
