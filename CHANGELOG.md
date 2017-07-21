@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.6.2
+* Enhancement - Support region cn-north-1
+
 ## 0.6.1
 * Enhancement - Support multiple compose files in compose commands
 * Enhancement - Support `docker-compose.override.yml` with compose commands
