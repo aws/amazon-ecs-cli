@@ -102,7 +102,7 @@ func (rdwr *YAMLReadWriter) GetConfig() (*CLIConfig, map[interface{}]interface{}
 		return to, configMap, nil
 	} else if errINI != nil {
 		// Return the ini error
-		// This will return either a parsing error for ini (format error)
+		// This will return a parsing error for ini (format error)
 		return nil, nil, errINI
 	} else {
 		// If yaml through an error, but ini didn't throw an error- return the yaml error
