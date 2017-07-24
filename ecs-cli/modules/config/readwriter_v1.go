@@ -17,9 +17,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 
 	yaml "gopkg.in/yaml.v2"
@@ -60,17 +58,12 @@ func NewReadWriter() (*YAMLReadWriter, error) {
 	return &YAMLReadWriter{destination: dest}, nil
 }
 
-func isFileINI(path string) (bool, error) {
-	// convert yaml to CliConfig
-	dat, err := ioutil.ReadFile(path)
+func readINI(dest *Destination) (*CLIConfig, map[interface{}]interface{}, error) {
+	iniReadWriter, err := NewINIReadWriter(dest)
 	if err != nil {
-		return false, errors.Wrapf(err, "Error reading file %s", path)
+		return nil, nil, err
 	}
-	if strings.HasPrefix(string(dat), "["+ecsSectionKey+"]") { // is INI
-		return true, nil
-	} else {
-		return false, nil
-	}
+	return iniReadWriter.GetConfig()
 }
 
 func readYAML(yamlPath string, configMap map[interface{}]interface{}, cliConfig *CLIConfig) error {
@@ -101,23 +94,23 @@ func (rdwr *YAMLReadWriter) GetConfig() (*CLIConfig, map[interface{}]interface{}
 	// read the raw bytes of the config file
 	path := configPath(rdwr.destination)
 
-	isIni, err := isFileINI(path)
-	if err != nil {
-		return nil, nil, err
-	}
-	isIni = true
-	if !isIni { // assume it is yaml
-		err := readYAML(path, configMap, to)
-		logrus.Warnf("Is YAML")
-		return to, configMap, err
-	} else { // its ini
-		// old ini config
-		logrus.Warnf("Is INI")
-		iniReadWriter, err := NewINIReadWriter(rdwr.destination)
-		if err != nil {
-			return nil, nil, err
-		}
-		return iniReadWriter.GetConfig()
+	// Logic
+	// when file format is yaml: read yaml —> yaml error —> read ini —> empty —> throw yaml error
+	// when file format is ini: read yaml —> yaml error —> read ini —> throw ini error
+
+	if errYAML := readYAML(path, configMap, to); errYAML == nil {
+		// File is YAML
+		return to, configMap, nil
+	} else if to, configMap, errINI := readINI(rdwr.destination); errINI == nil {
+		// File is INI
+		return to, configMap, nil
+	} else if errINI != nil {
+		// Return the ini error
+		// This will return either a parsing error for ini (format error)
+		return nil, nil, errINI
+	} else {
+		// If yaml through an error, but ini didn't throw an error- return the yaml error
+		return nil, nil, errYAML
 	}
 }
 
