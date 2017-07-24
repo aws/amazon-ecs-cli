@@ -94,10 +94,6 @@ func (rdwr *YAMLReadWriter) GetConfig() (*CLIConfig, map[interface{}]interface{}
 	// read the raw bytes of the config file
 	path := configPath(rdwr.destination)
 
-	// Logic
-	// when file format is yaml: read yaml —> yaml error —> read ini —> empty —> throw yaml error
-	// when file format is ini: read yaml —> yaml error —> read ini —> throw ini error
-
 	if errYAML := readYAML(path, configMap, to); errYAML == nil {
 		// File is YAML
 		return to, configMap, nil
