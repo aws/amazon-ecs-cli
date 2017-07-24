@@ -516,7 +516,7 @@
 		},
 		{
 			"ImportPath": "golang.org/x/sys/windows",
-			"Rev": "478fcf54317e52ab69f40bb4c7a1520288d7f7ea"
+			"Rev": "99f16d856c9836c42d24e7ab64ea72916925fa97"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",
