@@ -55,8 +55,7 @@ func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 	ecsConfig, configMap, err := rdwr.GetConfig()
 
 	if err != nil {
-		errors.Wrap(err, "Error loading config")
-		return nil, err
+		return nil, errors.Wrap(err, "Error loading config")
 	}
 
 	// If Prefixes not found, set to defaults.

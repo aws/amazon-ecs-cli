@@ -121,7 +121,7 @@ func (rdwr *YAMLReadWriter) Save(cliConfig *CLIConfig) error {
 
 	path := configPath(rdwr.destination)
 
-	// If config file exists, set permissions first, because we may be writing creds.
+  // If config file exists, set permissions first, because we may be writing creds.
   // This is necessary because ioutil.WriteFile only sets the permissions
   // if the file is being created for the first time; this handles the case
   // where the file already exists
