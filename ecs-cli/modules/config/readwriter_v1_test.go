@@ -227,7 +227,7 @@ aws_secret_access_key:
 	assert.False(t, ok, "Compose project name prefix should not exist in config")
 }
 
-func TestOverwriteIniConfigFile(t *testing.T) {
+func TestOverwriteINIConfigFile(t *testing.T) {
 	configContents := `[ecs]
 cluster = very-long-cluster-name
 aws_profile = some-long-profile
