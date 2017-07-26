@@ -24,14 +24,15 @@ import (
 )
 
 const (
-	configFileName = "config"
-	configFileMode = os.FileMode(0600) // Owner=read/write, Other=None
+	clusterConfigFileName = "config"
+	profileConfigFileName = "credentials"
+	configFileMode        = os.FileMode(0600) // Owner=read/write, Other=None
 )
 
 // ReadWriter interface has methods to read and write ecs-cli config to and from the config file.
 type ReadWriter interface {
 	Save(*CLIConfig) error
-	GetConfig() (*CLIConfig, map[interface{}]interface{}, error)
+	GetConfigs(string, string) (*CLIConfig, map[interface{}]interface{}, error)
 }
 
 // YAMLReadWriter implments the ReadWriter interfaces. It can be used to save and load
@@ -66,21 +67,35 @@ func readINI(dest *Destination) (*CLIConfig, map[interface{}]interface{}, error)
 	return iniReadWriter.GetConfig()
 }
 
-func readYAML(yamlPath string, configMap map[interface{}]interface{}, cliConfig *CLIConfig) error {
-	// convert yaml to CliConfig
-	dat, err := ioutil.ReadFile(yamlPath)
+// func readYAML(yamlPath string, configMap map[interface{}]interface{}, cliConfig *CLIConfig) error {
+// 	// convert yaml to CliConfig
+// 	dat, err := ioutil.ReadFile(yamlPath)
+// 	if err != nil {
+// 		return errors.Wrapf(err, "Error reading yaml file %s", yamlPath)
+// 	}
+// 	if err = yaml.Unmarshal(dat, cliConfig); err != nil {
+// 		return errors.Wrapf(err, "Error parsing yaml file %s", yamlPath)
+// 	}
+//
+// 	// convert yaml to a map (replaces IsKeyPresent functionality)
+// 	if err = yaml.Unmarshal(dat, &configMap); err != nil {
+// 		return errors.Wrapf(err, "Error parsing yaml file %s", yamlPath)
+// 	}
+//
+// 	return nil
+// }
+
+func readYAML(path string, configMap map[interface{}]interface{}) error {
+	// read cluster file
+	dat, err := ioutil.ReadFile(path)
 	if err != nil {
-		return errors.Wrapf(err, "Error reading yaml file %s", yamlPath)
-	}
-	if err = yaml.Unmarshal(dat, cliConfig); err != nil {
-		return errors.Wrapf(err, "Error parsing yaml file %s", yamlPath)
+		return err
 	}
 
-	// convert yaml to a map (replaces IsKeyPresent functionality)
+	// convert cluster yaml to a map (replaces IsKeyPresent functionality)
 	if err = yaml.Unmarshal(dat, &configMap); err != nil {
-		return errors.Wrapf(err, "Error parsing yaml file %s", yamlPath)
+		return err
 	}
-
 	return nil
 }
 
@@ -108,6 +123,163 @@ func (rdwr *YAMLReadWriter) GetConfig() (*CLIConfig, map[interface{}]interface{}
 		// If yaml through an error, but ini didn't throw an error- return the yaml error
 		return nil, nil, errYAML
 	}
+}
+
+// GetConfigs gets the ecs-cli config object from the config file(s).
+// This function either reads the old single configuration file
+// Or if the new files are present, it reads from them instead
+func (rdwr *YAMLReadWriter) GetConfigs(clusterConfig string, profileConfig string) (*CLIConfig, map[interface{}]interface{}, error) {
+	cliConfig := &CLIConfig{}
+	configMap := make(map[interface{}]interface{})
+	// read the raw bytes of the config file
+	profilePath := credentialsFilePath(rdwr.destination)
+	configPath := configFilePath(rdwr.destination)
+
+	// 	If profile exists:
+	// 	parse profile
+	// 	parse config as YAML if it exists
+	// 	return
+	// Else if no YAML error on config
+	// 	parse config
+	// 	we know that profile is empty
+	// 	return
+	// Else if no INI Error
+	// 	parse ini
+	// 	return
+	// Else if config exists
+	// 	return YAML parse error
+	// Else
+	// 	return empty map and empty config object
+	if _, err := os.Stat(profilePath); err != nil {
+		// credentials file exists- so that means we are using the new style configs
+	}
+
+	if err == nil && yamlErr != nil { // file exists
+		// old ini config
+		iniReadWriter, err := NewINIReadWriter(rdwr.destination)
+		if err != nil {
+			return nil, nil, err
+		}
+		cliConfig, configMap, err = iniReadWriter.GetConfig()
+		if err != nil {
+			return nil, nil, err
+		}
+
+	} else {
+		// If the ini file didn't exist, then we assume the yaml file exists
+		// if it doesn't, then throw error
+		// convert yaml to CliConfig
+		clusterMap := make(map[interface{}]interface{})
+		profileMap := make(map[interface{}]interface{})
+
+		// read cluster file
+		dat, err := ioutil.ReadFile(clusterPath)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		// convert cluster yaml to a map (replaces IsKeyPresent functionality)
+		if err = yaml.Unmarshal(dat, &clusterMap); err != nil {
+			return nil, nil, err
+		}
+
+		// read profile file
+		dat, err = ioutil.ReadFile(profilePath)
+		if err != nil {
+			return nil, nil, err
+		}
+		// convert profile yaml to a map (replaces IsKeyPresent functionality)
+		if err = yaml.Unmarshal(dat, &profileMap); err != nil {
+			return nil, nil, err
+		}
+
+		processProfileMap(profileConfig, profileMap, configMap, cliConfig)
+		processClusterMap(clusterConfig, clusterMap, configMap, cliConfig)
+
+	}
+	return cliConfig, configMap, nil
+}
+
+func processProfileMap(profileKey string, profileMap map[interface{}]interface{}, configMap map[interface{}]interface{}, cliConfig *CLIConfig) error {
+	if profileKey == "" {
+		var ok bool
+		profileKey, ok = profileMap["default"].(string)
+		if !ok {
+			return errors.New("Format issue with profile config file; expected key not found.")
+		}
+	}
+	profile, ok := profileMap["ecs_profiles"].(map[interface{}]interface{})[profileKey].(map[interface{}]interface{})
+	if !ok {
+		return errors.New("Format issue with profile config file; expected key not found.")
+	}
+
+	configMap[awsAccessKey] = profile[awsAccessKey]
+	configMap[awsSecretKey] = profile[awsSecretKey]
+	cliConfig.AWSAccessKey, ok = profile[awsAccessKey].(string)
+	if !ok {
+		return errors.New("Format issue with profile config file; expected key not found.")
+	}
+	cliConfig.AWSSecretKey, ok = profile[awsSecretKey].(string)
+	if !ok {
+		return errors.New("Format issue with profile config file; expected key not found.")
+	}
+
+	return nil
+
+}
+
+func processClusterMap(clusterConfigKey string, clusterMap map[interface{}]interface{}, configMap map[interface{}]interface{}, cliConfig *CLIConfig) error {
+	if clusterConfigKey == "" {
+		var ok bool
+		clusterConfigKey, ok = clusterMap["default"].(string)
+		if !ok {
+			return errors.New("Format issue with cluster config file; expected key not found.")
+		}
+	}
+	cluster, ok := clusterMap["clusters"].(map[interface{}]interface{})[clusterConfigKey].(map[interface{}]interface{})
+	if !ok {
+		return errors.New("Format issue with cluster config file; expected key not found.")
+	}
+
+	configMap[clusterKey] = cluster[clusterKey]
+	configMap[regionKey] = cluster[regionKey]
+	cliConfig.Cluster, ok = cluster[clusterKey].(string)
+	if !ok {
+		return errors.New("Format issue with cluster config file; expected key not found.")
+	}
+	cliConfig.Region, ok = cluster[regionKey].(string)
+	if !ok {
+		return errors.New("Format issue with cluster config file; expected key not found.")
+	}
+
+	// Prefixes
+	// ComposeProjectNamePrefix
+	if _, ok := cluster[composeProjectNamePrefixKey]; ok {
+		configMap[composeProjectNamePrefixKey] = cluster[composeProjectNamePrefixKey]
+		cliConfig.ComposeProjectNamePrefix, ok = cluster[composeProjectNamePrefixKey].(string)
+		if !ok {
+			return errors.New("Format issue with cluster config file; expected key not found.")
+		}
+	}
+	// ComposeServiceNamePrefix
+	if _, ok := cluster[composeServiceNamePrefixKey]; ok {
+		configMap[composeServiceNamePrefixKey] = cluster[composeServiceNamePrefixKey]
+		cliConfig.ComposeServiceNamePrefix, ok = cluster[composeServiceNamePrefixKey].(string)
+		if !ok {
+			return errors.New("Format issue with cluster config file; expected key not found.")
+		}
+	}
+	// CFNStackNamePrefix
+	if _, ok := cluster[cfnStackNamePrefixKey]; ok {
+		configMap[cfnStackNamePrefixKey] = cluster[cfnStackNamePrefixKey]
+		cliConfig.CFNStackNamePrefix, ok = cluster[cfnStackNamePrefixKey].(string)
+		if !ok {
+			return errors.New("Format issue with profile cluster file; expected key not found.")
+		}
+	}
+
+	return nil
+
 }
 
 // Save saves the CLIConfig to a yaml formatted file
@@ -143,6 +315,10 @@ func (rdwr *YAMLReadWriter) Save(cliConfig *CLIConfig) error {
 	return nil
 }
 
-func configPath(dest *Destination) string {
-	return filepath.Join(dest.Path, configFileName)
+func credentialsFilePath(dest *Destination) string {
+	return filepath.Join(dest.Path, profileConfigFileName)
+}
+
+func configFilePath(dest *Destination) string {
+	return filepath.Join(dest.Path, clusterConfigFileName)
 }

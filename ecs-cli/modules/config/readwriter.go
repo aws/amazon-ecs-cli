@@ -20,6 +20,10 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	iniConfigFileName = "config"
+)
+
 // INIReadWriter
 // NOTE: DEPRECATED. These functions are only left here so that
 // we can read old ini based config files for customers who have
