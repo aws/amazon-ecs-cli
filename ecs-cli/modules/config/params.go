@@ -17,14 +17,14 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Sirupsen/logrus"
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 )
 
-// CliParams saves config to create an aws service clients
-type CliParams struct {
+// CLIParams saves config to create an aws service clients
+type CLIParams struct {
 	Cluster                  string
 	Session                  *session.Session
 	ComposeProjectNamePrefix string
@@ -32,8 +32,8 @@ type CliParams struct {
 	CFNStackNamePrefix       string
 }
 
-// GetCfnStackName <cfn_stack_name_prefix> + <cluster_name>
-func (p *CliParams) GetCfnStackName() string {
+// GetCFNStackName <cfn_stack_name_prefix> + <cluster_name>
+func (p *CLIParams) GetCFNStackName() string {
 	return fmt.Sprintf("%s%s", p.CFNStackNamePrefix, p.Cluster)
 }
 
@@ -50,22 +50,22 @@ func recursiveFlagSearch(context *cli.Context, flag string) string {
 	}
 }
 
-// NewCliParams creates a new ECSParams object from the config file.
-func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
-	ecsConfig, err := rdwr.GetConfig()
+// NewCLIParams creates a new ECSParams object from the config file.
+func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
+	ecsConfig, configMap, err := rdwr.GetConfig()
+
 	if err != nil {
-		logrus.Error("Error loading config: ", err)
-		return nil, err
+		return nil, errors.Wrap(err, "Error loading config")
 	}
 
 	// If Prefixes not found, set to defaults.
-	if !rdwr.IsKeyPresent(ecsSectionKey, composeProjectNamePrefixKey) {
+	if _, ok := configMap[composeProjectNamePrefixKey]; !ok {
 		ecsConfig.ComposeProjectNamePrefix = ecscli.ComposeProjectNamePrefixDefaultValue
 	}
-	if !rdwr.IsKeyPresent(ecsSectionKey, composeServiceNamePrefixKey) {
+	if _, ok := configMap[composeServiceNamePrefixKey]; !ok {
 		ecsConfig.ComposeServiceNamePrefix = ecscli.ComposeServiceNamePrefixDefaultValue
 	}
-	if !rdwr.IsKeyPresent(ecsSectionKey, cfnStackNamePrefixKey) {
+	if _, ok := configMap[cfnStackNamePrefixKey]; !ok {
 		ecsConfig.CFNStackNamePrefix = ecscli.CFNStackNamePrefixDefaultValue
 	}
 
@@ -76,7 +76,6 @@ func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 	if clusterFromEnv := os.Getenv(ecscli.ClusterEnvVar); clusterFromEnv != "" {
 		ecsConfig.Cluster = clusterFromEnv
 	}
-
 	if clusterFromFlag := recursiveFlagSearch(context, ecscli.ClusterFlag); clusterFromFlag != "" {
 		ecsConfig.Cluster = clusterFromFlag
 	}
@@ -91,7 +90,7 @@ func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 		return nil, err
 	}
 
-	return &CliParams{
+	return &CLIParams{
 		Cluster:                  ecsConfig.Cluster,
 		Session:                  svcSession,
 		ComposeProjectNamePrefix: ecsConfig.ComposeProjectNamePrefix,

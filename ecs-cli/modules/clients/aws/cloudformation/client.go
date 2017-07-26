@@ -89,7 +89,7 @@ func init() {
 // CloudformationClient defines methods to interact the with the CloudFormationAPI interface.
 type CloudformationClient interface {
 	// TODO: Modify the interface and tbe client to not have the Initialize method.
-	Initialize(*config.CliParams)
+	Initialize(*config.CLIParams)
 	CreateStack(string, string, *CfnStackParams) (string, error)
 	WaitUntilCreateComplete(string) error
 	DeleteStack(string) error
@@ -102,7 +102,7 @@ type CloudformationClient interface {
 // cloudformationClient implements CloudFormationClient.
 type cloudformationClient struct {
 	client    cloudformationiface.CloudFormationAPI
-	cliParams *config.CliParams
+	cliParams *config.CLIParams
 	sleeper   utils.Sleeper
 }
 
@@ -112,7 +112,7 @@ func NewCloudformationClient() CloudformationClient {
 }
 
 // Initialize initializes all the fields of the cloudFormationClient object.
-func (c *cloudformationClient) Initialize(params *config.CliParams) {
+func (c *cloudformationClient) Initialize(params *config.CLIParams) {
 	cfnClient := cloudformation.New(params.Session)
 	cfnClient.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
 	c.client = cfnClient

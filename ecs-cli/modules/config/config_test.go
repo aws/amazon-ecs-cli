@@ -73,9 +73,9 @@ const (
 // 1a) Use AWS_REGION env variable
 func TestRegionWhenUsingEnvVariable(t *testing.T) {
 	// defaults
-	ecsConfig := NewCliConfig(clusterName)
-	ecsConfig.AwsAccessKey = awsAccessKey
-	ecsConfig.AwsSecretKey = awsSecretKey
+	ecsConfig := NewCLIConfig(clusterName)
+	ecsConfig.AWSAccessKey = awsAccessKey
+	ecsConfig.AWSSecretKey = awsSecretKey
 
 	// set variable for test
 	os.Setenv("AWS_REGION", envAwsRegion)
@@ -88,9 +88,9 @@ func TestRegionWhenUsingEnvVariable(t *testing.T) {
 // 1b) Use AWS_DEFAULT_REGION env variable
 func TestRegionWhenUsingDefaultEnvVariable(t *testing.T) {
 	// defaults
-	ecsConfig := NewCliConfig(clusterName)
-	ecsConfig.AwsAccessKey = awsAccessKey
-	ecsConfig.AwsSecretKey = awsSecretKey
+	ecsConfig := NewCLIConfig(clusterName)
+	ecsConfig.AWSAccessKey = awsAccessKey
+	ecsConfig.AWSSecretKey = awsSecretKey
 
 	// set variable for test
 	os.Setenv("AWS_DEFAULT_REGION", envAwsRegion)
@@ -103,9 +103,9 @@ func TestRegionWhenUsingDefaultEnvVariable(t *testing.T) {
 // 2) Use Region in ECS Config
 func TestRegionWhenUsingECSConfigRegion(t *testing.T) {
 	// defaults
-	ecsConfig := NewCliConfig(clusterName)
-	ecsConfig.AwsAccessKey = awsAccessKey
-	ecsConfig.AwsSecretKey = awsSecretKey
+	ecsConfig := NewCLIConfig(clusterName)
+	ecsConfig.AWSAccessKey = awsAccessKey
+	ecsConfig.AWSSecretKey = awsSecretKey
 
 	// set variable for test
 	ecsConfig.Region = region
@@ -117,10 +117,10 @@ func TestRegionWhenUsingECSConfigRegion(t *testing.T) {
 // 3a) Use Region from profile in ECS Config
 func TestRegionWhenUsingECSConfigProfile(t *testing.T) {
 	// defaults
-	ecsConfig := NewCliConfig(clusterName)
+	ecsConfig := NewCLIConfig(clusterName)
 
 	// set variables for test
-	ecsConfig.AwsProfile = customProfileName
+	ecsConfig.AWSProfile = customProfileName
 	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
 	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
 	defer os.Clearenv()
@@ -132,7 +132,7 @@ func TestRegionWhenUsingECSConfigProfile(t *testing.T) {
 // 3b) Use Region from AWS_PROFILE
 func TestRegionWhenUsingAWSProfileEnvVariable(t *testing.T) {
 	// defaults
-	ecsConfig := NewCliConfig(clusterName)
+	ecsConfig := NewCLIConfig(clusterName)
 
 	// set variables for test
 	os.Setenv("AWS_PROFILE", customProfileName)
@@ -147,7 +147,7 @@ func TestRegionWhenUsingAWSProfileEnvVariable(t *testing.T) {
 // 3c) Use Region from AWS_DEFAULT_PROFILE
 func TestRegionWhenUsingDefaultAWSProfileEnvVariable(t *testing.T) {
 	// defaults
-	ecsConfig := NewCliConfig(clusterName)
+	ecsConfig := NewCLIConfig(clusterName)
 
 	// set variables for test
 	os.Setenv("AWS_DEFAULT_PROFILE", defaultProfileName)
@@ -162,9 +162,9 @@ func TestRegionWhenUsingDefaultAWSProfileEnvVariable(t *testing.T) {
 func TestRegionWhenNoneSpecified(t *testing.T) {
 	// defaults
 	os.Clearenv()
-	ecsConfig := NewCliConfig(clusterName)
-	ecsConfig.AwsAccessKey = awsAccessKey
-	ecsConfig.AwsSecretKey = awsSecretKey
+	ecsConfig := NewCLIConfig(clusterName)
+	ecsConfig.AWSAccessKey = awsAccessKey
+	ecsConfig.AWSSecretKey = awsSecretKey
 
 	// NOTE: no region set
 
@@ -173,7 +173,7 @@ func TestRegionWhenNoneSpecified(t *testing.T) {
 	assert.Error(t, err, "Expected error when region is not specified or resolved")
 }
 
-func testRegionInSession(t *testing.T, inputConfig *CliConfig, expectedRegion string) {
+func testRegionInSession(t *testing.T, inputConfig *CLIConfig, expectedRegion string) {
 	awsSession, err := inputConfig.ToAWSSession()
 	if err != nil {
 		t.Fatal("Error generating a new session")
@@ -199,7 +199,7 @@ func testRegionInSession(t *testing.T, inputConfig *CliConfig, expectedRegion st
 //------------------------------------------------------------------------------
 
 func TestGetInitialCredentialProvidersVerifyProviderCountHasNotChanged(t *testing.T) {
-	ecsConfig := NewCliConfig(clusterName)
+	ecsConfig := NewCLIConfig(clusterName)
 	ecsConfig.Region = region
 	credentialProviders := ecsConfig.getInitialCredentialProviders()
 	assert.Len(t, credentialProviders, credentialProviderCount, "Expected the correct number of credential providers in the chain")
@@ -208,7 +208,7 @@ func TestGetInitialCredentialProvidersVerifyProviderCountHasNotChanged(t *testin
 // 1a) Use AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY env variables
 func TestCredentialsWhenUsingEnvVariable(t *testing.T) {
 	// defaults
-	ecsConfig := NewCliConfig(clusterName)
+	ecsConfig := NewCLIConfig(clusterName)
 	ecsConfig.Region = region
 
 	// set variables for test
@@ -223,7 +223,7 @@ func TestCredentialsWhenUsingEnvVariable(t *testing.T) {
 // 1b) Use AWS_ACCESS_KEY and AWS_SECRET_KEY env variables
 func TestCredentialsWhenUsingDefaultEnvVariable(t *testing.T) {
 	// defaults
-	ecsConfig := NewCliConfig(clusterName)
+	ecsConfig := NewCLIConfig(clusterName)
 	ecsConfig.Region = region
 
 	// set variables for test
@@ -238,12 +238,12 @@ func TestCredentialsWhenUsingDefaultEnvVariable(t *testing.T) {
 // 2) Use access and secrets keys from ECS Config
 func TestCredentialsWhenUsingECSConfigRegion(t *testing.T) {
 	// defaults
-	ecsConfig := NewCliConfig(clusterName)
+	ecsConfig := NewCLIConfig(clusterName)
 	ecsConfig.Region = region
 
 	// set variables for test
-	ecsConfig.AwsAccessKey = awsAccessKey
-	ecsConfig.AwsSecretKey = awsSecretKey
+	ecsConfig.AWSAccessKey = awsAccessKey
+	ecsConfig.AWSSecretKey = awsSecretKey
 
 	// invoke test and verify
 	testCredentialsInSession(t, ecsConfig, awsAccessKey, awsSecretKey)
@@ -252,8 +252,8 @@ func TestCredentialsWhenUsingECSConfigRegion(t *testing.T) {
 // 3a) Use credentials from profile in ECS Config
 func TestCredentialsWhenUsingECSConfigProfile(t *testing.T) {
 	// defaults
-	ecsConfig := NewCliConfig(clusterName)
-	ecsConfig.AwsProfile = customProfileName
+	ecsConfig := NewCLIConfig(clusterName)
+	ecsConfig.AWSProfile = customProfileName
 
 	// set variables for test
 	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
@@ -267,7 +267,7 @@ func TestCredentialsWhenUsingECSConfigProfile(t *testing.T) {
 // 3b) Use credentials from AWS_PROFILE
 func TestCredentialsWhenUsingAWSProfileEnvVariable(t *testing.T) {
 	// defaults
-	ecsConfig := NewCliConfig(clusterName)
+	ecsConfig := NewCLIConfig(clusterName)
 
 	// set variables for test
 	os.Setenv("AWS_PROFILE", customProfileName)
@@ -282,7 +282,7 @@ func TestCredentialsWhenUsingAWSProfileEnvVariable(t *testing.T) {
 // 3c) Use Region from AWS_DEFAULT_PROFILE
 func TestCredentialsWhenUsingDefaultAWSProfileEnvVariable(t *testing.T) {
 	// defaults
-	ecsConfig := NewCliConfig(clusterName)
+	ecsConfig := NewCLIConfig(clusterName)
 
 	// set variables for test
 	os.Setenv("AWS_DEFAULT_PROFILE", defaultProfileName)
@@ -297,7 +297,7 @@ func TestCredentialsWhenUsingDefaultAWSProfileEnvVariable(t *testing.T) {
 // 3d) Use credentials from assume role profile
 func TestCredentialsWhenUsingAssumeRoleProfile(t *testing.T) {
 	// defaults
-	ecsConfig := NewCliConfig(clusterName)
+	ecsConfig := NewCLIConfig(clusterName)
 
 	// set variables for test
 	os.Setenv("AWS_DEFAULT_PROFILE", assumeRoleName)
@@ -339,7 +339,7 @@ func TestCredentialsWhenUsingAssumeRoleProfile(t *testing.T) {
 // 4) Use credentials from EC2 Instance Role
 func TestCredentialsWhenUsingEC2InstanceRole(t *testing.T) {
 	// defaults
-	ecsConfig := NewCliConfig(clusterName)
+	ecsConfig := NewCLIConfig(clusterName)
 
 	// set variables for test
 	os.Setenv("AWS_DEFAULT_PROFILE", ec2InstanceRoleName)
@@ -385,7 +385,7 @@ func TestCredentialsWhenNoneSpecified(t *testing.T) {
 	// defaults
 	os.Clearenv()
 	os.Setenv("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI", "somevalue")
-	ecsConfig := NewCliConfig(clusterName)
+	ecsConfig := NewCLIConfig(clusterName)
 	ecsConfig.Region = region
 
 	// NOTE: no credentials set
@@ -399,14 +399,14 @@ func TestCredentialsWhenNoneSpecified(t *testing.T) {
 	assert.Error(t, err, "Expected error getting credentials")
 }
 
-func testCredentialsInSession(t *testing.T, inputConfig *CliConfig, expectedAccessKey, expectedSecretKey string) {
+func testCredentialsInSession(t *testing.T, inputConfig *CLIConfig, expectedAccessKey, expectedSecretKey string) {
 	awsSession, err := inputConfig.ToAWSSession()
 	assert.NoError(t, err, "Unexpected error generating a new session")
 
 	verifyCredentialsInSession(t, awsSession, expectedAccessKey, expectedSecretKey)
 }
 
-func testCredentialsInSessionWithConfig(t *testing.T, inputConfig *CliConfig, ecsConfig *aws.Config,
+func testCredentialsInSessionWithConfig(t *testing.T, inputConfig *CLIConfig, ecsConfig *aws.Config,
 	expectedAccessKey, expectedSecretKey string) {
 	awsSession, err := inputConfig.toAWSSessionWithConfig(*ecsConfig)
 	assert.NoError(t, err, "Unexpected error generating a new session")

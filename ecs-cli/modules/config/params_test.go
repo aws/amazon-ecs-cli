@@ -30,30 +30,25 @@ type mockReadWriter struct {
 	isKeyPresentValue bool
 }
 
-func (rdwr *mockReadWriter) GetConfig() (*CliConfig, error) {
-	return NewCliConfig(clusterName), nil
+func (rdwr *mockReadWriter) GetConfig() (*CLIConfig, map[interface{}]interface{}, error) {
+	m := make(map[interface{}]interface{})
+	m["cluster"] = clusterName
+	if rdwr.isKeyPresentValue {
+		m[composeProjectNamePrefixKey] = ""
+		m[composeServiceNamePrefixKey] = ""
+		m[cfnStackNamePrefixKey] = ""
+	}
+	return NewCLIConfig(clusterName), m, nil
 }
 
-func (rdwr *mockReadWriter) ReadFrom(ecsConfig *CliConfig) error {
-	return nil
-}
-
-func (rdwr *mockReadWriter) IsInitialized() (bool, error) {
-	return true, nil
-}
-
-func (rdwr *mockReadWriter) IsKeyPresent(section, key string) bool {
-	return rdwr.isKeyPresentValue
-}
-
-func (rdwr *mockReadWriter) Save(dest *Destination) error {
+func (rdwr *mockReadWriter) Save(ecsConfig *CLIConfig) error {
 	return nil
 }
 
 func TestNewCliParamsFromEnvVarsWithRegionNotSpecified(t *testing.T) {
 	context, rdwr := setupTest(t)
 
-	_, err := NewCliParams(context, rdwr)
+	_, err := NewCLIParams(context, rdwr)
 	if err == nil {
 		t.Errorf("Expected error when region not specified")
 	}
@@ -68,7 +63,7 @@ func TestNewCliParamsFromEnvVarsWithRegionSpecifiedAsEnvVariable(t *testing.T) {
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	defer os.Clearenv()
 
-	params, err := NewCliParams(context, rdwr)
+	params, err := NewCLIParams(context, rdwr)
 	assert.NoError(t, err, "Unexpected error when region is specified using environment variable AWS_REGION")
 
 	paramsRegion := aws.StringValue(params.Session.Config.Region)
@@ -84,7 +79,7 @@ func TestNewCliParamsFromEnvVarsWithRegionSpecifiedinAwsDefaultEnvVariable(t *te
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	defer os.Clearenv()
 
-	params, err := NewCliParams(context, rdwr)
+	params, err := NewCLIParams(context, rdwr)
 	assert.NoError(t, err, "Unexpected error when region is specified using environment variable AWS_DEFAULT_REGION")
 
 	paramsRegion := aws.StringValue(params.Session.Config.Region)
@@ -105,7 +100,7 @@ func TestNewCliParamsFromConfig(t *testing.T) {
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	defer os.Clearenv()
 
-	params, err := NewCliParams(context, rdwr)
+	params, err := NewCLIParams(context, rdwr)
 	assert.NoError(t, err, "Unexpected error when region is specified")
 
 	paramsRegion := aws.StringValue(params.Session.Config.Region)
@@ -121,7 +116,7 @@ func TestNewCliParamsWhenPrefixesPresent(t *testing.T) {
 
 	// Prefixes are present, and values are defaulted to empty
 	rdwr := &mockReadWriter{isKeyPresentValue: true}
-	params, err := NewCliParams(context, rdwr)
+	params, err := NewCLIParams(context, rdwr)
 	assert.NoError(t, err, "Unexpected error when getting new cli params")
 	assert.Empty(t, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
 	assert.Empty(t, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
@@ -140,7 +135,7 @@ func TestNewCliParamsWhenPrefixKeysAreNotPresent(t *testing.T) {
 
 	// Prefixes are present, and values should be set to defaults
 	rdwr := &mockReadWriter{isKeyPresentValue: false}
-	params, err := NewCliParams(context, rdwr)
+	params, err := NewCLIParams(context, rdwr)
 	assert.NoError(t, err, "Unexpected error when getting new cli params")
 	assert.Equal(t, command.ComposeProjectNamePrefixDefaultValue, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to match")
 	assert.Equal(t, command.ComposeServiceNamePrefixDefaultValue, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to match")

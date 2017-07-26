@@ -64,7 +64,7 @@ func (_mr *_MockCloudformationClientRecorder) DeleteStack(arg0 interface{}) *gom
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteStack", arg0)
 }
 
-func (_m *MockCloudformationClient) Initialize(_param0 *config.CliParams) {
+func (_m *MockCloudformationClient) Initialize(_param0 *config.CLIParams) {
 	_m.ctrl.Call(_m, "Initialize", _param0)
 }
 
