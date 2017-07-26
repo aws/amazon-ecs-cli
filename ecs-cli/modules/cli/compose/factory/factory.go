@@ -16,6 +16,7 @@ package factory
 import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project"
+
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	libcomposecommand "github.com/docker/libcompose/cli/command"
@@ -71,7 +72,7 @@ func (projectFactory projectFactory) populateContext(ecsContext *context.Context
 		utils.LogError(err, "Error loading config")
 		return err
 	}
-	params, err := config.NewCliParams(cliContext, rdwr)
+	params, err := config.NewCLIParams(cliContext, rdwr)
 	if err != nil {
 		utils.LogError(err, "Unable to create an instance of ECSParams given the cli context")
 		return err

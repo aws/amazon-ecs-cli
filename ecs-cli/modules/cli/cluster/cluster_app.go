@@ -167,7 +167,7 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 
 	// Check if cfn stack already exists
 	cfnClient.Initialize(ecsParams)
-	stackName := ecsParams.GetCfnStackName()
+	stackName := ecsParams.GetCFNStackName()
 	var deleteStack bool
 	if err = cfnClient.ValidateStackExists(stackName); err == nil {
 		if !isForceSet(context) {
@@ -259,8 +259,8 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 	return cfnClient.WaitUntilCreateComplete(stackName)
 }
 
-var newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CliParams, error) {
-	return config.NewCliParams(context, rdwr)
+var newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CLIParams, error) {
+	return config.NewCLIParams(context, rdwr)
 }
 
 func deleteCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient) error {
@@ -284,7 +284,7 @@ func deleteCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 
 	// Validate that a cfn stack exists for the cluster
 	cfnClient.Initialize(ecsParams)
-	stackName := ecsParams.GetCfnStackName()
+	stackName := ecsParams.GetCFNStackName()
 	if err := cfnClient.ValidateStackExists(stackName); err != nil {
 		return fmt.Errorf("CloudFormation stack not found for cluster '%s'", ecsParams.Cluster)
 	}
@@ -334,7 +334,7 @@ func scaleCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscli
 
 	// Validate that we have a cfn stack for the cluster
 	cfnClient.Initialize(ecsParams)
-	stackName := ecsParams.GetCfnStackName()
+	stackName := ecsParams.GetCFNStackName()
 	if err := cfnClient.ValidateStackExists(stackName); err != nil {
 		return fmt.Errorf("CloudFormation stack not found for cluster '%s'", ecsParams.Cluster)
 	}

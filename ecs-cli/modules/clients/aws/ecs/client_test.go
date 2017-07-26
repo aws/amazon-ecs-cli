@@ -41,24 +41,17 @@ const clusterName = "clusterName"
 // field whenperforming read.
 type mockReadWriter struct{}
 
-func (rdwr *mockReadWriter) GetConfig() (*config.CliConfig, error) {
-	return config.NewCliConfig(clusterName), nil
+func (rdwr *mockReadWriter) GetConfig() (*config.CLIConfig, map[interface{}]interface{}, error) {
+	m := make(map[interface{}]interface{})
+	m["cluster"] = clusterName
+	m["compose-project-name-prefix"] = ""
+	m["compose-service-name-prefix"] = ""
+	m["cfn-stack-name-prefix"] = ""
+	return config.NewCLIConfig(clusterName), m, nil
 }
 
-func (rdwr *mockReadWriter) ReadFrom(ecsConfig *config.CliConfig) error {
+func (rdwr *mockReadWriter) Save(ecsConfig *config.CLIConfig) error {
 	return nil
-}
-
-func (rdwr *mockReadWriter) IsInitialized() (bool, error) {
-	return true, nil
-}
-
-func (rdwr *mockReadWriter) Save(dest *config.Destination) error {
-	return nil
-}
-
-func (rdwr *mockReadWriter) IsKeyPresent(section, key string) bool {
-	return true
 }
 
 func TestNewECSClientWithRegion(t *testing.T) {
@@ -68,13 +61,13 @@ func TestNewECSClientWithRegion(t *testing.T) {
 	globalContext := cli.NewContext(nil, globalSet, nil)
 	context := cli.NewContext(nil, nil, globalContext)
 	rdwr := &mockReadWriter{}
-	_, err := config.NewCliParams(context, rdwr)
+	_, err := config.NewCLIParams(context, rdwr)
 	assert.Error(t, err, "Expected error when region not specified")
 
 	globalSet.String("region", "us-east-1", "")
 	globalContext = cli.NewContext(nil, globalSet, nil)
 	context = cli.NewContext(nil, nil, globalContext)
-	params, err := config.NewCliParams(context, rdwr)
+	params, err := config.NewCLIParams(context, rdwr)
 	assert.NoError(t, err, "Unexpected error creating opts")
 
 	client := NewECSClient()
@@ -562,7 +555,7 @@ func TestGetEC2InstanceIDsErrorCase(t *testing.T) {
 /*
 	Helpers
 */
-func setupTestController(t *testing.T, configParams *config.CliParams) (*mock_ecsiface.MockECSAPI, *mock_cache.MockCache,
+func setupTestController(t *testing.T, configParams *config.CLIParams) (*mock_ecsiface.MockECSAPI, *mock_cache.MockCache,
 	ECSClient, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 	mockEcs := mock_ecsiface.NewMockECSAPI(ctrl)
@@ -578,13 +571,13 @@ func setupTestController(t *testing.T, configParams *config.CliParams) (*mock_ec
 	return mockEcs, mockCache, client, ctrl
 }
 
-func getDefaultCliConfigParams(t *testing.T) *config.CliParams {
+func getDefaultCliConfigParams(t *testing.T) *config.CLIParams {
 	setDefaultAWSEnvVariables()
 
 	testSession, err := session.NewSession()
 	assert.NoError(t, err, "Unexpected error in creating session")
 
-	return &config.CliParams{
+	return &config.CLIParams{
 		Cluster: clusterName,
 		Session: testSession,
 	}
