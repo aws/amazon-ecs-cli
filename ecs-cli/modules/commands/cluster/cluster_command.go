@@ -68,7 +68,7 @@ func clusterUpFlags() []cli.Flag {
 		},
 		cli.BoolFlag{
 			Name:  command.CapabilityIAMFlag,
-			Usage: "Acknowledges that this command may create IAM resources.",
+			Usage: "Acknowledges that this command may create IAM resources. Required if --instance-role is not specified.",
 		},
 		cli.StringFlag{
 			Name:  command.AsgMaxSizeFlag,
@@ -113,6 +113,10 @@ func clusterUpFlags() []cli.Flag {
 		cli.BoolFlag{
 			Name:  command.ForceFlag + ", f",
 			Usage: "[Optional] Forces the recreation of any existing resources that match your current configuration. This option is useful for cleaning up stale resources from previous failed attempts.",
+		},
+		cli.StringFlag{
+			Name:  command.InstanceRoleFlag,
+			Usage: "[Optional] Specifies a custom IAM Role for instances in your cluster. Required if --capability-iam is not specified.",
 		},
 	}
 }

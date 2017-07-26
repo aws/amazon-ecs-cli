@@ -224,6 +224,93 @@ func TestClusterUpWithAvailabilityZones(t *testing.T) {
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
+func TestClusterUpWithCustomRole(t *testing.T) {
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
+
+	instanceRole := "sparklepony"
+
+	gomock.InOrder(
+		mockECS.EXPECT().Initialize(gomock.Any()),
+		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
+	)
+
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
+		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
+	)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(command.KeypairNameFlag, "default", "")
+	flagSet.String(command.InstanceRoleFlag, instanceRole, "")
+
+	context := cli.NewContext(nil, flagSet, nil)
+	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
+	assert.NoError(t, err, "Unexpected error bringing up cluster")
+}
+
+func TestClusterUpWithTwoCustomRoles(t *testing.T) {
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
+
+	instanceRole := "sparklepony, sparkleunicorn"
+
+	gomock.InOrder(
+		mockECS.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+	)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(command.CapabilityIAMFlag, true, "")
+	flagSet.String(command.KeypairNameFlag, "default", "")
+	flagSet.String(command.InstanceRoleFlag, instanceRole, "")
+
+	context := cli.NewContext(nil, flagSet, nil)
+	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
+	assert.Error(t, err, "Expected error for custom instance role")
+}
+
+func TestClusterUpWithDefaultAndCustomRoles(t *testing.T) {
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
+
+	instanceRole := "sparklepony"
+
+	gomock.InOrder(
+		mockECS.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+	)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(command.CapabilityIAMFlag, true, "")
+	flagSet.String(command.KeypairNameFlag, "default", "")
+	flagSet.String(command.InstanceRoleFlag, instanceRole, "")
+
+	context := cli.NewContext(nil, flagSet, nil)
+	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
+	assert.Error(t, err, "Expected error for custom instance role")
+}
+
+func TestClusterUpWithNoRoles(t *testing.T) {
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
+
+	gomock.InOrder(
+		mockECS.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+	)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(command.CapabilityIAMFlag, false, "")
+	flagSet.String(command.KeypairNameFlag, "default", "")
+
+	context := cli.NewContext(nil, flagSet, nil)
+	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
+	assert.Error(t, err, "Expected error for custom instance role")
+}
+
 func TestClusterUpWithoutKeyPair(t *testing.T) {
 	defer os.Clearenv()
 	mockECS, mockCloudformation := setupTest(t)

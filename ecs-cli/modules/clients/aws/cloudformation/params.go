@@ -35,6 +35,7 @@ const (
 	ParameterKeyCluster                  = "EcsCluster"
 	ParameterKeyAmiId                    = "EcsAmiId"
 	ParameterKeyAssociatePublicIPAddress = "AssociatePublicIpAddress"
+	ParameterKeyInstanceRole             = "InstanceRole"
 )
 
 var ParameterNotFoundError = errors.New("Parameter not found")
