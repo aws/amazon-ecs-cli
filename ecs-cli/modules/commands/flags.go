@@ -48,6 +48,7 @@ const (
 	SubnetIdsFlag                   = "subnets"
 	VpcIdFlag                       = "vpc"
 	InstanceTypeFlag                = "instance-type"
+	InstanceRoleFlag                = "instance-role"
 	ImageIdFlag                     = "image-id"
 	KeypairNameFlag                 = "keypair"
 	CapabilityIAMFlag               = "capability-iam"

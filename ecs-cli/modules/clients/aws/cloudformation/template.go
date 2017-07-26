@@ -150,6 +150,11 @@ var template = `
       "Type" : "String",
       "Description" : "ECS Cluster Name",
       "Default" : "default"
+    },
+    "InstanceRole" : {
+      "Type" : "String",
+      "Description" : "Optional - Instance IAM Role.",
+      "Default" : ""
     }
   },
   "Conditions": {
@@ -212,6 +217,14 @@ var template = `
             ""
           ]
         }
+      ]
+    },
+    "CreateEcsInstanceRole": {
+      "Fn::Equals": [
+        {
+          "Ref": "InstanceRole"
+        },
+        ""
       ]
     }
   },
@@ -382,7 +395,8 @@ var template = `
         } ]
       }
     },
-    "EcsInstancePolicy": {
+    "EcsInstanceRole": {
+      "Condition": "CreateEcsInstanceRole",
       "Type": "AWS::IAM::Role",
       "Properties": {
         "AssumeRolePolicyDocument": {
@@ -416,9 +430,15 @@ var template = `
       "Properties": {
         "Path": "/",
         "Roles": [
-          {
-            "Ref": "EcsInstancePolicy"
-          }
+          "Fn::If": [
+            "CreateEcsInstanceRole",
+            [ {
+              "Ref": "EcsInstanceRole"
+            } ],
+            {
+              "Ref": "InstanceRole"
+            }
+          ]
         ]
       }
     },

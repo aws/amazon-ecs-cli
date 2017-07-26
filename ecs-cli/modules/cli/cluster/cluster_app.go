@@ -52,6 +52,7 @@ func init() {
 		command.InstanceTypeFlag:  cloudformation.ParameterKeyInstanceType,
 		command.KeypairNameFlag:   cloudformation.ParameterKeyKeyPairName,
 		command.ImageIdFlag:       cloudformation.ParameterKeyAmiId,
+		command.InstanceRoleFlag:  cloudformation.ParameterKeyInstanceRole,
 	}
 }
 
@@ -151,10 +152,10 @@ func validateCommaSeparatedParam(cfnParams *cloudformation.CfnStackParams, param
 }
 
 func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient, amiIds ami.ECSAmiIds) error {
-	// Validate cli flags
-	if !isIAMAcknowledged(context) {
-		return fmt.Errorf("Please acknowledge that this command may create IAM resources with the '--%s' flag", command.CapabilityIAMFlag)
+	if err := validateInstanceRole(context); err != nil {
+		return err
 	}
+
 	ecsParams, err := newCliParams(context, rdwr)
 	if err != nil {
 		return err
@@ -199,6 +200,11 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 	// Check if 2 AZs are specified
 	if validateCommaSeparatedParam(cfnParams, cloudformation.ParameterKeyVPCAzs, 2, 2) {
 		return fmt.Errorf("You must specify 2 comma-separated availability zones with the '--%s' flag", command.VpcAzFlag)
+	}
+
+	// Check if more than one custom instance role is specified
+	if validateCommaSeparatedParam(cfnParams, cloudformation.ParameterKeyInstanceRole, 1, 1) {
+		return fmt.Errorf("You can only specify one instance role name with the '--%s' flag", command.InstanceRoleFlag)
 	}
 
 	// Check if vpc exists when security group is specified
@@ -410,9 +416,27 @@ func cliFlagsToCfnStackParams(context *cli.Context) *cloudformation.CfnStackPara
 	return cfnParams
 }
 
-// isIAMAcknowledged returrns true if the 'capability-iam' flag is set from CLI.
+// isIAMAcknowledged returns true if the 'capability-iam' flag is set from CLI.
 func isIAMAcknowledged(context *cli.Context) bool {
 	return context.Bool(command.CapabilityIAMFlag)
+}
+
+// returns true if customer specifies a custom instance role via 'role' flag.
+func hasCustomRole(context *cli.Context) bool {
+	return context.String(command.InstanceRoleFlag) != "" // validate arn?
+}
+
+func validateInstanceRole(context *cli.Context) error {
+	defaultRole := isIAMAcknowledged(context)
+	customRole := hasCustomRole(context)
+
+	if !defaultRole && !customRole {
+		return fmt.Errorf("You must either specify a custom role with the '--%s' flag or set the '--%s' flag", command.InstanceRoleFlag, command.CapabilityIAMFlag)
+	}
+	if defaultRole && customRole {
+		return fmt.Errorf("Cannot specify custom role when '--%s' flag is set", command.CapabilityIAMFlag)
+	}
+	return nil
 }
 
 // isForceSet returns true if the 'force' flag is set from CLI.
