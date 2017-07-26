@@ -227,7 +227,7 @@ aws_secret_access_key:
 	assert.False(t, ok, "Compose project name prefix should not exist in config")
 }
 
-func TestConfigFileTruncation(t *testing.T) {
+func TestOverwriteIniConfigFile(t *testing.T) {
 	configContents := `[ecs]
 cluster = very-long-cluster-name
 aws_profile = some-long-profile
@@ -238,30 +238,37 @@ compose-project-name-prefix = ecscompose-
 compose-service-name-prefix = ecscompose-service-
 cfn-stack-name-prefix = amazon-ecs-cli-setup-
 `
-	configSmallerContents := `[ecs]
-cluster = short-name
-aws_profile = profile
-region = us-west-2
-aws_access_key_id =
-aws_secret_access_key =
-`
 
-	dest, err := newMockDestination()
-	assert.NoError(t, err, "Error creating mock config destination")
+dest, err := newMockDestination()
+assert.NoError(t, err, "Error creating mock config destination")
 
-	err = os.MkdirAll(dest.Path, *dest.Mode)
-	assert.NoError(t, err, "Could not create config directory")
+err = os.MkdirAll(dest.Path, *dest.Mode)
+assert.NoError(t, err, "Could not create config directory")
 
-	defer os.RemoveAll(dest.Path)
+defer os.RemoveAll(dest.Path)
 
-	// Save config for the first time
-	err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configContents), *dest.Mode)
-	assert.NoError(t, err)
+// Save old ini config file
+err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configContents), *dest.Mode)
+assert.NoError(t, err)
 
-	// Save config with shorter cluster name
-	err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configSmallerContents), *dest.Mode)
-	assert.NoError(t, err)
+// Overwrite
+parser := setupParser(t, dest, false)
+saveConfigWithCluster(t, parser, dest)
 
-	_, err = newINIConfig(dest)
-	assert.NoError(t, err)
+
+// Ensure that what has been read is correct
+readConfig, configMap, err := parser.GetConfig()
+assert.NoError(t, err, "Error reading config")
+assert.Equal(t, testClusterName, readConfig.Cluster, "Cluster name mismatch in config.")
+_, ok := configMap[composeProjectNamePrefixKey]
+assert.True(t, ok, "Compose project prefix name should exist in config.")
+assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
+_, ok = configMap[composeServiceNamePrefixKey]
+assert.True(t, ok, "Compose service name prefix should exist in config.")
+assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
+_, ok = configMap[cfnStackNamePrefixKey]
+assert.True(t, ok, "CFNStackNamePrefix should exist in config.")
+assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+
+
 }
