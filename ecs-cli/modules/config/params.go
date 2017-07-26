@@ -17,7 +17,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Sirupsen/logrus"
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/pkg/errors"
@@ -57,7 +56,6 @@ func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 
 	if err != nil {
 		errors.Wrap(err, "Error loading config")
-		logrus.Error(err)
 		return nil, err
 	}
 

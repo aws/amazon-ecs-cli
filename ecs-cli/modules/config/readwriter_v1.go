@@ -122,6 +122,9 @@ func (rdwr *YAMLReadWriter) Save(cliConfig *CLIConfig) error {
 	path := configPath(rdwr.destination)
 
 	// If config file exists, set permissions first, because we may be writing creds.
+  // This is necessary because ioutil.WriteFile only sets the permissions
+  // if the file is being created for the first time; this handles the case
+  // where the file already exists
 	if _, err := os.Stat(path); err == nil {
 		if err = os.Chmod(path, configFileMode); err != nil {
 			return errors.Wrapf(err, "Could not set file permissions, %s, for path %s", configFileMode, path)
@@ -130,8 +133,9 @@ func (rdwr *YAMLReadWriter) Save(cliConfig *CLIConfig) error {
 
 	data, err := yaml.Marshal(cliConfig)
 	if err != nil {
-		return errors.Wrap(err, "Could not convert config to YAML")
+		return errors.Wrap(err, "Unable to parse the config")
 	}
+  // WriteFile will not change the permissions of an existing file
 	if err = ioutil.WriteFile(path, data, configFileMode.Perm()); err != nil {
 		return errors.Wrapf(err, "Could not write config file %s", path)
 	}
