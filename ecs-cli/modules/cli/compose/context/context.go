@@ -33,7 +33,7 @@ type Context struct {
 	project.Context
 
 	CLIContext *cli.Context
-	ECSParams  *config.CliParams
+	ECSParams  *config.CLIParams
 
 	// AWS Service Clients
 	ECSClient ecsclient.ECSClient

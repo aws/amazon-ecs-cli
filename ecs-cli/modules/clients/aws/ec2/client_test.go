@@ -116,7 +116,7 @@ func setupTest(t *testing.T) (*mock_ec2iface.MockEC2API, EC2Client) {
 	mockSession, err := session.NewSession()
 	assert.NoError(t, err, "Unexpected error in creating session")
 
-	client := newClient(&config.CliParams{Session: mockSession}, mockEC2)
+	client := newClient(&config.CLIParams{Session: mockSession}, mockEC2)
 
 	return mockEC2, client
 }
