@@ -17,8 +17,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
+	"github.com/pkg/errors"
 )
 
 // Destination stores the config destination path to write to and the permissions to create the
@@ -32,8 +32,7 @@ type Destination struct {
 func GetFilePermissions(fileName string) (*os.FileMode, error) {
 	fileInfo, err := os.Stat(fileName)
 	if err != nil {
-		logrus.Warnf("Error getting permissions of file: %s", fileName)
-		return nil, err
+		return nil, errors.Wrap(err, "Error getting Home directory permissions for config file")
 	}
 
 	mode := fileInfo.Mode()
@@ -44,7 +43,7 @@ func GetFilePermissions(fileName string) (*os.FileMode, error) {
 func newDefaultDestination() (*Destination, error) {
 	homeDir, err := utils.GetHomeDir()
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Error finding Home directory to store config file")
 	}
 	mode, err := GetFilePermissions(homeDir)
 	if err != nil {

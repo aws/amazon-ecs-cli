@@ -141,7 +141,7 @@ func (_mr *_MockECSClientRecorder) GetTasksPages(arg0, arg1 interface{}) *gomock
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetTasksPages", arg0, arg1)
 }
 
-func (_m *MockECSClient) Initialize(_param0 *config.CliParams) {
+func (_m *MockECSClient) Initialize(_param0 *config.CLIParams) {
 	_m.ctrl.Call(_m, "Initialize", _param0)
 }
 

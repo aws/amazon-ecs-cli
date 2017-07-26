@@ -34,13 +34,13 @@ type ec2Client struct {
 }
 
 // NewEC2Client creates an instance of ec2Client object.
-func NewEC2Client(params *config.CliParams) EC2Client {
+func NewEC2Client(params *config.CLIParams) EC2Client {
 	client := ec2.New(params.Session)
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
 	return newClient(params, client)
 }
 
-func newClient(params *config.CliParams, client ec2iface.EC2API) EC2Client {
+func newClient(params *config.CLIParams, client ec2iface.EC2API) EC2Client {
 	return &ec2Client{
 		client: client,
 	}
