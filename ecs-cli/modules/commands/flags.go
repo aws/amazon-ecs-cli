@@ -31,6 +31,8 @@ const (
 	ClusterFlag            = "cluster"
 	ClusterEnvVar          = "ECS_CLUSTER"
 	VerboseFlag            = "verbose"
+	ClusterConfigFlag      = "cluster-config"
+	ProfileConfigFlag      = "ecs-profile"
 
 	ComposeProjectNamePrefixFlag         = "compose-project-name-prefix"
 	ComposeProjectNamePrefixDefaultValue = "ecscompose-"
@@ -76,6 +78,26 @@ const (
 	LoadBalancerNameFlag                    = "load-balancer-name"
 	RoleFlag                                = "role"
 )
+
+// OptionalClusterClusterFlag inline selects a specific cluster configuration from the cluster config file
+func OptionalClusterConfigFlag() cli.Flag {
+	return cli.StringFlag{
+		Name: ClusterConfigFlag,
+		Usage: fmt.Sprintf(
+			"[Optional] Specifies the name of the ECS cluster configuration to use. Defaults to the default cluster configuration.",
+		),
+	}
+}
+
+// OptionalClusterConfigFlag inline selects a specific profile from the ecs config file
+func OptionalProfileConfigFlag() cli.Flag {
+	return cli.StringFlag{
+		Name: ProfileConfigFlag,
+		Usage: fmt.Sprintf(
+			"[Optional] Specifies the name of the ECS profle configuration to use. Defaults to the default profile configuration.",
+		),
+	}
+}
 
 // OptionalClusterFlag inline overrides cluster
 func OptionalClusterFlag() cli.Flag {

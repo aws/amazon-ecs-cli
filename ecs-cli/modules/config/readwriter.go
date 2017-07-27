@@ -131,7 +131,7 @@ func (rdwr *INIReadWriter) IsKeyPresent(section, key string) bool {
 
 func newINIConfig(dest *Destination) (*ini.File, error) {
 	iniCfg := ini.Empty()
-	path := configPath(dest)
+	path := configFilePath(dest)
 	if _, err := os.Stat(path); err == nil {
 		if err = iniCfg.Append(path); err != nil {
 			return nil, errors.Wrap(err, "Failed to initialize ini reader")
