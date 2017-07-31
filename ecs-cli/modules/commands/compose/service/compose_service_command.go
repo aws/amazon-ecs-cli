@@ -17,6 +17,7 @@ import (
 	"fmt"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/service"
 	composeFactory "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/factory"
 	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/urfave/cli"
@@ -89,7 +90,7 @@ func upServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:   "up",
 		Usage:  "Creates an ECS service from your compose file (if it does not already exist) and runs one instance of that task on your cluster (a combination of create and start). This command updates the desired count of the service to 1.",
 		Action: compose.WithProject(factory, compose.ProjectUp, true),
-		Flags:  append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalClusterFlag(), command.OptionalRegionFlag())...),
+		Flags:  append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalClusterFlag(), command.OptionalRegionFlag(), ComposeServiceTimeOutFlag())...),
 	}
 }
 
@@ -187,5 +188,16 @@ func loadBalancerFlags() []cli.Flag {
 			Name:  command.RoleFlag,
 			Usage: roleUsageString,
 		},
+	}
+}
+
+// OptionalRegionFlag inline overrides region
+func ComposeServiceTimeOutFlag() cli.Flag {
+	return cli.Float64Flag{
+		Name:  command.ComposeServiceTimeOutFlag,
+		Value: service.TimeOutUpdateService,
+		Usage: fmt.Sprintf(
+			"[Optional] Specifies the time out for the compose service up command.",
+		),
 	}
 }
