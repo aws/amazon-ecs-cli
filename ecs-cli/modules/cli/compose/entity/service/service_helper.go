@@ -25,7 +25,10 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 )
 
-const TimeOutUpdateService = 1
+// TimeOutUpdateService is the time that the CLI will wait to check if the
+// count of running tasks is changing. If it has not changed then an error is thrown
+// after TimeOutUpdateService minutes
+const TimeOutUpdateService = 5
 
 // serviceEvents is a wrapper for []*ecs.ServiceEvent
 // that allows us to reverse it
