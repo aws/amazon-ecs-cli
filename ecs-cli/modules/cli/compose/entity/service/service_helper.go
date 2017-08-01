@@ -75,7 +75,6 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 	var lastRunningCount int64
 	lastRunningCountChangedAt := time.Now()
 	timeOut := float64(TimeOutUpdateService)
-	log.Warnf("Command in Waiter: %s", service.Context().CLIContext.Command.Name)
 	timeWhenFunctionCalled := time.Now()
 
 	if val := service.Context().CLIContext.Float64(ecscli.ComposeServiceTimeOutFlag); val > 0 {
