@@ -29,6 +29,7 @@ import (
 // count of running tasks is changing. If it has not changed then an error is thrown
 // after TimeOutUpdateService minutes
 const TimeOutUpdateService = 5
+const PrintOnlyNewEvents = 5
 
 // serviceEvents is a wrapper for []*ecs.ServiceEvent
 // that allows us to reverse it
@@ -48,7 +49,7 @@ func (s reverser) Less(i, j int) bool {
 }
 
 // logNewServiceEvents logs events that have not been logged yet
-func logNewServiceEvents(loggedEvents map[string]bool, events []*ecs.ServiceEvent) {
+func logNewServiceEvents(loggedEvents map[string]bool, events []*ecs.ServiceEvent, commandTime time.Time) {
 
 	// the slice comes ordered so that newer events are first. Logically, we
 	// want to print older events first- so we reverse it
@@ -57,7 +58,9 @@ func logNewServiceEvents(loggedEvents map[string]bool, events []*ecs.ServiceEven
 		if _, ok := loggedEvents[*event.Id]; !ok {
 			// New event that has not been logged yet
 			loggedEvents[*event.Id] = true
-			log.Infof("Service Event %s", event.String())
+			if commandTime.Sub(*event.CreatedAt).Seconds() < PrintOnlyNewEvents {
+				log.Infof("Service Event %s", event.String())
+			}
 		}
 	}
 
@@ -73,6 +76,7 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 	lastRunningCountChangedAt := time.Now()
 	timeOut := float64(TimeOutUpdateService)
 	log.Warnf("Command in Waiter: %s", service.Context().CLIContext.Command.Name)
+	timeWhenFunctionCalled := time.Now()
 
 	if val := service.Context().CLIContext.Float64(ecscli.ComposeServiceTimeOutFlag); val > 0 {
 		timeOut = val
@@ -110,7 +114,7 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 
 		// log new service events
 		if len(ecsService.Events) > 0 {
-			logNewServiceEvents(eventsLogged, ecsService.Events)
+			logNewServiceEvents(eventsLogged, ecsService.Events, timeWhenFunctionCalled)
 		}
 
 		if time.Since(lastRunningCountChangedAt).Minutes() > timeOut {
