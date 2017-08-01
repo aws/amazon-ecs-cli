@@ -59,7 +59,9 @@ func logNewServiceEvents(loggedEvents map[string]bool, events []*ecs.ServiceEven
 			// New event that has not been logged yet
 			loggedEvents[*event.Id] = true
 			if commandTime.Sub(*event.CreatedAt).Seconds() < PrintOnlyNewEvents {
-				log.Infof("Service Event %s", event.String())
+				log.WithFields(log.Fields{
+					"timestamp": *event.CreatedAt},
+				).Info(*event.Message)
 			}
 		}
 	}
