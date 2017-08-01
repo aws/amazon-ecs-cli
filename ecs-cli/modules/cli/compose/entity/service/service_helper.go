@@ -29,19 +29,19 @@ import (
 // count of running tasks is changing. If it has not changed then an error is thrown
 // after TimeOutUpdateService minutes
 const TimeOutUpdateService = 5
-const PrintOnlyNewEvents = 5
+const PrintOnlyNewEvents = 10
 
 // serviceEvents is a wrapper for []*ecs.ServiceEvent
 // that allows us to reverse it
-type reverser []*ecs.ServiceEvent
+type eventSorter []*ecs.ServiceEvent
 
-func (s reverser) Len() int {
+func (s eventSorter) Len() int {
 	return len(s)
 }
-func (s reverser) Swap(i, j int) {
+func (s eventSorter) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
-func (s reverser) Less(i, j int) bool {
+func (s eventSorter) Less(i, j int) bool {
 	time1 := *s[i].CreatedAt
 	time2 := *s[j].CreatedAt
 	diff := time1.Sub(time2)
@@ -53,7 +53,7 @@ func logNewServiceEvents(loggedEvents map[string]bool, events []*ecs.ServiceEven
 
 	// the slice comes ordered so that newer events are first. Logically, we
 	// want to print older events first- so we reverse it
-	sort.Sort(reverser(events))
+	sort.Sort(eventSorter(events))
 	for _, event := range events {
 		if _, ok := loggedEvents[*event.Id]; !ok {
 			// New event that has not been logged yet
@@ -99,12 +99,6 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 			"runningCount": runningCount,
 		}
 
-		// The deployment was successful
-		if len(ecsService.Deployments) == 1 && desiredCount == runningCount {
-			log.WithFields(logFields).Info("ECS Service has reached a stable state")
-			return true, nil
-		}
-
 		// Log information only if things have changed
 		// running count has changed
 		if runningCount != lastRunningCount {
@@ -116,6 +110,12 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 		// log new service events
 		if len(ecsService.Events) > 0 {
 			logNewServiceEvents(eventsLogged, ecsService.Events, timeWhenFunctionCalled)
+		}
+
+		// The deployment was successful
+		if len(ecsService.Deployments) == 1 && desiredCount == runningCount {
+			log.WithFields(logFields).Info("ECS Service has reached a stable state")
+			return true, nil
 		}
 
 		if time.Since(lastRunningCountChangedAt).Minutes() > timeOut {
