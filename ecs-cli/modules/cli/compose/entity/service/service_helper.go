@@ -44,8 +44,7 @@ func (s eventSorter) Swap(i, j int) {
 func (s eventSorter) Less(i, j int) bool {
 	time1 := *s[i].CreatedAt
 	time2 := *s[j].CreatedAt
-	diff := time1.Sub(time2)
-	return diff.Seconds() < 0
+	return time1.Before(time2)
 }
 
 // logNewServiceEvents logs events that have not been logged yet
@@ -82,6 +81,9 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 	if val := service.Context().CLIContext.Float64(ecscli.ComposeServiceTimeOutFlag); val > 0 {
 		timeOut = val
 	}
+
+	log.Infof("Command in waiter: %s", service.Context().CLIContext.Command.Name)
+	log.Infof("Flag: %f", service.Context().CLIContext.Float64(ecscli.ComposeServiceTimeOutFlag))
 
 	return waiters.WaitUntilComplete(func(retryCount int) (bool, error) {
 

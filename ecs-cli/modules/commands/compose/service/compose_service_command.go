@@ -81,6 +81,7 @@ func startServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Flags: []cli.Flag{
 			command.OptionalClusterFlag(),
 			command.OptionalRegionFlag(),
+			ComposeServiceTimeOutFlag(),
 		},
 	}
 }
@@ -112,7 +113,7 @@ func scaleServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:   "scale",
 		Usage:  "ecs-cli compose service scale [count] - scales the desired count of the service to the specified count",
 		Action: compose.WithProject(factory, compose.ProjectScale, true),
-		Flags:  append(deploymentConfigFlags(false), command.OptionalClusterFlag(), command.OptionalRegionFlag()),
+		Flags:  append(deploymentConfigFlags(false), command.OptionalClusterFlag(), command.OptionalRegionFlag(), ComposeServiceTimeOutFlag()),
 	}
 }
 
@@ -124,6 +125,7 @@ func stopServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Flags: []cli.Flag{
 			command.OptionalClusterFlag(),
 			command.OptionalRegionFlag(),
+			ComposeServiceTimeOutFlag(),
 		},
 	}
 }
@@ -137,6 +139,7 @@ func rmServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Flags: []cli.Flag{
 			command.OptionalClusterFlag(),
 			command.OptionalRegionFlag(),
+			ComposeServiceTimeOutFlag(),
 		},
 	}
 }
