@@ -198,7 +198,7 @@ func loadBalancerFlags() []cli.Flag {
 func ComposeServiceTimeOutFlag() cli.Flag {
 	return cli.Float64Flag{
 		Name:  command.ComposeServiceTimeOutFlag,
-		Value: service.TimeOutUpdateService,
+		Value: service.UpdateServiceTimeout,
 		Usage: fmt.Sprintf(
 			"[Optional] Specifies the time out for the compose service up command.",
 		),
