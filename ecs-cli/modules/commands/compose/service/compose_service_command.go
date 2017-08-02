@@ -194,13 +194,13 @@ func loadBalancerFlags() []cli.Flag {
 	}
 }
 
-// OptionalRegionFlag inline overrides region
+// ComposeServiceTimeOutFlag allows user to specify a custom timeout
 func ComposeServiceTimeOutFlag() cli.Flag {
 	return cli.Float64Flag{
 		Name:  command.ComposeServiceTimeOutFlag,
-		Value: service.UpdateServiceTimeout,
+		Value: service.DefaultUpdateServiceTimeout,
 		Usage: fmt.Sprintf(
-			"[Optional] Specifies the time out for the compose service up command.",
+			"[Optional] Specifies the timeout to wait for the running task count to change. If the running task count has not changed for the specified period of time then the CLI will return an error.",
 		),
 	}
 }

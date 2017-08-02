@@ -20,7 +20,6 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/waiters"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 )
@@ -28,7 +27,7 @@ import (
 // UpdateServiceTimeout is the time that the CLI will wait to check if the
 // count of running tasks is changing. If it has not changed then an error is thrown
 // after UpdateServiceTimeout minutes
-const UpdateServiceTimeout = 5
+const DefaultUpdateServiceTimeout = 5
 const latestEventWindow = 5
 
 // serviceEvents is a wrapper for []*ecs.ServiceEvent
@@ -59,7 +58,7 @@ func logNewServiceEvents(loggedEvents map[string]bool, events []*ecs.ServiceEven
 			if cmdTimestamp.Sub(*event.CreatedAt).Seconds() < latestEventWindow {
 				log.WithFields(log.Fields{
 					"timestamp": *event.CreatedAt},
-				).Info(*event.Message)
+				).Info(event.Message)
 			}
 		}
 	}
@@ -69,26 +68,23 @@ func logNewServiceEvents(loggedEvents map[string]bool, events []*ecs.ServiceEven
 // waitForServiceTasks continuously polls ECS (by calling describeService) and waits for service to get stable
 // with desiredCount == runningCount
 func waitForServiceTasks(service *Service, ecsServiceName string) error {
-	timeoutMessage := fmt.Sprintf("Timeout waiting for service %s to get stable", ecsServiceName)
-
 	eventsLogged := make(map[string]bool)
 	var lastRunningCount int64
 	lastRunningCountChangedAt := time.Now()
-	timeOut := float64(UpdateServiceTimeout)
+	timeOut := float64(DefaultUpdateServiceTimeout)
 	cmdTimestamp := time.Now()
 
 	if val := service.Context().CLIContext.Float64(ecscli.ComposeServiceTimeOutFlag); val > 0 {
 		timeOut = val
+	} else if val <= 0 {
+		return fmt.Errorf("Error with timeout flag: %d is not a valid timeout value", val)
 	}
 
-	log.Infof("Command in waiter: %s", service.Context().CLIContext.Command.Name)
-	log.Infof("Flag: %f", service.Context().CLIContext.Float64(ecscli.ComposeServiceTimeOutFlag))
-
-	return waiters.WaitUntilComplete(func(retryCount int) (bool, error) {
+	for time.Since(lastRunningCountChangedAt).Minutes() < timeOut {
 
 		ecsService, err := service.describeService()
 		if err != nil {
-			return false, err
+			return err
 		}
 
 		desiredCount := aws.Int64Value(ecsService.DesiredCount)
@@ -116,13 +112,9 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 		// The deployment was successful
 		if len(ecsService.Deployments) == 1 && desiredCount == runningCount {
 			log.WithFields(logFields).Info("ECS Service has reached a stable state")
-			return true, nil
+			return nil
 		}
+	}
 
-		if time.Since(lastRunningCountChangedAt).Minutes() > timeOut {
-			return true, fmt.Errorf("Deployment has not completed: Running count has not changed for %.2f minutes", timeOut)
-		}
-
-		return false, nil
-	}, service, timeoutMessage, true)
+	return fmt.Errorf("Deployment has not completed: Running count has not changed for %.2f minutes", timeOut)
 }
