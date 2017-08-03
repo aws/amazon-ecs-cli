@@ -35,18 +35,16 @@ const (
 	regionKey                   = "region"
 )
 
-// CLIConfig is the top level struct used to map to the yaml config.
-// Version: v1 = YAML formatted configs split profile and cluster
+// CLIConfig is the top level struct representing the configuration information
 type CLIConfig struct {
-	Version                  string `yaml:"version"`
-	Cluster                  string `yaml:"cluster"`
-	AWSProfile               string `yaml:"aws_profile"`
-	Region                   string `yaml:"region"`
-	AWSAccessKey             string `yaml:"aws_access_key_id"`
-	AWSSecretKey             string `yaml:"aws_secret_access_key"`
-	ComposeProjectNamePrefix string `yaml:"compose-project-name-prefix"`
-	ComposeServiceNamePrefix string `yaml:"compose-service-name-prefix"`
-	CFNStackNamePrefix       string `yaml:"cfn-stack-name-prefix"`
+	Cluster                  string
+	AWSProfile               string
+	Region                   string
+	AWSAccessKey             string
+	AWSSecretKey             string
+	ComposeProjectNamePrefix string
+	ComposeServiceNamePrefix string
+	CFNStackNamePrefix       string
 }
 
 // Profile is a simple struct for storing a single profile config

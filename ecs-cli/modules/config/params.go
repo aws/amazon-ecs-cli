@@ -54,21 +54,10 @@ func recursiveFlagSearch(context *cli.Context, flag string) string {
 func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 	clusterConfigFlag := recursiveFlagSearch(context, ecscli.ClusterConfigFlag)
 	profileConfigFlag := recursiveFlagSearch(context, ecscli.ProfileConfigFlag)
-	ecsConfig, configMap, err := rdwr.GetConfigs(clusterConfigFlag, profileConfigFlag)
+	ecsConfig, err := rdwr.GetConfigs(clusterConfigFlag, profileConfigFlag)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "Error loading config")
-	}
-
-	// If Prefixes not found, set to defaults.
-	if _, ok := configMap[composeProjectNamePrefixKey]; !ok {
-		ecsConfig.ComposeProjectNamePrefix = ecscli.ComposeProjectNamePrefixDefaultValue
-	}
-	if _, ok := configMap[composeServiceNamePrefixKey]; !ok {
-		ecsConfig.ComposeServiceNamePrefix = ecscli.ComposeServiceNamePrefixDefaultValue
-	}
-	if _, ok := configMap[cfnStackNamePrefixKey]; !ok {
-		ecsConfig.CFNStackNamePrefix = ecscli.CFNStackNamePrefixDefaultValue
 	}
 
 	// Order of cluster resolution

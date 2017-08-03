@@ -16,6 +16,8 @@ package config
 import (
 	"os"
 
+	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+
 	"github.com/go-ini/ini"
 	"github.com/pkg/errors"
 )
@@ -59,53 +61,37 @@ func NewINIReadWriter(dest *Destination) (*INIReadWriter, error) {
 // map contains the keys that are present in the config file (maps string field name to string field value)
 // map is type map[interface{}]interface{} to ensure fowards compatibility with changes that will
 // cause certain keys to be mapped to maps of keys
-func (rdwr *INIReadWriter) GetConfig() (*CLIConfig, map[interface{}]interface{}, error) {
-	configMap := make(map[interface{}]interface{})
-	to := &CLIConfig{}
+func (rdwr *INIReadWriter) GetConfig() (*CLIConfig, error) {
+	cliConfig := &CLIConfig{}
 
 	// read old ini formatted file
-	oldFormat := &iniCLIConfig{iniSectionKeys: new(iniSectionKeys)}
-	err := rdwr.cfg.MapTo(oldFormat)
+	iniFormat := &iniCLIConfig{iniSectionKeys: new(iniSectionKeys)}
+	err := rdwr.cfg.MapTo(iniFormat)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	// Create the configMap
-	if rdwr.IsKeyPresent(ecsSectionKey, "cluster") {
-		configMap["cluster"] = oldFormat.Cluster
+	// If Prefixes not found, set to defaults.
+	if !rdwr.IsKeyPresent(ecsSectionKey, composeProjectNamePrefixKey) {
+		iniFormat.ComposeProjectNamePrefix = ecscli.ComposeProjectNamePrefixDefaultValue
 	}
-	if rdwr.IsKeyPresent(ecsSectionKey, "aws_profile") {
-		configMap["aws_profile"] = oldFormat.AwsProfile
+	if !rdwr.IsKeyPresent(ecsSectionKey, composeServiceNamePrefixKey) {
+		iniFormat.ComposeServiceNamePrefix = ecscli.ComposeServiceNamePrefixDefaultValue
 	}
-	if rdwr.IsKeyPresent(ecsSectionKey, "region") {
-		configMap["region"] = oldFormat.Region
-	}
-	if rdwr.IsKeyPresent(ecsSectionKey, "aws_access_key_id") {
-		configMap["aws_access_key_id"] = oldFormat.AWSAccessKey
-	}
-	if rdwr.IsKeyPresent(ecsSectionKey, "aws_secret_access_key") {
-		configMap["aws_secret_access_key"] = oldFormat.AWSSecretKey
-	}
-	if rdwr.IsKeyPresent(ecsSectionKey, "compose-project-name-prefix") {
-		configMap["compose-project-name-prefix"] = oldFormat.ComposeProjectNamePrefix
-	}
-	if rdwr.IsKeyPresent(ecsSectionKey, "compose-service-name-prefix") {
-		configMap["compose-service-name-prefix"] = oldFormat.ComposeServiceNamePrefix
-	}
-	if rdwr.IsKeyPresent(ecsSectionKey, "cfn-stack-name-prefix") {
-		configMap["cfn-stack-name-prefix"] = oldFormat.CFNStackNamePrefix
+	if !rdwr.IsKeyPresent(ecsSectionKey, cfnStackNamePrefixKey) {
+		iniFormat.CFNStackNamePrefix = ecscli.CFNStackNamePrefixDefaultValue
 	}
 
 	// Convert to the new CliConfig
-	to.Cluster = oldFormat.Cluster
-	to.Region = oldFormat.Region
-	to.AWSProfile = oldFormat.AwsProfile
-	to.AWSAccessKey = oldFormat.AWSAccessKey
-	to.AWSSecretKey = oldFormat.AWSSecretKey
-	to.ComposeProjectNamePrefix = oldFormat.ComposeProjectNamePrefix
-	to.ComposeServiceNamePrefix = oldFormat.ComposeServiceNamePrefix
-	to.CFNStackNamePrefix = oldFormat.CFNStackNamePrefix
-	return to, configMap, nil
+	cliConfig.Cluster = iniFormat.Cluster
+	cliConfig.Region = iniFormat.Region
+	cliConfig.AWSProfile = iniFormat.AwsProfile
+	cliConfig.AWSAccessKey = iniFormat.AWSAccessKey
+	cliConfig.AWSSecretKey = iniFormat.AWSSecretKey
+	cliConfig.ComposeProjectNamePrefix = iniFormat.ComposeProjectNamePrefix
+	cliConfig.ComposeServiceNamePrefix = iniFormat.ComposeServiceNamePrefix
+	cliConfig.CFNStackNamePrefix = iniFormat.CFNStackNamePrefix
+	return cliConfig, nil
 }
 
 // IsInitialized returns true if the config file can be read and if all the key config fields
