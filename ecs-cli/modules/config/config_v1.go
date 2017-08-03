@@ -31,6 +31,7 @@ const (
 	awsAccessKey                = "aws_access_key_id"
 	awsSecretKey                = "aws_secret_access_key"
 	clusterKey                  = "cluster"
+	clustersKey                 = "clusters"
 	regionKey                   = "region"
 )
 
@@ -46,6 +47,31 @@ type CLIConfig struct {
 	ComposeProjectNamePrefix string `yaml:"compose-project-name-prefix"`
 	ComposeServiceNamePrefix string `yaml:"compose-service-name-prefix"`
 	CFNStackNamePrefix       string `yaml:"cfn-stack-name-prefix"`
+}
+
+// Profile is a simple struct for storing a single profile config
+type Profile struct {
+	AWSAccessKey string
+	AWSSecretKey string
+}
+
+// Cluster is a simple struct for storing a single cluster config
+type Cluster struct {
+	Cluster                  string
+	Region                   string
+	ComposeServiceNamePrefix string `yaml:"compose-service-name-prefix"`
+}
+
+// ClusterConfig is the top level struct representing the cluster config file
+type ClusterConfig struct {
+	defaultCluster string `yaml:"default"`
+	Clusters       map[string]Cluster
+}
+
+// ProfileConfig is the top level struct representing the Credentials file
+type ProfileConfig struct {
+	defaultProfile string `yaml:"default"`
+	Profiles       map[string]Profile
 }
 
 // NewCLIConfig creates a new instance of CliConfig from the cluster name.

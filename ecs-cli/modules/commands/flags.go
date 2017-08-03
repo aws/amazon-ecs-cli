@@ -79,33 +79,30 @@ const (
 	RoleFlag                                = "role"
 )
 
-// OptionalClusterClusterFlag inline selects a specific cluster configuration from the cluster config file
-func OptionalClusterConfigFlag() cli.Flag {
-	return cli.StringFlag{
-		Name: ClusterConfigFlag,
-		Usage: fmt.Sprintf(
-			"[Optional] Specifies the name of the ECS cluster configuration to use. Defaults to the default cluster configuration.",
-		),
-	}
-}
-
-// OptionalClusterConfigFlag inline selects a specific profile from the ecs config file
-func OptionalProfileConfigFlag() cli.Flag {
-	return cli.StringFlag{
-		Name: ProfileConfigFlag,
-		Usage: fmt.Sprintf(
-			"[Optional] Specifies the name of the ECS profle configuration to use. Defaults to the default profile configuration.",
-		),
-	}
-}
-
+// OptionalClusterAndProfileFlags provides these flags:
 // OptionalClusterFlag inline overrides cluster
-func OptionalClusterFlag() cli.Flag {
-	return cli.StringFlag{
-		Name: ClusterFlag + ", c",
-		Usage: fmt.Sprintf(
-			"[Optional] Specifies the ECS cluster name to use. Defaults to the cluster configured using the configure command",
-		),
+// OptionalClusterConfigFlag specifies the cluster profile to read from config
+// OptionalProfileConfigFlag specifies the credentials profile to read from the config
+func OptionalClusterAndProfileFlags() []cli.Flag {
+	return []cli.Flag{
+		cli.StringFlag{
+			Name: ClusterFlag + ", c",
+			Usage: fmt.Sprintf(
+				"[Optional] Specifies the ECS cluster name to use. Defaults to the cluster configured using the configure command",
+			),
+		},
+		cli.StringFlag{
+			Name: ClusterConfigFlag,
+			Usage: fmt.Sprintf(
+				"[Optional] Specifies the name of the ECS cluster configuration to use. Defaults to the default cluster configuration.",
+			),
+		},
+		cli.StringFlag{
+			Name: ProfileConfigFlag,
+			Usage: fmt.Sprintf(
+				"[Optional] Specifies the name of the ECS profle configuration to use. Defaults to the default profile configuration.",
+			),
+		},
 	}
 }
 

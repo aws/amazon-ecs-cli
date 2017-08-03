@@ -52,8 +52,8 @@ func recursiveFlagSearch(context *cli.Context, flag string) string {
 
 // NewCLIParams creates a new ECSParams object from the config file.
 func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
-	clusterConfigFlag := context.String(ecscli.ClusterConfigFlag)
-	profileConfigFlag := context.String(ecscli.ProfileConfigFlag)
+	clusterConfigFlag := recursiveFlagSearch(context, ecscli.ClusterConfigFlag)
+	profileConfigFlag := recursiveFlagSearch(context, ecscli.ProfileConfigFlag)
 	ecsConfig, configMap, err := rdwr.GetConfigs(clusterConfigFlag, profileConfigFlag)
 
 	if err != nil {
