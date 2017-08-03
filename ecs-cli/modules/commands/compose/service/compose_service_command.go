@@ -200,7 +200,7 @@ func ComposeServiceTimeOutFlag() cli.Flag {
 		Name:  command.ComposeServiceTimeOutFlag,
 		Value: service.DefaultUpdateServiceTimeout,
 		Usage: fmt.Sprintf(
-			"[Optional] Specifies the timeout to wait for the running task count to change. If the running task count has not changed for the specified period of time then the CLI will return an error.",
+			"[Optional] Specifies the floating point value timeout in minutes to wait for the running task count to change. If the running task count has not changed for the specified period of time then the CLI will return an error. Setting timeout to 0 will cause the command to return without checking for success.",
 		),
 	}
 }

@@ -20,15 +20,22 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/waiters"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 )
 
-// UpdateServiceTimeout is the time that the CLI will wait to check if the
-// count of running tasks is changing. If it has not changed then an error is thrown
-// after UpdateServiceTimeout minutes
-const DefaultUpdateServiceTimeout = 5
-const latestEventWindow = 5
+const (
+	// DefaultUpdateServiceTimeout is the time that the CLI will wait to check if the
+	// count of running tasks is changing. If it has not changed then an error is thrown
+	// after UpdateServiceTimeout minutes
+	DefaultUpdateServiceTimeout = 5
+
+	// latestEventWindow defines "now"- it ensures that we only print events
+	// which were created since roughly when the user entered the command in their
+	// terminal. Units = seconds.
+	latestEventWindow = 2
+)
 
 // serviceEvents is a wrapper for []*ecs.ServiceEvent
 // that allows us to sort it by the time stamp
@@ -47,7 +54,7 @@ func (s serviceEvents) Less(i, j int) bool {
 }
 
 // logNewServiceEvents logs events that have not been logged yet
-func logNewServiceEvents(loggedEvents map[string]bool, events []*ecs.ServiceEvent, cmdTimestamp time.Time) {
+func logNewServiceEvents(loggedEvents map[string]bool, events []*ecs.ServiceEvent, actionInvokedTimestamp time.Time) {
 
 	// sort the events so that newer ones are printed last
 	sort.Sort(serviceEvents(events))
@@ -55,10 +62,10 @@ func logNewServiceEvents(loggedEvents map[string]bool, events []*ecs.ServiceEven
 		if _, ok := loggedEvents[*event.Id]; !ok {
 			// New event that has not been logged yet
 			loggedEvents[*event.Id] = true
-			if cmdTimestamp.Sub(*event.CreatedAt).Seconds() < latestEventWindow {
+			if actionInvokedTimestamp.Sub(*event.CreatedAt).Seconds() < latestEventWindow {
 				log.WithFields(log.Fields{
 					"timestamp": *event.CreatedAt},
-				).Info(event.Message)
+				).Info(aws.StringValue(event.Message))
 			}
 		}
 	}
@@ -72,19 +79,21 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 	var lastRunningCount int64
 	lastRunningCountChangedAt := time.Now()
 	timeOut := float64(DefaultUpdateServiceTimeout)
-	cmdTimestamp := time.Now()
+	actionInvokedTimestamp := time.Now()
 
 	if val := service.Context().CLIContext.Float64(ecscli.ComposeServiceTimeOutFlag); val > 0 {
 		timeOut = val
-	} else if val <= 0 {
-		return fmt.Errorf("Error with timeout flag: %d is not a valid timeout value", val)
+	} else if val < 0 {
+		return fmt.Errorf("Error with timeout flag: %f is not a valid timeout value", val)
+	} else {
+		log.Warn("Timeout was specified as zero- abandoning all checks, and returning.")
+		return nil
 	}
 
-	for time.Since(lastRunningCountChangedAt).Minutes() < timeOut {
-
+	return waiters.ServiceWaitUntilComplete(func(retryCount int) (bool, error) {
 		ecsService, err := service.describeService()
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		desiredCount := aws.Int64Value(ecsService.DesiredCount)
@@ -96,8 +105,7 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 			"runningCount": runningCount,
 		}
 
-		// Log information only if things have changed
-		// running count has changed
+		// Log if running count has changed
 		if runningCount != lastRunningCount {
 			lastRunningCount = runningCount
 			lastRunningCountChangedAt = time.Now()
@@ -106,15 +114,20 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 
 		// log new service events
 		if len(ecsService.Events) > 0 {
-			logNewServiceEvents(eventsLogged, ecsService.Events, cmdTimestamp)
+			logNewServiceEvents(eventsLogged, ecsService.Events, actionInvokedTimestamp)
 		}
 
 		// The deployment was successful
 		if len(ecsService.Deployments) == 1 && desiredCount == runningCount {
 			log.WithFields(logFields).Info("ECS Service has reached a stable state")
-			return nil
+			return true, nil
 		}
-	}
 
-	return fmt.Errorf("Deployment has not completed: Running count has not changed for %.2f minutes", timeOut)
+		if time.Since(lastRunningCountChangedAt).Minutes() > timeOut {
+			return false, fmt.Errorf("Deployment has not completed: Running count has not changed for %.2f minutes", timeOut)
+		}
+
+		return false, nil
+
+	}, service)
 }
