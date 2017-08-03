@@ -81,7 +81,7 @@ func startServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Flags: []cli.Flag{
 			command.OptionalClusterFlag(),
 			command.OptionalRegionFlag(),
-			ComposeServiceTimeOutFlag(),
+			ComposeServiceTimeoutFlag(),
 		},
 	}
 }
@@ -91,7 +91,7 @@ func upServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:   "up",
 		Usage:  "Creates an ECS service from your compose file (if it does not already exist) and runs one instance of that task on your cluster (a combination of create and start). This command updates the desired count of the service to 1.",
 		Action: compose.WithProject(factory, compose.ProjectUp, true),
-		Flags:  append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalClusterFlag(), command.OptionalRegionFlag(), ComposeServiceTimeOutFlag())...),
+		Flags:  append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalClusterFlag(), command.OptionalRegionFlag(), ComposeServiceTimeoutFlag())...),
 	}
 }
 
@@ -113,7 +113,7 @@ func scaleServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:   "scale",
 		Usage:  "ecs-cli compose service scale [count] - scales the desired count of the service to the specified count",
 		Action: compose.WithProject(factory, compose.ProjectScale, true),
-		Flags:  append(deploymentConfigFlags(false), command.OptionalClusterFlag(), command.OptionalRegionFlag(), ComposeServiceTimeOutFlag()),
+		Flags:  append(deploymentConfigFlags(false), command.OptionalClusterFlag(), command.OptionalRegionFlag(), ComposeServiceTimeoutFlag()),
 	}
 }
 
@@ -125,7 +125,7 @@ func stopServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Flags: []cli.Flag{
 			command.OptionalClusterFlag(),
 			command.OptionalRegionFlag(),
-			ComposeServiceTimeOutFlag(),
+			ComposeServiceTimeoutFlag(),
 		},
 	}
 }
@@ -139,7 +139,7 @@ func rmServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Flags: []cli.Flag{
 			command.OptionalClusterFlag(),
 			command.OptionalRegionFlag(),
-			ComposeServiceTimeOutFlag(),
+			ComposeServiceTimeoutFlag(),
 		},
 	}
 }
@@ -194,8 +194,8 @@ func loadBalancerFlags() []cli.Flag {
 	}
 }
 
-// ComposeServiceTimeOutFlag allows user to specify a custom timeout
-func ComposeServiceTimeOutFlag() cli.Flag {
+// ComposeServiceTimeoutFlag allows user to specify a custom timeout
+func ComposeServiceTimeoutFlag() cli.Flag {
 	return cli.Float64Flag{
 		Name:  command.ComposeServiceTimeOutFlag,
 		Value: service.DefaultUpdateServiceTimeout,

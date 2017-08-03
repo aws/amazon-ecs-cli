@@ -27,8 +27,8 @@ import (
 
 const (
 	// DefaultUpdateServiceTimeout is the time that the CLI will wait to check if the
-	// count of running tasks is changing. If it has not changed then an error is thrown
-	// after UpdateServiceTimeout minutes
+	// count of running tasks is changing. If count has not changed then an error is thrown
+	// after DefaultUpdateServiceTimeout minutes
 	DefaultUpdateServiceTimeout = 5
 
 	// latestEventWindow defines "now"- it ensures that we only print events
@@ -38,7 +38,7 @@ const (
 )
 
 // serviceEvents is a wrapper for []*ecs.ServiceEvent
-// that allows us to sort it by the time stamp
+// that allows us to sort it by the timestamp
 type serviceEvents []*ecs.ServiceEvent
 
 func (s serviceEvents) Len() int {
@@ -54,7 +54,7 @@ func (s serviceEvents) Less(i, j int) bool {
 }
 
 // logNewServiceEvents logs events that have not been logged yet
-func logNewServiceEvents(loggedEvents map[string]bool, events []*ecs.ServiceEvent, actionInvokedTimestamp time.Time) {
+func logNewServiceEvents(loggedEvents map[string]bool, events []*ecs.ServiceEvent, actionInvokedAt time.Time) {
 
 	// sort the events so that newer ones are printed last
 	sort.Sort(serviceEvents(events))
@@ -62,7 +62,7 @@ func logNewServiceEvents(loggedEvents map[string]bool, events []*ecs.ServiceEven
 		if _, ok := loggedEvents[*event.Id]; !ok {
 			// New event that has not been logged yet
 			loggedEvents[*event.Id] = true
-			if actionInvokedTimestamp.Sub(*event.CreatedAt).Seconds() < latestEventWindow {
+			if actionInvokedAt.Sub(*event.CreatedAt).Seconds() < latestEventWindow {
 				log.WithFields(log.Fields{
 					"timestamp": *event.CreatedAt},
 				).Info(aws.StringValue(event.Message))
@@ -79,7 +79,7 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 	var lastRunningCount int64
 	lastRunningCountChangedAt := time.Now()
 	timeOut := float64(DefaultUpdateServiceTimeout)
-	actionInvokedTimestamp := time.Now()
+	actionInvokedAt := time.Now()
 
 	if val := service.Context().CLIContext.Float64(ecscli.ComposeServiceTimeOutFlag); val > 0 {
 		timeOut = val
@@ -114,7 +114,7 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 
 		// log new service events
 		if len(ecsService.Events) > 0 {
-			logNewServiceEvents(eventsLogged, ecsService.Events, actionInvokedTimestamp)
+			logNewServiceEvents(eventsLogged, ecsService.Events, actionInvokedAt)
 		}
 
 		// The deployment was successful
