@@ -18,6 +18,7 @@ import (
 	"os"
 	"testing"
 
+	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -99,36 +100,6 @@ func confirmConfigMode(t *testing.T, path string, expected os.FileMode) {
 
 }
 
-func TestPrefixesEmptyNewYAMLFormat(t *testing.T) {
-	dest, err := newMockDestination()
-	assert.NoError(t, err, "Error creating mock config destination")
-
-	parser := setupParser(t, dest, false)
-
-	err = os.MkdirAll(dest.Path, *dest.Mode)
-	assert.NoError(t, err, "Could not create config directory")
-
-	defer os.RemoveAll(dest.Path)
-
-	saveConfigWithCluster(t, parser, dest)
-
-	// Reinitialize from the written file.
-	parser = setupParser(t, dest, true)
-
-	readConfig, configMap, err := parser.GetConfigs("", "")
-	assert.NoError(t, err, "Error reading config")
-	assert.Equal(t, testClusterName, readConfig.Cluster, "Cluster name mismatch in config.")
-	_, ok := configMap[composeProjectNamePrefixKey]
-	assert.True(t, ok, "Compose project prefix name should exist in config.")
-	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
-	_, ok = configMap[composeServiceNamePrefixKey]
-	assert.True(t, ok, "Compose service name prefix should exist in config.")
-	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
-	_, ok = configMap[cfnStackNamePrefixKey]
-	assert.True(t, ok, "CFNStackNamePrefix should exist in config.")
-	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
-}
-
 func TestPrefixesEmptyOldINIFormat(t *testing.T) {
 	configContents := `[ecs]
 cluster = test-cluster
@@ -147,27 +118,21 @@ cfn-stack-name-prefix =
 	assert.NoError(t, err, "Could not create config directory")
 	defer os.RemoveAll(dest.Path)
 
-	err = ioutil.WriteFile(configPath(dest), []byte(configContents), *dest.Mode)
+	err = ioutil.WriteFile(configFilePath(dest), []byte(configContents), *dest.Mode)
 	assert.NoError(t, err)
 
 	// Reinitialize from the written file.
 	parser := setupParser(t, dest, true)
 
-	readConfig, configMap, err := parser.GetConfig()
+	readConfig, err := parser.GetConfigs("", "")
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, testClusterName, readConfig.Cluster, "Cluster name mismatch in config.")
-	_, ok := configMap[composeProjectNamePrefixKey]
-	assert.True(t, ok, "Compose project prefix name should exist in config.")
 	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
-	_, ok = configMap[composeServiceNamePrefixKey]
-	assert.True(t, ok, "Compose service name prefix should exist in config.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
-	_, ok = configMap[cfnStackNamePrefixKey]
-	assert.True(t, ok, "CFNStackNamePrefix should exist in config.")
 	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
 }
 
-func TestMissingPrefixesOldINIFormat(t *testing.T) {
+func TestPrefixesDefaultOldINIFormat(t *testing.T) {
 	configContentsNoPrefixes := `[ecs]
 cluster = test
 aws_profile =
@@ -183,49 +148,15 @@ aws_secret_access_key =
 
 	defer os.RemoveAll(dest.Path)
 
-	err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configContentsNoPrefixes), *dest.Mode)
+	err = ioutil.WriteFile(dest.Path+"/"+iniConfigFileName, []byte(configContentsNoPrefixes), *dest.Mode)
 	assert.NoError(t, err)
 
 	parser := setupParser(t, dest, true)
-	_, configMap, err := parser.GetConfig()
+	config, err := parser.GetConfigs("", "")
 	assert.NoError(t, err, "Error reading config")
-	_, ok := configMap[cfnStackNamePrefixKey]
-	assert.False(t, ok, "CFNStackNamePrefix should not exist in config")
-	_, ok = configMap[composeServiceNamePrefixKey]
-	assert.False(t, ok, "Compose service name prefix should not exist in config")
-	_, ok = configMap[composeProjectNamePrefixKey]
-	assert.False(t, ok, "Compose project name prefix should not exist in config")
-}
-
-func TestMissingPrefixesNewYAMLFormat(t *testing.T) {
-	configContentsNoPrefixes := `
-version: v0
-cluster: test
-aws_profile:
-region:us-west-2:
-aws_access_key_id:
-aws_secret_access_key:
-`
-	dest, err := newMockDestination()
-	assert.NoError(t, err, "Error creating mock config destination")
-
-	err = os.MkdirAll(dest.Path, *dest.Mode)
-	assert.NoError(t, err, "Could not create config directory")
-
-	defer os.RemoveAll(dest.Path)
-
-	err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configContentsNoPrefixes), *dest.Mode)
-	assert.NoError(t, err)
-
-	parser := setupParser(t, dest, true)
-	_, configMap, err := parser.GetConfig()
-	assert.NoError(t, err, "Error reading config")
-	_, ok := configMap[cfnStackNamePrefixKey]
-	assert.False(t, ok, "CFNStackNamePrefix should not exist in config")
-	_, ok = configMap[composeServiceNamePrefixKey]
-	assert.False(t, ok, "Compose service name prefix should not exist in config")
-	_, ok = configMap[composeProjectNamePrefixKey]
-	assert.False(t, ok, "Compose project name prefix should not exist in config")
+	assert.Equal(t, ecscli.ComposeProjectNamePrefixDefaultValue, config.ComposeProjectNamePrefix, "ComposeProjectNamePrefix should be set to the default value.")
+	assert.Equal(t, ecscli.ComposeServiceNamePrefixDefaultValue, config.ComposeServiceNamePrefix, "ComposeServiceNamePrefix should be set to the default value.")
+	assert.Equal(t, ecscli.CFNStackNamePrefixDefaultValue, config.CFNStackNamePrefix, "CFNStackNamePrefix should be set to the default value.")
 }
 
 func TestOverwriteINIConfigFile(t *testing.T) {
@@ -249,7 +180,7 @@ cfn-stack-name-prefix = amazon-ecs-cli-setup-
 	defer os.RemoveAll(dest.Path)
 
 	// Save old ini config file
-	err = ioutil.WriteFile(dest.Path+"/"+configFileName, []byte(configContents), *dest.Mode)
+	err = ioutil.WriteFile(dest.Path+"/"+iniConfigFileName, []byte(configContents), *dest.Mode)
 	assert.NoError(t, err)
 
 	// Overwrite
@@ -257,17 +188,11 @@ cfn-stack-name-prefix = amazon-ecs-cli-setup-
 	saveConfigWithCluster(t, parser, dest)
 
 	// Ensure that what has been read is correct
-	readConfig, configMap, err := parser.GetConfig()
+	readConfig, err := parser.GetConfigs("", "")
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, testClusterName, readConfig.Cluster, "Cluster name mismatch in config.")
-	_, ok := configMap[composeProjectNamePrefixKey]
-	assert.True(t, ok, "Compose project prefix name should exist in config.")
 	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
-	_, ok = configMap[composeServiceNamePrefixKey]
-	assert.True(t, ok, "Compose service name prefix should exist in config.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
-	_, ok = configMap[cfnStackNamePrefixKey]
-	assert.True(t, ok, "CFNStackNamePrefix should exist in config.")
 	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
 
 }

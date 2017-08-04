@@ -30,15 +30,8 @@ type mockReadWriter struct {
 	isKeyPresentValue bool
 }
 
-func (rdwr *mockReadWriter) GetConfigs(clusterConfig string, profileConfig string) (*CLIConfig, map[interface{}]interface{}, error) {
-	m := make(map[interface{}]interface{})
-	m["cluster"] = clusterName
-	if rdwr.isKeyPresentValue {
-		m[composeProjectNamePrefixKey] = ""
-		m[composeServiceNamePrefixKey] = ""
-		m[cfnStackNamePrefixKey] = ""
-	}
-	return NewCLIConfig(clusterName), m, nil
+func (rdwr *mockReadWriter) GetConfigs(clusterConfig string, profileConfig string) (*CLIConfig, error) {
+	return NewCLIConfig(clusterName), nil
 }
 
 func (rdwr *mockReadWriter) Save(ecsConfig *CLIConfig) error {
