@@ -83,7 +83,7 @@ func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfi
 	// get the correct cluster
 	chosenCluster := ""
 	if clusterConfigKey == "" {
-		chosenCluster = config.defaultCluster
+		chosenCluster = config.Default
 	} else {
 		chosenCluster = clusterConfigKey
 	}
@@ -111,9 +111,9 @@ func readProfileConfig(path string, profileConfigKey string, cliConfig *CLIConfi
 	}
 
 	// get the correct cluster
-	chosenProfile := ""
+	var chosenProfile string
 	if profileConfigKey == "" {
-		chosenProfile = config.defaultProfile
+		chosenProfile = config.Default
 	} else {
 		chosenProfile = profileConfigKey
 	}
@@ -142,7 +142,7 @@ func (rdwr *YAMLReadWriter) GetConfigs(clusterConfig string, profileConfig strin
 	// throw error if it fails
 	errYAMLConfig := readClusterConfig(configPath, clusterConfig, cliConfig)
 
-	if _, err := os.Stat(profilePath); err != nil {
+	if _, err := os.Stat(profilePath); err == nil {
 		// credentials file exists- so that means we are using the new style configs
 		err := readProfileConfig(profilePath, profileConfig, cliConfig)
 		return cliConfig, err

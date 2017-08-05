@@ -49,27 +49,27 @@ type CLIConfig struct {
 
 // Profile is a simple struct for storing a single profile config
 type Profile struct {
-	AWSAccessKey string
-	AWSSecretKey string
+	AWSAccessKey string `yaml:"aws_access_key_id"`
+	AWSSecretKey string `yaml:"aws_secret_access_key"`
 }
 
 // Cluster is a simple struct for storing a single cluster config
 type Cluster struct {
-	Cluster                  string
-	Region                   string
+	Cluster                  string `yaml:"cluster"`
+	Region                   string `yaml:"region"`
 	ComposeServiceNamePrefix string `yaml:"compose-service-name-prefix"`
 }
 
 // ClusterConfig is the top level struct representing the cluster config file
 type ClusterConfig struct {
-	defaultCluster string `yaml:"default"`
-	Clusters       map[string]Cluster
+	Default  string             `yaml:"default"`
+	Clusters map[string]Cluster `yaml:"clusters"`
 }
 
 // ProfileConfig is the top level struct representing the Credentials file
 type ProfileConfig struct {
-	defaultProfile string `yaml:"default"`
-	Profiles       map[string]Profile
+	Default  string             `yaml:"default"`
+	Profiles map[string]Profile `yaml:"ecs_profiles"`
 }
 
 // NewCLIConfig creates a new instance of CliConfig from the cluster name.
