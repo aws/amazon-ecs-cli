@@ -56,7 +56,7 @@ func ServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 			stopServiceCommand(factory),
 			rmServiceCommand(factory),
 		},
-		Flags: append(command.OptionalClusterAndProfileFlags(), command.OptionalRegionFlag()),
+		Flags: command.OptionalConfigFlags(),
 	}
 }
 
@@ -65,7 +65,7 @@ func createServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:   "create",
 		Usage:  "Creates an ECS service from your compose file. The service is created with a desired count of 0, so no containers are started by this command. Note that we do not recommend using plain text environment variables for sensitive information, such as credential data.",
 		Action: compose.WithProject(factory, compose.ProjectCreate, true),
-		Flags:  append(append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalRegionFlag())...), command.OptionalClusterAndProfileFlags()...),
+		Flags:  append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalConfigFlags()...)...),
 	}
 }
 
@@ -74,7 +74,7 @@ func startServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:   "start",
 		Usage:  "Starts one copy of each of the containers on the created ECS service. This command updates the desired count of the service to 1.",
 		Action: compose.WithProject(factory, compose.ProjectStart, true),
-		Flags:  append(command.OptionalClusterAndProfileFlags(), command.OptionalRegionFlag()),
+		Flags:  command.OptionalConfigFlags(),
 	}
 }
 
@@ -83,7 +83,7 @@ func upServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:   "up",
 		Usage:  "Creates an ECS service from your compose file (if it does not already exist) and runs one instance of that task on your cluster (a combination of create and start). This command updates the desired count of the service to 1.",
 		Action: compose.WithProject(factory, compose.ProjectUp, true),
-		Flags:  append(append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalRegionFlag())...), command.OptionalClusterAndProfileFlags()...),
+		Flags:  append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalConfigFlags()...)...),
 	}
 }
 
@@ -93,7 +93,7 @@ func psServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Aliases: []string{"list"},
 		Usage:   "Lists all the containers in your cluster that belong to the service created with the compose project.",
 		Action:  compose.WithProject(factory, compose.ProjectPs, true),
-		Flags:   append(command.OptionalClusterAndProfileFlags(), command.OptionalRegionFlag()),
+		Flags:   command.OptionalConfigFlags(),
 	}
 }
 
@@ -102,7 +102,7 @@ func scaleServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:   "scale",
 		Usage:  "ecs-cli compose service scale [count] - scales the desired count of the service to the specified count",
 		Action: compose.WithProject(factory, compose.ProjectScale, true),
-		Flags:  append(append(deploymentConfigFlags(false), command.OptionalRegionFlag()), command.OptionalClusterAndProfileFlags()...),
+		Flags:  append(deploymentConfigFlags(false), command.OptionalConfigFlags()...),
 	}
 }
 
@@ -111,7 +111,7 @@ func stopServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:   "stop",
 		Usage:  "Stops the running tasks that belong to the service created with the compose project. This command updates the desired count of the service to 0.",
 		Action: compose.WithProject(factory, compose.ProjectStop, true),
-		Flags:  append(command.OptionalClusterAndProfileFlags(), command.OptionalRegionFlag()),
+		Flags:  command.OptionalConfigFlags(),
 	}
 }
 
@@ -121,7 +121,7 @@ func rmServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Aliases: []string{"delete", "down"},
 		Usage:   "Updates the desired count of the service to 0 and then deletes the service.",
 		Action:  compose.WithProject(factory, compose.ProjectDown, true),
-		Flags:   append(command.OptionalClusterAndProfileFlags(), command.OptionalRegionFlag()),
+		Flags:   command.OptionalConfigFlags(),
 	}
 }
 

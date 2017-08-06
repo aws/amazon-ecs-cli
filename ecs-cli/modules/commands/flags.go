@@ -79,16 +79,16 @@ const (
 	RoleFlag                                = "role"
 )
 
-// OptionalClusterAndProfileFlags provides these flags:
-// OptionalClusterFlag inline overrides cluster
+// OptionalRegionAndProfileFlags provides these flags:
+// OptionalRegionFlag inline overrides region
 // OptionalClusterConfigFlag specifies the cluster profile to read from config
 // OptionalProfileConfigFlag specifies the credentials profile to read from the config
-func OptionalClusterAndProfileFlags() []cli.Flag {
+func OptionalRegionAndProfileFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
-			Name: ClusterFlag + ", c",
+			Name: RegionFlag + ", r",
 			Usage: fmt.Sprintf(
-				"[Optional] Specifies the ECS cluster name to use. Defaults to the cluster configured using the configure command",
+				"[Optional] Specifies the AWS region to use. Defaults to the region configured using the configure command",
 			),
 		},
 		cli.StringFlag{
@@ -106,12 +106,17 @@ func OptionalClusterAndProfileFlags() []cli.Flag {
 	}
 }
 
-// OptionalRegionFlag inline overrides region
-func OptionalRegionFlag() cli.Flag {
+// OptionalClusterFlag inline overrides cluster
+func OptionalClusterFlag() cli.Flag {
 	return cli.StringFlag{
-		Name: RegionFlag + ", r",
+		Name: ClusterFlag + ", c",
 		Usage: fmt.Sprintf(
-			"[Optional] Specifies the AWS region to use. Defaults to the region configured using the configure command",
+			"[Optional] Specifies the ECS cluster name to use. Defaults to the cluster configured using the configure command",
 		),
 	}
+}
+
+// OptionalConfigFlags returns the concatenation of OptionalRegionAndProfileFlags and OptionalClusterFlag
+func OptionalConfigFlags() []cli.Flag {
+	return append(OptionalRegionAndProfileFlags(), OptionalClusterFlag())
 }
