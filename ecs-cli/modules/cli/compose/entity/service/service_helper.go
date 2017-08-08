@@ -86,7 +86,7 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 	} else if val < 0 {
 		return fmt.Errorf("Error with timeout flag: %f is not a valid timeout value", val)
 	} else {
-		log.Warn("Timeout was specified as zero- abandoning all checks, and returning.")
+		log.Warn("Timeout was specified as zero; abandoning all checks and returning.")
 		return nil
 	}
 

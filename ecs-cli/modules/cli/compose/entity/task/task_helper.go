@@ -23,7 +23,7 @@ import (
 
 // WaitForTasks continuously polls ECS (by calling descibeTasks) and waits for tasks status to match desired
 func waitForTasks(task *Task, taskArns map[string]bool) error {
-	timeoutMessage := "Timeout waiting for ECS tasks' status to match desired"
+	timeoutMessage := "Timeout waiting for ECS running task count to match desired task count."
 
 	return waiters.TaskWaitUntilTimeout(func(retryCount int) (bool, error) {
 		if len(taskArns) == 0 {
