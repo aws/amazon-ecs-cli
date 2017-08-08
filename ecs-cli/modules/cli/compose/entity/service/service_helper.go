@@ -86,7 +86,7 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 	} else if val < 0 {
 		return fmt.Errorf("Error with timeout flag: %f is not a valid timeout value", val)
 	} else {
-		log.Warn("Timeout was specified as zero; abandoning all checks and returning.")
+		log.Warn("Timeout was specified as zero. Your service deployment may not have completed yet.")
 		return nil
 	}
 
@@ -109,7 +109,7 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 		if runningCount != lastRunningCount {
 			lastRunningCount = runningCount
 			lastRunningCountChangedAt = time.Now()
-			log.WithFields(logFields).Info("Describe ECS Service status")
+			log.WithFields(logFields).Info("Service status")
 		}
 
 		// log new service events
