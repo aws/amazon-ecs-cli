@@ -32,7 +32,7 @@ const (
 // ReadWriter interface has methods to read and write ecs-cli config to and from the config file.
 type ReadWriter interface {
 	Save(*CLIConfig) error
-	GetConfigs(string, string) (*CLIConfig, error)
+	Get(string, string) (*CLIConfig, error)
 }
 
 // YAMLReadWriter implments the ReadWriter interfaces. It can be used to save and load
@@ -126,10 +126,10 @@ func readProfileConfig(path string, profileConfigKey string, cliConfig *CLIConfi
 
 }
 
-// GetConfigs gets the ecs-cli config object from the config file(s).
+// Get gets the ecs-cli config object from the config file(s).
 // This function either reads the old single configuration file
 // Or if the new files are present, it reads from them instead
-func (rdwr *YAMLReadWriter) GetConfigs(clusterConfig string, profileConfig string) (*CLIConfig, error) {
+func (rdwr *YAMLReadWriter) Get(clusterConfig string, profileConfig string) (*CLIConfig, error) {
 	cliConfig := &CLIConfig{} // read the raw bytes of the config file
 	profilePath := credentialsFilePath(rdwr.destination)
 	configPath := configFilePath(rdwr.destination)

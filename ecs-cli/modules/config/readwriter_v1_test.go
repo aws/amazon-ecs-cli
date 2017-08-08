@@ -124,7 +124,7 @@ cfn-stack-name-prefix =
 	// Reinitialize from the written file.
 	parser := setupParser(t, dest, true)
 
-	readConfig, err := parser.GetConfigs("", "")
+	readConfig, err := parser.Get("", "")
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, testClusterName, readConfig.Cluster, "Cluster name mismatch in config.")
 	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
@@ -152,7 +152,7 @@ aws_secret_access_key =
 	assert.NoError(t, err)
 
 	parser := setupParser(t, dest, true)
-	config, err := parser.GetConfigs("", "")
+	config, err := parser.Get("", "")
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, ecscli.ComposeProjectNamePrefixDefaultValue, config.ComposeProjectNamePrefix, "ComposeProjectNamePrefix should be set to the default value.")
 	assert.Equal(t, ecscli.ComposeServiceNamePrefixDefaultValue, config.ComposeServiceNamePrefix, "ComposeServiceNamePrefix should be set to the default value.")
@@ -186,13 +186,13 @@ ecs_profiles:
 	parser := setupParser(t, dest, false)
 
 	// Test read the default profile
-	config, err := parser.GetConfigs("", "")
+	config, err := parser.Get("", "")
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, "default_key_id", config.AWSAccessKey, "Access Key should be present.")
 	assert.Equal(t, "default_key", config.AWSSecretKey, "Secret key should be present.")
 
 	// Test read a specific profile
-	config, err = parser.GetConfigs("", "Alt")
+	config, err = parser.Get("", "Alt")
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, "alt_key_id", config.AWSAccessKey, "Access Key should be present.")
 	assert.Equal(t, "alt_key", config.AWSSecretKey, "Secret key should be present.")
@@ -228,13 +228,13 @@ clusters:
 	parser := setupParser(t, dest, false)
 
 	// Test read the default config
-	config, err := parser.GetConfigs("", "")
+	config, err := parser.Get("", "")
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, "cli-demo-prod", config.Cluster, "Cluster should be present.")
 	assert.Equal(t, "us-east-2", config.Region, "Region should be present.")
 
 	// Test read a specific config
-	config, err = parser.GetConfigs("gamma_config", "")
+	config, err = parser.Get("gamma_config", "")
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, "cli-demo-gamma", config.Cluster, "Cluster should be present.")
 	assert.Equal(t, "us-west-1", config.Region, "Region should be present.")

@@ -54,7 +54,7 @@ func recursiveFlagSearch(context *cli.Context, flag string) string {
 func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 	clusterConfig := recursiveFlagSearch(context, ecscli.ClusterConfigFlag)
 	profileConfig := recursiveFlagSearch(context, ecscli.ProfileConfigFlag)
-	ecsConfig, err := rdwr.GetConfigs(clusterConfig, profileConfig)
+	ecsConfig, err := rdwr.Get(clusterConfig, profileConfig)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "Error loading config")

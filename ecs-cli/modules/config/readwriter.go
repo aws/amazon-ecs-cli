@@ -65,8 +65,7 @@ func (rdwr *INIReadWriter) GetConfig(cliConfig *CLIConfig) error {
 
 	// read old ini formatted file
 	iniFormat := &iniCLIConfig{iniSectionKeys: new(iniSectionKeys)}
-	err := rdwr.cfg.MapTo(iniFormat)
-	if err != nil {
+	if err := rdwr.cfg.MapTo(iniFormat); err != nil {
 		return err
 	}
 

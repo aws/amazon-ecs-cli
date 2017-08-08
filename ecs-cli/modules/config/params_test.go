@@ -29,7 +29,7 @@ type mockReadWriter struct {
 	isKeyPresentValue bool
 }
 
-func (rdwr *mockReadWriter) GetConfigs(clusterConfig string, profileConfig string) (*CLIConfig, error) {
+func (rdwr *mockReadWriter) Get(clusterConfig string, profileConfig string) (*CLIConfig, error) {
 	return NewCLIConfig(clusterName), nil
 }
 
