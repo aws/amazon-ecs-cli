@@ -80,11 +80,9 @@ func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfi
 	}
 
 	// get the correct cluster
-	var chosenCluster string
+	chosenCluster := clusterConfigKey
 	if clusterConfigKey == "" {
 		chosenCluster = config.Default
-	} else {
-		chosenCluster = clusterConfigKey
 	}
 
 	cluster := config.Clusters[chosenCluster]
@@ -110,11 +108,9 @@ func readProfileConfig(path string, profileConfigKey string, cliConfig *CLIConfi
 	}
 
 	// get the correct profile
-	var chosenProfile string
+	chosenProfile := profileConfigKey
 	if profileConfigKey == "" {
 		chosenProfile = config.Default
-	} else {
-		chosenProfile = profileConfigKey
 	}
 	profile := config.Profiles[chosenProfile]
 
