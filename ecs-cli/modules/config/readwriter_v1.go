@@ -59,12 +59,12 @@ func NewReadWriter() (*YAMLReadWriter, error) {
 	return &YAMLReadWriter{destination: dest}, nil
 }
 
-func readINI(dest *Destination) (*CLIConfig, error) {
+func readINI(dest *Destination, cliConfig *CLIConfig) error {
 	iniReadWriter, err := NewINIReadWriter(dest)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return iniReadWriter.GetConfig()
+	return iniReadWriter.GetConfig(cliConfig)
 }
 
 // readClusterConfig does all the work to read and parse the yaml cluster config
@@ -74,21 +74,20 @@ func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfi
 	if err != nil {
 		return errors.Wrap(err, "Failed to read config file: "+path)
 	}
-
 	config := ClusterConfig{Clusters: make(map[string]Cluster)}
 	if err = yaml.Unmarshal(dat, &config); err != nil {
 		return errors.Wrap(err, "Failed to parse yaml file: "+path)
 	}
 
 	// get the correct cluster
-	chosenCluster := ""
+	var chosenCluster string
 	if clusterConfigKey == "" {
 		chosenCluster = config.Default
 	} else {
 		chosenCluster = clusterConfigKey
 	}
-	cluster := config.Clusters[chosenCluster]
 
+	cluster := config.Clusters[chosenCluster]
 	// Get the info out of the cluster
 	cliConfig.Region = cluster.Region
 	cliConfig.Cluster = cluster.Cluster
@@ -97,7 +96,7 @@ func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfi
 
 }
 
-// readClusterConfig does all the work to read and parse the yaml cluster config
+// readProfileConfig does all the work to read and parse the yaml cluster config
 func readProfileConfig(path string, profileConfigKey string, cliConfig *CLIConfig) error {
 	// read cluster file
 	dat, err := ioutil.ReadFile(path)
@@ -110,7 +109,7 @@ func readProfileConfig(path string, profileConfigKey string, cliConfig *CLIConfi
 		return errors.Wrap(err, "Failed to parse yaml file: "+path)
 	}
 
-	// get the correct cluster
+	// get the correct profile
 	var chosenProfile string
 	if profileConfigKey == "" {
 		chosenProfile = config.Default
@@ -128,9 +127,6 @@ func readProfileConfig(path string, profileConfigKey string, cliConfig *CLIConfi
 }
 
 // GetConfigs gets the ecs-cli config object from the config file(s).
-// map contains the keys that are present in the config file (maps string field name to string field value)
-// map is type map[interface{}]interface{} to ensure fowards compatibility with changes that will
-// cause certain keys to be mapped to maps of keys
 // This function either reads the old single configuration file
 // Or if the new files are present, it reads from them instead
 func (rdwr *YAMLReadWriter) GetConfigs(clusterConfig string, profileConfig string) (*CLIConfig, error) {
@@ -138,24 +134,27 @@ func (rdwr *YAMLReadWriter) GetConfigs(clusterConfig string, profileConfig strin
 	profilePath := credentialsFilePath(rdwr.destination)
 	configPath := configFilePath(rdwr.destination)
 
+	// try to readINI first; it is either sucessful or it
+	// set cliConfig to be its default value (all fields empty strings)
+	readINI(rdwr.destination, cliConfig)
+
 	// Try to read the config as YAML
-	// throw error if it fails
-	errYAMLConfig := readClusterConfig(configPath, clusterConfig, cliConfig)
+	// nothing will happen if it fails
+	errYAML := readClusterConfig(configPath, clusterConfig, cliConfig)
 
 	if _, err := os.Stat(profilePath); err == nil {
 		// credentials file exists- so that means we are using the new style configs
-		err := readProfileConfig(profilePath, profileConfig, cliConfig)
-		return cliConfig, err
+		err = readProfileConfig(profilePath, profileConfig, cliConfig)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	if config, errINI := readINI(rdwr.destination); errINI == nil {
-		// File is INI
-		return config, nil
-	}
-
-	if _, err := os.Stat(configPath); err != nil {
-		// Cluster config file exists, but it wasn't INI, so that means it was YAML but there was a parse error
-		return nil, errYAMLConfig
+	// Check if there was a format error on the config file
+	// this happens when both ini and yaml readers fail to read anything
+	// but the file does exist (the files are allowed to not exist).
+	if _, err := os.Stat(configPath); err == nil && cliConfig.Cluster == "" && cliConfig.Region == "" {
+		return nil, errors.Wrapf(errYAML, "Error parsing %s", configPath)
 	}
 
 	// if no configs exist, we return an empty object

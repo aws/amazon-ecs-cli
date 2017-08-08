@@ -62,12 +62,14 @@ type Cluster struct {
 
 // ClusterConfig is the top level struct representing the cluster config file
 type ClusterConfig struct {
+	Version  string
 	Default  string             `yaml:"default"`
 	Clusters map[string]Cluster `yaml:"clusters"`
 }
 
 // ProfileConfig is the top level struct representing the Credentials file
 type ProfileConfig struct {
+	Version  string
 	Default  string             `yaml:"default"`
 	Profiles map[string]Profile `yaml:"ecs_profiles"`
 }

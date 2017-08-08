@@ -159,16 +159,15 @@ aws_secret_access_key =
 	assert.Equal(t, ecscli.CFNStackNamePrefixDefaultValue, config.CFNStackNamePrefix, "CFNStackNamePrefix should be set to the default value.")
 }
 
-func TestOverwriteINIConfigFile(t *testing.T) {
-	configContents := `[ecs]
-cluster = very-long-cluster-name
-aws_profile = some-long-profile
-region = us-west-2
-aws_access_key_id =
-aws_secret_access_key =
-compose-project-name-prefix = ecscompose-
-compose-service-name-prefix = ecscompose-service-
-cfn-stack-name-prefix = amazon-ecs-cli-setup-
+func TestReadCredentialsFile(t *testing.T) {
+	configContents := `default: Default
+ecs_profiles:
+  Default:
+    aws_access_key_id: default_key_id
+    aws_secret_access_key: default_key
+  Alt:
+    aws_access_key_id: alt_key_id
+    aws_secret_access_key: alt_key
 `
 
 	dest, err := newMockDestination()
@@ -179,22 +178,64 @@ cfn-stack-name-prefix = amazon-ecs-cli-setup-
 
 	defer os.RemoveAll(dest.Path)
 
-	// Save old ini config file
-	err = ioutil.WriteFile(dest.Path+"/"+iniConfigFileName, []byte(configContents), *dest.Mode)
+	// Save the profile
+	err = ioutil.WriteFile(dest.Path+"/"+profileConfigFileName, []byte(configContents), *dest.Mode)
 	assert.NoError(t, err)
 
-	// Overwrite
+	// Read
 	parser := setupParser(t, dest, false)
-	saveConfigWithCluster(t, parser, dest)
 
-	// Ensure that what has been read is correct
-	// readConfig, err := parser.GetConfigs("", "")
-	//  Temporarily commenting out this code since we need this test cases but can't test it
-	// until the saving configs PR begins
-	// assert.NoError(t, err, "Error reading config")
-	// assert.Equal(t, testClusterName, readConfig.Cluster, "Cluster name mismatch in config.")
-	// assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
-	// assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
-	// assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+	// Test read the default profile
+	config, err := parser.GetConfigs("", "")
+	assert.NoError(t, err, "Error reading config")
+	assert.Equal(t, "default_key_id", config.AWSAccessKey, "Access Key should be present.")
+	assert.Equal(t, "default_key", config.AWSSecretKey, "Secret key should be present.")
 
+	// Test read a specific profile
+	config, err = parser.GetConfigs("", "Alt")
+	assert.NoError(t, err, "Error reading config")
+	assert.Equal(t, "alt_key_id", config.AWSAccessKey, "Access Key should be present.")
+	assert.Equal(t, "alt_key", config.AWSSecretKey, "Secret key should be present.")
+}
+
+func TestReadClusterConfigFile(t *testing.T) {
+	configContents := `default: prod_config
+clusters:
+  gamma_config:
+    cluster: cli-demo-gamma
+    region: us-west-1
+  beta_config:
+    cluster: cli-demo-beta
+    region: us-west-2
+  prod_config:
+    cluster: cli-demo-prod
+    region: us-east-2
+`
+
+	dest, err := newMockDestination()
+	assert.NoError(t, err, "Error creating mock config destination")
+
+	err = os.MkdirAll(dest.Path, *dest.Mode)
+	assert.NoError(t, err, "Could not create config directory")
+
+	defer os.RemoveAll(dest.Path)
+
+	// Save the profile
+	err = ioutil.WriteFile(dest.Path+"/"+clusterConfigFileName, []byte(configContents), *dest.Mode)
+	assert.NoError(t, err)
+
+	// Read
+	parser := setupParser(t, dest, false)
+
+	// Test read the default config
+	config, err := parser.GetConfigs("", "")
+	assert.NoError(t, err, "Error reading config")
+	assert.Equal(t, "cli-demo-prod", config.Cluster, "Cluster should be present.")
+	assert.Equal(t, "us-east-2", config.Region, "Region should be present.")
+
+	// Test read a specific config
+	config, err = parser.GetConfigs("gamma_config", "")
+	assert.NoError(t, err, "Error reading config")
+	assert.Equal(t, "cli-demo-gamma", config.Cluster, "Cluster should be present.")
+	assert.Equal(t, "us-west-1", config.Region, "Region should be present.")
 }

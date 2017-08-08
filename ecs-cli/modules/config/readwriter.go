@@ -61,14 +61,13 @@ func NewINIReadWriter(dest *Destination) (*INIReadWriter, error) {
 // map contains the keys that are present in the config file (maps string field name to string field value)
 // map is type map[interface{}]interface{} to ensure fowards compatibility with changes that will
 // cause certain keys to be mapped to maps of keys
-func (rdwr *INIReadWriter) GetConfig() (*CLIConfig, error) {
-	cliConfig := &CLIConfig{}
+func (rdwr *INIReadWriter) GetConfig(cliConfig *CLIConfig) error {
 
 	// read old ini formatted file
 	iniFormat := &iniCLIConfig{iniSectionKeys: new(iniSectionKeys)}
 	err := rdwr.cfg.MapTo(iniFormat)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// If Prefixes not found, set to defaults.
@@ -91,23 +90,7 @@ func (rdwr *INIReadWriter) GetConfig() (*CLIConfig, error) {
 	cliConfig.ComposeProjectNamePrefix = iniFormat.ComposeProjectNamePrefix
 	cliConfig.ComposeServiceNamePrefix = iniFormat.ComposeServiceNamePrefix
 	cliConfig.CFNStackNamePrefix = iniFormat.CFNStackNamePrefix
-	return cliConfig, nil
-}
-
-// IsInitialized returns true if the config file can be read and if all the key config fields
-// have been initialized.
-func (rdwr *INIReadWriter) IsInitialized() (bool, error) {
-	to := new(CLIConfig)
-	err := rdwr.cfg.MapTo(to)
-	if err != nil {
-		return false, err
-	}
-
-	if to.Cluster == "" {
-		return false, nil
-	}
-
-	return true, nil
+	return nil
 }
 
 // IsKeyPresent returns true if the input key is present in the input section

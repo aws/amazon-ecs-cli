@@ -129,9 +129,9 @@ func TestNewCliParamsWhenPrefixKeysAreNotPresent(t *testing.T) {
 	rdwr := &mockReadWriter{isKeyPresentValue: false}
 	params, err := NewCLIParams(context, rdwr)
 	assert.NoError(t, err, "Unexpected error when getting new cli params")
-	assert.Equal(t, "", params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to match")
-	assert.Equal(t, "", params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to match")
-	assert.Equal(t, "", params.CFNStackNamePrefix, "Expected CFNStackNamePrefix to match")
+	assert.Empty(t, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
+	assert.Empty(t, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
+	assert.Empty(t, params.CFNStackNamePrefix, "Expected CFNStackNamePrefix to be empty")
 }
 
 func defaultConfig() *cli.Context {
