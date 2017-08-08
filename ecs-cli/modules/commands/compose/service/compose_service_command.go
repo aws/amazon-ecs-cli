@@ -17,6 +17,7 @@ import (
 	"fmt"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/service"
 	composeFactory "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/factory"
 	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/urfave/cli"
@@ -80,6 +81,7 @@ func startServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Flags: []cli.Flag{
 			command.OptionalClusterFlag(),
 			command.OptionalRegionFlag(),
+			ComposeServiceTimeoutFlag(),
 		},
 	}
 }
@@ -89,7 +91,7 @@ func upServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:   "up",
 		Usage:  "Creates an ECS service from your compose file (if it does not already exist) and runs one instance of that task on your cluster (a combination of create and start). This command updates the desired count of the service to 1.",
 		Action: compose.WithProject(factory, compose.ProjectUp, true),
-		Flags:  append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalClusterFlag(), command.OptionalRegionFlag())...),
+		Flags:  append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalClusterFlag(), command.OptionalRegionFlag(), ComposeServiceTimeoutFlag())...),
 	}
 }
 
@@ -111,7 +113,7 @@ func scaleServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:   "scale",
 		Usage:  "ecs-cli compose service scale [count] - scales the desired count of the service to the specified count",
 		Action: compose.WithProject(factory, compose.ProjectScale, true),
-		Flags:  append(deploymentConfigFlags(false), command.OptionalClusterFlag(), command.OptionalRegionFlag()),
+		Flags:  append(deploymentConfigFlags(false), command.OptionalClusterFlag(), command.OptionalRegionFlag(), ComposeServiceTimeoutFlag()),
 	}
 }
 
@@ -123,6 +125,7 @@ func stopServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Flags: []cli.Flag{
 			command.OptionalClusterFlag(),
 			command.OptionalRegionFlag(),
+			ComposeServiceTimeoutFlag(),
 		},
 	}
 }
@@ -136,6 +139,7 @@ func rmServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Flags: []cli.Flag{
 			command.OptionalClusterFlag(),
 			command.OptionalRegionFlag(),
+			ComposeServiceTimeoutFlag(),
 		},
 	}
 }
@@ -187,5 +191,16 @@ func loadBalancerFlags() []cli.Flag {
 			Name:  command.RoleFlag,
 			Usage: roleUsageString,
 		},
+	}
+}
+
+// ComposeServiceTimeoutFlag allows user to specify a custom timeout
+func ComposeServiceTimeoutFlag() cli.Flag {
+	return cli.Float64Flag{
+		Name:  command.ComposeServiceTimeOutFlag,
+		Value: service.DefaultUpdateServiceTimeout,
+		Usage: fmt.Sprintf(
+			"Specifies the timeout value in minutes (decimals supported) to wait for the running task count to change. If the running task count has not changed for the specified period of time, then the CLI times out and returns an error. Setting the timeout to 0 will cause the command to return without checking for success.",
+		),
 	}
 }

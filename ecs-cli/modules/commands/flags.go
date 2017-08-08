@@ -76,6 +76,7 @@ const (
 	ContainerPortFlag                       = "container-port"
 	LoadBalancerNameFlag                    = "load-balancer-name"
 	RoleFlag                                = "role"
+	ComposeServiceTimeOutFlag               = "timeout"
 )
 
 // OptionalClusterFlag inline overrides cluster

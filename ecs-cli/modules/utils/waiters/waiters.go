@@ -46,19 +46,10 @@ const (
 // and returns a bool to stop the wait or error if something unexpected happens
 type waiterAction func(retryCount int) (bool, error)
 
-// waitUntilComplete executes the waiterAction for maxRetries number of times, waiting for delayWait time between execution
-func WaitUntilComplete(action waiterAction, entity entity.ProjectEntity, timeoutMessage string, isService bool) error {
-	var delayWait time.Duration
-	var maxRetries int
-	if isService {
-		delayWait = servicesWaitDelay
-		maxRetries = servicesMaxRetries
-	} else {
-		delayWait = tasksWaitDelay
-		maxRetries = tasksMaxRetries
-	}
-
-	for retryCount := 0; retryCount < maxRetries; retryCount++ {
+// ServiceWaitUntilComplete runs the action in a for true loop, until the action returns true or an error
+func ServiceWaitUntilComplete(action waiterAction, entity entity.ProjectEntity) error {
+	// run the loop until done or error thrown
+	for retryCount := 0; true; retryCount++ {
 		done, err := action(retryCount)
 		if err != nil {
 			return err
@@ -66,7 +57,25 @@ func WaitUntilComplete(action waiterAction, entity entity.ProjectEntity, timeout
 		if done {
 			return nil
 		}
-		entity.Sleeper().Sleep(delayWait)
+		entity.Sleeper().Sleep(servicesWaitDelay)
+	}
+
+	return nil
+
+}
+
+// WaitUntilTimeout executes the waiterAction for maxRetries number of times, waiting for delayWait time between execution
+func TaskWaitUntilTimeout(action waiterAction, entity entity.ProjectEntity, timeoutMessage string) error {
+
+	for retryCount := 0; retryCount < tasksMaxRetries; retryCount++ {
+		done, err := action(retryCount)
+		if err != nil {
+			return err
+		}
+		if done {
+			return nil
+		}
+		entity.Sleeper().Sleep(tasksWaitDelay)
 	}
 
 	return fmt.Errorf(timeoutMessage)
