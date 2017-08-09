@@ -22,7 +22,6 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/mock"
 	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
@@ -47,12 +46,10 @@ func TestPopulateContext(t *testing.T) {
 	}
 
 	setUpTempEnvironment(t, tempDirName)
-	defer removeTempEnvironmant(tempDirName)
+	defer removeTempEnvironment(tempDirName)
 
 	// write a dummy ecs config file
-	rdwr, err := config.NewReadWriter()
-	dummyConfig := &config.CLIConfig{Cluster: "testCluster", Region: "us-west-2", AWSAccessKey: "***", AWSSecretKey: "***"}
-	rdwr.Save(dummyConfig)
+	saveDummyConfig(t, tempDirName)
 
 	projectFactory := projectFactory{}
 	err = projectFactory.populateContext(ecsContext, cliContext)
@@ -74,12 +71,30 @@ func setUpTempEnvironment(t *testing.T, tempDirName string) {
 	os.Setenv("AWS_SECRET_KEY", "secret")
 }
 
-func removeTempEnvironmant(tempDirName string) {
+func removeTempEnvironment(tempDirName string) {
 	os.Unsetenv("AWS_REGION")
 	os.Unsetenv("AWS_ACCESS_KEY")
 	os.Unsetenv("AWS_SECRET_KEY")
 	os.Unsetenv("HOME")
-	os.Remove(tempDirName)
+	os.RemoveAll(tempDirName)
+}
+
+func saveDummyConfig(t *testing.T, tempDirName string) {
+	configContents := `[ecs]
+cluster = testCluster
+aws_profile =
+region = us-west-2
+aws_access_key_id = ***
+aws_secret_access_key = ***
+compose-project-name-prefix =
+compose-service-name-prefix =
+cfn-stack-name-prefix =
+`
+	err := os.MkdirAll(tempDirName+"/.ecs", 0777)
+	assert.NoError(t, err, "Could not create config directory")
+
+	err = ioutil.WriteFile(tempDirName+"/.ecs/config", []byte(configContents), 0600)
+	assert.NoError(t, err)
 }
 
 func TestPopulateContextWithGlobalFlagOverrides(t *testing.T) {
@@ -101,12 +116,10 @@ func TestPopulateContextWithGlobalFlagOverrides(t *testing.T) {
 		t.Fatal("Error while creating the dummy ecs config directory")
 	}
 	setUpTempEnvironment(t, tempDirName)
-	defer removeTempEnvironmant(tempDirName)
+	defer removeTempEnvironment(tempDirName)
 
 	// write a dummy ecs config file
-	rdwr, err := config.NewReadWriter()
-	dummyConfig := &config.CLIConfig{Cluster: "testCluster", Region: "us-west-2", AWSAccessKey: "***", AWSSecretKey: "***"}
-	rdwr.Save(dummyConfig)
+	saveDummyConfig(t, tempDirName)
 
 	projectFactory := projectFactory{}
 	err = projectFactory.populateContext(ecsContext, cliContext)

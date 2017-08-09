@@ -30,8 +30,6 @@ import (
 const (
 	clusterName             = "defaultCluster"
 	region                  = "us-east-1"
-	awsAccessKey            = "AKID"
-	awsSecretKey            = "SKID"
 	credentialProviderCount = 2
 
 	customProfileName  = "customProfile"
