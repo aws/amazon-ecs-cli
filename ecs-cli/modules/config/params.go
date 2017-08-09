@@ -52,21 +52,12 @@ func recursiveFlagSearch(context *cli.Context, flag string) string {
 
 // NewCLIParams creates a new ECSParams object from the config file.
 func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
-	ecsConfig, configMap, err := rdwr.GetConfig()
+	clusterConfig := recursiveFlagSearch(context, ecscli.ClusterConfigFlag)
+	profileConfig := recursiveFlagSearch(context, ecscli.ProfileConfigFlag)
+	ecsConfig, err := rdwr.Get(clusterConfig, profileConfig)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "Error loading config")
-	}
-
-	// If Prefixes not found, set to defaults.
-	if _, ok := configMap[composeProjectNamePrefixKey]; !ok {
-		ecsConfig.ComposeProjectNamePrefix = ecscli.ComposeProjectNamePrefixDefaultValue
-	}
-	if _, ok := configMap[composeServiceNamePrefixKey]; !ok {
-		ecsConfig.ComposeServiceNamePrefix = ecscli.ComposeServiceNamePrefixDefaultValue
-	}
-	if _, ok := configMap[cfnStackNamePrefixKey]; !ok {
-		ecsConfig.CFNStackNamePrefix = ecscli.CFNStackNamePrefixDefaultValue
 	}
 
 	// Order of cluster resolution
