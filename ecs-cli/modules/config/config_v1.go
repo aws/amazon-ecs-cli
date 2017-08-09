@@ -28,20 +28,50 @@ const (
 	composeProjectNamePrefixKey = "compose-project-name-prefix"
 	composeServiceNamePrefixKey = "compose-service-name-prefix"
 	cfnStackNamePrefixKey       = "cfn-stack-name-prefix"
+	awsAccessKey                = "aws_access_key_id"
+	awsSecretKey                = "aws_secret_access_key"
+	clusterKey                  = "cluster"
+	clustersKey                 = "clusters"
+	regionKey                   = "region"
 )
 
-// CLIConfig is the top level struct used to map to the yaml config.
-// Version: v1 = YAML formatted configs split profile and cluster
+// CLIConfig is the top level struct representing the configuration information
 type CLIConfig struct {
-	Version                  string `yaml:"version"`
+	Cluster                  string
+	AWSProfile               string
+	Region                   string
+	AWSAccessKey             string
+	AWSSecretKey             string
+	ComposeProjectNamePrefix string
+	ComposeServiceNamePrefix string
+	CFNStackNamePrefix       string
+}
+
+// Profile is a simple struct for storing a single profile config
+type Profile struct {
+	AWSAccessKey string `yaml:"aws_access_key_id"`
+	AWSSecretKey string `yaml:"aws_secret_access_key"`
+}
+
+// Cluster is a simple struct for storing a single cluster config
+type Cluster struct {
 	Cluster                  string `yaml:"cluster"`
-	AWSProfile               string `yaml:"aws_profile"`
 	Region                   string `yaml:"region"`
-	AWSAccessKey             string `yaml:"aws_access_key_id"`
-	AWSSecretKey             string `yaml:"aws_secret_access_key"`
-	ComposeProjectNamePrefix string `yaml:"compose-project-name-prefix"`
 	ComposeServiceNamePrefix string `yaml:"compose-service-name-prefix"`
-	CFNStackNamePrefix       string `yaml:"cfn-stack-name-prefix"`
+}
+
+// ClusterConfig is the top level struct representing the cluster config file
+type ClusterConfig struct {
+	Version  string
+	Default  string             `yaml:"default"`
+	Clusters map[string]Cluster `yaml:"clusters"`
+}
+
+// ProfileConfig is the top level struct representing the Credentials file
+type ProfileConfig struct {
+	Version  string
+	Default  string             `yaml:"default"`
+	Profiles map[string]Profile `yaml:"ecs_profiles"`
 }
 
 // NewCLIConfig creates a new instance of CliConfig from the cluster name.

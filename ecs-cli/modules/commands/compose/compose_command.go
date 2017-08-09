@@ -54,7 +54,7 @@ func ComposeCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:   "compose",
 		Usage:  "Executes docker-compose-style commands on an ECS cluster.",
 		Before: ecscli.BeforeApp,
-		Flags:  append(composeFlags(), command.OptionalClusterFlag(), command.OptionalRegionFlag()),
+		Flags:  append(composeFlags(), command.OptionalConfigFlags()...),
 		Subcommands: []cli.Command{
 			createCommand(factory),
 			psCommand(factory),
@@ -103,10 +103,7 @@ func createCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:   "create",
 		Usage:  "Creates an ECS task definition from your compose file. Note that we do not recommend using plain text environment variables for sensitive information, such as credential data.",
 		Action: compose.WithProject(factory, compose.ProjectCreate, false),
-		Flags: []cli.Flag{
-			command.OptionalClusterFlag(),
-			command.OptionalRegionFlag(),
-		},
+		Flags:  command.OptionalConfigFlags(),
 	}
 }
 
@@ -116,10 +113,7 @@ func psCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Aliases: []string{"list"},
 		Usage:   "Lists all the containers in your cluster that were started by the compose project.",
 		Action:  compose.WithProject(factory, compose.ProjectPs, false),
-		Flags: []cli.Flag{
-			command.OptionalClusterFlag(),
-			command.OptionalRegionFlag(),
-		},
+		Flags:   command.OptionalConfigFlags(),
 	}
 }
 
@@ -128,10 +122,7 @@ func upCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:   "up",
 		Usage:  "Creates an ECS task definition from your compose file (if it does not already exist) and runs one instance of that task on your cluster (a combination of create and start).",
 		Action: compose.WithProject(factory, compose.ProjectUp, false),
-		Flags: []cli.Flag{
-			command.OptionalClusterFlag(),
-			command.OptionalRegionFlag(),
-		},
+		Flags:  command.OptionalConfigFlags(),
 	}
 }
 
@@ -140,10 +131,7 @@ func startCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:   "start",
 		Usage:  "Starts a single task from the task definition created from your compose file.",
 		Action: compose.WithProject(factory, compose.ProjectStart, false),
-		Flags: []cli.Flag{
-			command.OptionalClusterFlag(),
-			command.OptionalRegionFlag(),
-		},
+		Flags:  command.OptionalConfigFlags(),
 	}
 }
 
@@ -153,10 +141,7 @@ func runCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Usage:     "Starts all containers overriding commands with the supplied one-off commands for the containers.",
 		ArgsUsage: "[CONTAINER_NAME] [\"COMMAND ...\"] [CONTAINER_NAME] [\"COMMAND ...\"] ...",
 		Action:    compose.WithProject(factory, compose.ProjectRun, false),
-		Flags: []cli.Flag{
-			command.OptionalClusterFlag(),
-			command.OptionalRegionFlag(),
-		},
+		Flags:     command.OptionalConfigFlags(),
 	}
 }
 
@@ -166,10 +151,7 @@ func stopCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Aliases: []string{"down"},
 		Usage:   "Stops all the running tasks created by the compose project.",
 		Action:  compose.WithProject(factory, compose.ProjectStop, false),
-		Flags: []cli.Flag{
-			command.OptionalClusterFlag(),
-			command.OptionalRegionFlag(),
-		},
+		Flags:   command.OptionalConfigFlags(),
 	}
 }
 
@@ -178,9 +160,6 @@ func scaleCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:   "scale",
 		Usage:  "ecs-cli compose scale [count] - scales the number of running tasks to the specified count.",
 		Action: compose.WithProject(factory, compose.ProjectScale, false),
-		Flags: []cli.Flag{
-			command.OptionalClusterFlag(),
-			command.OptionalRegionFlag(),
-		},
+		Flags:  command.OptionalConfigFlags(),
 	}
 }

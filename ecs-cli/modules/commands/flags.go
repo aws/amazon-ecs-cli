@@ -31,6 +31,8 @@ const (
 	ClusterFlag            = "cluster"
 	ClusterEnvVar          = "ECS_CLUSTER"
 	VerboseFlag            = "verbose"
+	ClusterConfigFlag      = "cluster-config"
+	ProfileConfigFlag      = "ecs-profile"
 
 	ComposeProjectNamePrefixFlag         = "compose-project-name-prefix"
 	ComposeProjectNamePrefixDefaultValue = "ecscompose-"
@@ -77,6 +79,33 @@ const (
 	RoleFlag                                = "role"
 )
 
+// OptionalRegionAndProfileFlags provides these flags:
+// OptionalRegionFlag inline overrides region
+// OptionalClusterConfigFlag specifies the cluster profile to read from config
+// OptionalProfileConfigFlag specifies the credentials profile to read from the config
+func OptionalRegionAndProfileFlags() []cli.Flag {
+	return []cli.Flag{
+		cli.StringFlag{
+			Name: RegionFlag + ", r",
+			Usage: fmt.Sprintf(
+				"[Optional] Specifies the AWS region to use. Defaults to the region configured using the configure command",
+			),
+		},
+		cli.StringFlag{
+			Name: ClusterConfigFlag,
+			Usage: fmt.Sprintf(
+				"[Optional] Specifies the name of the ECS cluster configuration to use. Defaults to the default cluster configuration.",
+			),
+		},
+		cli.StringFlag{
+			Name: ProfileConfigFlag,
+			Usage: fmt.Sprintf(
+				"[Optional] Specifies the name of the ECS profle configuration to use. Defaults to the default profile configuration.",
+			),
+		},
+	}
+}
+
 // OptionalClusterFlag inline overrides cluster
 func OptionalClusterFlag() cli.Flag {
 	return cli.StringFlag{
@@ -87,12 +116,7 @@ func OptionalClusterFlag() cli.Flag {
 	}
 }
 
-// OptionalRegionFlag inline overrides region
-func OptionalRegionFlag() cli.Flag {
-	return cli.StringFlag{
-		Name: RegionFlag + ", r",
-		Usage: fmt.Sprintf(
-			"[Optional] Specifies the AWS region to use. Defaults to the region configured using the configure command",
-		),
-	}
+// OptionalConfigFlags returns the concatenation of OptionalRegionAndProfileFlags and OptionalClusterFlag
+func OptionalConfigFlags() []cli.Flag {
+	return append(OptionalRegionAndProfileFlags(), OptionalClusterFlag())
 }
