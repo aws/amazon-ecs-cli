@@ -24,14 +24,15 @@ import (
 )
 
 const (
-	configFileName = "config"
-	configFileMode = os.FileMode(0600) // Owner=read/write, Other=None
+	clusterConfigFileName = "config"
+	profileConfigFileName = "credentials"
+	configFileMode        = os.FileMode(0600) // Owner=read/write, Other=None
 )
 
 // ReadWriter interface has methods to read and write ecs-cli config to and from the config file.
 type ReadWriter interface {
 	Save(*CLIConfig) error
-	GetConfig() (*CLIConfig, map[interface{}]interface{}, error)
+	Get(string, string) (*CLIConfig, error)
 }
 
 // YAMLReadWriter implments the ReadWriter interfaces. It can be used to save and load
@@ -58,56 +59,103 @@ func NewReadWriter() (*YAMLReadWriter, error) {
 	return &YAMLReadWriter{destination: dest}, nil
 }
 
-func readINI(dest *Destination) (*CLIConfig, map[interface{}]interface{}, error) {
+func readINI(dest *Destination, cliConfig *CLIConfig) error {
 	iniReadWriter, err := NewINIReadWriter(dest)
 	if err != nil {
-		return nil, nil, err
+		return err
 	}
-	return iniReadWriter.GetConfig()
+	return iniReadWriter.GetConfig(cliConfig)
 }
 
-func readYAML(yamlPath string, configMap map[interface{}]interface{}, cliConfig *CLIConfig) error {
-	// convert yaml to CliConfig
-	dat, err := ioutil.ReadFile(yamlPath)
+// readClusterConfig does all the work to read and parse the yaml cluster config
+func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfig) error {
+	// read cluster file
+	dat, err := ioutil.ReadFile(path)
 	if err != nil {
-		return errors.Wrapf(err, "Error reading yaml file %s", yamlPath)
+		return errors.Wrap(err, "Failed to read config file: "+path)
 	}
-	if err = yaml.Unmarshal(dat, cliConfig); err != nil {
-		return errors.Wrapf(err, "Error parsing yaml file %s", yamlPath)
+	config := ClusterConfig{Clusters: make(map[string]Cluster)}
+	if err = yaml.Unmarshal(dat, &config); err != nil {
+		return errors.Wrap(err, "Failed to parse yaml file: "+path)
 	}
 
-	// convert yaml to a map (replaces IsKeyPresent functionality)
-	if err = yaml.Unmarshal(dat, &configMap); err != nil {
-		return errors.Wrapf(err, "Error parsing yaml file %s", yamlPath)
+	// get the correct cluster
+	chosenCluster := clusterConfigKey
+	if clusterConfigKey == "" {
+		chosenCluster = config.Default
 	}
+
+	cluster := config.Clusters[chosenCluster]
+	// Get the info out of the cluster
+	cliConfig.Region = cluster.Region
+	cliConfig.Cluster = cluster.Cluster
+	cliConfig.ComposeServiceNamePrefix = cluster.ComposeServiceNamePrefix
+	return nil
+
+}
+
+// readProfileConfig does all the work to read and parse the yaml cluster config
+func readProfileConfig(path string, profileConfigKey string, cliConfig *CLIConfig) error {
+	// read cluster file
+	dat, err := ioutil.ReadFile(path)
+	if err != nil {
+		return errors.Wrap(err, "Failed to read config file: "+path)
+	}
+
+	config := ProfileConfig{Profiles: make(map[string]Profile)}
+	if err = yaml.Unmarshal(dat, &config); err != nil {
+		return errors.Wrap(err, "Failed to parse yaml file: "+path)
+	}
+
+	// get the correct profile
+	chosenProfile := profileConfigKey
+	if profileConfigKey == "" {
+		chosenProfile = config.Default
+	}
+	profile := config.Profiles[chosenProfile]
+
+	// Get the info out of the cluster
+	cliConfig.AWSSecretKey = profile.AWSSecretKey
+	cliConfig.AWSAccessKey = profile.AWSAccessKey
 
 	return nil
+
 }
 
-// GetConfig gets the ecs-cli config object from the config file.
-// map contains the keys that are present in the config file (maps string field name to string field value)
-// map is type map[interface{}]interface{} to ensure fowards compatibility with changes that will
-// cause certain keys to be mapped to maps of keys
-func (rdwr *YAMLReadWriter) GetConfig() (*CLIConfig, map[interface{}]interface{}, error) {
-	to := new(CLIConfig)
-	configMap := make(map[interface{}]interface{})
-	// read the raw bytes of the config file
-	path := configPath(rdwr.destination)
+// Get gets the ecs-cli config object from the config file(s).
+// This function either reads the old single configuration file
+// Or if the new files are present, it reads from them instead
+func (rdwr *YAMLReadWriter) Get(clusterConfig string, profileConfig string) (*CLIConfig, error) {
+	cliConfig := &CLIConfig{} // read the raw bytes of the config file
+	profilePath := credentialsFilePath(rdwr.destination)
+	configPath := configFilePath(rdwr.destination)
 
-	if errYAML := readYAML(path, configMap, to); errYAML == nil {
-		// File is YAML
-		return to, configMap, nil
-	} else if to, configMap, errINI := readINI(rdwr.destination); errINI == nil {
-		// File is INI
-		return to, configMap, nil
-	} else if errINI != nil {
-		// Return the ini error
-		// This will return a parsing error for ini (format error)
-		return nil, nil, errINI
-	} else {
-		// If yaml through an error, but ini didn't throw an error- return the yaml error
-		return nil, nil, errYAML
+	// try to readINI first; it is either sucessful or it
+	// set cliConfig to be its default value (all fields empty strings)
+	readINI(rdwr.destination, cliConfig)
+
+	// Try to read the config as YAML
+	// nothing will happen if it fails
+	errYAML := readClusterConfig(configPath, clusterConfig, cliConfig)
+
+	if _, err := os.Stat(profilePath); err == nil {
+		// credentials file exists- so that means we are using the new style configs
+		err = readProfileConfig(profilePath, profileConfig, cliConfig)
+		if err != nil {
+			return nil, err
+		}
 	}
+
+	// Check if there was a format error on the config file
+	// this happens when both ini and yaml readers fail to read anything
+	// but the file does exist (the files are allowed to not exist).
+	if _, err := os.Stat(configPath); err == nil && cliConfig.Cluster == "" && cliConfig.Region == "" {
+		return nil, errors.Wrapf(errYAML, "Error parsing %s", configPath)
+	}
+
+	// if no configs exist, we return an empty object
+	return cliConfig, nil
+
 }
 
 // Save saves the CLIConfig to a yaml formatted file
@@ -116,10 +164,8 @@ func (rdwr *YAMLReadWriter) Save(cliConfig *CLIConfig) error {
 	if err := os.MkdirAll(rdwr.destination.Path, *destMode); err != nil {
 		return errors.Wrapf(err, "Could not make directory %s", rdwr.destination.Path)
 	}
-	// set version
-	cliConfig.Version = configVersion
 
-	path := configPath(rdwr.destination)
+	path := configFilePath(rdwr.destination)
 
 	// If config file exists, set permissions first, because we may be writing creds.
 	// This is necessary because ioutil.WriteFile only sets the permissions
@@ -143,6 +189,10 @@ func (rdwr *YAMLReadWriter) Save(cliConfig *CLIConfig) error {
 	return nil
 }
 
-func configPath(dest *Destination) string {
-	return filepath.Join(dest.Path, configFileName)
+func credentialsFilePath(dest *Destination) string {
+	return filepath.Join(dest.Path, profileConfigFileName)
+}
+
+func configFilePath(dest *Destination) string {
+	return filepath.Join(dest.Path, clusterConfigFileName)
 }
