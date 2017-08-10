@@ -1,0 +1,10 @@
+version: '2'
+services:
+  wordpress:
+    image: wordpress
+    cpu_shares: 100
+    mem_limit: 524288000
+    ports:
+      - "80:80"
+    links:
+      - mysql
