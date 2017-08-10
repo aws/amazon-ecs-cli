@@ -18,6 +18,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 
 	yaml "gopkg.in/yaml.v2"
@@ -31,7 +32,10 @@ const (
 
 // ReadWriter interface has methods to read and write ecs-cli config to and from the config file.
 type ReadWriter interface {
-	Save(*CLIConfig) error
+	SaveProfile(string, *Profile) error
+	SaveCluster(string, *Cluster) error
+	SetDefaultProfile(string) error
+	SetDefaultCluster(string) error
 	Get(string, string) (*CLIConfig, error)
 }
 
@@ -67,18 +71,39 @@ func readINI(dest *Destination, cliConfig *CLIConfig) error {
 	return iniReadWriter.GetConfig(cliConfig)
 }
 
-// readClusterConfig does all the work to read and parse the yaml cluster config
-func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfig) error {
-	// read cluster file
+func readClusterFile(path string) (*ClusterConfig, error) {
 	dat, err := ioutil.ReadFile(path)
 	if err != nil {
-		return errors.Wrap(err, "Failed to read config file: "+path)
+		return nil, errors.Wrap(err, "Failed to read config file: "+path)
 	}
 	config := ClusterConfig{Clusters: make(map[string]Cluster)}
 	if err = yaml.Unmarshal(dat, &config); err != nil {
-		return errors.Wrap(err, "Failed to parse yaml file: "+path)
+		return nil, errors.Wrap(err, "Failed to parse yaml file: "+path)
 	}
 
+	return &config, nil
+}
+
+func readCredFile(path string) (*ProfileConfig, error) {
+	dat, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to read config file: "+path)
+	}
+	config := ProfileConfig{Profiles: make(map[string]Profile)}
+	if err = yaml.Unmarshal(dat, &config); err != nil {
+		return nil, errors.Wrap(err, "Failed to parse yaml file: "+path)
+	}
+
+	return &config, nil
+}
+
+// readClusterConfig does all the work to read and parse the yaml cluster config
+func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfig) error {
+	// read cluster file
+	config, err := readClusterFile(path)
+	if err != nil {
+		return err
+	}
 	// get the correct cluster
 	chosenCluster := clusterConfigKey
 	if clusterConfigKey == "" {
@@ -96,15 +121,10 @@ func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfi
 
 // readProfileConfig does all the work to read and parse the yaml cluster config
 func readProfileConfig(path string, profileConfigKey string, cliConfig *CLIConfig) error {
-	// read cluster file
-	dat, err := ioutil.ReadFile(path)
+	// read profile file
+	config, err := readCredFile(path)
 	if err != nil {
-		return errors.Wrap(err, "Failed to read config file: "+path)
-	}
-
-	config := ProfileConfig{Profiles: make(map[string]Profile)}
-	if err = yaml.Unmarshal(dat, &config); err != nil {
-		return errors.Wrap(err, "Failed to parse yaml file: "+path)
+		return err
 	}
 
 	// get the correct profile
@@ -158,35 +178,88 @@ func (rdwr *YAMLReadWriter) Get(clusterConfig string, profileConfig string) (*CL
 
 }
 
-// Save saves the CLIConfig to a yaml formatted file
-func (rdwr *YAMLReadWriter) Save(cliConfig *CLIConfig) error {
-	destMode := rdwr.destination.Mode
-	if err := os.MkdirAll(rdwr.destination.Path, *destMode); err != nil {
-		return errors.Wrapf(err, "Could not make directory %s", rdwr.destination.Path)
+func (rdwr YAMLReadWriter) saveConfig(path string, config interface{}) error {
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return errors.Wrap(err, "Error saving config file")
 	}
 
-	path := configFilePath(rdwr.destination)
+	destMode := rdwr.destination.Mode
+	err = os.MkdirAll(rdwr.destination.Path, *destMode)
+	if err != nil {
+		return err
+	}
 
 	// If config file exists, set permissions first, because we may be writing creds.
-	// This is necessary because ioutil.WriteFile only sets the permissions
-	// if the file is being created for the first time; this handles the case
-	// where the file already exists
 	if _, err := os.Stat(path); err == nil {
 		if err = os.Chmod(path, configFileMode); err != nil {
-			return errors.Wrapf(err, "Could not set file permissions, %s, for path %s", configFileMode, path)
+			logrus.Errorf("Unable to chmod %s to mode %s", path, configFileMode)
+			return err
 		}
 	}
 
-	data, err := yaml.Marshal(cliConfig)
+	err = ioutil.WriteFile(path, data, configFileMode.Perm())
 	if err != nil {
-		return errors.Wrap(err, "Unable to parse the config")
-	}
-	// WriteFile will not change the permissions of an existing file
-	if err = ioutil.WriteFile(path, data, configFileMode.Perm()); err != nil {
-		return errors.Wrapf(err, "Could not write config file %s", path)
+		logrus.Errorf("Unable to write config to %s", path)
+		return err
 	}
 
 	return nil
+}
+
+// SaveProfile saves a single credential configuration
+func (rdwr YAMLReadWriter) SaveProfile(configName string, profile *Profile) error {
+	path := credentialsFilePath(rdwr.destination)
+	config, err := readCredFile(path)
+	if err != nil {
+		return err
+	}
+
+	config.Profiles[configName] = *profile
+
+	// save the modified config
+	return rdwr.saveConfig(path, config)
+}
+
+// SaveCluster save a single cluster configuration
+func (rdwr YAMLReadWriter) SaveCluster(configName string, cluster *Cluster) error {
+	path := configFilePath(rdwr.destination)
+	config, err := readClusterFile(path)
+	if err != nil {
+		return err
+	}
+
+	config.Clusters[configName] = *cluster
+
+	// save the modified config
+	return rdwr.saveConfig(path, config)
+}
+
+// SetDefaultProfile updates which set of credentials is defined as default
+func (rdwr YAMLReadWriter) SetDefaultProfile(configName string) error {
+	path := credentialsFilePath(rdwr.destination)
+	config, err := readCredFile(path)
+	if err != nil {
+		return err
+	}
+
+	config.Default = configName
+
+	// save the modified config
+	return rdwr.saveConfig(path, config)
+}
+
+func (rdwr YAMLReadWriter) SetDefaultCluster(configName string) error {
+	path := configFilePath(rdwr.destination)
+	config, err := readClusterFile(path)
+	if err != nil {
+		return err
+	}
+
+	config.Default = configName
+
+	// save the modified config
+	return rdwr.saveConfig(path, config)
 }
 
 func credentialsFilePath(dest *Destination) string {
