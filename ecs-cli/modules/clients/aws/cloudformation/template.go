@@ -432,9 +432,9 @@ var template = `
         "Roles": [
           "Fn::If": [
             "CreateEcsInstanceRole",
-            [ {
+            {
               "Ref": "EcsInstanceRole"
-            } ],
+            },
             {
               "Ref": "InstanceRole"
             }
