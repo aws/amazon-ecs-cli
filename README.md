@@ -188,52 +188,21 @@ Name                                            State    Ports                  
 34333aa6-e976-4096-991a-0ec4cd5af5bd/mysql      RUNNING                             ecscompose-wordpress-test:1
 ```
 
-
 ## Amazon ECS CLI Commands
 
 For a complete list of commands, see the
 [Amazon ECS CLI documentation](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI.html).
 
-
 ## Contributing to the CLI
-### Setting up your environment
-* Make sure you are using go1.8 (`go version`).
-* Copy the source code (`go get github.com/aws/amazon-ecs-cli`).
+Contributions and feedback are welcome! Proposals and pull requests will be
+considered and responded to. For more information, see
+[CONTRIBUTING.md](https://github.com/aws/amazon-ecs-cli/blob/master/CONTRIBUTING.md)
+file.
 
-### Building
-From `$GOPATH/src/github.com/aws/amazon-ecs-cli`:
-* Run `make` (This creates a standalone executable in the `bin/local` directory).
-
-From `$GOPATH/src/github.com/aws/amazon-ecs-cli/ecs-cli`:
-* Run `godep restore` (This will download and install dependencies specified in the `Godeps/Godeps.json` into your `$GOPATH`).
-* **NOTE:** `godep restore` puts the dependencies in a detached HEAD state (see: [Updating an existing dependency](https://github.com/aws/amazon-ecs-cli/blob/master/README.md#updating-an-existing-dependency)).
-
-### Adding new dependencies
-* Make sure you have the latest [godep](https://github.com/tools/godep) (`go get -u github.com/tools/godep`) (version 79)
-* `go get` the new dependency.
-* Edit your application's source code to import the new dependency.
-* From `$GOPATH/src/github.com/aws/amazon-ecs-cli/ecs-cli`, run `godep save ./...` (This will update `Godeps/Godeps.json` and copy the dependencies source to the `vendor/` directory).
-
-### Updating an existing dependency
-* `godep update <dependency> ./...` will update your dependency as well as recursively update any packages it depends on.
-* Inspect the changes with `git diff` (should show up in `vendor/` directory)
-* **NOTE:** Unfortunately, using `godep restore` means that `go get` will not work with dependencies. Until we move off `godep`, when we want to update a dependency we will have to go to the dependency in the `$GOPATH` and manually use `git pull` an update to that package.
-
-
-### Cross-compiling
-The `make docker-build` target builds standalone amd64 executables for
-Darwin and Linux. The output will be in `bin/darwin-amd64` and `bin/linux-amd64`,
-respectively.
-
-If you have set up the appropriate bootstrap environments, you may also directly
-run the `make supported-platforms` target to create standalone amd64 executables
-for the Darwin and Linux platforms.
-
-### Testing
-* To run unit tests, run `make test` from `$GOPATH/src/github.com/aws/amazon-ecs-cli`.
+Amazon Web Services does not currently provide support for modified copies of
+this software.
 
 ## License
 
 The Amazon ECS CLI is distributed under the
-[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0),
-see LICENSE and NOTICE for more information.
+[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). See [LICENSE](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/LICENSE) and [NOTICE](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/NOTICE) for more information.
