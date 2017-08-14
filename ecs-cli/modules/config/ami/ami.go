@@ -59,6 +59,12 @@ func NewStaticAmiIds() ECSAmiIds {
 	return &staticAmiIds{regionToId: regionToId}
 }
 
+// Get returns the AMI ID for a given region
+// It returns the AMI ID that it finds in:
+// 	1. The S3 bucket
+// 	2. The cn-north-1 mirror of the main S3 bucket
+// 	3. The hardcoded list (which may be slightly out of date. )
+// (#2 helps users in china who may be blocked from the main bucket)
 func (c *staticAmiIds) Get(region string) (string, error) {
 	// first try to pull from the main bucket
 	if id, err := getIDFromS3(mainBucketS3URL+region, maxRetries); err == nil {
