@@ -14,6 +14,7 @@
 package config
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -185,8 +186,7 @@ func (rdwr YAMLReadWriter) saveConfig(path string, config interface{}) error {
 	}
 
 	destMode := rdwr.destination.Mode
-	err = os.MkdirAll(rdwr.destination.Path, *destMode)
-	if err != nil {
+	if err = os.MkdirAll(rdwr.destination.Path, *destMode); err != nil {
 		return err
 	}
 
@@ -198,8 +198,7 @@ func (rdwr YAMLReadWriter) saveConfig(path string, config interface{}) error {
 		}
 	}
 
-	err = ioutil.WriteFile(path, data, configFileMode.Perm())
-	if err != nil {
+	if err = ioutil.WriteFile(path, data, configFileMode.Perm()); err != nil {
 		logrus.Errorf("Unable to write config to %s", path)
 		return err
 	}
@@ -243,7 +242,11 @@ func (rdwr YAMLReadWriter) SetDefaultProfile(configName string) error {
 		return err
 	}
 
-	config.Default = configName
+	if _, ok := config.Profiles[configName]; ok {
+		config.Default = configName
+	} else {
+		return fmt.Errorf("%s must be defined as a profile before it can be set as default. ", configName)
+	}
 
 	// save the modified config
 	return rdwr.saveConfig(path, config)
@@ -256,7 +259,11 @@ func (rdwr YAMLReadWriter) SetDefaultCluster(configName string) error {
 		return err
 	}
 
-	config.Default = configName
+	if _, ok := config.Clusters[configName]; ok {
+		config.Default = configName
+	} else {
+		return fmt.Errorf("%s must be defined as a profile before it can be set as default. ", configName)
+	}
 
 	// save the modified config
 	return rdwr.saveConfig(path, config)
