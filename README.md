@@ -205,4 +205,4 @@ this software.
 ## License
 
 The Amazon ECS CLI is distributed under the
-[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). See [LICENSE](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/LICENSE) and [NOTICE](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/NOTICE) for more information.
+[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). See [LICENSE](https://github.com/aws/amazon-ecs-cli/blob/master/LICENSE) and [NOTICE](https://github.com/aws/amazon-ecs-cli/blob/master/NOTICE) for more information.
