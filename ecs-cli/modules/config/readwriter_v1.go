@@ -179,7 +179,7 @@ func (rdwr *YAMLReadWriter) Get(clusterConfig string, profileConfig string) (*CL
 
 }
 
-func (rdwr YAMLReadWriter) saveConfig(path string, config interface{}) error {
+func (rdwr *YAMLReadWriter) saveConfig(path string, config interface{}) error {
 	data, err := yaml.Marshal(config)
 	if err != nil {
 		return errors.Wrap(err, "Error saving config file")
@@ -207,35 +207,51 @@ func (rdwr YAMLReadWriter) saveConfig(path string, config interface{}) error {
 }
 
 // SaveProfile saves a single credential configuration
-func (rdwr YAMLReadWriter) SaveProfile(configName string, profile *Profile) error {
+func (rdwr *YAMLReadWriter) SaveProfile(configName string, profile *Profile) error {
 	path := credentialsFilePath(rdwr.destination)
-	config, err := readCredFile(path)
-	if err != nil {
-		return err
+
+	config := &ProfileConfig{Profiles: make(map[string]Profile), Version: configVersion}
+	if _, err := os.Stat(path); err == nil {
+		// an existing config file is there
+		config, err = readCredFile(path)
+		if err != nil {
+			return err
+		}
 	}
 
 	config.Profiles[configName] = *profile
+	if len(config.Profiles) == 1 {
+		config.Default = configName
+	}
 
 	// save the modified config
 	return rdwr.saveConfig(path, config)
 }
 
 // SaveCluster save a single cluster configuration
-func (rdwr YAMLReadWriter) SaveCluster(configName string, cluster *Cluster) error {
+func (rdwr *YAMLReadWriter) SaveCluster(configName string, cluster *Cluster) error {
 	path := configFilePath(rdwr.destination)
-	config, err := readClusterFile(path)
-	if err != nil {
-		return err
+
+	config := &ClusterConfig{Clusters: make(map[string]Cluster), Version: configVersion}
+	if _, err := os.Stat(path); err == nil {
+		// an existing config file is there
+		var err error
+		if config, err = readClusterFile(path); err != nil {
+			return err
+		}
 	}
 
 	config.Clusters[configName] = *cluster
+	if len(config.Clusters) == 1 {
+		config.Default = configName
+	}
 
 	// save the modified config
 	return rdwr.saveConfig(path, config)
 }
 
 // SetDefaultProfile updates which set of credentials is defined as default
-func (rdwr YAMLReadWriter) SetDefaultProfile(configName string) error {
+func (rdwr *YAMLReadWriter) SetDefaultProfile(configName string) error {
 	path := credentialsFilePath(rdwr.destination)
 	config, err := readCredFile(path)
 	if err != nil {
@@ -252,7 +268,7 @@ func (rdwr YAMLReadWriter) SetDefaultProfile(configName string) error {
 	return rdwr.saveConfig(path, config)
 }
 
-func (rdwr YAMLReadWriter) SetDefaultCluster(configName string) error {
+func (rdwr *YAMLReadWriter) SetDefaultCluster(configName string) error {
 	path := configFilePath(rdwr.destination)
 	config, err := readClusterFile(path)
 	if err != nil {
