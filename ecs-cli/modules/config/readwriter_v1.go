@@ -77,7 +77,6 @@ func readClusterFile(path string) (*ClusterConfig, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to read config file: "+path)
 	}
-	logrus.Infof("raw file read: %s", string(dat))
 	config := ClusterConfig{Clusters: make(map[string]Cluster)}
 	if err = yaml.Unmarshal(dat, &config); err != nil {
 		return nil, errors.Wrap(err, "Failed to parse yaml file: "+path)
@@ -107,7 +106,6 @@ func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfi
 	if err != nil {
 		return err
 	}
-	logrus.Infof("Raw clusterConfig{}: %s", config)
 	// get the correct cluster
 	chosenCluster := clusterConfigKey
 	if clusterConfigKey == "" {
@@ -160,13 +158,10 @@ func (rdwr *YAMLReadWriter) Get(clusterConfig string, profileConfig string) (*CL
 	// try to readINI first; it is either sucessful or it
 	// set cliConfig to be its default value (all fields empty strings)
 	readINI(rdwr.destination, cliConfig)
-	logrus.Infof("after readINI():\ncliConfig: %s", cliConfig)
 
 	// Try to read the config as YAML
 	// nothing will happen if it fails
 	errYAML := readClusterConfig(configPath, clusterConfig, cliConfig)
-	logrus.Infof("errYAML: %s", errYAML)
-	logrus.Infof("after readClusterConfig():\ncliConfig: %s", cliConfig)
 
 	if _, err := os.Stat(profilePath); err == nil {
 		// credentials file exists- so that means we are using the new style configs
@@ -252,8 +247,6 @@ func (rdwr *YAMLReadWriter) SaveCluster(configName string, cluster *Cluster) err
 	if len(config.Clusters) == 1 {
 		config.Default = configName
 	}
-
-	logrus.Infof("Saving to path: %s", path)
 
 	// save the modified config
 	return rdwr.saveConfig(path, config)

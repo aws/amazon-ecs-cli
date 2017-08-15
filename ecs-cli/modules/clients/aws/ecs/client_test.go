@@ -45,7 +45,19 @@ func (rdwr *mockReadWriter) Get(cluster string, profile string) (*config.CLIConf
 	return config.NewCLIConfig(clusterName), nil
 }
 
-func (rdwr *mockReadWriter) Save(ecsConfig *config.CLIConfig) error {
+func (rdwr *mockReadWriter) SaveProfile(configName string, profile *config.Profile) error {
+	return nil
+}
+
+func (rdwr *mockReadWriter) SaveCluster(configName string, cluster *config.Cluster) error {
+	return nil
+}
+
+func (rdwr *mockReadWriter) SetDefaultProfile(configName string) error {
+	return nil
+}
+
+func (rdwr *mockReadWriter) SetDefaultCluster(configName string) error {
 	return nil
 }
 
