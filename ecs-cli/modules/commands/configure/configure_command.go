@@ -25,7 +25,7 @@ import (
 func ConfigureCommand() cli.Command {
 	return cli.Command{
 		Name:   "configure",
-		Usage:  "Store a single cluster config.",
+		Usage:  "Configures a single cluster config.",
 		Action: configure.ConfigureCluster,
 		Flags:  configureFlags(),
 		Subcommands: []cli.Command{
@@ -45,7 +45,7 @@ func ConfigureCommand() cli.Command {
 			},
 			cli.Command{
 				Name:   "default",
-				Usage:  "Set the default cluster config.",
+				Usage:  "Sets the default cluster config.",
 				Action: configure.ConfigureDefaultCluster,
 				Flags:  configureDefaultClusterFlags(),
 			},
@@ -58,7 +58,7 @@ func configureDefaultClusterFlags() []cli.Flag {
 		cli.StringFlag{
 			Name: flags.ConfigNameFlag,
 			Usage: fmt.Sprintf(
-				"Specifies the name of the cluster config to set as default.",
+				"Specifies the name of the cluster config to be set as default.",
 			),
 		},
 	}
@@ -69,7 +69,7 @@ func configureDefaultProfileFlags() []cli.Flag {
 		cli.StringFlag{
 			Name: flags.ProfileNameFlag,
 			Usage: fmt.Sprintf(
-				"Specifies the name of the cluster config to set as default.",
+				"Specifies the name of the cluster config to be set as default.",
 			),
 		},
 	}
@@ -80,21 +80,21 @@ func configureProfileFlags() []cli.Flag {
 		cli.StringFlag{
 			Name: flags.AccessKeyFlag,
 			Usage: fmt.Sprintf(
-				"Specifies the AWS access key to use. If the AWS_ACCESS_KEY_ID environment variable is set when ecs-cli configure is run, then the AWS access key ID is set to the value of that environment variable.",
+				"Specifies the AWS access key to use. Will use value of your $AWS_ACCESS_KEY_ID environment variable if it is set.",
 			),
 			EnvVar: "AWS_ACCESS_KEY_ID",
 		},
 		cli.StringFlag{
 			Name: flags.SecretKeyFlag,
 			Usage: fmt.Sprintf(
-				"Specifies the AWS secret key to use. If the AWS_SECRET_ACCESS_KEY environment variable is set when ecs-cli configure is run, then the AWS secret access key is set to the value of that environment variable.",
+				"Specifies the AWS secret key to use. Will use value of your $AWS_SECRET_ACCESS_KEY environment variable if it is set.",
 			),
 			EnvVar: "AWS_SECRET_ACCESS_KEY",
 		},
 		cli.StringFlag{
 			Name: flags.ProfileFlag + ", p",
 			Usage: fmt.Sprintf(
-				"Specifies your AWS credentials with an existing named profile from ~/.aws/credentials. If the AWS_PROFILE environment variable is set when ecs-cli configure is run, then the AWS named profile is set to the value of that environment variable.",
+				"Specifies your AWS credentials with an existing named profile from ~/.aws/credentials. Will use value of your $AWS_PROFILE environment variable if it is set.",
 			),
 			EnvVar: "AWS_PROFILE",
 		},
@@ -132,21 +132,21 @@ func configureFlags() []cli.Flag {
 		cli.StringFlag{
 			Name: flags.AccessKeyFlag,
 			Usage: fmt.Sprintf(
-				"Specifies the AWS access key to use. If the AWS_ACCESS_KEY_ID environment variable is set when ecs-cli configure is run, then the AWS access key ID is set to the value of that environment variable.",
+				"Specifies the AWS access key to use. Will use value of your $AWS_ACCESS_KEY_ID environment variable if it is set.",
 			),
 			EnvVar: "AWS_ACCESS_KEY_ID",
 		},
 		cli.StringFlag{
 			Name: flags.SecretKeyFlag,
 			Usage: fmt.Sprintf(
-				"Specifies the AWS secret key to use. If the AWS_SECRET_ACCESS_KEY environment variable is set when ecs-cli configure is run, then the AWS secret access key is set to the value of that environment variable.",
+				"Specifies the AWS secret key to use. Will use value of your $AWS_SECRET_ACCESS_KEY environment variable if it is set.",
 			),
 			EnvVar: "AWS_SECRET_ACCESS_KEY",
 		},
 		cli.StringFlag{
 			Name: flags.ProfileFlag + ", p",
 			Usage: fmt.Sprintf(
-				"Specifies your AWS credentials with an existing named profile from ~/.aws/credentials. If the AWS_PROFILE environment variable is set when ecs-cli configure is run, then the AWS named profile is set to the value of that environment variable.",
+				"Specifies your AWS credentials with an existing named profile from ~/.aws/credentials. Will use value of your $AWS_PROFILE environment variable if it is set.",
 			),
 			EnvVar: "AWS_PROFILE",
 		},

@@ -100,7 +100,6 @@ func readCredFile(path string) (*ProfileConfig, error) {
 
 // readClusterConfig does all the work to read and parse the yaml cluster config
 func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfig) error {
-
 	// read cluster file
 	config, err := readClusterFile(path)
 	if err != nil {
@@ -260,16 +259,17 @@ func (rdwr *YAMLReadWriter) SetDefaultProfile(configName string) error {
 		return err
 	}
 
-	if _, ok := config.Profiles[configName]; ok {
-		config.Default = configName
-	} else {
+	if _, ok := config.Profiles[configName]; !ok {
 		return fmt.Errorf("%s must be defined as a profile before it can be set as default. ", configName)
 	}
+
+	config.Default = configName
 
 	// save the modified config
 	return rdwr.saveConfig(path, config)
 }
 
+// SetDefaultCluster updates which cluster configuration is default
 func (rdwr *YAMLReadWriter) SetDefaultCluster(configName string) error {
 	path := configFilePath(rdwr.destination)
 	config, err := readClusterFile(path)
@@ -277,11 +277,11 @@ func (rdwr *YAMLReadWriter) SetDefaultCluster(configName string) error {
 		return err
 	}
 
-	if _, ok := config.Clusters[configName]; ok {
-		config.Default = configName
-	} else {
+	if _, ok := config.Clusters[configName]; !ok {
 		return fmt.Errorf("%s must be defined as a profile before it can be set as default. ", configName)
 	}
+
+	config.Default = configName
 
 	// save the modified config
 	return rdwr.saveConfig(path, config)
