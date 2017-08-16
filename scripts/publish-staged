@@ -33,6 +33,7 @@ usage() {
 	echo "Options"
 	echo "  -d  true|false  Dryrun (default is true)"
 	echo "  -p  PROFILE     AWS CLI Profile (default is none)"
+	echo "  -o  PROFILE     AWS CLI Profile for the bucket to push to (defaults to the profile specified with -p)"
 	echo "  -s  BUCKET      AWS S3 Bucket for staging"
 	echo "  -b  BUCKET      AWS S3 Bucket for publishing (default is ${PUBLISH_S3_BUCKET})"
 	echo "  -a  ACL         AWS S3 Object Canned ACL (default is public-read)"
@@ -50,7 +51,7 @@ publish_s3() {
 	done
 }
 
-while getopts ":d:p:s:b:i:a:h" opt; do
+while getopts ":d:p:o:s:b:i:a:h" opt; do
 	case ${opt} in
 		d)
 			if [[ "${OPTARG}" = "false" ]]; then
@@ -59,6 +60,9 @@ while getopts ":d:p:s:b:i:a:h" opt; do
 			;;
 		p)
 			AWS_PROFILE="${OPTARG}"
+			;;
+		o)
+			AWS_PROFILE_PUSH="${OPTARG}"
 			;;
 		s)
 			STAGE_S3_BUCKET="${OPTARG}"
