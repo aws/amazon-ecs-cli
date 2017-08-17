@@ -44,6 +44,19 @@ s3_cp() {
 	if [[ ! -z "${AWS_PROFILE}" ]]; then
 		profile="--profile=${AWS_PROFILE}"
 	fi
+	acl="public-read"
+	if [[ ! -z "${S3_ACL_OVERRIDE}" ]]; then
+		acl="${S3_ACL_OVERRIDE}"
+	fi
+	echo "Copying ${1} to ${2}"
+	aws ${profile} s3 cp "${1}" "${2}" "--acl=${acl}"
+}
+
+s3_pull_push() {
+	profile=""
+	if [[ ! -z "${AWS_PROFILE}" ]]; then
+		profile="--profile=${AWS_PROFILE}"
+	fi
 	if [[ ! -z "${AWS_PROFILE_PUSH}" ]]; then
 		profile_push="--profile=${AWS_PROFILE_PUSH}"
 	else
