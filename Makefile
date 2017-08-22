@@ -40,7 +40,7 @@ generate: $(SOURCES)
 .PHONY: generate-deps
 generate-deps:
 	go get github.com/tools/godep
-	go install github.com/golang/mock/mockgen
+	go get github.com/golang/mock/mockgen
 	go get golang.org/x/tools/cmd/goimports
 
 
