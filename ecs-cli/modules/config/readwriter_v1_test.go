@@ -18,7 +18,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Sirupsen/logrus"
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/stretchr/testify/assert"
 )
@@ -52,7 +51,6 @@ func setupParser(t *testing.T, dest *Destination, shouldBeInitialized bool) *YAM
 }
 
 func saveClusterConfig(t *testing.T, parser *YAMLReadWriter, dest *Destination) {
-	logrus.Info("In saveClusterConfig test helper")
 	cluster := Cluster{Cluster: testClusterName, Region: testRegion}
 	err := parser.SaveCluster(testClusterConfig, &cluster)
 	assert.NoError(t, err, "Error saving mock config")

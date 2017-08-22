@@ -65,11 +65,16 @@ func NewReadWriter() (*YAMLReadWriter, error) {
 }
 
 func readINI(dest *Destination, cliConfig *CLIConfig) error {
-	iniReadWriter, err := NewINIReadWriter(dest)
-	if err != nil {
-		return err
+	// Only read if the file exists; ini library is not good about throwing file not exist errors
+	if _, err := os.Stat(configFilePath(dest)); err == nil {
+		iniReadWriter, err := NewINIReadWriter(dest)
+		if err != nil {
+			return err
+		}
+		return iniReadWriter.GetConfig(cliConfig)
 	}
-	return iniReadWriter.GetConfig(cliConfig)
+
+	return nil
 }
 
 func readClusterFile(path string) (*ClusterConfig, error) {
@@ -117,6 +122,9 @@ func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfi
 	cliConfig.Cluster = cluster.Cluster
 	cliConfig.ComposeServiceNamePrefix = cluster.ComposeServiceNamePrefix
 	// set prefixes to empty
+	// This is necessary because the readINI function may have set them to the old default values
+	// That is due to a known problem with the old ini library in which it does not throw an error
+	// even if the file is not ini formatted
 	cliConfig.CFNStackNamePrefix = ""
 	cliConfig.ComposeProjectNamePrefix = ""
 	return nil

@@ -27,16 +27,21 @@ func ConfigureCluster(context *cli.Context) {
 	clusterProfileName := context.String(command.ConfigNameFlag)
 	cluster := context.String(command.ClusterFlag)
 
+	if clusterProfileName == "" {
+		logrus.Error("Cluster Config Name can not be empty.")
+		return
+	}
+
 	clusterConfig := &config.Cluster{Cluster: cluster, Region: region}
 
 	// modify the profile config file
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
-		logrus.Error("Error with config file: ", err)
+		logrus.Error("Error saving cluster configuration: ", err)
 		return
 	}
 	if err = rdwr.SaveCluster(clusterProfileName, clusterConfig); err != nil {
-		logrus.Error("Error with config file: ", err)
+		logrus.Error("Error saving cluster configuration: ", err)
 	}
 }
 
@@ -52,11 +57,11 @@ func ConfigureProfile(context *cli.Context) {
 	// modify the profile config file
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
-		logrus.Error("Error with config file: ", err)
+		logrus.Error("Error saving profile: ", err)
 		return
 	}
 	if err = rdwr.SaveProfile(profileName, profile); err != nil {
-		logrus.Error("Error with config file: ", err)
+		logrus.Error("Error saving profile: ", err)
 	}
 
 }
@@ -69,11 +74,11 @@ func ConfigureDefaultProfile(context *cli.Context) {
 	// modify the profile config file
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
-		logrus.Error("Error with config file: ", err)
+		logrus.Error("Error setting default config: ", err)
 		return
 	}
 	if err = rdwr.SetDefaultProfile(profileName); err != nil {
-		logrus.Error("Error with config file: ", err)
+		logrus.Error("Error setting default config: ", err)
 	}
 
 }
@@ -86,10 +91,10 @@ func ConfigureDefaultCluster(context *cli.Context) {
 	// modify the profile config file
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
-		logrus.Error("Error with config file: ", err)
+		logrus.Error("Error setting default config: ", err)
 		return
 	}
 	if err = rdwr.SetDefaultCluster(clusterName); err != nil {
-		logrus.Error("Error with config file: ", err)
+		logrus.Error("Error setting default config: ", err)
 	}
 }
