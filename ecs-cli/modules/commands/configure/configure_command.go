@@ -25,13 +25,13 @@ import (
 func ConfigureCommand() cli.Command {
 	return cli.Command{
 		Name:   "configure",
-		Usage:  "Configures a single cluster config.",
+		Usage:  "Stores a single cluster configuration.",
 		Action: configure.ConfigureCluster,
 		Flags:  configureFlags(),
 		Subcommands: []cli.Command{
 			cli.Command{
 				Name:   "profile",
-				Usage:  "Configures a single profile.",
+				Usage:  "Stores a single profile.",
 				Action: configure.ConfigureProfile,
 				Flags:  configureProfileFlags(),
 				Subcommands: []cli.Command{
