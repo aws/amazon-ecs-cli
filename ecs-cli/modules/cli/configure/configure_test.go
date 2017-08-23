@@ -27,34 +27,35 @@ import (
 
 const (
 	clusterName   = "defaultCluster"
+	secondCluster = "alternateCluster"
 	stackName     = "defaultCluster"
 	profileName   = "defaultProfile"
 	secondProfile = "alternate"
 	region        = "us-west-1"
 	awsAccessKey  = "AKID"
+	awsAccessKey2 = "AKID2"
 	awsSecretKey  = "SKID"
 )
 
-func createClusterConfig(name string) *cli.Context {
+func createClusterConfig(name string, cluster string) *cli.Context {
 	flags := flag.NewFlagSet("ecs-cli", 0)
 	flags.String(command.RegionFlag, region, "")
-	flags.String(command.ClusterFlag, name, "")
+	flags.String(command.ClusterFlag, cluster, "")
 	flags.String(command.ConfigNameFlag, name, "")
 	return cli.NewContext(nil, flags, nil)
 }
 
-func createProfileConfig(name string) *cli.Context {
+func createProfileConfig(name string, accessKey string) *cli.Context {
 	flags := flag.NewFlagSet("ecs-cli", 0)
-	flags.String(command.AccessKeyFlag, name, "")
+	flags.String(command.AccessKeyFlag, accessKey, "")
 	flags.String(command.SecretKeyFlag, awsSecretKey, "")
 	flags.String(command.ProfileNameFlag, name, "")
 	return cli.NewContext(nil, flags, nil)
 }
 
-func TestClusterConfigureAndSetDefault(t *testing.T) {
-	// Config init when just cluster and region are specified
-	config1 := createClusterConfig(profileName)
-	config2 := createClusterConfig(secondProfile)
+func TestDefaultCluster(t *testing.T) {
+	config1 := createClusterConfig(profileName, clusterName)
+	config2 := createClusterConfig(secondProfile, secondCluster)
 	// Create a temprorary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
@@ -65,26 +66,28 @@ func TestClusterConfigureAndSetDefault(t *testing.T) {
 	defer os.RemoveAll(tempDirName)
 
 	// configure 2 profiles and set one as default
-	ConfigureCluster(config1)
-	ConfigureCluster(config2)
-	ConfigureDefaultCluster(config2)
+	err = Cluster(config1)
+	assert.NoError(t, err, "Unexpected error configuring cluster")
+	err = Cluster(config2)
+	assert.NoError(t, err, "Unexpected error configuring cluster")
+	err = DefaultCluster(config2)
+	assert.NoError(t, err, "Unexpected error configuring cluster")
 
 	parser, err := config.NewReadWriter()
 	assert.NoError(t, err, "Error reading config")
 	readConfig, err := parser.Get("", "")
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, region, readConfig.Region, "Region mismatch in config.")
-	assert.Equal(t, secondProfile, readConfig.Cluster, "Cluster name mismatch in config.")
+	assert.Equal(t, secondCluster, readConfig.Cluster, "Cluster name mismatch in config.")
 	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
 	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
 
 }
 
-func TestProfileConfigureAndSetDefault(t *testing.T) {
-	// Config init when just cluster and region are specified
-	config1 := createProfileConfig(profileName)
-	config2 := createProfileConfig(secondProfile)
+func TestDefaultProfile(t *testing.T) {
+	config1 := createProfileConfig(profileName, awsAccessKey)
+	config2 := createProfileConfig(secondProfile, awsAccessKey2)
 
 	// Create a temprorary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
@@ -96,18 +99,236 @@ func TestProfileConfigureAndSetDefault(t *testing.T) {
 	defer os.RemoveAll(tempDirName)
 
 	// configure 2 profiles and set one as default
-	ConfigureProfile(config1)
-	ConfigureProfile(config2)
-	ConfigureDefaultProfile(config2)
+	err = Profile(config1)
+	assert.NoError(t, err, "Unexpected error configuring profile")
+	err = Profile(config2)
+	assert.NoError(t, err, "Unexpected error configuring profile")
+	err = DefaultProfile(config2)
+	assert.NoError(t, err, "Unexpected error configuring profile")
 
 	parser, err := config.NewReadWriter()
 	assert.NoError(t, err, "Error reading config")
 	readConfig, err := parser.Get("", "")
 	assert.NoError(t, err, "Error reading config")
-	assert.Equal(t, secondProfile, readConfig.AWSAccessKey, "Access Key mismatch in config.")
+	assert.Equal(t, awsAccessKey2, readConfig.AWSAccessKey, "Access Key mismatch in config.")
 	assert.Equal(t, awsSecretKey, readConfig.AWSSecretKey, "Secret Key name mismatch in config.")
 	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
 	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+
+}
+
+func TestConfigureProfile(t *testing.T) {
+	config1 := createProfileConfig(profileName, awsAccessKey)
+
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+	defer os.RemoveAll(tempDirName)
+
+	err = Profile(config1)
+	assert.NoError(t, err, "Unexpected error configuring profile")
+
+	parser, err := config.NewReadWriter()
+	assert.NoError(t, err, "Error reading config")
+	readConfig, err := parser.Get("", "")
+	assert.NoError(t, err, "Error reading config")
+	assert.Equal(t, awsAccessKey, readConfig.AWSAccessKey, "Access Key mismatch in config.")
+	assert.Equal(t, awsSecretKey, readConfig.AWSSecretKey, "Secret Key name mismatch in config.")
+	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
+	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
+	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+
+}
+
+func TestConfigureCluster(t *testing.T) {
+	config1 := createClusterConfig(profileName, clusterName)
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+	defer os.RemoveAll(tempDirName)
+
+	err = Cluster(config1)
+	assert.NoError(t, err, "Unexpected error configuring cluster")
+
+	parser, err := config.NewReadWriter()
+	assert.NoError(t, err, "Error reading config")
+	readConfig, err := parser.Get("", "")
+	assert.NoError(t, err, "Error reading config")
+	assert.Equal(t, region, readConfig.Region, "Region mismatch in config.")
+	assert.Equal(t, clusterName, readConfig.Cluster, "Cluster name mismatch in config.")
+	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
+	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
+	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+
+}
+
+func TestConfigureClusterNoCluster(t *testing.T) {
+	flags := flag.NewFlagSet("ecs-cli", 0)
+	flags.String(command.RegionFlag, region, "")
+	flags.String(command.ConfigNameFlag, profileName, "")
+	config1 := cli.NewContext(nil, flags, nil)
+
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+	defer os.RemoveAll(tempDirName)
+
+	// configure 2 profiles and set one as default
+	err = Cluster(config1)
+	assert.Error(t, err, "Expected error configuring cluster.")
+
+}
+
+func TestConfigureClusterNoRegion(t *testing.T) {
+	flags := flag.NewFlagSet("ecs-cli", 0)
+	flags.String(command.ClusterFlag, clusterName, "")
+	flags.String(command.ConfigNameFlag, profileName, "")
+	config1 := cli.NewContext(nil, flags, nil)
+
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+	defer os.RemoveAll(tempDirName)
+
+	// configure 2 profiles and set one as default
+	err = Cluster(config1)
+	assert.Error(t, err, "Expected error configuring cluster.")
+
+}
+
+func TestConfigureClusterNoConfigName(t *testing.T) {
+	flags := flag.NewFlagSet("ecs-cli", 0)
+	flags.String(command.ClusterFlag, clusterName, "")
+	flags.String(command.RegionFlag, region, "")
+	config1 := cli.NewContext(nil, flags, nil)
+
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+	defer os.RemoveAll(tempDirName)
+
+	// configure 2 profiles and set one as default
+	err = Cluster(config1)
+	assert.Error(t, err, "Expected error configuring cluster.")
+}
+
+func TestConfigureProfileNoAccessKey(t *testing.T) {
+	flags := flag.NewFlagSet("ecs-cli", 0)
+	flags.String(command.SecretKeyFlag, awsSecretKey, "")
+	flags.String(command.ProfileNameFlag, profileName, "")
+	config1 := cli.NewContext(nil, flags, nil)
+
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+	defer os.RemoveAll(tempDirName)
+
+	err = Profile(config1)
+	assert.Error(t, err, "Expected error configuring profile")
+
+}
+
+func TestConfigureProfileNoSecretKey(t *testing.T) {
+	flags := flag.NewFlagSet("ecs-cli", 0)
+	flags.String(command.AccessKeyFlag, awsAccessKey, "")
+	flags.String(command.ProfileNameFlag, profileName, "")
+	config1 := cli.NewContext(nil, flags, nil)
+
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+	defer os.RemoveAll(tempDirName)
+
+	err = Profile(config1)
+	assert.Error(t, err, "Expected error configuring profile")
+
+}
+
+func TestConfigureProfileNoProfileName(t *testing.T) {
+	flags := flag.NewFlagSet("ecs-cli", 0)
+	flags.String(command.AccessKeyFlag, awsAccessKey, "")
+	flags.String(command.SecretKeyFlag, awsSecretKey, "")
+	config1 := cli.NewContext(nil, flags, nil)
+
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+	defer os.RemoveAll(tempDirName)
+
+	err = Profile(config1)
+	assert.Error(t, err, "Expected error configuring profile")
+
+}
+
+func TestDefaultClusterDoesNotExist(t *testing.T) {
+	config1 := createClusterConfig(profileName, clusterName)
+	config2 := createClusterConfig(secondProfile, secondCluster)
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+	defer os.RemoveAll(tempDirName)
+
+	// configure 2 profiles and set one as default
+	err = Cluster(config1)
+	assert.NoError(t, err, "Unexpected error configuring cluster")
+	err = DefaultCluster(config2)
+	assert.Error(t, err, "Expected error configuring cluster")
+}
+
+func TestDefaultProfileDoesNotExist(t *testing.T) {
+	config1 := createProfileConfig(profileName, awsAccessKey)
+	config2 := createProfileConfig(secondProfile, awsAccessKey2)
+
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+	defer os.RemoveAll(tempDirName)
+
+	// configure 2 profiles and set one as default
+	err = Profile(config1)
+	assert.NoError(t, err, "Unexpected error configuring profile")
+	err = DefaultProfile(config2)
+	assert.Error(t, err, "Expected error configuring profile")
 
 }

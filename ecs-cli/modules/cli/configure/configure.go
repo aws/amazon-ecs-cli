@@ -14,23 +14,36 @@
 package configure
 
 import (
+	"errors"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/urfave/cli"
 )
 
-// ConfigureCluster is the callback for ConfigureCommand (cluster).
-func ConfigureCluster(context *cli.Context) {
-	// get relevant fields
+func fieldEmpty(flag string, context *cli.Context) bool {
+	field := context.String(flag)
+	if field == "" {
+		logrus.Errorf("%s can not be empty.", flag)
+		return true
+	}
+	return false
+}
+
+// Cluster is the callback for ConfigureCommand (cluster).
+// Note: The error returned is only used in the unit tests
+// This function is called by urfave/cli which does not check the error returned
+func Cluster(context *cli.Context) error {
+	// validate fields not empty
+	if fieldEmpty(command.RegionFlag, context) || fieldEmpty(command.ConfigNameFlag, context) || fieldEmpty(command.ClusterFlag, context) {
+		// fieldEmpty() will log the error; returned error is only used for unit tests
+		return errors.New("a required field was empty")
+	}
+
 	region := context.String(command.RegionFlag)
 	clusterProfileName := context.String(command.ConfigNameFlag)
 	cluster := context.String(command.ClusterFlag)
-
-	if clusterProfileName == "" {
-		logrus.Error("Cluster Config Name can not be empty.")
-		return
-	}
 
 	clusterConfig := &config.Cluster{Cluster: cluster, Region: region}
 
@@ -38,16 +51,26 @@ func ConfigureCluster(context *cli.Context) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
 		logrus.Error("Error saving cluster configuration: ", err)
-		return
+		return err
 	}
 	if err = rdwr.SaveCluster(clusterProfileName, clusterConfig); err != nil {
 		logrus.Error("Error saving cluster configuration: ", err)
+		return err
 	}
+
+	return nil
 }
 
-// ConfigureCluster is the callback for Configure Profile subcommand.
-func ConfigureProfile(context *cli.Context) {
-	// get relevant fields
+// Profile is the callback for Configure Profile subcommand.
+// Note: The error returned is only used in the unit tests
+// This function is called by urfave/cli which does not check the error returned
+func Profile(context *cli.Context) error {
+	// validate fields not empty
+	if fieldEmpty(command.SecretKeyFlag, context) || fieldEmpty(command.AccessKeyFlag, context) || fieldEmpty(command.ProfileNameFlag, context) {
+		// fieldEmpty() will log the error; returned error is only used for unit tests
+		return errors.New("a required field was empty")
+	}
+
 	secretKey := context.String(command.SecretKeyFlag)
 	profileName := context.String(command.ProfileNameFlag)
 	accessKey := context.String(command.AccessKeyFlag)
@@ -58,16 +81,26 @@ func ConfigureProfile(context *cli.Context) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
 		logrus.Error("Error saving profile: ", err)
-		return
+		return err
 	}
 	if err = rdwr.SaveProfile(profileName, profile); err != nil {
 		logrus.Error("Error saving profile: ", err)
+		return err
 	}
 
+	return nil
 }
 
-// ConfigureCluster is the callback for Configure Profile Default subcommand.
-func ConfigureDefaultProfile(context *cli.Context) {
+// DefaultProfile is the callback for Configure Profile Default subcommand.
+// Note: The error returned is only used in the unit tests
+// This function is called by urfave/cli which does not check the error returned
+func DefaultProfile(context *cli.Context) error {
+	// validate field not empty
+	if fieldEmpty(command.ProfileNameFlag, context) {
+		// fieldEmpty() will log the error; returned error is only used for unit tests
+		return errors.New("Profile name can not be empty")
+	}
+
 	// get relevant fields
 	profileName := context.String(command.ProfileNameFlag)
 
@@ -75,16 +108,25 @@ func ConfigureDefaultProfile(context *cli.Context) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
 		logrus.Error("Error setting default config: ", err)
-		return
+		return err
 	}
 	if err = rdwr.SetDefaultProfile(profileName); err != nil {
 		logrus.Error("Error setting default config: ", err)
+		return err
 	}
 
+	return nil
 }
 
-// ConfigureCluster is the callback for Configure Cluster Default subcommand.
-func ConfigureDefaultCluster(context *cli.Context) {
+// DefaultCluster is the callback for Configure Cluster Default subcommand.
+// Note: The error returned is only used in the unit tests
+// This function is called by urfave/cli which does not check the error returned
+func DefaultCluster(context *cli.Context) error {
+	// validate field not empty
+	if fieldEmpty(command.ConfigNameFlag, context) {
+		// fieldEmpty() will log the error; returned error is only used for unit tests
+		return errors.New("Config name can not be empty")
+	}
 	// get relevant fields
 	clusterName := context.String(command.ConfigNameFlag)
 
@@ -92,9 +134,12 @@ func ConfigureDefaultCluster(context *cli.Context) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
 		logrus.Error("Error setting default config: ", err)
-		return
+		return err
 	}
 	if err = rdwr.SetDefaultCluster(clusterName); err != nil {
 		logrus.Error("Error setting default config: ", err)
+		return err
 	}
+
+	return nil
 }

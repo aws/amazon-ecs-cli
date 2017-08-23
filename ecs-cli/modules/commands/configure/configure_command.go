@@ -26,19 +26,19 @@ func ConfigureCommand() cli.Command {
 	return cli.Command{
 		Name:   "configure",
 		Usage:  "Stores a single cluster configuration.",
-		Action: configure.ConfigureCluster,
+		Action: configure.Cluster,
 		Flags:  configureFlags(),
 		Subcommands: []cli.Command{
 			cli.Command{
 				Name:   "profile",
 				Usage:  "Stores a single profile.",
-				Action: configure.ConfigureProfile,
+				Action: configure.Profile,
 				Flags:  configureProfileFlags(),
 				Subcommands: []cli.Command{
 					cli.Command{
 						Name:   "default",
 						Usage:  "Sets the default profile.",
-						Action: configure.ConfigureDefaultProfile,
+						Action: configure.DefaultProfile,
 						Flags:  configureDefaultProfileFlags(),
 					},
 				},
@@ -46,7 +46,7 @@ func ConfigureCommand() cli.Command {
 			cli.Command{
 				Name:   "default",
 				Usage:  "Sets the default cluster config.",
-				Action: configure.ConfigureDefaultCluster,
+				Action: configure.DefaultCluster,
 				Flags:  configureDefaultClusterFlags(),
 			},
 		},
