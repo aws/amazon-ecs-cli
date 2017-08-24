@@ -22,6 +22,7 @@ import (
 	"github.com/urfave/cli"
 )
 
+// fieldEmptywill logs an error message for empty fields
 func fieldEmpty(flag string, context *cli.Context) bool {
 	field := context.String(flag)
 	if field == "" {
@@ -35,7 +36,6 @@ func fieldEmpty(flag string, context *cli.Context) bool {
 // Note: The error returned is only used in the unit tests
 // This function is called by urfave/cli which does not check the error returned
 func Cluster(context *cli.Context) error {
-	// validate fields not empty
 	if fieldEmpty(command.RegionFlag, context) || fieldEmpty(command.ConfigNameFlag, context) || fieldEmpty(command.ClusterFlag, context) {
 		// fieldEmpty() will log the error; returned error is only used for unit tests
 		return errors.New("a required field was empty")

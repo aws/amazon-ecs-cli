@@ -92,14 +92,8 @@ func configureProfileFlags() []cli.Flag {
 			EnvVar: "AWS_SECRET_ACCESS_KEY",
 		},
 		cli.StringFlag{
-			Name: flags.ProfileFlag + ", p",
-			Usage: fmt.Sprintf(
-				"Specifies your AWS credentials with an existing named profile from ~/.aws/credentials. Will use value of your $AWS_PROFILE environment variable if it is set.",
-			),
-			EnvVar: "AWS_PROFILE",
-		},
-		cli.StringFlag{
-			Name: flags.ProfileNameFlag,
+			Name:  flags.ProfileNameFlag,
+			Value: "default",
 			Usage: fmt.Sprintf(
 				"Specifies the name of the profile that will be stored in the configs.",
 			),
@@ -124,7 +118,8 @@ func configureFlags() []cli.Flag {
 			EnvVar: flags.AwsRegionEnvVar,
 		},
 		cli.StringFlag{
-			Name: flags.ConfigNameFlag,
+			Name:  flags.ConfigNameFlag,
+			Value: "default",
 			Usage: fmt.Sprintf(
 				"Specifies the name of the Profile that will be stored in the configs.",
 			),
