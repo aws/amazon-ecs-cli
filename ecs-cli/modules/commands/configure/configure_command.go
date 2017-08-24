@@ -16,17 +16,29 @@ package configureCommand
 import (
 	"fmt"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/configure"
 	flags "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/urfave/cli"
 )
+
+type configureAction func(*cli.Context) error
+
+func errorLogger(action configureAction) func(context *cli.Context) {
+	return func(context *cli.Context) {
+		err := action(context)
+		if err != nil {
+			logrus.Fatal(err)
+		}
+	}
+}
 
 // ConfigureCommand configure command help
 func ConfigureCommand() cli.Command {
 	return cli.Command{
 		Name:   "configure",
 		Usage:  "Stores a single cluster configuration.",
-		Action: configure.Cluster,
+		Action: errorLogger(configure.Cluster),
 		Flags:  configureFlags(),
 		Subcommands: []cli.Command{
 			cli.Command{
@@ -38,7 +50,7 @@ func ConfigureCommand() cli.Command {
 					cli.Command{
 						Name:   "default",
 						Usage:  "Sets the default profile.",
-						Action: configure.DefaultProfile,
+						Action: errorLogger(configure.DefaultProfile),
 						Flags:  configureDefaultProfileFlags(),
 					},
 				},
@@ -46,7 +58,7 @@ func ConfigureCommand() cli.Command {
 			cli.Command{
 				Name:   "default",
 				Usage:  "Sets the default cluster config.",
-				Action: configure.DefaultCluster,
+				Action: errorLogger(configure.DefaultCluster),
 				Flags:  configureDefaultClusterFlags(),
 			},
 		},
