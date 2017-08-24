@@ -1,10 +1,13 @@
 # Changelog
 
+## 0.6.4
+* Feature - Update AMI to amzn-ami-2017.03.f-amazon-ecs-optimized
+
 ## 0.6.3
 * Feature - Update AMI to amzn-ami-2017.03.e-amazon-ecs-optimized
 * Feature - Support configurable timeout using new `--timeout` flag in `ecs-cli compose service` commands.
 * Enhancement - Print service events when `ecs-cli compose service up` is run
-* Feature - Support custom instance role by `--instance-role` flag in `ecs-cli up` command.  
+* Feature - Support custom instance role by `--instance-role` flag in `ecs-cli up` command.
 
 
 ## 0.6.2
