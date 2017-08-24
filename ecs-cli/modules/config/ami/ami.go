@@ -4,7 +4,7 @@
 // not use this file except in compliance with the License. A copy of the
 // License is located at
 //
-//	http://aws.amazon.com/apache2.0/
+//      http://aws.amazon.com/apache2.0/
 //
 // or in the "license" file accompanying this file. This file is distributed
 // on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -28,19 +28,19 @@ type staticAmiIds struct {
 
 func NewStaticAmiIds() ECSAmiIds {
 	regionToId := make(map[string]string)
-	// amzn-ami-2017.03.e-amazon-ecs-optimized AMIs
-	regionToId["us-east-1"] = "ami-d61027ad"
-	regionToId["us-east-2"] = "ami-bb8eaede"
-	regionToId["us-west-1"] = "ami-514e6431"
-	regionToId["us-west-2"] = "ami-c6f81abe"
-	regionToId["ca-central-1"] = "ami-32bb0556"
-	regionToId["cn-north-1"] = "ami-49d80824"
-	regionToId["eu-central-1"] = "ami-f15ff69e"
-	regionToId["eu-west-1"] = "ami-bd7e8dc4"
-	regionToId["eu-west-2"] = "ami-0a85946e"
-	regionToId["ap-northeast-1"] = "ami-ab5ea9cd"
-	regionToId["ap-southeast-1"] = "ami-ae0b91cd"
-	regionToId["ap-southeast-2"] = "ami-c3233ba0"
+	// amzn-ami-2017.03.f-amazon-ecs-optimized AMIs
+	regionToId["us-east-1"] = "ami-9eb4b1e5"
+	regionToId["us-east-2"] = "ami-1c002379"
+	regionToId["us-west-1"] = "ami-4a2c192a"
+	regionToId["us-west-2"] = "ami-1d668865"
+	regionToId["ca-central-1"] = "ami-b677c9d2"
+	regionToId["cn-north-1"] = "ami-28e63645"
+	regionToId["eu-central-1"] = "ami-0460cb6b"
+	regionToId["eu-west-1"] = "ami-8fcc32f6"
+	regionToId["eu-west-2"] = "ami-cb1101af"
+	regionToId["ap-northeast-1"] = "ami-b743bed1"
+	regionToId["ap-southeast-1"] = "ami-9d1f7efe"
+	regionToId["ap-southeast-2"] = "ami-c1a6bda2"
 
 	return &staticAmiIds{regionToId: regionToId}
 }
