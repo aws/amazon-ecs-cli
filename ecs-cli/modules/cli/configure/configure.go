@@ -22,33 +22,30 @@ import (
 	"github.com/urfave/cli"
 )
 
-func fieldEmpty(flag string, context *cli.Context) error {
-	field := context.String(flag)
+func fieldEmpty(field string, flagName string) error {
 	if field == "" {
-		return fmt.Errorf("%s can not be empty.", flag)
+		return fmt.Errorf("%s can not be empty.", flagName)
 	}
 	return nil
 }
 
 // Cluster is the callback for ConfigureCommand (cluster).
 func Cluster(context *cli.Context) error {
-	if err := fieldEmpty(command.RegionFlag, context); err != nil {
-		return err
-	}
-	if err := fieldEmpty(command.ConfigNameFlag, context); err != nil {
-		return err
-	}
-	if err := fieldEmpty(command.ClusterFlag, context); err != nil {
-		return err
-	}
-
 	region := context.String(command.RegionFlag)
+	if err := fieldEmpty(region, command.RegionFlag); err != nil {
+		return err
+	}
 	clusterProfileName := context.String(command.ConfigNameFlag)
+	if err := fieldEmpty(clusterProfileName, command.ConfigNameFlag); err != nil {
+		return err
+	}
 	cluster := context.String(command.ClusterFlag)
+	if err := fieldEmpty(cluster, command.ClusterFlag); err != nil {
+		return err
+	}
 
 	clusterConfig := &config.Cluster{Cluster: cluster, Region: region}
 
-	// modify the profile config file
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
 		return errors.Wrap(err, "Error saving cluster configuration")
@@ -62,23 +59,20 @@ func Cluster(context *cli.Context) error {
 
 // Profile is the callback for Configure Profile subcommand.
 func Profile(context *cli.Context) error {
-	if err := fieldEmpty(command.SecretKeyFlag, context); err != nil {
-		return err
-	}
-	if err := fieldEmpty(command.AccessKeyFlag, context); err != nil {
-		return err
-	}
-	if err := fieldEmpty(command.ProfileNameFlag, context); err != nil {
-		return err
-	}
-
 	secretKey := context.String(command.SecretKeyFlag)
-	profileName := context.String(command.ProfileNameFlag)
+	if err := fieldEmpty(secretKey, command.SecretKeyFlag); err != nil {
+		return err
+	}
 	accessKey := context.String(command.AccessKeyFlag)
-
+	if err := fieldEmpty(accessKey, command.AccessKeyFlag); err != nil {
+		return err
+	}
+	profileName := context.String(command.ProfileNameFlag)
+	if err := fieldEmpty(profileName, command.ProfileNameFlag); err != nil {
+		return err
+	}
 	profile := &config.Profile{AWSAccessKey: accessKey, AWSSecretKey: secretKey}
 
-	// modify the profile config file
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
 		return errors.Wrap(err, "Error saving profile")
@@ -92,15 +86,11 @@ func Profile(context *cli.Context) error {
 
 // DefaultProfile is the callback for Configure Profile Default subcommand.
 func DefaultProfile(context *cli.Context) error {
-	// validate field not empty
-	if err := fieldEmpty(command.ProfileNameFlag, context); err != nil {
+	profileName := context.String(command.ProfileNameFlag)
+	if err := fieldEmpty(profileName, command.ProfileNameFlag); err != nil {
 		return err
 	}
 
-	// get relevant fields
-	profileName := context.String(command.ProfileNameFlag)
-
-	// modify the profile config file
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
 		return errors.Wrap(err, "Error setting default config")
@@ -114,14 +104,11 @@ func DefaultProfile(context *cli.Context) error {
 
 // DefaultCluster is the callback for Configure Cluster Default subcommand.
 func DefaultCluster(context *cli.Context) error {
-	// validate field not empty
-	if err := fieldEmpty(command.ConfigNameFlag, context); err != nil {
+	clusterName := context.String(command.ConfigNameFlag)
+	if err := fieldEmpty(clusterName, command.ConfigNameFlag); err != nil {
 		return err
 	}
-	// get relevant fields
-	clusterName := context.String(command.ConfigNameFlag)
 
-	// modify the profile config file
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
 		return errors.Wrap(err, "Error setting default config")

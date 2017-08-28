@@ -30,11 +30,12 @@ const (
 	secondCluster = "alternateCluster"
 	stackName     = "defaultCluster"
 	profileName   = "defaultProfile"
-	secondProfile = "alternate"
+	profileName2  = "alternate"
 	region        = "us-west-1"
 	awsAccessKey  = "AKID"
 	awsAccessKey2 = "AKID2"
 	awsSecretKey  = "SKID"
+	awsSecretKey2 = "SKID2"
 )
 
 func createClusterConfig(name string, cluster string) *cli.Context {
@@ -45,17 +46,17 @@ func createClusterConfig(name string, cluster string) *cli.Context {
 	return cli.NewContext(nil, flags, nil)
 }
 
-func createProfileConfig(name string, accessKey string) *cli.Context {
+func createProfileConfig(name string, accessKey string, secretKey string) *cli.Context {
 	flags := flag.NewFlagSet("ecs-cli", 0)
 	flags.String(command.AccessKeyFlag, accessKey, "")
-	flags.String(command.SecretKeyFlag, awsSecretKey, "")
+	flags.String(command.SecretKeyFlag, secretKey, "")
 	flags.String(command.ProfileNameFlag, name, "")
 	return cli.NewContext(nil, flags, nil)
 }
 
 func TestDefaultCluster(t *testing.T) {
 	config1 := createClusterConfig(profileName, clusterName)
-	config2 := createClusterConfig(secondProfile, secondCluster)
+	config2 := createClusterConfig(profileName2, secondCluster)
 	// Create a temprorary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
@@ -86,8 +87,8 @@ func TestDefaultCluster(t *testing.T) {
 }
 
 func TestDefaultProfile(t *testing.T) {
-	config1 := createProfileConfig(profileName, awsAccessKey)
-	config2 := createProfileConfig(secondProfile, awsAccessKey2)
+	config1 := createProfileConfig(profileName, awsAccessKey, awsSecretKey)
+	config2 := createProfileConfig(profileName2, awsAccessKey2, awsSecretKey2)
 
 	// Create a temprorary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
@@ -111,7 +112,7 @@ func TestDefaultProfile(t *testing.T) {
 	readConfig, err := parser.Get("", "")
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, awsAccessKey2, readConfig.AWSAccessKey, "Access Key mismatch in config.")
-	assert.Equal(t, awsSecretKey, readConfig.AWSSecretKey, "Secret Key name mismatch in config.")
+	assert.Equal(t, awsSecretKey2, readConfig.AWSSecretKey, "Secret Key name mismatch in config.")
 	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
 	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
@@ -119,7 +120,7 @@ func TestDefaultProfile(t *testing.T) {
 }
 
 func TestConfigureProfile(t *testing.T) {
-	config1 := createProfileConfig(profileName, awsAccessKey)
+	config1 := createProfileConfig(profileName, awsAccessKey, awsSecretKey)
 
 	// Create a temprorary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
@@ -295,7 +296,7 @@ func TestConfigureProfileNoProfileName(t *testing.T) {
 
 func TestDefaultClusterDoesNotExist(t *testing.T) {
 	config1 := createClusterConfig(profileName, clusterName)
-	config2 := createClusterConfig(secondProfile, secondCluster)
+	config2 := createClusterConfig(profileName2, secondCluster)
 	// Create a temprorary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
@@ -313,8 +314,8 @@ func TestDefaultClusterDoesNotExist(t *testing.T) {
 }
 
 func TestDefaultProfileDoesNotExist(t *testing.T) {
-	config1 := createProfileConfig(profileName, awsAccessKey)
-	config2 := createProfileConfig(secondProfile, awsAccessKey2)
+	config1 := createProfileConfig(profileName, awsAccessKey, awsSecretKey)
+	config2 := createProfileConfig(profileName2, awsAccessKey2, awsSecretKey2)
 
 	// Create a temprorary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")

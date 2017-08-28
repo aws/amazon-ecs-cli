@@ -33,6 +33,36 @@ func errorLogger(action configureAction) func(context *cli.Context) {
 	}
 }
 
+func configureProfileCommand() cli.Command {
+	return cli.Command{
+		Name:   "profile",
+		Usage:  "Stores a single profile.",
+		Action: errorLogger(configure.Profile),
+		Flags:  configureProfileFlags(),
+		Subcommands: []cli.Command{
+			defaultProfileCommand(),
+		},
+	}
+}
+
+func defaultProfileCommand() cli.Command {
+	return cli.Command{
+		Name:   "default",
+		Usage:  "Sets the default profile.",
+		Action: errorLogger(configure.DefaultProfile),
+		Flags:  configureDefaultProfileFlags(),
+	}
+}
+
+func defaultClusterCommand() cli.Command {
+	return cli.Command{
+		Name:   "default",
+		Usage:  "Sets the default cluster config.",
+		Action: errorLogger(configure.DefaultCluster),
+		Flags:  configureDefaultClusterFlags(),
+	}
+}
+
 // ConfigureCommand configure command help
 func ConfigureCommand() cli.Command {
 	return cli.Command{
@@ -41,26 +71,8 @@ func ConfigureCommand() cli.Command {
 		Action: errorLogger(configure.Cluster),
 		Flags:  configureFlags(),
 		Subcommands: []cli.Command{
-			cli.Command{
-				Name:   "profile",
-				Usage:  "Stores a single profile.",
-				Action: configure.Profile,
-				Flags:  configureProfileFlags(),
-				Subcommands: []cli.Command{
-					cli.Command{
-						Name:   "default",
-						Usage:  "Sets the default profile.",
-						Action: errorLogger(configure.DefaultProfile),
-						Flags:  configureDefaultProfileFlags(),
-					},
-				},
-			},
-			cli.Command{
-				Name:   "default",
-				Usage:  "Sets the default cluster config.",
-				Action: errorLogger(configure.DefaultCluster),
-				Flags:  configureDefaultClusterFlags(),
-			},
+			configureProfileCommand(),
+			defaultClusterCommand(),
 		},
 	}
 }
