@@ -43,7 +43,7 @@ type CLIConfig struct {
 	AWSAccessKey             string
 	AWSSecretKey             string
 	ComposeServiceNamePrefix string
-	CFNStackNamePrefix       string
+	CFNStackName             string
 }
 
 // Profile is a simple struct for storing a single profile config

@@ -126,7 +126,7 @@ cfn-stack-name-prefix =
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, testClusterName, readConfig.Cluster, "Cluster name mismatch in config.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
-	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+	assert.Equal(t, testClusterName, readConfig.CFNStackName, "CFNStackName should be set to cluster name.")
 }
 
 func TestPrefixesDefaultOldINIFormat(t *testing.T) {
@@ -152,7 +152,7 @@ aws_secret_access_key =
 	config, err := parser.Get("", "")
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, ecscli.ComposeServiceNamePrefixDefaultValue, config.ComposeServiceNamePrefix, "ComposeServiceNamePrefix should be set to the default value.")
-	assert.Equal(t, ecscli.CFNStackNamePrefixDefaultValue, config.CFNStackNamePrefix, "CFNStackNamePrefix should be set to the default value.")
+	assert.Equal(t, ecscli.CFNStackNamePrefixDefaultValue+"test", config.CFNStackName, "CFNStackNamePrefix should be set to the default value.")
 }
 
 func TestReadCredentialsFile(t *testing.T) {
@@ -269,6 +269,6 @@ cfn-stack-name-prefix = amazon-ecs-cli-setup-
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, testClusterName, readConfig.Cluster, "Cluster name mismatch in config.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
-	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
 
 }

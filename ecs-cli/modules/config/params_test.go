@@ -123,7 +123,7 @@ func TestNewCliParamsWhenPrefixesPresent(t *testing.T) {
 	params, err := NewCLIParams(context, rdwr)
 	assert.NoError(t, err, "Unexpected error when getting new cli params")
 	assert.Empty(t, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
-	assert.Empty(t, params.CFNStackNamePrefix, "Expected CFNStackNamePrefix to be empty")
+	assert.Equal(t, clusterName, params.CFNStackName, "Expected CFNStackName to be default")
 }
 
 func TestNewCliParamsWhenPrefixKeysAreNotPresent(t *testing.T) {
@@ -141,7 +141,7 @@ func TestNewCliParamsWhenPrefixKeysAreNotPresent(t *testing.T) {
 	params, err := NewCLIParams(context, rdwr)
 	assert.NoError(t, err, "Unexpected error when getting new cli params")
 	assert.Empty(t, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
-	assert.Empty(t, params.CFNStackNamePrefix, "Expected CFNStackNamePrefix to be empty")
+	assert.Equal(t, clusterName, params.CFNStackName, "Expected CFNStackName to be default")
 }
 
 func defaultConfig() *cli.Context {

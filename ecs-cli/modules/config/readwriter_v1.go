@@ -125,7 +125,7 @@ func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfi
 	// This is necessary because the readINI function may have set them to the old default values
 	// That is due to a known problem with the old ini library in which it does not throw an error
 	// even if the file is not ini formatted
-	cliConfig.CFNStackNamePrefix = ""
+	cliConfig.CFNStackName = ""
 	return nil
 
 }
