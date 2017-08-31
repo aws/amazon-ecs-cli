@@ -149,46 +149,16 @@ func configureFlags() []cli.Flag {
 			),
 		},
 		cli.StringFlag{
-			Name: flags.AccessKeyFlag,
-			Usage: fmt.Sprintf(
-				"Specifies the AWS access key to use. Will use value of your $AWS_ACCESS_KEY_ID environment variable if it is set.",
-			),
-			EnvVar: "AWS_ACCESS_KEY_ID",
-		},
-		cli.StringFlag{
-			Name: flags.SecretKeyFlag,
-			Usage: fmt.Sprintf(
-				"Specifies the AWS secret key to use. Will use value of your $AWS_SECRET_ACCESS_KEY environment variable if it is set.",
-			),
-			EnvVar: "AWS_SECRET_ACCESS_KEY",
-		},
-		cli.StringFlag{
-			Name: flags.ProfileFlag + ", p",
-			Usage: fmt.Sprintf(
-				"Specifies your AWS credentials with an existing named profile from ~/.aws/credentials. Will use value of your $AWS_PROFILE environment variable if it is set.",
-			),
-			EnvVar: "AWS_PROFILE",
-		},
-
-		cli.StringFlag{
-			Name:  flags.ComposeProjectNamePrefixFlag,
-			Value: flags.ComposeProjectNamePrefixDefaultValue,
-			Usage: fmt.Sprintf(
-				"[Optional] Specifies the prefix added to an ECS task definition created from a compose file. Format <prefix><project-name>.",
-			),
-		},
-		cli.StringFlag{
 			Name:  flags.ComposeServiceNamePrefixFlag,
 			Value: flags.ComposeServiceNamePrefixDefaultValue,
 			Usage: fmt.Sprintf(
-				"[Optional] Specifies the prefix added to an ECS service created from a compose file. Format <prefix><project-name>.",
+				"[Deprecated] Specifies the prefix added to an ECS service created from a compose file. Format <prefix><project-name>. (defaults to empty)",
 			),
 		},
 		cli.StringFlag{
-			Name:  flags.CFNStackNamePrefixFlag,
-			Value: flags.CFNStackNamePrefixDefaultValue,
+			Name: flags.CFNStackNameFlag,
 			Usage: fmt.Sprintf(
-				"[Optional] Specifies the prefix added to the AWS CloudFormation stack created on ecs-cli up. Format <prefix><cluster-name>.",
+				"[Optional] Specifies the name of AWS CloudFormation stack created on ecs-cli up. (default: \"amazon-ecs-cli-setup-<cluster-name>\")",
 			),
 		},
 	}

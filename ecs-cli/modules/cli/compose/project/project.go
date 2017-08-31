@@ -20,10 +20,10 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/service"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/task"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 )
 
 // Project is the starting point for the compose app to interact with and issue commands
@@ -134,7 +134,7 @@ func (p *ecsProject) transformTaskDefinition() error {
 
 	// convert to task definition
 	logrus.Debug("Transforming yaml to task definition...")
-	taskDefinitionName := utils.GetTaskDefinitionName(context.ECSParams.ComposeProjectNamePrefix, context.Context.ProjectName)
+	taskDefinitionName := utils.GetTaskDefinitionName("", context.Context.ProjectName)
 	taskRoleArn := context.CLIContext.GlobalString(command.TaskRoleArnFlag)
 	taskDefinition, err := utils.ConvertToTaskDefinition(taskDefinitionName, &context.Context, p.ServiceConfigs(), taskRoleArn)
 	if err != nil {

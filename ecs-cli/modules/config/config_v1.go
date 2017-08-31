@@ -42,7 +42,6 @@ type CLIConfig struct {
 	Region                   string
 	AWSAccessKey             string
 	AWSSecretKey             string
-	ComposeProjectNamePrefix string
 	ComposeServiceNamePrefix string
 	CFNStackNamePrefix       string
 }

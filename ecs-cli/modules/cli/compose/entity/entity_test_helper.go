@@ -57,7 +57,7 @@ func TestInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasks
 		TaskArn:              aws.String("taskArn/taskId"),
 		Containers:           []*ecs.Container{container},
 		ContainerInstanceArn: aws.String(containerInstance),
-		Group:                aws.String(composeutils.GetTaskGroup("", projectName)),
+		Group:                aws.String(composeutils.GetTaskGroup(projectName)),
 	}
 
 	// Deperecated

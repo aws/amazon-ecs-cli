@@ -126,7 +126,6 @@ func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfi
 	// That is due to a known problem with the old ini library in which it does not throw an error
 	// even if the file is not ini formatted
 	cliConfig.CFNStackNamePrefix = ""
-	cliConfig.ComposeProjectNamePrefix = ""
 	return nil
 
 }

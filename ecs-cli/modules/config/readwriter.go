@@ -86,7 +86,6 @@ func (rdwr *INIReadWriter) GetConfig(cliConfig *CLIConfig) error {
 	cliConfig.AWSProfile = iniFormat.AwsProfile
 	cliConfig.AWSAccessKey = iniFormat.AWSAccessKey
 	cliConfig.AWSSecretKey = iniFormat.AWSSecretKey
-	cliConfig.ComposeProjectNamePrefix = iniFormat.ComposeProjectNamePrefix
 	cliConfig.ComposeServiceNamePrefix = iniFormat.ComposeServiceNamePrefix
 	cliConfig.CFNStackNamePrefix = iniFormat.CFNStackNamePrefix
 	return nil
