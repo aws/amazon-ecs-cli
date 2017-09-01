@@ -46,7 +46,7 @@ type mockReadWriter struct {
 
 func (rdwr *mockReadWriter) Get(cluster string, profile string) (*config.CLIConfig, error) {
 	cliConfig := config.NewCLIConfig(rdwr.clusterName)
-	cliConfig.CFNStackNamePrefix = ""
+	cliConfig.CFNStackName = rdwr.clusterName
 	return cliConfig, nil
 }
 
@@ -474,7 +474,8 @@ func TestClusterUpWithoutRegion(t *testing.T) {
 func TestClusterDown(t *testing.T) {
 	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CLIParams, error) {
 		return &config.CLIParams{
-			Cluster: clusterName,
+			Cluster:      clusterName,
+			CFNStackName: stackName,
 		}, nil
 	}
 
@@ -522,7 +523,8 @@ func TestDeleteClusterPrompt(t *testing.T) {
 func TestClusterScale(t *testing.T) {
 	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CLIParams, error) {
 		return &config.CLIParams{
-			Cluster: clusterName,
+			Cluster:      clusterName,
+			CFNStackName: stackName,
 		}, nil
 	}
 	defer os.Clearenv()

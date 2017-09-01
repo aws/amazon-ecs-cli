@@ -80,9 +80,8 @@ func TestDefaultCluster(t *testing.T) {
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, region, readConfig.Region, "Region mismatch in config.")
 	assert.Equal(t, secondCluster, readConfig.Cluster, "Cluster name mismatch in config.")
-	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
-	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
 
 }
 
@@ -113,9 +112,8 @@ func TestDefaultProfile(t *testing.T) {
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, awsAccessKey2, readConfig.AWSAccessKey, "Access Key mismatch in config.")
 	assert.Equal(t, awsSecretKey2, readConfig.AWSSecretKey, "Secret Key name mismatch in config.")
-	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
-	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
 
 }
 
@@ -140,9 +138,8 @@ func TestConfigureProfile(t *testing.T) {
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, awsAccessKey, readConfig.AWSAccessKey, "Access Key mismatch in config.")
 	assert.Equal(t, awsSecretKey, readConfig.AWSSecretKey, "Secret Key name mismatch in config.")
-	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
-	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
 
 }
 
@@ -166,9 +163,8 @@ func TestConfigureCluster(t *testing.T) {
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, region, readConfig.Region, "Region mismatch in config.")
 	assert.Equal(t, clusterName, readConfig.Cluster, "Cluster name mismatch in config.")
-	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
-	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
 
 }
 
