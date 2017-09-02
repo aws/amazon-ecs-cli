@@ -14,15 +14,42 @@
 package configure
 
 import (
+	"html/template"
 	"io/ioutil"
+	"os"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 )
 
-func migrateWarning(config *config.CLIConfig) {
-	dat, err := ioutil.ReadFile(path)
+func migrateWarning(cliConfig *config.CLIConfig) error {
+	var oldConfig string
+	dest, err := config.NewDefaultDestination()
 	if err != nil {
+		return err
 	}
+	dat, err := ioutil.ReadFile(config.ConfigFilePath(dest))
+	if err != nil {
+		return err
+	}
+	oldConfig = string(dat)
+
+	// format template
+	data := map[string]interface{}{
+		"OldConfig":                oldConfig,
+		"Cluster":                  cliConfig.Cluster,
+		"Region":                   cliConfig.Region,
+		"CFNStackName":             cliConfig.CFNStackName,
+		"ComposeServiceNamePrefix": cliConfig.ComposeServiceNamePrefix,
+		"AWSAccessKey":             cliConfig.AWSAccessKey,
+		"AWSSecretKey":             cliConfig.AWSSecretKey,
+	}
+
+	t := template.Must(template.New("message").Parse(messageTemplate))
+	if err := t.Execute(os.Stdout, data); err != nil {
+		return err
+	}
+
+	return nil
 
 }
 
@@ -35,20 +62,20 @@ Old config
 New configs
 -----------------------------------------------------
 ~/.ecs/config
-default: ecs
+default: default
 cluster-configurations:
-  ecs:
+  default:
   - cluster: {{.Cluster}}
-  - region: us-west-2
-  - cfn-stack-name: amazon-ecs-cli-setup-cli-demo
-  - compose-service-name-prefix: ecscompose-service-
+  - region: {{.Region}}
+  - cfn-stack-name: {{.CFNStackName}}
+  - compose-service-name-prefix: {{.ComposeServiceNamePrefix}}
 
 ~/.ecs/credentials
-default: ecs
+default: default
 credentials:
-  ecs:
-  - aws_access_key_id: *********
-  - aws_secret_access_key: *********
+  default:
+  - aws_access_key_id: {{.AWSAccessKey}}
+  - aws_secret_access_key: {{.AWSSecretKey}}
 
 [WARN] Please read the following changes carefully: <link to documentation>
 - compose-project-name-prefix and compose-service-name-prefix are deprecated, you can continue to specify your desired names using the runtime flag --project-name

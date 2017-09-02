@@ -14,7 +14,10 @@
 package configure
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
@@ -48,6 +51,17 @@ func Migrate(context *cli.Context) error {
 
 	if oldConfig.AWSProfile != "" {
 		logrus.Warnf("Storing AWS Profile in the config is no longer supported. Please use the %s flag inline in commands instead.", command.ProfileFlag)
+	}
+
+	if context.Bool(command.ForceFlag) {
+		migrateWarning(oldConfig)
+		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Scan()
+		input := scanner.Text()
+		if !strings.HasPrefix(input, "y") && !strings.HasPrefix(input, "Y") {
+			logrus.Info("Aborting Migration.")
+			return nil
+		}
 	}
 
 	cluster := &config.Cluster{Cluster: oldConfig.Cluster, Region: oldConfig.Region, CFNStackName: oldConfig.CFNStackName, ComposeServiceNamePrefix: oldConfig.ComposeServiceNamePrefix}

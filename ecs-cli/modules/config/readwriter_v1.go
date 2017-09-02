@@ -66,7 +66,7 @@ func NewReadWriter() (*YAMLReadWriter, error) {
 
 func readINI(dest *Destination, cliConfig *CLIConfig) error {
 	// Only read if the file exists; ini library is not good about throwing file not exist errors
-	if _, err := os.Stat(configFilePath(dest)); err == nil {
+	if _, err := os.Stat(ConfigFilePath(dest)); err == nil {
 		iniReadWriter, err := NewINIReadWriter(dest)
 		if err != nil {
 			return err
@@ -155,7 +155,7 @@ func readProfileConfig(path string, profileConfigKey string, cliConfig *CLIConfi
 func (rdwr *YAMLReadWriter) Get(clusterConfig string, profileConfig string) (*CLIConfig, error) {
 	cliConfig := &CLIConfig{}
 	profilePath := credentialsFilePath(rdwr.destination)
-	configPath := configFilePath(rdwr.destination)
+	configPath := ConfigFilePath(rdwr.destination)
 
 	// try to readINI first; it is either sucessful or it
 	// set cliConfig to be its default value (all fields empty strings)
@@ -236,7 +236,7 @@ func (rdwr *YAMLReadWriter) SaveProfile(configName string, profile *Profile) err
 
 // SaveCluster save a single cluster configuration
 func (rdwr *YAMLReadWriter) SaveCluster(configName string, cluster *Cluster) error {
-	path := configFilePath(rdwr.destination)
+	path := ConfigFilePath(rdwr.destination)
 
 	// if no err on read- then existing yaml config
 	config, err := readClusterFile(path)
@@ -274,7 +274,7 @@ func (rdwr *YAMLReadWriter) SetDefaultProfile(configName string) error {
 
 // SetDefaultCluster updates which cluster configuration is default
 func (rdwr *YAMLReadWriter) SetDefaultCluster(configName string) error {
-	path := configFilePath(rdwr.destination)
+	path := ConfigFilePath(rdwr.destination)
 	config, err := readClusterFile(path)
 	if err != nil {
 		return err
@@ -294,6 +294,6 @@ func credentialsFilePath(dest *Destination) string {
 	return filepath.Join(dest.Path, profileConfigFileName)
 }
 
-func configFilePath(dest *Destination) string {
+func ConfigFilePath(dest *Destination) string {
 	return filepath.Join(dest.Path, clusterConfigFileName)
 }

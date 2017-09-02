@@ -71,7 +71,7 @@ func TestConfigPermissions(t *testing.T) {
 	// Create config file and confirm it has expected initial permissions
 	saveClusterConfig(t, parser, dest)
 
-	path := configFilePath(dest)
+	path := ConfigFilePath(dest)
 	confirmConfigMode(t, path, configFileMode)
 
 	// Now set the config mode to something bad
@@ -116,7 +116,7 @@ cfn-stack-name-prefix =
 	assert.NoError(t, err, "Could not create config directory")
 	defer os.RemoveAll(dest.Path)
 
-	err = ioutil.WriteFile(configFilePath(dest), []byte(configContents), *dest.Mode)
+	err = ioutil.WriteFile(ConfigFilePath(dest), []byte(configContents), *dest.Mode)
 	assert.NoError(t, err)
 
 	// Reinitialize from the written file.
