@@ -40,7 +40,6 @@ const (
 	ComposeProjectNamePrefixDefaultValue = "ecscompose-"
 	ComposeServiceNamePrefixFlag         = "compose-service-name-prefix"
 	ComposeServiceNamePrefixDefaultValue = ComposeProjectNamePrefixDefaultValue + "service-"
-	CFNStackNamePrefixFlag               = "cfn-stack-name-prefix"
 	CFNStackNameFlag                     = "cfn-stack-name"
 	CFNStackNamePrefixDefaultValue       = "amazon-ecs-cli-setup-"
 

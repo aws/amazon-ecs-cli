@@ -56,7 +56,7 @@ type YAMLReadWriter struct {
 
 // NewReadWriter creates a new Parser object.
 func NewReadWriter() (*YAMLReadWriter, error) {
-	dest, err := newDefaultDestination()
+	dest, err := NewDefaultDestination()
 	if err != nil {
 		return nil, err
 	}
@@ -121,11 +121,7 @@ func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfi
 	cliConfig.Region = cluster.Region
 	cliConfig.Cluster = cluster.Cluster
 	cliConfig.ComposeServiceNamePrefix = cluster.ComposeServiceNamePrefix
-	// set prefixes to empty
-	// This is necessary because the readINI function may have set them to the old default values
-	// That is due to a known problem with the old ini library in which it does not throw an error
-	// even if the file is not ini formatted
-	cliConfig.CFNStackName = ""
+	cliConfig.CFNStackName = cluster.CFNStackName
 	return nil
 
 }
@@ -157,7 +153,7 @@ func readProfileConfig(path string, profileConfigKey string, cliConfig *CLIConfi
 // This function either reads the old single configuration file
 // Or if the new files are present, it reads from them instead
 func (rdwr *YAMLReadWriter) Get(clusterConfig string, profileConfig string) (*CLIConfig, error) {
-	cliConfig := &CLIConfig{} // read the raw bytes of the config file
+	cliConfig := &CLIConfig{}
 	profilePath := credentialsFilePath(rdwr.destination)
 	configPath := configFilePath(rdwr.destination)
 
@@ -201,7 +197,7 @@ func (rdwr *YAMLReadWriter) saveConfig(path string, config interface{}) error {
 	}
 
 	// If config file exists, set permissions first, because we may be writing creds.
-	if _, err := os.Stat(path); err == nil {
+	if _, err = os.Stat(path); err == nil {
 		if err = os.Chmod(path, configFileMode); err != nil {
 			logrus.Errorf("Unable to chmod %s to mode %s", path, configFileMode)
 			return err

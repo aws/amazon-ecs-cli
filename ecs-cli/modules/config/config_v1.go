@@ -57,6 +57,7 @@ type Cluster struct {
 	Cluster                  string `yaml:"cluster"`
 	Region                   string `yaml:"region"`
 	ComposeServiceNamePrefix string `yaml:"compose-service-name-prefix"`
+	CFNStackName             string `yaml:"cfn-stack-name"`
 }
 
 // ClusterConfig is the top level struct representing the cluster config file
