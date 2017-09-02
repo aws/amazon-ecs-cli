@@ -17,6 +17,7 @@
 package mock_ec2iface
 
 import (
+	aws "github.com/aws/aws-sdk-go/aws"
 	request "github.com/aws/aws-sdk-go/aws/request"
 	ec2 "github.com/aws/aws-sdk-go/service/ec2"
 	gomock "github.com/golang/mock/gomock"
@@ -65,6 +66,22 @@ func (_mr *_MockEC2APIRecorder) AcceptReservedInstancesExchangeQuoteRequest(arg0
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AcceptReservedInstancesExchangeQuoteRequest", arg0)
 }
 
+func (_m *MockEC2API) AcceptReservedInstancesExchangeQuoteWithContext(_param0 aws.Context, _param1 *ec2.AcceptReservedInstancesExchangeQuoteInput, _param2 ...request.Option) (*ec2.AcceptReservedInstancesExchangeQuoteOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AcceptReservedInstancesExchangeQuoteWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.AcceptReservedInstancesExchangeQuoteOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AcceptReservedInstancesExchangeQuoteWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AcceptReservedInstancesExchangeQuoteWithContext", _s...)
+}
+
 func (_m *MockEC2API) AcceptVpcPeeringConnection(_param0 *ec2.AcceptVpcPeeringConnectionInput) (*ec2.AcceptVpcPeeringConnectionOutput, error) {
 	ret := _m.ctrl.Call(_m, "AcceptVpcPeeringConnection", _param0)
 	ret0, _ := ret[0].(*ec2.AcceptVpcPeeringConnectionOutput)
@@ -85,6 +102,22 @@ func (_m *MockEC2API) AcceptVpcPeeringConnectionRequest(_param0 *ec2.AcceptVpcPe
 
 func (_mr *_MockEC2APIRecorder) AcceptVpcPeeringConnectionRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AcceptVpcPeeringConnectionRequest", arg0)
+}
+
+func (_m *MockEC2API) AcceptVpcPeeringConnectionWithContext(_param0 aws.Context, _param1 *ec2.AcceptVpcPeeringConnectionInput, _param2 ...request.Option) (*ec2.AcceptVpcPeeringConnectionOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AcceptVpcPeeringConnectionWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.AcceptVpcPeeringConnectionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AcceptVpcPeeringConnectionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AcceptVpcPeeringConnectionWithContext", _s...)
 }
 
 func (_m *MockEC2API) AllocateAddress(_param0 *ec2.AllocateAddressInput) (*ec2.AllocateAddressOutput, error) {
@@ -109,6 +142,22 @@ func (_mr *_MockEC2APIRecorder) AllocateAddressRequest(arg0 interface{}) *gomock
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AllocateAddressRequest", arg0)
 }
 
+func (_m *MockEC2API) AllocateAddressWithContext(_param0 aws.Context, _param1 *ec2.AllocateAddressInput, _param2 ...request.Option) (*ec2.AllocateAddressOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AllocateAddressWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.AllocateAddressOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AllocateAddressWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AllocateAddressWithContext", _s...)
+}
+
 func (_m *MockEC2API) AllocateHosts(_param0 *ec2.AllocateHostsInput) (*ec2.AllocateHostsOutput, error) {
 	ret := _m.ctrl.Call(_m, "AllocateHosts", _param0)
 	ret0, _ := ret[0].(*ec2.AllocateHostsOutput)
@@ -129,6 +178,22 @@ func (_m *MockEC2API) AllocateHostsRequest(_param0 *ec2.AllocateHostsInput) (*re
 
 func (_mr *_MockEC2APIRecorder) AllocateHostsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AllocateHostsRequest", arg0)
+}
+
+func (_m *MockEC2API) AllocateHostsWithContext(_param0 aws.Context, _param1 *ec2.AllocateHostsInput, _param2 ...request.Option) (*ec2.AllocateHostsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AllocateHostsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.AllocateHostsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AllocateHostsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AllocateHostsWithContext", _s...)
 }
 
 func (_m *MockEC2API) AssignIpv6Addresses(_param0 *ec2.AssignIpv6AddressesInput) (*ec2.AssignIpv6AddressesOutput, error) {
@@ -153,6 +218,22 @@ func (_mr *_MockEC2APIRecorder) AssignIpv6AddressesRequest(arg0 interface{}) *go
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AssignIpv6AddressesRequest", arg0)
 }
 
+func (_m *MockEC2API) AssignIpv6AddressesWithContext(_param0 aws.Context, _param1 *ec2.AssignIpv6AddressesInput, _param2 ...request.Option) (*ec2.AssignIpv6AddressesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AssignIpv6AddressesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.AssignIpv6AddressesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AssignIpv6AddressesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AssignIpv6AddressesWithContext", _s...)
+}
+
 func (_m *MockEC2API) AssignPrivateIpAddresses(_param0 *ec2.AssignPrivateIpAddressesInput) (*ec2.AssignPrivateIpAddressesOutput, error) {
 	ret := _m.ctrl.Call(_m, "AssignPrivateIpAddresses", _param0)
 	ret0, _ := ret[0].(*ec2.AssignPrivateIpAddressesOutput)
@@ -173,6 +254,22 @@ func (_m *MockEC2API) AssignPrivateIpAddressesRequest(_param0 *ec2.AssignPrivate
 
 func (_mr *_MockEC2APIRecorder) AssignPrivateIpAddressesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AssignPrivateIpAddressesRequest", arg0)
+}
+
+func (_m *MockEC2API) AssignPrivateIpAddressesWithContext(_param0 aws.Context, _param1 *ec2.AssignPrivateIpAddressesInput, _param2 ...request.Option) (*ec2.AssignPrivateIpAddressesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AssignPrivateIpAddressesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.AssignPrivateIpAddressesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AssignPrivateIpAddressesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AssignPrivateIpAddressesWithContext", _s...)
 }
 
 func (_m *MockEC2API) AssociateAddress(_param0 *ec2.AssociateAddressInput) (*ec2.AssociateAddressOutput, error) {
@@ -197,6 +294,22 @@ func (_mr *_MockEC2APIRecorder) AssociateAddressRequest(arg0 interface{}) *gomoc
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AssociateAddressRequest", arg0)
 }
 
+func (_m *MockEC2API) AssociateAddressWithContext(_param0 aws.Context, _param1 *ec2.AssociateAddressInput, _param2 ...request.Option) (*ec2.AssociateAddressOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AssociateAddressWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.AssociateAddressOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AssociateAddressWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AssociateAddressWithContext", _s...)
+}
+
 func (_m *MockEC2API) AssociateDhcpOptions(_param0 *ec2.AssociateDhcpOptionsInput) (*ec2.AssociateDhcpOptionsOutput, error) {
 	ret := _m.ctrl.Call(_m, "AssociateDhcpOptions", _param0)
 	ret0, _ := ret[0].(*ec2.AssociateDhcpOptionsOutput)
@@ -217,6 +330,22 @@ func (_m *MockEC2API) AssociateDhcpOptionsRequest(_param0 *ec2.AssociateDhcpOpti
 
 func (_mr *_MockEC2APIRecorder) AssociateDhcpOptionsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AssociateDhcpOptionsRequest", arg0)
+}
+
+func (_m *MockEC2API) AssociateDhcpOptionsWithContext(_param0 aws.Context, _param1 *ec2.AssociateDhcpOptionsInput, _param2 ...request.Option) (*ec2.AssociateDhcpOptionsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AssociateDhcpOptionsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.AssociateDhcpOptionsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AssociateDhcpOptionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AssociateDhcpOptionsWithContext", _s...)
 }
 
 func (_m *MockEC2API) AssociateIamInstanceProfile(_param0 *ec2.AssociateIamInstanceProfileInput) (*ec2.AssociateIamInstanceProfileOutput, error) {
@@ -241,6 +370,22 @@ func (_mr *_MockEC2APIRecorder) AssociateIamInstanceProfileRequest(arg0 interfac
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AssociateIamInstanceProfileRequest", arg0)
 }
 
+func (_m *MockEC2API) AssociateIamInstanceProfileWithContext(_param0 aws.Context, _param1 *ec2.AssociateIamInstanceProfileInput, _param2 ...request.Option) (*ec2.AssociateIamInstanceProfileOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AssociateIamInstanceProfileWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.AssociateIamInstanceProfileOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AssociateIamInstanceProfileWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AssociateIamInstanceProfileWithContext", _s...)
+}
+
 func (_m *MockEC2API) AssociateRouteTable(_param0 *ec2.AssociateRouteTableInput) (*ec2.AssociateRouteTableOutput, error) {
 	ret := _m.ctrl.Call(_m, "AssociateRouteTable", _param0)
 	ret0, _ := ret[0].(*ec2.AssociateRouteTableOutput)
@@ -261,6 +406,22 @@ func (_m *MockEC2API) AssociateRouteTableRequest(_param0 *ec2.AssociateRouteTabl
 
 func (_mr *_MockEC2APIRecorder) AssociateRouteTableRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AssociateRouteTableRequest", arg0)
+}
+
+func (_m *MockEC2API) AssociateRouteTableWithContext(_param0 aws.Context, _param1 *ec2.AssociateRouteTableInput, _param2 ...request.Option) (*ec2.AssociateRouteTableOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AssociateRouteTableWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.AssociateRouteTableOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AssociateRouteTableWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AssociateRouteTableWithContext", _s...)
 }
 
 func (_m *MockEC2API) AssociateSubnetCidrBlock(_param0 *ec2.AssociateSubnetCidrBlockInput) (*ec2.AssociateSubnetCidrBlockOutput, error) {
@@ -285,6 +446,22 @@ func (_mr *_MockEC2APIRecorder) AssociateSubnetCidrBlockRequest(arg0 interface{}
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AssociateSubnetCidrBlockRequest", arg0)
 }
 
+func (_m *MockEC2API) AssociateSubnetCidrBlockWithContext(_param0 aws.Context, _param1 *ec2.AssociateSubnetCidrBlockInput, _param2 ...request.Option) (*ec2.AssociateSubnetCidrBlockOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AssociateSubnetCidrBlockWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.AssociateSubnetCidrBlockOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AssociateSubnetCidrBlockWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AssociateSubnetCidrBlockWithContext", _s...)
+}
+
 func (_m *MockEC2API) AssociateVpcCidrBlock(_param0 *ec2.AssociateVpcCidrBlockInput) (*ec2.AssociateVpcCidrBlockOutput, error) {
 	ret := _m.ctrl.Call(_m, "AssociateVpcCidrBlock", _param0)
 	ret0, _ := ret[0].(*ec2.AssociateVpcCidrBlockOutput)
@@ -305,6 +482,22 @@ func (_m *MockEC2API) AssociateVpcCidrBlockRequest(_param0 *ec2.AssociateVpcCidr
 
 func (_mr *_MockEC2APIRecorder) AssociateVpcCidrBlockRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AssociateVpcCidrBlockRequest", arg0)
+}
+
+func (_m *MockEC2API) AssociateVpcCidrBlockWithContext(_param0 aws.Context, _param1 *ec2.AssociateVpcCidrBlockInput, _param2 ...request.Option) (*ec2.AssociateVpcCidrBlockOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AssociateVpcCidrBlockWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.AssociateVpcCidrBlockOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AssociateVpcCidrBlockWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AssociateVpcCidrBlockWithContext", _s...)
 }
 
 func (_m *MockEC2API) AttachClassicLinkVpc(_param0 *ec2.AttachClassicLinkVpcInput) (*ec2.AttachClassicLinkVpcOutput, error) {
@@ -329,6 +522,22 @@ func (_mr *_MockEC2APIRecorder) AttachClassicLinkVpcRequest(arg0 interface{}) *g
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AttachClassicLinkVpcRequest", arg0)
 }
 
+func (_m *MockEC2API) AttachClassicLinkVpcWithContext(_param0 aws.Context, _param1 *ec2.AttachClassicLinkVpcInput, _param2 ...request.Option) (*ec2.AttachClassicLinkVpcOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AttachClassicLinkVpcWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.AttachClassicLinkVpcOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AttachClassicLinkVpcWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AttachClassicLinkVpcWithContext", _s...)
+}
+
 func (_m *MockEC2API) AttachInternetGateway(_param0 *ec2.AttachInternetGatewayInput) (*ec2.AttachInternetGatewayOutput, error) {
 	ret := _m.ctrl.Call(_m, "AttachInternetGateway", _param0)
 	ret0, _ := ret[0].(*ec2.AttachInternetGatewayOutput)
@@ -349,6 +558,22 @@ func (_m *MockEC2API) AttachInternetGatewayRequest(_param0 *ec2.AttachInternetGa
 
 func (_mr *_MockEC2APIRecorder) AttachInternetGatewayRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AttachInternetGatewayRequest", arg0)
+}
+
+func (_m *MockEC2API) AttachInternetGatewayWithContext(_param0 aws.Context, _param1 *ec2.AttachInternetGatewayInput, _param2 ...request.Option) (*ec2.AttachInternetGatewayOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AttachInternetGatewayWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.AttachInternetGatewayOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AttachInternetGatewayWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AttachInternetGatewayWithContext", _s...)
 }
 
 func (_m *MockEC2API) AttachNetworkInterface(_param0 *ec2.AttachNetworkInterfaceInput) (*ec2.AttachNetworkInterfaceOutput, error) {
@@ -373,6 +598,22 @@ func (_mr *_MockEC2APIRecorder) AttachNetworkInterfaceRequest(arg0 interface{}) 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AttachNetworkInterfaceRequest", arg0)
 }
 
+func (_m *MockEC2API) AttachNetworkInterfaceWithContext(_param0 aws.Context, _param1 *ec2.AttachNetworkInterfaceInput, _param2 ...request.Option) (*ec2.AttachNetworkInterfaceOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AttachNetworkInterfaceWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.AttachNetworkInterfaceOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AttachNetworkInterfaceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AttachNetworkInterfaceWithContext", _s...)
+}
+
 func (_m *MockEC2API) AttachVolume(_param0 *ec2.AttachVolumeInput) (*ec2.VolumeAttachment, error) {
 	ret := _m.ctrl.Call(_m, "AttachVolume", _param0)
 	ret0, _ := ret[0].(*ec2.VolumeAttachment)
@@ -393,6 +634,22 @@ func (_m *MockEC2API) AttachVolumeRequest(_param0 *ec2.AttachVolumeInput) (*requ
 
 func (_mr *_MockEC2APIRecorder) AttachVolumeRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AttachVolumeRequest", arg0)
+}
+
+func (_m *MockEC2API) AttachVolumeWithContext(_param0 aws.Context, _param1 *ec2.AttachVolumeInput, _param2 ...request.Option) (*ec2.VolumeAttachment, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AttachVolumeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.VolumeAttachment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AttachVolumeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AttachVolumeWithContext", _s...)
 }
 
 func (_m *MockEC2API) AttachVpnGateway(_param0 *ec2.AttachVpnGatewayInput) (*ec2.AttachVpnGatewayOutput, error) {
@@ -417,6 +674,22 @@ func (_mr *_MockEC2APIRecorder) AttachVpnGatewayRequest(arg0 interface{}) *gomoc
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AttachVpnGatewayRequest", arg0)
 }
 
+func (_m *MockEC2API) AttachVpnGatewayWithContext(_param0 aws.Context, _param1 *ec2.AttachVpnGatewayInput, _param2 ...request.Option) (*ec2.AttachVpnGatewayOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AttachVpnGatewayWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.AttachVpnGatewayOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AttachVpnGatewayWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AttachVpnGatewayWithContext", _s...)
+}
+
 func (_m *MockEC2API) AuthorizeSecurityGroupEgress(_param0 *ec2.AuthorizeSecurityGroupEgressInput) (*ec2.AuthorizeSecurityGroupEgressOutput, error) {
 	ret := _m.ctrl.Call(_m, "AuthorizeSecurityGroupEgress", _param0)
 	ret0, _ := ret[0].(*ec2.AuthorizeSecurityGroupEgressOutput)
@@ -437,6 +710,22 @@ func (_m *MockEC2API) AuthorizeSecurityGroupEgressRequest(_param0 *ec2.Authorize
 
 func (_mr *_MockEC2APIRecorder) AuthorizeSecurityGroupEgressRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AuthorizeSecurityGroupEgressRequest", arg0)
+}
+
+func (_m *MockEC2API) AuthorizeSecurityGroupEgressWithContext(_param0 aws.Context, _param1 *ec2.AuthorizeSecurityGroupEgressInput, _param2 ...request.Option) (*ec2.AuthorizeSecurityGroupEgressOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AuthorizeSecurityGroupEgressWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.AuthorizeSecurityGroupEgressOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AuthorizeSecurityGroupEgressWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AuthorizeSecurityGroupEgressWithContext", _s...)
 }
 
 func (_m *MockEC2API) AuthorizeSecurityGroupIngress(_param0 *ec2.AuthorizeSecurityGroupIngressInput) (*ec2.AuthorizeSecurityGroupIngressOutput, error) {
@@ -461,6 +750,22 @@ func (_mr *_MockEC2APIRecorder) AuthorizeSecurityGroupIngressRequest(arg0 interf
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AuthorizeSecurityGroupIngressRequest", arg0)
 }
 
+func (_m *MockEC2API) AuthorizeSecurityGroupIngressWithContext(_param0 aws.Context, _param1 *ec2.AuthorizeSecurityGroupIngressInput, _param2 ...request.Option) (*ec2.AuthorizeSecurityGroupIngressOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "AuthorizeSecurityGroupIngressWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.AuthorizeSecurityGroupIngressOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) AuthorizeSecurityGroupIngressWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AuthorizeSecurityGroupIngressWithContext", _s...)
+}
+
 func (_m *MockEC2API) BundleInstance(_param0 *ec2.BundleInstanceInput) (*ec2.BundleInstanceOutput, error) {
 	ret := _m.ctrl.Call(_m, "BundleInstance", _param0)
 	ret0, _ := ret[0].(*ec2.BundleInstanceOutput)
@@ -481,6 +786,22 @@ func (_m *MockEC2API) BundleInstanceRequest(_param0 *ec2.BundleInstanceInput) (*
 
 func (_mr *_MockEC2APIRecorder) BundleInstanceRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "BundleInstanceRequest", arg0)
+}
+
+func (_m *MockEC2API) BundleInstanceWithContext(_param0 aws.Context, _param1 *ec2.BundleInstanceInput, _param2 ...request.Option) (*ec2.BundleInstanceOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "BundleInstanceWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.BundleInstanceOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) BundleInstanceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "BundleInstanceWithContext", _s...)
 }
 
 func (_m *MockEC2API) CancelBundleTask(_param0 *ec2.CancelBundleTaskInput) (*ec2.CancelBundleTaskOutput, error) {
@@ -505,6 +826,22 @@ func (_mr *_MockEC2APIRecorder) CancelBundleTaskRequest(arg0 interface{}) *gomoc
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CancelBundleTaskRequest", arg0)
 }
 
+func (_m *MockEC2API) CancelBundleTaskWithContext(_param0 aws.Context, _param1 *ec2.CancelBundleTaskInput, _param2 ...request.Option) (*ec2.CancelBundleTaskOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CancelBundleTaskWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CancelBundleTaskOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CancelBundleTaskWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CancelBundleTaskWithContext", _s...)
+}
+
 func (_m *MockEC2API) CancelConversionTask(_param0 *ec2.CancelConversionTaskInput) (*ec2.CancelConversionTaskOutput, error) {
 	ret := _m.ctrl.Call(_m, "CancelConversionTask", _param0)
 	ret0, _ := ret[0].(*ec2.CancelConversionTaskOutput)
@@ -525,6 +862,22 @@ func (_m *MockEC2API) CancelConversionTaskRequest(_param0 *ec2.CancelConversionT
 
 func (_mr *_MockEC2APIRecorder) CancelConversionTaskRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CancelConversionTaskRequest", arg0)
+}
+
+func (_m *MockEC2API) CancelConversionTaskWithContext(_param0 aws.Context, _param1 *ec2.CancelConversionTaskInput, _param2 ...request.Option) (*ec2.CancelConversionTaskOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CancelConversionTaskWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CancelConversionTaskOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CancelConversionTaskWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CancelConversionTaskWithContext", _s...)
 }
 
 func (_m *MockEC2API) CancelExportTask(_param0 *ec2.CancelExportTaskInput) (*ec2.CancelExportTaskOutput, error) {
@@ -549,6 +902,22 @@ func (_mr *_MockEC2APIRecorder) CancelExportTaskRequest(arg0 interface{}) *gomoc
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CancelExportTaskRequest", arg0)
 }
 
+func (_m *MockEC2API) CancelExportTaskWithContext(_param0 aws.Context, _param1 *ec2.CancelExportTaskInput, _param2 ...request.Option) (*ec2.CancelExportTaskOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CancelExportTaskWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CancelExportTaskOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CancelExportTaskWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CancelExportTaskWithContext", _s...)
+}
+
 func (_m *MockEC2API) CancelImportTask(_param0 *ec2.CancelImportTaskInput) (*ec2.CancelImportTaskOutput, error) {
 	ret := _m.ctrl.Call(_m, "CancelImportTask", _param0)
 	ret0, _ := ret[0].(*ec2.CancelImportTaskOutput)
@@ -569,6 +938,22 @@ func (_m *MockEC2API) CancelImportTaskRequest(_param0 *ec2.CancelImportTaskInput
 
 func (_mr *_MockEC2APIRecorder) CancelImportTaskRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CancelImportTaskRequest", arg0)
+}
+
+func (_m *MockEC2API) CancelImportTaskWithContext(_param0 aws.Context, _param1 *ec2.CancelImportTaskInput, _param2 ...request.Option) (*ec2.CancelImportTaskOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CancelImportTaskWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CancelImportTaskOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CancelImportTaskWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CancelImportTaskWithContext", _s...)
 }
 
 func (_m *MockEC2API) CancelReservedInstancesListing(_param0 *ec2.CancelReservedInstancesListingInput) (*ec2.CancelReservedInstancesListingOutput, error) {
@@ -593,6 +978,22 @@ func (_mr *_MockEC2APIRecorder) CancelReservedInstancesListingRequest(arg0 inter
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CancelReservedInstancesListingRequest", arg0)
 }
 
+func (_m *MockEC2API) CancelReservedInstancesListingWithContext(_param0 aws.Context, _param1 *ec2.CancelReservedInstancesListingInput, _param2 ...request.Option) (*ec2.CancelReservedInstancesListingOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CancelReservedInstancesListingWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CancelReservedInstancesListingOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CancelReservedInstancesListingWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CancelReservedInstancesListingWithContext", _s...)
+}
+
 func (_m *MockEC2API) CancelSpotFleetRequests(_param0 *ec2.CancelSpotFleetRequestsInput) (*ec2.CancelSpotFleetRequestsOutput, error) {
 	ret := _m.ctrl.Call(_m, "CancelSpotFleetRequests", _param0)
 	ret0, _ := ret[0].(*ec2.CancelSpotFleetRequestsOutput)
@@ -613,6 +1014,22 @@ func (_m *MockEC2API) CancelSpotFleetRequestsRequest(_param0 *ec2.CancelSpotFlee
 
 func (_mr *_MockEC2APIRecorder) CancelSpotFleetRequestsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CancelSpotFleetRequestsRequest", arg0)
+}
+
+func (_m *MockEC2API) CancelSpotFleetRequestsWithContext(_param0 aws.Context, _param1 *ec2.CancelSpotFleetRequestsInput, _param2 ...request.Option) (*ec2.CancelSpotFleetRequestsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CancelSpotFleetRequestsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CancelSpotFleetRequestsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CancelSpotFleetRequestsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CancelSpotFleetRequestsWithContext", _s...)
 }
 
 func (_m *MockEC2API) CancelSpotInstanceRequests(_param0 *ec2.CancelSpotInstanceRequestsInput) (*ec2.CancelSpotInstanceRequestsOutput, error) {
@@ -637,6 +1054,22 @@ func (_mr *_MockEC2APIRecorder) CancelSpotInstanceRequestsRequest(arg0 interface
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CancelSpotInstanceRequestsRequest", arg0)
 }
 
+func (_m *MockEC2API) CancelSpotInstanceRequestsWithContext(_param0 aws.Context, _param1 *ec2.CancelSpotInstanceRequestsInput, _param2 ...request.Option) (*ec2.CancelSpotInstanceRequestsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CancelSpotInstanceRequestsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CancelSpotInstanceRequestsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CancelSpotInstanceRequestsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CancelSpotInstanceRequestsWithContext", _s...)
+}
+
 func (_m *MockEC2API) ConfirmProductInstance(_param0 *ec2.ConfirmProductInstanceInput) (*ec2.ConfirmProductInstanceOutput, error) {
 	ret := _m.ctrl.Call(_m, "ConfirmProductInstance", _param0)
 	ret0, _ := ret[0].(*ec2.ConfirmProductInstanceOutput)
@@ -657,6 +1090,22 @@ func (_m *MockEC2API) ConfirmProductInstanceRequest(_param0 *ec2.ConfirmProductI
 
 func (_mr *_MockEC2APIRecorder) ConfirmProductInstanceRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ConfirmProductInstanceRequest", arg0)
+}
+
+func (_m *MockEC2API) ConfirmProductInstanceWithContext(_param0 aws.Context, _param1 *ec2.ConfirmProductInstanceInput, _param2 ...request.Option) (*ec2.ConfirmProductInstanceOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ConfirmProductInstanceWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ConfirmProductInstanceOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ConfirmProductInstanceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ConfirmProductInstanceWithContext", _s...)
 }
 
 func (_m *MockEC2API) CopyImage(_param0 *ec2.CopyImageInput) (*ec2.CopyImageOutput, error) {
@@ -681,6 +1130,22 @@ func (_mr *_MockEC2APIRecorder) CopyImageRequest(arg0 interface{}) *gomock.Call 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CopyImageRequest", arg0)
 }
 
+func (_m *MockEC2API) CopyImageWithContext(_param0 aws.Context, _param1 *ec2.CopyImageInput, _param2 ...request.Option) (*ec2.CopyImageOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CopyImageWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CopyImageOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CopyImageWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CopyImageWithContext", _s...)
+}
+
 func (_m *MockEC2API) CopySnapshot(_param0 *ec2.CopySnapshotInput) (*ec2.CopySnapshotOutput, error) {
 	ret := _m.ctrl.Call(_m, "CopySnapshot", _param0)
 	ret0, _ := ret[0].(*ec2.CopySnapshotOutput)
@@ -701,6 +1166,22 @@ func (_m *MockEC2API) CopySnapshotRequest(_param0 *ec2.CopySnapshotInput) (*requ
 
 func (_mr *_MockEC2APIRecorder) CopySnapshotRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CopySnapshotRequest", arg0)
+}
+
+func (_m *MockEC2API) CopySnapshotWithContext(_param0 aws.Context, _param1 *ec2.CopySnapshotInput, _param2 ...request.Option) (*ec2.CopySnapshotOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CopySnapshotWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CopySnapshotOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CopySnapshotWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CopySnapshotWithContext", _s...)
 }
 
 func (_m *MockEC2API) CreateCustomerGateway(_param0 *ec2.CreateCustomerGatewayInput) (*ec2.CreateCustomerGatewayOutput, error) {
@@ -725,6 +1206,60 @@ func (_mr *_MockEC2APIRecorder) CreateCustomerGatewayRequest(arg0 interface{}) *
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateCustomerGatewayRequest", arg0)
 }
 
+func (_m *MockEC2API) CreateCustomerGatewayWithContext(_param0 aws.Context, _param1 *ec2.CreateCustomerGatewayInput, _param2 ...request.Option) (*ec2.CreateCustomerGatewayOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateCustomerGatewayWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateCustomerGatewayOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateCustomerGatewayWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateCustomerGatewayWithContext", _s...)
+}
+
+func (_m *MockEC2API) CreateDefaultVpc(_param0 *ec2.CreateDefaultVpcInput) (*ec2.CreateDefaultVpcOutput, error) {
+	ret := _m.ctrl.Call(_m, "CreateDefaultVpc", _param0)
+	ret0, _ := ret[0].(*ec2.CreateDefaultVpcOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateDefaultVpc(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateDefaultVpc", arg0)
+}
+
+func (_m *MockEC2API) CreateDefaultVpcRequest(_param0 *ec2.CreateDefaultVpcInput) (*request.Request, *ec2.CreateDefaultVpcOutput) {
+	ret := _m.ctrl.Call(_m, "CreateDefaultVpcRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.CreateDefaultVpcOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateDefaultVpcRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateDefaultVpcRequest", arg0)
+}
+
+func (_m *MockEC2API) CreateDefaultVpcWithContext(_param0 aws.Context, _param1 *ec2.CreateDefaultVpcInput, _param2 ...request.Option) (*ec2.CreateDefaultVpcOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateDefaultVpcWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateDefaultVpcOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateDefaultVpcWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateDefaultVpcWithContext", _s...)
+}
+
 func (_m *MockEC2API) CreateDhcpOptions(_param0 *ec2.CreateDhcpOptionsInput) (*ec2.CreateDhcpOptionsOutput, error) {
 	ret := _m.ctrl.Call(_m, "CreateDhcpOptions", _param0)
 	ret0, _ := ret[0].(*ec2.CreateDhcpOptionsOutput)
@@ -745,6 +1280,22 @@ func (_m *MockEC2API) CreateDhcpOptionsRequest(_param0 *ec2.CreateDhcpOptionsInp
 
 func (_mr *_MockEC2APIRecorder) CreateDhcpOptionsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateDhcpOptionsRequest", arg0)
+}
+
+func (_m *MockEC2API) CreateDhcpOptionsWithContext(_param0 aws.Context, _param1 *ec2.CreateDhcpOptionsInput, _param2 ...request.Option) (*ec2.CreateDhcpOptionsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateDhcpOptionsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateDhcpOptionsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateDhcpOptionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateDhcpOptionsWithContext", _s...)
 }
 
 func (_m *MockEC2API) CreateEgressOnlyInternetGateway(_param0 *ec2.CreateEgressOnlyInternetGatewayInput) (*ec2.CreateEgressOnlyInternetGatewayOutput, error) {
@@ -769,6 +1320,22 @@ func (_mr *_MockEC2APIRecorder) CreateEgressOnlyInternetGatewayRequest(arg0 inte
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEgressOnlyInternetGatewayRequest", arg0)
 }
 
+func (_m *MockEC2API) CreateEgressOnlyInternetGatewayWithContext(_param0 aws.Context, _param1 *ec2.CreateEgressOnlyInternetGatewayInput, _param2 ...request.Option) (*ec2.CreateEgressOnlyInternetGatewayOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateEgressOnlyInternetGatewayWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateEgressOnlyInternetGatewayOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateEgressOnlyInternetGatewayWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEgressOnlyInternetGatewayWithContext", _s...)
+}
+
 func (_m *MockEC2API) CreateFlowLogs(_param0 *ec2.CreateFlowLogsInput) (*ec2.CreateFlowLogsOutput, error) {
 	ret := _m.ctrl.Call(_m, "CreateFlowLogs", _param0)
 	ret0, _ := ret[0].(*ec2.CreateFlowLogsOutput)
@@ -789,6 +1356,60 @@ func (_m *MockEC2API) CreateFlowLogsRequest(_param0 *ec2.CreateFlowLogsInput) (*
 
 func (_mr *_MockEC2APIRecorder) CreateFlowLogsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateFlowLogsRequest", arg0)
+}
+
+func (_m *MockEC2API) CreateFlowLogsWithContext(_param0 aws.Context, _param1 *ec2.CreateFlowLogsInput, _param2 ...request.Option) (*ec2.CreateFlowLogsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateFlowLogsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateFlowLogsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateFlowLogsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateFlowLogsWithContext", _s...)
+}
+
+func (_m *MockEC2API) CreateFpgaImage(_param0 *ec2.CreateFpgaImageInput) (*ec2.CreateFpgaImageOutput, error) {
+	ret := _m.ctrl.Call(_m, "CreateFpgaImage", _param0)
+	ret0, _ := ret[0].(*ec2.CreateFpgaImageOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateFpgaImage(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateFpgaImage", arg0)
+}
+
+func (_m *MockEC2API) CreateFpgaImageRequest(_param0 *ec2.CreateFpgaImageInput) (*request.Request, *ec2.CreateFpgaImageOutput) {
+	ret := _m.ctrl.Call(_m, "CreateFpgaImageRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.CreateFpgaImageOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateFpgaImageRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateFpgaImageRequest", arg0)
+}
+
+func (_m *MockEC2API) CreateFpgaImageWithContext(_param0 aws.Context, _param1 *ec2.CreateFpgaImageInput, _param2 ...request.Option) (*ec2.CreateFpgaImageOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateFpgaImageWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateFpgaImageOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateFpgaImageWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateFpgaImageWithContext", _s...)
 }
 
 func (_m *MockEC2API) CreateImage(_param0 *ec2.CreateImageInput) (*ec2.CreateImageOutput, error) {
@@ -813,6 +1434,22 @@ func (_mr *_MockEC2APIRecorder) CreateImageRequest(arg0 interface{}) *gomock.Cal
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateImageRequest", arg0)
 }
 
+func (_m *MockEC2API) CreateImageWithContext(_param0 aws.Context, _param1 *ec2.CreateImageInput, _param2 ...request.Option) (*ec2.CreateImageOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateImageWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateImageOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateImageWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateImageWithContext", _s...)
+}
+
 func (_m *MockEC2API) CreateInstanceExportTask(_param0 *ec2.CreateInstanceExportTaskInput) (*ec2.CreateInstanceExportTaskOutput, error) {
 	ret := _m.ctrl.Call(_m, "CreateInstanceExportTask", _param0)
 	ret0, _ := ret[0].(*ec2.CreateInstanceExportTaskOutput)
@@ -833,6 +1470,22 @@ func (_m *MockEC2API) CreateInstanceExportTaskRequest(_param0 *ec2.CreateInstanc
 
 func (_mr *_MockEC2APIRecorder) CreateInstanceExportTaskRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateInstanceExportTaskRequest", arg0)
+}
+
+func (_m *MockEC2API) CreateInstanceExportTaskWithContext(_param0 aws.Context, _param1 *ec2.CreateInstanceExportTaskInput, _param2 ...request.Option) (*ec2.CreateInstanceExportTaskOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateInstanceExportTaskWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateInstanceExportTaskOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateInstanceExportTaskWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateInstanceExportTaskWithContext", _s...)
 }
 
 func (_m *MockEC2API) CreateInternetGateway(_param0 *ec2.CreateInternetGatewayInput) (*ec2.CreateInternetGatewayOutput, error) {
@@ -857,6 +1510,22 @@ func (_mr *_MockEC2APIRecorder) CreateInternetGatewayRequest(arg0 interface{}) *
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateInternetGatewayRequest", arg0)
 }
 
+func (_m *MockEC2API) CreateInternetGatewayWithContext(_param0 aws.Context, _param1 *ec2.CreateInternetGatewayInput, _param2 ...request.Option) (*ec2.CreateInternetGatewayOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateInternetGatewayWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateInternetGatewayOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateInternetGatewayWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateInternetGatewayWithContext", _s...)
+}
+
 func (_m *MockEC2API) CreateKeyPair(_param0 *ec2.CreateKeyPairInput) (*ec2.CreateKeyPairOutput, error) {
 	ret := _m.ctrl.Call(_m, "CreateKeyPair", _param0)
 	ret0, _ := ret[0].(*ec2.CreateKeyPairOutput)
@@ -879,6 +1548,22 @@ func (_mr *_MockEC2APIRecorder) CreateKeyPairRequest(arg0 interface{}) *gomock.C
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateKeyPairRequest", arg0)
 }
 
+func (_m *MockEC2API) CreateKeyPairWithContext(_param0 aws.Context, _param1 *ec2.CreateKeyPairInput, _param2 ...request.Option) (*ec2.CreateKeyPairOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateKeyPairWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateKeyPairOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateKeyPairWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateKeyPairWithContext", _s...)
+}
+
 func (_m *MockEC2API) CreateNatGateway(_param0 *ec2.CreateNatGatewayInput) (*ec2.CreateNatGatewayOutput, error) {
 	ret := _m.ctrl.Call(_m, "CreateNatGateway", _param0)
 	ret0, _ := ret[0].(*ec2.CreateNatGatewayOutput)
@@ -899,6 +1584,22 @@ func (_m *MockEC2API) CreateNatGatewayRequest(_param0 *ec2.CreateNatGatewayInput
 
 func (_mr *_MockEC2APIRecorder) CreateNatGatewayRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateNatGatewayRequest", arg0)
+}
+
+func (_m *MockEC2API) CreateNatGatewayWithContext(_param0 aws.Context, _param1 *ec2.CreateNatGatewayInput, _param2 ...request.Option) (*ec2.CreateNatGatewayOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateNatGatewayWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateNatGatewayOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateNatGatewayWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateNatGatewayWithContext", _s...)
 }
 
 func (_m *MockEC2API) CreateNetworkAcl(_param0 *ec2.CreateNetworkAclInput) (*ec2.CreateNetworkAclOutput, error) {
@@ -934,6 +1635,22 @@ func (_mr *_MockEC2APIRecorder) CreateNetworkAclEntryRequest(arg0 interface{}) *
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateNetworkAclEntryRequest", arg0)
 }
 
+func (_m *MockEC2API) CreateNetworkAclEntryWithContext(_param0 aws.Context, _param1 *ec2.CreateNetworkAclEntryInput, _param2 ...request.Option) (*ec2.CreateNetworkAclEntryOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateNetworkAclEntryWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateNetworkAclEntryOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateNetworkAclEntryWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateNetworkAclEntryWithContext", _s...)
+}
+
 func (_m *MockEC2API) CreateNetworkAclRequest(_param0 *ec2.CreateNetworkAclInput) (*request.Request, *ec2.CreateNetworkAclOutput) {
 	ret := _m.ctrl.Call(_m, "CreateNetworkAclRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -943,6 +1660,22 @@ func (_m *MockEC2API) CreateNetworkAclRequest(_param0 *ec2.CreateNetworkAclInput
 
 func (_mr *_MockEC2APIRecorder) CreateNetworkAclRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateNetworkAclRequest", arg0)
+}
+
+func (_m *MockEC2API) CreateNetworkAclWithContext(_param0 aws.Context, _param1 *ec2.CreateNetworkAclInput, _param2 ...request.Option) (*ec2.CreateNetworkAclOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateNetworkAclWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateNetworkAclOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateNetworkAclWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateNetworkAclWithContext", _s...)
 }
 
 func (_m *MockEC2API) CreateNetworkInterface(_param0 *ec2.CreateNetworkInterfaceInput) (*ec2.CreateNetworkInterfaceOutput, error) {
@@ -956,6 +1689,44 @@ func (_mr *_MockEC2APIRecorder) CreateNetworkInterface(arg0 interface{}) *gomock
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateNetworkInterface", arg0)
 }
 
+func (_m *MockEC2API) CreateNetworkInterfacePermission(_param0 *ec2.CreateNetworkInterfacePermissionInput) (*ec2.CreateNetworkInterfacePermissionOutput, error) {
+	ret := _m.ctrl.Call(_m, "CreateNetworkInterfacePermission", _param0)
+	ret0, _ := ret[0].(*ec2.CreateNetworkInterfacePermissionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateNetworkInterfacePermission(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateNetworkInterfacePermission", arg0)
+}
+
+func (_m *MockEC2API) CreateNetworkInterfacePermissionRequest(_param0 *ec2.CreateNetworkInterfacePermissionInput) (*request.Request, *ec2.CreateNetworkInterfacePermissionOutput) {
+	ret := _m.ctrl.Call(_m, "CreateNetworkInterfacePermissionRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.CreateNetworkInterfacePermissionOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateNetworkInterfacePermissionRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateNetworkInterfacePermissionRequest", arg0)
+}
+
+func (_m *MockEC2API) CreateNetworkInterfacePermissionWithContext(_param0 aws.Context, _param1 *ec2.CreateNetworkInterfacePermissionInput, _param2 ...request.Option) (*ec2.CreateNetworkInterfacePermissionOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateNetworkInterfacePermissionWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateNetworkInterfacePermissionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateNetworkInterfacePermissionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateNetworkInterfacePermissionWithContext", _s...)
+}
+
 func (_m *MockEC2API) CreateNetworkInterfaceRequest(_param0 *ec2.CreateNetworkInterfaceInput) (*request.Request, *ec2.CreateNetworkInterfaceOutput) {
 	ret := _m.ctrl.Call(_m, "CreateNetworkInterfaceRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -965,6 +1736,22 @@ func (_m *MockEC2API) CreateNetworkInterfaceRequest(_param0 *ec2.CreateNetworkIn
 
 func (_mr *_MockEC2APIRecorder) CreateNetworkInterfaceRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateNetworkInterfaceRequest", arg0)
+}
+
+func (_m *MockEC2API) CreateNetworkInterfaceWithContext(_param0 aws.Context, _param1 *ec2.CreateNetworkInterfaceInput, _param2 ...request.Option) (*ec2.CreateNetworkInterfaceOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateNetworkInterfaceWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateNetworkInterfaceOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateNetworkInterfaceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateNetworkInterfaceWithContext", _s...)
 }
 
 func (_m *MockEC2API) CreatePlacementGroup(_param0 *ec2.CreatePlacementGroupInput) (*ec2.CreatePlacementGroupOutput, error) {
@@ -989,6 +1776,22 @@ func (_mr *_MockEC2APIRecorder) CreatePlacementGroupRequest(arg0 interface{}) *g
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreatePlacementGroupRequest", arg0)
 }
 
+func (_m *MockEC2API) CreatePlacementGroupWithContext(_param0 aws.Context, _param1 *ec2.CreatePlacementGroupInput, _param2 ...request.Option) (*ec2.CreatePlacementGroupOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreatePlacementGroupWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreatePlacementGroupOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreatePlacementGroupWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreatePlacementGroupWithContext", _s...)
+}
+
 func (_m *MockEC2API) CreateReservedInstancesListing(_param0 *ec2.CreateReservedInstancesListingInput) (*ec2.CreateReservedInstancesListingOutput, error) {
 	ret := _m.ctrl.Call(_m, "CreateReservedInstancesListing", _param0)
 	ret0, _ := ret[0].(*ec2.CreateReservedInstancesListingOutput)
@@ -1009,6 +1812,22 @@ func (_m *MockEC2API) CreateReservedInstancesListingRequest(_param0 *ec2.CreateR
 
 func (_mr *_MockEC2APIRecorder) CreateReservedInstancesListingRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateReservedInstancesListingRequest", arg0)
+}
+
+func (_m *MockEC2API) CreateReservedInstancesListingWithContext(_param0 aws.Context, _param1 *ec2.CreateReservedInstancesListingInput, _param2 ...request.Option) (*ec2.CreateReservedInstancesListingOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateReservedInstancesListingWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateReservedInstancesListingOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateReservedInstancesListingWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateReservedInstancesListingWithContext", _s...)
 }
 
 func (_m *MockEC2API) CreateRoute(_param0 *ec2.CreateRouteInput) (*ec2.CreateRouteOutput, error) {
@@ -1055,6 +1874,38 @@ func (_mr *_MockEC2APIRecorder) CreateRouteTableRequest(arg0 interface{}) *gomoc
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateRouteTableRequest", arg0)
 }
 
+func (_m *MockEC2API) CreateRouteTableWithContext(_param0 aws.Context, _param1 *ec2.CreateRouteTableInput, _param2 ...request.Option) (*ec2.CreateRouteTableOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateRouteTableWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateRouteTableOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateRouteTableWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateRouteTableWithContext", _s...)
+}
+
+func (_m *MockEC2API) CreateRouteWithContext(_param0 aws.Context, _param1 *ec2.CreateRouteInput, _param2 ...request.Option) (*ec2.CreateRouteOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateRouteWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateRouteOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateRouteWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateRouteWithContext", _s...)
+}
+
 func (_m *MockEC2API) CreateSecurityGroup(_param0 *ec2.CreateSecurityGroupInput) (*ec2.CreateSecurityGroupOutput, error) {
 	ret := _m.ctrl.Call(_m, "CreateSecurityGroup", _param0)
 	ret0, _ := ret[0].(*ec2.CreateSecurityGroupOutput)
@@ -1075,6 +1926,22 @@ func (_m *MockEC2API) CreateSecurityGroupRequest(_param0 *ec2.CreateSecurityGrou
 
 func (_mr *_MockEC2APIRecorder) CreateSecurityGroupRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateSecurityGroupRequest", arg0)
+}
+
+func (_m *MockEC2API) CreateSecurityGroupWithContext(_param0 aws.Context, _param1 *ec2.CreateSecurityGroupInput, _param2 ...request.Option) (*ec2.CreateSecurityGroupOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateSecurityGroupWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateSecurityGroupOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateSecurityGroupWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateSecurityGroupWithContext", _s...)
 }
 
 func (_m *MockEC2API) CreateSnapshot(_param0 *ec2.CreateSnapshotInput) (*ec2.Snapshot, error) {
@@ -1099,6 +1966,22 @@ func (_mr *_MockEC2APIRecorder) CreateSnapshotRequest(arg0 interface{}) *gomock.
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateSnapshotRequest", arg0)
 }
 
+func (_m *MockEC2API) CreateSnapshotWithContext(_param0 aws.Context, _param1 *ec2.CreateSnapshotInput, _param2 ...request.Option) (*ec2.Snapshot, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateSnapshotWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.Snapshot)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateSnapshotWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateSnapshotWithContext", _s...)
+}
+
 func (_m *MockEC2API) CreateSpotDatafeedSubscription(_param0 *ec2.CreateSpotDatafeedSubscriptionInput) (*ec2.CreateSpotDatafeedSubscriptionOutput, error) {
 	ret := _m.ctrl.Call(_m, "CreateSpotDatafeedSubscription", _param0)
 	ret0, _ := ret[0].(*ec2.CreateSpotDatafeedSubscriptionOutput)
@@ -1119,6 +2002,22 @@ func (_m *MockEC2API) CreateSpotDatafeedSubscriptionRequest(_param0 *ec2.CreateS
 
 func (_mr *_MockEC2APIRecorder) CreateSpotDatafeedSubscriptionRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateSpotDatafeedSubscriptionRequest", arg0)
+}
+
+func (_m *MockEC2API) CreateSpotDatafeedSubscriptionWithContext(_param0 aws.Context, _param1 *ec2.CreateSpotDatafeedSubscriptionInput, _param2 ...request.Option) (*ec2.CreateSpotDatafeedSubscriptionOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateSpotDatafeedSubscriptionWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateSpotDatafeedSubscriptionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateSpotDatafeedSubscriptionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateSpotDatafeedSubscriptionWithContext", _s...)
 }
 
 func (_m *MockEC2API) CreateSubnet(_param0 *ec2.CreateSubnetInput) (*ec2.CreateSubnetOutput, error) {
@@ -1143,6 +2042,22 @@ func (_mr *_MockEC2APIRecorder) CreateSubnetRequest(arg0 interface{}) *gomock.Ca
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateSubnetRequest", arg0)
 }
 
+func (_m *MockEC2API) CreateSubnetWithContext(_param0 aws.Context, _param1 *ec2.CreateSubnetInput, _param2 ...request.Option) (*ec2.CreateSubnetOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateSubnetWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateSubnetOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateSubnetWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateSubnetWithContext", _s...)
+}
+
 func (_m *MockEC2API) CreateTags(_param0 *ec2.CreateTagsInput) (*ec2.CreateTagsOutput, error) {
 	ret := _m.ctrl.Call(_m, "CreateTags", _param0)
 	ret0, _ := ret[0].(*ec2.CreateTagsOutput)
@@ -1165,6 +2080,22 @@ func (_mr *_MockEC2APIRecorder) CreateTagsRequest(arg0 interface{}) *gomock.Call
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateTagsRequest", arg0)
 }
 
+func (_m *MockEC2API) CreateTagsWithContext(_param0 aws.Context, _param1 *ec2.CreateTagsInput, _param2 ...request.Option) (*ec2.CreateTagsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateTagsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateTagsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateTagsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateTagsWithContext", _s...)
+}
+
 func (_m *MockEC2API) CreateVolume(_param0 *ec2.CreateVolumeInput) (*ec2.Volume, error) {
 	ret := _m.ctrl.Call(_m, "CreateVolume", _param0)
 	ret0, _ := ret[0].(*ec2.Volume)
@@ -1185,6 +2116,22 @@ func (_m *MockEC2API) CreateVolumeRequest(_param0 *ec2.CreateVolumeInput) (*requ
 
 func (_mr *_MockEC2APIRecorder) CreateVolumeRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateVolumeRequest", arg0)
+}
+
+func (_m *MockEC2API) CreateVolumeWithContext(_param0 aws.Context, _param1 *ec2.CreateVolumeInput, _param2 ...request.Option) (*ec2.Volume, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateVolumeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.Volume)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateVolumeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateVolumeWithContext", _s...)
 }
 
 func (_m *MockEC2API) CreateVpc(_param0 *ec2.CreateVpcInput) (*ec2.CreateVpcOutput, error) {
@@ -1220,6 +2167,22 @@ func (_mr *_MockEC2APIRecorder) CreateVpcEndpointRequest(arg0 interface{}) *gomo
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateVpcEndpointRequest", arg0)
 }
 
+func (_m *MockEC2API) CreateVpcEndpointWithContext(_param0 aws.Context, _param1 *ec2.CreateVpcEndpointInput, _param2 ...request.Option) (*ec2.CreateVpcEndpointOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateVpcEndpointWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateVpcEndpointOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateVpcEndpointWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateVpcEndpointWithContext", _s...)
+}
+
 func (_m *MockEC2API) CreateVpcPeeringConnection(_param0 *ec2.CreateVpcPeeringConnectionInput) (*ec2.CreateVpcPeeringConnectionOutput, error) {
 	ret := _m.ctrl.Call(_m, "CreateVpcPeeringConnection", _param0)
 	ret0, _ := ret[0].(*ec2.CreateVpcPeeringConnectionOutput)
@@ -1242,6 +2205,22 @@ func (_mr *_MockEC2APIRecorder) CreateVpcPeeringConnectionRequest(arg0 interface
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateVpcPeeringConnectionRequest", arg0)
 }
 
+func (_m *MockEC2API) CreateVpcPeeringConnectionWithContext(_param0 aws.Context, _param1 *ec2.CreateVpcPeeringConnectionInput, _param2 ...request.Option) (*ec2.CreateVpcPeeringConnectionOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateVpcPeeringConnectionWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateVpcPeeringConnectionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateVpcPeeringConnectionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateVpcPeeringConnectionWithContext", _s...)
+}
+
 func (_m *MockEC2API) CreateVpcRequest(_param0 *ec2.CreateVpcInput) (*request.Request, *ec2.CreateVpcOutput) {
 	ret := _m.ctrl.Call(_m, "CreateVpcRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -1251,6 +2230,22 @@ func (_m *MockEC2API) CreateVpcRequest(_param0 *ec2.CreateVpcInput) (*request.Re
 
 func (_mr *_MockEC2APIRecorder) CreateVpcRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateVpcRequest", arg0)
+}
+
+func (_m *MockEC2API) CreateVpcWithContext(_param0 aws.Context, _param1 *ec2.CreateVpcInput, _param2 ...request.Option) (*ec2.CreateVpcOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateVpcWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateVpcOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateVpcWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateVpcWithContext", _s...)
 }
 
 func (_m *MockEC2API) CreateVpnConnection(_param0 *ec2.CreateVpnConnectionInput) (*ec2.CreateVpnConnectionOutput, error) {
@@ -1297,6 +2292,38 @@ func (_mr *_MockEC2APIRecorder) CreateVpnConnectionRouteRequest(arg0 interface{}
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateVpnConnectionRouteRequest", arg0)
 }
 
+func (_m *MockEC2API) CreateVpnConnectionRouteWithContext(_param0 aws.Context, _param1 *ec2.CreateVpnConnectionRouteInput, _param2 ...request.Option) (*ec2.CreateVpnConnectionRouteOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateVpnConnectionRouteWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateVpnConnectionRouteOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateVpnConnectionRouteWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateVpnConnectionRouteWithContext", _s...)
+}
+
+func (_m *MockEC2API) CreateVpnConnectionWithContext(_param0 aws.Context, _param1 *ec2.CreateVpnConnectionInput, _param2 ...request.Option) (*ec2.CreateVpnConnectionOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateVpnConnectionWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateVpnConnectionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateVpnConnectionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateVpnConnectionWithContext", _s...)
+}
+
 func (_m *MockEC2API) CreateVpnGateway(_param0 *ec2.CreateVpnGatewayInput) (*ec2.CreateVpnGatewayOutput, error) {
 	ret := _m.ctrl.Call(_m, "CreateVpnGateway", _param0)
 	ret0, _ := ret[0].(*ec2.CreateVpnGatewayOutput)
@@ -1317,6 +2344,22 @@ func (_m *MockEC2API) CreateVpnGatewayRequest(_param0 *ec2.CreateVpnGatewayInput
 
 func (_mr *_MockEC2APIRecorder) CreateVpnGatewayRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateVpnGatewayRequest", arg0)
+}
+
+func (_m *MockEC2API) CreateVpnGatewayWithContext(_param0 aws.Context, _param1 *ec2.CreateVpnGatewayInput, _param2 ...request.Option) (*ec2.CreateVpnGatewayOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateVpnGatewayWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateVpnGatewayOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateVpnGatewayWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateVpnGatewayWithContext", _s...)
 }
 
 func (_m *MockEC2API) DeleteCustomerGateway(_param0 *ec2.DeleteCustomerGatewayInput) (*ec2.DeleteCustomerGatewayOutput, error) {
@@ -1341,6 +2384,22 @@ func (_mr *_MockEC2APIRecorder) DeleteCustomerGatewayRequest(arg0 interface{}) *
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteCustomerGatewayRequest", arg0)
 }
 
+func (_m *MockEC2API) DeleteCustomerGatewayWithContext(_param0 aws.Context, _param1 *ec2.DeleteCustomerGatewayInput, _param2 ...request.Option) (*ec2.DeleteCustomerGatewayOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteCustomerGatewayWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteCustomerGatewayOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteCustomerGatewayWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteCustomerGatewayWithContext", _s...)
+}
+
 func (_m *MockEC2API) DeleteDhcpOptions(_param0 *ec2.DeleteDhcpOptionsInput) (*ec2.DeleteDhcpOptionsOutput, error) {
 	ret := _m.ctrl.Call(_m, "DeleteDhcpOptions", _param0)
 	ret0, _ := ret[0].(*ec2.DeleteDhcpOptionsOutput)
@@ -1361,6 +2420,22 @@ func (_m *MockEC2API) DeleteDhcpOptionsRequest(_param0 *ec2.DeleteDhcpOptionsInp
 
 func (_mr *_MockEC2APIRecorder) DeleteDhcpOptionsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteDhcpOptionsRequest", arg0)
+}
+
+func (_m *MockEC2API) DeleteDhcpOptionsWithContext(_param0 aws.Context, _param1 *ec2.DeleteDhcpOptionsInput, _param2 ...request.Option) (*ec2.DeleteDhcpOptionsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteDhcpOptionsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteDhcpOptionsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteDhcpOptionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteDhcpOptionsWithContext", _s...)
 }
 
 func (_m *MockEC2API) DeleteEgressOnlyInternetGateway(_param0 *ec2.DeleteEgressOnlyInternetGatewayInput) (*ec2.DeleteEgressOnlyInternetGatewayOutput, error) {
@@ -1385,6 +2460,22 @@ func (_mr *_MockEC2APIRecorder) DeleteEgressOnlyInternetGatewayRequest(arg0 inte
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteEgressOnlyInternetGatewayRequest", arg0)
 }
 
+func (_m *MockEC2API) DeleteEgressOnlyInternetGatewayWithContext(_param0 aws.Context, _param1 *ec2.DeleteEgressOnlyInternetGatewayInput, _param2 ...request.Option) (*ec2.DeleteEgressOnlyInternetGatewayOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteEgressOnlyInternetGatewayWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteEgressOnlyInternetGatewayOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteEgressOnlyInternetGatewayWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteEgressOnlyInternetGatewayWithContext", _s...)
+}
+
 func (_m *MockEC2API) DeleteFlowLogs(_param0 *ec2.DeleteFlowLogsInput) (*ec2.DeleteFlowLogsOutput, error) {
 	ret := _m.ctrl.Call(_m, "DeleteFlowLogs", _param0)
 	ret0, _ := ret[0].(*ec2.DeleteFlowLogsOutput)
@@ -1405,6 +2496,22 @@ func (_m *MockEC2API) DeleteFlowLogsRequest(_param0 *ec2.DeleteFlowLogsInput) (*
 
 func (_mr *_MockEC2APIRecorder) DeleteFlowLogsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteFlowLogsRequest", arg0)
+}
+
+func (_m *MockEC2API) DeleteFlowLogsWithContext(_param0 aws.Context, _param1 *ec2.DeleteFlowLogsInput, _param2 ...request.Option) (*ec2.DeleteFlowLogsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteFlowLogsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteFlowLogsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteFlowLogsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteFlowLogsWithContext", _s...)
 }
 
 func (_m *MockEC2API) DeleteInternetGateway(_param0 *ec2.DeleteInternetGatewayInput) (*ec2.DeleteInternetGatewayOutput, error) {
@@ -1429,6 +2536,22 @@ func (_mr *_MockEC2APIRecorder) DeleteInternetGatewayRequest(arg0 interface{}) *
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteInternetGatewayRequest", arg0)
 }
 
+func (_m *MockEC2API) DeleteInternetGatewayWithContext(_param0 aws.Context, _param1 *ec2.DeleteInternetGatewayInput, _param2 ...request.Option) (*ec2.DeleteInternetGatewayOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteInternetGatewayWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteInternetGatewayOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteInternetGatewayWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteInternetGatewayWithContext", _s...)
+}
+
 func (_m *MockEC2API) DeleteKeyPair(_param0 *ec2.DeleteKeyPairInput) (*ec2.DeleteKeyPairOutput, error) {
 	ret := _m.ctrl.Call(_m, "DeleteKeyPair", _param0)
 	ret0, _ := ret[0].(*ec2.DeleteKeyPairOutput)
@@ -1451,6 +2574,22 @@ func (_mr *_MockEC2APIRecorder) DeleteKeyPairRequest(arg0 interface{}) *gomock.C
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteKeyPairRequest", arg0)
 }
 
+func (_m *MockEC2API) DeleteKeyPairWithContext(_param0 aws.Context, _param1 *ec2.DeleteKeyPairInput, _param2 ...request.Option) (*ec2.DeleteKeyPairOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteKeyPairWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteKeyPairOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteKeyPairWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteKeyPairWithContext", _s...)
+}
+
 func (_m *MockEC2API) DeleteNatGateway(_param0 *ec2.DeleteNatGatewayInput) (*ec2.DeleteNatGatewayOutput, error) {
 	ret := _m.ctrl.Call(_m, "DeleteNatGateway", _param0)
 	ret0, _ := ret[0].(*ec2.DeleteNatGatewayOutput)
@@ -1471,6 +2610,22 @@ func (_m *MockEC2API) DeleteNatGatewayRequest(_param0 *ec2.DeleteNatGatewayInput
 
 func (_mr *_MockEC2APIRecorder) DeleteNatGatewayRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteNatGatewayRequest", arg0)
+}
+
+func (_m *MockEC2API) DeleteNatGatewayWithContext(_param0 aws.Context, _param1 *ec2.DeleteNatGatewayInput, _param2 ...request.Option) (*ec2.DeleteNatGatewayOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteNatGatewayWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteNatGatewayOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteNatGatewayWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteNatGatewayWithContext", _s...)
 }
 
 func (_m *MockEC2API) DeleteNetworkAcl(_param0 *ec2.DeleteNetworkAclInput) (*ec2.DeleteNetworkAclOutput, error) {
@@ -1506,6 +2661,22 @@ func (_mr *_MockEC2APIRecorder) DeleteNetworkAclEntryRequest(arg0 interface{}) *
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteNetworkAclEntryRequest", arg0)
 }
 
+func (_m *MockEC2API) DeleteNetworkAclEntryWithContext(_param0 aws.Context, _param1 *ec2.DeleteNetworkAclEntryInput, _param2 ...request.Option) (*ec2.DeleteNetworkAclEntryOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteNetworkAclEntryWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteNetworkAclEntryOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteNetworkAclEntryWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteNetworkAclEntryWithContext", _s...)
+}
+
 func (_m *MockEC2API) DeleteNetworkAclRequest(_param0 *ec2.DeleteNetworkAclInput) (*request.Request, *ec2.DeleteNetworkAclOutput) {
 	ret := _m.ctrl.Call(_m, "DeleteNetworkAclRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -1515,6 +2686,22 @@ func (_m *MockEC2API) DeleteNetworkAclRequest(_param0 *ec2.DeleteNetworkAclInput
 
 func (_mr *_MockEC2APIRecorder) DeleteNetworkAclRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteNetworkAclRequest", arg0)
+}
+
+func (_m *MockEC2API) DeleteNetworkAclWithContext(_param0 aws.Context, _param1 *ec2.DeleteNetworkAclInput, _param2 ...request.Option) (*ec2.DeleteNetworkAclOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteNetworkAclWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteNetworkAclOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteNetworkAclWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteNetworkAclWithContext", _s...)
 }
 
 func (_m *MockEC2API) DeleteNetworkInterface(_param0 *ec2.DeleteNetworkInterfaceInput) (*ec2.DeleteNetworkInterfaceOutput, error) {
@@ -1528,6 +2715,44 @@ func (_mr *_MockEC2APIRecorder) DeleteNetworkInterface(arg0 interface{}) *gomock
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteNetworkInterface", arg0)
 }
 
+func (_m *MockEC2API) DeleteNetworkInterfacePermission(_param0 *ec2.DeleteNetworkInterfacePermissionInput) (*ec2.DeleteNetworkInterfacePermissionOutput, error) {
+	ret := _m.ctrl.Call(_m, "DeleteNetworkInterfacePermission", _param0)
+	ret0, _ := ret[0].(*ec2.DeleteNetworkInterfacePermissionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteNetworkInterfacePermission(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteNetworkInterfacePermission", arg0)
+}
+
+func (_m *MockEC2API) DeleteNetworkInterfacePermissionRequest(_param0 *ec2.DeleteNetworkInterfacePermissionInput) (*request.Request, *ec2.DeleteNetworkInterfacePermissionOutput) {
+	ret := _m.ctrl.Call(_m, "DeleteNetworkInterfacePermissionRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.DeleteNetworkInterfacePermissionOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteNetworkInterfacePermissionRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteNetworkInterfacePermissionRequest", arg0)
+}
+
+func (_m *MockEC2API) DeleteNetworkInterfacePermissionWithContext(_param0 aws.Context, _param1 *ec2.DeleteNetworkInterfacePermissionInput, _param2 ...request.Option) (*ec2.DeleteNetworkInterfacePermissionOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteNetworkInterfacePermissionWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteNetworkInterfacePermissionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteNetworkInterfacePermissionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteNetworkInterfacePermissionWithContext", _s...)
+}
+
 func (_m *MockEC2API) DeleteNetworkInterfaceRequest(_param0 *ec2.DeleteNetworkInterfaceInput) (*request.Request, *ec2.DeleteNetworkInterfaceOutput) {
 	ret := _m.ctrl.Call(_m, "DeleteNetworkInterfaceRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -1537,6 +2762,22 @@ func (_m *MockEC2API) DeleteNetworkInterfaceRequest(_param0 *ec2.DeleteNetworkIn
 
 func (_mr *_MockEC2APIRecorder) DeleteNetworkInterfaceRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteNetworkInterfaceRequest", arg0)
+}
+
+func (_m *MockEC2API) DeleteNetworkInterfaceWithContext(_param0 aws.Context, _param1 *ec2.DeleteNetworkInterfaceInput, _param2 ...request.Option) (*ec2.DeleteNetworkInterfaceOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteNetworkInterfaceWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteNetworkInterfaceOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteNetworkInterfaceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteNetworkInterfaceWithContext", _s...)
 }
 
 func (_m *MockEC2API) DeletePlacementGroup(_param0 *ec2.DeletePlacementGroupInput) (*ec2.DeletePlacementGroupOutput, error) {
@@ -1559,6 +2800,22 @@ func (_m *MockEC2API) DeletePlacementGroupRequest(_param0 *ec2.DeletePlacementGr
 
 func (_mr *_MockEC2APIRecorder) DeletePlacementGroupRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeletePlacementGroupRequest", arg0)
+}
+
+func (_m *MockEC2API) DeletePlacementGroupWithContext(_param0 aws.Context, _param1 *ec2.DeletePlacementGroupInput, _param2 ...request.Option) (*ec2.DeletePlacementGroupOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeletePlacementGroupWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeletePlacementGroupOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeletePlacementGroupWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeletePlacementGroupWithContext", _s...)
 }
 
 func (_m *MockEC2API) DeleteRoute(_param0 *ec2.DeleteRouteInput) (*ec2.DeleteRouteOutput, error) {
@@ -1605,6 +2862,38 @@ func (_mr *_MockEC2APIRecorder) DeleteRouteTableRequest(arg0 interface{}) *gomoc
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteRouteTableRequest", arg0)
 }
 
+func (_m *MockEC2API) DeleteRouteTableWithContext(_param0 aws.Context, _param1 *ec2.DeleteRouteTableInput, _param2 ...request.Option) (*ec2.DeleteRouteTableOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteRouteTableWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteRouteTableOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteRouteTableWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteRouteTableWithContext", _s...)
+}
+
+func (_m *MockEC2API) DeleteRouteWithContext(_param0 aws.Context, _param1 *ec2.DeleteRouteInput, _param2 ...request.Option) (*ec2.DeleteRouteOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteRouteWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteRouteOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteRouteWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteRouteWithContext", _s...)
+}
+
 func (_m *MockEC2API) DeleteSecurityGroup(_param0 *ec2.DeleteSecurityGroupInput) (*ec2.DeleteSecurityGroupOutput, error) {
 	ret := _m.ctrl.Call(_m, "DeleteSecurityGroup", _param0)
 	ret0, _ := ret[0].(*ec2.DeleteSecurityGroupOutput)
@@ -1625,6 +2914,22 @@ func (_m *MockEC2API) DeleteSecurityGroupRequest(_param0 *ec2.DeleteSecurityGrou
 
 func (_mr *_MockEC2APIRecorder) DeleteSecurityGroupRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteSecurityGroupRequest", arg0)
+}
+
+func (_m *MockEC2API) DeleteSecurityGroupWithContext(_param0 aws.Context, _param1 *ec2.DeleteSecurityGroupInput, _param2 ...request.Option) (*ec2.DeleteSecurityGroupOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteSecurityGroupWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteSecurityGroupOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteSecurityGroupWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteSecurityGroupWithContext", _s...)
 }
 
 func (_m *MockEC2API) DeleteSnapshot(_param0 *ec2.DeleteSnapshotInput) (*ec2.DeleteSnapshotOutput, error) {
@@ -1649,6 +2954,22 @@ func (_mr *_MockEC2APIRecorder) DeleteSnapshotRequest(arg0 interface{}) *gomock.
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteSnapshotRequest", arg0)
 }
 
+func (_m *MockEC2API) DeleteSnapshotWithContext(_param0 aws.Context, _param1 *ec2.DeleteSnapshotInput, _param2 ...request.Option) (*ec2.DeleteSnapshotOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteSnapshotWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteSnapshotOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteSnapshotWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteSnapshotWithContext", _s...)
+}
+
 func (_m *MockEC2API) DeleteSpotDatafeedSubscription(_param0 *ec2.DeleteSpotDatafeedSubscriptionInput) (*ec2.DeleteSpotDatafeedSubscriptionOutput, error) {
 	ret := _m.ctrl.Call(_m, "DeleteSpotDatafeedSubscription", _param0)
 	ret0, _ := ret[0].(*ec2.DeleteSpotDatafeedSubscriptionOutput)
@@ -1669,6 +2990,22 @@ func (_m *MockEC2API) DeleteSpotDatafeedSubscriptionRequest(_param0 *ec2.DeleteS
 
 func (_mr *_MockEC2APIRecorder) DeleteSpotDatafeedSubscriptionRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteSpotDatafeedSubscriptionRequest", arg0)
+}
+
+func (_m *MockEC2API) DeleteSpotDatafeedSubscriptionWithContext(_param0 aws.Context, _param1 *ec2.DeleteSpotDatafeedSubscriptionInput, _param2 ...request.Option) (*ec2.DeleteSpotDatafeedSubscriptionOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteSpotDatafeedSubscriptionWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteSpotDatafeedSubscriptionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteSpotDatafeedSubscriptionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteSpotDatafeedSubscriptionWithContext", _s...)
 }
 
 func (_m *MockEC2API) DeleteSubnet(_param0 *ec2.DeleteSubnetInput) (*ec2.DeleteSubnetOutput, error) {
@@ -1693,6 +3030,22 @@ func (_mr *_MockEC2APIRecorder) DeleteSubnetRequest(arg0 interface{}) *gomock.Ca
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteSubnetRequest", arg0)
 }
 
+func (_m *MockEC2API) DeleteSubnetWithContext(_param0 aws.Context, _param1 *ec2.DeleteSubnetInput, _param2 ...request.Option) (*ec2.DeleteSubnetOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteSubnetWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteSubnetOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteSubnetWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteSubnetWithContext", _s...)
+}
+
 func (_m *MockEC2API) DeleteTags(_param0 *ec2.DeleteTagsInput) (*ec2.DeleteTagsOutput, error) {
 	ret := _m.ctrl.Call(_m, "DeleteTags", _param0)
 	ret0, _ := ret[0].(*ec2.DeleteTagsOutput)
@@ -1715,6 +3068,22 @@ func (_mr *_MockEC2APIRecorder) DeleteTagsRequest(arg0 interface{}) *gomock.Call
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteTagsRequest", arg0)
 }
 
+func (_m *MockEC2API) DeleteTagsWithContext(_param0 aws.Context, _param1 *ec2.DeleteTagsInput, _param2 ...request.Option) (*ec2.DeleteTagsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteTagsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteTagsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteTagsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteTagsWithContext", _s...)
+}
+
 func (_m *MockEC2API) DeleteVolume(_param0 *ec2.DeleteVolumeInput) (*ec2.DeleteVolumeOutput, error) {
 	ret := _m.ctrl.Call(_m, "DeleteVolume", _param0)
 	ret0, _ := ret[0].(*ec2.DeleteVolumeOutput)
@@ -1735,6 +3104,22 @@ func (_m *MockEC2API) DeleteVolumeRequest(_param0 *ec2.DeleteVolumeInput) (*requ
 
 func (_mr *_MockEC2APIRecorder) DeleteVolumeRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteVolumeRequest", arg0)
+}
+
+func (_m *MockEC2API) DeleteVolumeWithContext(_param0 aws.Context, _param1 *ec2.DeleteVolumeInput, _param2 ...request.Option) (*ec2.DeleteVolumeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteVolumeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteVolumeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteVolumeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteVolumeWithContext", _s...)
 }
 
 func (_m *MockEC2API) DeleteVpc(_param0 *ec2.DeleteVpcInput) (*ec2.DeleteVpcOutput, error) {
@@ -1770,6 +3155,22 @@ func (_mr *_MockEC2APIRecorder) DeleteVpcEndpointsRequest(arg0 interface{}) *gom
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteVpcEndpointsRequest", arg0)
 }
 
+func (_m *MockEC2API) DeleteVpcEndpointsWithContext(_param0 aws.Context, _param1 *ec2.DeleteVpcEndpointsInput, _param2 ...request.Option) (*ec2.DeleteVpcEndpointsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteVpcEndpointsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteVpcEndpointsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteVpcEndpointsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteVpcEndpointsWithContext", _s...)
+}
+
 func (_m *MockEC2API) DeleteVpcPeeringConnection(_param0 *ec2.DeleteVpcPeeringConnectionInput) (*ec2.DeleteVpcPeeringConnectionOutput, error) {
 	ret := _m.ctrl.Call(_m, "DeleteVpcPeeringConnection", _param0)
 	ret0, _ := ret[0].(*ec2.DeleteVpcPeeringConnectionOutput)
@@ -1792,6 +3193,22 @@ func (_mr *_MockEC2APIRecorder) DeleteVpcPeeringConnectionRequest(arg0 interface
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteVpcPeeringConnectionRequest", arg0)
 }
 
+func (_m *MockEC2API) DeleteVpcPeeringConnectionWithContext(_param0 aws.Context, _param1 *ec2.DeleteVpcPeeringConnectionInput, _param2 ...request.Option) (*ec2.DeleteVpcPeeringConnectionOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteVpcPeeringConnectionWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteVpcPeeringConnectionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteVpcPeeringConnectionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteVpcPeeringConnectionWithContext", _s...)
+}
+
 func (_m *MockEC2API) DeleteVpcRequest(_param0 *ec2.DeleteVpcInput) (*request.Request, *ec2.DeleteVpcOutput) {
 	ret := _m.ctrl.Call(_m, "DeleteVpcRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -1801,6 +3218,22 @@ func (_m *MockEC2API) DeleteVpcRequest(_param0 *ec2.DeleteVpcInput) (*request.Re
 
 func (_mr *_MockEC2APIRecorder) DeleteVpcRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteVpcRequest", arg0)
+}
+
+func (_m *MockEC2API) DeleteVpcWithContext(_param0 aws.Context, _param1 *ec2.DeleteVpcInput, _param2 ...request.Option) (*ec2.DeleteVpcOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteVpcWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteVpcOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteVpcWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteVpcWithContext", _s...)
 }
 
 func (_m *MockEC2API) DeleteVpnConnection(_param0 *ec2.DeleteVpnConnectionInput) (*ec2.DeleteVpnConnectionOutput, error) {
@@ -1847,6 +3280,38 @@ func (_mr *_MockEC2APIRecorder) DeleteVpnConnectionRouteRequest(arg0 interface{}
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteVpnConnectionRouteRequest", arg0)
 }
 
+func (_m *MockEC2API) DeleteVpnConnectionRouteWithContext(_param0 aws.Context, _param1 *ec2.DeleteVpnConnectionRouteInput, _param2 ...request.Option) (*ec2.DeleteVpnConnectionRouteOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteVpnConnectionRouteWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteVpnConnectionRouteOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteVpnConnectionRouteWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteVpnConnectionRouteWithContext", _s...)
+}
+
+func (_m *MockEC2API) DeleteVpnConnectionWithContext(_param0 aws.Context, _param1 *ec2.DeleteVpnConnectionInput, _param2 ...request.Option) (*ec2.DeleteVpnConnectionOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteVpnConnectionWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteVpnConnectionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteVpnConnectionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteVpnConnectionWithContext", _s...)
+}
+
 func (_m *MockEC2API) DeleteVpnGateway(_param0 *ec2.DeleteVpnGatewayInput) (*ec2.DeleteVpnGatewayOutput, error) {
 	ret := _m.ctrl.Call(_m, "DeleteVpnGateway", _param0)
 	ret0, _ := ret[0].(*ec2.DeleteVpnGatewayOutput)
@@ -1867,6 +3332,22 @@ func (_m *MockEC2API) DeleteVpnGatewayRequest(_param0 *ec2.DeleteVpnGatewayInput
 
 func (_mr *_MockEC2APIRecorder) DeleteVpnGatewayRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteVpnGatewayRequest", arg0)
+}
+
+func (_m *MockEC2API) DeleteVpnGatewayWithContext(_param0 aws.Context, _param1 *ec2.DeleteVpnGatewayInput, _param2 ...request.Option) (*ec2.DeleteVpnGatewayOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteVpnGatewayWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteVpnGatewayOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteVpnGatewayWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteVpnGatewayWithContext", _s...)
 }
 
 func (_m *MockEC2API) DeregisterImage(_param0 *ec2.DeregisterImageInput) (*ec2.DeregisterImageOutput, error) {
@@ -1891,6 +3372,22 @@ func (_mr *_MockEC2APIRecorder) DeregisterImageRequest(arg0 interface{}) *gomock
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeregisterImageRequest", arg0)
 }
 
+func (_m *MockEC2API) DeregisterImageWithContext(_param0 aws.Context, _param1 *ec2.DeregisterImageInput, _param2 ...request.Option) (*ec2.DeregisterImageOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeregisterImageWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeregisterImageOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeregisterImageWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeregisterImageWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeAccountAttributes(_param0 *ec2.DescribeAccountAttributesInput) (*ec2.DescribeAccountAttributesOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeAccountAttributes", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeAccountAttributesOutput)
@@ -1911,6 +3408,22 @@ func (_m *MockEC2API) DescribeAccountAttributesRequest(_param0 *ec2.DescribeAcco
 
 func (_mr *_MockEC2APIRecorder) DescribeAccountAttributesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeAccountAttributesRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeAccountAttributesWithContext(_param0 aws.Context, _param1 *ec2.DescribeAccountAttributesInput, _param2 ...request.Option) (*ec2.DescribeAccountAttributesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeAccountAttributesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeAccountAttributesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeAccountAttributesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeAccountAttributesWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeAddresses(_param0 *ec2.DescribeAddressesInput) (*ec2.DescribeAddressesOutput, error) {
@@ -1935,6 +3448,22 @@ func (_mr *_MockEC2APIRecorder) DescribeAddressesRequest(arg0 interface{}) *gomo
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeAddressesRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeAddressesWithContext(_param0 aws.Context, _param1 *ec2.DescribeAddressesInput, _param2 ...request.Option) (*ec2.DescribeAddressesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeAddressesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeAddressesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeAddressesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeAddressesWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeAvailabilityZones(_param0 *ec2.DescribeAvailabilityZonesInput) (*ec2.DescribeAvailabilityZonesOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeAvailabilityZones", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeAvailabilityZonesOutput)
@@ -1955,6 +3484,22 @@ func (_m *MockEC2API) DescribeAvailabilityZonesRequest(_param0 *ec2.DescribeAvai
 
 func (_mr *_MockEC2APIRecorder) DescribeAvailabilityZonesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeAvailabilityZonesRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeAvailabilityZonesWithContext(_param0 aws.Context, _param1 *ec2.DescribeAvailabilityZonesInput, _param2 ...request.Option) (*ec2.DescribeAvailabilityZonesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeAvailabilityZonesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeAvailabilityZonesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeAvailabilityZonesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeAvailabilityZonesWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeBundleTasks(_param0 *ec2.DescribeBundleTasksInput) (*ec2.DescribeBundleTasksOutput, error) {
@@ -1979,6 +3524,22 @@ func (_mr *_MockEC2APIRecorder) DescribeBundleTasksRequest(arg0 interface{}) *go
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeBundleTasksRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeBundleTasksWithContext(_param0 aws.Context, _param1 *ec2.DescribeBundleTasksInput, _param2 ...request.Option) (*ec2.DescribeBundleTasksOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeBundleTasksWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeBundleTasksOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeBundleTasksWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeBundleTasksWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeClassicLinkInstances(_param0 *ec2.DescribeClassicLinkInstancesInput) (*ec2.DescribeClassicLinkInstancesOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeClassicLinkInstances", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeClassicLinkInstancesOutput)
@@ -1999,6 +3560,22 @@ func (_m *MockEC2API) DescribeClassicLinkInstancesRequest(_param0 *ec2.DescribeC
 
 func (_mr *_MockEC2APIRecorder) DescribeClassicLinkInstancesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeClassicLinkInstancesRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeClassicLinkInstancesWithContext(_param0 aws.Context, _param1 *ec2.DescribeClassicLinkInstancesInput, _param2 ...request.Option) (*ec2.DescribeClassicLinkInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeClassicLinkInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeClassicLinkInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeClassicLinkInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeClassicLinkInstancesWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeConversionTasks(_param0 *ec2.DescribeConversionTasksInput) (*ec2.DescribeConversionTasksOutput, error) {
@@ -2023,6 +3600,22 @@ func (_mr *_MockEC2APIRecorder) DescribeConversionTasksRequest(arg0 interface{})
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeConversionTasksRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeConversionTasksWithContext(_param0 aws.Context, _param1 *ec2.DescribeConversionTasksInput, _param2 ...request.Option) (*ec2.DescribeConversionTasksOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeConversionTasksWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeConversionTasksOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeConversionTasksWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeConversionTasksWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeCustomerGateways(_param0 *ec2.DescribeCustomerGatewaysInput) (*ec2.DescribeCustomerGatewaysOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeCustomerGateways", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeCustomerGatewaysOutput)
@@ -2043,6 +3636,22 @@ func (_m *MockEC2API) DescribeCustomerGatewaysRequest(_param0 *ec2.DescribeCusto
 
 func (_mr *_MockEC2APIRecorder) DescribeCustomerGatewaysRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeCustomerGatewaysRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeCustomerGatewaysWithContext(_param0 aws.Context, _param1 *ec2.DescribeCustomerGatewaysInput, _param2 ...request.Option) (*ec2.DescribeCustomerGatewaysOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeCustomerGatewaysWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeCustomerGatewaysOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeCustomerGatewaysWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeCustomerGatewaysWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeDhcpOptions(_param0 *ec2.DescribeDhcpOptionsInput) (*ec2.DescribeDhcpOptionsOutput, error) {
@@ -2067,6 +3676,22 @@ func (_mr *_MockEC2APIRecorder) DescribeDhcpOptionsRequest(arg0 interface{}) *go
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeDhcpOptionsRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeDhcpOptionsWithContext(_param0 aws.Context, _param1 *ec2.DescribeDhcpOptionsInput, _param2 ...request.Option) (*ec2.DescribeDhcpOptionsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeDhcpOptionsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeDhcpOptionsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeDhcpOptionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeDhcpOptionsWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeEgressOnlyInternetGateways(_param0 *ec2.DescribeEgressOnlyInternetGatewaysInput) (*ec2.DescribeEgressOnlyInternetGatewaysOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeEgressOnlyInternetGateways", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeEgressOnlyInternetGatewaysOutput)
@@ -2087,6 +3712,60 @@ func (_m *MockEC2API) DescribeEgressOnlyInternetGatewaysRequest(_param0 *ec2.Des
 
 func (_mr *_MockEC2APIRecorder) DescribeEgressOnlyInternetGatewaysRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeEgressOnlyInternetGatewaysRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeEgressOnlyInternetGatewaysWithContext(_param0 aws.Context, _param1 *ec2.DescribeEgressOnlyInternetGatewaysInput, _param2 ...request.Option) (*ec2.DescribeEgressOnlyInternetGatewaysOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeEgressOnlyInternetGatewaysWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeEgressOnlyInternetGatewaysOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeEgressOnlyInternetGatewaysWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeEgressOnlyInternetGatewaysWithContext", _s...)
+}
+
+func (_m *MockEC2API) DescribeElasticGpus(_param0 *ec2.DescribeElasticGpusInput) (*ec2.DescribeElasticGpusOutput, error) {
+	ret := _m.ctrl.Call(_m, "DescribeElasticGpus", _param0)
+	ret0, _ := ret[0].(*ec2.DescribeElasticGpusOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeElasticGpus(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeElasticGpus", arg0)
+}
+
+func (_m *MockEC2API) DescribeElasticGpusRequest(_param0 *ec2.DescribeElasticGpusInput) (*request.Request, *ec2.DescribeElasticGpusOutput) {
+	ret := _m.ctrl.Call(_m, "DescribeElasticGpusRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.DescribeElasticGpusOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeElasticGpusRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeElasticGpusRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeElasticGpusWithContext(_param0 aws.Context, _param1 *ec2.DescribeElasticGpusInput, _param2 ...request.Option) (*ec2.DescribeElasticGpusOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeElasticGpusWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeElasticGpusOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeElasticGpusWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeElasticGpusWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeExportTasks(_param0 *ec2.DescribeExportTasksInput) (*ec2.DescribeExportTasksOutput, error) {
@@ -2111,6 +3790,22 @@ func (_mr *_MockEC2APIRecorder) DescribeExportTasksRequest(arg0 interface{}) *go
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeExportTasksRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeExportTasksWithContext(_param0 aws.Context, _param1 *ec2.DescribeExportTasksInput, _param2 ...request.Option) (*ec2.DescribeExportTasksOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeExportTasksWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeExportTasksOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeExportTasksWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeExportTasksWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeFlowLogs(_param0 *ec2.DescribeFlowLogsInput) (*ec2.DescribeFlowLogsOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeFlowLogs", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeFlowLogsOutput)
@@ -2131,6 +3826,60 @@ func (_m *MockEC2API) DescribeFlowLogsRequest(_param0 *ec2.DescribeFlowLogsInput
 
 func (_mr *_MockEC2APIRecorder) DescribeFlowLogsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeFlowLogsRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeFlowLogsWithContext(_param0 aws.Context, _param1 *ec2.DescribeFlowLogsInput, _param2 ...request.Option) (*ec2.DescribeFlowLogsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeFlowLogsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeFlowLogsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeFlowLogsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeFlowLogsWithContext", _s...)
+}
+
+func (_m *MockEC2API) DescribeFpgaImages(_param0 *ec2.DescribeFpgaImagesInput) (*ec2.DescribeFpgaImagesOutput, error) {
+	ret := _m.ctrl.Call(_m, "DescribeFpgaImages", _param0)
+	ret0, _ := ret[0].(*ec2.DescribeFpgaImagesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeFpgaImages(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeFpgaImages", arg0)
+}
+
+func (_m *MockEC2API) DescribeFpgaImagesRequest(_param0 *ec2.DescribeFpgaImagesInput) (*request.Request, *ec2.DescribeFpgaImagesOutput) {
+	ret := _m.ctrl.Call(_m, "DescribeFpgaImagesRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.DescribeFpgaImagesOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeFpgaImagesRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeFpgaImagesRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeFpgaImagesWithContext(_param0 aws.Context, _param1 *ec2.DescribeFpgaImagesInput, _param2 ...request.Option) (*ec2.DescribeFpgaImagesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeFpgaImagesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeFpgaImagesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeFpgaImagesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeFpgaImagesWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeHostReservationOfferings(_param0 *ec2.DescribeHostReservationOfferingsInput) (*ec2.DescribeHostReservationOfferingsOutput, error) {
@@ -2155,6 +3904,22 @@ func (_mr *_MockEC2APIRecorder) DescribeHostReservationOfferingsRequest(arg0 int
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeHostReservationOfferingsRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeHostReservationOfferingsWithContext(_param0 aws.Context, _param1 *ec2.DescribeHostReservationOfferingsInput, _param2 ...request.Option) (*ec2.DescribeHostReservationOfferingsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeHostReservationOfferingsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeHostReservationOfferingsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeHostReservationOfferingsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeHostReservationOfferingsWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeHostReservations(_param0 *ec2.DescribeHostReservationsInput) (*ec2.DescribeHostReservationsOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeHostReservations", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeHostReservationsOutput)
@@ -2175,6 +3940,22 @@ func (_m *MockEC2API) DescribeHostReservationsRequest(_param0 *ec2.DescribeHostR
 
 func (_mr *_MockEC2APIRecorder) DescribeHostReservationsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeHostReservationsRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeHostReservationsWithContext(_param0 aws.Context, _param1 *ec2.DescribeHostReservationsInput, _param2 ...request.Option) (*ec2.DescribeHostReservationsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeHostReservationsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeHostReservationsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeHostReservationsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeHostReservationsWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeHosts(_param0 *ec2.DescribeHostsInput) (*ec2.DescribeHostsOutput, error) {
@@ -2199,6 +3980,22 @@ func (_mr *_MockEC2APIRecorder) DescribeHostsRequest(arg0 interface{}) *gomock.C
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeHostsRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeHostsWithContext(_param0 aws.Context, _param1 *ec2.DescribeHostsInput, _param2 ...request.Option) (*ec2.DescribeHostsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeHostsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeHostsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeHostsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeHostsWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeIamInstanceProfileAssociations(_param0 *ec2.DescribeIamInstanceProfileAssociationsInput) (*ec2.DescribeIamInstanceProfileAssociationsOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeIamInstanceProfileAssociations", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeIamInstanceProfileAssociationsOutput)
@@ -2219,6 +4016,22 @@ func (_m *MockEC2API) DescribeIamInstanceProfileAssociationsRequest(_param0 *ec2
 
 func (_mr *_MockEC2APIRecorder) DescribeIamInstanceProfileAssociationsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeIamInstanceProfileAssociationsRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeIamInstanceProfileAssociationsWithContext(_param0 aws.Context, _param1 *ec2.DescribeIamInstanceProfileAssociationsInput, _param2 ...request.Option) (*ec2.DescribeIamInstanceProfileAssociationsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeIamInstanceProfileAssociationsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeIamInstanceProfileAssociationsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeIamInstanceProfileAssociationsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeIamInstanceProfileAssociationsWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeIdFormat(_param0 *ec2.DescribeIdFormatInput) (*ec2.DescribeIdFormatOutput, error) {
@@ -2243,6 +4056,22 @@ func (_mr *_MockEC2APIRecorder) DescribeIdFormatRequest(arg0 interface{}) *gomoc
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeIdFormatRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeIdFormatWithContext(_param0 aws.Context, _param1 *ec2.DescribeIdFormatInput, _param2 ...request.Option) (*ec2.DescribeIdFormatOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeIdFormatWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeIdFormatOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeIdFormatWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeIdFormatWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeIdentityIdFormat(_param0 *ec2.DescribeIdentityIdFormatInput) (*ec2.DescribeIdentityIdFormatOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeIdentityIdFormat", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeIdentityIdFormatOutput)
@@ -2263,6 +4092,22 @@ func (_m *MockEC2API) DescribeIdentityIdFormatRequest(_param0 *ec2.DescribeIdent
 
 func (_mr *_MockEC2APIRecorder) DescribeIdentityIdFormatRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeIdentityIdFormatRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeIdentityIdFormatWithContext(_param0 aws.Context, _param1 *ec2.DescribeIdentityIdFormatInput, _param2 ...request.Option) (*ec2.DescribeIdentityIdFormatOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeIdentityIdFormatWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeIdentityIdFormatOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeIdentityIdFormatWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeIdentityIdFormatWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeImageAttribute(_param0 *ec2.DescribeImageAttributeInput) (*ec2.DescribeImageAttributeOutput, error) {
@@ -2287,6 +4132,22 @@ func (_mr *_MockEC2APIRecorder) DescribeImageAttributeRequest(arg0 interface{}) 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeImageAttributeRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeImageAttributeWithContext(_param0 aws.Context, _param1 *ec2.DescribeImageAttributeInput, _param2 ...request.Option) (*ec2.DescribeImageAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeImageAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeImageAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeImageAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeImageAttributeWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeImages(_param0 *ec2.DescribeImagesInput) (*ec2.DescribeImagesOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeImages", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeImagesOutput)
@@ -2307,6 +4168,22 @@ func (_m *MockEC2API) DescribeImagesRequest(_param0 *ec2.DescribeImagesInput) (*
 
 func (_mr *_MockEC2APIRecorder) DescribeImagesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeImagesRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeImagesWithContext(_param0 aws.Context, _param1 *ec2.DescribeImagesInput, _param2 ...request.Option) (*ec2.DescribeImagesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeImagesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeImagesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeImagesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeImagesWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeImportImageTasks(_param0 *ec2.DescribeImportImageTasksInput) (*ec2.DescribeImportImageTasksOutput, error) {
@@ -2331,6 +4208,22 @@ func (_mr *_MockEC2APIRecorder) DescribeImportImageTasksRequest(arg0 interface{}
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeImportImageTasksRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeImportImageTasksWithContext(_param0 aws.Context, _param1 *ec2.DescribeImportImageTasksInput, _param2 ...request.Option) (*ec2.DescribeImportImageTasksOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeImportImageTasksWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeImportImageTasksOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeImportImageTasksWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeImportImageTasksWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeImportSnapshotTasks(_param0 *ec2.DescribeImportSnapshotTasksInput) (*ec2.DescribeImportSnapshotTasksOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeImportSnapshotTasks", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeImportSnapshotTasksOutput)
@@ -2351,6 +4244,22 @@ func (_m *MockEC2API) DescribeImportSnapshotTasksRequest(_param0 *ec2.DescribeIm
 
 func (_mr *_MockEC2APIRecorder) DescribeImportSnapshotTasksRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeImportSnapshotTasksRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeImportSnapshotTasksWithContext(_param0 aws.Context, _param1 *ec2.DescribeImportSnapshotTasksInput, _param2 ...request.Option) (*ec2.DescribeImportSnapshotTasksOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeImportSnapshotTasksWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeImportSnapshotTasksOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeImportSnapshotTasksWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeImportSnapshotTasksWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeInstanceAttribute(_param0 *ec2.DescribeInstanceAttributeInput) (*ec2.DescribeInstanceAttributeOutput, error) {
@@ -2375,6 +4284,22 @@ func (_mr *_MockEC2APIRecorder) DescribeInstanceAttributeRequest(arg0 interface{
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeInstanceAttributeRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeInstanceAttributeWithContext(_param0 aws.Context, _param1 *ec2.DescribeInstanceAttributeInput, _param2 ...request.Option) (*ec2.DescribeInstanceAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeInstanceAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeInstanceAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeInstanceAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeInstanceAttributeWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeInstanceStatus(_param0 *ec2.DescribeInstanceStatusInput) (*ec2.DescribeInstanceStatusOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeInstanceStatus", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeInstanceStatusOutput)
@@ -2396,6 +4321,21 @@ func (_mr *_MockEC2APIRecorder) DescribeInstanceStatusPages(arg0, arg1 interface
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeInstanceStatusPages", arg0, arg1)
 }
 
+func (_m *MockEC2API) DescribeInstanceStatusPagesWithContext(_param0 aws.Context, _param1 *ec2.DescribeInstanceStatusInput, _param2 func(*ec2.DescribeInstanceStatusOutput, bool) bool, _param3 ...request.Option) error {
+	_s := []interface{}{_param0, _param1, _param2}
+	for _, _x := range _param3 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeInstanceStatusPagesWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeInstanceStatusPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeInstanceStatusPagesWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeInstanceStatusRequest(_param0 *ec2.DescribeInstanceStatusInput) (*request.Request, *ec2.DescribeInstanceStatusOutput) {
 	ret := _m.ctrl.Call(_m, "DescribeInstanceStatusRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -2405,6 +4345,22 @@ func (_m *MockEC2API) DescribeInstanceStatusRequest(_param0 *ec2.DescribeInstanc
 
 func (_mr *_MockEC2APIRecorder) DescribeInstanceStatusRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeInstanceStatusRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeInstanceStatusWithContext(_param0 aws.Context, _param1 *ec2.DescribeInstanceStatusInput, _param2 ...request.Option) (*ec2.DescribeInstanceStatusOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeInstanceStatusWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeInstanceStatusOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeInstanceStatusWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeInstanceStatusWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeInstances(_param0 *ec2.DescribeInstancesInput) (*ec2.DescribeInstancesOutput, error) {
@@ -2428,6 +4384,21 @@ func (_mr *_MockEC2APIRecorder) DescribeInstancesPages(arg0, arg1 interface{}) *
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeInstancesPages", arg0, arg1)
 }
 
+func (_m *MockEC2API) DescribeInstancesPagesWithContext(_param0 aws.Context, _param1 *ec2.DescribeInstancesInput, _param2 func(*ec2.DescribeInstancesOutput, bool) bool, _param3 ...request.Option) error {
+	_s := []interface{}{_param0, _param1, _param2}
+	for _, _x := range _param3 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeInstancesPagesWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeInstancesPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeInstancesPagesWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeInstancesRequest(_param0 *ec2.DescribeInstancesInput) (*request.Request, *ec2.DescribeInstancesOutput) {
 	ret := _m.ctrl.Call(_m, "DescribeInstancesRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -2437,6 +4408,22 @@ func (_m *MockEC2API) DescribeInstancesRequest(_param0 *ec2.DescribeInstancesInp
 
 func (_mr *_MockEC2APIRecorder) DescribeInstancesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeInstancesRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeInstancesWithContext(_param0 aws.Context, _param1 *ec2.DescribeInstancesInput, _param2 ...request.Option) (*ec2.DescribeInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeInstancesWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeInternetGateways(_param0 *ec2.DescribeInternetGatewaysInput) (*ec2.DescribeInternetGatewaysOutput, error) {
@@ -2461,6 +4448,22 @@ func (_mr *_MockEC2APIRecorder) DescribeInternetGatewaysRequest(arg0 interface{}
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeInternetGatewaysRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeInternetGatewaysWithContext(_param0 aws.Context, _param1 *ec2.DescribeInternetGatewaysInput, _param2 ...request.Option) (*ec2.DescribeInternetGatewaysOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeInternetGatewaysWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeInternetGatewaysOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeInternetGatewaysWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeInternetGatewaysWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeKeyPairs(_param0 *ec2.DescribeKeyPairsInput) (*ec2.DescribeKeyPairsOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeKeyPairs", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeKeyPairsOutput)
@@ -2481,6 +4484,22 @@ func (_m *MockEC2API) DescribeKeyPairsRequest(_param0 *ec2.DescribeKeyPairsInput
 
 func (_mr *_MockEC2APIRecorder) DescribeKeyPairsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeKeyPairsRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeKeyPairsWithContext(_param0 aws.Context, _param1 *ec2.DescribeKeyPairsInput, _param2 ...request.Option) (*ec2.DescribeKeyPairsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeKeyPairsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeKeyPairsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeKeyPairsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeKeyPairsWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeMovingAddresses(_param0 *ec2.DescribeMovingAddressesInput) (*ec2.DescribeMovingAddressesOutput, error) {
@@ -2505,6 +4524,22 @@ func (_mr *_MockEC2APIRecorder) DescribeMovingAddressesRequest(arg0 interface{})
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeMovingAddressesRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeMovingAddressesWithContext(_param0 aws.Context, _param1 *ec2.DescribeMovingAddressesInput, _param2 ...request.Option) (*ec2.DescribeMovingAddressesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeMovingAddressesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeMovingAddressesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeMovingAddressesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeMovingAddressesWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeNatGateways(_param0 *ec2.DescribeNatGatewaysInput) (*ec2.DescribeNatGatewaysOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeNatGateways", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeNatGatewaysOutput)
@@ -2526,6 +4561,21 @@ func (_mr *_MockEC2APIRecorder) DescribeNatGatewaysPages(arg0, arg1 interface{})
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeNatGatewaysPages", arg0, arg1)
 }
 
+func (_m *MockEC2API) DescribeNatGatewaysPagesWithContext(_param0 aws.Context, _param1 *ec2.DescribeNatGatewaysInput, _param2 func(*ec2.DescribeNatGatewaysOutput, bool) bool, _param3 ...request.Option) error {
+	_s := []interface{}{_param0, _param1, _param2}
+	for _, _x := range _param3 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeNatGatewaysPagesWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeNatGatewaysPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeNatGatewaysPagesWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeNatGatewaysRequest(_param0 *ec2.DescribeNatGatewaysInput) (*request.Request, *ec2.DescribeNatGatewaysOutput) {
 	ret := _m.ctrl.Call(_m, "DescribeNatGatewaysRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -2535,6 +4585,22 @@ func (_m *MockEC2API) DescribeNatGatewaysRequest(_param0 *ec2.DescribeNatGateway
 
 func (_mr *_MockEC2APIRecorder) DescribeNatGatewaysRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeNatGatewaysRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeNatGatewaysWithContext(_param0 aws.Context, _param1 *ec2.DescribeNatGatewaysInput, _param2 ...request.Option) (*ec2.DescribeNatGatewaysOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeNatGatewaysWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeNatGatewaysOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeNatGatewaysWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeNatGatewaysWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeNetworkAcls(_param0 *ec2.DescribeNetworkAclsInput) (*ec2.DescribeNetworkAclsOutput, error) {
@@ -2559,6 +4625,22 @@ func (_mr *_MockEC2APIRecorder) DescribeNetworkAclsRequest(arg0 interface{}) *go
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeNetworkAclsRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeNetworkAclsWithContext(_param0 aws.Context, _param1 *ec2.DescribeNetworkAclsInput, _param2 ...request.Option) (*ec2.DescribeNetworkAclsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeNetworkAclsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeNetworkAclsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeNetworkAclsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeNetworkAclsWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeNetworkInterfaceAttribute(_param0 *ec2.DescribeNetworkInterfaceAttributeInput) (*ec2.DescribeNetworkInterfaceAttributeOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeNetworkInterfaceAttribute", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeNetworkInterfaceAttributeOutput)
@@ -2579,6 +4661,60 @@ func (_m *MockEC2API) DescribeNetworkInterfaceAttributeRequest(_param0 *ec2.Desc
 
 func (_mr *_MockEC2APIRecorder) DescribeNetworkInterfaceAttributeRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeNetworkInterfaceAttributeRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeNetworkInterfaceAttributeWithContext(_param0 aws.Context, _param1 *ec2.DescribeNetworkInterfaceAttributeInput, _param2 ...request.Option) (*ec2.DescribeNetworkInterfaceAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeNetworkInterfaceAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeNetworkInterfaceAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeNetworkInterfaceAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeNetworkInterfaceAttributeWithContext", _s...)
+}
+
+func (_m *MockEC2API) DescribeNetworkInterfacePermissions(_param0 *ec2.DescribeNetworkInterfacePermissionsInput) (*ec2.DescribeNetworkInterfacePermissionsOutput, error) {
+	ret := _m.ctrl.Call(_m, "DescribeNetworkInterfacePermissions", _param0)
+	ret0, _ := ret[0].(*ec2.DescribeNetworkInterfacePermissionsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeNetworkInterfacePermissions(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeNetworkInterfacePermissions", arg0)
+}
+
+func (_m *MockEC2API) DescribeNetworkInterfacePermissionsRequest(_param0 *ec2.DescribeNetworkInterfacePermissionsInput) (*request.Request, *ec2.DescribeNetworkInterfacePermissionsOutput) {
+	ret := _m.ctrl.Call(_m, "DescribeNetworkInterfacePermissionsRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.DescribeNetworkInterfacePermissionsOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeNetworkInterfacePermissionsRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeNetworkInterfacePermissionsRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeNetworkInterfacePermissionsWithContext(_param0 aws.Context, _param1 *ec2.DescribeNetworkInterfacePermissionsInput, _param2 ...request.Option) (*ec2.DescribeNetworkInterfacePermissionsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeNetworkInterfacePermissionsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeNetworkInterfacePermissionsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeNetworkInterfacePermissionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeNetworkInterfacePermissionsWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeNetworkInterfaces(_param0 *ec2.DescribeNetworkInterfacesInput) (*ec2.DescribeNetworkInterfacesOutput, error) {
@@ -2603,6 +4739,22 @@ func (_mr *_MockEC2APIRecorder) DescribeNetworkInterfacesRequest(arg0 interface{
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeNetworkInterfacesRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeNetworkInterfacesWithContext(_param0 aws.Context, _param1 *ec2.DescribeNetworkInterfacesInput, _param2 ...request.Option) (*ec2.DescribeNetworkInterfacesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeNetworkInterfacesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeNetworkInterfacesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeNetworkInterfacesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeNetworkInterfacesWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribePlacementGroups(_param0 *ec2.DescribePlacementGroupsInput) (*ec2.DescribePlacementGroupsOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribePlacementGroups", _param0)
 	ret0, _ := ret[0].(*ec2.DescribePlacementGroupsOutput)
@@ -2623,6 +4775,22 @@ func (_m *MockEC2API) DescribePlacementGroupsRequest(_param0 *ec2.DescribePlacem
 
 func (_mr *_MockEC2APIRecorder) DescribePlacementGroupsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribePlacementGroupsRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribePlacementGroupsWithContext(_param0 aws.Context, _param1 *ec2.DescribePlacementGroupsInput, _param2 ...request.Option) (*ec2.DescribePlacementGroupsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribePlacementGroupsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribePlacementGroupsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribePlacementGroupsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribePlacementGroupsWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribePrefixLists(_param0 *ec2.DescribePrefixListsInput) (*ec2.DescribePrefixListsOutput, error) {
@@ -2647,6 +4815,22 @@ func (_mr *_MockEC2APIRecorder) DescribePrefixListsRequest(arg0 interface{}) *go
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribePrefixListsRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribePrefixListsWithContext(_param0 aws.Context, _param1 *ec2.DescribePrefixListsInput, _param2 ...request.Option) (*ec2.DescribePrefixListsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribePrefixListsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribePrefixListsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribePrefixListsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribePrefixListsWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeRegions(_param0 *ec2.DescribeRegionsInput) (*ec2.DescribeRegionsOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeRegions", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeRegionsOutput)
@@ -2667,6 +4851,22 @@ func (_m *MockEC2API) DescribeRegionsRequest(_param0 *ec2.DescribeRegionsInput) 
 
 func (_mr *_MockEC2APIRecorder) DescribeRegionsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeRegionsRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeRegionsWithContext(_param0 aws.Context, _param1 *ec2.DescribeRegionsInput, _param2 ...request.Option) (*ec2.DescribeRegionsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeRegionsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeRegionsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeRegionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeRegionsWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeReservedInstances(_param0 *ec2.DescribeReservedInstancesInput) (*ec2.DescribeReservedInstancesOutput, error) {
@@ -2702,6 +4902,22 @@ func (_mr *_MockEC2APIRecorder) DescribeReservedInstancesListingsRequest(arg0 in
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeReservedInstancesListingsRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeReservedInstancesListingsWithContext(_param0 aws.Context, _param1 *ec2.DescribeReservedInstancesListingsInput, _param2 ...request.Option) (*ec2.DescribeReservedInstancesListingsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeReservedInstancesListingsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeReservedInstancesListingsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeReservedInstancesListingsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeReservedInstancesListingsWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeReservedInstancesModifications(_param0 *ec2.DescribeReservedInstancesModificationsInput) (*ec2.DescribeReservedInstancesModificationsOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeReservedInstancesModifications", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeReservedInstancesModificationsOutput)
@@ -2723,6 +4939,21 @@ func (_mr *_MockEC2APIRecorder) DescribeReservedInstancesModificationsPages(arg0
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeReservedInstancesModificationsPages", arg0, arg1)
 }
 
+func (_m *MockEC2API) DescribeReservedInstancesModificationsPagesWithContext(_param0 aws.Context, _param1 *ec2.DescribeReservedInstancesModificationsInput, _param2 func(*ec2.DescribeReservedInstancesModificationsOutput, bool) bool, _param3 ...request.Option) error {
+	_s := []interface{}{_param0, _param1, _param2}
+	for _, _x := range _param3 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeReservedInstancesModificationsPagesWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeReservedInstancesModificationsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeReservedInstancesModificationsPagesWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeReservedInstancesModificationsRequest(_param0 *ec2.DescribeReservedInstancesModificationsInput) (*request.Request, *ec2.DescribeReservedInstancesModificationsOutput) {
 	ret := _m.ctrl.Call(_m, "DescribeReservedInstancesModificationsRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -2732,6 +4963,22 @@ func (_m *MockEC2API) DescribeReservedInstancesModificationsRequest(_param0 *ec2
 
 func (_mr *_MockEC2APIRecorder) DescribeReservedInstancesModificationsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeReservedInstancesModificationsRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeReservedInstancesModificationsWithContext(_param0 aws.Context, _param1 *ec2.DescribeReservedInstancesModificationsInput, _param2 ...request.Option) (*ec2.DescribeReservedInstancesModificationsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeReservedInstancesModificationsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeReservedInstancesModificationsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeReservedInstancesModificationsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeReservedInstancesModificationsWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeReservedInstancesOfferings(_param0 *ec2.DescribeReservedInstancesOfferingsInput) (*ec2.DescribeReservedInstancesOfferingsOutput, error) {
@@ -2755,6 +5002,21 @@ func (_mr *_MockEC2APIRecorder) DescribeReservedInstancesOfferingsPages(arg0, ar
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeReservedInstancesOfferingsPages", arg0, arg1)
 }
 
+func (_m *MockEC2API) DescribeReservedInstancesOfferingsPagesWithContext(_param0 aws.Context, _param1 *ec2.DescribeReservedInstancesOfferingsInput, _param2 func(*ec2.DescribeReservedInstancesOfferingsOutput, bool) bool, _param3 ...request.Option) error {
+	_s := []interface{}{_param0, _param1, _param2}
+	for _, _x := range _param3 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeReservedInstancesOfferingsPagesWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeReservedInstancesOfferingsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeReservedInstancesOfferingsPagesWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeReservedInstancesOfferingsRequest(_param0 *ec2.DescribeReservedInstancesOfferingsInput) (*request.Request, *ec2.DescribeReservedInstancesOfferingsOutput) {
 	ret := _m.ctrl.Call(_m, "DescribeReservedInstancesOfferingsRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -2766,6 +5028,22 @@ func (_mr *_MockEC2APIRecorder) DescribeReservedInstancesOfferingsRequest(arg0 i
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeReservedInstancesOfferingsRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeReservedInstancesOfferingsWithContext(_param0 aws.Context, _param1 *ec2.DescribeReservedInstancesOfferingsInput, _param2 ...request.Option) (*ec2.DescribeReservedInstancesOfferingsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeReservedInstancesOfferingsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeReservedInstancesOfferingsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeReservedInstancesOfferingsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeReservedInstancesOfferingsWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeReservedInstancesRequest(_param0 *ec2.DescribeReservedInstancesInput) (*request.Request, *ec2.DescribeReservedInstancesOutput) {
 	ret := _m.ctrl.Call(_m, "DescribeReservedInstancesRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -2775,6 +5053,22 @@ func (_m *MockEC2API) DescribeReservedInstancesRequest(_param0 *ec2.DescribeRese
 
 func (_mr *_MockEC2APIRecorder) DescribeReservedInstancesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeReservedInstancesRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeReservedInstancesWithContext(_param0 aws.Context, _param1 *ec2.DescribeReservedInstancesInput, _param2 ...request.Option) (*ec2.DescribeReservedInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeReservedInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeReservedInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeReservedInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeReservedInstancesWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeRouteTables(_param0 *ec2.DescribeRouteTablesInput) (*ec2.DescribeRouteTablesOutput, error) {
@@ -2799,6 +5093,22 @@ func (_mr *_MockEC2APIRecorder) DescribeRouteTablesRequest(arg0 interface{}) *go
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeRouteTablesRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeRouteTablesWithContext(_param0 aws.Context, _param1 *ec2.DescribeRouteTablesInput, _param2 ...request.Option) (*ec2.DescribeRouteTablesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeRouteTablesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeRouteTablesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeRouteTablesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeRouteTablesWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeScheduledInstanceAvailability(_param0 *ec2.DescribeScheduledInstanceAvailabilityInput) (*ec2.DescribeScheduledInstanceAvailabilityOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeScheduledInstanceAvailability", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeScheduledInstanceAvailabilityOutput)
@@ -2819,6 +5129,22 @@ func (_m *MockEC2API) DescribeScheduledInstanceAvailabilityRequest(_param0 *ec2.
 
 func (_mr *_MockEC2APIRecorder) DescribeScheduledInstanceAvailabilityRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeScheduledInstanceAvailabilityRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeScheduledInstanceAvailabilityWithContext(_param0 aws.Context, _param1 *ec2.DescribeScheduledInstanceAvailabilityInput, _param2 ...request.Option) (*ec2.DescribeScheduledInstanceAvailabilityOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeScheduledInstanceAvailabilityWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeScheduledInstanceAvailabilityOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeScheduledInstanceAvailabilityWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeScheduledInstanceAvailabilityWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeScheduledInstances(_param0 *ec2.DescribeScheduledInstancesInput) (*ec2.DescribeScheduledInstancesOutput, error) {
@@ -2843,6 +5169,22 @@ func (_mr *_MockEC2APIRecorder) DescribeScheduledInstancesRequest(arg0 interface
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeScheduledInstancesRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeScheduledInstancesWithContext(_param0 aws.Context, _param1 *ec2.DescribeScheduledInstancesInput, _param2 ...request.Option) (*ec2.DescribeScheduledInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeScheduledInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeScheduledInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeScheduledInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeScheduledInstancesWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeSecurityGroupReferences(_param0 *ec2.DescribeSecurityGroupReferencesInput) (*ec2.DescribeSecurityGroupReferencesOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeSecurityGroupReferences", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeSecurityGroupReferencesOutput)
@@ -2863,6 +5205,22 @@ func (_m *MockEC2API) DescribeSecurityGroupReferencesRequest(_param0 *ec2.Descri
 
 func (_mr *_MockEC2APIRecorder) DescribeSecurityGroupReferencesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSecurityGroupReferencesRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeSecurityGroupReferencesWithContext(_param0 aws.Context, _param1 *ec2.DescribeSecurityGroupReferencesInput, _param2 ...request.Option) (*ec2.DescribeSecurityGroupReferencesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeSecurityGroupReferencesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeSecurityGroupReferencesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeSecurityGroupReferencesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSecurityGroupReferencesWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeSecurityGroups(_param0 *ec2.DescribeSecurityGroupsInput) (*ec2.DescribeSecurityGroupsOutput, error) {
@@ -2887,6 +5245,22 @@ func (_mr *_MockEC2APIRecorder) DescribeSecurityGroupsRequest(arg0 interface{}) 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSecurityGroupsRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeSecurityGroupsWithContext(_param0 aws.Context, _param1 *ec2.DescribeSecurityGroupsInput, _param2 ...request.Option) (*ec2.DescribeSecurityGroupsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeSecurityGroupsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeSecurityGroupsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeSecurityGroupsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSecurityGroupsWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeSnapshotAttribute(_param0 *ec2.DescribeSnapshotAttributeInput) (*ec2.DescribeSnapshotAttributeOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeSnapshotAttribute", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeSnapshotAttributeOutput)
@@ -2907,6 +5281,22 @@ func (_m *MockEC2API) DescribeSnapshotAttributeRequest(_param0 *ec2.DescribeSnap
 
 func (_mr *_MockEC2APIRecorder) DescribeSnapshotAttributeRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSnapshotAttributeRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeSnapshotAttributeWithContext(_param0 aws.Context, _param1 *ec2.DescribeSnapshotAttributeInput, _param2 ...request.Option) (*ec2.DescribeSnapshotAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeSnapshotAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeSnapshotAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeSnapshotAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSnapshotAttributeWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeSnapshots(_param0 *ec2.DescribeSnapshotsInput) (*ec2.DescribeSnapshotsOutput, error) {
@@ -2930,6 +5320,21 @@ func (_mr *_MockEC2APIRecorder) DescribeSnapshotsPages(arg0, arg1 interface{}) *
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSnapshotsPages", arg0, arg1)
 }
 
+func (_m *MockEC2API) DescribeSnapshotsPagesWithContext(_param0 aws.Context, _param1 *ec2.DescribeSnapshotsInput, _param2 func(*ec2.DescribeSnapshotsOutput, bool) bool, _param3 ...request.Option) error {
+	_s := []interface{}{_param0, _param1, _param2}
+	for _, _x := range _param3 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeSnapshotsPagesWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeSnapshotsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSnapshotsPagesWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeSnapshotsRequest(_param0 *ec2.DescribeSnapshotsInput) (*request.Request, *ec2.DescribeSnapshotsOutput) {
 	ret := _m.ctrl.Call(_m, "DescribeSnapshotsRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -2939,6 +5344,22 @@ func (_m *MockEC2API) DescribeSnapshotsRequest(_param0 *ec2.DescribeSnapshotsInp
 
 func (_mr *_MockEC2APIRecorder) DescribeSnapshotsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSnapshotsRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeSnapshotsWithContext(_param0 aws.Context, _param1 *ec2.DescribeSnapshotsInput, _param2 ...request.Option) (*ec2.DescribeSnapshotsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeSnapshotsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeSnapshotsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeSnapshotsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSnapshotsWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeSpotDatafeedSubscription(_param0 *ec2.DescribeSpotDatafeedSubscriptionInput) (*ec2.DescribeSpotDatafeedSubscriptionOutput, error) {
@@ -2963,6 +5384,22 @@ func (_mr *_MockEC2APIRecorder) DescribeSpotDatafeedSubscriptionRequest(arg0 int
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSpotDatafeedSubscriptionRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeSpotDatafeedSubscriptionWithContext(_param0 aws.Context, _param1 *ec2.DescribeSpotDatafeedSubscriptionInput, _param2 ...request.Option) (*ec2.DescribeSpotDatafeedSubscriptionOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeSpotDatafeedSubscriptionWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeSpotDatafeedSubscriptionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeSpotDatafeedSubscriptionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSpotDatafeedSubscriptionWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeSpotFleetInstances(_param0 *ec2.DescribeSpotFleetInstancesInput) (*ec2.DescribeSpotFleetInstancesOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeSpotFleetInstances", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeSpotFleetInstancesOutput)
@@ -2983,6 +5420,22 @@ func (_m *MockEC2API) DescribeSpotFleetInstancesRequest(_param0 *ec2.DescribeSpo
 
 func (_mr *_MockEC2APIRecorder) DescribeSpotFleetInstancesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSpotFleetInstancesRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeSpotFleetInstancesWithContext(_param0 aws.Context, _param1 *ec2.DescribeSpotFleetInstancesInput, _param2 ...request.Option) (*ec2.DescribeSpotFleetInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeSpotFleetInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeSpotFleetInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeSpotFleetInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSpotFleetInstancesWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeSpotFleetRequestHistory(_param0 *ec2.DescribeSpotFleetRequestHistoryInput) (*ec2.DescribeSpotFleetRequestHistoryOutput, error) {
@@ -3007,6 +5460,22 @@ func (_mr *_MockEC2APIRecorder) DescribeSpotFleetRequestHistoryRequest(arg0 inte
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSpotFleetRequestHistoryRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeSpotFleetRequestHistoryWithContext(_param0 aws.Context, _param1 *ec2.DescribeSpotFleetRequestHistoryInput, _param2 ...request.Option) (*ec2.DescribeSpotFleetRequestHistoryOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeSpotFleetRequestHistoryWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeSpotFleetRequestHistoryOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeSpotFleetRequestHistoryWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSpotFleetRequestHistoryWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeSpotFleetRequests(_param0 *ec2.DescribeSpotFleetRequestsInput) (*ec2.DescribeSpotFleetRequestsOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeSpotFleetRequests", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeSpotFleetRequestsOutput)
@@ -3028,6 +5497,21 @@ func (_mr *_MockEC2APIRecorder) DescribeSpotFleetRequestsPages(arg0, arg1 interf
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSpotFleetRequestsPages", arg0, arg1)
 }
 
+func (_m *MockEC2API) DescribeSpotFleetRequestsPagesWithContext(_param0 aws.Context, _param1 *ec2.DescribeSpotFleetRequestsInput, _param2 func(*ec2.DescribeSpotFleetRequestsOutput, bool) bool, _param3 ...request.Option) error {
+	_s := []interface{}{_param0, _param1, _param2}
+	for _, _x := range _param3 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeSpotFleetRequestsPagesWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeSpotFleetRequestsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSpotFleetRequestsPagesWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeSpotFleetRequestsRequest(_param0 *ec2.DescribeSpotFleetRequestsInput) (*request.Request, *ec2.DescribeSpotFleetRequestsOutput) {
 	ret := _m.ctrl.Call(_m, "DescribeSpotFleetRequestsRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -3037,6 +5521,22 @@ func (_m *MockEC2API) DescribeSpotFleetRequestsRequest(_param0 *ec2.DescribeSpot
 
 func (_mr *_MockEC2APIRecorder) DescribeSpotFleetRequestsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSpotFleetRequestsRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeSpotFleetRequestsWithContext(_param0 aws.Context, _param1 *ec2.DescribeSpotFleetRequestsInput, _param2 ...request.Option) (*ec2.DescribeSpotFleetRequestsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeSpotFleetRequestsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeSpotFleetRequestsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeSpotFleetRequestsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSpotFleetRequestsWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeSpotInstanceRequests(_param0 *ec2.DescribeSpotInstanceRequestsInput) (*ec2.DescribeSpotInstanceRequestsOutput, error) {
@@ -3061,6 +5561,22 @@ func (_mr *_MockEC2APIRecorder) DescribeSpotInstanceRequestsRequest(arg0 interfa
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSpotInstanceRequestsRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeSpotInstanceRequestsWithContext(_param0 aws.Context, _param1 *ec2.DescribeSpotInstanceRequestsInput, _param2 ...request.Option) (*ec2.DescribeSpotInstanceRequestsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeSpotInstanceRequestsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeSpotInstanceRequestsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeSpotInstanceRequestsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSpotInstanceRequestsWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeSpotPriceHistory(_param0 *ec2.DescribeSpotPriceHistoryInput) (*ec2.DescribeSpotPriceHistoryOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeSpotPriceHistory", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeSpotPriceHistoryOutput)
@@ -3082,6 +5598,21 @@ func (_mr *_MockEC2APIRecorder) DescribeSpotPriceHistoryPages(arg0, arg1 interfa
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSpotPriceHistoryPages", arg0, arg1)
 }
 
+func (_m *MockEC2API) DescribeSpotPriceHistoryPagesWithContext(_param0 aws.Context, _param1 *ec2.DescribeSpotPriceHistoryInput, _param2 func(*ec2.DescribeSpotPriceHistoryOutput, bool) bool, _param3 ...request.Option) error {
+	_s := []interface{}{_param0, _param1, _param2}
+	for _, _x := range _param3 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeSpotPriceHistoryPagesWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeSpotPriceHistoryPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSpotPriceHistoryPagesWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeSpotPriceHistoryRequest(_param0 *ec2.DescribeSpotPriceHistoryInput) (*request.Request, *ec2.DescribeSpotPriceHistoryOutput) {
 	ret := _m.ctrl.Call(_m, "DescribeSpotPriceHistoryRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -3091,6 +5622,22 @@ func (_m *MockEC2API) DescribeSpotPriceHistoryRequest(_param0 *ec2.DescribeSpotP
 
 func (_mr *_MockEC2APIRecorder) DescribeSpotPriceHistoryRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSpotPriceHistoryRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeSpotPriceHistoryWithContext(_param0 aws.Context, _param1 *ec2.DescribeSpotPriceHistoryInput, _param2 ...request.Option) (*ec2.DescribeSpotPriceHistoryOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeSpotPriceHistoryWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeSpotPriceHistoryOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeSpotPriceHistoryWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSpotPriceHistoryWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeStaleSecurityGroups(_param0 *ec2.DescribeStaleSecurityGroupsInput) (*ec2.DescribeStaleSecurityGroupsOutput, error) {
@@ -3115,6 +5662,22 @@ func (_mr *_MockEC2APIRecorder) DescribeStaleSecurityGroupsRequest(arg0 interfac
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStaleSecurityGroupsRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeStaleSecurityGroupsWithContext(_param0 aws.Context, _param1 *ec2.DescribeStaleSecurityGroupsInput, _param2 ...request.Option) (*ec2.DescribeStaleSecurityGroupsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeStaleSecurityGroupsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeStaleSecurityGroupsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeStaleSecurityGroupsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStaleSecurityGroupsWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeSubnets(_param0 *ec2.DescribeSubnetsInput) (*ec2.DescribeSubnetsOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeSubnets", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeSubnetsOutput)
@@ -3135,6 +5698,22 @@ func (_m *MockEC2API) DescribeSubnetsRequest(_param0 *ec2.DescribeSubnetsInput) 
 
 func (_mr *_MockEC2APIRecorder) DescribeSubnetsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSubnetsRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeSubnetsWithContext(_param0 aws.Context, _param1 *ec2.DescribeSubnetsInput, _param2 ...request.Option) (*ec2.DescribeSubnetsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeSubnetsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeSubnetsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeSubnetsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeSubnetsWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeTags(_param0 *ec2.DescribeTagsInput) (*ec2.DescribeTagsOutput, error) {
@@ -3158,6 +5737,21 @@ func (_mr *_MockEC2APIRecorder) DescribeTagsPages(arg0, arg1 interface{}) *gomoc
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeTagsPages", arg0, arg1)
 }
 
+func (_m *MockEC2API) DescribeTagsPagesWithContext(_param0 aws.Context, _param1 *ec2.DescribeTagsInput, _param2 func(*ec2.DescribeTagsOutput, bool) bool, _param3 ...request.Option) error {
+	_s := []interface{}{_param0, _param1, _param2}
+	for _, _x := range _param3 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeTagsPagesWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeTagsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeTagsPagesWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeTagsRequest(_param0 *ec2.DescribeTagsInput) (*request.Request, *ec2.DescribeTagsOutput) {
 	ret := _m.ctrl.Call(_m, "DescribeTagsRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -3167,6 +5761,22 @@ func (_m *MockEC2API) DescribeTagsRequest(_param0 *ec2.DescribeTagsInput) (*requ
 
 func (_mr *_MockEC2APIRecorder) DescribeTagsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeTagsRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeTagsWithContext(_param0 aws.Context, _param1 *ec2.DescribeTagsInput, _param2 ...request.Option) (*ec2.DescribeTagsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeTagsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeTagsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeTagsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeTagsWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeVolumeAttribute(_param0 *ec2.DescribeVolumeAttributeInput) (*ec2.DescribeVolumeAttributeOutput, error) {
@@ -3191,6 +5801,22 @@ func (_mr *_MockEC2APIRecorder) DescribeVolumeAttributeRequest(arg0 interface{})
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVolumeAttributeRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeVolumeAttributeWithContext(_param0 aws.Context, _param1 *ec2.DescribeVolumeAttributeInput, _param2 ...request.Option) (*ec2.DescribeVolumeAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeVolumeAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeVolumeAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeVolumeAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVolumeAttributeWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeVolumeStatus(_param0 *ec2.DescribeVolumeStatusInput) (*ec2.DescribeVolumeStatusOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeVolumeStatus", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeVolumeStatusOutput)
@@ -3212,6 +5838,21 @@ func (_mr *_MockEC2APIRecorder) DescribeVolumeStatusPages(arg0, arg1 interface{}
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVolumeStatusPages", arg0, arg1)
 }
 
+func (_m *MockEC2API) DescribeVolumeStatusPagesWithContext(_param0 aws.Context, _param1 *ec2.DescribeVolumeStatusInput, _param2 func(*ec2.DescribeVolumeStatusOutput, bool) bool, _param3 ...request.Option) error {
+	_s := []interface{}{_param0, _param1, _param2}
+	for _, _x := range _param3 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeVolumeStatusPagesWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeVolumeStatusPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVolumeStatusPagesWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeVolumeStatusRequest(_param0 *ec2.DescribeVolumeStatusInput) (*request.Request, *ec2.DescribeVolumeStatusOutput) {
 	ret := _m.ctrl.Call(_m, "DescribeVolumeStatusRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -3221,6 +5862,22 @@ func (_m *MockEC2API) DescribeVolumeStatusRequest(_param0 *ec2.DescribeVolumeSta
 
 func (_mr *_MockEC2APIRecorder) DescribeVolumeStatusRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVolumeStatusRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeVolumeStatusWithContext(_param0 aws.Context, _param1 *ec2.DescribeVolumeStatusInput, _param2 ...request.Option) (*ec2.DescribeVolumeStatusOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeVolumeStatusWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeVolumeStatusOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeVolumeStatusWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVolumeStatusWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeVolumes(_param0 *ec2.DescribeVolumesInput) (*ec2.DescribeVolumesOutput, error) {
@@ -3256,6 +5913,22 @@ func (_mr *_MockEC2APIRecorder) DescribeVolumesModificationsRequest(arg0 interfa
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVolumesModificationsRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeVolumesModificationsWithContext(_param0 aws.Context, _param1 *ec2.DescribeVolumesModificationsInput, _param2 ...request.Option) (*ec2.DescribeVolumesModificationsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeVolumesModificationsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeVolumesModificationsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeVolumesModificationsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVolumesModificationsWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeVolumesPages(_param0 *ec2.DescribeVolumesInput, _param1 func(*ec2.DescribeVolumesOutput, bool) bool) error {
 	ret := _m.ctrl.Call(_m, "DescribeVolumesPages", _param0, _param1)
 	ret0, _ := ret[0].(error)
@@ -3264,6 +5937,21 @@ func (_m *MockEC2API) DescribeVolumesPages(_param0 *ec2.DescribeVolumesInput, _p
 
 func (_mr *_MockEC2APIRecorder) DescribeVolumesPages(arg0, arg1 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVolumesPages", arg0, arg1)
+}
+
+func (_m *MockEC2API) DescribeVolumesPagesWithContext(_param0 aws.Context, _param1 *ec2.DescribeVolumesInput, _param2 func(*ec2.DescribeVolumesOutput, bool) bool, _param3 ...request.Option) error {
+	_s := []interface{}{_param0, _param1, _param2}
+	for _, _x := range _param3 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeVolumesPagesWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeVolumesPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVolumesPagesWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeVolumesRequest(_param0 *ec2.DescribeVolumesInput) (*request.Request, *ec2.DescribeVolumesOutput) {
@@ -3275,6 +5963,22 @@ func (_m *MockEC2API) DescribeVolumesRequest(_param0 *ec2.DescribeVolumesInput) 
 
 func (_mr *_MockEC2APIRecorder) DescribeVolumesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVolumesRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeVolumesWithContext(_param0 aws.Context, _param1 *ec2.DescribeVolumesInput, _param2 ...request.Option) (*ec2.DescribeVolumesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeVolumesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeVolumesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeVolumesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVolumesWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeVpcAttribute(_param0 *ec2.DescribeVpcAttributeInput) (*ec2.DescribeVpcAttributeOutput, error) {
@@ -3297,6 +6001,22 @@ func (_m *MockEC2API) DescribeVpcAttributeRequest(_param0 *ec2.DescribeVpcAttrib
 
 func (_mr *_MockEC2APIRecorder) DescribeVpcAttributeRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVpcAttributeRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeVpcAttributeWithContext(_param0 aws.Context, _param1 *ec2.DescribeVpcAttributeInput, _param2 ...request.Option) (*ec2.DescribeVpcAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeVpcAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeVpcAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeVpcAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVpcAttributeWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeVpcClassicLink(_param0 *ec2.DescribeVpcClassicLinkInput) (*ec2.DescribeVpcClassicLinkOutput, error) {
@@ -3332,6 +6052,22 @@ func (_mr *_MockEC2APIRecorder) DescribeVpcClassicLinkDnsSupportRequest(arg0 int
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVpcClassicLinkDnsSupportRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeVpcClassicLinkDnsSupportWithContext(_param0 aws.Context, _param1 *ec2.DescribeVpcClassicLinkDnsSupportInput, _param2 ...request.Option) (*ec2.DescribeVpcClassicLinkDnsSupportOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeVpcClassicLinkDnsSupportWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeVpcClassicLinkDnsSupportOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeVpcClassicLinkDnsSupportWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVpcClassicLinkDnsSupportWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeVpcClassicLinkRequest(_param0 *ec2.DescribeVpcClassicLinkInput) (*request.Request, *ec2.DescribeVpcClassicLinkOutput) {
 	ret := _m.ctrl.Call(_m, "DescribeVpcClassicLinkRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -3341,6 +6077,22 @@ func (_m *MockEC2API) DescribeVpcClassicLinkRequest(_param0 *ec2.DescribeVpcClas
 
 func (_mr *_MockEC2APIRecorder) DescribeVpcClassicLinkRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVpcClassicLinkRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeVpcClassicLinkWithContext(_param0 aws.Context, _param1 *ec2.DescribeVpcClassicLinkInput, _param2 ...request.Option) (*ec2.DescribeVpcClassicLinkOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeVpcClassicLinkWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeVpcClassicLinkOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeVpcClassicLinkWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVpcClassicLinkWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeVpcEndpointServices(_param0 *ec2.DescribeVpcEndpointServicesInput) (*ec2.DescribeVpcEndpointServicesOutput, error) {
@@ -3365,6 +6117,22 @@ func (_mr *_MockEC2APIRecorder) DescribeVpcEndpointServicesRequest(arg0 interfac
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVpcEndpointServicesRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeVpcEndpointServicesWithContext(_param0 aws.Context, _param1 *ec2.DescribeVpcEndpointServicesInput, _param2 ...request.Option) (*ec2.DescribeVpcEndpointServicesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeVpcEndpointServicesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeVpcEndpointServicesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeVpcEndpointServicesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVpcEndpointServicesWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeVpcEndpoints(_param0 *ec2.DescribeVpcEndpointsInput) (*ec2.DescribeVpcEndpointsOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeVpcEndpoints", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeVpcEndpointsOutput)
@@ -3385,6 +6153,22 @@ func (_m *MockEC2API) DescribeVpcEndpointsRequest(_param0 *ec2.DescribeVpcEndpoi
 
 func (_mr *_MockEC2APIRecorder) DescribeVpcEndpointsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVpcEndpointsRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeVpcEndpointsWithContext(_param0 aws.Context, _param1 *ec2.DescribeVpcEndpointsInput, _param2 ...request.Option) (*ec2.DescribeVpcEndpointsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeVpcEndpointsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeVpcEndpointsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeVpcEndpointsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVpcEndpointsWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeVpcPeeringConnections(_param0 *ec2.DescribeVpcPeeringConnectionsInput) (*ec2.DescribeVpcPeeringConnectionsOutput, error) {
@@ -3409,6 +6193,22 @@ func (_mr *_MockEC2APIRecorder) DescribeVpcPeeringConnectionsRequest(arg0 interf
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVpcPeeringConnectionsRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeVpcPeeringConnectionsWithContext(_param0 aws.Context, _param1 *ec2.DescribeVpcPeeringConnectionsInput, _param2 ...request.Option) (*ec2.DescribeVpcPeeringConnectionsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeVpcPeeringConnectionsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeVpcPeeringConnectionsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeVpcPeeringConnectionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVpcPeeringConnectionsWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeVpcs(_param0 *ec2.DescribeVpcsInput) (*ec2.DescribeVpcsOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeVpcs", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeVpcsOutput)
@@ -3429,6 +6229,22 @@ func (_m *MockEC2API) DescribeVpcsRequest(_param0 *ec2.DescribeVpcsInput) (*requ
 
 func (_mr *_MockEC2APIRecorder) DescribeVpcsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVpcsRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeVpcsWithContext(_param0 aws.Context, _param1 *ec2.DescribeVpcsInput, _param2 ...request.Option) (*ec2.DescribeVpcsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeVpcsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeVpcsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeVpcsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVpcsWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeVpnConnections(_param0 *ec2.DescribeVpnConnectionsInput) (*ec2.DescribeVpnConnectionsOutput, error) {
@@ -3453,6 +6269,22 @@ func (_mr *_MockEC2APIRecorder) DescribeVpnConnectionsRequest(arg0 interface{}) 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVpnConnectionsRequest", arg0)
 }
 
+func (_m *MockEC2API) DescribeVpnConnectionsWithContext(_param0 aws.Context, _param1 *ec2.DescribeVpnConnectionsInput, _param2 ...request.Option) (*ec2.DescribeVpnConnectionsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeVpnConnectionsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeVpnConnectionsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeVpnConnectionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVpnConnectionsWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeVpnGateways(_param0 *ec2.DescribeVpnGatewaysInput) (*ec2.DescribeVpnGatewaysOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeVpnGateways", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeVpnGatewaysOutput)
@@ -3473,6 +6305,22 @@ func (_m *MockEC2API) DescribeVpnGatewaysRequest(_param0 *ec2.DescribeVpnGateway
 
 func (_mr *_MockEC2APIRecorder) DescribeVpnGatewaysRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVpnGatewaysRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeVpnGatewaysWithContext(_param0 aws.Context, _param1 *ec2.DescribeVpnGatewaysInput, _param2 ...request.Option) (*ec2.DescribeVpnGatewaysOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeVpnGatewaysWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeVpnGatewaysOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeVpnGatewaysWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeVpnGatewaysWithContext", _s...)
 }
 
 func (_m *MockEC2API) DetachClassicLinkVpc(_param0 *ec2.DetachClassicLinkVpcInput) (*ec2.DetachClassicLinkVpcOutput, error) {
@@ -3497,6 +6345,22 @@ func (_mr *_MockEC2APIRecorder) DetachClassicLinkVpcRequest(arg0 interface{}) *g
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DetachClassicLinkVpcRequest", arg0)
 }
 
+func (_m *MockEC2API) DetachClassicLinkVpcWithContext(_param0 aws.Context, _param1 *ec2.DetachClassicLinkVpcInput, _param2 ...request.Option) (*ec2.DetachClassicLinkVpcOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DetachClassicLinkVpcWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DetachClassicLinkVpcOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DetachClassicLinkVpcWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DetachClassicLinkVpcWithContext", _s...)
+}
+
 func (_m *MockEC2API) DetachInternetGateway(_param0 *ec2.DetachInternetGatewayInput) (*ec2.DetachInternetGatewayOutput, error) {
 	ret := _m.ctrl.Call(_m, "DetachInternetGateway", _param0)
 	ret0, _ := ret[0].(*ec2.DetachInternetGatewayOutput)
@@ -3517,6 +6381,22 @@ func (_m *MockEC2API) DetachInternetGatewayRequest(_param0 *ec2.DetachInternetGa
 
 func (_mr *_MockEC2APIRecorder) DetachInternetGatewayRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DetachInternetGatewayRequest", arg0)
+}
+
+func (_m *MockEC2API) DetachInternetGatewayWithContext(_param0 aws.Context, _param1 *ec2.DetachInternetGatewayInput, _param2 ...request.Option) (*ec2.DetachInternetGatewayOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DetachInternetGatewayWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DetachInternetGatewayOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DetachInternetGatewayWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DetachInternetGatewayWithContext", _s...)
 }
 
 func (_m *MockEC2API) DetachNetworkInterface(_param0 *ec2.DetachNetworkInterfaceInput) (*ec2.DetachNetworkInterfaceOutput, error) {
@@ -3541,6 +6421,22 @@ func (_mr *_MockEC2APIRecorder) DetachNetworkInterfaceRequest(arg0 interface{}) 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DetachNetworkInterfaceRequest", arg0)
 }
 
+func (_m *MockEC2API) DetachNetworkInterfaceWithContext(_param0 aws.Context, _param1 *ec2.DetachNetworkInterfaceInput, _param2 ...request.Option) (*ec2.DetachNetworkInterfaceOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DetachNetworkInterfaceWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DetachNetworkInterfaceOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DetachNetworkInterfaceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DetachNetworkInterfaceWithContext", _s...)
+}
+
 func (_m *MockEC2API) DetachVolume(_param0 *ec2.DetachVolumeInput) (*ec2.VolumeAttachment, error) {
 	ret := _m.ctrl.Call(_m, "DetachVolume", _param0)
 	ret0, _ := ret[0].(*ec2.VolumeAttachment)
@@ -3561,6 +6457,22 @@ func (_m *MockEC2API) DetachVolumeRequest(_param0 *ec2.DetachVolumeInput) (*requ
 
 func (_mr *_MockEC2APIRecorder) DetachVolumeRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DetachVolumeRequest", arg0)
+}
+
+func (_m *MockEC2API) DetachVolumeWithContext(_param0 aws.Context, _param1 *ec2.DetachVolumeInput, _param2 ...request.Option) (*ec2.VolumeAttachment, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DetachVolumeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.VolumeAttachment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DetachVolumeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DetachVolumeWithContext", _s...)
 }
 
 func (_m *MockEC2API) DetachVpnGateway(_param0 *ec2.DetachVpnGatewayInput) (*ec2.DetachVpnGatewayOutput, error) {
@@ -3585,6 +6497,22 @@ func (_mr *_MockEC2APIRecorder) DetachVpnGatewayRequest(arg0 interface{}) *gomoc
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DetachVpnGatewayRequest", arg0)
 }
 
+func (_m *MockEC2API) DetachVpnGatewayWithContext(_param0 aws.Context, _param1 *ec2.DetachVpnGatewayInput, _param2 ...request.Option) (*ec2.DetachVpnGatewayOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DetachVpnGatewayWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DetachVpnGatewayOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DetachVpnGatewayWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DetachVpnGatewayWithContext", _s...)
+}
+
 func (_m *MockEC2API) DisableVgwRoutePropagation(_param0 *ec2.DisableVgwRoutePropagationInput) (*ec2.DisableVgwRoutePropagationOutput, error) {
 	ret := _m.ctrl.Call(_m, "DisableVgwRoutePropagation", _param0)
 	ret0, _ := ret[0].(*ec2.DisableVgwRoutePropagationOutput)
@@ -3605,6 +6533,22 @@ func (_m *MockEC2API) DisableVgwRoutePropagationRequest(_param0 *ec2.DisableVgwR
 
 func (_mr *_MockEC2APIRecorder) DisableVgwRoutePropagationRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DisableVgwRoutePropagationRequest", arg0)
+}
+
+func (_m *MockEC2API) DisableVgwRoutePropagationWithContext(_param0 aws.Context, _param1 *ec2.DisableVgwRoutePropagationInput, _param2 ...request.Option) (*ec2.DisableVgwRoutePropagationOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DisableVgwRoutePropagationWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DisableVgwRoutePropagationOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DisableVgwRoutePropagationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DisableVgwRoutePropagationWithContext", _s...)
 }
 
 func (_m *MockEC2API) DisableVpcClassicLink(_param0 *ec2.DisableVpcClassicLinkInput) (*ec2.DisableVpcClassicLinkOutput, error) {
@@ -3640,6 +6584,22 @@ func (_mr *_MockEC2APIRecorder) DisableVpcClassicLinkDnsSupportRequest(arg0 inte
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DisableVpcClassicLinkDnsSupportRequest", arg0)
 }
 
+func (_m *MockEC2API) DisableVpcClassicLinkDnsSupportWithContext(_param0 aws.Context, _param1 *ec2.DisableVpcClassicLinkDnsSupportInput, _param2 ...request.Option) (*ec2.DisableVpcClassicLinkDnsSupportOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DisableVpcClassicLinkDnsSupportWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DisableVpcClassicLinkDnsSupportOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DisableVpcClassicLinkDnsSupportWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DisableVpcClassicLinkDnsSupportWithContext", _s...)
+}
+
 func (_m *MockEC2API) DisableVpcClassicLinkRequest(_param0 *ec2.DisableVpcClassicLinkInput) (*request.Request, *ec2.DisableVpcClassicLinkOutput) {
 	ret := _m.ctrl.Call(_m, "DisableVpcClassicLinkRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -3649,6 +6609,22 @@ func (_m *MockEC2API) DisableVpcClassicLinkRequest(_param0 *ec2.DisableVpcClassi
 
 func (_mr *_MockEC2APIRecorder) DisableVpcClassicLinkRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DisableVpcClassicLinkRequest", arg0)
+}
+
+func (_m *MockEC2API) DisableVpcClassicLinkWithContext(_param0 aws.Context, _param1 *ec2.DisableVpcClassicLinkInput, _param2 ...request.Option) (*ec2.DisableVpcClassicLinkOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DisableVpcClassicLinkWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DisableVpcClassicLinkOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DisableVpcClassicLinkWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DisableVpcClassicLinkWithContext", _s...)
 }
 
 func (_m *MockEC2API) DisassociateAddress(_param0 *ec2.DisassociateAddressInput) (*ec2.DisassociateAddressOutput, error) {
@@ -3673,6 +6649,22 @@ func (_mr *_MockEC2APIRecorder) DisassociateAddressRequest(arg0 interface{}) *go
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DisassociateAddressRequest", arg0)
 }
 
+func (_m *MockEC2API) DisassociateAddressWithContext(_param0 aws.Context, _param1 *ec2.DisassociateAddressInput, _param2 ...request.Option) (*ec2.DisassociateAddressOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DisassociateAddressWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DisassociateAddressOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DisassociateAddressWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DisassociateAddressWithContext", _s...)
+}
+
 func (_m *MockEC2API) DisassociateIamInstanceProfile(_param0 *ec2.DisassociateIamInstanceProfileInput) (*ec2.DisassociateIamInstanceProfileOutput, error) {
 	ret := _m.ctrl.Call(_m, "DisassociateIamInstanceProfile", _param0)
 	ret0, _ := ret[0].(*ec2.DisassociateIamInstanceProfileOutput)
@@ -3693,6 +6685,22 @@ func (_m *MockEC2API) DisassociateIamInstanceProfileRequest(_param0 *ec2.Disasso
 
 func (_mr *_MockEC2APIRecorder) DisassociateIamInstanceProfileRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DisassociateIamInstanceProfileRequest", arg0)
+}
+
+func (_m *MockEC2API) DisassociateIamInstanceProfileWithContext(_param0 aws.Context, _param1 *ec2.DisassociateIamInstanceProfileInput, _param2 ...request.Option) (*ec2.DisassociateIamInstanceProfileOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DisassociateIamInstanceProfileWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DisassociateIamInstanceProfileOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DisassociateIamInstanceProfileWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DisassociateIamInstanceProfileWithContext", _s...)
 }
 
 func (_m *MockEC2API) DisassociateRouteTable(_param0 *ec2.DisassociateRouteTableInput) (*ec2.DisassociateRouteTableOutput, error) {
@@ -3717,6 +6725,22 @@ func (_mr *_MockEC2APIRecorder) DisassociateRouteTableRequest(arg0 interface{}) 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DisassociateRouteTableRequest", arg0)
 }
 
+func (_m *MockEC2API) DisassociateRouteTableWithContext(_param0 aws.Context, _param1 *ec2.DisassociateRouteTableInput, _param2 ...request.Option) (*ec2.DisassociateRouteTableOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DisassociateRouteTableWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DisassociateRouteTableOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DisassociateRouteTableWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DisassociateRouteTableWithContext", _s...)
+}
+
 func (_m *MockEC2API) DisassociateSubnetCidrBlock(_param0 *ec2.DisassociateSubnetCidrBlockInput) (*ec2.DisassociateSubnetCidrBlockOutput, error) {
 	ret := _m.ctrl.Call(_m, "DisassociateSubnetCidrBlock", _param0)
 	ret0, _ := ret[0].(*ec2.DisassociateSubnetCidrBlockOutput)
@@ -3737,6 +6761,22 @@ func (_m *MockEC2API) DisassociateSubnetCidrBlockRequest(_param0 *ec2.Disassocia
 
 func (_mr *_MockEC2APIRecorder) DisassociateSubnetCidrBlockRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DisassociateSubnetCidrBlockRequest", arg0)
+}
+
+func (_m *MockEC2API) DisassociateSubnetCidrBlockWithContext(_param0 aws.Context, _param1 *ec2.DisassociateSubnetCidrBlockInput, _param2 ...request.Option) (*ec2.DisassociateSubnetCidrBlockOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DisassociateSubnetCidrBlockWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DisassociateSubnetCidrBlockOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DisassociateSubnetCidrBlockWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DisassociateSubnetCidrBlockWithContext", _s...)
 }
 
 func (_m *MockEC2API) DisassociateVpcCidrBlock(_param0 *ec2.DisassociateVpcCidrBlockInput) (*ec2.DisassociateVpcCidrBlockOutput, error) {
@@ -3761,6 +6801,22 @@ func (_mr *_MockEC2APIRecorder) DisassociateVpcCidrBlockRequest(arg0 interface{}
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DisassociateVpcCidrBlockRequest", arg0)
 }
 
+func (_m *MockEC2API) DisassociateVpcCidrBlockWithContext(_param0 aws.Context, _param1 *ec2.DisassociateVpcCidrBlockInput, _param2 ...request.Option) (*ec2.DisassociateVpcCidrBlockOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DisassociateVpcCidrBlockWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DisassociateVpcCidrBlockOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DisassociateVpcCidrBlockWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DisassociateVpcCidrBlockWithContext", _s...)
+}
+
 func (_m *MockEC2API) EnableVgwRoutePropagation(_param0 *ec2.EnableVgwRoutePropagationInput) (*ec2.EnableVgwRoutePropagationOutput, error) {
 	ret := _m.ctrl.Call(_m, "EnableVgwRoutePropagation", _param0)
 	ret0, _ := ret[0].(*ec2.EnableVgwRoutePropagationOutput)
@@ -3783,6 +6839,22 @@ func (_mr *_MockEC2APIRecorder) EnableVgwRoutePropagationRequest(arg0 interface{
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "EnableVgwRoutePropagationRequest", arg0)
 }
 
+func (_m *MockEC2API) EnableVgwRoutePropagationWithContext(_param0 aws.Context, _param1 *ec2.EnableVgwRoutePropagationInput, _param2 ...request.Option) (*ec2.EnableVgwRoutePropagationOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "EnableVgwRoutePropagationWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.EnableVgwRoutePropagationOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) EnableVgwRoutePropagationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "EnableVgwRoutePropagationWithContext", _s...)
+}
+
 func (_m *MockEC2API) EnableVolumeIO(_param0 *ec2.EnableVolumeIOInput) (*ec2.EnableVolumeIOOutput, error) {
 	ret := _m.ctrl.Call(_m, "EnableVolumeIO", _param0)
 	ret0, _ := ret[0].(*ec2.EnableVolumeIOOutput)
@@ -3803,6 +6875,22 @@ func (_m *MockEC2API) EnableVolumeIORequest(_param0 *ec2.EnableVolumeIOInput) (*
 
 func (_mr *_MockEC2APIRecorder) EnableVolumeIORequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "EnableVolumeIORequest", arg0)
+}
+
+func (_m *MockEC2API) EnableVolumeIOWithContext(_param0 aws.Context, _param1 *ec2.EnableVolumeIOInput, _param2 ...request.Option) (*ec2.EnableVolumeIOOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "EnableVolumeIOWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.EnableVolumeIOOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) EnableVolumeIOWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "EnableVolumeIOWithContext", _s...)
 }
 
 func (_m *MockEC2API) EnableVpcClassicLink(_param0 *ec2.EnableVpcClassicLinkInput) (*ec2.EnableVpcClassicLinkOutput, error) {
@@ -3838,6 +6926,22 @@ func (_mr *_MockEC2APIRecorder) EnableVpcClassicLinkDnsSupportRequest(arg0 inter
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "EnableVpcClassicLinkDnsSupportRequest", arg0)
 }
 
+func (_m *MockEC2API) EnableVpcClassicLinkDnsSupportWithContext(_param0 aws.Context, _param1 *ec2.EnableVpcClassicLinkDnsSupportInput, _param2 ...request.Option) (*ec2.EnableVpcClassicLinkDnsSupportOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "EnableVpcClassicLinkDnsSupportWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.EnableVpcClassicLinkDnsSupportOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) EnableVpcClassicLinkDnsSupportWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "EnableVpcClassicLinkDnsSupportWithContext", _s...)
+}
+
 func (_m *MockEC2API) EnableVpcClassicLinkRequest(_param0 *ec2.EnableVpcClassicLinkInput) (*request.Request, *ec2.EnableVpcClassicLinkOutput) {
 	ret := _m.ctrl.Call(_m, "EnableVpcClassicLinkRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -3847,6 +6951,22 @@ func (_m *MockEC2API) EnableVpcClassicLinkRequest(_param0 *ec2.EnableVpcClassicL
 
 func (_mr *_MockEC2APIRecorder) EnableVpcClassicLinkRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "EnableVpcClassicLinkRequest", arg0)
+}
+
+func (_m *MockEC2API) EnableVpcClassicLinkWithContext(_param0 aws.Context, _param1 *ec2.EnableVpcClassicLinkInput, _param2 ...request.Option) (*ec2.EnableVpcClassicLinkOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "EnableVpcClassicLinkWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.EnableVpcClassicLinkOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) EnableVpcClassicLinkWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "EnableVpcClassicLinkWithContext", _s...)
 }
 
 func (_m *MockEC2API) GetConsoleOutput(_param0 *ec2.GetConsoleOutputInput) (*ec2.GetConsoleOutputOutput, error) {
@@ -3871,6 +6991,22 @@ func (_mr *_MockEC2APIRecorder) GetConsoleOutputRequest(arg0 interface{}) *gomoc
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetConsoleOutputRequest", arg0)
 }
 
+func (_m *MockEC2API) GetConsoleOutputWithContext(_param0 aws.Context, _param1 *ec2.GetConsoleOutputInput, _param2 ...request.Option) (*ec2.GetConsoleOutputOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "GetConsoleOutputWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.GetConsoleOutputOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) GetConsoleOutputWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetConsoleOutputWithContext", _s...)
+}
+
 func (_m *MockEC2API) GetConsoleScreenshot(_param0 *ec2.GetConsoleScreenshotInput) (*ec2.GetConsoleScreenshotOutput, error) {
 	ret := _m.ctrl.Call(_m, "GetConsoleScreenshot", _param0)
 	ret0, _ := ret[0].(*ec2.GetConsoleScreenshotOutput)
@@ -3891,6 +7027,22 @@ func (_m *MockEC2API) GetConsoleScreenshotRequest(_param0 *ec2.GetConsoleScreens
 
 func (_mr *_MockEC2APIRecorder) GetConsoleScreenshotRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetConsoleScreenshotRequest", arg0)
+}
+
+func (_m *MockEC2API) GetConsoleScreenshotWithContext(_param0 aws.Context, _param1 *ec2.GetConsoleScreenshotInput, _param2 ...request.Option) (*ec2.GetConsoleScreenshotOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "GetConsoleScreenshotWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.GetConsoleScreenshotOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) GetConsoleScreenshotWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetConsoleScreenshotWithContext", _s...)
 }
 
 func (_m *MockEC2API) GetHostReservationPurchasePreview(_param0 *ec2.GetHostReservationPurchasePreviewInput) (*ec2.GetHostReservationPurchasePreviewOutput, error) {
@@ -3915,6 +7067,22 @@ func (_mr *_MockEC2APIRecorder) GetHostReservationPurchasePreviewRequest(arg0 in
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetHostReservationPurchasePreviewRequest", arg0)
 }
 
+func (_m *MockEC2API) GetHostReservationPurchasePreviewWithContext(_param0 aws.Context, _param1 *ec2.GetHostReservationPurchasePreviewInput, _param2 ...request.Option) (*ec2.GetHostReservationPurchasePreviewOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "GetHostReservationPurchasePreviewWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.GetHostReservationPurchasePreviewOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) GetHostReservationPurchasePreviewWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetHostReservationPurchasePreviewWithContext", _s...)
+}
+
 func (_m *MockEC2API) GetPasswordData(_param0 *ec2.GetPasswordDataInput) (*ec2.GetPasswordDataOutput, error) {
 	ret := _m.ctrl.Call(_m, "GetPasswordData", _param0)
 	ret0, _ := ret[0].(*ec2.GetPasswordDataOutput)
@@ -3935,6 +7103,22 @@ func (_m *MockEC2API) GetPasswordDataRequest(_param0 *ec2.GetPasswordDataInput) 
 
 func (_mr *_MockEC2APIRecorder) GetPasswordDataRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetPasswordDataRequest", arg0)
+}
+
+func (_m *MockEC2API) GetPasswordDataWithContext(_param0 aws.Context, _param1 *ec2.GetPasswordDataInput, _param2 ...request.Option) (*ec2.GetPasswordDataOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "GetPasswordDataWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.GetPasswordDataOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) GetPasswordDataWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetPasswordDataWithContext", _s...)
 }
 
 func (_m *MockEC2API) GetReservedInstancesExchangeQuote(_param0 *ec2.GetReservedInstancesExchangeQuoteInput) (*ec2.GetReservedInstancesExchangeQuoteOutput, error) {
@@ -3959,6 +7143,22 @@ func (_mr *_MockEC2APIRecorder) GetReservedInstancesExchangeQuoteRequest(arg0 in
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetReservedInstancesExchangeQuoteRequest", arg0)
 }
 
+func (_m *MockEC2API) GetReservedInstancesExchangeQuoteWithContext(_param0 aws.Context, _param1 *ec2.GetReservedInstancesExchangeQuoteInput, _param2 ...request.Option) (*ec2.GetReservedInstancesExchangeQuoteOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "GetReservedInstancesExchangeQuoteWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.GetReservedInstancesExchangeQuoteOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) GetReservedInstancesExchangeQuoteWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetReservedInstancesExchangeQuoteWithContext", _s...)
+}
+
 func (_m *MockEC2API) ImportImage(_param0 *ec2.ImportImageInput) (*ec2.ImportImageOutput, error) {
 	ret := _m.ctrl.Call(_m, "ImportImage", _param0)
 	ret0, _ := ret[0].(*ec2.ImportImageOutput)
@@ -3979,6 +7179,22 @@ func (_m *MockEC2API) ImportImageRequest(_param0 *ec2.ImportImageInput) (*reques
 
 func (_mr *_MockEC2APIRecorder) ImportImageRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ImportImageRequest", arg0)
+}
+
+func (_m *MockEC2API) ImportImageWithContext(_param0 aws.Context, _param1 *ec2.ImportImageInput, _param2 ...request.Option) (*ec2.ImportImageOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ImportImageWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ImportImageOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ImportImageWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ImportImageWithContext", _s...)
 }
 
 func (_m *MockEC2API) ImportInstance(_param0 *ec2.ImportInstanceInput) (*ec2.ImportInstanceOutput, error) {
@@ -4003,6 +7219,22 @@ func (_mr *_MockEC2APIRecorder) ImportInstanceRequest(arg0 interface{}) *gomock.
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ImportInstanceRequest", arg0)
 }
 
+func (_m *MockEC2API) ImportInstanceWithContext(_param0 aws.Context, _param1 *ec2.ImportInstanceInput, _param2 ...request.Option) (*ec2.ImportInstanceOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ImportInstanceWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ImportInstanceOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ImportInstanceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ImportInstanceWithContext", _s...)
+}
+
 func (_m *MockEC2API) ImportKeyPair(_param0 *ec2.ImportKeyPairInput) (*ec2.ImportKeyPairOutput, error) {
 	ret := _m.ctrl.Call(_m, "ImportKeyPair", _param0)
 	ret0, _ := ret[0].(*ec2.ImportKeyPairOutput)
@@ -4023,6 +7255,22 @@ func (_m *MockEC2API) ImportKeyPairRequest(_param0 *ec2.ImportKeyPairInput) (*re
 
 func (_mr *_MockEC2APIRecorder) ImportKeyPairRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ImportKeyPairRequest", arg0)
+}
+
+func (_m *MockEC2API) ImportKeyPairWithContext(_param0 aws.Context, _param1 *ec2.ImportKeyPairInput, _param2 ...request.Option) (*ec2.ImportKeyPairOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ImportKeyPairWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ImportKeyPairOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ImportKeyPairWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ImportKeyPairWithContext", _s...)
 }
 
 func (_m *MockEC2API) ImportSnapshot(_param0 *ec2.ImportSnapshotInput) (*ec2.ImportSnapshotOutput, error) {
@@ -4047,6 +7295,22 @@ func (_mr *_MockEC2APIRecorder) ImportSnapshotRequest(arg0 interface{}) *gomock.
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ImportSnapshotRequest", arg0)
 }
 
+func (_m *MockEC2API) ImportSnapshotWithContext(_param0 aws.Context, _param1 *ec2.ImportSnapshotInput, _param2 ...request.Option) (*ec2.ImportSnapshotOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ImportSnapshotWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ImportSnapshotOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ImportSnapshotWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ImportSnapshotWithContext", _s...)
+}
+
 func (_m *MockEC2API) ImportVolume(_param0 *ec2.ImportVolumeInput) (*ec2.ImportVolumeOutput, error) {
 	ret := _m.ctrl.Call(_m, "ImportVolume", _param0)
 	ret0, _ := ret[0].(*ec2.ImportVolumeOutput)
@@ -4067,6 +7331,22 @@ func (_m *MockEC2API) ImportVolumeRequest(_param0 *ec2.ImportVolumeInput) (*requ
 
 func (_mr *_MockEC2APIRecorder) ImportVolumeRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ImportVolumeRequest", arg0)
+}
+
+func (_m *MockEC2API) ImportVolumeWithContext(_param0 aws.Context, _param1 *ec2.ImportVolumeInput, _param2 ...request.Option) (*ec2.ImportVolumeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ImportVolumeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ImportVolumeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ImportVolumeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ImportVolumeWithContext", _s...)
 }
 
 func (_m *MockEC2API) ModifyHosts(_param0 *ec2.ModifyHostsInput) (*ec2.ModifyHostsOutput, error) {
@@ -4091,6 +7371,22 @@ func (_mr *_MockEC2APIRecorder) ModifyHostsRequest(arg0 interface{}) *gomock.Cal
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyHostsRequest", arg0)
 }
 
+func (_m *MockEC2API) ModifyHostsWithContext(_param0 aws.Context, _param1 *ec2.ModifyHostsInput, _param2 ...request.Option) (*ec2.ModifyHostsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifyHostsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifyHostsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyHostsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyHostsWithContext", _s...)
+}
+
 func (_m *MockEC2API) ModifyIdFormat(_param0 *ec2.ModifyIdFormatInput) (*ec2.ModifyIdFormatOutput, error) {
 	ret := _m.ctrl.Call(_m, "ModifyIdFormat", _param0)
 	ret0, _ := ret[0].(*ec2.ModifyIdFormatOutput)
@@ -4111,6 +7407,22 @@ func (_m *MockEC2API) ModifyIdFormatRequest(_param0 *ec2.ModifyIdFormatInput) (*
 
 func (_mr *_MockEC2APIRecorder) ModifyIdFormatRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyIdFormatRequest", arg0)
+}
+
+func (_m *MockEC2API) ModifyIdFormatWithContext(_param0 aws.Context, _param1 *ec2.ModifyIdFormatInput, _param2 ...request.Option) (*ec2.ModifyIdFormatOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifyIdFormatWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifyIdFormatOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyIdFormatWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyIdFormatWithContext", _s...)
 }
 
 func (_m *MockEC2API) ModifyIdentityIdFormat(_param0 *ec2.ModifyIdentityIdFormatInput) (*ec2.ModifyIdentityIdFormatOutput, error) {
@@ -4135,6 +7447,22 @@ func (_mr *_MockEC2APIRecorder) ModifyIdentityIdFormatRequest(arg0 interface{}) 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyIdentityIdFormatRequest", arg0)
 }
 
+func (_m *MockEC2API) ModifyIdentityIdFormatWithContext(_param0 aws.Context, _param1 *ec2.ModifyIdentityIdFormatInput, _param2 ...request.Option) (*ec2.ModifyIdentityIdFormatOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifyIdentityIdFormatWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifyIdentityIdFormatOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyIdentityIdFormatWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyIdentityIdFormatWithContext", _s...)
+}
+
 func (_m *MockEC2API) ModifyImageAttribute(_param0 *ec2.ModifyImageAttributeInput) (*ec2.ModifyImageAttributeOutput, error) {
 	ret := _m.ctrl.Call(_m, "ModifyImageAttribute", _param0)
 	ret0, _ := ret[0].(*ec2.ModifyImageAttributeOutput)
@@ -4155,6 +7483,22 @@ func (_m *MockEC2API) ModifyImageAttributeRequest(_param0 *ec2.ModifyImageAttrib
 
 func (_mr *_MockEC2APIRecorder) ModifyImageAttributeRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyImageAttributeRequest", arg0)
+}
+
+func (_m *MockEC2API) ModifyImageAttributeWithContext(_param0 aws.Context, _param1 *ec2.ModifyImageAttributeInput, _param2 ...request.Option) (*ec2.ModifyImageAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifyImageAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifyImageAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyImageAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyImageAttributeWithContext", _s...)
 }
 
 func (_m *MockEC2API) ModifyInstanceAttribute(_param0 *ec2.ModifyInstanceAttributeInput) (*ec2.ModifyInstanceAttributeOutput, error) {
@@ -4179,6 +7523,22 @@ func (_mr *_MockEC2APIRecorder) ModifyInstanceAttributeRequest(arg0 interface{})
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyInstanceAttributeRequest", arg0)
 }
 
+func (_m *MockEC2API) ModifyInstanceAttributeWithContext(_param0 aws.Context, _param1 *ec2.ModifyInstanceAttributeInput, _param2 ...request.Option) (*ec2.ModifyInstanceAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifyInstanceAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifyInstanceAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyInstanceAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyInstanceAttributeWithContext", _s...)
+}
+
 func (_m *MockEC2API) ModifyInstancePlacement(_param0 *ec2.ModifyInstancePlacementInput) (*ec2.ModifyInstancePlacementOutput, error) {
 	ret := _m.ctrl.Call(_m, "ModifyInstancePlacement", _param0)
 	ret0, _ := ret[0].(*ec2.ModifyInstancePlacementOutput)
@@ -4199,6 +7559,22 @@ func (_m *MockEC2API) ModifyInstancePlacementRequest(_param0 *ec2.ModifyInstance
 
 func (_mr *_MockEC2APIRecorder) ModifyInstancePlacementRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyInstancePlacementRequest", arg0)
+}
+
+func (_m *MockEC2API) ModifyInstancePlacementWithContext(_param0 aws.Context, _param1 *ec2.ModifyInstancePlacementInput, _param2 ...request.Option) (*ec2.ModifyInstancePlacementOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifyInstancePlacementWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifyInstancePlacementOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyInstancePlacementWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyInstancePlacementWithContext", _s...)
 }
 
 func (_m *MockEC2API) ModifyNetworkInterfaceAttribute(_param0 *ec2.ModifyNetworkInterfaceAttributeInput) (*ec2.ModifyNetworkInterfaceAttributeOutput, error) {
@@ -4223,6 +7599,22 @@ func (_mr *_MockEC2APIRecorder) ModifyNetworkInterfaceAttributeRequest(arg0 inte
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyNetworkInterfaceAttributeRequest", arg0)
 }
 
+func (_m *MockEC2API) ModifyNetworkInterfaceAttributeWithContext(_param0 aws.Context, _param1 *ec2.ModifyNetworkInterfaceAttributeInput, _param2 ...request.Option) (*ec2.ModifyNetworkInterfaceAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifyNetworkInterfaceAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifyNetworkInterfaceAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyNetworkInterfaceAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyNetworkInterfaceAttributeWithContext", _s...)
+}
+
 func (_m *MockEC2API) ModifyReservedInstances(_param0 *ec2.ModifyReservedInstancesInput) (*ec2.ModifyReservedInstancesOutput, error) {
 	ret := _m.ctrl.Call(_m, "ModifyReservedInstances", _param0)
 	ret0, _ := ret[0].(*ec2.ModifyReservedInstancesOutput)
@@ -4243,6 +7635,22 @@ func (_m *MockEC2API) ModifyReservedInstancesRequest(_param0 *ec2.ModifyReserved
 
 func (_mr *_MockEC2APIRecorder) ModifyReservedInstancesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyReservedInstancesRequest", arg0)
+}
+
+func (_m *MockEC2API) ModifyReservedInstancesWithContext(_param0 aws.Context, _param1 *ec2.ModifyReservedInstancesInput, _param2 ...request.Option) (*ec2.ModifyReservedInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifyReservedInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifyReservedInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyReservedInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyReservedInstancesWithContext", _s...)
 }
 
 func (_m *MockEC2API) ModifySnapshotAttribute(_param0 *ec2.ModifySnapshotAttributeInput) (*ec2.ModifySnapshotAttributeOutput, error) {
@@ -4267,6 +7675,22 @@ func (_mr *_MockEC2APIRecorder) ModifySnapshotAttributeRequest(arg0 interface{})
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifySnapshotAttributeRequest", arg0)
 }
 
+func (_m *MockEC2API) ModifySnapshotAttributeWithContext(_param0 aws.Context, _param1 *ec2.ModifySnapshotAttributeInput, _param2 ...request.Option) (*ec2.ModifySnapshotAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifySnapshotAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifySnapshotAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifySnapshotAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifySnapshotAttributeWithContext", _s...)
+}
+
 func (_m *MockEC2API) ModifySpotFleetRequest(_param0 *ec2.ModifySpotFleetRequestInput) (*ec2.ModifySpotFleetRequestOutput, error) {
 	ret := _m.ctrl.Call(_m, "ModifySpotFleetRequest", _param0)
 	ret0, _ := ret[0].(*ec2.ModifySpotFleetRequestOutput)
@@ -4289,6 +7713,22 @@ func (_mr *_MockEC2APIRecorder) ModifySpotFleetRequestRequest(arg0 interface{}) 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifySpotFleetRequestRequest", arg0)
 }
 
+func (_m *MockEC2API) ModifySpotFleetRequestWithContext(_param0 aws.Context, _param1 *ec2.ModifySpotFleetRequestInput, _param2 ...request.Option) (*ec2.ModifySpotFleetRequestOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifySpotFleetRequestWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifySpotFleetRequestOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifySpotFleetRequestWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifySpotFleetRequestWithContext", _s...)
+}
+
 func (_m *MockEC2API) ModifySubnetAttribute(_param0 *ec2.ModifySubnetAttributeInput) (*ec2.ModifySubnetAttributeOutput, error) {
 	ret := _m.ctrl.Call(_m, "ModifySubnetAttribute", _param0)
 	ret0, _ := ret[0].(*ec2.ModifySubnetAttributeOutput)
@@ -4309,6 +7749,22 @@ func (_m *MockEC2API) ModifySubnetAttributeRequest(_param0 *ec2.ModifySubnetAttr
 
 func (_mr *_MockEC2APIRecorder) ModifySubnetAttributeRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifySubnetAttributeRequest", arg0)
+}
+
+func (_m *MockEC2API) ModifySubnetAttributeWithContext(_param0 aws.Context, _param1 *ec2.ModifySubnetAttributeInput, _param2 ...request.Option) (*ec2.ModifySubnetAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifySubnetAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifySubnetAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifySubnetAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifySubnetAttributeWithContext", _s...)
 }
 
 func (_m *MockEC2API) ModifyVolume(_param0 *ec2.ModifyVolumeInput) (*ec2.ModifyVolumeOutput, error) {
@@ -4344,6 +7800,22 @@ func (_mr *_MockEC2APIRecorder) ModifyVolumeAttributeRequest(arg0 interface{}) *
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyVolumeAttributeRequest", arg0)
 }
 
+func (_m *MockEC2API) ModifyVolumeAttributeWithContext(_param0 aws.Context, _param1 *ec2.ModifyVolumeAttributeInput, _param2 ...request.Option) (*ec2.ModifyVolumeAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifyVolumeAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifyVolumeAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyVolumeAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyVolumeAttributeWithContext", _s...)
+}
+
 func (_m *MockEC2API) ModifyVolumeRequest(_param0 *ec2.ModifyVolumeInput) (*request.Request, *ec2.ModifyVolumeOutput) {
 	ret := _m.ctrl.Call(_m, "ModifyVolumeRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -4353,6 +7825,22 @@ func (_m *MockEC2API) ModifyVolumeRequest(_param0 *ec2.ModifyVolumeInput) (*requ
 
 func (_mr *_MockEC2APIRecorder) ModifyVolumeRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyVolumeRequest", arg0)
+}
+
+func (_m *MockEC2API) ModifyVolumeWithContext(_param0 aws.Context, _param1 *ec2.ModifyVolumeInput, _param2 ...request.Option) (*ec2.ModifyVolumeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifyVolumeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifyVolumeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyVolumeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyVolumeWithContext", _s...)
 }
 
 func (_m *MockEC2API) ModifyVpcAttribute(_param0 *ec2.ModifyVpcAttributeInput) (*ec2.ModifyVpcAttributeOutput, error) {
@@ -4377,6 +7865,22 @@ func (_mr *_MockEC2APIRecorder) ModifyVpcAttributeRequest(arg0 interface{}) *gom
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyVpcAttributeRequest", arg0)
 }
 
+func (_m *MockEC2API) ModifyVpcAttributeWithContext(_param0 aws.Context, _param1 *ec2.ModifyVpcAttributeInput, _param2 ...request.Option) (*ec2.ModifyVpcAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifyVpcAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifyVpcAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyVpcAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyVpcAttributeWithContext", _s...)
+}
+
 func (_m *MockEC2API) ModifyVpcEndpoint(_param0 *ec2.ModifyVpcEndpointInput) (*ec2.ModifyVpcEndpointOutput, error) {
 	ret := _m.ctrl.Call(_m, "ModifyVpcEndpoint", _param0)
 	ret0, _ := ret[0].(*ec2.ModifyVpcEndpointOutput)
@@ -4397,6 +7901,22 @@ func (_m *MockEC2API) ModifyVpcEndpointRequest(_param0 *ec2.ModifyVpcEndpointInp
 
 func (_mr *_MockEC2APIRecorder) ModifyVpcEndpointRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyVpcEndpointRequest", arg0)
+}
+
+func (_m *MockEC2API) ModifyVpcEndpointWithContext(_param0 aws.Context, _param1 *ec2.ModifyVpcEndpointInput, _param2 ...request.Option) (*ec2.ModifyVpcEndpointOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifyVpcEndpointWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifyVpcEndpointOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyVpcEndpointWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyVpcEndpointWithContext", _s...)
 }
 
 func (_m *MockEC2API) ModifyVpcPeeringConnectionOptions(_param0 *ec2.ModifyVpcPeeringConnectionOptionsInput) (*ec2.ModifyVpcPeeringConnectionOptionsOutput, error) {
@@ -4421,6 +7941,22 @@ func (_mr *_MockEC2APIRecorder) ModifyVpcPeeringConnectionOptionsRequest(arg0 in
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyVpcPeeringConnectionOptionsRequest", arg0)
 }
 
+func (_m *MockEC2API) ModifyVpcPeeringConnectionOptionsWithContext(_param0 aws.Context, _param1 *ec2.ModifyVpcPeeringConnectionOptionsInput, _param2 ...request.Option) (*ec2.ModifyVpcPeeringConnectionOptionsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifyVpcPeeringConnectionOptionsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifyVpcPeeringConnectionOptionsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyVpcPeeringConnectionOptionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyVpcPeeringConnectionOptionsWithContext", _s...)
+}
+
 func (_m *MockEC2API) MonitorInstances(_param0 *ec2.MonitorInstancesInput) (*ec2.MonitorInstancesOutput, error) {
 	ret := _m.ctrl.Call(_m, "MonitorInstances", _param0)
 	ret0, _ := ret[0].(*ec2.MonitorInstancesOutput)
@@ -4441,6 +7977,22 @@ func (_m *MockEC2API) MonitorInstancesRequest(_param0 *ec2.MonitorInstancesInput
 
 func (_mr *_MockEC2APIRecorder) MonitorInstancesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "MonitorInstancesRequest", arg0)
+}
+
+func (_m *MockEC2API) MonitorInstancesWithContext(_param0 aws.Context, _param1 *ec2.MonitorInstancesInput, _param2 ...request.Option) (*ec2.MonitorInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "MonitorInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.MonitorInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) MonitorInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "MonitorInstancesWithContext", _s...)
 }
 
 func (_m *MockEC2API) MoveAddressToVpc(_param0 *ec2.MoveAddressToVpcInput) (*ec2.MoveAddressToVpcOutput, error) {
@@ -4465,6 +8017,22 @@ func (_mr *_MockEC2APIRecorder) MoveAddressToVpcRequest(arg0 interface{}) *gomoc
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "MoveAddressToVpcRequest", arg0)
 }
 
+func (_m *MockEC2API) MoveAddressToVpcWithContext(_param0 aws.Context, _param1 *ec2.MoveAddressToVpcInput, _param2 ...request.Option) (*ec2.MoveAddressToVpcOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "MoveAddressToVpcWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.MoveAddressToVpcOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) MoveAddressToVpcWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "MoveAddressToVpcWithContext", _s...)
+}
+
 func (_m *MockEC2API) PurchaseHostReservation(_param0 *ec2.PurchaseHostReservationInput) (*ec2.PurchaseHostReservationOutput, error) {
 	ret := _m.ctrl.Call(_m, "PurchaseHostReservation", _param0)
 	ret0, _ := ret[0].(*ec2.PurchaseHostReservationOutput)
@@ -4485,6 +8053,22 @@ func (_m *MockEC2API) PurchaseHostReservationRequest(_param0 *ec2.PurchaseHostRe
 
 func (_mr *_MockEC2APIRecorder) PurchaseHostReservationRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "PurchaseHostReservationRequest", arg0)
+}
+
+func (_m *MockEC2API) PurchaseHostReservationWithContext(_param0 aws.Context, _param1 *ec2.PurchaseHostReservationInput, _param2 ...request.Option) (*ec2.PurchaseHostReservationOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "PurchaseHostReservationWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.PurchaseHostReservationOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) PurchaseHostReservationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "PurchaseHostReservationWithContext", _s...)
 }
 
 func (_m *MockEC2API) PurchaseReservedInstancesOffering(_param0 *ec2.PurchaseReservedInstancesOfferingInput) (*ec2.PurchaseReservedInstancesOfferingOutput, error) {
@@ -4509,6 +8093,22 @@ func (_mr *_MockEC2APIRecorder) PurchaseReservedInstancesOfferingRequest(arg0 in
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "PurchaseReservedInstancesOfferingRequest", arg0)
 }
 
+func (_m *MockEC2API) PurchaseReservedInstancesOfferingWithContext(_param0 aws.Context, _param1 *ec2.PurchaseReservedInstancesOfferingInput, _param2 ...request.Option) (*ec2.PurchaseReservedInstancesOfferingOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "PurchaseReservedInstancesOfferingWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.PurchaseReservedInstancesOfferingOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) PurchaseReservedInstancesOfferingWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "PurchaseReservedInstancesOfferingWithContext", _s...)
+}
+
 func (_m *MockEC2API) PurchaseScheduledInstances(_param0 *ec2.PurchaseScheduledInstancesInput) (*ec2.PurchaseScheduledInstancesOutput, error) {
 	ret := _m.ctrl.Call(_m, "PurchaseScheduledInstances", _param0)
 	ret0, _ := ret[0].(*ec2.PurchaseScheduledInstancesOutput)
@@ -4529,6 +8129,22 @@ func (_m *MockEC2API) PurchaseScheduledInstancesRequest(_param0 *ec2.PurchaseSch
 
 func (_mr *_MockEC2APIRecorder) PurchaseScheduledInstancesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "PurchaseScheduledInstancesRequest", arg0)
+}
+
+func (_m *MockEC2API) PurchaseScheduledInstancesWithContext(_param0 aws.Context, _param1 *ec2.PurchaseScheduledInstancesInput, _param2 ...request.Option) (*ec2.PurchaseScheduledInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "PurchaseScheduledInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.PurchaseScheduledInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) PurchaseScheduledInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "PurchaseScheduledInstancesWithContext", _s...)
 }
 
 func (_m *MockEC2API) RebootInstances(_param0 *ec2.RebootInstancesInput) (*ec2.RebootInstancesOutput, error) {
@@ -4553,6 +8169,22 @@ func (_mr *_MockEC2APIRecorder) RebootInstancesRequest(arg0 interface{}) *gomock
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "RebootInstancesRequest", arg0)
 }
 
+func (_m *MockEC2API) RebootInstancesWithContext(_param0 aws.Context, _param1 *ec2.RebootInstancesInput, _param2 ...request.Option) (*ec2.RebootInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "RebootInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.RebootInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) RebootInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RebootInstancesWithContext", _s...)
+}
+
 func (_m *MockEC2API) RegisterImage(_param0 *ec2.RegisterImageInput) (*ec2.RegisterImageOutput, error) {
 	ret := _m.ctrl.Call(_m, "RegisterImage", _param0)
 	ret0, _ := ret[0].(*ec2.RegisterImageOutput)
@@ -4573,6 +8205,22 @@ func (_m *MockEC2API) RegisterImageRequest(_param0 *ec2.RegisterImageInput) (*re
 
 func (_mr *_MockEC2APIRecorder) RegisterImageRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "RegisterImageRequest", arg0)
+}
+
+func (_m *MockEC2API) RegisterImageWithContext(_param0 aws.Context, _param1 *ec2.RegisterImageInput, _param2 ...request.Option) (*ec2.RegisterImageOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "RegisterImageWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.RegisterImageOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) RegisterImageWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RegisterImageWithContext", _s...)
 }
 
 func (_m *MockEC2API) RejectVpcPeeringConnection(_param0 *ec2.RejectVpcPeeringConnectionInput) (*ec2.RejectVpcPeeringConnectionOutput, error) {
@@ -4597,6 +8245,22 @@ func (_mr *_MockEC2APIRecorder) RejectVpcPeeringConnectionRequest(arg0 interface
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "RejectVpcPeeringConnectionRequest", arg0)
 }
 
+func (_m *MockEC2API) RejectVpcPeeringConnectionWithContext(_param0 aws.Context, _param1 *ec2.RejectVpcPeeringConnectionInput, _param2 ...request.Option) (*ec2.RejectVpcPeeringConnectionOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "RejectVpcPeeringConnectionWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.RejectVpcPeeringConnectionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) RejectVpcPeeringConnectionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RejectVpcPeeringConnectionWithContext", _s...)
+}
+
 func (_m *MockEC2API) ReleaseAddress(_param0 *ec2.ReleaseAddressInput) (*ec2.ReleaseAddressOutput, error) {
 	ret := _m.ctrl.Call(_m, "ReleaseAddress", _param0)
 	ret0, _ := ret[0].(*ec2.ReleaseAddressOutput)
@@ -4617,6 +8281,22 @@ func (_m *MockEC2API) ReleaseAddressRequest(_param0 *ec2.ReleaseAddressInput) (*
 
 func (_mr *_MockEC2APIRecorder) ReleaseAddressRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ReleaseAddressRequest", arg0)
+}
+
+func (_m *MockEC2API) ReleaseAddressWithContext(_param0 aws.Context, _param1 *ec2.ReleaseAddressInput, _param2 ...request.Option) (*ec2.ReleaseAddressOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ReleaseAddressWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ReleaseAddressOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ReleaseAddressWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ReleaseAddressWithContext", _s...)
 }
 
 func (_m *MockEC2API) ReleaseHosts(_param0 *ec2.ReleaseHostsInput) (*ec2.ReleaseHostsOutput, error) {
@@ -4641,6 +8321,22 @@ func (_mr *_MockEC2APIRecorder) ReleaseHostsRequest(arg0 interface{}) *gomock.Ca
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ReleaseHostsRequest", arg0)
 }
 
+func (_m *MockEC2API) ReleaseHostsWithContext(_param0 aws.Context, _param1 *ec2.ReleaseHostsInput, _param2 ...request.Option) (*ec2.ReleaseHostsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ReleaseHostsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ReleaseHostsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ReleaseHostsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ReleaseHostsWithContext", _s...)
+}
+
 func (_m *MockEC2API) ReplaceIamInstanceProfileAssociation(_param0 *ec2.ReplaceIamInstanceProfileAssociationInput) (*ec2.ReplaceIamInstanceProfileAssociationOutput, error) {
 	ret := _m.ctrl.Call(_m, "ReplaceIamInstanceProfileAssociation", _param0)
 	ret0, _ := ret[0].(*ec2.ReplaceIamInstanceProfileAssociationOutput)
@@ -4661,6 +8357,22 @@ func (_m *MockEC2API) ReplaceIamInstanceProfileAssociationRequest(_param0 *ec2.R
 
 func (_mr *_MockEC2APIRecorder) ReplaceIamInstanceProfileAssociationRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ReplaceIamInstanceProfileAssociationRequest", arg0)
+}
+
+func (_m *MockEC2API) ReplaceIamInstanceProfileAssociationWithContext(_param0 aws.Context, _param1 *ec2.ReplaceIamInstanceProfileAssociationInput, _param2 ...request.Option) (*ec2.ReplaceIamInstanceProfileAssociationOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ReplaceIamInstanceProfileAssociationWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ReplaceIamInstanceProfileAssociationOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ReplaceIamInstanceProfileAssociationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ReplaceIamInstanceProfileAssociationWithContext", _s...)
 }
 
 func (_m *MockEC2API) ReplaceNetworkAclAssociation(_param0 *ec2.ReplaceNetworkAclAssociationInput) (*ec2.ReplaceNetworkAclAssociationOutput, error) {
@@ -4685,6 +8397,22 @@ func (_mr *_MockEC2APIRecorder) ReplaceNetworkAclAssociationRequest(arg0 interfa
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ReplaceNetworkAclAssociationRequest", arg0)
 }
 
+func (_m *MockEC2API) ReplaceNetworkAclAssociationWithContext(_param0 aws.Context, _param1 *ec2.ReplaceNetworkAclAssociationInput, _param2 ...request.Option) (*ec2.ReplaceNetworkAclAssociationOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ReplaceNetworkAclAssociationWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ReplaceNetworkAclAssociationOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ReplaceNetworkAclAssociationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ReplaceNetworkAclAssociationWithContext", _s...)
+}
+
 func (_m *MockEC2API) ReplaceNetworkAclEntry(_param0 *ec2.ReplaceNetworkAclEntryInput) (*ec2.ReplaceNetworkAclEntryOutput, error) {
 	ret := _m.ctrl.Call(_m, "ReplaceNetworkAclEntry", _param0)
 	ret0, _ := ret[0].(*ec2.ReplaceNetworkAclEntryOutput)
@@ -4705,6 +8433,22 @@ func (_m *MockEC2API) ReplaceNetworkAclEntryRequest(_param0 *ec2.ReplaceNetworkA
 
 func (_mr *_MockEC2APIRecorder) ReplaceNetworkAclEntryRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ReplaceNetworkAclEntryRequest", arg0)
+}
+
+func (_m *MockEC2API) ReplaceNetworkAclEntryWithContext(_param0 aws.Context, _param1 *ec2.ReplaceNetworkAclEntryInput, _param2 ...request.Option) (*ec2.ReplaceNetworkAclEntryOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ReplaceNetworkAclEntryWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ReplaceNetworkAclEntryOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ReplaceNetworkAclEntryWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ReplaceNetworkAclEntryWithContext", _s...)
 }
 
 func (_m *MockEC2API) ReplaceRoute(_param0 *ec2.ReplaceRouteInput) (*ec2.ReplaceRouteOutput, error) {
@@ -4751,6 +8495,38 @@ func (_mr *_MockEC2APIRecorder) ReplaceRouteTableAssociationRequest(arg0 interfa
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ReplaceRouteTableAssociationRequest", arg0)
 }
 
+func (_m *MockEC2API) ReplaceRouteTableAssociationWithContext(_param0 aws.Context, _param1 *ec2.ReplaceRouteTableAssociationInput, _param2 ...request.Option) (*ec2.ReplaceRouteTableAssociationOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ReplaceRouteTableAssociationWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ReplaceRouteTableAssociationOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ReplaceRouteTableAssociationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ReplaceRouteTableAssociationWithContext", _s...)
+}
+
+func (_m *MockEC2API) ReplaceRouteWithContext(_param0 aws.Context, _param1 *ec2.ReplaceRouteInput, _param2 ...request.Option) (*ec2.ReplaceRouteOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ReplaceRouteWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ReplaceRouteOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ReplaceRouteWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ReplaceRouteWithContext", _s...)
+}
+
 func (_m *MockEC2API) ReportInstanceStatus(_param0 *ec2.ReportInstanceStatusInput) (*ec2.ReportInstanceStatusOutput, error) {
 	ret := _m.ctrl.Call(_m, "ReportInstanceStatus", _param0)
 	ret0, _ := ret[0].(*ec2.ReportInstanceStatusOutput)
@@ -4771,6 +8547,22 @@ func (_m *MockEC2API) ReportInstanceStatusRequest(_param0 *ec2.ReportInstanceSta
 
 func (_mr *_MockEC2APIRecorder) ReportInstanceStatusRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ReportInstanceStatusRequest", arg0)
+}
+
+func (_m *MockEC2API) ReportInstanceStatusWithContext(_param0 aws.Context, _param1 *ec2.ReportInstanceStatusInput, _param2 ...request.Option) (*ec2.ReportInstanceStatusOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ReportInstanceStatusWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ReportInstanceStatusOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ReportInstanceStatusWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ReportInstanceStatusWithContext", _s...)
 }
 
 func (_m *MockEC2API) RequestSpotFleet(_param0 *ec2.RequestSpotFleetInput) (*ec2.RequestSpotFleetOutput, error) {
@@ -4795,6 +8587,22 @@ func (_mr *_MockEC2APIRecorder) RequestSpotFleetRequest(arg0 interface{}) *gomoc
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "RequestSpotFleetRequest", arg0)
 }
 
+func (_m *MockEC2API) RequestSpotFleetWithContext(_param0 aws.Context, _param1 *ec2.RequestSpotFleetInput, _param2 ...request.Option) (*ec2.RequestSpotFleetOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "RequestSpotFleetWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.RequestSpotFleetOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) RequestSpotFleetWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RequestSpotFleetWithContext", _s...)
+}
+
 func (_m *MockEC2API) RequestSpotInstances(_param0 *ec2.RequestSpotInstancesInput) (*ec2.RequestSpotInstancesOutput, error) {
 	ret := _m.ctrl.Call(_m, "RequestSpotInstances", _param0)
 	ret0, _ := ret[0].(*ec2.RequestSpotInstancesOutput)
@@ -4815,6 +8623,22 @@ func (_m *MockEC2API) RequestSpotInstancesRequest(_param0 *ec2.RequestSpotInstan
 
 func (_mr *_MockEC2APIRecorder) RequestSpotInstancesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "RequestSpotInstancesRequest", arg0)
+}
+
+func (_m *MockEC2API) RequestSpotInstancesWithContext(_param0 aws.Context, _param1 *ec2.RequestSpotInstancesInput, _param2 ...request.Option) (*ec2.RequestSpotInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "RequestSpotInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.RequestSpotInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) RequestSpotInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RequestSpotInstancesWithContext", _s...)
 }
 
 func (_m *MockEC2API) ResetImageAttribute(_param0 *ec2.ResetImageAttributeInput) (*ec2.ResetImageAttributeOutput, error) {
@@ -4839,6 +8663,22 @@ func (_mr *_MockEC2APIRecorder) ResetImageAttributeRequest(arg0 interface{}) *go
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ResetImageAttributeRequest", arg0)
 }
 
+func (_m *MockEC2API) ResetImageAttributeWithContext(_param0 aws.Context, _param1 *ec2.ResetImageAttributeInput, _param2 ...request.Option) (*ec2.ResetImageAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ResetImageAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ResetImageAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ResetImageAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ResetImageAttributeWithContext", _s...)
+}
+
 func (_m *MockEC2API) ResetInstanceAttribute(_param0 *ec2.ResetInstanceAttributeInput) (*ec2.ResetInstanceAttributeOutput, error) {
 	ret := _m.ctrl.Call(_m, "ResetInstanceAttribute", _param0)
 	ret0, _ := ret[0].(*ec2.ResetInstanceAttributeOutput)
@@ -4859,6 +8699,22 @@ func (_m *MockEC2API) ResetInstanceAttributeRequest(_param0 *ec2.ResetInstanceAt
 
 func (_mr *_MockEC2APIRecorder) ResetInstanceAttributeRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ResetInstanceAttributeRequest", arg0)
+}
+
+func (_m *MockEC2API) ResetInstanceAttributeWithContext(_param0 aws.Context, _param1 *ec2.ResetInstanceAttributeInput, _param2 ...request.Option) (*ec2.ResetInstanceAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ResetInstanceAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ResetInstanceAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ResetInstanceAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ResetInstanceAttributeWithContext", _s...)
 }
 
 func (_m *MockEC2API) ResetNetworkInterfaceAttribute(_param0 *ec2.ResetNetworkInterfaceAttributeInput) (*ec2.ResetNetworkInterfaceAttributeOutput, error) {
@@ -4883,6 +8739,22 @@ func (_mr *_MockEC2APIRecorder) ResetNetworkInterfaceAttributeRequest(arg0 inter
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ResetNetworkInterfaceAttributeRequest", arg0)
 }
 
+func (_m *MockEC2API) ResetNetworkInterfaceAttributeWithContext(_param0 aws.Context, _param1 *ec2.ResetNetworkInterfaceAttributeInput, _param2 ...request.Option) (*ec2.ResetNetworkInterfaceAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ResetNetworkInterfaceAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ResetNetworkInterfaceAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ResetNetworkInterfaceAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ResetNetworkInterfaceAttributeWithContext", _s...)
+}
+
 func (_m *MockEC2API) ResetSnapshotAttribute(_param0 *ec2.ResetSnapshotAttributeInput) (*ec2.ResetSnapshotAttributeOutput, error) {
 	ret := _m.ctrl.Call(_m, "ResetSnapshotAttribute", _param0)
 	ret0, _ := ret[0].(*ec2.ResetSnapshotAttributeOutput)
@@ -4903,6 +8775,22 @@ func (_m *MockEC2API) ResetSnapshotAttributeRequest(_param0 *ec2.ResetSnapshotAt
 
 func (_mr *_MockEC2APIRecorder) ResetSnapshotAttributeRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ResetSnapshotAttributeRequest", arg0)
+}
+
+func (_m *MockEC2API) ResetSnapshotAttributeWithContext(_param0 aws.Context, _param1 *ec2.ResetSnapshotAttributeInput, _param2 ...request.Option) (*ec2.ResetSnapshotAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ResetSnapshotAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ResetSnapshotAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ResetSnapshotAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ResetSnapshotAttributeWithContext", _s...)
 }
 
 func (_m *MockEC2API) RestoreAddressToClassic(_param0 *ec2.RestoreAddressToClassicInput) (*ec2.RestoreAddressToClassicOutput, error) {
@@ -4927,6 +8815,22 @@ func (_mr *_MockEC2APIRecorder) RestoreAddressToClassicRequest(arg0 interface{})
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "RestoreAddressToClassicRequest", arg0)
 }
 
+func (_m *MockEC2API) RestoreAddressToClassicWithContext(_param0 aws.Context, _param1 *ec2.RestoreAddressToClassicInput, _param2 ...request.Option) (*ec2.RestoreAddressToClassicOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "RestoreAddressToClassicWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.RestoreAddressToClassicOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) RestoreAddressToClassicWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RestoreAddressToClassicWithContext", _s...)
+}
+
 func (_m *MockEC2API) RevokeSecurityGroupEgress(_param0 *ec2.RevokeSecurityGroupEgressInput) (*ec2.RevokeSecurityGroupEgressOutput, error) {
 	ret := _m.ctrl.Call(_m, "RevokeSecurityGroupEgress", _param0)
 	ret0, _ := ret[0].(*ec2.RevokeSecurityGroupEgressOutput)
@@ -4947,6 +8851,22 @@ func (_m *MockEC2API) RevokeSecurityGroupEgressRequest(_param0 *ec2.RevokeSecuri
 
 func (_mr *_MockEC2APIRecorder) RevokeSecurityGroupEgressRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "RevokeSecurityGroupEgressRequest", arg0)
+}
+
+func (_m *MockEC2API) RevokeSecurityGroupEgressWithContext(_param0 aws.Context, _param1 *ec2.RevokeSecurityGroupEgressInput, _param2 ...request.Option) (*ec2.RevokeSecurityGroupEgressOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "RevokeSecurityGroupEgressWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.RevokeSecurityGroupEgressOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) RevokeSecurityGroupEgressWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RevokeSecurityGroupEgressWithContext", _s...)
 }
 
 func (_m *MockEC2API) RevokeSecurityGroupIngress(_param0 *ec2.RevokeSecurityGroupIngressInput) (*ec2.RevokeSecurityGroupIngressOutput, error) {
@@ -4971,6 +8891,22 @@ func (_mr *_MockEC2APIRecorder) RevokeSecurityGroupIngressRequest(arg0 interface
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "RevokeSecurityGroupIngressRequest", arg0)
 }
 
+func (_m *MockEC2API) RevokeSecurityGroupIngressWithContext(_param0 aws.Context, _param1 *ec2.RevokeSecurityGroupIngressInput, _param2 ...request.Option) (*ec2.RevokeSecurityGroupIngressOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "RevokeSecurityGroupIngressWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.RevokeSecurityGroupIngressOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) RevokeSecurityGroupIngressWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RevokeSecurityGroupIngressWithContext", _s...)
+}
+
 func (_m *MockEC2API) RunInstances(_param0 *ec2.RunInstancesInput) (*ec2.Reservation, error) {
 	ret := _m.ctrl.Call(_m, "RunInstances", _param0)
 	ret0, _ := ret[0].(*ec2.Reservation)
@@ -4991,6 +8927,22 @@ func (_m *MockEC2API) RunInstancesRequest(_param0 *ec2.RunInstancesInput) (*requ
 
 func (_mr *_MockEC2APIRecorder) RunInstancesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "RunInstancesRequest", arg0)
+}
+
+func (_m *MockEC2API) RunInstancesWithContext(_param0 aws.Context, _param1 *ec2.RunInstancesInput, _param2 ...request.Option) (*ec2.Reservation, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "RunInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.Reservation)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) RunInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RunInstancesWithContext", _s...)
 }
 
 func (_m *MockEC2API) RunScheduledInstances(_param0 *ec2.RunScheduledInstancesInput) (*ec2.RunScheduledInstancesOutput, error) {
@@ -5015,6 +8967,22 @@ func (_mr *_MockEC2APIRecorder) RunScheduledInstancesRequest(arg0 interface{}) *
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "RunScheduledInstancesRequest", arg0)
 }
 
+func (_m *MockEC2API) RunScheduledInstancesWithContext(_param0 aws.Context, _param1 *ec2.RunScheduledInstancesInput, _param2 ...request.Option) (*ec2.RunScheduledInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "RunScheduledInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.RunScheduledInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) RunScheduledInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RunScheduledInstancesWithContext", _s...)
+}
+
 func (_m *MockEC2API) StartInstances(_param0 *ec2.StartInstancesInput) (*ec2.StartInstancesOutput, error) {
 	ret := _m.ctrl.Call(_m, "StartInstances", _param0)
 	ret0, _ := ret[0].(*ec2.StartInstancesOutput)
@@ -5035,6 +9003,22 @@ func (_m *MockEC2API) StartInstancesRequest(_param0 *ec2.StartInstancesInput) (*
 
 func (_mr *_MockEC2APIRecorder) StartInstancesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "StartInstancesRequest", arg0)
+}
+
+func (_m *MockEC2API) StartInstancesWithContext(_param0 aws.Context, _param1 *ec2.StartInstancesInput, _param2 ...request.Option) (*ec2.StartInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "StartInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.StartInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) StartInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "StartInstancesWithContext", _s...)
 }
 
 func (_m *MockEC2API) StopInstances(_param0 *ec2.StopInstancesInput) (*ec2.StopInstancesOutput, error) {
@@ -5059,6 +9043,22 @@ func (_mr *_MockEC2APIRecorder) StopInstancesRequest(arg0 interface{}) *gomock.C
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "StopInstancesRequest", arg0)
 }
 
+func (_m *MockEC2API) StopInstancesWithContext(_param0 aws.Context, _param1 *ec2.StopInstancesInput, _param2 ...request.Option) (*ec2.StopInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "StopInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.StopInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) StopInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "StopInstancesWithContext", _s...)
+}
+
 func (_m *MockEC2API) TerminateInstances(_param0 *ec2.TerminateInstancesInput) (*ec2.TerminateInstancesOutput, error) {
 	ret := _m.ctrl.Call(_m, "TerminateInstances", _param0)
 	ret0, _ := ret[0].(*ec2.TerminateInstancesOutput)
@@ -5079,6 +9079,22 @@ func (_m *MockEC2API) TerminateInstancesRequest(_param0 *ec2.TerminateInstancesI
 
 func (_mr *_MockEC2APIRecorder) TerminateInstancesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "TerminateInstancesRequest", arg0)
+}
+
+func (_m *MockEC2API) TerminateInstancesWithContext(_param0 aws.Context, _param1 *ec2.TerminateInstancesInput, _param2 ...request.Option) (*ec2.TerminateInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "TerminateInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.TerminateInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) TerminateInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "TerminateInstancesWithContext", _s...)
 }
 
 func (_m *MockEC2API) UnassignIpv6Addresses(_param0 *ec2.UnassignIpv6AddressesInput) (*ec2.UnassignIpv6AddressesOutput, error) {
@@ -5103,6 +9119,22 @@ func (_mr *_MockEC2APIRecorder) UnassignIpv6AddressesRequest(arg0 interface{}) *
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "UnassignIpv6AddressesRequest", arg0)
 }
 
+func (_m *MockEC2API) UnassignIpv6AddressesWithContext(_param0 aws.Context, _param1 *ec2.UnassignIpv6AddressesInput, _param2 ...request.Option) (*ec2.UnassignIpv6AddressesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "UnassignIpv6AddressesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.UnassignIpv6AddressesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) UnassignIpv6AddressesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UnassignIpv6AddressesWithContext", _s...)
+}
+
 func (_m *MockEC2API) UnassignPrivateIpAddresses(_param0 *ec2.UnassignPrivateIpAddressesInput) (*ec2.UnassignPrivateIpAddressesOutput, error) {
 	ret := _m.ctrl.Call(_m, "UnassignPrivateIpAddresses", _param0)
 	ret0, _ := ret[0].(*ec2.UnassignPrivateIpAddressesOutput)
@@ -5123,6 +9155,22 @@ func (_m *MockEC2API) UnassignPrivateIpAddressesRequest(_param0 *ec2.UnassignPri
 
 func (_mr *_MockEC2APIRecorder) UnassignPrivateIpAddressesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "UnassignPrivateIpAddressesRequest", arg0)
+}
+
+func (_m *MockEC2API) UnassignPrivateIpAddressesWithContext(_param0 aws.Context, _param1 *ec2.UnassignPrivateIpAddressesInput, _param2 ...request.Option) (*ec2.UnassignPrivateIpAddressesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "UnassignPrivateIpAddressesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.UnassignPrivateIpAddressesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) UnassignPrivateIpAddressesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UnassignPrivateIpAddressesWithContext", _s...)
 }
 
 func (_m *MockEC2API) UnmonitorInstances(_param0 *ec2.UnmonitorInstancesInput) (*ec2.UnmonitorInstancesOutput, error) {
@@ -5147,6 +9195,98 @@ func (_mr *_MockEC2APIRecorder) UnmonitorInstancesRequest(arg0 interface{}) *gom
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "UnmonitorInstancesRequest", arg0)
 }
 
+func (_m *MockEC2API) UnmonitorInstancesWithContext(_param0 aws.Context, _param1 *ec2.UnmonitorInstancesInput, _param2 ...request.Option) (*ec2.UnmonitorInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "UnmonitorInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.UnmonitorInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) UnmonitorInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UnmonitorInstancesWithContext", _s...)
+}
+
+func (_m *MockEC2API) UpdateSecurityGroupRuleDescriptionsEgress(_param0 *ec2.UpdateSecurityGroupRuleDescriptionsEgressInput) (*ec2.UpdateSecurityGroupRuleDescriptionsEgressOutput, error) {
+	ret := _m.ctrl.Call(_m, "UpdateSecurityGroupRuleDescriptionsEgress", _param0)
+	ret0, _ := ret[0].(*ec2.UpdateSecurityGroupRuleDescriptionsEgressOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) UpdateSecurityGroupRuleDescriptionsEgress(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateSecurityGroupRuleDescriptionsEgress", arg0)
+}
+
+func (_m *MockEC2API) UpdateSecurityGroupRuleDescriptionsEgressRequest(_param0 *ec2.UpdateSecurityGroupRuleDescriptionsEgressInput) (*request.Request, *ec2.UpdateSecurityGroupRuleDescriptionsEgressOutput) {
+	ret := _m.ctrl.Call(_m, "UpdateSecurityGroupRuleDescriptionsEgressRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.UpdateSecurityGroupRuleDescriptionsEgressOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) UpdateSecurityGroupRuleDescriptionsEgressRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateSecurityGroupRuleDescriptionsEgressRequest", arg0)
+}
+
+func (_m *MockEC2API) UpdateSecurityGroupRuleDescriptionsEgressWithContext(_param0 aws.Context, _param1 *ec2.UpdateSecurityGroupRuleDescriptionsEgressInput, _param2 ...request.Option) (*ec2.UpdateSecurityGroupRuleDescriptionsEgressOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "UpdateSecurityGroupRuleDescriptionsEgressWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.UpdateSecurityGroupRuleDescriptionsEgressOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) UpdateSecurityGroupRuleDescriptionsEgressWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateSecurityGroupRuleDescriptionsEgressWithContext", _s...)
+}
+
+func (_m *MockEC2API) UpdateSecurityGroupRuleDescriptionsIngress(_param0 *ec2.UpdateSecurityGroupRuleDescriptionsIngressInput) (*ec2.UpdateSecurityGroupRuleDescriptionsIngressOutput, error) {
+	ret := _m.ctrl.Call(_m, "UpdateSecurityGroupRuleDescriptionsIngress", _param0)
+	ret0, _ := ret[0].(*ec2.UpdateSecurityGroupRuleDescriptionsIngressOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) UpdateSecurityGroupRuleDescriptionsIngress(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateSecurityGroupRuleDescriptionsIngress", arg0)
+}
+
+func (_m *MockEC2API) UpdateSecurityGroupRuleDescriptionsIngressRequest(_param0 *ec2.UpdateSecurityGroupRuleDescriptionsIngressInput) (*request.Request, *ec2.UpdateSecurityGroupRuleDescriptionsIngressOutput) {
+	ret := _m.ctrl.Call(_m, "UpdateSecurityGroupRuleDescriptionsIngressRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.UpdateSecurityGroupRuleDescriptionsIngressOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) UpdateSecurityGroupRuleDescriptionsIngressRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateSecurityGroupRuleDescriptionsIngressRequest", arg0)
+}
+
+func (_m *MockEC2API) UpdateSecurityGroupRuleDescriptionsIngressWithContext(_param0 aws.Context, _param1 *ec2.UpdateSecurityGroupRuleDescriptionsIngressInput, _param2 ...request.Option) (*ec2.UpdateSecurityGroupRuleDescriptionsIngressOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "UpdateSecurityGroupRuleDescriptionsIngressWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.UpdateSecurityGroupRuleDescriptionsIngressOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) UpdateSecurityGroupRuleDescriptionsIngressWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateSecurityGroupRuleDescriptionsIngressWithContext", _s...)
+}
+
 func (_m *MockEC2API) WaitUntilBundleTaskComplete(_param0 *ec2.DescribeBundleTasksInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilBundleTaskComplete", _param0)
 	ret0, _ := ret[0].(error)
@@ -5155,6 +9295,21 @@ func (_m *MockEC2API) WaitUntilBundleTaskComplete(_param0 *ec2.DescribeBundleTas
 
 func (_mr *_MockEC2APIRecorder) WaitUntilBundleTaskComplete(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilBundleTaskComplete", arg0)
+}
+
+func (_m *MockEC2API) WaitUntilBundleTaskCompleteWithContext(_param0 aws.Context, _param1 *ec2.DescribeBundleTasksInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilBundleTaskCompleteWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilBundleTaskCompleteWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilBundleTaskCompleteWithContext", _s...)
 }
 
 func (_m *MockEC2API) WaitUntilConversionTaskCancelled(_param0 *ec2.DescribeConversionTasksInput) error {
@@ -5167,6 +9322,21 @@ func (_mr *_MockEC2APIRecorder) WaitUntilConversionTaskCancelled(arg0 interface{
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilConversionTaskCancelled", arg0)
 }
 
+func (_m *MockEC2API) WaitUntilConversionTaskCancelledWithContext(_param0 aws.Context, _param1 *ec2.DescribeConversionTasksInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilConversionTaskCancelledWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilConversionTaskCancelledWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilConversionTaskCancelledWithContext", _s...)
+}
+
 func (_m *MockEC2API) WaitUntilConversionTaskCompleted(_param0 *ec2.DescribeConversionTasksInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilConversionTaskCompleted", _param0)
 	ret0, _ := ret[0].(error)
@@ -5175,6 +9345,21 @@ func (_m *MockEC2API) WaitUntilConversionTaskCompleted(_param0 *ec2.DescribeConv
 
 func (_mr *_MockEC2APIRecorder) WaitUntilConversionTaskCompleted(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilConversionTaskCompleted", arg0)
+}
+
+func (_m *MockEC2API) WaitUntilConversionTaskCompletedWithContext(_param0 aws.Context, _param1 *ec2.DescribeConversionTasksInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilConversionTaskCompletedWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilConversionTaskCompletedWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilConversionTaskCompletedWithContext", _s...)
 }
 
 func (_m *MockEC2API) WaitUntilConversionTaskDeleted(_param0 *ec2.DescribeConversionTasksInput) error {
@@ -5187,6 +9372,21 @@ func (_mr *_MockEC2APIRecorder) WaitUntilConversionTaskDeleted(arg0 interface{})
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilConversionTaskDeleted", arg0)
 }
 
+func (_m *MockEC2API) WaitUntilConversionTaskDeletedWithContext(_param0 aws.Context, _param1 *ec2.DescribeConversionTasksInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilConversionTaskDeletedWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilConversionTaskDeletedWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilConversionTaskDeletedWithContext", _s...)
+}
+
 func (_m *MockEC2API) WaitUntilCustomerGatewayAvailable(_param0 *ec2.DescribeCustomerGatewaysInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilCustomerGatewayAvailable", _param0)
 	ret0, _ := ret[0].(error)
@@ -5195,6 +9395,21 @@ func (_m *MockEC2API) WaitUntilCustomerGatewayAvailable(_param0 *ec2.DescribeCus
 
 func (_mr *_MockEC2APIRecorder) WaitUntilCustomerGatewayAvailable(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilCustomerGatewayAvailable", arg0)
+}
+
+func (_m *MockEC2API) WaitUntilCustomerGatewayAvailableWithContext(_param0 aws.Context, _param1 *ec2.DescribeCustomerGatewaysInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilCustomerGatewayAvailableWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilCustomerGatewayAvailableWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilCustomerGatewayAvailableWithContext", _s...)
 }
 
 func (_m *MockEC2API) WaitUntilExportTaskCancelled(_param0 *ec2.DescribeExportTasksInput) error {
@@ -5207,6 +9422,21 @@ func (_mr *_MockEC2APIRecorder) WaitUntilExportTaskCancelled(arg0 interface{}) *
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilExportTaskCancelled", arg0)
 }
 
+func (_m *MockEC2API) WaitUntilExportTaskCancelledWithContext(_param0 aws.Context, _param1 *ec2.DescribeExportTasksInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilExportTaskCancelledWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilExportTaskCancelledWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilExportTaskCancelledWithContext", _s...)
+}
+
 func (_m *MockEC2API) WaitUntilExportTaskCompleted(_param0 *ec2.DescribeExportTasksInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilExportTaskCompleted", _param0)
 	ret0, _ := ret[0].(error)
@@ -5215,6 +9445,21 @@ func (_m *MockEC2API) WaitUntilExportTaskCompleted(_param0 *ec2.DescribeExportTa
 
 func (_mr *_MockEC2APIRecorder) WaitUntilExportTaskCompleted(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilExportTaskCompleted", arg0)
+}
+
+func (_m *MockEC2API) WaitUntilExportTaskCompletedWithContext(_param0 aws.Context, _param1 *ec2.DescribeExportTasksInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilExportTaskCompletedWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilExportTaskCompletedWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilExportTaskCompletedWithContext", _s...)
 }
 
 func (_m *MockEC2API) WaitUntilImageAvailable(_param0 *ec2.DescribeImagesInput) error {
@@ -5227,6 +9472,21 @@ func (_mr *_MockEC2APIRecorder) WaitUntilImageAvailable(arg0 interface{}) *gomoc
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilImageAvailable", arg0)
 }
 
+func (_m *MockEC2API) WaitUntilImageAvailableWithContext(_param0 aws.Context, _param1 *ec2.DescribeImagesInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilImageAvailableWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilImageAvailableWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilImageAvailableWithContext", _s...)
+}
+
 func (_m *MockEC2API) WaitUntilImageExists(_param0 *ec2.DescribeImagesInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilImageExists", _param0)
 	ret0, _ := ret[0].(error)
@@ -5235,6 +9495,21 @@ func (_m *MockEC2API) WaitUntilImageExists(_param0 *ec2.DescribeImagesInput) err
 
 func (_mr *_MockEC2APIRecorder) WaitUntilImageExists(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilImageExists", arg0)
+}
+
+func (_m *MockEC2API) WaitUntilImageExistsWithContext(_param0 aws.Context, _param1 *ec2.DescribeImagesInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilImageExistsWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilImageExistsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilImageExistsWithContext", _s...)
 }
 
 func (_m *MockEC2API) WaitUntilInstanceExists(_param0 *ec2.DescribeInstancesInput) error {
@@ -5247,6 +9522,21 @@ func (_mr *_MockEC2APIRecorder) WaitUntilInstanceExists(arg0 interface{}) *gomoc
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilInstanceExists", arg0)
 }
 
+func (_m *MockEC2API) WaitUntilInstanceExistsWithContext(_param0 aws.Context, _param1 *ec2.DescribeInstancesInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilInstanceExistsWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilInstanceExistsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilInstanceExistsWithContext", _s...)
+}
+
 func (_m *MockEC2API) WaitUntilInstanceRunning(_param0 *ec2.DescribeInstancesInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilInstanceRunning", _param0)
 	ret0, _ := ret[0].(error)
@@ -5255,6 +9545,21 @@ func (_m *MockEC2API) WaitUntilInstanceRunning(_param0 *ec2.DescribeInstancesInp
 
 func (_mr *_MockEC2APIRecorder) WaitUntilInstanceRunning(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilInstanceRunning", arg0)
+}
+
+func (_m *MockEC2API) WaitUntilInstanceRunningWithContext(_param0 aws.Context, _param1 *ec2.DescribeInstancesInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilInstanceRunningWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilInstanceRunningWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilInstanceRunningWithContext", _s...)
 }
 
 func (_m *MockEC2API) WaitUntilInstanceStatusOk(_param0 *ec2.DescribeInstanceStatusInput) error {
@@ -5267,6 +9572,21 @@ func (_mr *_MockEC2APIRecorder) WaitUntilInstanceStatusOk(arg0 interface{}) *gom
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilInstanceStatusOk", arg0)
 }
 
+func (_m *MockEC2API) WaitUntilInstanceStatusOkWithContext(_param0 aws.Context, _param1 *ec2.DescribeInstanceStatusInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilInstanceStatusOkWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilInstanceStatusOkWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilInstanceStatusOkWithContext", _s...)
+}
+
 func (_m *MockEC2API) WaitUntilInstanceStopped(_param0 *ec2.DescribeInstancesInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilInstanceStopped", _param0)
 	ret0, _ := ret[0].(error)
@@ -5275,6 +9595,21 @@ func (_m *MockEC2API) WaitUntilInstanceStopped(_param0 *ec2.DescribeInstancesInp
 
 func (_mr *_MockEC2APIRecorder) WaitUntilInstanceStopped(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilInstanceStopped", arg0)
+}
+
+func (_m *MockEC2API) WaitUntilInstanceStoppedWithContext(_param0 aws.Context, _param1 *ec2.DescribeInstancesInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilInstanceStoppedWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilInstanceStoppedWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilInstanceStoppedWithContext", _s...)
 }
 
 func (_m *MockEC2API) WaitUntilInstanceTerminated(_param0 *ec2.DescribeInstancesInput) error {
@@ -5287,6 +9622,21 @@ func (_mr *_MockEC2APIRecorder) WaitUntilInstanceTerminated(arg0 interface{}) *g
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilInstanceTerminated", arg0)
 }
 
+func (_m *MockEC2API) WaitUntilInstanceTerminatedWithContext(_param0 aws.Context, _param1 *ec2.DescribeInstancesInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilInstanceTerminatedWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilInstanceTerminatedWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilInstanceTerminatedWithContext", _s...)
+}
+
 func (_m *MockEC2API) WaitUntilKeyPairExists(_param0 *ec2.DescribeKeyPairsInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilKeyPairExists", _param0)
 	ret0, _ := ret[0].(error)
@@ -5295,6 +9645,21 @@ func (_m *MockEC2API) WaitUntilKeyPairExists(_param0 *ec2.DescribeKeyPairsInput)
 
 func (_mr *_MockEC2APIRecorder) WaitUntilKeyPairExists(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilKeyPairExists", arg0)
+}
+
+func (_m *MockEC2API) WaitUntilKeyPairExistsWithContext(_param0 aws.Context, _param1 *ec2.DescribeKeyPairsInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilKeyPairExistsWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilKeyPairExistsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilKeyPairExistsWithContext", _s...)
 }
 
 func (_m *MockEC2API) WaitUntilNatGatewayAvailable(_param0 *ec2.DescribeNatGatewaysInput) error {
@@ -5307,6 +9672,21 @@ func (_mr *_MockEC2APIRecorder) WaitUntilNatGatewayAvailable(arg0 interface{}) *
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilNatGatewayAvailable", arg0)
 }
 
+func (_m *MockEC2API) WaitUntilNatGatewayAvailableWithContext(_param0 aws.Context, _param1 *ec2.DescribeNatGatewaysInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilNatGatewayAvailableWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilNatGatewayAvailableWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilNatGatewayAvailableWithContext", _s...)
+}
+
 func (_m *MockEC2API) WaitUntilNetworkInterfaceAvailable(_param0 *ec2.DescribeNetworkInterfacesInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilNetworkInterfaceAvailable", _param0)
 	ret0, _ := ret[0].(error)
@@ -5315,6 +9695,21 @@ func (_m *MockEC2API) WaitUntilNetworkInterfaceAvailable(_param0 *ec2.DescribeNe
 
 func (_mr *_MockEC2APIRecorder) WaitUntilNetworkInterfaceAvailable(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilNetworkInterfaceAvailable", arg0)
+}
+
+func (_m *MockEC2API) WaitUntilNetworkInterfaceAvailableWithContext(_param0 aws.Context, _param1 *ec2.DescribeNetworkInterfacesInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilNetworkInterfaceAvailableWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilNetworkInterfaceAvailableWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilNetworkInterfaceAvailableWithContext", _s...)
 }
 
 func (_m *MockEC2API) WaitUntilPasswordDataAvailable(_param0 *ec2.GetPasswordDataInput) error {
@@ -5327,6 +9722,21 @@ func (_mr *_MockEC2APIRecorder) WaitUntilPasswordDataAvailable(arg0 interface{})
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilPasswordDataAvailable", arg0)
 }
 
+func (_m *MockEC2API) WaitUntilPasswordDataAvailableWithContext(_param0 aws.Context, _param1 *ec2.GetPasswordDataInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilPasswordDataAvailableWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilPasswordDataAvailableWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilPasswordDataAvailableWithContext", _s...)
+}
+
 func (_m *MockEC2API) WaitUntilSnapshotCompleted(_param0 *ec2.DescribeSnapshotsInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilSnapshotCompleted", _param0)
 	ret0, _ := ret[0].(error)
@@ -5335,6 +9745,21 @@ func (_m *MockEC2API) WaitUntilSnapshotCompleted(_param0 *ec2.DescribeSnapshotsI
 
 func (_mr *_MockEC2APIRecorder) WaitUntilSnapshotCompleted(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilSnapshotCompleted", arg0)
+}
+
+func (_m *MockEC2API) WaitUntilSnapshotCompletedWithContext(_param0 aws.Context, _param1 *ec2.DescribeSnapshotsInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilSnapshotCompletedWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilSnapshotCompletedWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilSnapshotCompletedWithContext", _s...)
 }
 
 func (_m *MockEC2API) WaitUntilSpotInstanceRequestFulfilled(_param0 *ec2.DescribeSpotInstanceRequestsInput) error {
@@ -5347,6 +9772,21 @@ func (_mr *_MockEC2APIRecorder) WaitUntilSpotInstanceRequestFulfilled(arg0 inter
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilSpotInstanceRequestFulfilled", arg0)
 }
 
+func (_m *MockEC2API) WaitUntilSpotInstanceRequestFulfilledWithContext(_param0 aws.Context, _param1 *ec2.DescribeSpotInstanceRequestsInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilSpotInstanceRequestFulfilledWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilSpotInstanceRequestFulfilledWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilSpotInstanceRequestFulfilledWithContext", _s...)
+}
+
 func (_m *MockEC2API) WaitUntilSubnetAvailable(_param0 *ec2.DescribeSubnetsInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilSubnetAvailable", _param0)
 	ret0, _ := ret[0].(error)
@@ -5355,6 +9795,21 @@ func (_m *MockEC2API) WaitUntilSubnetAvailable(_param0 *ec2.DescribeSubnetsInput
 
 func (_mr *_MockEC2APIRecorder) WaitUntilSubnetAvailable(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilSubnetAvailable", arg0)
+}
+
+func (_m *MockEC2API) WaitUntilSubnetAvailableWithContext(_param0 aws.Context, _param1 *ec2.DescribeSubnetsInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilSubnetAvailableWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilSubnetAvailableWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilSubnetAvailableWithContext", _s...)
 }
 
 func (_m *MockEC2API) WaitUntilSystemStatusOk(_param0 *ec2.DescribeInstanceStatusInput) error {
@@ -5367,6 +9822,21 @@ func (_mr *_MockEC2APIRecorder) WaitUntilSystemStatusOk(arg0 interface{}) *gomoc
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilSystemStatusOk", arg0)
 }
 
+func (_m *MockEC2API) WaitUntilSystemStatusOkWithContext(_param0 aws.Context, _param1 *ec2.DescribeInstanceStatusInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilSystemStatusOkWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilSystemStatusOkWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilSystemStatusOkWithContext", _s...)
+}
+
 func (_m *MockEC2API) WaitUntilVolumeAvailable(_param0 *ec2.DescribeVolumesInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilVolumeAvailable", _param0)
 	ret0, _ := ret[0].(error)
@@ -5375,6 +9845,21 @@ func (_m *MockEC2API) WaitUntilVolumeAvailable(_param0 *ec2.DescribeVolumesInput
 
 func (_mr *_MockEC2APIRecorder) WaitUntilVolumeAvailable(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilVolumeAvailable", arg0)
+}
+
+func (_m *MockEC2API) WaitUntilVolumeAvailableWithContext(_param0 aws.Context, _param1 *ec2.DescribeVolumesInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilVolumeAvailableWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilVolumeAvailableWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilVolumeAvailableWithContext", _s...)
 }
 
 func (_m *MockEC2API) WaitUntilVolumeDeleted(_param0 *ec2.DescribeVolumesInput) error {
@@ -5387,6 +9872,21 @@ func (_mr *_MockEC2APIRecorder) WaitUntilVolumeDeleted(arg0 interface{}) *gomock
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilVolumeDeleted", arg0)
 }
 
+func (_m *MockEC2API) WaitUntilVolumeDeletedWithContext(_param0 aws.Context, _param1 *ec2.DescribeVolumesInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilVolumeDeletedWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilVolumeDeletedWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilVolumeDeletedWithContext", _s...)
+}
+
 func (_m *MockEC2API) WaitUntilVolumeInUse(_param0 *ec2.DescribeVolumesInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilVolumeInUse", _param0)
 	ret0, _ := ret[0].(error)
@@ -5395,6 +9895,21 @@ func (_m *MockEC2API) WaitUntilVolumeInUse(_param0 *ec2.DescribeVolumesInput) er
 
 func (_mr *_MockEC2APIRecorder) WaitUntilVolumeInUse(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilVolumeInUse", arg0)
+}
+
+func (_m *MockEC2API) WaitUntilVolumeInUseWithContext(_param0 aws.Context, _param1 *ec2.DescribeVolumesInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilVolumeInUseWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilVolumeInUseWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilVolumeInUseWithContext", _s...)
 }
 
 func (_m *MockEC2API) WaitUntilVpcAvailable(_param0 *ec2.DescribeVpcsInput) error {
@@ -5407,6 +9922,21 @@ func (_mr *_MockEC2APIRecorder) WaitUntilVpcAvailable(arg0 interface{}) *gomock.
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilVpcAvailable", arg0)
 }
 
+func (_m *MockEC2API) WaitUntilVpcAvailableWithContext(_param0 aws.Context, _param1 *ec2.DescribeVpcsInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilVpcAvailableWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilVpcAvailableWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilVpcAvailableWithContext", _s...)
+}
+
 func (_m *MockEC2API) WaitUntilVpcExists(_param0 *ec2.DescribeVpcsInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilVpcExists", _param0)
 	ret0, _ := ret[0].(error)
@@ -5415,6 +9945,21 @@ func (_m *MockEC2API) WaitUntilVpcExists(_param0 *ec2.DescribeVpcsInput) error {
 
 func (_mr *_MockEC2APIRecorder) WaitUntilVpcExists(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilVpcExists", arg0)
+}
+
+func (_m *MockEC2API) WaitUntilVpcExistsWithContext(_param0 aws.Context, _param1 *ec2.DescribeVpcsInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilVpcExistsWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilVpcExistsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilVpcExistsWithContext", _s...)
 }
 
 func (_m *MockEC2API) WaitUntilVpcPeeringConnectionDeleted(_param0 *ec2.DescribeVpcPeeringConnectionsInput) error {
@@ -5427,6 +9972,21 @@ func (_mr *_MockEC2APIRecorder) WaitUntilVpcPeeringConnectionDeleted(arg0 interf
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilVpcPeeringConnectionDeleted", arg0)
 }
 
+func (_m *MockEC2API) WaitUntilVpcPeeringConnectionDeletedWithContext(_param0 aws.Context, _param1 *ec2.DescribeVpcPeeringConnectionsInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilVpcPeeringConnectionDeletedWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilVpcPeeringConnectionDeletedWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilVpcPeeringConnectionDeletedWithContext", _s...)
+}
+
 func (_m *MockEC2API) WaitUntilVpcPeeringConnectionExists(_param0 *ec2.DescribeVpcPeeringConnectionsInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilVpcPeeringConnectionExists", _param0)
 	ret0, _ := ret[0].(error)
@@ -5435,6 +9995,21 @@ func (_m *MockEC2API) WaitUntilVpcPeeringConnectionExists(_param0 *ec2.DescribeV
 
 func (_mr *_MockEC2APIRecorder) WaitUntilVpcPeeringConnectionExists(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilVpcPeeringConnectionExists", arg0)
+}
+
+func (_m *MockEC2API) WaitUntilVpcPeeringConnectionExistsWithContext(_param0 aws.Context, _param1 *ec2.DescribeVpcPeeringConnectionsInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilVpcPeeringConnectionExistsWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilVpcPeeringConnectionExistsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilVpcPeeringConnectionExistsWithContext", _s...)
 }
 
 func (_m *MockEC2API) WaitUntilVpnConnectionAvailable(_param0 *ec2.DescribeVpnConnectionsInput) error {
@@ -5447,6 +10022,21 @@ func (_mr *_MockEC2APIRecorder) WaitUntilVpnConnectionAvailable(arg0 interface{}
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilVpnConnectionAvailable", arg0)
 }
 
+func (_m *MockEC2API) WaitUntilVpnConnectionAvailableWithContext(_param0 aws.Context, _param1 *ec2.DescribeVpnConnectionsInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilVpnConnectionAvailableWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilVpnConnectionAvailableWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilVpnConnectionAvailableWithContext", _s...)
+}
+
 func (_m *MockEC2API) WaitUntilVpnConnectionDeleted(_param0 *ec2.DescribeVpnConnectionsInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilVpnConnectionDeleted", _param0)
 	ret0, _ := ret[0].(error)
@@ -5455,4 +10045,19 @@ func (_m *MockEC2API) WaitUntilVpnConnectionDeleted(_param0 *ec2.DescribeVpnConn
 
 func (_mr *_MockEC2APIRecorder) WaitUntilVpnConnectionDeleted(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilVpnConnectionDeleted", arg0)
+}
+
+func (_m *MockEC2API) WaitUntilVpnConnectionDeletedWithContext(_param0 aws.Context, _param1 *ec2.DescribeVpnConnectionsInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilVpnConnectionDeletedWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEC2APIRecorder) WaitUntilVpnConnectionDeletedWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilVpnConnectionDeletedWithContext", _s...)
 }
