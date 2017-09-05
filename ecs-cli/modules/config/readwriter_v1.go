@@ -210,7 +210,7 @@ func (rdwr *YAMLReadWriter) saveConfig(path string, config interface{}) error {
 	}
 
 	if err = ioutil.WriteFile(path, data, configFileMode.Perm()); err != nil {
-		logrus.Errorf("Unable to write config to %s", path)
+		logrus.Errorf("Unable to write configuration to %s", path)
 		return err
 	}
 

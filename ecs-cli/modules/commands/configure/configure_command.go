@@ -82,7 +82,7 @@ func configureDefaultClusterFlags() []cli.Flag {
 		cli.StringFlag{
 			Name: flags.ConfigNameFlag,
 			Usage: fmt.Sprintf(
-				"Specifies the name of the cluster config to be set as default.",
+				"Specifies the name of the cluster configuration to use by default.",
 			),
 		},
 	}
@@ -93,7 +93,7 @@ func configureDefaultProfileFlags() []cli.Flag {
 		cli.StringFlag{
 			Name: flags.ProfileNameFlag,
 			Usage: fmt.Sprintf(
-				"Specifies the name of the cluster config to be set as default.",
+				"Specifies the name of the profile to use by default.",
 			),
 		},
 	}
@@ -104,14 +104,14 @@ func configureProfileFlags() []cli.Flag {
 		cli.StringFlag{
 			Name: flags.AccessKeyFlag,
 			Usage: fmt.Sprintf(
-				"Specifies the AWS access key to use. Will use value of your $AWS_ACCESS_KEY_ID environment variable if it is set.",
+				"Specifies the AWS access key to use. The ECS CLI uses the value of your $AWS_ACCESS_KEY_ID environment variable if it is set.",
 			),
 			EnvVar: "AWS_ACCESS_KEY_ID",
 		},
 		cli.StringFlag{
 			Name: flags.SecretKeyFlag,
 			Usage: fmt.Sprintf(
-				"Specifies the AWS secret key to use. Will use value of your $AWS_SECRET_ACCESS_KEY environment variable if it is set.",
+				"Specifies the AWS secret key to use. The ECS CLI uses the value of your $AWS_SECRET_ACCESS_KEY environment variable if it is set.",
 			),
 			EnvVar: "AWS_SECRET_ACCESS_KEY",
 		},
@@ -119,7 +119,7 @@ func configureProfileFlags() []cli.Flag {
 			Name:  flags.ProfileNameFlag,
 			Value: "default",
 			Usage: fmt.Sprintf(
-				"Specifies the name of the profile that will be stored in the configs.",
+				"Specifies the profile name to use for this configuration.",
 			),
 		},
 	}
@@ -145,31 +145,9 @@ func configureFlags() []cli.Flag {
 			Name:  flags.ConfigNameFlag,
 			Value: "default",
 			Usage: fmt.Sprintf(
-				"Specifies the name of the Profile that will be stored in the configs.",
+				"Specifies the cluster config name to use for this configuration.",
 			),
 		},
-		cli.StringFlag{
-			Name: flags.AccessKeyFlag,
-			Usage: fmt.Sprintf(
-				"Specifies the AWS access key to use. Will use value of your $AWS_ACCESS_KEY_ID environment variable if it is set.",
-			),
-			EnvVar: "AWS_ACCESS_KEY_ID",
-		},
-		cli.StringFlag{
-			Name: flags.SecretKeyFlag,
-			Usage: fmt.Sprintf(
-				"Specifies the AWS secret key to use. Will use value of your $AWS_SECRET_ACCESS_KEY environment variable if it is set.",
-			),
-			EnvVar: "AWS_SECRET_ACCESS_KEY",
-		},
-		cli.StringFlag{
-			Name: flags.ProfileFlag + ", p",
-			Usage: fmt.Sprintf(
-				"Specifies your AWS credentials with an existing named profile from ~/.aws/credentials. Will use value of your $AWS_PROFILE environment variable if it is set.",
-			),
-			EnvVar: "AWS_PROFILE",
-		},
-
 		cli.StringFlag{
 			Name:  flags.ComposeProjectNamePrefixFlag,
 			Value: flags.ComposeProjectNamePrefixDefaultValue,
