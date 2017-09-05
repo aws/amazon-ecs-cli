@@ -63,6 +63,22 @@ func defaultClusterCommand() cli.Command {
 	}
 }
 
+func migrateCommand() cli.Command {
+	return cli.Command{
+		Name:   "migrate",
+		Usage:  "[Optional] Moves your old configuration to new configuration",
+		Action: errorLogger(configure.Migrate),
+		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name: flags.ForceFlag,
+				Usage: fmt.Sprintf(
+					"[Optional] Force move your old configuration to new configuration.",
+				),
+			},
+		},
+	}
+}
+
 // ConfigureCommand configure command help
 func ConfigureCommand() cli.Command {
 	return cli.Command{
@@ -73,6 +89,7 @@ func ConfigureCommand() cli.Command {
 		Subcommands: []cli.Command{
 			configureProfileCommand(),
 			defaultClusterCommand(),
+			migrateCommand(),
 		},
 	}
 }

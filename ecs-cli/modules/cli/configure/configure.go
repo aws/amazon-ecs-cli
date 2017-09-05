@@ -53,8 +53,11 @@ func Migrate(context *cli.Context) error {
 		logrus.Warnf("Storing AWS Profile in the config is no longer supported. Please use the %s flag inline in commands instead.", command.ProfileFlag)
 	}
 
-	if context.Bool(command.ForceFlag) {
-		migrateWarning(oldConfig)
+	if !context.Bool(command.ForceFlag) {
+		err = migrateWarning(oldConfig)
+		if err != nil {
+			return err
+		}
 		scanner := bufio.NewScanner(os.Stdin)
 		scanner.Scan()
 		input := scanner.Text()
