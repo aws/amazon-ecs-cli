@@ -35,6 +35,8 @@ const (
 	VerboseFlag            = "verbose"
 	ClusterConfigFlag      = "cluster-config"
 	ProfileConfigFlag      = "ecs-profile"
+	ProfileNameFlag        = "profile-name"
+	ConfigNameFlag         = "config-name"
 
 	ComposeProjectNamePrefixFlag         = "compose-project-name-prefix"
 	ComposeProjectNamePrefixDefaultValue = "ecscompose-"
