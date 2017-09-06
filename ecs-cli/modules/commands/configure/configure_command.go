@@ -63,6 +63,22 @@ func defaultClusterCommand() cli.Command {
 	}
 }
 
+func migrateCommand() cli.Command {
+	return cli.Command{
+		Name:   "migrate",
+		Usage:  "[Optional] Moves your old configuration to new configuration",
+		Action: errorLogger(configure.Migrate),
+		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name: flags.ForceFlag,
+				Usage: fmt.Sprintf(
+					"[Optional] Force move your old configuration to new configuration.",
+				),
+			},
+		},
+	}
+}
+
 // ConfigureCommand configure command help
 func ConfigureCommand() cli.Command {
 	return cli.Command{
@@ -73,6 +89,7 @@ func ConfigureCommand() cli.Command {
 		Subcommands: []cli.Command{
 			configureProfileCommand(),
 			defaultClusterCommand(),
+			migrateCommand(),
 		},
 	}
 }
@@ -149,24 +166,16 @@ func configureFlags() []cli.Flag {
 			),
 		},
 		cli.StringFlag{
-			Name:  flags.ComposeProjectNamePrefixFlag,
-			Value: flags.ComposeProjectNamePrefixDefaultValue,
-			Usage: fmt.Sprintf(
-				"[Optional] Specifies the prefix added to an ECS task definition created from a compose file. Format <prefix><project-name>.",
-			),
-		},
-		cli.StringFlag{
 			Name:  flags.ComposeServiceNamePrefixFlag,
 			Value: flags.ComposeServiceNamePrefixDefaultValue,
 			Usage: fmt.Sprintf(
-				"[Optional] Specifies the prefix added to an ECS service created from a compose file. Format <prefix><project-name>.",
+				"[Deprecated] Specifies the prefix added to an ECS service created from a compose file. Format <prefix><project-name>. (defaults to empty)",
 			),
 		},
 		cli.StringFlag{
-			Name:  flags.CFNStackNamePrefixFlag,
-			Value: flags.CFNStackNamePrefixDefaultValue,
+			Name: flags.CFNStackNameFlag,
 			Usage: fmt.Sprintf(
-				"[Optional] Specifies the prefix added to the AWS CloudFormation stack created on ecs-cli up. Format <prefix><cluster-name>.",
+				"[Optional] Specifies the name of AWS CloudFormation stack created on ecs-cli up. (default: \"amazon-ecs-cli-setup-<cluster-name>\")",
 			),
 		},
 	}
