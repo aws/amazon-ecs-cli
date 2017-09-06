@@ -16,78 +16,106 @@ package configure
 import (
 	"fmt"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 )
 
-// Configure is the callback for ConfigureCommand.
-func Configure(context *cli.Context) {
-	ecsConfig, err := createECSConfigFromCLI(context)
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"error": err,
-		}).Error("Error saving config.")
-		return
+func fieldEmpty(field string, flagName string) error {
+	if field == "" {
+		return fmt.Errorf("%s can not be empty.", flagName)
 	}
-	rdwr, err := config.NewReadWriter()
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"error": err,
-		}).Error("Error saving config.")
-		return
-	}
-	err = saveConfig(ecsConfig, rdwr)
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"error": err,
-		}).Error("Error saving config.")
-	}
+	return nil
 }
 
-// createECSConfigFromCLI creates a new CliConfig object from the CLI context.
-// It reads CLI flags to validate the ecs-cli config fields.
-func createECSConfigFromCLI(context *cli.Context) (*config.CLIConfig, error) {
-	accessKey := context.String(command.AccessKeyFlag)
-	secretKey := context.String(command.SecretKeyFlag)
+// Cluster is the callback for ConfigureCommand (cluster).
+func Cluster(context *cli.Context) error {
 	region := context.String(command.RegionFlag)
-	profile := context.String(command.ProfileFlag)
-	cluster := context.String(command.ClusterFlag)
-
-	if cluster == "" {
-		return nil, fmt.Errorf("Missing required argument '%s'", command.ClusterFlag)
-	}
-
-	// ONLY allow for profile OR access keys to be specified
-	isProfileSpecified := profile != ""
-	isAccessKeySpecified := accessKey != "" || secretKey != ""
-	if isProfileSpecified && isAccessKeySpecified {
-		return nil, fmt.Errorf("Both AWS Access/Secret Keys and Profile were provided; only one of the two can be specified")
-	}
-
-	ecsConfig := config.NewCLIConfig(cluster)
-	ecsConfig.AWSProfile = profile
-	ecsConfig.AWSAccessKey = accessKey
-	ecsConfig.AWSSecretKey = secretKey
-	ecsConfig.Region = region
-
-	ecsConfig.ComposeProjectNamePrefix = context.String(command.ComposeProjectNamePrefixFlag)
-	ecsConfig.ComposeServiceNamePrefix = context.String(command.ComposeServiceNamePrefixFlag)
-	ecsConfig.CFNStackNamePrefix = context.String(command.CFNStackNamePrefixFlag)
-
-	return ecsConfig, nil
-}
-
-// saveConfig does the actual configuration setup. This isolated method is useful for testing.
-func saveConfig(ecsConfig *config.CLIConfig, rdwr config.ReadWriter) error {
-
-	err := rdwr.Save(ecsConfig)
-	if err != nil {
+	if err := fieldEmpty(region, command.RegionFlag); err != nil {
 		return err
 	}
-	logrus.WithFields(logrus.Fields{
-		"cluster": ecsConfig.Cluster,
-	}).Info("Saved ECS CLI configuration for")
+	clusterProfileName := context.String(command.ConfigNameFlag)
+	if err := fieldEmpty(clusterProfileName, command.ConfigNameFlag); err != nil {
+		return err
+	}
+	cluster := context.String(command.ClusterFlag)
+	if err := fieldEmpty(cluster, command.ClusterFlag); err != nil {
+		return err
+	}
+
+	clusterConfig := &config.Cluster{Cluster: cluster, Region: region}
+
+	rdwr, err := config.NewReadWriter()
+	if err != nil {
+		return errors.Wrap(err, "Error saving cluster configuration")
+	}
+	if err = rdwr.SaveCluster(clusterProfileName, clusterConfig); err != nil {
+		return errors.Wrap(err, "Error saving cluster configuration")
+	}
+
+	return nil
+}
+
+// Profile is the callback for Configure Profile subcommand.
+func Profile(context *cli.Context) error {
+	secretKey := context.String(command.SecretKeyFlag)
+	if err := fieldEmpty(secretKey, command.SecretKeyFlag); err != nil {
+		return err
+	}
+	accessKey := context.String(command.AccessKeyFlag)
+	if err := fieldEmpty(accessKey, command.AccessKeyFlag); err != nil {
+		return err
+	}
+	profileName := context.String(command.ProfileNameFlag)
+	if err := fieldEmpty(profileName, command.ProfileNameFlag); err != nil {
+		return err
+	}
+	profile := &config.Profile{AWSAccessKey: accessKey, AWSSecretKey: secretKey}
+
+	rdwr, err := config.NewReadWriter()
+	if err != nil {
+		return errors.Wrap(err, "Error saving profile")
+	}
+	if err = rdwr.SaveProfile(profileName, profile); err != nil {
+		return errors.Wrap(err, "Error saving profile")
+	}
+
+	return nil
+}
+
+// DefaultProfile is the callback for Configure Profile Default subcommand.
+func DefaultProfile(context *cli.Context) error {
+	profileName := context.String(command.ProfileNameFlag)
+	if err := fieldEmpty(profileName, command.ProfileNameFlag); err != nil {
+		return err
+	}
+
+	rdwr, err := config.NewReadWriter()
+	if err != nil {
+		return errors.Wrap(err, "Error setting default config")
+	}
+	if err = rdwr.SetDefaultProfile(profileName); err != nil {
+		return errors.Wrap(err, "Error setting default config")
+	}
+
+	return nil
+}
+
+// DefaultCluster is the callback for Configure Cluster Default subcommand.
+func DefaultCluster(context *cli.Context) error {
+	clusterName := context.String(command.ConfigNameFlag)
+	if err := fieldEmpty(clusterName, command.ConfigNameFlag); err != nil {
+		return err
+	}
+
+	rdwr, err := config.NewReadWriter()
+	if err != nil {
+		return errors.Wrap(err, "Error setting default config")
+	}
+	if err = rdwr.SetDefaultCluster(clusterName); err != nil {
+		return errors.Wrap(err, "Error setting default config")
+	}
+
 	return nil
 }
