@@ -23,9 +23,10 @@ import (
 )
 
 const (
-	testClusterName = "test-cluster"
-	testAWSProfile  = "aws-profile"
-	testRegion      = "us-west-2"
+	testClusterName   = "test-cluster"
+	testAWSProfile    = "aws-profile"
+	testRegion        = "us-west-2"
+	testClusterConfig = "prod-config"
 )
 
 func newMockDestination() (*Destination, error) {
@@ -49,18 +50,15 @@ func setupParser(t *testing.T, dest *Destination, shouldBeInitialized bool) *YAM
 	return parser
 }
 
-func saveConfigWithCluster(t *testing.T, parser *YAMLReadWriter, dest *Destination) {
-	saveConfig(t, parser, dest, &CLIConfig{Cluster: testClusterName, ComposeProjectNamePrefix: "", ComposeServiceNamePrefix: "", CFNStackNamePrefix: ""})
-}
-
-func saveConfig(t *testing.T, parser *YAMLReadWriter, dest *Destination, newConfig *CLIConfig) {
-
-	err := parser.Save(newConfig)
-	assert.NoError(t, err, "Could not save config file")
+func saveClusterConfig(t *testing.T, parser *YAMLReadWriter, dest *Destination) {
+	cluster := Cluster{Cluster: testClusterName, Region: testRegion}
+	err := parser.SaveCluster(testClusterConfig, &cluster)
+	assert.NoError(t, err, "Error saving mock config")
 }
 
 func TestConfigPermissions(t *testing.T) {
 	dest, err := newMockDestination()
+
 	assert.NoError(t, err, "Error creating mock config destination")
 
 	parser := setupParser(t, dest, false)
@@ -71,7 +69,7 @@ func TestConfigPermissions(t *testing.T) {
 	defer os.RemoveAll(dest.Path)
 
 	// Create config file and confirm it has expected initial permissions
-	saveConfigWithCluster(t, parser, dest)
+	saveClusterConfig(t, parser, dest)
 
 	path := configFilePath(dest)
 	confirmConfigMode(t, path, configFileMode)
@@ -84,8 +82,8 @@ func TestConfigPermissions(t *testing.T) {
 	confirmConfigMode(t, path, badMode)
 
 	// Save the config and confirm it's fixed again
-	cliConfig := &CLIConfig{Cluster: testClusterName}
-	err = parser.Save(cliConfig)
+	cluster := &Cluster{Cluster: testClusterName}
+	err = parser.SaveCluster("clusterConfig", cluster)
 	assert.NoError(t, err, "Unable to save to new config %v", path)
 
 	confirmConfigMode(t, path, configFileMode)
@@ -238,4 +236,42 @@ clusters:
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, "cli-demo-gamma", config.Cluster, "Cluster should be present.")
 	assert.Equal(t, "us-west-1", config.Region, "Region should be present.")
+}
+
+func TestOverwriteINIConfigFile(t *testing.T) {
+	configContents := `[ecs]
+cluster = very-long-cluster-name
+aws_profile = some-long-profile
+region = us-west-2
+aws_access_key_id =
+aws_secret_access_key =
+compose-project-name-prefix = ecscompose-
+compose-service-name-prefix = ecscompose-service-
+cfn-stack-name-prefix = amazon-ecs-cli-setup-
+`
+
+	dest, err := newMockDestination()
+	assert.NoError(t, err, "Error creating mock config destination")
+
+	err = os.MkdirAll(dest.Path, *dest.Mode)
+	assert.NoError(t, err, "Could not create config directory")
+
+	defer os.RemoveAll(dest.Path)
+
+	// Save old ini config file
+	err = ioutil.WriteFile(dest.Path+"/"+iniConfigFileName, []byte(configContents), *dest.Mode)
+	assert.NoError(t, err)
+
+	// Overwrite
+	parser := setupParser(t, dest, false)
+	saveClusterConfig(t, parser, dest)
+
+	// Ensure that what has been read is correct
+	readConfig, err := parser.Get("", "")
+	assert.NoError(t, err, "Error reading config")
+	assert.Equal(t, testClusterName, readConfig.Cluster, "Cluster name mismatch in config.")
+	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
+	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
+	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+
 }
