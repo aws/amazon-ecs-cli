@@ -42,9 +42,8 @@ type CLIConfig struct {
 	Region                   string
 	AWSAccessKey             string
 	AWSSecretKey             string
-	ComposeProjectNamePrefix string
 	ComposeServiceNamePrefix string
-	CFNStackNamePrefix       string
+	CFNStackName             string
 }
 
 // Profile is a simple struct for storing a single profile config
@@ -58,6 +57,7 @@ type Cluster struct {
 	Cluster                  string `yaml:"cluster"`
 	Region                   string `yaml:"region"`
 	ComposeServiceNamePrefix string `yaml:"compose-service-name-prefix"`
+	CFNStackName             string `yaml:"cfn-stack-name"`
 }
 
 // ClusterConfig is the top level struct representing the cluster config file

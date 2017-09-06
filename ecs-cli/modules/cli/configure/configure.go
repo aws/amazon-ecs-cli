@@ -14,8 +14,12 @@
 package configure
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strings"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/pkg/errors"
@@ -26,6 +30,57 @@ func fieldEmpty(field string, flagName string) error {
 	if field == "" {
 		return fmt.Errorf("%s can not be empty.", flagName)
 	}
+	return nil
+}
+
+// Migrate is the callback for the Migrate command
+func Migrate(context *cli.Context) error {
+	oldConfig := &config.CLIConfig{}
+	dest, err := config.NewDefaultDestination()
+	if err != nil {
+		return errors.Wrap(err, "Error reading old config file.")
+	}
+	iniReadWriter, err := config.NewINIReadWriter(dest)
+	if err != nil {
+		return errors.Wrap(err, "Error reading old config file.")
+	}
+	err = iniReadWriter.GetConfig(oldConfig)
+	if err != nil {
+		return errors.Wrap(err, "Error reading old config file.")
+	}
+
+	if oldConfig.AWSProfile != "" {
+		logrus.Warnf("Storing AWS Profile in the config is no longer supported. Please use the %s flag inline in commands instead.", command.ProfileFlag)
+	}
+
+	if !context.Bool(command.ForceFlag) {
+		err = migrateWarning(oldConfig)
+		if err != nil {
+			return err
+		}
+		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Scan()
+		input := scanner.Text()
+		if !strings.HasPrefix(input, "y") && !strings.HasPrefix(input, "Y") {
+			logrus.Info("Aborting Migration.")
+			return nil
+		}
+	}
+
+	cluster := &config.Cluster{Cluster: oldConfig.Cluster, Region: oldConfig.Region, CFNStackName: oldConfig.CFNStackName, ComposeServiceNamePrefix: oldConfig.ComposeServiceNamePrefix}
+	profile := &config.Profile{AWSAccessKey: oldConfig.AWSAccessKey, AWSSecretKey: oldConfig.AWSProfile}
+
+	rdwr, err := config.NewReadWriter()
+	if err != nil {
+		return errors.Wrap(err, "Error saving cluster configuration")
+	}
+	if err = rdwr.SaveCluster("default", cluster); err != nil {
+		return errors.Wrap(err, "Error saving cluster configuration")
+	}
+	if err = rdwr.SaveProfile("default", profile); err != nil {
+		return errors.Wrap(err, "Error saving profile")
+	}
+
 	return nil
 }
 

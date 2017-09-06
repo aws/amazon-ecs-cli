@@ -39,8 +39,8 @@ func GetFilePermissions(fileName string) (*os.FileMode, error) {
 	return &mode, nil
 }
 
-// newDefaultDestination creates a new Destination object.
-func newDefaultDestination() (*Destination, error) {
+// NewDefaultDestination creates a new Destination object.
+func NewDefaultDestination() (*Destination, error) {
 	homeDir, err := utils.GetHomeDir()
 	if err != nil {
 		return nil, errors.Wrap(err, "Error finding Home directory to store config file")

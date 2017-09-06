@@ -232,22 +232,17 @@ func ConvertMapToSlice(mapItems map[string]bool) []*string {
 // GetTaskGroup returns an auto-generated formatted string
 // that can be supplied while starting an ECS task and is used to identify the owner of ECS Task
 func GetTaskGroup(entity ProjectEntity) string {
-	return composeutils.GetTaskGroup(getProjectPrefix(entity), GetProjectName(entity))
+	return composeutils.GetTaskGroup(GetProjectName(entity))
 }
 
 // GetTaskDefinitionFamily returns the family name
 func GetTaskDefinitionFamily(entity ProjectEntity) string {
-	return composeutils.GetTaskDefinitionFamily(getProjectPrefix(entity), GetProjectName(entity))
+	return GetProjectName(entity)
 }
 
 // GetProjectName returns the name of the project that was set in the context we are working with
 func GetProjectName(entity ProjectEntity) string {
 	return entity.Context().Context.ProjectName
-}
-
-// getProjectPrefix returns the prefix for the project name
-func getProjectPrefix(entity ProjectEntity) string {
-	return entity.Context().ECSParams.ComposeProjectNamePrefix
 }
 
 // GetServiceName using project entity
