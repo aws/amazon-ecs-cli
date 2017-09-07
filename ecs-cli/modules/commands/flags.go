@@ -15,7 +15,9 @@ package command
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
@@ -96,5 +98,17 @@ func OptionalRegionFlag() cli.Flag {
 		Usage: fmt.Sprintf(
 			"[Optional] Specifies the AWS region to use. Defaults to the region configured using the configure command",
 		),
+	}
+}
+
+// UsageErrorFactory Returns a usage error function for the specified command
+func UsageErrorFactory(command string) func(*cli.Context, error, bool) error {
+	return func(c *cli.Context, err error, isSubcommand bool) error {
+		if err != nil {
+			logrus.Error(err)
+		}
+		cli.ShowCommandHelp(c, command)
+		os.Exit(1)
+		return err
 	}
 }

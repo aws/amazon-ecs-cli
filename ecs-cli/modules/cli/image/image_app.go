@@ -53,27 +53,23 @@ const (
 func ImagePush(c *cli.Context) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
-		logrus.Error("Error executing 'push': ", err)
-		return
+		logrus.Fatal("Error executing 'push': ", err)
 	}
 
 	ecsParams, err := config.NewCliParams(c, rdwr)
 	if err != nil {
-		logrus.Error("Error executing 'push': ", err)
-		return
+		logrus.Fatal("Error executing 'push': ", err)
 	}
 
 	dockerClient, err := dockerclient.NewClient()
 	if err != nil {
-		logrus.Error("Error executing 'push': ", err)
-		return
+		logrus.Fatal("Error executing 'push': ", err)
 	}
 	ecrClient := ecrclient.NewClient(ecsParams)
 	stsClient := stsclient.NewClient(ecsParams)
 
 	if err := pushImage(c, rdwr, dockerClient, ecrClient, stsClient); err != nil {
-		logrus.Error("Error executing 'push': ", err)
-		return
+		logrus.Fatal("Error executing 'push': ", err)
 	}
 }
 
@@ -81,27 +77,23 @@ func ImagePush(c *cli.Context) {
 func ImagePull(c *cli.Context) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
-		logrus.Error("Error executing 'pull': ", err)
-		return
+		logrus.Fatal("Error executing 'pull': ", err)
 	}
 
 	ecsParams, err := config.NewCliParams(c, rdwr)
 	if err != nil {
-		logrus.Error("Error executing 'pull': ", err)
-		return
+		logrus.Fatal("Error executing 'pull': ", err)
 	}
 
 	dockerClient, err := dockerclient.NewClient()
 	if err != nil {
-		logrus.Error("Error executing 'pull': ", err)
-		return
+		logrus.Fatal("Error executing 'pull': ", err)
 	}
 	ecrClient := ecrclient.NewClient(ecsParams)
 	stsClient := stsclient.NewClient(ecsParams)
 
 	if err := pullImage(c, rdwr, dockerClient, ecrClient, stsClient); err != nil {
-		logrus.Error("Error executing 'pull': ", err)
-		return
+		logrus.Fatal("Error executing 'pull': ", err)
 	}
 }
 
@@ -109,19 +101,17 @@ func ImagePull(c *cli.Context) {
 func ImageList(c *cli.Context) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
-		logrus.Error("Error executing 'images': ", err)
-		return
+		logrus.Fatal("Error executing 'images': ", err)
 	}
 
 	ecsParams, err := config.NewCliParams(c, rdwr)
 	if err != nil {
-		logrus.Error("Error executing 'images': ", err)
-		return
+		logrus.Fatal("Error executing 'images': ", err)
 	}
 
 	ecrClient := ecrclient.NewClient(ecsParams)
 	if err := getImages(c, rdwr, ecrClient); err != nil {
-		logrus.Error("Error executing 'images': ", err)
+		logrus.Fatal("Error executing 'images': ", err)
 		return
 	}
 }

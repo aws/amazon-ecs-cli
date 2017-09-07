@@ -26,17 +26,15 @@ import (
 func Configure(context *cli.Context) {
 	ecsConfig, err := createECSConfigFromCli(context)
 	if err != nil {
-		logrus.Error("Error initializing: ", err)
-		return
+		logrus.Fatal("Error initializing: ", err)
 	}
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
-		logrus.Error("Error initializing: ", err)
-		return
+		logrus.Fatal("Error initializing: ", err)
 	}
 	err = saveConfig(ecsConfig, rdwr, rdwr.Destination)
 	if err != nil {
-		logrus.Error("Error initializing: ", err)
+		logrus.Fatal("Error initializing: ", err)
 	}
 }
 
