@@ -23,36 +23,39 @@ import (
 // PushCommand push ECR image
 func PushCommand() cli.Command {
 	return cli.Command{
-		Name:      "push",
-		Usage:     "Push an image to an Amazon ECR repository.",
-		ArgsUsage: image.PushImageFormat,
-		Before:    app.BeforeApp,
-		Action:    image.ImagePush,
-		Flags:     append(imagePushFlags(), command.OptionalRegionFlag()),
+		Name:         "push",
+		Usage:        "Push an image to an Amazon ECR repository.",
+		ArgsUsage:    image.PushImageFormat,
+		Before:       app.BeforeApp,
+		Action:       image.ImagePush,
+		Flags:        append(imagePushFlags(), command.OptionalRegionFlag()),
+		OnUsageError: command.UsageErrorFactory("push"),
 	}
 }
 
 // PullCommand pull ECR image
 func PullCommand() cli.Command {
 	return cli.Command{
-		Name:      "pull",
-		Usage:     "Pull an image from an Amazon ECR repository.",
-		ArgsUsage: image.PullImageFormat,
-		Before:    app.BeforeApp,
-		Action:    image.ImagePull,
-		Flags:     append(imagePullFlags(), command.OptionalRegionFlag()),
+		Name:         "pull",
+		Usage:        "Pull an image from an Amazon ECR repository.",
+		ArgsUsage:    image.PullImageFormat,
+		Before:       app.BeforeApp,
+		Action:       image.ImagePull,
+		Flags:        append(imagePullFlags(), command.OptionalRegionFlag()),
+		OnUsageError: command.UsageErrorFactory("pull"),
 	}
 }
 
 // ImagesCommand list images in ECR
 func ImagesCommand() cli.Command {
 	return cli.Command{
-		Name:      "images",
-		Usage:     "List images an Amazon ECR repository.",
-		ArgsUsage: image.ListImageFormat,
-		Before:    app.BeforeApp,
-		Action:    image.ImageList,
-		Flags:     append(imageListFlags(), command.OptionalRegionFlag()),
+		Name:         "images",
+		Usage:        "List images an Amazon ECR repository.",
+		ArgsUsage:    image.ListImageFormat,
+		Before:       app.BeforeApp,
+		Action:       image.ImageList,
+		Flags:        append(imageListFlags(), command.OptionalRegionFlag()),
+		OnUsageError: command.UsageErrorFactory("images"),
 	}
 }
 

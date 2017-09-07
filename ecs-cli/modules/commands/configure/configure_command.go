@@ -24,10 +24,11 @@ import (
 // ConfigureCommand configure command help
 func ConfigureCommand() cli.Command {
 	return cli.Command{
-		Name:   "configure",
-		Usage:  "Configures your AWS credentials, the AWS region to use, and the ECS cluster name to use with the Amazon ECS CLI. The resulting configuration is stored in the ~/.ecs/config file.",
-		Action: configure.Configure,
-		Flags:  configureFlags(),
+		Name:         "configure",
+		Usage:        "Configures your AWS credentials, the AWS region to use, and the ECS cluster name to use with the Amazon ECS CLI. The resulting configuration is stored in the ~/.ecs/config file.",
+		Action:       configure.Configure,
+		Flags:        configureFlags(),
+		OnUsageError: flags.UsageErrorFactory("configure"),
 	}
 }
 

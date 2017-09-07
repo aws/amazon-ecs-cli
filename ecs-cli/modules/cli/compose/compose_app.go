@@ -21,7 +21,6 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/container"
 	composeFactory "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/factory"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/flynn/go-shlex"
 	"github.com/urfave/cli"
 )
@@ -141,12 +140,4 @@ func ProjectDown(p ecscompose.Project, c *cli.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-// common function for all unsupported operations
-func unsupportedOperation(c *cli.Context) {
-	log.WithFields(log.Fields{
-		"command": c.Command.Name,
-		"Error":   utils.ErrUnsupported,
-	}).Error("Unable to run command")
 }

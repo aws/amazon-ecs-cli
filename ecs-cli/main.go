@@ -53,5 +53,6 @@ func main() {
 		licenseCommand.LicenseCommand(),
 		composeCommand.ComposeCommand(composeFactory),
 	}
+
 	app.Run(os.Args)
 }

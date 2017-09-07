@@ -15,14 +15,16 @@ package licenseCommand
 
 import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/license"
+	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/urfave/cli"
 )
 
 // LicenseCommand prints the license
 func LicenseCommand() cli.Command {
 	return cli.Command{
-		Name:   "license",
-		Usage:  "Prints the LICENSE files for the ECS CLI and its dependencies.",
-		Action: license.PrintLicense,
+		Name:         "license",
+		Usage:        "Prints the LICENSE files for the ECS CLI and its dependencies.",
+		Action:       license.PrintLicense,
+		OnUsageError: command.UsageErrorFactory("license"),
 	}
 }

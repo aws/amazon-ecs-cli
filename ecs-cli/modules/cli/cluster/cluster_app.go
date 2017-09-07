@@ -59,61 +59,53 @@ func init() {
 func ClusterUp(c *cli.Context) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
-		logrus.Error("Error executing 'up': ", err)
-		return
+		logrus.Fatal("Error executing 'up': ", err)
 	}
 
 	ecsClient := ecsclient.NewECSClient()
 	cfnClient := cloudformation.NewCloudformationClient()
 	amiIds := ami.NewStaticAmiIds()
 	if err := createCluster(c, rdwr, ecsClient, cfnClient, amiIds); err != nil {
-		logrus.Error("Error executing 'up': ", err)
-		return
+		logrus.Fatal("Error executing 'up': ", err)
 	}
 }
 
 func ClusterDown(c *cli.Context) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
-		logrus.Error("Error executing 'down': ", err)
-		return
+		logrus.Fatal("Error executing 'down': ", err)
 	}
 
 	ecsClient := ecsclient.NewECSClient()
 	cfnClient := cloudformation.NewCloudformationClient()
 	if err := deleteCluster(c, rdwr, ecsClient, cfnClient); err != nil {
-		logrus.Error("Error executing 'down': ", err)
-		return
+		logrus.Fatal("Error executing 'down': ", err)
 	}
 }
 
 func ClusterScale(c *cli.Context) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
-		logrus.Error("Error executing 'scale': ", err)
-		return
+		logrus.Fatal("Error executing 'scale': ", err)
 	}
 
 	ecsClient := ecsclient.NewECSClient()
 	cfnClient := cloudformation.NewCloudformationClient()
 	if err := scaleCluster(c, rdwr, ecsClient, cfnClient); err != nil {
-		logrus.Error("Error executing 'scale': ", err)
-		return
+		logrus.Fatal("Error executing 'scale': ", err)
 	}
 }
 
 func ClusterPS(c *cli.Context) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
-		logrus.Error("Error executing 'ps ", err)
-		return
+		logrus.Fatal("Error executing 'ps ", err)
 	}
 
 	ecsClient := ecsclient.NewECSClient()
 	infoSet, err := clusterPS(c, rdwr, ecsClient)
 	if err != nil {
-		logrus.Error("Error executing 'ps ", err)
-		return
+		logrus.Fatal("Error executing 'ps ", err)
 	}
 	os.Stdout.WriteString(infoSet.String(container.ContainerInfoColumns, displayTitle))
 }

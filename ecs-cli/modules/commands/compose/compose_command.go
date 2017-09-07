@@ -70,6 +70,7 @@ func ComposeCommand(factory composeFactory.ProjectFactory) cli.Command {
 			// TODO, should honor restart policy in the compose yaml and create ECS Services accordingly
 			serviceCommand.ServiceCommand(factory),
 		},
+		OnUsageError: command.UsageErrorFactory("create"),
 	}
 }
 
@@ -107,6 +108,7 @@ func createCommand(factory composeFactory.ProjectFactory) cli.Command {
 			command.OptionalClusterFlag(),
 			command.OptionalRegionFlag(),
 		},
+		OnUsageError: command.UsageErrorFactory("create"),
 	}
 }
 
@@ -120,6 +122,7 @@ func psCommand(factory composeFactory.ProjectFactory) cli.Command {
 			command.OptionalClusterFlag(),
 			command.OptionalRegionFlag(),
 		},
+		OnUsageError: command.UsageErrorFactory("ps"),
 	}
 }
 
@@ -132,6 +135,7 @@ func upCommand(factory composeFactory.ProjectFactory) cli.Command {
 			command.OptionalClusterFlag(),
 			command.OptionalRegionFlag(),
 		},
+		OnUsageError: command.UsageErrorFactory("up"),
 	}
 }
 
@@ -144,6 +148,7 @@ func startCommand(factory composeFactory.ProjectFactory) cli.Command {
 			command.OptionalClusterFlag(),
 			command.OptionalRegionFlag(),
 		},
+		OnUsageError: command.UsageErrorFactory("start"),
 	}
 }
 
@@ -157,6 +162,7 @@ func runCommand(factory composeFactory.ProjectFactory) cli.Command {
 			command.OptionalClusterFlag(),
 			command.OptionalRegionFlag(),
 		},
+		OnUsageError: command.UsageErrorFactory("run"),
 	}
 }
 
@@ -170,6 +176,7 @@ func stopCommand(factory composeFactory.ProjectFactory) cli.Command {
 			command.OptionalClusterFlag(),
 			command.OptionalRegionFlag(),
 		},
+		OnUsageError: command.UsageErrorFactory("stop"),
 	}
 }
 
@@ -182,5 +189,6 @@ func scaleCommand(factory composeFactory.ProjectFactory) cli.Command {
 			command.OptionalClusterFlag(),
 			command.OptionalRegionFlag(),
 		},
+		OnUsageError: command.UsageErrorFactory("scale"),
 	}
 }
