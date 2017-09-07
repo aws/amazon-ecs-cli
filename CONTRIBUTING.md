@@ -18,9 +18,18 @@ From `$GOPATH/src/github.com/aws/amazon-ecs-cli/ecs-cli`:
 * From `$GOPATH/src/github.com/aws/amazon-ecs-cli/ecs-cli`, run `godep save ./...` (This will update `Godeps/Godeps.json` and copy the dependencies source to the `vendor/` directory).
 
 ## Updating an existing dependency
-* `godep update <dependency> ./...` will update your dependency as well as recursively update any packages it depends on.
+* While godep recommends using `godep update`, this command unfortunately has several known issues (See: https://github.com/tools/godep/issues/498). We recommend following their [suggestion](https://github.com/tools/godep/issues/498#issuecomment-238946586):
+  1. Delete any reference to the package in `Godeps/Godeps.json` (you can also delete the entire `Godeps` dir).
+  1. Delete the package from the `/vendor` dir: `rm -rf $GOPATH/src/github.com/aws/amazon-ecs-cli/ecs-cli/vendor/<package>`. (You can also delete the entire vendor dir)
+  1. Re-vendor the dependency by running `godep save ./...` from `$GOPATH/src/github.com/aws/amazon-ecs-cli/ecs-cli`.
+
 * Inspect the changes with `git diff` (should show up in `vendor/` directory)
+* Example: https://github.com/aws/amazon-ecs-cli/pull/315
 * **NOTE:** Unfortunately, using `godep restore` means that `go get` will not work with dependencies. Until we move off `godep`, when we want to update a dependency we will have to go to the dependency in the `$GOPATH` and manually use `git pull` an update to that package.
+
+## Generating mocks
+* From `$GOPATH/src/github.com/aws/amazon-ecs-cli/`, run `make generate`. This will look for all files named `generate_mock.go` in the `ecs-cli/modules` directory and call the `mockgen.sh` script, which is a wrapper for the [mockgen](https://github.com/golang/mock#running-mockgen) command.
+
 
 ## Cross-compiling
 The `make docker-build` target builds standalone amd64 executables for
