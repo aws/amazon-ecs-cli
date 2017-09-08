@@ -15,8 +15,8 @@ package utils
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -27,6 +27,9 @@ import (
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
+	"github.com/pkg/errors"
+	goyaml "gopkg.in/yaml.v2"
+	"io/ioutil"
 )
 
 const (
@@ -49,6 +52,16 @@ var supportedComposeYamlOptions = []string{
 
 var supportedComposeYamlOptionsMap = getSupportedComposeYamlOptionsMap()
 
+type ECSParams struct {
+	Version        string
+	TaskDefinition ecsTaskDef `yaml:"task_definition"`
+}
+
+type ecsTaskDef struct {
+	NetworkMode string `yaml:"ecs_network_mode"`
+	TaskRoleArn string `yaml:"task_role_arn"`
+}
+
 type volumes struct {
 	volumeWithHost  map[string]string
 	volumeEmptyHost []string
@@ -64,7 +77,7 @@ func getSupportedComposeYamlOptionsMap() map[string]bool {
 
 // ConvertToTaskDefinition transforms the yaml configs to its ecs equivalent (task definition)
 func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context,
-	serviceConfigs *config.ServiceConfigs, taskRoleArn string) (*ecs.TaskDefinition, error) {
+	serviceConfigs *config.ServiceConfigs, taskRoleArn string, ecsParamsFileName string) (*ecs.TaskDefinition, error) {
 
 	if serviceConfigs.Len() == 0 {
 		return nil, errors.New("cannot create a task definition with no containers; invalid service config")
@@ -92,13 +105,56 @@ func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context
 		containerDefinitions = append(containerDefinitions, containerDef)
 	}
 
+	ecsParams, err := readECSParams(ecsParamsFileName)
+	if err != nil {
+		return nil, err
+	}
+
+	var networkMode string
+	if ecsParams != nil {
+		networkMode = ecsParams.TaskDefinition.NetworkMode
+		// The task-role-arn flag should take precedence over a taskRoleArn value specified in ECS fields file
+		if taskRoleArn == "" {
+			taskRoleArn = ecsParams.TaskDefinition.TaskRoleArn
+		}
+	}
+
+	if networkMode == "" {
+		networkMode = "bridge"
+	}
+
 	taskDefinition := &ecs.TaskDefinition{
 		Family:               aws.String(taskDefinitionName),
 		ContainerDefinitions: containerDefinitions,
 		Volumes:              convertToECSVolumes(volumes),
 		TaskRoleArn:          aws.String(taskRoleArn),
+		NetworkMode:          aws.String(networkMode),
 	}
+
 	return taskDefinition, nil
+}
+
+func readECSParams(filename string) (*ECSParams, error) {
+	if filename == "" {
+		defaultFilename := "ecs-params.yml"
+		if _, err := os.Stat(defaultFilename); err == nil {
+			filename = defaultFilename
+		} else {
+			return nil, nil
+		}
+	}
+	ecsParamsData, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Error reading file '%v'", filename)
+	}
+
+	ecsParams := &ECSParams{}
+
+	if err = goyaml.Unmarshal([]byte(ecsParamsData), &ecsParams); err != nil {
+		return nil, errors.Wrapf(err, "Error unmarshalling yaml data from ECS params file: %v", filename)
+	}
+
+	return ecsParams, nil
 }
 
 // logUnsupportedConfigFields adds a WARNING to the customer about the fields that are unused.

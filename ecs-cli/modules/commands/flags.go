@@ -63,9 +63,10 @@ const (
 	UntaggedFlag   = "untagged"
 
 	// Compose
-	ProjectNameFlag     = "project-name"
-	ComposeFileNameFlag = "file"
-	TaskRoleArnFlag     = "task-role-arn"
+	ProjectNameFlag       = "project-name"
+	ComposeFileNameFlag   = "file"
+	TaskRoleArnFlag       = "task-role-arn"
+	ECSParamsFileNameFlag = "ecs-params"
 
 	// Compose Service
 	CreateServiceCommandName                = "create"
