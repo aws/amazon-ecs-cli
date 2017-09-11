@@ -17,6 +17,7 @@
 package mock_cloudformationiface
 
 import (
+	aws "github.com/aws/aws-sdk-go/aws"
 	request "github.com/aws/aws-sdk-go/aws/request"
 	cloudformation "github.com/aws/aws-sdk-go/service/cloudformation"
 	gomock "github.com/golang/mock/gomock"
@@ -65,6 +66,22 @@ func (_mr *_MockCloudFormationAPIRecorder) CancelUpdateStackRequest(arg0 interfa
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CancelUpdateStackRequest", arg0)
 }
 
+func (_m *MockCloudFormationAPI) CancelUpdateStackWithContext(_param0 aws.Context, _param1 *cloudformation.CancelUpdateStackInput, _param2 ...request.Option) (*cloudformation.CancelUpdateStackOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CancelUpdateStackWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.CancelUpdateStackOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) CancelUpdateStackWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CancelUpdateStackWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) ContinueUpdateRollback(_param0 *cloudformation.ContinueUpdateRollbackInput) (*cloudformation.ContinueUpdateRollbackOutput, error) {
 	ret := _m.ctrl.Call(_m, "ContinueUpdateRollback", _param0)
 	ret0, _ := ret[0].(*cloudformation.ContinueUpdateRollbackOutput)
@@ -85,6 +102,22 @@ func (_m *MockCloudFormationAPI) ContinueUpdateRollbackRequest(_param0 *cloudfor
 
 func (_mr *_MockCloudFormationAPIRecorder) ContinueUpdateRollbackRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ContinueUpdateRollbackRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) ContinueUpdateRollbackWithContext(_param0 aws.Context, _param1 *cloudformation.ContinueUpdateRollbackInput, _param2 ...request.Option) (*cloudformation.ContinueUpdateRollbackOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ContinueUpdateRollbackWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.ContinueUpdateRollbackOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ContinueUpdateRollbackWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ContinueUpdateRollbackWithContext", _s...)
 }
 
 func (_m *MockCloudFormationAPI) CreateChangeSet(_param0 *cloudformation.CreateChangeSetInput) (*cloudformation.CreateChangeSetOutput, error) {
@@ -109,6 +142,22 @@ func (_mr *_MockCloudFormationAPIRecorder) CreateChangeSetRequest(arg0 interface
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateChangeSetRequest", arg0)
 }
 
+func (_m *MockCloudFormationAPI) CreateChangeSetWithContext(_param0 aws.Context, _param1 *cloudformation.CreateChangeSetInput, _param2 ...request.Option) (*cloudformation.CreateChangeSetOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateChangeSetWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.CreateChangeSetOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) CreateChangeSetWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateChangeSetWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) CreateStack(_param0 *cloudformation.CreateStackInput) (*cloudformation.CreateStackOutput, error) {
 	ret := _m.ctrl.Call(_m, "CreateStack", _param0)
 	ret0, _ := ret[0].(*cloudformation.CreateStackOutput)
@@ -120,6 +169,44 @@ func (_mr *_MockCloudFormationAPIRecorder) CreateStack(arg0 interface{}) *gomock
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateStack", arg0)
 }
 
+func (_m *MockCloudFormationAPI) CreateStackInstances(_param0 *cloudformation.CreateStackInstancesInput) (*cloudformation.CreateStackInstancesOutput, error) {
+	ret := _m.ctrl.Call(_m, "CreateStackInstances", _param0)
+	ret0, _ := ret[0].(*cloudformation.CreateStackInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) CreateStackInstances(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateStackInstances", arg0)
+}
+
+func (_m *MockCloudFormationAPI) CreateStackInstancesRequest(_param0 *cloudformation.CreateStackInstancesInput) (*request.Request, *cloudformation.CreateStackInstancesOutput) {
+	ret := _m.ctrl.Call(_m, "CreateStackInstancesRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudformation.CreateStackInstancesOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) CreateStackInstancesRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateStackInstancesRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) CreateStackInstancesWithContext(_param0 aws.Context, _param1 *cloudformation.CreateStackInstancesInput, _param2 ...request.Option) (*cloudformation.CreateStackInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateStackInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.CreateStackInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) CreateStackInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateStackInstancesWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) CreateStackRequest(_param0 *cloudformation.CreateStackInput) (*request.Request, *cloudformation.CreateStackOutput) {
 	ret := _m.ctrl.Call(_m, "CreateStackRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -129,6 +216,60 @@ func (_m *MockCloudFormationAPI) CreateStackRequest(_param0 *cloudformation.Crea
 
 func (_mr *_MockCloudFormationAPIRecorder) CreateStackRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateStackRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) CreateStackSet(_param0 *cloudformation.CreateStackSetInput) (*cloudformation.CreateStackSetOutput, error) {
+	ret := _m.ctrl.Call(_m, "CreateStackSet", _param0)
+	ret0, _ := ret[0].(*cloudformation.CreateStackSetOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) CreateStackSet(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateStackSet", arg0)
+}
+
+func (_m *MockCloudFormationAPI) CreateStackSetRequest(_param0 *cloudformation.CreateStackSetInput) (*request.Request, *cloudformation.CreateStackSetOutput) {
+	ret := _m.ctrl.Call(_m, "CreateStackSetRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudformation.CreateStackSetOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) CreateStackSetRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateStackSetRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) CreateStackSetWithContext(_param0 aws.Context, _param1 *cloudformation.CreateStackSetInput, _param2 ...request.Option) (*cloudformation.CreateStackSetOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateStackSetWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.CreateStackSetOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) CreateStackSetWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateStackSetWithContext", _s...)
+}
+
+func (_m *MockCloudFormationAPI) CreateStackWithContext(_param0 aws.Context, _param1 *cloudformation.CreateStackInput, _param2 ...request.Option) (*cloudformation.CreateStackOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateStackWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.CreateStackOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) CreateStackWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateStackWithContext", _s...)
 }
 
 func (_m *MockCloudFormationAPI) DeleteChangeSet(_param0 *cloudformation.DeleteChangeSetInput) (*cloudformation.DeleteChangeSetOutput, error) {
@@ -153,6 +294,22 @@ func (_mr *_MockCloudFormationAPIRecorder) DeleteChangeSetRequest(arg0 interface
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteChangeSetRequest", arg0)
 }
 
+func (_m *MockCloudFormationAPI) DeleteChangeSetWithContext(_param0 aws.Context, _param1 *cloudformation.DeleteChangeSetInput, _param2 ...request.Option) (*cloudformation.DeleteChangeSetOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteChangeSetWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.DeleteChangeSetOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DeleteChangeSetWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteChangeSetWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) DeleteStack(_param0 *cloudformation.DeleteStackInput) (*cloudformation.DeleteStackOutput, error) {
 	ret := _m.ctrl.Call(_m, "DeleteStack", _param0)
 	ret0, _ := ret[0].(*cloudformation.DeleteStackOutput)
@@ -164,6 +321,44 @@ func (_mr *_MockCloudFormationAPIRecorder) DeleteStack(arg0 interface{}) *gomock
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteStack", arg0)
 }
 
+func (_m *MockCloudFormationAPI) DeleteStackInstances(_param0 *cloudformation.DeleteStackInstancesInput) (*cloudformation.DeleteStackInstancesOutput, error) {
+	ret := _m.ctrl.Call(_m, "DeleteStackInstances", _param0)
+	ret0, _ := ret[0].(*cloudformation.DeleteStackInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DeleteStackInstances(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteStackInstances", arg0)
+}
+
+func (_m *MockCloudFormationAPI) DeleteStackInstancesRequest(_param0 *cloudformation.DeleteStackInstancesInput) (*request.Request, *cloudformation.DeleteStackInstancesOutput) {
+	ret := _m.ctrl.Call(_m, "DeleteStackInstancesRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudformation.DeleteStackInstancesOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DeleteStackInstancesRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteStackInstancesRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) DeleteStackInstancesWithContext(_param0 aws.Context, _param1 *cloudformation.DeleteStackInstancesInput, _param2 ...request.Option) (*cloudformation.DeleteStackInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteStackInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.DeleteStackInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DeleteStackInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteStackInstancesWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) DeleteStackRequest(_param0 *cloudformation.DeleteStackInput) (*request.Request, *cloudformation.DeleteStackOutput) {
 	ret := _m.ctrl.Call(_m, "DeleteStackRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -173,6 +368,60 @@ func (_m *MockCloudFormationAPI) DeleteStackRequest(_param0 *cloudformation.Dele
 
 func (_mr *_MockCloudFormationAPIRecorder) DeleteStackRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteStackRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) DeleteStackSet(_param0 *cloudformation.DeleteStackSetInput) (*cloudformation.DeleteStackSetOutput, error) {
+	ret := _m.ctrl.Call(_m, "DeleteStackSet", _param0)
+	ret0, _ := ret[0].(*cloudformation.DeleteStackSetOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DeleteStackSet(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteStackSet", arg0)
+}
+
+func (_m *MockCloudFormationAPI) DeleteStackSetRequest(_param0 *cloudformation.DeleteStackSetInput) (*request.Request, *cloudformation.DeleteStackSetOutput) {
+	ret := _m.ctrl.Call(_m, "DeleteStackSetRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudformation.DeleteStackSetOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DeleteStackSetRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteStackSetRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) DeleteStackSetWithContext(_param0 aws.Context, _param1 *cloudformation.DeleteStackSetInput, _param2 ...request.Option) (*cloudformation.DeleteStackSetOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteStackSetWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.DeleteStackSetOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DeleteStackSetWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteStackSetWithContext", _s...)
+}
+
+func (_m *MockCloudFormationAPI) DeleteStackWithContext(_param0 aws.Context, _param1 *cloudformation.DeleteStackInput, _param2 ...request.Option) (*cloudformation.DeleteStackOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteStackWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.DeleteStackOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DeleteStackWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteStackWithContext", _s...)
 }
 
 func (_m *MockCloudFormationAPI) DescribeAccountLimits(_param0 *cloudformation.DescribeAccountLimitsInput) (*cloudformation.DescribeAccountLimitsOutput, error) {
@@ -197,6 +446,22 @@ func (_mr *_MockCloudFormationAPIRecorder) DescribeAccountLimitsRequest(arg0 int
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeAccountLimitsRequest", arg0)
 }
 
+func (_m *MockCloudFormationAPI) DescribeAccountLimitsWithContext(_param0 aws.Context, _param1 *cloudformation.DescribeAccountLimitsInput, _param2 ...request.Option) (*cloudformation.DescribeAccountLimitsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeAccountLimitsWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.DescribeAccountLimitsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeAccountLimitsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeAccountLimitsWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) DescribeChangeSet(_param0 *cloudformation.DescribeChangeSetInput) (*cloudformation.DescribeChangeSetOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeChangeSet", _param0)
 	ret0, _ := ret[0].(*cloudformation.DescribeChangeSetOutput)
@@ -217,6 +482,22 @@ func (_m *MockCloudFormationAPI) DescribeChangeSetRequest(_param0 *cloudformatio
 
 func (_mr *_MockCloudFormationAPIRecorder) DescribeChangeSetRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeChangeSetRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) DescribeChangeSetWithContext(_param0 aws.Context, _param1 *cloudformation.DescribeChangeSetInput, _param2 ...request.Option) (*cloudformation.DescribeChangeSetOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeChangeSetWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.DescribeChangeSetOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeChangeSetWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeChangeSetWithContext", _s...)
 }
 
 func (_m *MockCloudFormationAPI) DescribeStackEvents(_param0 *cloudformation.DescribeStackEventsInput) (*cloudformation.DescribeStackEventsOutput, error) {
@@ -240,6 +521,21 @@ func (_mr *_MockCloudFormationAPIRecorder) DescribeStackEventsPages(arg0, arg1 i
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStackEventsPages", arg0, arg1)
 }
 
+func (_m *MockCloudFormationAPI) DescribeStackEventsPagesWithContext(_param0 aws.Context, _param1 *cloudformation.DescribeStackEventsInput, _param2 func(*cloudformation.DescribeStackEventsOutput, bool) bool, _param3 ...request.Option) error {
+	_s := []interface{}{_param0, _param1, _param2}
+	for _, _x := range _param3 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeStackEventsPagesWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeStackEventsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStackEventsPagesWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) DescribeStackEventsRequest(_param0 *cloudformation.DescribeStackEventsInput) (*request.Request, *cloudformation.DescribeStackEventsOutput) {
 	ret := _m.ctrl.Call(_m, "DescribeStackEventsRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -249,6 +545,60 @@ func (_m *MockCloudFormationAPI) DescribeStackEventsRequest(_param0 *cloudformat
 
 func (_mr *_MockCloudFormationAPIRecorder) DescribeStackEventsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStackEventsRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) DescribeStackEventsWithContext(_param0 aws.Context, _param1 *cloudformation.DescribeStackEventsInput, _param2 ...request.Option) (*cloudformation.DescribeStackEventsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeStackEventsWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.DescribeStackEventsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeStackEventsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStackEventsWithContext", _s...)
+}
+
+func (_m *MockCloudFormationAPI) DescribeStackInstance(_param0 *cloudformation.DescribeStackInstanceInput) (*cloudformation.DescribeStackInstanceOutput, error) {
+	ret := _m.ctrl.Call(_m, "DescribeStackInstance", _param0)
+	ret0, _ := ret[0].(*cloudformation.DescribeStackInstanceOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeStackInstance(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStackInstance", arg0)
+}
+
+func (_m *MockCloudFormationAPI) DescribeStackInstanceRequest(_param0 *cloudformation.DescribeStackInstanceInput) (*request.Request, *cloudformation.DescribeStackInstanceOutput) {
+	ret := _m.ctrl.Call(_m, "DescribeStackInstanceRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudformation.DescribeStackInstanceOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeStackInstanceRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStackInstanceRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) DescribeStackInstanceWithContext(_param0 aws.Context, _param1 *cloudformation.DescribeStackInstanceInput, _param2 ...request.Option) (*cloudformation.DescribeStackInstanceOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeStackInstanceWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.DescribeStackInstanceOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeStackInstanceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStackInstanceWithContext", _s...)
 }
 
 func (_m *MockCloudFormationAPI) DescribeStackResource(_param0 *cloudformation.DescribeStackResourceInput) (*cloudformation.DescribeStackResourceOutput, error) {
@@ -273,6 +623,22 @@ func (_mr *_MockCloudFormationAPIRecorder) DescribeStackResourceRequest(arg0 int
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStackResourceRequest", arg0)
 }
 
+func (_m *MockCloudFormationAPI) DescribeStackResourceWithContext(_param0 aws.Context, _param1 *cloudformation.DescribeStackResourceInput, _param2 ...request.Option) (*cloudformation.DescribeStackResourceOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeStackResourceWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.DescribeStackResourceOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeStackResourceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStackResourceWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) DescribeStackResources(_param0 *cloudformation.DescribeStackResourcesInput) (*cloudformation.DescribeStackResourcesOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeStackResources", _param0)
 	ret0, _ := ret[0].(*cloudformation.DescribeStackResourcesOutput)
@@ -293,6 +659,98 @@ func (_m *MockCloudFormationAPI) DescribeStackResourcesRequest(_param0 *cloudfor
 
 func (_mr *_MockCloudFormationAPIRecorder) DescribeStackResourcesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStackResourcesRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) DescribeStackResourcesWithContext(_param0 aws.Context, _param1 *cloudformation.DescribeStackResourcesInput, _param2 ...request.Option) (*cloudformation.DescribeStackResourcesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeStackResourcesWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.DescribeStackResourcesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeStackResourcesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStackResourcesWithContext", _s...)
+}
+
+func (_m *MockCloudFormationAPI) DescribeStackSet(_param0 *cloudformation.DescribeStackSetInput) (*cloudformation.DescribeStackSetOutput, error) {
+	ret := _m.ctrl.Call(_m, "DescribeStackSet", _param0)
+	ret0, _ := ret[0].(*cloudformation.DescribeStackSetOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeStackSet(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStackSet", arg0)
+}
+
+func (_m *MockCloudFormationAPI) DescribeStackSetOperation(_param0 *cloudformation.DescribeStackSetOperationInput) (*cloudformation.DescribeStackSetOperationOutput, error) {
+	ret := _m.ctrl.Call(_m, "DescribeStackSetOperation", _param0)
+	ret0, _ := ret[0].(*cloudformation.DescribeStackSetOperationOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeStackSetOperation(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStackSetOperation", arg0)
+}
+
+func (_m *MockCloudFormationAPI) DescribeStackSetOperationRequest(_param0 *cloudformation.DescribeStackSetOperationInput) (*request.Request, *cloudformation.DescribeStackSetOperationOutput) {
+	ret := _m.ctrl.Call(_m, "DescribeStackSetOperationRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudformation.DescribeStackSetOperationOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeStackSetOperationRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStackSetOperationRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) DescribeStackSetOperationWithContext(_param0 aws.Context, _param1 *cloudformation.DescribeStackSetOperationInput, _param2 ...request.Option) (*cloudformation.DescribeStackSetOperationOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeStackSetOperationWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.DescribeStackSetOperationOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeStackSetOperationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStackSetOperationWithContext", _s...)
+}
+
+func (_m *MockCloudFormationAPI) DescribeStackSetRequest(_param0 *cloudformation.DescribeStackSetInput) (*request.Request, *cloudformation.DescribeStackSetOutput) {
+	ret := _m.ctrl.Call(_m, "DescribeStackSetRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudformation.DescribeStackSetOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeStackSetRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStackSetRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) DescribeStackSetWithContext(_param0 aws.Context, _param1 *cloudformation.DescribeStackSetInput, _param2 ...request.Option) (*cloudformation.DescribeStackSetOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeStackSetWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.DescribeStackSetOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeStackSetWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStackSetWithContext", _s...)
 }
 
 func (_m *MockCloudFormationAPI) DescribeStacks(_param0 *cloudformation.DescribeStacksInput) (*cloudformation.DescribeStacksOutput, error) {
@@ -316,6 +774,21 @@ func (_mr *_MockCloudFormationAPIRecorder) DescribeStacksPages(arg0, arg1 interf
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStacksPages", arg0, arg1)
 }
 
+func (_m *MockCloudFormationAPI) DescribeStacksPagesWithContext(_param0 aws.Context, _param1 *cloudformation.DescribeStacksInput, _param2 func(*cloudformation.DescribeStacksOutput, bool) bool, _param3 ...request.Option) error {
+	_s := []interface{}{_param0, _param1, _param2}
+	for _, _x := range _param3 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeStacksPagesWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeStacksPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStacksPagesWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) DescribeStacksRequest(_param0 *cloudformation.DescribeStacksInput) (*request.Request, *cloudformation.DescribeStacksOutput) {
 	ret := _m.ctrl.Call(_m, "DescribeStacksRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -325,6 +798,22 @@ func (_m *MockCloudFormationAPI) DescribeStacksRequest(_param0 *cloudformation.D
 
 func (_mr *_MockCloudFormationAPIRecorder) DescribeStacksRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStacksRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) DescribeStacksWithContext(_param0 aws.Context, _param1 *cloudformation.DescribeStacksInput, _param2 ...request.Option) (*cloudformation.DescribeStacksOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeStacksWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.DescribeStacksOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) DescribeStacksWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStacksWithContext", _s...)
 }
 
 func (_m *MockCloudFormationAPI) EstimateTemplateCost(_param0 *cloudformation.EstimateTemplateCostInput) (*cloudformation.EstimateTemplateCostOutput, error) {
@@ -349,6 +838,22 @@ func (_mr *_MockCloudFormationAPIRecorder) EstimateTemplateCostRequest(arg0 inte
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "EstimateTemplateCostRequest", arg0)
 }
 
+func (_m *MockCloudFormationAPI) EstimateTemplateCostWithContext(_param0 aws.Context, _param1 *cloudformation.EstimateTemplateCostInput, _param2 ...request.Option) (*cloudformation.EstimateTemplateCostOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "EstimateTemplateCostWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.EstimateTemplateCostOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) EstimateTemplateCostWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "EstimateTemplateCostWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) ExecuteChangeSet(_param0 *cloudformation.ExecuteChangeSetInput) (*cloudformation.ExecuteChangeSetOutput, error) {
 	ret := _m.ctrl.Call(_m, "ExecuteChangeSet", _param0)
 	ret0, _ := ret[0].(*cloudformation.ExecuteChangeSetOutput)
@@ -371,6 +876,22 @@ func (_mr *_MockCloudFormationAPIRecorder) ExecuteChangeSetRequest(arg0 interfac
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ExecuteChangeSetRequest", arg0)
 }
 
+func (_m *MockCloudFormationAPI) ExecuteChangeSetWithContext(_param0 aws.Context, _param1 *cloudformation.ExecuteChangeSetInput, _param2 ...request.Option) (*cloudformation.ExecuteChangeSetOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ExecuteChangeSetWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.ExecuteChangeSetOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ExecuteChangeSetWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ExecuteChangeSetWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) GetStackPolicy(_param0 *cloudformation.GetStackPolicyInput) (*cloudformation.GetStackPolicyOutput, error) {
 	ret := _m.ctrl.Call(_m, "GetStackPolicy", _param0)
 	ret0, _ := ret[0].(*cloudformation.GetStackPolicyOutput)
@@ -391,6 +912,22 @@ func (_m *MockCloudFormationAPI) GetStackPolicyRequest(_param0 *cloudformation.G
 
 func (_mr *_MockCloudFormationAPIRecorder) GetStackPolicyRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetStackPolicyRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) GetStackPolicyWithContext(_param0 aws.Context, _param1 *cloudformation.GetStackPolicyInput, _param2 ...request.Option) (*cloudformation.GetStackPolicyOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "GetStackPolicyWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.GetStackPolicyOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) GetStackPolicyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetStackPolicyWithContext", _s...)
 }
 
 func (_m *MockCloudFormationAPI) GetTemplate(_param0 *cloudformation.GetTemplateInput) (*cloudformation.GetTemplateOutput, error) {
@@ -437,6 +974,38 @@ func (_mr *_MockCloudFormationAPIRecorder) GetTemplateSummaryRequest(arg0 interf
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetTemplateSummaryRequest", arg0)
 }
 
+func (_m *MockCloudFormationAPI) GetTemplateSummaryWithContext(_param0 aws.Context, _param1 *cloudformation.GetTemplateSummaryInput, _param2 ...request.Option) (*cloudformation.GetTemplateSummaryOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "GetTemplateSummaryWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.GetTemplateSummaryOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) GetTemplateSummaryWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetTemplateSummaryWithContext", _s...)
+}
+
+func (_m *MockCloudFormationAPI) GetTemplateWithContext(_param0 aws.Context, _param1 *cloudformation.GetTemplateInput, _param2 ...request.Option) (*cloudformation.GetTemplateOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "GetTemplateWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.GetTemplateOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) GetTemplateWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetTemplateWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) ListChangeSets(_param0 *cloudformation.ListChangeSetsInput) (*cloudformation.ListChangeSetsOutput, error) {
 	ret := _m.ctrl.Call(_m, "ListChangeSets", _param0)
 	ret0, _ := ret[0].(*cloudformation.ListChangeSetsOutput)
@@ -459,6 +1028,22 @@ func (_mr *_MockCloudFormationAPIRecorder) ListChangeSetsRequest(arg0 interface{
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListChangeSetsRequest", arg0)
 }
 
+func (_m *MockCloudFormationAPI) ListChangeSetsWithContext(_param0 aws.Context, _param1 *cloudformation.ListChangeSetsInput, _param2 ...request.Option) (*cloudformation.ListChangeSetsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ListChangeSetsWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.ListChangeSetsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListChangeSetsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListChangeSetsWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) ListExports(_param0 *cloudformation.ListExportsInput) (*cloudformation.ListExportsOutput, error) {
 	ret := _m.ctrl.Call(_m, "ListExports", _param0)
 	ret0, _ := ret[0].(*cloudformation.ListExportsOutput)
@@ -468,6 +1053,31 @@ func (_m *MockCloudFormationAPI) ListExports(_param0 *cloudformation.ListExports
 
 func (_mr *_MockCloudFormationAPIRecorder) ListExports(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListExports", arg0)
+}
+
+func (_m *MockCloudFormationAPI) ListExportsPages(_param0 *cloudformation.ListExportsInput, _param1 func(*cloudformation.ListExportsOutput, bool) bool) error {
+	ret := _m.ctrl.Call(_m, "ListExportsPages", _param0, _param1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListExportsPages(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListExportsPages", arg0, arg1)
+}
+
+func (_m *MockCloudFormationAPI) ListExportsPagesWithContext(_param0 aws.Context, _param1 *cloudformation.ListExportsInput, _param2 func(*cloudformation.ListExportsOutput, bool) bool, _param3 ...request.Option) error {
+	_s := []interface{}{_param0, _param1, _param2}
+	for _, _x := range _param3 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ListExportsPagesWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListExportsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListExportsPagesWithContext", _s...)
 }
 
 func (_m *MockCloudFormationAPI) ListExportsRequest(_param0 *cloudformation.ListExportsInput) (*request.Request, *cloudformation.ListExportsOutput) {
@@ -481,6 +1091,22 @@ func (_mr *_MockCloudFormationAPIRecorder) ListExportsRequest(arg0 interface{}) 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListExportsRequest", arg0)
 }
 
+func (_m *MockCloudFormationAPI) ListExportsWithContext(_param0 aws.Context, _param1 *cloudformation.ListExportsInput, _param2 ...request.Option) (*cloudformation.ListExportsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ListExportsWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.ListExportsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListExportsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListExportsWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) ListImports(_param0 *cloudformation.ListImportsInput) (*cloudformation.ListImportsOutput, error) {
 	ret := _m.ctrl.Call(_m, "ListImports", _param0)
 	ret0, _ := ret[0].(*cloudformation.ListImportsOutput)
@@ -492,6 +1118,31 @@ func (_mr *_MockCloudFormationAPIRecorder) ListImports(arg0 interface{}) *gomock
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListImports", arg0)
 }
 
+func (_m *MockCloudFormationAPI) ListImportsPages(_param0 *cloudformation.ListImportsInput, _param1 func(*cloudformation.ListImportsOutput, bool) bool) error {
+	ret := _m.ctrl.Call(_m, "ListImportsPages", _param0, _param1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListImportsPages(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListImportsPages", arg0, arg1)
+}
+
+func (_m *MockCloudFormationAPI) ListImportsPagesWithContext(_param0 aws.Context, _param1 *cloudformation.ListImportsInput, _param2 func(*cloudformation.ListImportsOutput, bool) bool, _param3 ...request.Option) error {
+	_s := []interface{}{_param0, _param1, _param2}
+	for _, _x := range _param3 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ListImportsPagesWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListImportsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListImportsPagesWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) ListImportsRequest(_param0 *cloudformation.ListImportsInput) (*request.Request, *cloudformation.ListImportsOutput) {
 	ret := _m.ctrl.Call(_m, "ListImportsRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -501,6 +1152,60 @@ func (_m *MockCloudFormationAPI) ListImportsRequest(_param0 *cloudformation.List
 
 func (_mr *_MockCloudFormationAPIRecorder) ListImportsRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListImportsRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) ListImportsWithContext(_param0 aws.Context, _param1 *cloudformation.ListImportsInput, _param2 ...request.Option) (*cloudformation.ListImportsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ListImportsWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.ListImportsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListImportsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListImportsWithContext", _s...)
+}
+
+func (_m *MockCloudFormationAPI) ListStackInstances(_param0 *cloudformation.ListStackInstancesInput) (*cloudformation.ListStackInstancesOutput, error) {
+	ret := _m.ctrl.Call(_m, "ListStackInstances", _param0)
+	ret0, _ := ret[0].(*cloudformation.ListStackInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListStackInstances(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStackInstances", arg0)
+}
+
+func (_m *MockCloudFormationAPI) ListStackInstancesRequest(_param0 *cloudformation.ListStackInstancesInput) (*request.Request, *cloudformation.ListStackInstancesOutput) {
+	ret := _m.ctrl.Call(_m, "ListStackInstancesRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudformation.ListStackInstancesOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListStackInstancesRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStackInstancesRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) ListStackInstancesWithContext(_param0 aws.Context, _param1 *cloudformation.ListStackInstancesInput, _param2 ...request.Option) (*cloudformation.ListStackInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ListStackInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.ListStackInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListStackInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStackInstancesWithContext", _s...)
 }
 
 func (_m *MockCloudFormationAPI) ListStackResources(_param0 *cloudformation.ListStackResourcesInput) (*cloudformation.ListStackResourcesOutput, error) {
@@ -524,6 +1229,21 @@ func (_mr *_MockCloudFormationAPIRecorder) ListStackResourcesPages(arg0, arg1 in
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStackResourcesPages", arg0, arg1)
 }
 
+func (_m *MockCloudFormationAPI) ListStackResourcesPagesWithContext(_param0 aws.Context, _param1 *cloudformation.ListStackResourcesInput, _param2 func(*cloudformation.ListStackResourcesOutput, bool) bool, _param3 ...request.Option) error {
+	_s := []interface{}{_param0, _param1, _param2}
+	for _, _x := range _param3 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ListStackResourcesPagesWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListStackResourcesPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStackResourcesPagesWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) ListStackResourcesRequest(_param0 *cloudformation.ListStackResourcesInput) (*request.Request, *cloudformation.ListStackResourcesOutput) {
 	ret := _m.ctrl.Call(_m, "ListStackResourcesRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -533,6 +1253,136 @@ func (_m *MockCloudFormationAPI) ListStackResourcesRequest(_param0 *cloudformati
 
 func (_mr *_MockCloudFormationAPIRecorder) ListStackResourcesRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStackResourcesRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) ListStackResourcesWithContext(_param0 aws.Context, _param1 *cloudformation.ListStackResourcesInput, _param2 ...request.Option) (*cloudformation.ListStackResourcesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ListStackResourcesWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.ListStackResourcesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListStackResourcesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStackResourcesWithContext", _s...)
+}
+
+func (_m *MockCloudFormationAPI) ListStackSetOperationResults(_param0 *cloudformation.ListStackSetOperationResultsInput) (*cloudformation.ListStackSetOperationResultsOutput, error) {
+	ret := _m.ctrl.Call(_m, "ListStackSetOperationResults", _param0)
+	ret0, _ := ret[0].(*cloudformation.ListStackSetOperationResultsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListStackSetOperationResults(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStackSetOperationResults", arg0)
+}
+
+func (_m *MockCloudFormationAPI) ListStackSetOperationResultsRequest(_param0 *cloudformation.ListStackSetOperationResultsInput) (*request.Request, *cloudformation.ListStackSetOperationResultsOutput) {
+	ret := _m.ctrl.Call(_m, "ListStackSetOperationResultsRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudformation.ListStackSetOperationResultsOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListStackSetOperationResultsRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStackSetOperationResultsRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) ListStackSetOperationResultsWithContext(_param0 aws.Context, _param1 *cloudformation.ListStackSetOperationResultsInput, _param2 ...request.Option) (*cloudformation.ListStackSetOperationResultsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ListStackSetOperationResultsWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.ListStackSetOperationResultsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListStackSetOperationResultsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStackSetOperationResultsWithContext", _s...)
+}
+
+func (_m *MockCloudFormationAPI) ListStackSetOperations(_param0 *cloudformation.ListStackSetOperationsInput) (*cloudformation.ListStackSetOperationsOutput, error) {
+	ret := _m.ctrl.Call(_m, "ListStackSetOperations", _param0)
+	ret0, _ := ret[0].(*cloudformation.ListStackSetOperationsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListStackSetOperations(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStackSetOperations", arg0)
+}
+
+func (_m *MockCloudFormationAPI) ListStackSetOperationsRequest(_param0 *cloudformation.ListStackSetOperationsInput) (*request.Request, *cloudformation.ListStackSetOperationsOutput) {
+	ret := _m.ctrl.Call(_m, "ListStackSetOperationsRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudformation.ListStackSetOperationsOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListStackSetOperationsRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStackSetOperationsRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) ListStackSetOperationsWithContext(_param0 aws.Context, _param1 *cloudformation.ListStackSetOperationsInput, _param2 ...request.Option) (*cloudformation.ListStackSetOperationsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ListStackSetOperationsWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.ListStackSetOperationsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListStackSetOperationsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStackSetOperationsWithContext", _s...)
+}
+
+func (_m *MockCloudFormationAPI) ListStackSets(_param0 *cloudformation.ListStackSetsInput) (*cloudformation.ListStackSetsOutput, error) {
+	ret := _m.ctrl.Call(_m, "ListStackSets", _param0)
+	ret0, _ := ret[0].(*cloudformation.ListStackSetsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListStackSets(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStackSets", arg0)
+}
+
+func (_m *MockCloudFormationAPI) ListStackSetsRequest(_param0 *cloudformation.ListStackSetsInput) (*request.Request, *cloudformation.ListStackSetsOutput) {
+	ret := _m.ctrl.Call(_m, "ListStackSetsRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudformation.ListStackSetsOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListStackSetsRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStackSetsRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) ListStackSetsWithContext(_param0 aws.Context, _param1 *cloudformation.ListStackSetsInput, _param2 ...request.Option) (*cloudformation.ListStackSetsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ListStackSetsWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.ListStackSetsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListStackSetsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStackSetsWithContext", _s...)
 }
 
 func (_m *MockCloudFormationAPI) ListStacks(_param0 *cloudformation.ListStacksInput) (*cloudformation.ListStacksOutput, error) {
@@ -556,6 +1406,21 @@ func (_mr *_MockCloudFormationAPIRecorder) ListStacksPages(arg0, arg1 interface{
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStacksPages", arg0, arg1)
 }
 
+func (_m *MockCloudFormationAPI) ListStacksPagesWithContext(_param0 aws.Context, _param1 *cloudformation.ListStacksInput, _param2 func(*cloudformation.ListStacksOutput, bool) bool, _param3 ...request.Option) error {
+	_s := []interface{}{_param0, _param1, _param2}
+	for _, _x := range _param3 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ListStacksPagesWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListStacksPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStacksPagesWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) ListStacksRequest(_param0 *cloudformation.ListStacksInput) (*request.Request, *cloudformation.ListStacksOutput) {
 	ret := _m.ctrl.Call(_m, "ListStacksRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
@@ -565,6 +1430,22 @@ func (_m *MockCloudFormationAPI) ListStacksRequest(_param0 *cloudformation.ListS
 
 func (_mr *_MockCloudFormationAPIRecorder) ListStacksRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStacksRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) ListStacksWithContext(_param0 aws.Context, _param1 *cloudformation.ListStacksInput, _param2 ...request.Option) (*cloudformation.ListStacksOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ListStacksWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.ListStacksOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ListStacksWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListStacksWithContext", _s...)
 }
 
 func (_m *MockCloudFormationAPI) SetStackPolicy(_param0 *cloudformation.SetStackPolicyInput) (*cloudformation.SetStackPolicyOutput, error) {
@@ -589,6 +1470,22 @@ func (_mr *_MockCloudFormationAPIRecorder) SetStackPolicyRequest(arg0 interface{
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "SetStackPolicyRequest", arg0)
 }
 
+func (_m *MockCloudFormationAPI) SetStackPolicyWithContext(_param0 aws.Context, _param1 *cloudformation.SetStackPolicyInput, _param2 ...request.Option) (*cloudformation.SetStackPolicyOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "SetStackPolicyWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.SetStackPolicyOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) SetStackPolicyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "SetStackPolicyWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) SignalResource(_param0 *cloudformation.SignalResourceInput) (*cloudformation.SignalResourceOutput, error) {
 	ret := _m.ctrl.Call(_m, "SignalResource", _param0)
 	ret0, _ := ret[0].(*cloudformation.SignalResourceOutput)
@@ -609,6 +1506,60 @@ func (_m *MockCloudFormationAPI) SignalResourceRequest(_param0 *cloudformation.S
 
 func (_mr *_MockCloudFormationAPIRecorder) SignalResourceRequest(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "SignalResourceRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) SignalResourceWithContext(_param0 aws.Context, _param1 *cloudformation.SignalResourceInput, _param2 ...request.Option) (*cloudformation.SignalResourceOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "SignalResourceWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.SignalResourceOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) SignalResourceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "SignalResourceWithContext", _s...)
+}
+
+func (_m *MockCloudFormationAPI) StopStackSetOperation(_param0 *cloudformation.StopStackSetOperationInput) (*cloudformation.StopStackSetOperationOutput, error) {
+	ret := _m.ctrl.Call(_m, "StopStackSetOperation", _param0)
+	ret0, _ := ret[0].(*cloudformation.StopStackSetOperationOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) StopStackSetOperation(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "StopStackSetOperation", arg0)
+}
+
+func (_m *MockCloudFormationAPI) StopStackSetOperationRequest(_param0 *cloudformation.StopStackSetOperationInput) (*request.Request, *cloudformation.StopStackSetOperationOutput) {
+	ret := _m.ctrl.Call(_m, "StopStackSetOperationRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudformation.StopStackSetOperationOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) StopStackSetOperationRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "StopStackSetOperationRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) StopStackSetOperationWithContext(_param0 aws.Context, _param1 *cloudformation.StopStackSetOperationInput, _param2 ...request.Option) (*cloudformation.StopStackSetOperationOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "StopStackSetOperationWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.StopStackSetOperationOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) StopStackSetOperationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "StopStackSetOperationWithContext", _s...)
 }
 
 func (_m *MockCloudFormationAPI) UpdateStack(_param0 *cloudformation.UpdateStackInput) (*cloudformation.UpdateStackOutput, error) {
@@ -633,6 +1584,60 @@ func (_mr *_MockCloudFormationAPIRecorder) UpdateStackRequest(arg0 interface{}) 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateStackRequest", arg0)
 }
 
+func (_m *MockCloudFormationAPI) UpdateStackSet(_param0 *cloudformation.UpdateStackSetInput) (*cloudformation.UpdateStackSetOutput, error) {
+	ret := _m.ctrl.Call(_m, "UpdateStackSet", _param0)
+	ret0, _ := ret[0].(*cloudformation.UpdateStackSetOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) UpdateStackSet(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateStackSet", arg0)
+}
+
+func (_m *MockCloudFormationAPI) UpdateStackSetRequest(_param0 *cloudformation.UpdateStackSetInput) (*request.Request, *cloudformation.UpdateStackSetOutput) {
+	ret := _m.ctrl.Call(_m, "UpdateStackSetRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudformation.UpdateStackSetOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) UpdateStackSetRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateStackSetRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) UpdateStackSetWithContext(_param0 aws.Context, _param1 *cloudformation.UpdateStackSetInput, _param2 ...request.Option) (*cloudformation.UpdateStackSetOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "UpdateStackSetWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.UpdateStackSetOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) UpdateStackSetWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateStackSetWithContext", _s...)
+}
+
+func (_m *MockCloudFormationAPI) UpdateStackWithContext(_param0 aws.Context, _param1 *cloudformation.UpdateStackInput, _param2 ...request.Option) (*cloudformation.UpdateStackOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "UpdateStackWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.UpdateStackOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) UpdateStackWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateStackWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) ValidateTemplate(_param0 *cloudformation.ValidateTemplateInput) (*cloudformation.ValidateTemplateOutput, error) {
 	ret := _m.ctrl.Call(_m, "ValidateTemplate", _param0)
 	ret0, _ := ret[0].(*cloudformation.ValidateTemplateOutput)
@@ -655,6 +1660,47 @@ func (_mr *_MockCloudFormationAPIRecorder) ValidateTemplateRequest(arg0 interfac
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ValidateTemplateRequest", arg0)
 }
 
+func (_m *MockCloudFormationAPI) ValidateTemplateWithContext(_param0 aws.Context, _param1 *cloudformation.ValidateTemplateInput, _param2 ...request.Option) (*cloudformation.ValidateTemplateOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ValidateTemplateWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.ValidateTemplateOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) ValidateTemplateWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ValidateTemplateWithContext", _s...)
+}
+
+func (_m *MockCloudFormationAPI) WaitUntilChangeSetCreateComplete(_param0 *cloudformation.DescribeChangeSetInput) error {
+	ret := _m.ctrl.Call(_m, "WaitUntilChangeSetCreateComplete", _param0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) WaitUntilChangeSetCreateComplete(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilChangeSetCreateComplete", arg0)
+}
+
+func (_m *MockCloudFormationAPI) WaitUntilChangeSetCreateCompleteWithContext(_param0 aws.Context, _param1 *cloudformation.DescribeChangeSetInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilChangeSetCreateCompleteWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) WaitUntilChangeSetCreateCompleteWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilChangeSetCreateCompleteWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) WaitUntilStackCreateComplete(_param0 *cloudformation.DescribeStacksInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilStackCreateComplete", _param0)
 	ret0, _ := ret[0].(error)
@@ -663,6 +1709,21 @@ func (_m *MockCloudFormationAPI) WaitUntilStackCreateComplete(_param0 *cloudform
 
 func (_mr *_MockCloudFormationAPIRecorder) WaitUntilStackCreateComplete(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilStackCreateComplete", arg0)
+}
+
+func (_m *MockCloudFormationAPI) WaitUntilStackCreateCompleteWithContext(_param0 aws.Context, _param1 *cloudformation.DescribeStacksInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilStackCreateCompleteWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) WaitUntilStackCreateCompleteWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilStackCreateCompleteWithContext", _s...)
 }
 
 func (_m *MockCloudFormationAPI) WaitUntilStackDeleteComplete(_param0 *cloudformation.DescribeStacksInput) error {
@@ -675,6 +1736,21 @@ func (_mr *_MockCloudFormationAPIRecorder) WaitUntilStackDeleteComplete(arg0 int
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilStackDeleteComplete", arg0)
 }
 
+func (_m *MockCloudFormationAPI) WaitUntilStackDeleteCompleteWithContext(_param0 aws.Context, _param1 *cloudformation.DescribeStacksInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilStackDeleteCompleteWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) WaitUntilStackDeleteCompleteWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilStackDeleteCompleteWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) WaitUntilStackExists(_param0 *cloudformation.DescribeStacksInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilStackExists", _param0)
 	ret0, _ := ret[0].(error)
@@ -685,6 +1761,21 @@ func (_mr *_MockCloudFormationAPIRecorder) WaitUntilStackExists(arg0 interface{}
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilStackExists", arg0)
 }
 
+func (_m *MockCloudFormationAPI) WaitUntilStackExistsWithContext(_param0 aws.Context, _param1 *cloudformation.DescribeStacksInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilStackExistsWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) WaitUntilStackExistsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilStackExistsWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) WaitUntilStackUpdateComplete(_param0 *cloudformation.DescribeStacksInput) error {
 	ret := _m.ctrl.Call(_m, "WaitUntilStackUpdateComplete", _param0)
 	ret0, _ := ret[0].(error)
@@ -693,4 +1784,19 @@ func (_m *MockCloudFormationAPI) WaitUntilStackUpdateComplete(_param0 *cloudform
 
 func (_mr *_MockCloudFormationAPIRecorder) WaitUntilStackUpdateComplete(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilStackUpdateComplete", arg0)
+}
+
+func (_m *MockCloudFormationAPI) WaitUntilStackUpdateCompleteWithContext(_param0 aws.Context, _param1 *cloudformation.DescribeStacksInput, _param2 ...request.WaiterOption) error {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "WaitUntilStackUpdateCompleteWithContext", _s...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) WaitUntilStackUpdateCompleteWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "WaitUntilStackUpdateCompleteWithContext", _s...)
 }
