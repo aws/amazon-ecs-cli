@@ -37,7 +37,7 @@ func (p *CliParams) GetCfnStackName() string {
 	return fmt.Sprintf("%s%s", p.CFNStackNamePrefix, p.Cluster)
 }
 
-// Searches as far up the context as necesarry. This function works no matter
+// Searches as far up the context as necessary. This function works no matter
 // how many layers of nested subcommands there are. It is more powerful
 // than merely calling context.String and context.GlobalString
 func recursiveFlagSearch(context *cli.Context, flag string) string {

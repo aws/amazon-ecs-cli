@@ -115,20 +115,22 @@ func (p *ecsProject) Parse() error {
 	return p.transformTaskDefinition()
 }
 
-// parseCompose loads and parses the compose yml files
+// parseCompose sets data from the compose files on the ecsProject
 func (p *ecsProject) parseCompose() error {
-	// load the compose files using libcompose
 	logrus.Debug("Parsing the compose yaml...")
+	// libcompose.Project#Parse populates project information based on its
+	// context. It sets up the name, the composefile and the composebytes
+	// (the composefile content). This is where p.ServiceConfigs gets loaded.
 	if err := p.Project.Parse(); err != nil {
 		return err
 	}
 
 	// libcompose sanitizes the project name and removes any non alpha-numeric character.
-	// The following undo-es that and sets the project name as user defined it.
+	// The following undoes that and sets the project name as user defined it.
 	return p.context.SetProjectName()
 }
 
-// transformTaskDefinition converts the compose yml into task definition
+// transformTaskDefinition converts the compose yml and ecs-fields yml into an ECS task definition
 func (p *ecsProject) transformTaskDefinition() error {
 	context := p.context
 
