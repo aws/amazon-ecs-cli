@@ -13,7 +13,21 @@
 
 package ami
 
-import "fmt"
+import (
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"time"
+)
+
+const (
+	mainBucketS3URL     = "https://s3.amazonaws.com/ecs-ami-id/"
+	cnNorth1BucketS3URL = "https://s3.cn-north-1.amazonaws.com.cn/ecs-ami-id/"
+	// time out in milliseconds to wait to pull the bucket
+	requestTimeout = 1000
+
+	maxRetries = 2
+)
 
 // ECSAmiIds interface is used to get the ami id for a specified region.
 type ECSAmiIds interface {
@@ -45,11 +59,55 @@ func NewStaticAmiIds() ECSAmiIds {
 	return &staticAmiIds{regionToId: regionToId}
 }
 
+// Get returns the AMI ID for a given region
+// It returns the AMI ID that it finds in:
+// 	1. The S3 bucket
+// 	2. The cn-north-1 mirror of the main S3 bucket
+// 	3. The hardcoded list (which may be slightly out of date. )
+// (#2 helps users in china who may be blocked from the main bucket)
 func (c *staticAmiIds) Get(region string) (string, error) {
+	// first try to pull from the main bucket
+	if id, err := getIDFromS3(mainBucketS3URL+region, maxRetries); err == nil {
+		return id, nil
+	}
+
+	// if we could not reach the main bucket, try the bucket in China
+	if id, err := getIDFromS3(mainBucketS3URL+region, maxRetries); err == nil {
+		return id, nil
+	}
+
+	// Finally, if pulling from S3 failed, fall back to the hardcoded list of AMIs
+	// The hardcoded list may of course be slightly out of date
 	id, exists := c.regionToId[region]
 	if !exists {
 		return "", fmt.Errorf("Could not find ami id for region '%s'", region)
 	}
 
 	return id, nil
+}
+
+// getIDFromS3 attempts to http GET url for the specified number of times (retries).
+func getIDFromS3(url string, retries int) (string, error) {
+	timeout := time.Duration(requestTimeout * time.Millisecond)
+	client := http.Client{
+		Timeout: timeout,
+	}
+
+	var err error
+
+	for i := 0; i < retries; i++ {
+		var response *http.Response
+		response, err = client.Get(url)
+		if err != nil {
+			continue
+		}
+		defer response.Body.Close()
+		var body []byte
+		if body, err = ioutil.ReadAll(response.Body); err == nil {
+			return string(body), nil
+		}
+
+	}
+
+	return "", err
 }
