@@ -58,6 +58,36 @@ func TestGetContainersForTasks(t *testing.T) {
 	assert.Equal(t, containers[0].Ec2IPAddress, aws.StringValue(ec2Instance.PublicIpAddress), "Expects PublicIpAddress to match")
 }
 
+func TestGetContainersForTasksPrivateIP(t *testing.T) {
+	containerInstanceArn := "containerInstanceArn"
+	ec2InstanceID := "ec2InstanceId"
+	ec2Instance := &ec2.Instance{PrivateIpAddress: aws.String("publicIpAddress")}
+
+	ecsTasks := []*ecs.Task{
+		&ecs.Task{
+			Containers: []*ecs.Container{
+				&ecs.Container{
+					Name: aws.String("containerName"),
+				},
+			},
+			ContainerInstanceArn: aws.String(containerInstanceArn),
+		},
+	}
+	containerInstancesMap := make(map[string]string)
+	containerInstancesMap[containerInstanceArn] = ec2InstanceID
+
+	ec2InstancesMap := make(map[string]*ec2.Instance)
+	ec2InstancesMap[ec2InstanceID] = ec2Instance
+
+	mockProjectEntity := setupMocks(t, []*string{aws.String(containerInstanceArn)}, containerInstancesMap,
+		[]*string{aws.String(ec2InstanceID)}, ec2InstancesMap)
+
+	containers, err := getContainersForTasks(mockProjectEntity, ecsTasks)
+	assert.NoError(t, err, "Unexpected error when calling getContainersForTasks")
+	assert.Len(t, containers, 1, "Expects to have 1 containers")
+	assert.Equal(t, containers[0].Ec2IPAddress, aws.StringValue(ec2Instance.PrivateIpAddress), "Expects PublicIpAddress to match")
+}
+
 func TestGetContainersForTasksWithoutEc2InstanceID(t *testing.T) {
 	containerInstanceArn := "containerInstanceArn"
 	ec2InstanceID := "ec2InstanceId"
