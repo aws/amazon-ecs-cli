@@ -7,14 +7,13 @@
 # ./scripts/test_commands.sh -c IntegrationTestCluster -r us-east-2
 # -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY -k MyFirstKeyPair
 # -p ~/Downloads/KeyPair.pem -i ec2-18-220-215-243.us-east-2.compute.amazonaws.com
-# -u PettitWesley -b master
 
 usage() {
 	echo "Usage: ${0}"
 	echo
 	echo "This script runs a series of ECS CLI commands on a fresh EC2 instance."
 	echo "It is designed to provide integration tests for the ECS CLI."
-	echo "However, it is called sanity check for a reason, this script simply"
+	echo "However, it is called a sanity check for a reason, this script simply"
 	echo "checks if the commands run exited with code 0."
 	echo "More detailed test output can be examined manually in"
 	echo "~/ecs-cli-test-results/test_output.txt, on the ec2 instance."
@@ -27,13 +26,11 @@ usage() {
 	echo "  -k  KEY PAIR NAME      A keypair for the chosen region."
 	echo "  -p  KEY PAIR PATH      The path to the key pair needed to ssh into the given ec2 instance."
 	echo "  -i  INSTANCE URL       The public DNS for the ec2 instance created for testing."
-	echo "  -u  GITHUB USERNAME    The testers github username."
-	echo "  -b  BRANCH             The branch on github that will be tested."
 	echo "  -h                     Display this help message"
 }
 
 # ARGS: cluster c, region r, access a, secret s, keypair k , keypath p, instance_url i, gitname u, branch b
-while getopts ":c:r:a:s:k:p:i:u:b:" opt; do
+while getopts ":c:r:a:s:k:p:i:" opt; do
 	case ${opt} in
 		c)
 			cluster="${OPTARG}"
@@ -55,12 +52,6 @@ while getopts ":c:r:a:s:k:p:i:u:b:" opt; do
 			;;
 		i)
 			instance_url="${OPTARG}"
-			;;
-		u)
-			gitname="${OPTARG}"
-			;;
-		b)
-			branch="${OPTARG}"
 			;;
 		\?)
 			echo "Invalid option -${OPTARG}" >&2
@@ -84,8 +75,11 @@ if [ -z "${instance_url}" ]; then
 	exit 1
 fi
 
+// build for linux
+make docker-build
+scp -i $keypath $(dirname "${0}")/../bin/linux-amd64/ecs-cli "ec2-user@${instance_url}":~/
 scp -i $keypath $(dirname "${0}")/run_commands.sh "ec2-user@${instance_url}":~/
 # exit 1
 # ARGS: cluster c, region r, access a, secret s, keypair k , keypath p, instance_url i, gitname u, branch b
 ssh -i $keypath "ec2-user@${instance_url}" "chmod +x run_commands.sh"
-ssh -i $keypath "ec2-user@${instance_url}" "cluster=${cluster} region=${region} access=${access} secret=${secret} keypair=${keypair} keypath=${keypath} instance_url=${instance_url} gitname=${gitname} branch=${branch} ./run_commands.sh"
+ssh -i $keypath "ec2-user@${instance_url}" "cluster=${cluster} region=${region} access=${access} secret=${secret} keypair=${keypair} keypath=${keypath} instance_url=${instance_url} ./run_commands.sh"

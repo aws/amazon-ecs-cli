@@ -37,40 +37,27 @@ expect_success_no_log() {
 	fi
 }
 
-# install git and go
-echo "TYPE y|yes then enter to proceed."
-sudo yum install git go >> ~/ecs-cli-test-results/test_log.txt
-# have to respond yes to prompt
-# get CLI
-export GOPATH="$HOME/go"
-go get github.com/aws/amazon-ecs-cli >> ~/ecs-cli-test-results/test_log.txt
-cd $GOPATH/src/github.com/aws/amazon-ecs-cli
-url="https://github.com/"
-url+=$gitname
-url+="/amazon-ecs-cli.git"
-git remote add fork $url &>> ~/ecs-cli-test-results/test_log.txt
-git fetch fork &>> ~/ecs-cli-test-results/test_log.txt
-git checkout "fork/${branch}"
-make build
-
-rm ~/ecs-cli-test-results/test_output.txt # clean up from past tests
+rm ~/ecs-cli-test-results/test_output.txt # clean up from past tests (in case this instance has been used before)
+# create the results directory and file; in case this instance is being used for the first time
+mkdir ~/ecs-cli-test-results/
+touch ~/ecs-cli-test-results/test_output.txt
 
 # test commands
 
 # configure
-expect_success_no_log ./bin/local/ecs-cli configure --region $region --access-key $access --secret-key $secret --cluster $cluster
+expect_success_no_log ./ecs-cli configure --region $region --access-key $access --secret-key $secret --cluster $cluster
 # up
-expect_success ./bin/local/ecs-cli up --capability-iam --keypair $keypair --size 1 --instance-type t2.medium --force
+expect_success ./ecs-cli up --capability-iam --keypair $keypair --size 1 --instance-type t2.medium --force
 # create a service
-expect_success ./bin/local/ecs-cli compose --file ./integration-tests/docker-compose.yml service up
+expect_success ./ecs-cli compose --file ./integration-tests/docker-compose.yml service up
 # take down service
-expect_success ./bin/local/ecs-cli compose --file ./integration-tests/docker-compose.yml service down
+expect_success ./ecs-cli compose --file ./integration-tests/docker-compose.yml service down
 # create a task
-expect_success ./bin/local/ecs-cli compose --file ./integration-tests/docker-compose.yml up
+expect_success ./ecs-cli compose --file ./integration-tests/docker-compose.yml up
 # take down task
-expect_success ./bin/local/ecs-cli compose --file ./integration-tests/docker-compose.yml down
+expect_success ./ecs-cli compose --file ./integration-tests/docker-compose.yml down
 # take down cluster
-expect_success ./bin/local/ecs-cli down --force
+expect_success ./ecs-cli down --force
 
 
 # Sanity Check- search output file for error messages
