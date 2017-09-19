@@ -43,19 +43,19 @@ func TestGetContainersForTasks(t *testing.T) {
 			ContainerInstanceArn: aws.String(containerInstanceArn),
 		},
 	}
-	containerInstancesMap := make(map[string]string)
-	containerInstancesMap[containerInstanceArn] = ec2InstanceID
+	containerInstances := make(map[string]string)
+	containerInstances[containerInstanceArn] = ec2InstanceID
 
-	ec2InstancesMap := make(map[string]*ec2.Instance)
-	ec2InstancesMap[ec2InstanceID] = ec2Instance
+	ec2Instances := make(map[string]*ec2.Instance)
+	ec2Instances[ec2InstanceID] = ec2Instance
 
-	mockProjectEntity := setupMocks(t, []*string{aws.String(containerInstanceArn)}, containerInstancesMap,
-		[]*string{aws.String(ec2InstanceID)}, ec2InstancesMap)
+	mockProjectEntity := setupMocks(t, []*string{aws.String(containerInstanceArn)}, containerInstances,
+		[]*string{aws.String(ec2InstanceID)}, ec2Instances)
 
 	containers, err := getContainersForTasks(mockProjectEntity, ecsTasks)
 	assert.NoError(t, err, "Unexpected error when calling getContainersForTasks")
-	assert.Len(t, containers, 1, "Expects to have 1 containers")
-	assert.Equal(t, containers[0].Ec2IPAddress, aws.StringValue(ec2Instance.PublicIpAddress), "Expects PublicIpAddress to match")
+	assert.Len(t, containers, 1, "Expected to have 1 container")
+	assert.Equal(t, aws.StringValue(ec2Instance.PublicIpAddress), containers[0].Ec2IPAddress, "Expects PublicIpAddress to match")
 }
 
 func TestGetContainersForTasksPrivateIP(t *testing.T) {
@@ -73,19 +73,19 @@ func TestGetContainersForTasksPrivateIP(t *testing.T) {
 			ContainerInstanceArn: aws.String(containerInstanceArn),
 		},
 	}
-	containerInstancesMap := make(map[string]string)
-	containerInstancesMap[containerInstanceArn] = ec2InstanceID
+	containerInstances := make(map[string]string)
+	containerInstances[containerInstanceArn] = ec2InstanceID
 
-	ec2InstancesMap := make(map[string]*ec2.Instance)
-	ec2InstancesMap[ec2InstanceID] = ec2Instance
+	ec2Instances := make(map[string]*ec2.Instance)
+	ec2Instances[ec2InstanceID] = ec2Instance
 
-	mockProjectEntity := setupMocks(t, []*string{aws.String(containerInstanceArn)}, containerInstancesMap,
-		[]*string{aws.String(ec2InstanceID)}, ec2InstancesMap)
+	mockProjectEntity := setupMocks(t, []*string{aws.String(containerInstanceArn)}, containerInstances,
+		[]*string{aws.String(ec2InstanceID)}, ec2Instances)
 
 	containers, err := getContainersForTasks(mockProjectEntity, ecsTasks)
 	assert.NoError(t, err, "Unexpected error when calling getContainersForTasks")
-	assert.Len(t, containers, 1, "Expects to have 1 containers")
-	assert.Equal(t, containers[0].Ec2IPAddress, aws.StringValue(ec2Instance.PrivateIpAddress), "Expects PublicIpAddress to match")
+	assert.Len(t, containers, 1, "Expected to have 1 container")
+	assert.Equal(t, aws.StringValue(ec2Instance.PrivateIpAddress), containers[0].Ec2IPAddress, "Expects PublicIpAddress to match")
 }
 
 func TestGetContainersForTasksWithoutEc2InstanceID(t *testing.T) {
@@ -102,14 +102,14 @@ func TestGetContainersForTasksWithoutEc2InstanceID(t *testing.T) {
 			ContainerInstanceArn: aws.String(containerInstanceArn),
 		},
 	}
-	containerInstancesMap := make(map[string]string)
-	containerInstancesMap[containerInstanceArn] = ec2InstanceID
+	containerInstances := make(map[string]string)
+	containerInstances[containerInstanceArn] = ec2InstanceID
 
 	// No ec2InstanceID is found
-	ec2InstancesMap := make(map[string]*ec2.Instance)
+	ec2Instances := make(map[string]*ec2.Instance)
 
-	projectEntity := setupMocks(t, []*string{aws.String(containerInstanceArn)}, containerInstancesMap,
-		[]*string{aws.String(ec2InstanceID)}, ec2InstancesMap)
+	projectEntity := setupMocks(t, []*string{aws.String(containerInstanceArn)}, containerInstances,
+		[]*string{aws.String(ec2InstanceID)}, ec2Instances)
 
 	containers, err := getContainersForTasks(projectEntity, ecsTasks)
 	assert.NoError(t, err, "Unexpected error when calling getContainersForTasks")
@@ -131,8 +131,8 @@ func TestGetContainersForTasksErrorCases(t *testing.T) {
 			ContainerInstanceArn: aws.String(containerInstanceArn),
 		},
 	}
-	containerInstancesMap := make(map[string]string)
-	containerInstancesMap[containerInstanceArn] = ec2InstanceID
+	containerInstances := make(map[string]string)
+	containerInstances[containerInstanceArn] = ec2InstanceID
 
 	mockEc2, mockEcs, mockProjectEntity := setupTest(t)
 	mockContext := &context.Context{
@@ -151,7 +151,7 @@ func TestGetContainersForTasksErrorCases(t *testing.T) {
 	// DescribeInstances failed
 	gomock.InOrder(
 		mockProjectEntity.EXPECT().Context().Return(mockContext),
-		mockEcs.EXPECT().GetEC2InstanceIDs(gomock.Any()).Return(containerInstancesMap, nil),
+		mockEcs.EXPECT().GetEC2InstanceIDs(gomock.Any()).Return(containerInstances, nil),
 		mockProjectEntity.EXPECT().Context().Return(mockContext),
 		mockEc2.EXPECT().DescribeInstances(gomock.Any()).Return(nil, errors.New("something wrong")),
 	)
