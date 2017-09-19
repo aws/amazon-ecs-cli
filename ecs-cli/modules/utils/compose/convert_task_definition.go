@@ -119,10 +119,6 @@ func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context
 		}
 	}
 
-	if networkMode == "" {
-		networkMode = "bridge"
-	}
-
 	taskDefinition := &ecs.TaskDefinition{
 		Family:               aws.String(taskDefinitionName),
 		ContainerDefinitions: containerDefinitions,
