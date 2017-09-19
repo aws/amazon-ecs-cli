@@ -76,7 +76,7 @@ func createServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 func startServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:   "start",
-		Usage:  "Starts one copy of each of the containers on the created ECS service. If the service does not already exist, it sets the desired running count to 1.",
+		Usage:  "Starts one copy of each of the containers on the created ECS service. If the desired count is 0, it sets the desired running count to 1; otherwise this command is a no-op.",
 		Action: compose.WithProject(factory, compose.ProjectStart, true),
 		Flags: []cli.Flag{
 			command.OptionalClusterFlag(),
@@ -89,7 +89,7 @@ func startServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 func upServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:   "up",
-		Usage:  "Creates an ECS service from your compose file (if it does not already exist) and runs one instance of that task on your cluster (a combination of create and start). If the service does not already exist, it sets the desired running count to 1.",
+		Usage:  "Creates or Updates an ECS Service using your compose file. If the service is being created or has its desired count set to 0, then the desired count is set to 1. Otherwise, the service’s task definition is updated to reflect any changes to the compose file, and the desired count remains the same.",
 		Action: compose.WithProject(factory, compose.ProjectUp, true),
 		Flags:  append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalClusterFlag(), command.OptionalRegionFlag(), ComposeServiceTimeoutFlag())...),
 	}
