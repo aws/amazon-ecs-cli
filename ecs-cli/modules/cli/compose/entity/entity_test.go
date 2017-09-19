@@ -61,7 +61,7 @@ func TestGetContainersForTasks(t *testing.T) {
 func TestGetContainersForTasksPrivateIP(t *testing.T) {
 	containerInstanceArn := "containerInstanceArn"
 	ec2InstanceID := "ec2InstanceId"
-	ec2Instance := &ec2.Instance{PrivateIpAddress: aws.String("publicIpAddress")}
+	ec2Instance := &ec2.Instance{PrivateIpAddress: aws.String("privateIpAddress")}
 
 	ecsTasks := []*ecs.Task{
 		&ecs.Task{
