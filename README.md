@@ -20,6 +20,20 @@ level than those provided by the Amazon ECS CLI. For more information about supp
 services and to download the AWS CLI, see the
 [AWS Command Line Interface](http://aws.amazon.com/cli/) product detail page.
 
+- [Installing](#Installing)
+	- [Latest version](#latest-version)
+		- [Download Links for within China](#download-links-for-within-china)
+	- [Download specific version](#)
+- [Configuring the CLI](#configuring-the-cli)
+- [Using the CLI](#using-the-cli)
+	- [Creating an ECS Cluster](#creating-an-ecs-cluster)
+	- [Starting/Running Tasks](#startingrunning-tasks)
+	- [Creating a Service](#creating-a-service)
+	- [Using ECS parameters](#using-ecs-parameters)
+- [Amazon ECS CLI Commands](#amazon-ecs-cli-commands)
+- [Contributing to the CLI](#contributing-to-the-cli)
+- [License](#license)
+
 ## Installing
 
 Download the binary archive for your platform, decompress the archive, and
@@ -89,8 +103,11 @@ OPTIONS:
 ```
 
 ## Using the CLI
+
+### Creating an ECS Cluster
 After installing the Amazon ECS CLI and configuring your credentials, you are ready to
 create an ECS cluster.
+
 
 ```
 $ ecs-cli help up
@@ -101,7 +118,7 @@ USAGE:
    command up [command options] [arguments...]
 
 OPTIONS:
-   --verbose, --debug                
+   --verbose, --debug
    --keypair value                   Specifies the name of an existing Amazon EC2 key pair to enable SSH access to the EC2 instances in your cluster.
    --capability-iam                  Acknowledges that this command may create IAM resources. Required if --instance-role is not specified.
    --size value                      [Optional] Specifies the number of instances to launch and register to the cluster. Defaults to 1.
@@ -152,11 +169,13 @@ described in the
 Alternatively, you may specify one or more existing security group IDs with the
 `--security-group` option.
 
+### Starting/Running Tasks
 After the cluster is created, you can run tasks – groups of containers – on the
 ECS cluster. First, author a
 [Docker Compose configuration file]( https://docs.docker.com/compose).
-You can run the configuration file locally using Docker Compose. Here is an
-example Docker Compose configuration file that creates a web page:
+You can run the configuration file locally using Docker Compose.
+
+Here is an example Docker Compose configuration file that creates a web page:
 
 ```
 version: '2'
@@ -180,6 +199,7 @@ fd8d5a69-87c5-46a4-80b6-51918092e600/web  RUNNING  54.209.244.64:80->80/tcp  ecs
 Navigate your web browser to the task’s IP address to see the sample app
 running in the ECS cluster.
 
+### Creating a Service
 You can also run tasks as services. The ECS service scheduler ensures that the
 specified number of tasks are constantly running and reschedules tasks when a
 task fails (for example, if the underlying container instance fails for some
@@ -203,6 +223,37 @@ $ ecs-cli compose --project-name wordpress-test service ps
 Name                                            State    Ports                      TaskDefinition
 34333aa6-e976-4096-991a-0ec4cd5af5bd/wordpress  RUNNING  54.186.138.217:80->80/tcp  ecscompose-wordpress-test:1
 34333aa6-e976-4096-991a-0ec4cd5af5bd/mysql      RUNNING                             ecscompose-wordpress-test:1
+```
+
+### Using ECS parameters
+
+Since there are certain fields in an ECS task definition that do not correspond to fields in a Docker Composefile, you can specify those values using the `--ecs-params` flag. Currently, the file supports the follow schema:
+
+```
+version: 1
+task_definition:
+  ecs_network_mode: string // supported string values: none, bridge, or host
+  task_role_arn: string
+```
+
+Example `ecs-params.yml` file:
+
+```
+version: 1
+task_definition:
+  ecs_network_mode: host
+  task_role_arn: myCustomRole
+```
+
+You can then start a task by calling:
+```
+ecs-cli compose --ecs-params my-ecs-params.yml up
+```
+
+If you have a file name `ecs-params.yml` in your current directory, `ecs-cli compose` will automatically read it without your having to set the `--ecs-params` flag value explicitly.
+
+```
+ecs-cli compose up
 ```
 
 ## Amazon ECS CLI Commands
