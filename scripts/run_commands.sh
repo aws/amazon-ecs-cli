@@ -43,8 +43,7 @@ touch $TEST_RESULT_DIR/test_output.txt
 
 if ! [ -z "${gitname}" ]; then
 	# Not testing local changes, testing a branch instead
-	echo "TYPE y|yes to proceed and install git and go on the EC2 instance."
-	sudo yum install git go >> $TEST_RESULT_DIR/test_log.txt # yum requires the user to confirm the install
+	sudo yum -y install git go >> $TEST_RESULT_DIR/test_log.txt
 	# have to respond yes to prompt
 	# get CLI
 	export GOPATH="$HOME/go"
@@ -66,19 +65,34 @@ fi
 # configure
 expect_success_no_log ./ecs-cli configure --region $region --access-key $access --secret-key $secret --cluster $cluster
 # up
-expect_success ./ecs-cli up --capability-iam --keypair $keypair --size 1 --instance-type t2.medium --force
+expect_success ./ecs-cli up --capability-iam --keypair $keypair --size 2 --instance-type t2.medium --force
+# Service workflow: create, start, scale, stop, down
+expect_success ./ecs-cli compose --file ~/docker-compose.yml service create
+expect_success ./ecs-cli compose --file ~/docker-compose.yml service start
+expect_success ./ecs-cli compose --file ~/docker-compose.yml service scale 2
+expect_success ./ecs-cli compose --file ~/docker-compose.yml service stop
+expect_success ./ecs-cli compose --file ~/docker-compose.yml service down
 # create a service
-expect_success ./ecs-cli compose --file ./integration-tests/docker-compose.yml service up
-# ps on th service
-expect_success ./ecs-cli compose --file ./integration-tests/docker-compose.yml service ps
+expect_success ./ecs-cli compose --file ~/docker-compose.yml service up
+# ps on the service
+expect_success ./ecs-cli compose --file ~/docker-compose.yml service ps
 # take down service
-expect_success ./ecs-cli compose --file ./integration-tests/docker-compose.yml service down
+expect_success ./ecs-cli compose --file ~/docker-compose.yml service down
 # create a task
-expect_success ./ecs-cli compose --file ./integration-tests/docker-compose.yml up
+expect_success ./ecs-cli compose --file ~/docker-compose.yml up
 # ps the task
-expect_success ./ecs-cli compose --file ./integration-tests/docker-compose.yml ps
+expect_success ./ecs-cli compose --file ~/docker-compose.yml ps
 # take down task
-expect_success ./ecs-cli compose --file ./integration-tests/docker-compose.yml down
+expect_success ./ecs-cli compose --file ~/docker-compose.yml down
+# task work flow: create, start, scale, then stop
+expect_success ./ecs-cli compose --file ~/docker-compose.yml create
+expect_success ./ecs-cli compose --file ~/docker-compose.yml start
+expect_success ./ecs-cli compose --file ~/docker-compose.yml scale 2
+expect_success ./ecs-cli compose --file ~/docker-compose.yml stop
+# run then stop
+expect_success ./ecs-cli compose --file ~/docker-compose.yml run
+expect_success ./ecs-cli compose --file ~/docker-compose.yml stop
+
 # take down cluster
 expect_success ./ecs-cli down --force
 

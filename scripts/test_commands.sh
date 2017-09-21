@@ -94,6 +94,7 @@ if [ -z "${gitname}" ]; then
 	scp -i $keypath $(dirname "${0}")/../bin/linux-amd64/ecs-cli "ec2-user@${instance_url}":~/
 fi
 
+scp -i $keypath $(dirname "${0}")/../integration-tests/docker-compose.yml "ec2-user@${instance_url}":~/
 scp -i $keypath $(dirname "${0}")/run_commands.sh "ec2-user@${instance_url}":~/
 # ARGS: cluster c, region r, access a, secret s, keypair k , keypath p, instance_url i, gitname u, branch b
 ssh -i $keypath "ec2-user@${instance_url}" "chmod +x run_commands.sh"
