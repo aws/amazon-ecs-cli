@@ -42,6 +42,28 @@ rm ~/ecs-cli-test-results/test_output.txt # clean up from past tests (in case th
 mkdir ~/ecs-cli-test-results/
 touch ~/ecs-cli-test-results/test_output.txt
 
+if ! [ -z "${gitname}" ]; then
+	# Not testing local changes, testing a branch instead
+	echo "Testing $branch"
+	# install git and go
+	echo "TYPE y|yes then enter to proceed."
+	sudo yum install git go >> ~/ecs-cli-test-results/test_log.txt
+	# have to respond yes to prompt
+	# get CLI
+	export GOPATH="$HOME/go"
+	go get github.com/aws/amazon-ecs-cli >> ~/ecs-cli-test-results/test_log.txt
+	cd $GOPATH/src/github.com/aws/amazon-ecs-cli
+	url="https://github.com/"
+	url+=$gitname
+	url+="/amazon-ecs-cli.git"
+	git remote add fork $url &>> ~/ecs-cli-test-results/test_log.txt
+	git fetch fork &>> ~/ecs-cli-test-results/test_log.txt
+	git checkout "fork/${branch}"
+	make build
+
+	cd bin/local/
+fi
+
 # test commands
 
 # configure
