@@ -3,7 +3,6 @@
 # The full output of the test script is stored in $TEST_RESULT_DIR.
 # The necessary env variables will be set by test_commands.sh using the
 # command line arguments provided to it.
-#
 
 declare -i FAILURES
 FAILURES=0
