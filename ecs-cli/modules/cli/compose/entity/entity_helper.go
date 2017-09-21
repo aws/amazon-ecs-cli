@@ -188,7 +188,6 @@ func getContainersForTasks(entity ProjectEntity, ecsTasks []*ecs.Task) ([]compos
 		if ec2ID != "" && ec2Instances[ec2ID] != nil {
 			ec2IPAddress = aws.StringValue(ec2Instances[ec2ID].PublicIpAddress)
 			if ec2IPAddress == "" {
-				// If Public IP is empty, use private IP
 				ec2IPAddress = aws.StringValue(ec2Instances[ec2ID].PrivateIpAddress)
 			}
 		}
