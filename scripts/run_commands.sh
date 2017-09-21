@@ -45,7 +45,7 @@ touch $TEST_RESULT_DIR/test_output.txt
 if ! [ -z "${gitname}" ]; then
 	# Not testing local changes, testing a branch instead
 	echo "TYPE y|yes to proceed and install git and go on the EC2 instance."
-	sudo yum install git go >> $TEST_RESULT_DIR/test_log.txt
+	sudo yum install git go >> $TEST_RESULT_DIR/test_log.txt # yum requires the user to confirm the install
 	# have to respond yes to prompt
 	# get CLI
 	export GOPATH="$HOME/go"
