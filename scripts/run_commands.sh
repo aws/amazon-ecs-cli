@@ -1,6 +1,6 @@
-#
-# This scripts runs on the ec2 instance. It is uploaded to the EC2 instance by
-# test_commands.sh
+# This scripts runs on the ec2 instance and it used for integration testing.
+# It is uploaded to the EC2 instance by test_commands.sh.
+# The full output of the test script is stored in $TEST_RESULT_DIR.
 # The necessary env variables will be set by test_commands.sh using the
 # command line arguments provided to it.
 #
@@ -15,7 +15,7 @@ LGREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
 expect_success() {
-	if "${@}" &>> ~/ecs-cli-test-results/test_output.txt; then
+	if "${@}" &>> $TEST_RESULT_DIR/test_output.txt; then
 		echo -e "${GREEN}SUCCEEDED${NC}: ${LGREEN}${@}${NC}"
 	else
 		echo "-------"
@@ -27,7 +27,7 @@ expect_success() {
 
 # used for commands that whose arguments might contain sensitive information
 expect_success_no_log() {
-	if "${@}" &>> ~/ecs-cli-test-results/test_output.txt; then
+	if "${@}" &>> $TEST_RESULT_DIR/test_output.txt; then
 		echo -e "${GREEN}SUCCEEDED${NC}: ${LGREEN}${1} ${2}${NC}"
 	else
 		echo "-------"
@@ -37,27 +37,25 @@ expect_success_no_log() {
 	fi
 }
 
-rm ~/ecs-cli-test-results/test_output.txt # clean up from past tests (in case this instance has been used before)
+rm $TEST_RESULT_DIR/test_output.txt # clean up from past tests (in case this instance has been used before)
 # create the results directory and file; in case this instance is being used for the first time
-mkdir ~/ecs-cli-test-results/
-touch ~/ecs-cli-test-results/test_output.txt
+mkdir $TEST_RESULT_DIR/
+touch $TEST_RESULT_DIR/test_output.txt
 
 if ! [ -z "${gitname}" ]; then
 	# Not testing local changes, testing a branch instead
-	echo "Testing $branch"
-	# install git and go
-	echo "TYPE y|yes then enter to proceed."
-	sudo yum install git go >> ~/ecs-cli-test-results/test_log.txt
+	echo "TYPE y|yes to proceed and install git and go on the EC2 instance."
+	sudo yum install git go >> $TEST_RESULT_DIR/test_log.txt
 	# have to respond yes to prompt
 	# get CLI
 	export GOPATH="$HOME/go"
-	go get github.com/aws/amazon-ecs-cli >> ~/ecs-cli-test-results/test_log.txt
+	go get github.com/aws/amazon-ecs-cli >> $TEST_RESULT_DIR/test_log.txt
 	cd $GOPATH/src/github.com/aws/amazon-ecs-cli
 	url="https://github.com/"
 	url+=$gitname
 	url+="/amazon-ecs-cli.git"
-	git remote add fork $url &>> ~/ecs-cli-test-results/test_log.txt
-	git fetch fork &>> ~/ecs-cli-test-results/test_log.txt
+	git remote add fork $url &>> $TEST_RESULT_DIR/test_log.txt
+	git fetch fork &>> $TEST_RESULT_DIR/test_log.txt
 	git checkout "fork/${branch}"
 	make build
 
@@ -72,10 +70,14 @@ expect_success_no_log ./ecs-cli configure --region $region --access-key $access 
 expect_success ./ecs-cli up --capability-iam --keypair $keypair --size 1 --instance-type t2.medium --force
 # create a service
 expect_success ./ecs-cli compose --file ./integration-tests/docker-compose.yml service up
+# ps on th service
+expect_success ./ecs-cli compose --file ./integration-tests/docker-compose.yml service ps
 # take down service
 expect_success ./ecs-cli compose --file ./integration-tests/docker-compose.yml service down
 # create a task
 expect_success ./ecs-cli compose --file ./integration-tests/docker-compose.yml up
+# ps the task
+expect_success ./ecs-cli compose --file ./integration-tests/docker-compose.yml ps
 # take down task
 expect_success ./ecs-cli compose --file ./integration-tests/docker-compose.yml down
 # take down cluster
@@ -83,10 +85,10 @@ expect_success ./ecs-cli down --force
 
 
 # Sanity Check- search output file for error messages
-cat ~/ecs-cli-test-results/test_output.txt | grep -i "err" > ~/ecs-cli-test-results/errors.txt
-cat ~/ecs-cli-test-results/test_output.txt | grep -i "fatal" >> ~/ecs-cli-test-results/errors.txt
+cat $TEST_RESULT_DIR/test_output.txt | grep -i "err" > $TEST_RESULT_DIR/errors.txt
+cat $TEST_RESULT_DIR/test_output.txt | grep -i "fatal" >> $TEST_RESULT_DIR/errors.txt
 echo -e "${RED}"
-cat ~/ecs-cli-test-results/errors.txt
+cat $TEST_RESULT_DIR/errors.txt
 echo -e "${NC}"
 
 echo "ALL TESTS COMPLETE"

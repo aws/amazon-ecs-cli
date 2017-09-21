@@ -8,6 +8,8 @@
 # -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY -k MyFirstKeyPair
 # -p ~/Downloads/KeyPair.pem -i ec2-18-220-215-243.us-east-2.compute.amazonaws.com
 
+TEST_RESULT_DIR="~/ecs-cli-test-results"
+
 usage() {
 	echo "Usage: ${0}"
 	echo
@@ -19,7 +21,7 @@ usage() {
 	echo "then the script pulls and tests a branch on Github."
 	echo "Otherwise it tests local changes."
 	echo "More detailed test output can be examined manually in"
-	echo "~/ecs-cli-test-results/test_output.txt, on the ec2 instance."
+	echo "$TEST_RESULT_DIR/test_output.txt, on the ec2 instance."
 	echo
 	echo "Required Arguments:"
 	echo "  -c  CLUSTER            A name for the cluster that will be created/used in the tests."
@@ -95,4 +97,4 @@ fi
 scp -i $keypath $(dirname "${0}")/run_commands.sh "ec2-user@${instance_url}":~/
 # ARGS: cluster c, region r, access a, secret s, keypair k , keypath p, instance_url i, gitname u, branch b
 ssh -i $keypath "ec2-user@${instance_url}" "chmod +x run_commands.sh"
-ssh -i $keypath "ec2-user@${instance_url}" "cluster=${cluster} region=${region} access=${access} secret=${secret} keypair=${keypair} keypath=${keypath} instance_url=${instance_url} gitname=${gitname} branch=${branch} ./run_commands.sh"
+ssh -i $keypath "ec2-user@${instance_url}" "cluster=${cluster} region=${region} access=${access} secret=${secret} keypair=${keypair} keypath=${keypath} instance_url=${instance_url} gitname=${gitname} branch=${branch} TEST_RESULT_DIR=${TEST_RESULT_DIR} ./run_commands.sh"
