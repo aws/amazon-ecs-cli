@@ -81,8 +81,7 @@ func Info(entity ProjectEntity, filterLocal bool) (project.InfoSet, error) {
 	if err != nil {
 		return nil, err
 	}
-	allInfo := composecontainer.ConvertContainersToInfoSet(containers)
-	return allInfo, nil
+	return composecontainer.ConvertContainersToInfoSet(containers), nil
 }
 
 // collectContainers gets all the desiredStatus=RUNNING and STOPPED tasks with EC2 IP Addresses
@@ -188,6 +187,9 @@ func getContainersForTasks(entity ProjectEntity, ecsTasks []*ecs.Task) ([]compos
 		var ec2IPAddress string
 		if ec2ID != "" && ec2Instances[ec2ID] != nil {
 			ec2IPAddress = aws.StringValue(ec2Instances[ec2ID].PublicIpAddress)
+			if ec2IPAddress == "" {
+				ec2IPAddress = aws.StringValue(ec2Instances[ec2ID].PrivateIpAddress)
+			}
 		}
 		for _, container := range ecsTask.Containers {
 			result = append(result, composecontainer.NewContainer(ecsTask, ec2IPAddress, container))
