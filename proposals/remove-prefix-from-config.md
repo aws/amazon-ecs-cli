@@ -51,17 +51,24 @@ Assume project name is "myApp"
 1. Config help
    ```
    $ ecs-cli configure --help
+   
+   COMMANDS:
+   migrate    Moves your old configuration to new configuration
+   
+   OPTIONS:
    --cluster value, -c value            Specifies the ECS cluster name to use. If the cluster does not exist, it is created when you try to add resources to it with the ecs-cli up command. [$ECS_CLUSTER]
    --region value, -r value             Specifies the AWS region to use. If the AWS_REGION environment variable is set when ecs-cli configure is run, then the AWS region is set to the value of that environment variable. [$AWS_REGION]
    --cfn-stack-name value               [Optional] Specifies the name of AWS CloudFormation stack created on ecs-cli up. (default: "amazon-ecs-cli-setup-<cluster-name>")
-   --migrate                            [Optional] Moves your old configuration to new configuration
-   --force-migrate                      [Optional] Force move your old configuration to new configuration
    --compose-service-name-prefix value  [Deprecated] Specifies the prefix added to an ECS service created from a compose file. Format <prefix><project-name>. (default to empty)
+   
+   $ ecs-cli configure migrate --help
+   --force                      [Optional] Force move your old configuration to new configuration
+
    ```
 
 1. Migrate config with prompts
    ```
-   $ ecs-cli configure --migrate
+   $ ecs-cli configure migrate
    Old config
    -----------------------------------------------------
    ~/.ecs/config
@@ -129,7 +136,7 @@ Assume project name is "myApp"
 ### Existing customer second run
 1. Force migrating config, already knows what is going to happen
    ```
-   $ ecs-cli configure --force-migrate
+   $ ecs-cli configure migrate --force
    [WARN] Please read the following changes carefully: <link to documentation>
    - compose-project-name-prefix and compose-service-name-prefix is deprecated, you can continue to specify your desired names using the runtime flag --project-name
    - cfn-stack-name-prefix no longer exists, if you wish to continue to use your existing CFN stack, please specify the full stack name, otherwise it will be defaulted to    amazon-ecs-cli-setup-<cluster_name>
