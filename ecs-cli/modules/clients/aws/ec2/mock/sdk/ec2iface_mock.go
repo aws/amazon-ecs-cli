@@ -1108,6 +1108,44 @@ func (_mr *_MockEC2APIRecorder) ConfirmProductInstanceWithContext(arg0, arg1 int
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ConfirmProductInstanceWithContext", _s...)
 }
 
+func (_m *MockEC2API) CopyFpgaImage(_param0 *ec2.CopyFpgaImageInput) (*ec2.CopyFpgaImageOutput, error) {
+	ret := _m.ctrl.Call(_m, "CopyFpgaImage", _param0)
+	ret0, _ := ret[0].(*ec2.CopyFpgaImageOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CopyFpgaImage(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CopyFpgaImage", arg0)
+}
+
+func (_m *MockEC2API) CopyFpgaImageRequest(_param0 *ec2.CopyFpgaImageInput) (*request.Request, *ec2.CopyFpgaImageOutput) {
+	ret := _m.ctrl.Call(_m, "CopyFpgaImageRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.CopyFpgaImageOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CopyFpgaImageRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CopyFpgaImageRequest", arg0)
+}
+
+func (_m *MockEC2API) CopyFpgaImageWithContext(_param0 aws.Context, _param1 *ec2.CopyFpgaImageInput, _param2 ...request.Option) (*ec2.CopyFpgaImageOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CopyFpgaImageWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CopyFpgaImageOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CopyFpgaImageWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CopyFpgaImageWithContext", _s...)
+}
+
 func (_m *MockEC2API) CopyImage(_param0 *ec2.CopyImageInput) (*ec2.CopyImageOutput, error) {
 	ret := _m.ctrl.Call(_m, "CopyImage", _param0)
 	ret0, _ := ret[0].(*ec2.CopyImageOutput)
@@ -2514,6 +2552,44 @@ func (_mr *_MockEC2APIRecorder) DeleteFlowLogsWithContext(arg0, arg1 interface{}
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteFlowLogsWithContext", _s...)
 }
 
+func (_m *MockEC2API) DeleteFpgaImage(_param0 *ec2.DeleteFpgaImageInput) (*ec2.DeleteFpgaImageOutput, error) {
+	ret := _m.ctrl.Call(_m, "DeleteFpgaImage", _param0)
+	ret0, _ := ret[0].(*ec2.DeleteFpgaImageOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteFpgaImage(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteFpgaImage", arg0)
+}
+
+func (_m *MockEC2API) DeleteFpgaImageRequest(_param0 *ec2.DeleteFpgaImageInput) (*request.Request, *ec2.DeleteFpgaImageOutput) {
+	ret := _m.ctrl.Call(_m, "DeleteFpgaImageRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.DeleteFpgaImageOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteFpgaImageRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteFpgaImageRequest", arg0)
+}
+
+func (_m *MockEC2API) DeleteFpgaImageWithContext(_param0 aws.Context, _param1 *ec2.DeleteFpgaImageInput, _param2 ...request.Option) (*ec2.DeleteFpgaImageOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DeleteFpgaImageWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DeleteFpgaImageOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DeleteFpgaImageWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteFpgaImageWithContext", _s...)
+}
+
 func (_m *MockEC2API) DeleteInternetGateway(_param0 *ec2.DeleteInternetGatewayInput) (*ec2.DeleteInternetGatewayOutput, error) {
 	ret := _m.ctrl.Call(_m, "DeleteInternetGateway", _param0)
 	ret0, _ := ret[0].(*ec2.DeleteInternetGatewayOutput)
@@ -3842,6 +3918,44 @@ func (_m *MockEC2API) DescribeFlowLogsWithContext(_param0 aws.Context, _param1 *
 func (_mr *_MockEC2APIRecorder) DescribeFlowLogsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	_s := append([]interface{}{arg0, arg1}, arg2...)
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeFlowLogsWithContext", _s...)
+}
+
+func (_m *MockEC2API) DescribeFpgaImageAttribute(_param0 *ec2.DescribeFpgaImageAttributeInput) (*ec2.DescribeFpgaImageAttributeOutput, error) {
+	ret := _m.ctrl.Call(_m, "DescribeFpgaImageAttribute", _param0)
+	ret0, _ := ret[0].(*ec2.DescribeFpgaImageAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeFpgaImageAttribute(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeFpgaImageAttribute", arg0)
+}
+
+func (_m *MockEC2API) DescribeFpgaImageAttributeRequest(_param0 *ec2.DescribeFpgaImageAttributeInput) (*request.Request, *ec2.DescribeFpgaImageAttributeOutput) {
+	ret := _m.ctrl.Call(_m, "DescribeFpgaImageAttributeRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.DescribeFpgaImageAttributeOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeFpgaImageAttributeRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeFpgaImageAttributeRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeFpgaImageAttributeWithContext(_param0 aws.Context, _param1 *ec2.DescribeFpgaImageAttributeInput, _param2 ...request.Option) (*ec2.DescribeFpgaImageAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeFpgaImageAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeFpgaImageAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeFpgaImageAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeFpgaImageAttributeWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeFpgaImages(_param0 *ec2.DescribeFpgaImagesInput) (*ec2.DescribeFpgaImagesOutput, error) {
@@ -7349,6 +7463,44 @@ func (_mr *_MockEC2APIRecorder) ImportVolumeWithContext(arg0, arg1 interface{}, 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ImportVolumeWithContext", _s...)
 }
 
+func (_m *MockEC2API) ModifyFpgaImageAttribute(_param0 *ec2.ModifyFpgaImageAttributeInput) (*ec2.ModifyFpgaImageAttributeOutput, error) {
+	ret := _m.ctrl.Call(_m, "ModifyFpgaImageAttribute", _param0)
+	ret0, _ := ret[0].(*ec2.ModifyFpgaImageAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyFpgaImageAttribute(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyFpgaImageAttribute", arg0)
+}
+
+func (_m *MockEC2API) ModifyFpgaImageAttributeRequest(_param0 *ec2.ModifyFpgaImageAttributeInput) (*request.Request, *ec2.ModifyFpgaImageAttributeOutput) {
+	ret := _m.ctrl.Call(_m, "ModifyFpgaImageAttributeRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.ModifyFpgaImageAttributeOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyFpgaImageAttributeRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyFpgaImageAttributeRequest", arg0)
+}
+
+func (_m *MockEC2API) ModifyFpgaImageAttributeWithContext(_param0 aws.Context, _param1 *ec2.ModifyFpgaImageAttributeInput, _param2 ...request.Option) (*ec2.ModifyFpgaImageAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifyFpgaImageAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifyFpgaImageAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyFpgaImageAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyFpgaImageAttributeWithContext", _s...)
+}
+
 func (_m *MockEC2API) ModifyHosts(_param0 *ec2.ModifyHostsInput) (*ec2.ModifyHostsOutput, error) {
 	ret := _m.ctrl.Call(_m, "ModifyHosts", _param0)
 	ret0, _ := ret[0].(*ec2.ModifyHostsOutput)
@@ -8639,6 +8791,44 @@ func (_m *MockEC2API) RequestSpotInstancesWithContext(_param0 aws.Context, _para
 func (_mr *_MockEC2APIRecorder) RequestSpotInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	_s := append([]interface{}{arg0, arg1}, arg2...)
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "RequestSpotInstancesWithContext", _s...)
+}
+
+func (_m *MockEC2API) ResetFpgaImageAttribute(_param0 *ec2.ResetFpgaImageAttributeInput) (*ec2.ResetFpgaImageAttributeOutput, error) {
+	ret := _m.ctrl.Call(_m, "ResetFpgaImageAttribute", _param0)
+	ret0, _ := ret[0].(*ec2.ResetFpgaImageAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ResetFpgaImageAttribute(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ResetFpgaImageAttribute", arg0)
+}
+
+func (_m *MockEC2API) ResetFpgaImageAttributeRequest(_param0 *ec2.ResetFpgaImageAttributeInput) (*request.Request, *ec2.ResetFpgaImageAttributeOutput) {
+	ret := _m.ctrl.Call(_m, "ResetFpgaImageAttributeRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.ResetFpgaImageAttributeOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ResetFpgaImageAttributeRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ResetFpgaImageAttributeRequest", arg0)
+}
+
+func (_m *MockEC2API) ResetFpgaImageAttributeWithContext(_param0 aws.Context, _param1 *ec2.ResetFpgaImageAttributeInput, _param2 ...request.Option) (*ec2.ResetFpgaImageAttributeOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ResetFpgaImageAttributeWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ResetFpgaImageAttributeOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ResetFpgaImageAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ResetFpgaImageAttributeWithContext", _s...)
 }
 
 func (_m *MockEC2API) ResetImageAttribute(_param0 *ec2.ResetImageAttributeInput) (*ec2.ResetImageAttributeOutput, error) {
