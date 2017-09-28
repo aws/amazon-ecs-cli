@@ -44,7 +44,7 @@ var supportedComposeYamlOptions = []string{
 	"cpu_shares", "command", "dns", "dns_search", "entrypoint", "env_file",
 	"environment", "extra_hosts", "hostname", "image", "labels", "links",
 	"logging", "log_driver", "log_opt", "mem_limit", "mem_reservation", "ports", "privileged", "read_only",
-	"security_opt", "ulimits", "user", "volumes", "volumes_from", "working_dir",
+	"security_opt", "ulimits", "user", "volumes", "volumes_from", "working_dir", "cap_add", "cap_drop",
 }
 
 var supportedComposeYamlOptionsMap = getSupportedComposeYamlOptionsMap()
@@ -261,6 +261,14 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 	outputContDef.VolumesFrom = volumesFrom
 	if inputCfg.WorkingDir != "" {
 		outputContDef.WorkingDirectory = aws.String(inputCfg.WorkingDir)
+	}
+
+	outputContDef.LinuxParameters = &ecs.LinuxParameters{Capabilities: &ecs.KernelCapabilities{}}
+	if inputCfg.CapAdd != nil {
+		outputContDef.LinuxParameters.Capabilities.SetAdd(aws.StringSlice(inputCfg.CapAdd))
+	}
+	if inputCfg.CapDrop != nil {
+		outputContDef.LinuxParameters.Capabilities.SetDrop(aws.StringSlice(inputCfg.CapDrop))
 	}
 
 	return nil
