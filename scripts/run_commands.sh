@@ -67,17 +67,17 @@ expect_success_no_log ./ecs-cli configure --region $region --access-key $access 
 # up
 expect_success ./ecs-cli up --capability-iam --keypair $keypair --size 2 --instance-type t2.medium --force
 # Service workflow: create, start, scale, stop, down
-expect_success ./ecs-cli compose --file ~/docker-compose.yml service create
-expect_success ./ecs-cli compose --file ~/docker-compose.yml service start
-expect_success ./ecs-cli compose --file ~/docker-compose.yml service scale 2
-expect_success ./ecs-cli compose --file ~/docker-compose.yml service stop
-expect_success ./ecs-cli compose --file ~/docker-compose.yml service down
+expect_success ./ecs-cli compose --project-name test1 --file ~/docker-compose.yml service create
+expect_success ./ecs-cli compose --project-name test1 --file ~/docker-compose.yml service start
+expect_success ./ecs-cli compose --project-name test1 --file ~/docker-compose.yml service scale 2
+expect_success ./ecs-cli compose --project-name test1 --file ~/docker-compose.yml service stop
+expect_success ./ecs-cli compose --project-name test1 --file ~/docker-compose.yml service down
 # create a service
-expect_success ./ecs-cli compose --file ~/docker-compose.yml service up
+expect_success ./ecs-cli compose --project-name test2 --file ~/docker-compose.yml service up
 # ps on the service
-expect_success ./ecs-cli compose --file ~/docker-compose.yml service ps
+expect_success ./ecs-cli compose --project-name test2 --file ~/docker-compose.yml service ps
 # take down service
-expect_success ./ecs-cli compose --file ~/docker-compose.yml service down
+expect_success ./ecs-cli compose --project-name test2 --file ~/docker-compose.yml service down
 # create a task
 expect_success ./ecs-cli compose --file ~/docker-compose.yml up
 # ps the task
