@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.5
+* Feature - Add support for cap_add and cap_drop
+* Feature - Update AMI to amzn-ami-2017.03.g-amazon-ecs-optimized
+* Enhancement - PS command displays private IPs when instance lacks a Public IP
+* Bug - All commands now return an error exit code for error cases #306
+
 ## 0.6.4
 * Feature - Update AMI to amzn-ami-2017.03.f-amazon-ecs-optimized
 
