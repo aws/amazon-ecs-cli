@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.6.6
+* Feature - Add support for region ap-northeast-2
+
 ## 0.6.5
 * Feature - Add support for cap_add and cap_drop
 * Feature - Update AMI to amzn-ami-2017.03.g-amazon-ecs-optimized
