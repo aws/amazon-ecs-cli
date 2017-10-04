@@ -62,16 +62,31 @@ fi
 
 # test commands
 
+if ! [ -z "${release}" ]; then
+	if ! [ -z "${linux}" ]; then
+		curl -o ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest
+		curl -o ecs-cli-"${version}" https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v"${version}"
+		curl -o ecs-cli-"${hash}" https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v"${hash}"
+	fi
+
+	# check that the 3 binaries are the same
+	expect_success diff ecs-cli ecs-cli-"${version}"
+	expect_success diff ecs-cli ecs-cli-"${hash}"
+
+	chmod +x ecs-cli
+
+	echo "CHECKING VERSION"
+	./ecs-cli --version
+	if [[ $(./ecs-cli-darwin-amd64-latest --version) == *"${version}"*"${hash}"* ]]; then
+		echo -e "${GREEN}SUCCEEDED${NC}: ${LGREEN}ecs-cli --version${NC}"
+	else
+		echo -e "${RED}FAILED${NC}: ${LRED}ecs-cli --version${NC}"
+fi
+
 # configure
 expect_success_no_log ./ecs-cli configure --region $region --access-key $access --secret-key $secret --cluster $cluster
 # up
 expect_success ./ecs-cli up --capability-iam --keypair $keypair --size 2 --instance-type t2.medium --force
-# Service workflow: create, start, scale, stop, down
-expect_success ./ecs-cli compose --project-name test1 --file ~/docker-compose.yml service create
-expect_success ./ecs-cli compose --project-name test1 --file ~/docker-compose.yml service start
-expect_success ./ecs-cli compose --project-name test1 --file ~/docker-compose.yml service scale 2
-expect_success ./ecs-cli compose --project-name test1 --file ~/docker-compose.yml service stop
-expect_success ./ecs-cli compose --project-name test1 --file ~/docker-compose.yml service down
 # create a service
 expect_success ./ecs-cli compose --project-name test2 --file ~/docker-compose.yml service up
 # ps on the service
@@ -84,14 +99,23 @@ expect_success ./ecs-cli compose --file ~/docker-compose.yml up
 expect_success ./ecs-cli compose --file ~/docker-compose.yml ps
 # take down task
 expect_success ./ecs-cli compose --file ~/docker-compose.yml down
-# task work flow: create, start, scale, then stop
-expect_success ./ecs-cli compose --file ~/docker-compose.yml create
-expect_success ./ecs-cli compose --file ~/docker-compose.yml start
-expect_success ./ecs-cli compose --file ~/docker-compose.yml scale 2
-expect_success ./ecs-cli compose --file ~/docker-compose.yml stop
-# run then stop
-expect_success ./ecs-cli compose --file ~/docker-compose.yml run
-expect_success ./ecs-cli compose --file ~/docker-compose.yml stop
+if [ -z "${release}" ]; then # integration test
+	# Service workflow: create, start, scale, stop, down
+	expect_success ./ecs-cli compose --project-name test1 --file ~/docker-compose.yml service create
+	expect_success ./ecs-cli compose --project-name test1 --file ~/docker-compose.yml service start
+	expect_success ./ecs-cli compose --project-name test1 --file ~/docker-compose.yml service scale 2
+	expect_success ./ecs-cli compose --project-name test1 --file ~/docker-compose.yml service stop
+	expect_success ./ecs-cli compose --project-name test1 --file ~/docker-compose.yml service down
+	# task work flow: create, start, scale, then stop
+	expect_success ./ecs-cli compose --file ~/docker-compose.yml create
+	expect_success ./ecs-cli compose --file ~/docker-compose.yml start
+	expect_success ./ecs-cli compose --file ~/docker-compose.yml scale 2
+	expect_success ./ecs-cli compose --file ~/docker-compose.yml stop
+	# run then stop
+	expect_success ./ecs-cli compose --file ~/docker-compose.yml run
+	expect_success ./ecs-cli compose --file ~/docker-compose.yml stop
+fi
+
 
 # take down cluster
 expect_success ./ecs-cli down --force
