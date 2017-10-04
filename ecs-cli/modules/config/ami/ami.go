@@ -39,6 +39,7 @@ func NewStaticAmiIds() ECSAmiIds {
 	regionToId["eu-west-1"] = "ami-13f7226a"
 	regionToId["eu-west-2"] = "ami-eb62708f"
 	regionToId["ap-northeast-1"] = "ami-21815747"
+	regionToId["ap-northeast-2"] = "ami-7ee13b10"
 	regionToId["ap-southeast-1"] = "ami-99f588fa"
 	regionToId["ap-southeast-2"] = "ami-4f08e82d"
 
