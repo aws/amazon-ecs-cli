@@ -100,13 +100,16 @@ if [ -z "${linux_dir}" ]; then
 fi
 
 # run locally on mac first
-cd  $mac_dir
+cp $(dirname "${0}")/run_commands.sh $mac_dir/
+cp $(dirname "${0}")/../integration-tests/docker-compose.yml $mac_dir/
+cd $mac_dir
 curl -o ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-latest
 curl -o ecs-cli-"${version}" https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-v"${version}"
-curl -o ecs-cli-"${hash}" https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-v"${hash}"
+curl -o ecs-cli-"${hash}" https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-"${hash}"
+chmod +x run_commands.sh
+cluster=${cluster} region=${region} access=${access} secret=${secret} keypair=${keypair} keypath=${keypath} instance_url=${instance_url} TEST_RESULT_DIR=${mac_dir} version=${version} hash=${hash} release='yes' ./run_commands.sh;
 
-cluster=${cluster} region=${region} access=${access} secret=${secret} keypair=${keypair} keypath=${keypath} instance_url=${instance_url} TEST_RESULT_DIR=${linux_dir} version=${version} hash=${hash} release='true' linux='true' ./run_commands.sh
-
+cd -
 
 
 
@@ -115,4 +118,4 @@ scp -i $keypath $(dirname "${0}")/../integration-tests/docker-compose.yml "ec2-u
 scp -i $keypath $(dirname "${0}")/run_commands.sh "ec2-user@${instance_url}":~/
 # ARGS: cluster c, region r, access a, secret s, keypair k , keypath p, instance_url i, gitname u, branch b
 ssh -i $keypath "ec2-user@${instance_url}" "chmod +x run_commands.sh"
-ssh -i $keypath "ec2-user@${instance_url}" "cluster=${cluster} region=${region} access=${access} secret=${secret} keypair=${keypair} keypath=${keypath} instance_url=${instance_url} TEST_RESULT_DIR=${linux_dir} version=${version} hash=${hash} release='true' linux='true' ./run_commands.sh"
+ssh -i $keypath "ec2-user@${instance_url}" "cluster=${cluster} region=${region} access=${access} secret=${secret} keypair=${keypair} keypath=${keypath} instance_url=${instance_url} TEST_RESULT_DIR=${linux_dir} version=${version} hash=${hash} release='yes' linux='yes' ./run_commands.sh"

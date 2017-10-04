@@ -13,8 +13,19 @@ LRED='\033[0;31m'
 LGREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
+diff_binaries() {
+	if diff ./ecs-cli ./ecs-cli-"${1}"; then
+		echo -e "${GREEN}SUCCESS: ecs-cli-latest and ecs-cli-${1} are the same${NC}"
+	else
+		echo "-------"
+		echo -e "${RED}FAILED: ecs-cli-latest and ecs-cli-${1} differ.${NC}"
+		echo "-------"
+		FAILURES+=1
+	fi
+}
+
 expect_success() {
-	if "${@}" &>> $TEST_RESULT_DIR/test_output.txt; then
+	if "${@}" >> $TEST_RESULT_DIR/test_output.txt 2>&1; then
 		echo -e "${GREEN}SUCCEEDED${NC}: ${LGREEN}${@}${NC}"
 	else
 		echo "-------"
@@ -26,7 +37,7 @@ expect_success() {
 
 # used for commands that whose arguments might contain sensitive information
 expect_success_no_log() {
-	if "${@}" &>> $TEST_RESULT_DIR/test_output.txt; then
+	if "${@}" >> $TEST_RESULT_DIR/test_output.txt 2>&1; then
 		echo -e "${GREEN}SUCCEEDED${NC}: ${LGREEN}${1} ${2}${NC}"
 	else
 		echo "-------"
@@ -52,8 +63,8 @@ if ! [ -z "${gitname}" ]; then
 	url="https://github.com/"
 	url+=$gitname
 	url+="/amazon-ecs-cli.git"
-	git remote add fork $url &>> $TEST_RESULT_DIR/test_log.txt
-	git fetch fork &>> $TEST_RESULT_DIR/test_log.txt
+	git remote add fork $url 2>&1 $TEST_RESULT_DIR/test_log.txt
+	git fetch fork 2>&1 $TEST_RESULT_DIR/test_log.txt
 	git checkout "fork/${branch}"
 	make build
 
@@ -66,21 +77,22 @@ if ! [ -z "${release}" ]; then
 	if ! [ -z "${linux}" ]; then
 		curl -o ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest
 		curl -o ecs-cli-"${version}" https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v"${version}"
-		curl -o ecs-cli-"${hash}" https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v"${hash}"
+		curl -o ecs-cli-"${hash}" https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-"${hash}"
 	fi
 
 	# check that the 3 binaries are the same
-	expect_success diff ecs-cli ecs-cli-"${version}"
-	expect_success diff ecs-cli ecs-cli-"${hash}"
+	diff_binaries $hash
+	diff_binaries $version
 
 	chmod +x ecs-cli
 
 	echo "CHECKING VERSION"
 	./ecs-cli --version
-	if [[ $(./ecs-cli-darwin-amd64-latest --version) == *"${version}"*"${hash}"* ]]; then
+	if [[ $(./ecs-cli --version) == *"${version}"*"${hash}"* ]]; then
 		echo -e "${GREEN}SUCCEEDED${NC}: ${LGREEN}ecs-cli --version${NC}"
 	else
 		echo -e "${RED}FAILED${NC}: ${LRED}ecs-cli --version${NC}"
+	fi
 fi
 
 # configure
