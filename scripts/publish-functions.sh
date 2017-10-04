@@ -16,7 +16,7 @@
 export VERSION=$(cat $(dirname "${0}")/../VERSION)
 
 export ARTIFACT_TAG_LATEST="latest"
-export ARTIFACT_TAG_SHA=$(git rev-parse --short HEAD)
+export ARTIFACT_TAG_SHA=$(git rev-parse --short=7 HEAD)
 export ARTIFACT_TAG_VERSION="v${VERSION}"
 
 
