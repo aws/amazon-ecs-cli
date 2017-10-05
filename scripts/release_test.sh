@@ -99,7 +99,7 @@ if [ -z "${linux_dir}" ]; then
 	linux_dir=$DEFAULT_TEST_RESULT_DIR
 fi
 
-# run locally on mac first
+run locally on mac first
 cp $(dirname "${0}")/run_commands.sh $mac_dir/
 cp $(dirname "${0}")/../integration-tests/docker-compose.yml $mac_dir/
 cd $mac_dir

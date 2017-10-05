@@ -78,6 +78,7 @@ if ! [ -z "${release}" ]; then
 		curl -o ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest
 		curl -o ecs-cli-"${version}" https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v"${version}"
 		curl -o ecs-cli-"${hash}" https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-"${hash}"
+		echo "" # add new line
 	fi
 
 	# check that the 3 binaries are the same
