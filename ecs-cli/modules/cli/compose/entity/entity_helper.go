@@ -255,7 +255,8 @@ func GetTaskGroup(entity ProjectEntity) string {
 
 // GetTaskDefinitionFamily returns the family name
 func GetTaskDefinitionFamily(entity ProjectEntity) string {
-	return composeutils.GetTaskDefinitionFamily(getProjectPrefix(entity), GetProjectName(entity))
+	// ComposeProjectNamePrefix is deprecated, but its use must remain for backwards compatibility
+	return entity.Context().ECSParams.ComposeProjectNamePrefix + GetProjectName(entity)
 }
 
 // GetProjectName returns the name of the project that was set in the context we are working with
