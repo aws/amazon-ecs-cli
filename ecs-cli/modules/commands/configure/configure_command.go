@@ -145,28 +145,19 @@ func configureFlags() []cli.Flag {
 			Name:  flags.ConfigNameFlag,
 			Value: "default",
 			Usage: fmt.Sprintf(
-				"Specifies the cluster config name to use for this configuration.",
+				"Specifies the cluster configuration name to use for this configuration.",
 			),
 		},
 		cli.StringFlag{
-			Name:  flags.ComposeProjectNamePrefixFlag,
-			Value: flags.ComposeProjectNamePrefixDefaultValue,
+			Name: flags.ComposeServiceNamePrefixFlag,
 			Usage: fmt.Sprintf(
-				"[Optional] Specifies the prefix added to an ECS task definition created from a compose file. Format <prefix><project-name>.",
+				"[Deprecated] Specifies the prefix added to an ECS service created from a compose file. Format <prefix><project-name>. (defaults to empty)",
 			),
 		},
 		cli.StringFlag{
-			Name:  flags.ComposeServiceNamePrefixFlag,
-			Value: flags.ComposeServiceNamePrefixDefaultValue,
+			Name: flags.CFNStackNameFlag,
 			Usage: fmt.Sprintf(
-				"[Optional] Specifies the prefix added to an ECS service created from a compose file. Format <prefix><project-name>.",
-			),
-		},
-		cli.StringFlag{
-			Name:  flags.CFNStackNamePrefixFlag,
-			Value: flags.CFNStackNamePrefixDefaultValue,
-			Usage: fmt.Sprintf(
-				"[Optional] Specifies the prefix added to the AWS CloudFormation stack created on ecs-cli up. Format <prefix><cluster-name>.",
+				"[Optional] Specifies the name of AWS CloudFormation stack created on ecs-cli up. (default: \"amazon-ecs-cli-setup-<cluster-name>\")",
 			),
 		},
 	}

@@ -44,7 +44,15 @@ func Cluster(context *cli.Context) error {
 		return err
 	}
 
-	clusterConfig := &config.Cluster{Cluster: cluster, Region: region}
+	cfnStackName := context.String(command.CFNStackNameFlag)
+	composeServiceNamePrefix := context.String(command.ComposeServiceNamePrefixFlag)
+
+	clusterConfig := &config.Cluster{
+		Cluster:                  cluster,
+		Region:                   region,
+		CFNStackName:             cfnStackName,
+		ComposeServiceNamePrefix: composeServiceNamePrefix,
+	}
 
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
@@ -54,6 +62,7 @@ func Cluster(context *cli.Context) error {
 		return errors.Wrap(err, "Error saving cluster configuration")
 	}
 
+	logrus.Infof("Saved ECS CLI cluster configuration %s.", clusterProfileName)
 	return nil
 }
 
@@ -71,7 +80,10 @@ func Profile(context *cli.Context) error {
 	if err := fieldEmpty(profileName, command.ProfileNameFlag); err != nil {
 		return err
 	}
-	profile := &config.Profile{AWSAccessKey: accessKey, AWSSecretKey: secretKey}
+	profile := &config.Profile{
+		AWSAccessKey: accessKey,
+		AWSSecretKey: secretKey,
+	}
 
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
@@ -81,6 +93,7 @@ func Profile(context *cli.Context) error {
 		return errors.Wrap(err, "Error saving profile")
 	}
 
+	logrus.Infof("Saved ECS CLI profile configuration %s.", profileName)
 	return nil
 }
 

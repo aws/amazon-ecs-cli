@@ -14,7 +14,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
@@ -27,14 +26,9 @@ import (
 type CLIParams struct {
 	Cluster                  string
 	Session                  *session.Session
-	ComposeProjectNamePrefix string
 	ComposeServiceNamePrefix string
-	CFNStackNamePrefix       string
-}
-
-// GetCFNStackName <cfn_stack_name_prefix> + <cluster_name>
-func (p *CLIParams) GetCFNStackName() string {
-	return fmt.Sprintf("%s%s", p.CFNStackNamePrefix, p.Cluster)
+	ComposeProjectNamePrefix string // Deprecated; remains for backwards compatibility
+	CFNStackName             string
 }
 
 // Searches as far up the context as necesarry. This function works no matter
@@ -81,11 +75,16 @@ func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 		return nil, err
 	}
 
+	if ecsConfig.CFNStackName == "" {
+		// set default value
+		ecsConfig.CFNStackName = ecscli.CFNStackNamePrefixDefaultValue + ecsConfig.Cluster
+	}
+
 	return &CLIParams{
 		Cluster:                  ecsConfig.Cluster,
 		Session:                  svcSession,
-		ComposeProjectNamePrefix: ecsConfig.ComposeProjectNamePrefix,
 		ComposeServiceNamePrefix: ecsConfig.ComposeServiceNamePrefix,
-		CFNStackNamePrefix:       ecsConfig.CFNStackNamePrefix,
+		ComposeProjectNamePrefix: ecsConfig.ComposeProjectNamePrefix, // deprecated; remains for backwards compatibility
+		CFNStackName:             ecsConfig.CFNStackName,
 	}, nil
 }
