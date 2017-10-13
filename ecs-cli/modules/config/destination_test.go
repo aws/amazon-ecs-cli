@@ -33,7 +33,7 @@ func TestNewDefaultDestination(t *testing.T) {
 	os.Setenv("HOME", tempDirName)
 	defer os.Unsetenv("HOME")
 
-	dest, err := newDefaultDestination()
+	dest, err := NewDefaultDestination()
 	assert.NoError(t, err, "Unexpected error creating new config path")
 	assert.Condition(t, func() bool {
 		return strings.HasSuffix(dest.Path, "ecs")
