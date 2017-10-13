@@ -18,9 +18,16 @@ import (
 	"os"
 	"testing"
 
+	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
+)
+
+const (
+	composeServiceNamePrefix = "ecs-service-"
+	cfnStackName             = "cfn-stack-ecs"
 )
 
 // mockReadWriter implements ReadWriter interface to return just the cluster
@@ -30,7 +37,12 @@ type mockReadWriter struct {
 }
 
 func (rdwr *mockReadWriter) Get(clusterConfig string, profileConfig string) (*CLIConfig, error) {
-	return NewCLIConfig(clusterName), nil
+	config := NewCLIConfig(clusterName)
+	if rdwr.isKeyPresentValue {
+		config.ComposeServiceNamePrefix = composeServiceNamePrefix
+		config.CFNStackName = cfnStackName
+	}
+	return config, nil
 }
 
 func (rdwr *mockReadWriter) SaveProfile(configName string, profile *Profile) error {
@@ -122,9 +134,8 @@ func TestNewCliParamsWhenPrefixesPresent(t *testing.T) {
 	rdwr := &mockReadWriter{isKeyPresentValue: true}
 	params, err := NewCLIParams(context, rdwr)
 	assert.NoError(t, err, "Unexpected error when getting new cli params")
-	assert.Empty(t, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
-	assert.Empty(t, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
-	assert.Empty(t, params.CFNStackNamePrefix, "Expected CFNStackNamePrefix to be empty")
+	assert.Equal(t, composeServiceNamePrefix, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
+	assert.Equal(t, cfnStackName, params.CFNStackName, "Expected CFNStackName to be default")
 }
 
 func TestNewCliParamsWhenPrefixKeysAreNotPresent(t *testing.T) {
@@ -141,9 +152,8 @@ func TestNewCliParamsWhenPrefixKeysAreNotPresent(t *testing.T) {
 	rdwr := &mockReadWriter{isKeyPresentValue: false}
 	params, err := NewCLIParams(context, rdwr)
 	assert.NoError(t, err, "Unexpected error when getting new cli params")
-	assert.Empty(t, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
 	assert.Empty(t, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
-	assert.Empty(t, params.CFNStackNamePrefix, "Expected CFNStackNamePrefix to be empty")
+	assert.Equal(t, ecscli.CFNStackNamePrefixDefaultValue+clusterName, params.CFNStackName, "Expected CFNStackName to be default")
 }
 
 func defaultConfig() *cli.Context {

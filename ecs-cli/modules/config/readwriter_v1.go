@@ -56,7 +56,7 @@ type YAMLReadWriter struct {
 
 // NewReadWriter creates a new Parser object.
 func NewReadWriter() (*YAMLReadWriter, error) {
-	dest, err := newDefaultDestination()
+	dest, err := NewDefaultDestination()
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func NewReadWriter() (*YAMLReadWriter, error) {
 
 func readINI(dest *Destination, cliConfig *CLIConfig) error {
 	// Only read if the file exists; ini library is not good about throwing file not exist errors
-	if _, err := os.Stat(configFilePath(dest)); err == nil {
+	if _, err := os.Stat(ConfigFilePath(dest)); err == nil {
 		iniReadWriter, err := NewINIReadWriter(dest)
 		if err != nil {
 			return err
@@ -77,7 +77,8 @@ func readINI(dest *Destination, cliConfig *CLIConfig) error {
 	return nil
 }
 
-func readClusterFile(path string) (*ClusterConfig, error) {
+// ReadClusterFile reads the cluster config file and returns a cluster config object
+func ReadClusterFile(path string) (*ClusterConfig, error) {
 	dat, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to read config file: "+path)
@@ -90,7 +91,8 @@ func readClusterFile(path string) (*ClusterConfig, error) {
 	return &config, nil
 }
 
-func readCredFile(path string) (*ProfileConfig, error) {
+// ReadCredFile reads the cluster config file and returns a profile config object
+func ReadCredFile(path string) (*ProfileConfig, error) {
 	dat, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to read config file: "+path)
@@ -106,7 +108,7 @@ func readCredFile(path string) (*ProfileConfig, error) {
 // readClusterConfig does all the work to read and parse the yaml cluster config
 func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfig) error {
 	// read cluster file
-	config, err := readClusterFile(path)
+	config, err := ReadClusterFile(path)
 	if err != nil {
 		return err
 	}
@@ -121,12 +123,7 @@ func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfi
 	cliConfig.Region = cluster.Region
 	cliConfig.Cluster = cluster.Cluster
 	cliConfig.ComposeServiceNamePrefix = cluster.ComposeServiceNamePrefix
-	// set prefixes to empty
-	// This is necessary because the readINI function may have set them to the old default values
-	// That is due to a known problem with the old ini library in which it does not throw an error
-	// even if the file is not ini formatted
-	cliConfig.CFNStackNamePrefix = ""
-	cliConfig.ComposeProjectNamePrefix = ""
+	cliConfig.CFNStackName = cluster.CFNStackName
 	return nil
 
 }
@@ -134,7 +131,7 @@ func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfi
 // readProfileConfig does all the work to read and parse the yaml cluster config
 func readProfileConfig(path string, profileConfigKey string, cliConfig *CLIConfig) error {
 	// read profile file
-	config, err := readCredFile(path)
+	config, err := ReadCredFile(path)
 	if err != nil {
 		return err
 	}
@@ -158,9 +155,9 @@ func readProfileConfig(path string, profileConfigKey string, cliConfig *CLIConfi
 // This function either reads the old single configuration file
 // Or if the new files are present, it reads from them instead
 func (rdwr *YAMLReadWriter) Get(clusterConfig string, profileConfig string) (*CLIConfig, error) {
-	cliConfig := &CLIConfig{} // read the raw bytes of the config file
+	cliConfig := &CLIConfig{}
 	profilePath := credentialsFilePath(rdwr.destination)
-	configPath := configFilePath(rdwr.destination)
+	configPath := ConfigFilePath(rdwr.destination)
 
 	// try to readINI first; it is either sucessful or it
 	// set cliConfig to be its default value (all fields empty strings)
@@ -202,7 +199,7 @@ func (rdwr *YAMLReadWriter) saveConfig(path string, config interface{}) error {
 	}
 
 	// If config file exists, set permissions first, because we may be writing creds.
-	if _, err := os.Stat(path); err == nil {
+	if _, err = os.Stat(path); err == nil {
 		if err = os.Chmod(path, configFileMode); err != nil {
 			logrus.Errorf("Unable to chmod %s to mode %s", path, configFileMode)
 			return err
@@ -224,7 +221,7 @@ func (rdwr *YAMLReadWriter) SaveProfile(configName string, profile *Profile) err
 	config := &ProfileConfig{Profiles: make(map[string]Profile), Version: configVersion}
 	if _, err := os.Stat(path); err == nil {
 		// an existing config file is there
-		config, err = readCredFile(path)
+		config, err = ReadCredFile(path)
 		if err != nil {
 			return err
 		}
@@ -241,10 +238,10 @@ func (rdwr *YAMLReadWriter) SaveProfile(configName string, profile *Profile) err
 
 // SaveCluster save a single cluster configuration
 func (rdwr *YAMLReadWriter) SaveCluster(configName string, cluster *Cluster) error {
-	path := configFilePath(rdwr.destination)
+	path := ConfigFilePath(rdwr.destination)
 
 	// if no err on read- then existing yaml config
-	config, err := readClusterFile(path)
+	config, err := ReadClusterFile(path)
 	if err != nil {
 		// err on read: this means that no yaml file currently exists
 		config = &ClusterConfig{Clusters: make(map[string]Cluster), Version: configVersion}
@@ -262,7 +259,7 @@ func (rdwr *YAMLReadWriter) SaveCluster(configName string, cluster *Cluster) err
 // SetDefaultProfile updates which set of credentials is defined as default
 func (rdwr *YAMLReadWriter) SetDefaultProfile(configName string) error {
 	path := credentialsFilePath(rdwr.destination)
-	config, err := readCredFile(path)
+	config, err := ReadCredFile(path)
 	if err != nil {
 		return err
 	}
@@ -279,8 +276,8 @@ func (rdwr *YAMLReadWriter) SetDefaultProfile(configName string) error {
 
 // SetDefaultCluster updates which cluster configuration is default
 func (rdwr *YAMLReadWriter) SetDefaultCluster(configName string) error {
-	path := configFilePath(rdwr.destination)
-	config, err := readClusterFile(path)
+	path := ConfigFilePath(rdwr.destination)
+	config, err := ReadClusterFile(path)
 	if err != nil {
 		return err
 	}
@@ -299,6 +296,6 @@ func credentialsFilePath(dest *Destination) string {
 	return filepath.Join(dest.Path, profileConfigFileName)
 }
 
-func configFilePath(dest *Destination) string {
+func ConfigFilePath(dest *Destination) string {
 	return filepath.Join(dest.Path, clusterConfigFileName)
 }

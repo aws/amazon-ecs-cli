@@ -26,16 +26,18 @@ import (
 )
 
 const (
-	clusterName   = "defaultCluster"
-	secondCluster = "alternateCluster"
-	stackName     = "defaultCluster"
-	profileName   = "defaultProfile"
-	profileName2  = "alternate"
-	region        = "us-west-1"
-	awsAccessKey  = "AKID"
-	awsAccessKey2 = "AKID2"
-	awsSecretKey  = "SKID"
-	awsSecretKey2 = "SKID2"
+	clusterName              = "defaultCluster"
+	secondCluster            = "alternateCluster"
+	stackName                = "defaultCluster"
+	profileName              = "defaultProfile"
+	profileName2             = "alternate"
+	region                   = "us-west-1"
+	awsAccessKey             = "AKID"
+	awsAccessKey2            = "AKID2"
+	awsSecretKey             = "SKID"
+	awsSecretKey2            = "SKID2"
+	composeServiceNamePrefix = "ecs-"
+	cfnStackNamePrefix       = "cfn-"
 )
 
 func createClusterConfig(name string, cluster string) *cli.Context {
@@ -57,7 +59,7 @@ func createProfileConfig(name string, accessKey string, secretKey string) *cli.C
 func TestDefaultCluster(t *testing.T) {
 	config1 := createClusterConfig(profileName, clusterName)
 	config2 := createClusterConfig(profileName2, secondCluster)
-	// Create a temprorary directory for the dummy ecs config
+	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
 		t.Fatal("Error while creating the dummy ecs config directory")
@@ -80,9 +82,8 @@ func TestDefaultCluster(t *testing.T) {
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, region, readConfig.Region, "Region mismatch in config.")
 	assert.Equal(t, secondCluster, readConfig.Cluster, "Cluster name mismatch in config.")
-	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
-	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
 
 }
 
@@ -90,7 +91,7 @@ func TestDefaultProfile(t *testing.T) {
 	config1 := createProfileConfig(profileName, awsAccessKey, awsSecretKey)
 	config2 := createProfileConfig(profileName2, awsAccessKey2, awsSecretKey2)
 
-	// Create a temprorary directory for the dummy ecs config
+	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
 		t.Fatal("Error while creating the dummy ecs config directory")
@@ -113,16 +114,15 @@ func TestDefaultProfile(t *testing.T) {
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, awsAccessKey2, readConfig.AWSAccessKey, "Access Key mismatch in config.")
 	assert.Equal(t, awsSecretKey2, readConfig.AWSSecretKey, "Secret Key name mismatch in config.")
-	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
-	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
 
 }
 
 func TestConfigureProfile(t *testing.T) {
 	config1 := createProfileConfig(profileName, awsAccessKey, awsSecretKey)
 
-	// Create a temprorary directory for the dummy ecs config
+	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
 		t.Fatal("Error while creating the dummy ecs config directory")
@@ -140,15 +140,14 @@ func TestConfigureProfile(t *testing.T) {
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, awsAccessKey, readConfig.AWSAccessKey, "Access Key mismatch in config.")
 	assert.Equal(t, awsSecretKey, readConfig.AWSSecretKey, "Secret Key name mismatch in config.")
-	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
-	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
 
 }
 
 func TestConfigureCluster(t *testing.T) {
 	config1 := createClusterConfig(profileName, clusterName)
-	// Create a temprorary directory for the dummy ecs config
+	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
 		t.Fatal("Error while creating the dummy ecs config directory")
@@ -166,9 +165,8 @@ func TestConfigureCluster(t *testing.T) {
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, region, readConfig.Region, "Region mismatch in config.")
 	assert.Equal(t, clusterName, readConfig.Cluster, "Cluster name mismatch in config.")
-	assert.Empty(t, readConfig.ComposeProjectNamePrefix, "Compose project prefix name should be empty.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
-	assert.Empty(t, readConfig.CFNStackNamePrefix, "CFNStackNamePrefix should be empty.")
+	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
 
 }
 
@@ -178,7 +176,7 @@ func TestConfigureClusterNoCluster(t *testing.T) {
 	flags.String(command.ConfigNameFlag, profileName, "")
 	config1 := cli.NewContext(nil, flags, nil)
 
-	// Create a temprorary directory for the dummy ecs config
+	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
 		t.Fatal("Error while creating the dummy ecs config directory")
@@ -199,7 +197,7 @@ func TestConfigureClusterNoRegion(t *testing.T) {
 	flags.String(command.ConfigNameFlag, profileName, "")
 	config1 := cli.NewContext(nil, flags, nil)
 
-	// Create a temprorary directory for the dummy ecs config
+	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
 		t.Fatal("Error while creating the dummy ecs config directory")
@@ -220,7 +218,7 @@ func TestConfigureClusterNoConfigName(t *testing.T) {
 	flags.String(command.RegionFlag, region, "")
 	config1 := cli.NewContext(nil, flags, nil)
 
-	// Create a temprorary directory for the dummy ecs config
+	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
 		t.Fatal("Error while creating the dummy ecs config directory")
@@ -240,7 +238,7 @@ func TestConfigureProfileNoAccessKey(t *testing.T) {
 	flags.String(command.ProfileNameFlag, profileName, "")
 	config1 := cli.NewContext(nil, flags, nil)
 
-	// Create a temprorary directory for the dummy ecs config
+	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
 		t.Fatal("Error while creating the dummy ecs config directory")
@@ -260,7 +258,7 @@ func TestConfigureProfileNoSecretKey(t *testing.T) {
 	flags.String(command.ProfileNameFlag, profileName, "")
 	config1 := cli.NewContext(nil, flags, nil)
 
-	// Create a temprorary directory for the dummy ecs config
+	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
 		t.Fatal("Error while creating the dummy ecs config directory")
@@ -280,7 +278,7 @@ func TestConfigureProfileNoProfileName(t *testing.T) {
 	flags.String(command.SecretKeyFlag, awsSecretKey, "")
 	config1 := cli.NewContext(nil, flags, nil)
 
-	// Create a temprorary directory for the dummy ecs config
+	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
 		t.Fatal("Error while creating the dummy ecs config directory")
@@ -297,7 +295,7 @@ func TestConfigureProfileNoProfileName(t *testing.T) {
 func TestDefaultClusterDoesNotExist(t *testing.T) {
 	config1 := createClusterConfig(profileName, clusterName)
 	config2 := createClusterConfig(profileName2, secondCluster)
-	// Create a temprorary directory for the dummy ecs config
+	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
 		t.Fatal("Error while creating the dummy ecs config directory")
@@ -317,7 +315,7 @@ func TestDefaultProfileDoesNotExist(t *testing.T) {
 	config1 := createProfileConfig(profileName, awsAccessKey, awsSecretKey)
 	config2 := createProfileConfig(profileName2, awsAccessKey2, awsSecretKey2)
 
-	// Create a temprorary directory for the dummy ecs config
+	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
 		t.Fatal("Error while creating the dummy ecs config directory")
