@@ -63,6 +63,22 @@ func defaultClusterCommand() cli.Command {
 	}
 }
 
+func migrateCommand() cli.Command {
+	return cli.Command{
+		Name:   "migrate",
+		Usage:  "Migrates a legacy ECS CLI configuration file to the current YAML format.",
+		Action: errorLogger(configure.Migrate),
+		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name: flags.ForceFlag,
+				Usage: fmt.Sprintf(
+					"[Optional] Omits the interactive description and confirmation step that normally occurs during the configuration file migration process.",
+				),
+			},
+		},
+	}
+}
+
 // ConfigureCommand configure command help
 func ConfigureCommand() cli.Command {
 	return cli.Command{
@@ -73,6 +89,7 @@ func ConfigureCommand() cli.Command {
 		Subcommands: []cli.Command{
 			configureProfileCommand(),
 			defaultClusterCommand(),
+			migrateCommand(),
 		},
 	}
 }
