@@ -14,18 +14,97 @@
 package configure
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strings"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 )
 
+const defaultConfigName = "default"
+
 func fieldEmpty(field string, flagName string) error {
 	if field == "" {
-		return fmt.Errorf("%s can not be empty.", flagName)
+		return fmt.Errorf("%s can not be empty", flagName)
 	}
+	return nil
+}
+
+// Migrate converts the old ini formatted config to a new YAML formatted config
+func Migrate(context *cli.Context) error {
+	oldConfig := &config.CLIConfig{}
+	dest, err := config.NewDefaultDestination()
+	if err != nil {
+		return errors.Wrap(err, "Error reading old configuration file.")
+	}
+
+	// Check if config file is YAML; if it is, no need to migrate.
+	// This is needed because the ini library does not throw parse errors
+	clusterConfig, err := config.ReadClusterFile(config.ConfigFilePath(dest))
+	if err == nil && clusterConfig.Version != "" {
+		// Is a new style config file
+		logrus.Errorf("No need to migrate; found a YAML formatted configuration file at %s", config.ConfigFilePath(dest))
+		return nil
+	}
+
+	iniReadWriter, err := config.NewINIReadWriter(dest)
+	if err != nil {
+		return errors.Wrap(err, "Error reading old configuration file.")
+	}
+	if err = iniReadWriter.GetConfig(oldConfig); err != nil {
+		return errors.Wrap(err, "Error reading old configuration file.")
+	}
+
+	if oldConfig.AWSProfile != "" {
+		logrus.Warnf("Storing an AWS profile in the configuration file is no longer supported. Please use the %s flag inline in commands instead.", command.ProfileFlag)
+	}
+
+	if oldConfig.CFNStackName == (command.CFNStackNamePrefixDefaultValue + oldConfig.Cluster) {
+		// if CFNStackName is default; don't store it.
+		oldConfig.CFNStackName = ""
+	}
+
+	if !context.Bool(command.ForceFlag) {
+		if err = migrateWarning(oldConfig); err != nil {
+			return err
+		}
+		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Scan()
+		input := scanner.Text()
+		if !strings.HasPrefix(input, "y") && !strings.HasPrefix(input, "Y") {
+			logrus.Info("Aborting Migration.")
+			return nil
+		}
+	}
+
+	cluster := &config.Cluster{
+		Cluster:                  oldConfig.Cluster,
+		Region:                   oldConfig.Region,
+		CFNStackName:             oldConfig.CFNStackName,
+		ComposeServiceNamePrefix: oldConfig.ComposeServiceNamePrefix,
+	}
+	profile := &config.Profile{
+		AWSAccessKey: oldConfig.AWSAccessKey,
+		AWSSecretKey: oldConfig.AWSSecretKey,
+	}
+
+	rdwr, err := config.NewReadWriter()
+	if err != nil {
+		return errors.Wrap(err, "Error saving cluster configuration")
+	}
+	if err = rdwr.SaveCluster(defaultConfigName, cluster); err != nil {
+		return errors.Wrap(err, "Error saving cluster configuration")
+	}
+	if err = rdwr.SaveProfile(defaultConfigName, profile); err != nil {
+		return errors.Wrap(err, "Error saving profile")
+	}
+
+	logrus.Info("Migrated ECS CLI configuration.")
 	return nil
 }
 
