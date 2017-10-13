@@ -331,3 +331,153 @@ func TestDefaultProfileDoesNotExist(t *testing.T) {
 	assert.Error(t, err, "Expected error configuring profile")
 
 }
+
+func TestMigratePrefixesPresent(t *testing.T) {
+	configContents := `[ecs]
+cluster = defaultCluster
+aws_profile =
+region = us-west-1
+aws_access_key_id = AKID
+aws_secret_access_key = SKID
+compose-project-name-prefix =
+compose-service-name-prefix = ecs-
+cfn-stack-name-prefix = cfn-
+`
+	// Create a temporary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+	defer os.RemoveAll(tempDirName)
+
+	// save the old config
+	fileInfo, err := os.Stat(tempDirName)
+	assert.NoError(t, err)
+	mode := fileInfo.Mode()
+	err = os.MkdirAll(tempDirName+"/.ecs", mode)
+	assert.NoError(t, err, "Could not create config directory")
+	defer os.RemoveAll(tempDirName)
+	err = ioutil.WriteFile(tempDirName+"/.ecs/config", []byte(configContents), mode)
+	assert.NoError(t, err)
+
+	// migrate
+	flags := flag.NewFlagSet("ecs-cli", 0)
+	flags.Bool(command.ForceFlag, true, "")
+	context := cli.NewContext(nil, flags, nil)
+
+	err = Migrate(context)
+	assert.NoError(t, err, "Unexpected error configuring cluster")
+
+	parser, err := config.NewReadWriter()
+	assert.NoError(t, err, "Error reading config")
+	readConfig, err := parser.Get("", "")
+	assert.NoError(t, err, "Error reading config")
+	assert.Equal(t, region, readConfig.Region, "Region mismatch in config.")
+	assert.Equal(t, clusterName, readConfig.Cluster, "Cluster name mismatch in config.")
+	assert.Equal(t, composeServiceNamePrefix, readConfig.ComposeServiceNamePrefix, "Compose service prefix name was the incorrect value.")
+	assert.Equal(t, cfnStackNamePrefix+clusterName, readConfig.CFNStackName, "CFNStackName should be empty.")
+	assert.Equal(t, awsAccessKey, readConfig.AWSAccessKey, "Access Key mismatch in config.")
+	assert.Equal(t, awsSecretKey, readConfig.AWSSecretKey, "Secret Key name mismatch in config.")
+
+}
+
+func TestMigratePrefixEmpty(t *testing.T) {
+	configContents := `[ecs]
+cluster = defaultCluster
+aws_profile =
+region = us-west-1
+aws_access_key_id = AKID
+aws_secret_access_key = SKID
+compose-project-name-prefix =
+compose-service-name-prefix =
+cfn-stack-name-prefix =
+`
+	// Create a temporary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+	defer os.RemoveAll(tempDirName)
+
+	// save the old config
+	fileInfo, err := os.Stat(tempDirName)
+	assert.NoError(t, err)
+	mode := fileInfo.Mode()
+	err = os.MkdirAll(tempDirName+"/.ecs", mode)
+	assert.NoError(t, err, "Could not create config directory")
+	defer os.RemoveAll(tempDirName)
+	err = ioutil.WriteFile(tempDirName+"/.ecs/config", []byte(configContents), mode)
+	assert.NoError(t, err)
+
+	// migrate
+	flags := flag.NewFlagSet("ecs-cli", 0)
+	flags.Bool(command.ForceFlag, true, "")
+	context := cli.NewContext(nil, flags, nil)
+
+	err = Migrate(context)
+	assert.NoError(t, err, "Unexpected error configuring cluster")
+
+	parser, err := config.NewReadWriter()
+	assert.NoError(t, err, "Error reading config")
+	readConfig, err := parser.Get("", "")
+	assert.NoError(t, err, "Error reading config")
+	assert.Equal(t, region, readConfig.Region, "Region mismatch in config.")
+	assert.Equal(t, clusterName, readConfig.Cluster, "Cluster name mismatch in config.")
+	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
+	assert.Equal(t, clusterName, readConfig.CFNStackName, "CFNStackName should be empty.")
+	assert.Equal(t, awsAccessKey, readConfig.AWSAccessKey, "Access Key mismatch in config.")
+	assert.Equal(t, awsSecretKey, readConfig.AWSSecretKey, "Secret Key name mismatch in config.")
+
+}
+
+func TestMigratePrefixDefault(t *testing.T) {
+	configContents := `[ecs]
+cluster = defaultCluster
+aws_profile =
+region = us-west-1
+aws_access_key_id = AKID
+aws_secret_access_key = SKID
+`
+	// Create a temporary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+	defer os.RemoveAll(tempDirName)
+
+	// save the old config
+	fileInfo, err := os.Stat(tempDirName)
+	assert.NoError(t, err)
+	mode := fileInfo.Mode()
+	err = os.MkdirAll(tempDirName+"/.ecs", mode)
+	assert.NoError(t, err, "Could not create config directory")
+	defer os.RemoveAll(tempDirName)
+	err = ioutil.WriteFile(tempDirName+"/.ecs/config", []byte(configContents), mode)
+	assert.NoError(t, err)
+
+	// migrate
+	flags := flag.NewFlagSet("ecs-cli", 0)
+	flags.Bool(command.ForceFlag, true, "")
+	context := cli.NewContext(nil, flags, nil)
+
+	err = Migrate(context)
+	assert.NoError(t, err, "Unexpected error configuring cluster")
+
+	parser, err := config.NewReadWriter()
+	assert.NoError(t, err, "Error reading config")
+	readConfig, err := parser.Get("", "")
+	assert.NoError(t, err, "Error reading config")
+	assert.Equal(t, region, readConfig.Region, "Region mismatch in config.")
+	assert.Equal(t, clusterName, readConfig.Cluster, "Cluster name mismatch in config.")
+	assert.Equal(t, command.ComposeServiceNamePrefixDefaultValue, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be default.")
+	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
+	assert.Equal(t, awsAccessKey, readConfig.AWSAccessKey, "Access Key mismatch in config.")
+	assert.Equal(t, awsSecretKey, readConfig.AWSSecretKey, "Secret Key name mismatch in config.")
+
+}
