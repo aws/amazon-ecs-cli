@@ -86,9 +86,9 @@ func (rdwr *INIReadWriter) GetConfig(cliConfig *CLIConfig) error {
 	cliConfig.AWSProfile = iniFormat.AwsProfile
 	cliConfig.AWSAccessKey = iniFormat.AWSAccessKey
 	cliConfig.AWSSecretKey = iniFormat.AWSSecretKey
-	cliConfig.ComposeProjectNamePrefix = iniFormat.ComposeProjectNamePrefix
 	cliConfig.ComposeServiceNamePrefix = iniFormat.ComposeServiceNamePrefix
-	cliConfig.CFNStackNamePrefix = iniFormat.CFNStackNamePrefix
+	cliConfig.ComposeProjectNamePrefix = iniFormat.ComposeProjectNamePrefix
+	cliConfig.CFNStackName = iniFormat.CFNStackNamePrefix + iniFormat.Cluster
 	return nil
 }
 
@@ -99,7 +99,7 @@ func (rdwr *INIReadWriter) IsKeyPresent(section, key string) bool {
 
 func newINIConfig(dest *Destination) (*ini.File, error) {
 	iniCfg := ini.Empty()
-	path := configFilePath(dest)
+	path := ConfigFilePath(dest)
 	if _, err := os.Stat(path); err == nil {
 		if err = iniCfg.Append(path); err != nil {
 			return nil, errors.Wrap(err, "Failed to initialize ini reader")
