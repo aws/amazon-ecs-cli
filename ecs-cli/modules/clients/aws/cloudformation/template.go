@@ -566,7 +566,7 @@ var template = `
             }
           ]
         },
-        "MinSize": "1",
+        "MinSize": "0",
         "MaxSize": {
           "Ref": "AsgMaxSize"
         },
