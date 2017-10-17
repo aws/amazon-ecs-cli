@@ -45,7 +45,7 @@ type CLIConfig struct {
 	ComposeServiceNamePrefix string
 	ComposeProjectNamePrefix string // Deprecated; remains for backwards compatibility
 	CFNStackName             string
-	CFNStackNamePrefix       string // Removed in new config; remains for backwards compatibility
+	CFNStackNamePrefix       string // Deprecated; remains for backwards compatibility
 }
 
 // Profile is a simple struct for storing a single profile config
