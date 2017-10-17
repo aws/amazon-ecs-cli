@@ -74,12 +74,12 @@ func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	if ecsConfig.CFNStackName == "" {
+	if ecsConfig.CFNStackName == "" && ecsConfig.CFNStackNamePrefix != "" {
+		ecsConfig.CFNStackName = ecsConfig.CFNStackNamePrefix + ecsConfig.Cluster
+	} else if ecsConfig.CFNStackName == "" {
 		// set default value
 		ecsConfig.CFNStackName = ecscli.CFNStackNamePrefixDefaultValue + ecsConfig.Cluster
 	}
-
 	return &CLIParams{
 		Cluster:                  ecsConfig.Cluster,
 		Session:                  svcSession,
