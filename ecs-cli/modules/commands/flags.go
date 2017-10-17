@@ -110,7 +110,7 @@ func OptionalRegionAndProfileFlags() []cli.Flag {
 		cli.StringFlag{
 			Name: AWSProfileNameFlag,
 			Usage: fmt.Sprintf(
-				"[Optional] Use your AWS credentials from an existing named profile in ~/.aws/credentials.",
+				"[Optional]  Use the AWS credentials from an existing named profile in ~/.aws/credentials.",
 			),
 		},
 	}
