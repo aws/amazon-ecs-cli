@@ -64,9 +64,11 @@ func Migrate(context *cli.Context) error {
 		logrus.Warnf("Storing an AWS profile in the configuration file is no longer supported. Please use the %s flag inline in commands instead.", command.ProfileFlag)
 	}
 
-	if oldConfig.CFNStackName == (command.CFNStackNamePrefixDefaultValue + oldConfig.Cluster) {
+	if oldConfig.CFNStackNamePrefix == command.CFNStackNamePrefixDefaultValue {
 		// if CFNStackName is default; don't store it.
 		oldConfig.CFNStackName = ""
+	} else {
+		oldConfig.CFNStackName = oldConfig.CFNStackNamePrefix + oldConfig.Cluster
 	}
 
 	if !context.Bool(command.ForceFlag) {
