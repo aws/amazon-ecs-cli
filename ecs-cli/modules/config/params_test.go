@@ -15,6 +15,7 @@ package config
 
 import (
 	"flag"
+	"io/ioutil"
 	"os"
 	"testing"
 
@@ -28,6 +29,11 @@ import (
 const (
 	composeServiceNamePrefix = "ecs-service-"
 	cfnStackName             = "cfn-stack-ecs"
+	awsAccess                = "ecs-access"
+	awsSecret                = "ecs-secret"
+	awsAccessAWSProfile      = "aws-access"
+	awsSecretAWSProfile      = "aws-secret"
+	awsProfileName           = "awsprofile"
 )
 
 // mockReadWriter implements ReadWriter interface to return just the cluster
@@ -154,6 +160,49 @@ func TestNewCliParamsWhenPrefixKeysAreNotPresent(t *testing.T) {
 	assert.NoError(t, err, "Unexpected error when getting new cli params")
 	assert.Empty(t, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
 	assert.Equal(t, ecscli.CFNStackNamePrefixDefaultValue+clusterName, params.CFNStackName, "Expected CFNStackName to be default")
+}
+
+func TestNewCliParamsWithAWSProfile(t *testing.T) {
+	// Keys in env vars take highest precedence; ensure they are not set
+	os.Unsetenv("AWS_ACCESS_KEY")
+	os.Unsetenv("AWS_SECRET_KEY")
+
+	configContents := `[awsprofile]
+aws_access_key_id = aws-access
+aws_secret_access_key = aws-secret
+`
+	// Create a temporary directory for the dummy aws config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	os.Setenv("HOME", tempDirName)
+	os.Setenv("AWS_DEFAULT_REGION", region)
+	defer os.Clearenv()
+	defer os.RemoveAll(tempDirName)
+
+	// save the aws config
+	fileInfo, err := os.Stat(tempDirName)
+	assert.NoError(t, err)
+	mode := fileInfo.Mode()
+	err = os.MkdirAll(tempDirName+"/.aws", mode)
+	assert.NoError(t, err, "Could not create aws config directory")
+	err = ioutil.WriteFile(tempDirName+"/.aws/credentials", []byte(configContents), mode)
+	assert.NoError(t, err)
+
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalContext := cli.NewContext(nil, globalSet, nil)
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String("aws-profile", awsProfileName, "")
+	context := cli.NewContext(nil, flagSet, globalContext)
+	rdwr := &mockReadWriter{}
+
+	params, err := NewCLIParams(context, rdwr)
+	assert.NoError(t, err)
+	creds, err := params.Session.Config.Credentials.Get()
+	assert.NoError(t, err)
+	assert.Equal(t, awsAccessAWSProfile, creds.AccessKeyID, "Expected AWS Access Key to be read from the AWS Profile")
+	assert.Equal(t, awsSecretAWSProfile, creds.SecretAccessKey, "Expected AWS Secret Access Key to be read from the AWS Profile")
 }
 
 func defaultConfig() *cli.Context {
