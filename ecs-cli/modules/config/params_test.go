@@ -187,7 +187,6 @@ aws_secret_access_key = aws-secret
 	mode := fileInfo.Mode()
 	err = os.MkdirAll(tempDirName+"/.aws", mode)
 	assert.NoError(t, err, "Could not create aws config directory")
-	defer os.RemoveAll(tempDirName)
 	err = ioutil.WriteFile(tempDirName+"/.aws/credentials", []byte(configContents), mode)
 	assert.NoError(t, err)
 
