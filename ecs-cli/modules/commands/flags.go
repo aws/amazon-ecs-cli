@@ -37,6 +37,7 @@ const (
 	ProfileConfigFlag      = "ecs-profile"
 	ProfileNameFlag        = "profile-name"
 	ConfigNameFlag         = "config-name"
+	AWSProfileNameFlag     = "aws-profile"
 
 	ComposeProjectNamePrefixFlag         = "compose-project-name-prefix"
 	ComposeProjectNamePrefixDefaultValue = "ecscompose-"
@@ -90,6 +91,7 @@ const (
 // OptionalRegionFlag inline overrides region
 // OptionalClusterConfigFlag specifies the cluster profile to read from config
 // OptionalProfileConfigFlag specifies the credentials profile to read from the config
+// OptionalAWSProfileFlag specifies the AWS Profile to use for credential information
 func OptionalRegionAndProfileFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
@@ -108,6 +110,12 @@ func OptionalRegionAndProfileFlags() []cli.Flag {
 			Name: ProfileConfigFlag,
 			Usage: fmt.Sprintf(
 				"[Optional] Specifies the name of the ECS profle configuration to use. Defaults to the default profile configuration.",
+			),
+		},
+		cli.StringFlag{
+			Name: AWSProfileNameFlag,
+			Usage: fmt.Sprintf(
+				"[Optional]  Use the AWS credentials from an existing named profile in ~/.aws/credentials.",
 			),
 		},
 	}
