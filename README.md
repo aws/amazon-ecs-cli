@@ -234,7 +234,11 @@ version: 1
 task_definition:
   ecs_network_mode: string // supported string values: none, bridge, or host
   task_role_arn: string
+  services:
+    <service_name>:
+      essential: boolean
 ```
+`service_name` matches the name of the services listed in your docker compose file, and its fields will be merged into an [ECS Container Definition](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ecs-taskdefinition-containerdefinitions.html). The only field you can specify on it is `essential`. The default value for the essential field is true.
 
 Example `ecs-params.yml` file:
 
@@ -243,6 +247,9 @@ version: 1
 task_definition:
   ecs_network_mode: host
   task_role_arn: myCustomRole
+  services:
+    my_service:
+      essential: false
 ```
 
 You can then start a task by calling:
