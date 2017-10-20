@@ -74,7 +74,6 @@ func ComposeCommand(factory composeFactory.ProjectFactory) cli.Command {
 			// TODO, should honor restart policy in the compose yaml and create ECS Services accordingly
 			serviceCommand.ServiceCommand(factory),
 		},
-		OnUsageError: command.UsageErrorFactory("create"),
 	}
 }
 
