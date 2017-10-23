@@ -158,6 +158,11 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 		return fmt.Errorf("Please configure a cluster using the configure command or the '--%s' flag", command.ClusterFlag)
 	}
 
+	// Display warning if keypair not specified
+	if context.String(command.KeypairNameFlag) == "" {
+		logrus.Warn("You will not be able to SSH into your EC2 instances without a key pair.")
+	}
+
 	// Check if cfn stack already exists
 	cfnClient.Initialize(ecsParams)
 	stackName := ecsParams.GetCfnStackName()
@@ -174,14 +179,6 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 	cfnParams.Add(cloudformation.ParameterKeyCluster, ecsParams.Cluster)
 	if context.Bool(command.NoAutoAssignPublicIPAddressFlag) {
 		cfnParams.Add(cloudformation.ParameterKeyAssociatePublicIPAddress, "false")
-	}
-
-	// Check if key pair exists
-	_, err = cfnParams.GetParameter(cloudformation.ParameterKeyKeyPairName)
-	if err == cloudformation.ParameterNotFoundError {
-		return fmt.Errorf("Please specify the keypair name with '--%s' flag", command.KeypairNameFlag)
-	} else if err != nil {
-		return err
 	}
 
 	// Check if vpc and AZs are not both specified.

@@ -51,7 +51,7 @@ var requiredParameters map[string]bool
 var parameterKeyNames []string
 
 func init() {
-	requiredParameterNames = []string{ParameterKeyKeyPairName, ParameterKeyCluster, ParameterKeyAmiId}
+	requiredParameterNames = []string{ParameterKeyCluster, ParameterKeyAmiId}
 	requiredParameters = make(map[string]bool)
 	for _, s := range requiredParameterNames {
 		requiredParameters[s] = true

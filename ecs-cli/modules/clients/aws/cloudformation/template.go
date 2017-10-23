@@ -14,7 +14,7 @@
 package cloudformation
 
 func GetTemplate() string {
-	return template
+        return template
 }
 
 // TODO: Improvements:
@@ -113,7 +113,7 @@ var template = `
       "ConstraintDescription": "must be a valid EC2 instance type."
     },
     "KeyName": {
-      "Type": "AWS::EC2::KeyPair::KeyName",
+      "Type": "String",
       "Description": "Optional - Name of an existing EC2 KeyPair to enable SSH access to the ECS instances",
       "Default": ""
     },
@@ -205,14 +205,6 @@ var template = `
             ""
           ]
         }
-      ]
-    },
-    "CreateEC2LCWithoutKeyPair": {
-      "Fn::Equals": [
-        {
-          "Ref": "KeyName"
-        },
-        ""
       ]
     },
     "UseSpecifiedVpcAvailabilityZones": {
@@ -456,7 +448,6 @@ var template = `
       }
     },
     "EcsInstanceLc": {
-      "Condition": "CreateEC2LCWithKeyPair",
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
         "ImageId": { "Ref" : "EcsAmiId" },
@@ -470,49 +461,15 @@ var template = `
           "Ref": "EcsInstanceProfile"
         },
         "KeyName": {
-          "Ref": "KeyName"
-        },
-        "SecurityGroups": {
           "Fn::If": [
-            "CreateSecurityGroup",
-            [ {
-              "Ref": "EcsSecurityGroup"
-            } ],
+            "CreateEC2LCWithKeyPair",
             {
-              "Ref": "SecurityGroupIds"
+              "Ref": "KeyName"
+            },
+            {
+              "Ref": "AWS::NoValue"
             }
           ]
-        },
-        "UserData": {
-          "Fn::Base64": {
-            "Fn::Join": [
-              "",
-              [
-                "#!/bin/bash\n",
-                "echo ECS_CLUSTER=",
-                {
-                  "Ref": "EcsCluster"
-                },
-                " >> /etc/ecs/ecs.config\n"
-              ]
-            ]
-          }
-        }
-      }
-    },
-    "EcsInstanceLcWithoutKeyPair": {
-      "Condition": "CreateEC2LCWithoutKeyPair",
-      "Type": "AWS::AutoScaling::LaunchConfiguration",
-      "Properties": {
-        "ImageId": { "Ref" : "EcsAmiId" },
-        "InstanceType": {
-          "Ref": "EcsInstanceType"
-        },
-        "AssociatePublicIpAddress": {
-          "Ref": "AssociatePublicIpAddress"
-        },
-        "IamInstanceProfile": {
-          "Ref": "EcsInstanceProfile"
         },
         "SecurityGroups": {
           "Fn::If": [
@@ -569,15 +526,7 @@ var template = `
           ]
         },
         "LaunchConfigurationName": {
-          "Fn::If": [
-            "CreateEC2LCWithKeyPair",
-            {
-              "Ref": "EcsInstanceLc"
-            },
-            {
-              "Ref": "EcsInstanceLcWithoutKeyPair"
-            }
-          ]
+          "Ref": "EcsInstanceLc"
         },
         "MinSize": "0",
         "MaxSize": {
