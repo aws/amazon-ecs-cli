@@ -315,10 +315,7 @@ func TestClusterUpWithoutKeyPair(t *testing.T) {
 	defer os.Clearenv()
 	mockECS, mockCloudformation := setupTest(t)
 
-	gomock.InOrder(
-		mockCloudformation.EXPECT().Initialize(gomock.Any()),
-		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-	)
+	setupHappyPathMocks(mockECS, mockCloudformation)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
@@ -326,7 +323,8 @@ func TestClusterUpWithoutKeyPair(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	assert.Error(t, err, "Expected error for key pair name")
+
+	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
 func TestClusterUpWithSecurityGroupWithoutVPC(t *testing.T) {
@@ -676,4 +674,17 @@ func TestClusterPSTaskGetInfoFail(t *testing.T) {
 	context := cli.NewContext(nil, flagSet, nil)
 	_, err = clusterPS(context, newMockReadWriter(), mockECS)
 	assert.Error(t, err, "Expected error in cluster ps")
+}
+
+func setupHappyPathMocks(mockECS *mock_ecs.MockECSClient, mockCloudformation *mock_cloudformation.MockCloudformationClient) {
+	gomock.InOrder(
+		mockECS.EXPECT().Initialize(gomock.Any()),
+		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
+	)
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
+		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
+	)
 }

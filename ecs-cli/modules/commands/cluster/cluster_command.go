@@ -68,7 +68,7 @@ func clusterUpFlags() []cli.Flag {
 		},
 		cli.StringFlag{
 			Name:  command.KeypairNameFlag,
-			Usage: "Specifies the name of an existing Amazon EC2 key pair to enable SSH access to the EC2 instances in your cluster.",
+			Usage: "[Optional] Specifies the name of an existing Amazon EC2 key pair to enable SSH access to the EC2 instances in your cluster.",
 		},
 		cli.BoolFlag{
 			Name:  command.CapabilityIAMFlag,

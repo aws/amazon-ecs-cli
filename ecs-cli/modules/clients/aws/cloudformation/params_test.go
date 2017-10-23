@@ -27,15 +27,7 @@ func TestAddAndValidate(t *testing.T) {
 		t.Error("Expected validation error for empty parameter key map")
 	}
 
-	err = cfnParams.Add(ParameterKeyKeyPairName, "default")
-	if err != nil {
-		t.Error("Error adding parameter: ", err)
-	}
-	err = cfnParams.Validate()
-	if err == nil {
-		t.Errorf("Expected validation error when only %s is specified", ParameterKeyKeyPairName)
-	}
-
+	// Add AMI ID
 	err = cfnParams.Add(ParameterKeyAmiId, "ami-12345")
 	if err != nil {
 		t.Error("Error adding parameter: ", err)
@@ -45,6 +37,7 @@ func TestAddAndValidate(t *testing.T) {
 		t.Errorf("Expected validation error when %s is not specified", ParameterKeyCluster)
 	}
 
+	// Add Cluster
 	err = cfnParams.Add(ParameterKeyCluster, "")
 	if err != nil {
 		t.Error("Error adding parameter: ", err)
@@ -70,11 +63,11 @@ func TestAddAndValidate(t *testing.T) {
 
 	clusterValue, exists := cfnParams.nameToKeys[ParameterKeyCluster]
 	if !exists {
-		t.Errorf("Expcted key %s does not exist", ParameterKeyCluster)
+		t.Errorf("Expected key %s does not exist", ParameterKeyCluster)
 	}
 
 	if "default" != clusterValue {
-		t.Errorf("Mismtach in cluster name. Expected [%s] Got [%s]", "default", clusterValue)
+		t.Errorf("Mismatch in cluster name. Expected [%s] Got [%s]", "default", clusterValue)
 	}
 }
 
