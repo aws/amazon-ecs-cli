@@ -83,17 +83,7 @@ func TestClusterUp(t *testing.T) {
 	defer os.Clearenv()
 	mockECS, mockCloudformation := setupTest(t)
 
-	gomock.InOrder(
-		mockECS.EXPECT().Initialize(gomock.Any()),
-		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
-	)
-
-	gomock.InOrder(
-		mockCloudformation.EXPECT().Initialize(gomock.Any()),
-		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
-		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
-	)
+	mocksForSuccessfulClusterUp(mockECS, mockCloudformation)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
@@ -173,17 +163,7 @@ func TestClusterUpWithVPC(t *testing.T) {
 	vpcID := "vpc-02dd3038"
 	subnetIds := "subnet-04726b21,subnet-04346b21"
 
-	gomock.InOrder(
-		mockECS.EXPECT().Initialize(gomock.Any()),
-		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
-	)
-
-	gomock.InOrder(
-		mockCloudformation.EXPECT().Initialize(gomock.Any()),
-		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
-		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
-	)
+	mocksForSuccessfulClusterUp(mockECS, mockCloudformation)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
@@ -202,17 +182,7 @@ func TestClusterUpWithAvailabilityZones(t *testing.T) {
 
 	vpcAZs := "us-west-2c,us-west-2a"
 
-	gomock.InOrder(
-		mockECS.EXPECT().Initialize(gomock.Any()),
-		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
-	)
-
-	gomock.InOrder(
-		mockCloudformation.EXPECT().Initialize(gomock.Any()),
-		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
-		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
-	)
+	mocksForSuccessfulClusterUp(mockECS, mockCloudformation)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
@@ -230,17 +200,7 @@ func TestClusterUpWithCustomRole(t *testing.T) {
 
 	instanceRole := "sparklepony"
 
-	gomock.InOrder(
-		mockECS.EXPECT().Initialize(gomock.Any()),
-		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
-	)
-
-	gomock.InOrder(
-		mockCloudformation.EXPECT().Initialize(gomock.Any()),
-		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
-		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
-	)
+	mocksForSuccessfulClusterUp(mockECS, mockCloudformation)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.String(command.KeypairNameFlag, "default", "")
@@ -315,7 +275,7 @@ func TestClusterUpWithoutKeyPair(t *testing.T) {
 	defer os.Clearenv()
 	mockECS, mockCloudformation := setupTest(t)
 
-	setupHappyPathMocks(mockECS, mockCloudformation)
+	mocksForSuccessfulClusterUp(mockECS, mockCloudformation)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
@@ -353,21 +313,11 @@ func TestClusterUpWith2SecurityGroups(t *testing.T) {
 	defer os.Clearenv()
 	mockECS, mockCloudformation := setupTest(t)
 
+	mocksForSuccessfulClusterUp(mockECS, mockCloudformation)
+
 	securityGroupIds := "sg-eeaabc8d,sg-eaaebc8d"
 	vpcId := "vpc-02dd3038"
 	subnetIds := "subnet-04726b21,subnet-04346b21"
-
-	gomock.InOrder(
-		mockCloudformation.EXPECT().Initialize(gomock.Any()),
-		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
-		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
-	)
-
-	gomock.InOrder(
-		mockECS.EXPECT().Initialize(gomock.Any()),
-		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
-	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
@@ -676,7 +626,7 @@ func TestClusterPSTaskGetInfoFail(t *testing.T) {
 	assert.Error(t, err, "Expected error in cluster ps")
 }
 
-func setupHappyPathMocks(mockECS *mock_ecs.MockECSClient, mockCloudformation *mock_cloudformation.MockCloudformationClient) {
+func mocksForSuccessfulClusterUp(mockECS *mock_ecs.MockECSClient, mockCloudformation *mock_cloudformation.MockCloudformationClient) {
 	gomock.InOrder(
 		mockECS.EXPECT().Initialize(gomock.Any()),
 		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
