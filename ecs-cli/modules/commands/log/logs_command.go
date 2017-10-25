@@ -42,7 +42,7 @@ func logFlags() []cli.Flag {
 		},
 		cli.StringFlag{
 			Name:  command.TaskDefinitionFlag,
-			Usage: "Task definition of the task for which you want to view logs. Required with Task ID if the task has been stopped already. Format: family:revision",
+			Usage: "Task definition of the task for which you want to view logs. Required with Task ID if the task has been stopped already. Format: family:revision, or the full ARN.",
 		},
 		cli.BoolFlag{
 			Name:  command.FollowLogsFlag,
