@@ -50,49 +50,50 @@ func Logs(c *cli.Context) {
 
 	ecsClient := ecsclient.NewECSClient()
 	ecsClient.Initialize(ecsParams)
-	err = logs(c, ecsClient, ecsParams)
+	request, logRegion, err := logsRequest(c, ecsClient, ecsParams)
 	if err != nil {
 		logrus.Fatal("Error executing 'logs': ", err)
 	}
 
+	cwLogsClient := cwlogsclient.NewCloudWatchLogsClient(ecsParams, logRegion)
+
+	printLogEvents(c, request, cwLogsClient)
+
 }
 
-func logs(context *cli.Context, ecsClient ecsclient.ECSClient, params *config.CliParams) error {
+func logsRequest(context *cli.Context, ecsClient ecsclient.ECSClient, params *config.CliParams) (*cloudwatchlogs.FilterLogEventsInput, string, error) {
 	taskID := context.String(command.TaskIDFlag)
 	taskDefNameOrArn := context.String(command.TaskDefinitionFlag)
 
 	if taskDefNameOrArn == "" {
 		tasks, err := getTaskDefArn(context, ecsClient, params)
 		if err != nil {
-			return err
+			return nil, "", err
 		}
 		taskDefNameOrArn = aws.StringValue(tasks[0].TaskDefinitionArn)
 	}
 
 	taskDef, err := ecsClient.DescribeTaskDefinition(taskDefNameOrArn)
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("Failed to Describe TaskDefinition; try using --%s to specify the Task Defintion.", command.TaskDefinitionFlag))
+		return nil, "", errors.Wrap(err, fmt.Sprintf("Failed to Describe TaskDefinition; try using --%s to specify the Task Defintion.", command.TaskDefinitionFlag))
 	}
 
 	logGroup, logRegion, prefixes, err := getLogConfiguration(taskDef, taskID)
 	if err != nil {
-		return errors.Wrap(err, "Failed to get log configuration")
+		return nil, "", errors.Wrap(err, "Failed to get log configuration")
 	}
 
 	streams := logStreams(prefixes, taskID)
 
-	cwLogsClient := cwlogsclient.NewCloudWatchLogsClient(params, aws.StringValue(logRegion))
-
 	input, err := filterLogEventsInputFromContext(context)
 	if err != nil {
-		return errors.Wrap(err, "Failed to create FilterLogEvents request")
+		return nil, "", errors.Wrap(err, "Failed to create FilterLogEvents request")
 	}
 	input.SetLogGroupName(aws.StringValue(logGroup))
 	input.SetLogStreamNames(aws.StringSlice(streams))
 
-	printLogEvents(context, input, cwLogsClient)
+	return input, aws.StringValue(logRegion), nil
 
-	return nil
 }
 
 func getTaskDefArn(context *cli.Context, ecsClient ecsclient.ECSClient, params *config.CliParams) ([]*ecs.Task, error) {
