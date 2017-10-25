@@ -44,6 +44,16 @@ const (
 	AWSAccessKeyEnvVar      = "AWS_ACCESS_KEY_ID"
 	AWSSecretKeyEnvVar      = "AWS_SECRET_ACCESS_KEY"
 
+	// logs
+	TaskIDFlag         = "task-id"
+	TaskDefinitionFlag = "task-def"
+	FollowLogsFlag     = "follow"
+	FilterPatternFlag  = "pattern"
+	SinceFlag          = "since"
+	StartTimeFlag      = "start-time"
+	EndTimeFlag        = "end-time"
+	TimeStampsFlag     = "time-stamps"
+
 	ComposeProjectNamePrefixFlag         = "compose-project-name-prefix"
 	ComposeProjectNamePrefixDefaultValue = "ecscompose-"
 	ComposeServiceNamePrefixFlag         = "compose-service-name-prefix"
