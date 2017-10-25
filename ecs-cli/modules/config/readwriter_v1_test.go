@@ -18,7 +18,7 @@ import (
 	"os"
 	"testing"
 
-	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -152,8 +152,8 @@ aws_secret_access_key =
 	parser := setupParser(t, dest, true)
 	config, err := parser.Get("", "")
 	assert.NoError(t, err, "Error reading config")
-	assert.Equal(t, ecscli.ComposeServiceNamePrefixDefaultValue, config.ComposeServiceNamePrefix, "ComposeServiceNamePrefix should be set to the default value.")
-	assert.Equal(t, ecscli.CFNStackNamePrefixDefaultValue, config.CFNStackNamePrefix, "CFNStackNamePrefix should be set to the default value.")
+	assert.Equal(t, flags.ComposeServiceNamePrefixDefaultValue, config.ComposeServiceNamePrefix, "ComposeServiceNamePrefix should be set to the default value.")
+	assert.Equal(t, flags.CFNStackNamePrefixDefaultValue, config.CFNStackNamePrefix, "CFNStackNamePrefix should be set to the default value.")
 	assert.Equal(t, iniConfigVersion, config.Version, "Expected ini config version to be set.")
 }
 

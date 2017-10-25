@@ -20,7 +20,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/service"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/task"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
@@ -137,8 +137,8 @@ func (p *ecsProject) transformTaskDefinition() error {
 	// convert to task definition
 	logrus.Debug("Transforming yaml to task definition...")
 	taskDefinitionName := utils.GetTaskDefinitionName("", context.Context.ProjectName)
-	taskRoleArn := context.CLIContext.GlobalString(command.TaskRoleArnFlag)
-	ecsParamsFileName := context.CLIContext.GlobalString(command.ECSParamsFileNameFlag)
+	taskRoleArn := context.CLIContext.GlobalString(flags.TaskRoleArnFlag)
+	ecsParamsFileName := context.CLIContext.GlobalString(flags.ECSParamsFileNameFlag)
 
 	taskDefinition, err := utils.ConvertToTaskDefinition(taskDefinitionName, &context.Context, p.ServiceConfigs(), taskRoleArn, ecsParamsFileName)
 	if err != nil {

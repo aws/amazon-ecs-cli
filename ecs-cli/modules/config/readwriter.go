@@ -16,7 +16,7 @@ package config
 import (
 	"os"
 
-	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 
 	"github.com/go-ini/ini"
 	"github.com/pkg/errors"
@@ -71,13 +71,13 @@ func (rdwr *INIReadWriter) GetConfig(cliConfig *CLIConfig) error {
 
 	// If Prefixes not found, set to defaults.
 	if !rdwr.IsKeyPresent(ecsSectionKey, composeProjectNamePrefixKey) {
-		iniFormat.ComposeProjectNamePrefix = ecscli.ComposeProjectNamePrefixDefaultValue
+		iniFormat.ComposeProjectNamePrefix = flags.ComposeProjectNamePrefixDefaultValue
 	}
 	if !rdwr.IsKeyPresent(ecsSectionKey, composeServiceNamePrefixKey) {
-		iniFormat.ComposeServiceNamePrefix = ecscli.ComposeServiceNamePrefixDefaultValue
+		iniFormat.ComposeServiceNamePrefix = flags.ComposeServiceNamePrefixDefaultValue
 	}
 	if !rdwr.IsKeyPresent(ecsSectionKey, cfnStackNamePrefixKey) {
-		iniFormat.CFNStackNamePrefix = ecscli.CFNStackNamePrefixDefaultValue
+		iniFormat.CFNStackNamePrefix = flags.CFNStackNamePrefixDefaultValue
 	}
 
 	// Convert to the new CliConfig

@@ -19,7 +19,7 @@ import (
 	"os"
 	"testing"
 
-	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
@@ -204,7 +204,7 @@ func TestNewCliParamsWhenPrefixKeysAreNotPresentYAMLVersion(t *testing.T) {
 	assert.NoError(t, err, "Unexpected error when getting new cli params")
 	assert.Empty(t, params.ComposeProjectNamePrefix, "Expected ComposProjectNamePrefix to be empty")
 	assert.Empty(t, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
-	assert.Equal(t, ecscli.CFNStackNamePrefixDefaultValue+clusterName, params.CFNStackName, "Expected CFNStackName to be default")
+	assert.Equal(t, flags.CFNStackNamePrefixDefaultValue+clusterName, params.CFNStackName, "Expected CFNStackName to be default")
 }
 
 func TestNewCliParamsWithAWSProfile(t *testing.T) {

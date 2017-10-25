@@ -16,7 +16,7 @@ package config
 import (
 	"os"
 
-	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
@@ -46,8 +46,8 @@ func recursiveFlagSearch(context *cli.Context, flag string) string {
 
 // NewCLIParams creates a new ECSParams object from the config file.
 func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
-	clusterConfig := recursiveFlagSearch(context, ecscli.ClusterConfigFlag)
-	profileConfig := recursiveFlagSearch(context, ecscli.ECSProfileFlag)
+	clusterConfig := recursiveFlagSearch(context, flags.ClusterConfigFlag)
+	profileConfig := recursiveFlagSearch(context, flags.ECSProfileFlag)
 	ecsConfig, err := rdwr.Get(clusterConfig, profileConfig)
 
 	if err != nil {
@@ -58,19 +58,19 @@ func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 	//  1) Inline flag
 	//  2) Environment Variable
 	//  3) ECS Config
-	if clusterFromEnv := os.Getenv(ecscli.ClusterEnvVar); clusterFromEnv != "" {
+	if clusterFromEnv := os.Getenv(flags.ClusterEnvVar); clusterFromEnv != "" {
 		ecsConfig.Cluster = clusterFromEnv
 	}
-	if clusterFromFlag := recursiveFlagSearch(context, ecscli.ClusterFlag); clusterFromFlag != "" {
+	if clusterFromFlag := recursiveFlagSearch(context, flags.ClusterFlag); clusterFromFlag != "" {
 		ecsConfig.Cluster = clusterFromFlag
 	}
 
 	//--region flag has the highest precedence to set ecs-cli region config.
-	if regionFromFlag := recursiveFlagSearch(context, ecscli.RegionFlag); regionFromFlag != "" {
+	if regionFromFlag := recursiveFlagSearch(context, flags.RegionFlag); regionFromFlag != "" {
 		ecsConfig.Region = regionFromFlag
 	}
 
-	if awsProfileFromFlag := recursiveFlagSearch(context, ecscli.AWSProfileFlag); awsProfileFromFlag != "" {
+	if awsProfileFromFlag := recursiveFlagSearch(context, flags.AWSProfileFlag); awsProfileFromFlag != "" {
 		ecsConfig.AWSProfile = awsProfileFromFlag
 		// unset Access Key and Secret Key, otherwise they will take precedence
 		ecsConfig.AWSAccessKey = ""
@@ -87,7 +87,7 @@ func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 	}
 
 	if ecsConfig.CFNStackName == "" {
-		ecsConfig.CFNStackName = ecscli.CFNStackNamePrefixDefaultValue + ecsConfig.Cluster
+		ecsConfig.CFNStackName = flags.CFNStackNamePrefixDefaultValue + ecsConfig.Cluster
 	}
 
 	return &CLIParams{

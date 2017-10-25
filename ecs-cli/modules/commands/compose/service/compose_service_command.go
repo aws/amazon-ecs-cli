@@ -19,7 +19,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/service"
 	composeFactory "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/factory"
-	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/urfave/cli"
 )
 
@@ -57,7 +57,7 @@ func ServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 			stopServiceCommand(factory),
 			rmServiceCommand(factory),
 		},
-		Flags: command.OptionalConfigFlags(),
+		Flags: flags.OptionalConfigFlags(),
 	}
 }
 
@@ -66,8 +66,8 @@ func createServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "create",
 		Usage:        "Creates an ECS service from your compose file. The service is created with a desired count of 0, so no containers are started by this command. Note that we do not recommend using plain text environment variables for sensitive information, such as credential data.",
 		Action:       compose.WithProject(factory, compose.ProjectCreate, true),
-		Flags:        append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalConfigFlags()...)...),
-		OnUsageError: command.UsageErrorFactory("create"),
+		Flags:        append(deploymentConfigFlags(true), append(loadBalancerFlags(), flags.OptionalConfigFlags()...)...),
+		OnUsageError: flags.UsageErrorFactory("create"),
 	}
 }
 
@@ -76,8 +76,8 @@ func startServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "start",
 		Usage:        "Starts one copy of each of the containers on an existing ECS service by setting the desired count to 1 (only if the current desired count is 0).",
 		Action:       compose.WithProject(factory, compose.ProjectStart, true),
-		Flags:        append(command.OptionalConfigFlags(), ComposeServiceTimeoutFlag()),
-		OnUsageError: command.UsageErrorFactory("start"),
+		Flags:        append(flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag()),
+		OnUsageError: flags.UsageErrorFactory("start"),
 	}
 }
 
@@ -86,8 +86,8 @@ func upServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "up",
 		Usage:        "Creates a new ECS service or updates an existing one according to your compose file. For new services or existing services with a current desired count of 0, the desired count for the service is set to 1. For existing services with non-zero desired counts, a new task definition is created to reflect any changes to the compose file and the service is updated to use that task definition. In this case, the desired count does not change.",
 		Action:       compose.WithProject(factory, compose.ProjectUp, true),
-		Flags:        append(append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalConfigFlags()...)...), ComposeServiceTimeoutFlag()),
-		OnUsageError: command.UsageErrorFactory("up"),
+		Flags:        append(append(deploymentConfigFlags(true), append(loadBalancerFlags(), flags.OptionalConfigFlags()...)...), ComposeServiceTimeoutFlag()),
+		OnUsageError: flags.UsageErrorFactory("up"),
 	}
 }
 
@@ -97,8 +97,8 @@ func psServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Aliases:      []string{"list"},
 		Usage:        "Lists all the containers in your cluster that belong to the service created with the compose project.",
 		Action:       compose.WithProject(factory, compose.ProjectPs, true),
-		Flags:        command.OptionalConfigFlags(),
-		OnUsageError: command.UsageErrorFactory("ps"),
+		Flags:        flags.OptionalConfigFlags(),
+		OnUsageError: flags.UsageErrorFactory("ps"),
 	}
 }
 
@@ -107,8 +107,8 @@ func scaleServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "scale",
 		Usage:        "ecs-cli compose service scale [count] - scales the desired count of the service to the specified count",
 		Action:       compose.WithProject(factory, compose.ProjectScale, true),
-		Flags:        append(append(deploymentConfigFlags(false), command.OptionalConfigFlags()...), ComposeServiceTimeoutFlag()),
-		OnUsageError: command.UsageErrorFactory("scale"),
+		Flags:        append(append(deploymentConfigFlags(false), flags.OptionalConfigFlags()...), ComposeServiceTimeoutFlag()),
+		OnUsageError: flags.UsageErrorFactory("scale"),
 	}
 }
 
@@ -117,8 +117,8 @@ func stopServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "stop",
 		Usage:        "Stops the running tasks that belong to the service created with the compose project. This command updates the desired count of the service to 0.",
 		Action:       compose.WithProject(factory, compose.ProjectStop, true),
-		Flags:        append(command.OptionalConfigFlags(), ComposeServiceTimeoutFlag()),
-		OnUsageError: command.UsageErrorFactory("stop"),
+		Flags:        append(flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag()),
+		OnUsageError: flags.UsageErrorFactory("stop"),
 	}
 }
 
@@ -128,8 +128,8 @@ func rmServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Aliases:      []string{"delete", "down"},
 		Usage:        "Updates the desired count of the service to 0 and then deletes the service.",
 		Action:       compose.WithProject(factory, compose.ProjectDown, true),
-		Flags:        append(command.OptionalConfigFlags(), ComposeServiceTimeoutFlag()),
-		OnUsageError: command.UsageErrorFactory("rm"),
+		Flags:        append(flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag()),
+		OnUsageError: flags.UsageErrorFactory("rm"),
 	}
 }
 
@@ -137,16 +137,16 @@ func deploymentConfigFlags(specifyDefaults bool) []cli.Flag {
 	maxPercentUsageString := "[Optional] Specifies the upper limit (as a percentage of the service's desiredCount) of the number of running tasks that can be running in a service during a deployment."
 	minHealthyPercentUsageString := "[Optional] Specifies the lower limit (as a percentage of the service's desiredCount) of the number of running tasks that must remain running and healthy in a service during a deployment."
 	if specifyDefaults {
-		maxPercentUsageString += fmt.Sprintf(" Defaults to %d.", command.DeploymentMaxPercentDefaultValue)
-		minHealthyPercentUsageString += fmt.Sprintf(" Defaults to %d.", command.DeploymentMinHealthyPercentDefaultValue)
+		maxPercentUsageString += fmt.Sprintf(" Defaults to %d.", flags.DeploymentMaxPercentDefaultValue)
+		minHealthyPercentUsageString += fmt.Sprintf(" Defaults to %d.", flags.DeploymentMinHealthyPercentDefaultValue)
 	}
 	return []cli.Flag{
 		cli.StringFlag{
-			Name:  command.DeploymentMaxPercentFlag,
+			Name:  flags.DeploymentMaxPercentFlag,
 			Usage: maxPercentUsageString,
 		},
 		cli.StringFlag{
-			Name:  command.DeploymentMinHealthyPercentFlag,
+			Name:  flags.DeploymentMinHealthyPercentFlag,
 			Usage: minHealthyPercentUsageString,
 		},
 	}
@@ -161,23 +161,23 @@ func loadBalancerFlags() []cli.Flag {
 
 	return []cli.Flag{
 		cli.StringFlag{
-			Name:  command.TargetGroupArnFlag,
+			Name:  flags.TargetGroupArnFlag,
 			Usage: targetGroupArnUsageString,
 		},
 		cli.StringFlag{
-			Name:  command.ContainerNameFlag,
+			Name:  flags.ContainerNameFlag,
 			Usage: containerNameUsageString,
 		},
 		cli.StringFlag{
-			Name:  command.ContainerPortFlag,
+			Name:  flags.ContainerPortFlag,
 			Usage: containerPortUsageString,
 		},
 		cli.StringFlag{
-			Name:  command.LoadBalancerNameFlag,
+			Name:  flags.LoadBalancerNameFlag,
 			Usage: loadBalancerNameUsageString,
 		},
 		cli.StringFlag{
-			Name:  command.RoleFlag,
+			Name:  flags.RoleFlag,
 			Usage: roleUsageString,
 		},
 	}
@@ -186,7 +186,7 @@ func loadBalancerFlags() []cli.Flag {
 // ComposeServiceTimeoutFlag allows user to specify a custom timeout
 func ComposeServiceTimeoutFlag() cli.Flag {
 	return cli.Float64Flag{
-		Name:  command.ComposeServiceTimeOutFlag,
+		Name:  flags.ComposeServiceTimeOutFlag,
 		Value: service.DefaultUpdateServiceTimeout,
 		Usage: fmt.Sprintf(
 			"Specifies the timeout value in minutes (decimals supported) to wait for the running task count to change. If the running task count has not changed for the specified period of time, then the CLI times out and returns an error. Setting the timeout to 0 will cause the command to return without checking for success.",

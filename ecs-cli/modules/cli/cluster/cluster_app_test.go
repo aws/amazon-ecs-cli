@@ -24,7 +24,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudformation"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudformation/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"
-	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config/ami"
 	"github.com/aws/aws-sdk-go/aws"
@@ -89,8 +89,8 @@ func TestClusterUp(t *testing.T) {
 	mocksForSuccessfulClusterUp(mockECS, mockCloudformation)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.String(command.KeypairNameFlag, "default", "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
@@ -116,9 +116,9 @@ func TestClusterUpWithForce(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.String(command.KeypairNameFlag, "default", "")
-	flagSet.Bool(command.ForceFlag, true, "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
+	flagSet.Bool(flags.ForceFlag, true, "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
@@ -150,9 +150,9 @@ func TestClusterUpWithoutPublicIP(t *testing.T) {
 	globalContext := cli.NewContext(nil, globalSet, nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.String(command.KeypairNameFlag, "default", "")
-	flagSet.Bool(command.NoAutoAssignPublicIPAddressFlag, true, "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
+	flagSet.Bool(flags.NoAutoAssignPublicIPAddressFlag, true, "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
@@ -169,10 +169,10 @@ func TestClusterUpWithVPC(t *testing.T) {
 	mocksForSuccessfulClusterUp(mockECS, mockCloudformation)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.String(command.KeypairNameFlag, "default", "")
-	flagSet.String(command.VpcIdFlag, vpcID, "")
-	flagSet.String(command.SubnetIdsFlag, subnetIds, "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
+	flagSet.String(flags.VpcIdFlag, vpcID, "")
+	flagSet.String(flags.SubnetIdsFlag, subnetIds, "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
@@ -188,9 +188,9 @@ func TestClusterUpWithAvailabilityZones(t *testing.T) {
 	mocksForSuccessfulClusterUp(mockECS, mockCloudformation)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.String(command.KeypairNameFlag, "default", "")
-	flagSet.String(command.VpcAzFlag, vpcAZs, "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
+	flagSet.String(flags.VpcAzFlag, vpcAZs, "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
@@ -206,8 +206,8 @@ func TestClusterUpWithCustomRole(t *testing.T) {
 	mocksForSuccessfulClusterUp(mockECS, mockCloudformation)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(command.KeypairNameFlag, "default", "")
-	flagSet.String(command.InstanceRoleFlag, instanceRole, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
+	flagSet.String(flags.InstanceRoleFlag, instanceRole, "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
@@ -226,9 +226,9 @@ func TestClusterUpWithTwoCustomRoles(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.String(command.KeypairNameFlag, "default", "")
-	flagSet.String(command.InstanceRoleFlag, instanceRole, "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
+	flagSet.String(flags.InstanceRoleFlag, instanceRole, "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
@@ -247,9 +247,9 @@ func TestClusterUpWithDefaultAndCustomRoles(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.String(command.KeypairNameFlag, "default", "")
-	flagSet.String(command.InstanceRoleFlag, instanceRole, "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
+	flagSet.String(flags.InstanceRoleFlag, instanceRole, "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
@@ -266,8 +266,8 @@ func TestClusterUpWithNoRoles(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, false, "")
-	flagSet.String(command.KeypairNameFlag, "default", "")
+	flagSet.Bool(flags.CapabilityIAMFlag, false, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
@@ -281,8 +281,8 @@ func TestClusterUpWithoutKeyPair(t *testing.T) {
 	mocksForSuccessfulClusterUp(mockECS, mockCloudformation)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.Bool(command.ForceFlag, true, "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.Bool(flags.ForceFlag, true, "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
@@ -302,10 +302,10 @@ func TestClusterUpWithSecurityGroupWithoutVPC(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.String(command.KeypairNameFlag, "default", "")
-	flagSet.Bool(command.ForceFlag, true, "")
-	flagSet.String(command.SecurityGroupFlag, securityGroupID, "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
+	flagSet.Bool(flags.ForceFlag, true, "")
+	flagSet.String(flags.SecurityGroupFlag, securityGroupID, "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
@@ -323,12 +323,12 @@ func TestClusterUpWith2SecurityGroups(t *testing.T) {
 	subnetIds := "subnet-04726b21,subnet-04346b21"
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.String(command.KeypairNameFlag, "default", "")
-	flagSet.Bool(command.ForceFlag, true, "")
-	flagSet.String(command.SecurityGroupFlag, securityGroupIds, "")
-	flagSet.String(command.VpcIdFlag, vpcId, "")
-	flagSet.String(command.SubnetIdsFlag, subnetIds, "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
+	flagSet.Bool(flags.ForceFlag, true, "")
+	flagSet.String(flags.SecurityGroupFlag, securityGroupIds, "")
+	flagSet.String(flags.VpcIdFlag, vpcId, "")
+	flagSet.String(flags.SubnetIdsFlag, subnetIds, "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
@@ -347,10 +347,10 @@ func TestClusterUpWithSubnetsWithoutVPC(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.String(command.KeypairNameFlag, "default", "")
-	flagSet.Bool(command.ForceFlag, true, "")
-	flagSet.String(command.SubnetIdsFlag, subnetID, "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
+	flagSet.Bool(flags.ForceFlag, true, "")
+	flagSet.String(flags.SubnetIdsFlag, subnetID, "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
@@ -369,10 +369,10 @@ func TestClusterUpWithVPCWithoutSubnets(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.String(command.KeypairNameFlag, "default", "")
-	flagSet.Bool(command.ForceFlag, true, "")
-	flagSet.String(command.VpcIdFlag, vpcID, "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
+	flagSet.Bool(flags.ForceFlag, true, "")
+	flagSet.String(flags.VpcIdFlag, vpcID, "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
@@ -392,11 +392,11 @@ func TestClusterUpWithAvailabilityZonesWithVPC(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.String(command.KeypairNameFlag, "default", "")
-	flagSet.Bool(command.ForceFlag, true, "")
-	flagSet.String(command.VpcIdFlag, vpcID, "")
-	flagSet.String(command.VpcAzFlag, vpcAZs, "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
+	flagSet.Bool(flags.ForceFlag, true, "")
+	flagSet.String(flags.VpcIdFlag, vpcID, "")
+	flagSet.String(flags.VpcAzFlag, vpcAZs, "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
@@ -415,10 +415,10 @@ func TestClusterUpWithout2AvailabilityZones(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.String(command.KeypairNameFlag, "default", "")
-	flagSet.Bool(command.ForceFlag, true, "")
-	flagSet.String(command.VpcAzFlag, vpcAZs, "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
+	flagSet.Bool(flags.ForceFlag, true, "")
+	flagSet.String(flags.VpcAzFlag, vpcAZs, "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
@@ -428,8 +428,8 @@ func TestClusterUpWithout2AvailabilityZones(t *testing.T) {
 func TestCliFlagsToCfnStackParams(t *testing.T) {
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.String(command.KeypairNameFlag, "default", "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	params := cliFlagsToCfnStackParams(context)
@@ -438,7 +438,7 @@ func TestCliFlagsToCfnStackParams(t *testing.T) {
 	assert.Error(t, err, "Expected error for parameter ParameterKeyAsgMaxSize")
 	assert.Equal(t, cloudformation.ParameterNotFoundError, err, "Expect error to be ParameterNotFoundError")
 
-	flagSet.String(command.AsgMaxSizeFlag, "2", "")
+	flagSet.String(flags.AsgMaxSizeFlag, "2", "")
 	context = cli.NewContext(nil, flagSet, nil)
 	params = cliFlagsToCfnStackParams(context)
 	_, err = params.GetParameter(cloudformation.ParameterKeyAsgMaxSize)
@@ -469,9 +469,9 @@ func TestClusterUpForImageIdInput(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.String(command.KeypairNameFlag, "default", "")
-	flagSet.String(command.ImageIdFlag, imageID, "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
+	flagSet.String(flags.ImageIdFlag, imageID, "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
@@ -486,8 +486,8 @@ func TestClusterUpWithClusterNameEmpty(t *testing.T) {
 	globalContext := cli.NewContext(nil, globalSet, nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.String(command.KeypairNameFlag, "default", "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, &mockReadWriter{clusterName: ""}, mockECS, mockCloudformation, ami.NewStaticAmiIds())
@@ -527,7 +527,7 @@ func TestClusterDown(t *testing.T) {
 		mockECS.EXPECT().DeleteCluster(clusterName).Return(clusterName, nil),
 	)
 	flagSet := flag.NewFlagSet("ecs-cli-down", 0)
-	flagSet.Bool(command.ForceFlag, true, "")
+	flagSet.Bool(flags.ForceFlag, true, "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := deleteCluster(context, newMockReadWriter(), mockECS, mockCloudformation)
@@ -574,8 +574,8 @@ func TestClusterScale(t *testing.T) {
 	mockCloudformation.EXPECT().WaitUntilUpdateComplete(stackName).Return(nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli-down", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
-	flagSet.String(command.AsgMaxSizeFlag, "1", "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.AsgMaxSizeFlag, "1", "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := scaleCluster(context, newMockReadWriter(), mockECS, mockCloudformation)
@@ -587,7 +587,7 @@ func TestClusterScaleWithoutIamCapability(t *testing.T) {
 	mockECS, mockCloudformation := setupTest(t)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(command.AsgMaxSizeFlag, "1", "")
+	flagSet.String(flags.AsgMaxSizeFlag, "1", "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := scaleCluster(context, newMockReadWriter(), mockECS, mockCloudformation)
@@ -599,7 +599,7 @@ func TestClusterScaleWithoutSize(t *testing.T) {
 	mockECS, mockCloudformation := setupTest(t)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(command.CapabilityIAMFlag, true, "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := scaleCluster(context, newMockReadWriter(), mockECS, mockCloudformation)

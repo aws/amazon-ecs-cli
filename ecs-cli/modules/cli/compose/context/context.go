@@ -22,7 +22,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	ec2client "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ec2"
 	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/docker/libcompose/project"
 	"github.com/urfave/cli"
@@ -59,7 +59,7 @@ func (context *Context) Open() error {
 // 2. Environment variable
 // 3. Current working directory
 func (context *Context) SetProjectName() error {
-	projectName := context.CLIContext.GlobalString(command.ProjectNameFlag)
+	projectName := context.CLIContext.GlobalString(flags.ProjectNameFlag)
 	if projectName != "" {
 		context.ProjectName = projectName
 		return nil

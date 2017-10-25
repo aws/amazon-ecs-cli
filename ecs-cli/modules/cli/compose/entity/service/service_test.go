@@ -21,7 +21,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"
-	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -35,8 +35,8 @@ func TestCreateWithDeploymentConfig(t *testing.T) {
 	deploymentMinPercent := 100
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(command.DeploymentMaxPercentFlag, strconv.Itoa(deploymentMaxPercent), "")
-	flagSet.String(command.DeploymentMinHealthyPercentFlag, strconv.Itoa(deploymentMinPercent), "")
+	flagSet.String(flags.DeploymentMaxPercentFlag, strconv.Itoa(deploymentMaxPercent), "")
+	flagSet.String(flags.DeploymentMinHealthyPercentFlag, strconv.Itoa(deploymentMinPercent), "")
 	cliContext := cli.NewContext(nil, flagSet, nil)
 
 	createServiceTest(
@@ -79,10 +79,10 @@ func TestCreateWithALB(t *testing.T) {
 	role := "role"
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(command.TargetGroupArnFlag, targetGroupArn, "")
-	flagSet.String(command.ContainerNameFlag, containerName, "")
-	flagSet.String(command.ContainerPortFlag, strconv.Itoa(containerPort), "")
-	flagSet.String(command.RoleFlag, role, "")
+	flagSet.String(flags.TargetGroupArnFlag, targetGroupArn, "")
+	flagSet.String(flags.ContainerNameFlag, containerName, "")
+	flagSet.String(flags.ContainerPortFlag, strconv.Itoa(containerPort), "")
+	flagSet.String(flags.RoleFlag, role, "")
 
 	cliContext := cli.NewContext(nil, flagSet, nil)
 
@@ -112,10 +112,10 @@ func TestCreateWithELB(t *testing.T) {
 	role := "role"
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(command.LoadBalancerNameFlag, loadbalancerName, "")
-	flagSet.String(command.ContainerNameFlag, containerName, "")
-	flagSet.String(command.ContainerPortFlag, strconv.Itoa(containerPort), "")
-	flagSet.String(command.RoleFlag, role, "")
+	flagSet.String(flags.LoadBalancerNameFlag, loadbalancerName, "")
+	flagSet.String(flags.ContainerNameFlag, containerName, "")
+	flagSet.String(flags.ContainerPortFlag, strconv.Itoa(containerPort), "")
+	flagSet.String(flags.RoleFlag, role, "")
 
 	cliContext := cli.NewContext(nil, flagSet, nil)
 
@@ -199,7 +199,7 @@ func TestLoadContext(t *testing.T) {
 	deploymentMaxPercent := 150
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(command.DeploymentMaxPercentFlag, strconv.Itoa(deploymentMaxPercent), "")
+	flagSet.String(flags.DeploymentMaxPercentFlag, strconv.Itoa(deploymentMaxPercent), "")
 	cliContext := cli.NewContext(nil, flagSet, nil)
 	service := &Service{
 		projectContext: &context.Context{CLIContext: cliContext},
@@ -221,7 +221,7 @@ func TestLoadContextForIncorrectInput(t *testing.T) {
 	deploymentMaxPercent := "string"
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(command.DeploymentMaxPercentFlag, deploymentMaxPercent, "")
+	flagSet.String(flags.DeploymentMaxPercentFlag, deploymentMaxPercent, "")
 	cliContext := cli.NewContext(nil, flagSet, nil)
 	service := &Service{
 		projectContext: &context.Context{CLIContext: cliContext},
@@ -236,8 +236,8 @@ func TestLoadContextForLoadBalancerInputError(t *testing.T) {
 	loadBalancerName := "loadBalancerName"
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(command.TargetGroupArnFlag, targetGroupArn, "")
-	flagSet.String(command.LoadBalancerNameFlag, loadBalancerName, "")
+	flagSet.String(flags.TargetGroupArnFlag, targetGroupArn, "")
+	flagSet.String(flags.LoadBalancerNameFlag, loadBalancerName, "")
 	cliContext := cli.NewContext(nil, flagSet, nil)
 	service := &Service{
 		projectContext: &context.Context{CLIContext: cliContext},

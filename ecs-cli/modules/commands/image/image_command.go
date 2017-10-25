@@ -16,7 +16,7 @@ package imageCommand
 import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/image"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/urfave/cli"
 )
 
@@ -28,8 +28,8 @@ func PushCommand() cli.Command {
 		ArgsUsage:    image.PushImageFormat,
 		Before:       app.BeforeApp,
 		Action:       image.ImagePush,
-		Flags:        append(imagePushFlags(), command.OptionalRegionAndProfileFlags()...),
-		OnUsageError: command.UsageErrorFactory("push"),
+		Flags:        append(imagePushFlags(), flags.OptionalRegionAndProfileFlags()...),
+		OnUsageError: flags.UsageErrorFactory("push"),
 	}
 }
 
@@ -41,8 +41,8 @@ func PullCommand() cli.Command {
 		ArgsUsage:    image.PullImageFormat,
 		Before:       app.BeforeApp,
 		Action:       image.ImagePull,
-		Flags:        append(imagePullFlags(), command.OptionalRegionAndProfileFlags()...),
-		OnUsageError: command.UsageErrorFactory("pull"),
+		Flags:        append(imagePullFlags(), flags.OptionalRegionAndProfileFlags()...),
+		OnUsageError: flags.UsageErrorFactory("pull"),
 	}
 }
 
@@ -54,15 +54,15 @@ func ImagesCommand() cli.Command {
 		ArgsUsage:    image.ListImageFormat,
 		Before:       app.BeforeApp,
 		Action:       image.ImageList,
-		Flags:        append(imageListFlags(), command.OptionalRegionAndProfileFlags()...),
-		OnUsageError: command.UsageErrorFactory("images"),
+		Flags:        append(imageListFlags(), flags.OptionalRegionAndProfileFlags()...),
+		OnUsageError: flags.UsageErrorFactory("images"),
 	}
 }
 
 func imagePushFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
-			Name:  command.RegistryIdFlag,
+			Name:  flags.RegistryIdFlag,
 			Usage: "[Optional] Specifies the Amazon ECR registry ID to push the image to. By default, images are pushed to the current AWS account.",
 		},
 	}
@@ -71,7 +71,7 @@ func imagePushFlags() []cli.Flag {
 func imagePullFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
-			Name:  command.RegistryIdFlag,
+			Name:  flags.RegistryIdFlag,
 			Usage: "[Optional] Specifies the the Amazon ECR registry ID to pull the image from. By default, images are pulled from the current AWS account.",
 		},
 	}
@@ -80,11 +80,11 @@ func imagePullFlags() []cli.Flag {
 func imageListFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.BoolFlag{
-			Name:  command.TaggedFlag,
+			Name:  flags.TaggedFlag,
 			Usage: "[Optional] Filters the result to show only tagged images",
 		},
 		cli.BoolFlag{
-			Name:  command.UntaggedFlag,
+			Name:  flags.UntaggedFlag,
 			Usage: "[Optional] Filters the result to show only untagged images",
 		},
 	}

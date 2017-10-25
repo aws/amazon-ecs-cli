@@ -22,7 +22,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
 	composeutils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
@@ -60,11 +60,11 @@ func NewService(context *context.Context) entity.ProjectEntity {
 
 // LoadContext reads the context set in NewService and loads DeploymentConfiguration and LoadBalnacer
 func (s *Service) LoadContext() error {
-	maxPercent, err := getInt64FromCLIContext(s.Context(), command.DeploymentMaxPercentFlag)
+	maxPercent, err := getInt64FromCLIContext(s.Context(), flags.DeploymentMaxPercentFlag)
 	if err != nil {
 		return err
 	}
-	minHealthyPercent, err := getInt64FromCLIContext(s.Context(), command.DeploymentMinHealthyPercentFlag)
+	minHealthyPercent, err := getInt64FromCLIContext(s.Context(), flags.DeploymentMinHealthyPercentFlag)
 	if err != nil {
 		return err
 	}
@@ -74,11 +74,11 @@ func (s *Service) LoadContext() error {
 	}
 
 	// Load Balancer
-	role := s.Context().CLIContext.String(command.RoleFlag)
-	targetGroupArn := s.Context().CLIContext.String(command.TargetGroupArnFlag)
-	loadBalancerName := s.Context().CLIContext.String(command.LoadBalancerNameFlag)
-	containerName := s.Context().CLIContext.String(command.ContainerNameFlag)
-	containerPort, err := getInt64FromCLIContext(s.Context(), command.ContainerPortFlag)
+	role := s.Context().CLIContext.String(flags.RoleFlag)
+	targetGroupArn := s.Context().CLIContext.String(flags.TargetGroupArnFlag)
+	loadBalancerName := s.Context().CLIContext.String(flags.LoadBalancerNameFlag)
+	containerName := s.Context().CLIContext.String(flags.ContainerNameFlag)
+	containerPort, err := getInt64FromCLIContext(s.Context(), flags.ContainerPortFlag)
 	if err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func (s *Service) LoadContext() error {
 	// The rest will be taken care off by the API call
 	if role != "" || targetGroupArn != "" || loadBalancerName != "" || containerName != "" || containerPort != nil {
 		if targetGroupArn != "" && loadBalancerName != "" {
-			return errors.Errorf("[--%s] and [--%s] flags cannot both be specified", command.LoadBalancerNameFlag, command.TargetGroupArnFlag)
+			return errors.Errorf("[--%s] and [--%s] flags cannot both be specified", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
 		}
 
 		s.loadBalancer = &ecs.LoadBalancer{
@@ -175,7 +175,7 @@ func (s *Service) Start() error {
 		// Read the custom error returned from describeService to see if the resource was missing
 		if strings.Contains(err.Error(), ecsMissingResourceCode) {
 			return fmt.Errorf("Please use '%s' command to create the service '%s' first",
-				command.CreateServiceCommandName, entity.GetServiceName(s))
+				flags.CreateServiceCommandName, entity.GetServiceName(s))
 		}
 		return err
 	}

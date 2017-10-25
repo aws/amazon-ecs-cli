@@ -19,7 +19,7 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/waiters"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -81,7 +81,7 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 	timeOut := float64(DefaultUpdateServiceTimeout)
 	actionInvokedAt := time.Now()
 
-	if val := service.Context().CLIContext.Float64(ecscli.ComposeServiceTimeOutFlag); val > 0 {
+	if val := service.Context().CLIContext.Float64(flags.ComposeServiceTimeOutFlag); val > 0 {
 		timeOut = val
 	} else if val < 0 {
 		return fmt.Errorf("Error with timeout flag: %f is not a valid timeout value", val)

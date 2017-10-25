@@ -21,7 +21,7 @@ import (
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project/mock"
-	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
@@ -104,8 +104,8 @@ func TestPopulateContextWithGlobalFlagOverrides(t *testing.T) {
 	composeFiles.Set(composeFileNameTest)
 	// test multiple --file
 	composeFiles.Set("docker-compose-test2.yml")
-	overrides.Var(composeFiles, command.ComposeFileNameFlag, "")
-	overrides.String(command.ProjectNameFlag, projectNameTest, "")
+	overrides.Var(composeFiles, flags.ComposeFileNameFlag, "")
+	overrides.String(flags.ProjectNameFlag, projectNameTest, "")
 	parentContext := cli.NewContext(nil, overrides, nil)
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	cliContext := cli.NewContext(nil, flagSet, parentContext)

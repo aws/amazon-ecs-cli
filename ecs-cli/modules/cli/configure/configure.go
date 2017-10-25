@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
@@ -60,14 +60,14 @@ func Migrate(context *cli.Context) error {
 		return errors.Wrap(err, "Error reading old configuration file.")
 	}
 
-	if oldConfig.CFNStackNamePrefix == command.CFNStackNamePrefixDefaultValue {
+	if oldConfig.CFNStackNamePrefix == flags.CFNStackNamePrefixDefaultValue {
 		// if CFNStackName is default; don't store it.
 		oldConfig.CFNStackName = ""
 	} else {
 		oldConfig.CFNStackName = oldConfig.CFNStackNamePrefix + oldConfig.Cluster
 	}
 
-	if !context.Bool(command.ForceFlag) {
+	if !context.Bool(flags.ForceFlag) {
 		if err = migrateWarning(*oldConfig); err != nil {
 			return err
 		}
@@ -110,21 +110,21 @@ func Migrate(context *cli.Context) error {
 
 // Cluster is the callback for ConfigureCommand (cluster).
 func Cluster(context *cli.Context) error {
-	region := context.String(command.RegionFlag)
-	if err := fieldEmpty(region, command.RegionFlag); err != nil {
+	region := context.String(flags.RegionFlag)
+	if err := fieldEmpty(region, flags.RegionFlag); err != nil {
 		return err
 	}
-	clusterProfileName := context.String(command.ConfigNameFlag)
-	if err := fieldEmpty(clusterProfileName, command.ConfigNameFlag); err != nil {
+	clusterProfileName := context.String(flags.ConfigNameFlag)
+	if err := fieldEmpty(clusterProfileName, flags.ConfigNameFlag); err != nil {
 		return err
 	}
-	cluster := context.String(command.ClusterFlag)
-	if err := fieldEmpty(cluster, command.ClusterFlag); err != nil {
+	cluster := context.String(flags.ClusterFlag)
+	if err := fieldEmpty(cluster, flags.ClusterFlag); err != nil {
 		return err
 	}
 
-	cfnStackName := context.String(command.CFNStackNameFlag)
-	composeServiceNamePrefix := context.String(command.ComposeServiceNamePrefixFlag)
+	cfnStackName := context.String(flags.CFNStackNameFlag)
+	composeServiceNamePrefix := context.String(flags.ComposeServiceNamePrefixFlag)
 
 	clusterConfig := &config.Cluster{
 		Cluster:                  cluster,
@@ -145,18 +145,18 @@ func Cluster(context *cli.Context) error {
 	return nil
 }
 
-// Profile is the callback for Configure Profile subcommand.
+// Profile is the callback for Configure Profile subcommands.
 func Profile(context *cli.Context) error {
-	secretKey := context.String(command.SecretKeyFlag)
-	if err := fieldEmpty(secretKey, command.SecretKeyFlag); err != nil {
+	secretKey := context.String(flags.SecretKeyFlag)
+	if err := fieldEmpty(secretKey, flags.SecretKeyFlag); err != nil {
 		return err
 	}
-	accessKey := context.String(command.AccessKeyFlag)
-	if err := fieldEmpty(accessKey, command.AccessKeyFlag); err != nil {
+	accessKey := context.String(flags.AccessKeyFlag)
+	if err := fieldEmpty(accessKey, flags.AccessKeyFlag); err != nil {
 		return err
 	}
-	profileName := context.String(command.ProfileNameFlag)
-	if err := fieldEmpty(profileName, command.ProfileNameFlag); err != nil {
+	profileName := context.String(flags.ProfileNameFlag)
+	if err := fieldEmpty(profileName, flags.ProfileNameFlag); err != nil {
 		return err
 	}
 	profile := &config.Profile{
@@ -178,8 +178,8 @@ func Profile(context *cli.Context) error {
 
 // DefaultProfile is the callback for Configure Profile Default subcommand.
 func DefaultProfile(context *cli.Context) error {
-	profileName := context.String(command.ProfileNameFlag)
-	if err := fieldEmpty(profileName, command.ProfileNameFlag); err != nil {
+	profileName := context.String(flags.ProfileNameFlag)
+	if err := fieldEmpty(profileName, flags.ProfileNameFlag); err != nil {
 		return err
 	}
 
@@ -196,8 +196,8 @@ func DefaultProfile(context *cli.Context) error {
 
 // DefaultCluster is the callback for Configure Cluster Default subcommand.
 func DefaultCluster(context *cli.Context) error {
-	clusterName := context.String(command.ConfigNameFlag)
-	if err := fieldEmpty(clusterName, command.ConfigNameFlag); err != nil {
+	clusterName := context.String(flags.ConfigNameFlag)
+	if err := fieldEmpty(clusterName, flags.ConfigNameFlag); err != nil {
 		return err
 	}
 

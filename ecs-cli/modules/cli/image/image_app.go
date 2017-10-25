@@ -25,7 +25,7 @@ import (
 	ecrclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecr"
 	stsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/sts"
 	dockerclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/docker"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecr"
@@ -117,7 +117,7 @@ func ImageList(c *cli.Context) {
 }
 
 func pushImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient.Client, ecrClient ecrclient.Client, stsClient stsclient.Client) error {
-	registryID := c.String(command.RegistryIdFlag)
+	registryID := c.String(flags.RegistryIdFlag)
 	args := c.Args()
 
 	if len(args) != 1 {
@@ -167,7 +167,7 @@ func pushImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient
 }
 
 func pullImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient.Client, ecrClient ecrclient.Client, stsClient stsclient.Client) error {
-	registryID := c.String(command.RegistryIdFlag)
+	registryID := c.String(flags.RegistryIdFlag)
 	args := c.Args()
 	if len(args) != 1 {
 		return fmt.Errorf("ecs-cli pull requires exactly 1 argument")
@@ -209,7 +209,7 @@ type imageInfo struct {
 }
 
 func getImages(c *cli.Context, rdwr config.ReadWriter, ecrClient ecrclient.Client) error {
-	registryID := c.String(command.RegistryIdFlag)
+	registryID := c.String(flags.RegistryIdFlag)
 	args := c.Args() // repository names
 
 	totalCount := 0
@@ -268,14 +268,14 @@ func printImageRow(w io.Writer, info imageInfo) {
 }
 
 func getTagStatus(c *cli.Context) string {
-	if c.Bool(command.TaggedFlag) && c.Bool(command.UntaggedFlag) {
+	if c.Bool(flags.TaggedFlag) && c.Bool(flags.UntaggedFlag) {
 		return ""
 	}
 
-	if c.Bool(command.TaggedFlag) {
+	if c.Bool(flags.TaggedFlag) {
 		return ecr.TagStatusTagged
 	}
-	if c.Bool(command.UntaggedFlag) {
+	if c.Bool(flags.UntaggedFlag) {
 		return ecr.TagStatusUntagged
 	}
 

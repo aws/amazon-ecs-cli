@@ -19,7 +19,7 @@ import (
 	"os"
 	"testing"
 
-	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
@@ -43,19 +43,19 @@ const (
 )
 
 func createClusterConfig(name string, cluster string) *cli.Context {
-	flags := flag.NewFlagSet("ecs-cli", 0)
-	flags.String(command.RegionFlag, region, "")
-	flags.String(command.ClusterFlag, cluster, "")
-	flags.String(command.ConfigNameFlag, name, "")
-	return cli.NewContext(nil, flags, nil)
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.String(flags.RegionFlag, region, "")
+	flagSet.String(flags.ClusterFlag, cluster, "")
+	flagSet.String(flags.ConfigNameFlag, name, "")
+	return cli.NewContext(nil, flagSet, nil)
 }
 
 func createProfileConfig(name string, accessKey string, secretKey string) *cli.Context {
-	flags := flag.NewFlagSet("ecs-cli", 0)
-	flags.String(command.AccessKeyFlag, accessKey, "")
-	flags.String(command.SecretKeyFlag, secretKey, "")
-	flags.String(command.ProfileNameFlag, name, "")
-	return cli.NewContext(nil, flags, nil)
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.String(flags.AccessKeyFlag, accessKey, "")
+	flagSet.String(flags.SecretKeyFlag, secretKey, "")
+	flagSet.String(flags.ProfileNameFlag, name, "")
+	return cli.NewContext(nil, flagSet, nil)
 }
 
 func TestDefaultCluster(t *testing.T) {
@@ -173,10 +173,10 @@ func TestConfigureCluster(t *testing.T) {
 }
 
 func TestConfigureClusterNoCluster(t *testing.T) {
-	flags := flag.NewFlagSet("ecs-cli", 0)
-	flags.String(command.RegionFlag, region, "")
-	flags.String(command.ConfigNameFlag, profileName, "")
-	config1 := cli.NewContext(nil, flags, nil)
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.String(flags.RegionFlag, region, "")
+	flagSet.String(flags.ConfigNameFlag, profileName, "")
+	config1 := cli.NewContext(nil, flagSet, nil)
 
 	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
@@ -194,10 +194,10 @@ func TestConfigureClusterNoCluster(t *testing.T) {
 }
 
 func TestConfigureClusterNoRegion(t *testing.T) {
-	flags := flag.NewFlagSet("ecs-cli", 0)
-	flags.String(command.ClusterFlag, clusterName, "")
-	flags.String(command.ConfigNameFlag, profileName, "")
-	config1 := cli.NewContext(nil, flags, nil)
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.String(flags.ClusterFlag, clusterName, "")
+	flagSet.String(flags.ConfigNameFlag, profileName, "")
+	config1 := cli.NewContext(nil, flagSet, nil)
 
 	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
@@ -215,10 +215,10 @@ func TestConfigureClusterNoRegion(t *testing.T) {
 }
 
 func TestConfigureClusterNoConfigName(t *testing.T) {
-	flags := flag.NewFlagSet("ecs-cli", 0)
-	flags.String(command.ClusterFlag, clusterName, "")
-	flags.String(command.RegionFlag, region, "")
-	config1 := cli.NewContext(nil, flags, nil)
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.String(flags.ClusterFlag, clusterName, "")
+	flagSet.String(flags.RegionFlag, region, "")
+	config1 := cli.NewContext(nil, flagSet, nil)
 
 	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
@@ -235,10 +235,10 @@ func TestConfigureClusterNoConfigName(t *testing.T) {
 }
 
 func TestConfigureProfileNoAccessKey(t *testing.T) {
-	flags := flag.NewFlagSet("ecs-cli", 0)
-	flags.String(command.SecretKeyFlag, awsSecretKey, "")
-	flags.String(command.ProfileNameFlag, profileName, "")
-	config1 := cli.NewContext(nil, flags, nil)
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.String(flags.SecretKeyFlag, awsSecretKey, "")
+	flagSet.String(flags.ProfileNameFlag, profileName, "")
+	config1 := cli.NewContext(nil, flagSet, nil)
 
 	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
@@ -255,10 +255,10 @@ func TestConfigureProfileNoAccessKey(t *testing.T) {
 }
 
 func TestConfigureProfileNoSecretKey(t *testing.T) {
-	flags := flag.NewFlagSet("ecs-cli", 0)
-	flags.String(command.AccessKeyFlag, awsAccessKey, "")
-	flags.String(command.ProfileNameFlag, profileName, "")
-	config1 := cli.NewContext(nil, flags, nil)
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.String(flags.AccessKeyFlag, awsAccessKey, "")
+	flagSet.String(flags.ProfileNameFlag, profileName, "")
+	config1 := cli.NewContext(nil, flagSet, nil)
 
 	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
@@ -275,10 +275,10 @@ func TestConfigureProfileNoSecretKey(t *testing.T) {
 }
 
 func TestConfigureProfileNoProfileName(t *testing.T) {
-	flags := flag.NewFlagSet("ecs-cli", 0)
-	flags.String(command.AccessKeyFlag, awsAccessKey, "")
-	flags.String(command.SecretKeyFlag, awsSecretKey, "")
-	config1 := cli.NewContext(nil, flags, nil)
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.String(flags.AccessKeyFlag, awsAccessKey, "")
+	flagSet.String(flags.SecretKeyFlag, awsSecretKey, "")
+	config1 := cli.NewContext(nil, flagSet, nil)
 
 	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
@@ -365,9 +365,9 @@ cfn-stack-name-prefix = cfn-
 	assert.NoError(t, err)
 
 	// migrate
-	flags := flag.NewFlagSet("ecs-cli", 0)
-	flags.Bool(command.ForceFlag, true, "")
-	context := cli.NewContext(nil, flags, nil)
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.Bool(flags.ForceFlag, true, "")
+	context := cli.NewContext(nil, flagSet, nil)
 
 	err = Migrate(context)
 	assert.NoError(t, err, "Unexpected error configuring cluster")
@@ -416,9 +416,9 @@ cfn-stack-name-prefix =
 	assert.NoError(t, err)
 
 	// migrate
-	flags := flag.NewFlagSet("ecs-cli", 0)
-	flags.Bool(command.ForceFlag, true, "")
-	context := cli.NewContext(nil, flags, nil)
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.Bool(flags.ForceFlag, true, "")
+	context := cli.NewContext(nil, flagSet, nil)
 
 	err = Migrate(context)
 	assert.NoError(t, err, "Unexpected error configuring cluster")
@@ -464,9 +464,9 @@ aws_secret_access_key = SKID
 	assert.NoError(t, err)
 
 	// migrate
-	flags := flag.NewFlagSet("ecs-cli", 0)
-	flags.Bool(command.ForceFlag, true, "")
-	context := cli.NewContext(nil, flags, nil)
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.Bool(flags.ForceFlag, true, "")
+	context := cli.NewContext(nil, flagSet, nil)
 
 	err = Migrate(context)
 	assert.NoError(t, err, "Unexpected error configuring cluster")
@@ -477,7 +477,7 @@ aws_secret_access_key = SKID
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, region, readConfig.Region, "Region mismatch in config.")
 	assert.Equal(t, clusterName, readConfig.Cluster, "Cluster name mismatch in config.")
-	assert.Equal(t, command.ComposeServiceNamePrefixDefaultValue, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be default.")
+	assert.Equal(t, flags.ComposeServiceNamePrefixDefaultValue, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be default.")
 	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
 	assert.Equal(t, awsAccessKey, readConfig.AWSAccessKey, "Access Key mismatch in config.")
 	assert.Equal(t, awsSecretKey, readConfig.AWSSecretKey, "Secret Key name mismatch in config.")
