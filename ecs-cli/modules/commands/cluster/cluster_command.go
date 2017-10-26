@@ -66,13 +66,13 @@ func clusterUpFlags() []cli.Flag {
 		cli.BoolFlag{
 			Name: command.VerboseFlag + ",debug",
 		},
-		cli.StringFlag{
-			Name:  command.KeypairNameFlag,
-			Usage: "[Optional] Specifies the name of an existing Amazon EC2 key pair to enable SSH access to the EC2 instances in your cluster.",
-		},
 		cli.BoolFlag{
 			Name:  command.CapabilityIAMFlag,
 			Usage: "Acknowledges that this command may create IAM resources. Required if --instance-role is not specified.",
+		},
+		cli.StringFlag{
+			Name:  command.KeypairNameFlag,
+			Usage: "[Optional] Specifies the name of an existing Amazon EC2 key pair to enable SSH access to the EC2 instances in your cluster.",
 		},
 		cli.StringFlag{
 			Name:  command.AsgMaxSizeFlag,

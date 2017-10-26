@@ -119,8 +119,8 @@ USAGE:
 
 OPTIONS:
    --verbose, --debug
-   --keypair value                   Specifies the name of an existing Amazon EC2 key pair to enable SSH access to the EC2 instances in your cluster.
    --capability-iam                  Acknowledges that this command may create IAM resources. Required if --instance-role is not specified.
+   --keypair value                   [Optional] Specifies the name of an existing Amazon EC2 key pair to enable SSH access to the EC2 instances in your cluster.
    --size value                      [Optional] Specifies the number of instances to launch and register to the cluster. Defaults to 1.
    --azs value                       [Optional] Specifies a comma-separated list of 2 VPC Availability Zones in which to create subnets (these zones must have the available status). This option is recommended if you do not specify a VPC ID with the --vpc option. WARNING: Leaving this option blank can result in failure to launch container instances if an unavailable zone is chosen at random.
    --security-group value            [Optional] Specifies a comma-separated list of existing security groups to associate with your container instances. If you do not specify a security group here, then a new one is created.
@@ -238,6 +238,7 @@ task_definition:
     <service_name>:
       essential: boolean
 ```
+
 `service_name` matches the name of the services listed in your docker compose file, and its fields will be merged into an [ECS Container Definition](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ecs-taskdefinition-containerdefinitions.html). The only field you can specify on it is `essential`. The default value for the essential field is true.
 
 Example `ecs-params.yml` file:
