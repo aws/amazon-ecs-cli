@@ -34,10 +34,14 @@ const (
 	ClusterEnvVar          = "ECS_CLUSTER"
 	VerboseFlag            = "verbose"
 	ClusterConfigFlag      = "cluster-config"
-	ProfileConfigFlag      = "ecs-profile"
+	ECSProfileFlag         = "ecs-profile"
 	ProfileNameFlag        = "profile-name"
 	ConfigNameFlag         = "config-name"
 	AWSProfileNameFlag     = "aws-profile"
+	ECSProfileEnvVar       = "ECS_PROFILE"
+	AWSProfileEnvVar       = "AWS_PROFILE"
+	AWSAccessKeyEnvVar     = "AWS_ACCESS_KEY_ID"
+	AWSSecretKeyEnvVar     = "AWS_SECRET_ACCESS_KEY"
 
 	ComposeProjectNamePrefixFlag         = "compose-project-name-prefix"
 	ComposeProjectNamePrefixDefaultValue = "ecscompose-"
@@ -107,13 +111,15 @@ func OptionalRegionAndProfileFlags() []cli.Flag {
 			),
 		},
 		cli.StringFlag{
-			Name: ProfileConfigFlag,
+			Name:   ECSProfileFlag,
+			EnvVar: ECSProfileEnvVar,
 			Usage: fmt.Sprintf(
 				"[Optional] Specifies the name of the ECS profle configuration to use. Defaults to the default profile configuration.",
 			),
 		},
 		cli.StringFlag{
-			Name: AWSProfileNameFlag,
+			Name:   AWSProfileNameFlag,
+			EnvVar: AWSProfileEnvVar,
 			Usage: fmt.Sprintf(
 				"[Optional]  Use the AWS credentials from an existing named profile in ~/.aws/credentials.",
 			),
