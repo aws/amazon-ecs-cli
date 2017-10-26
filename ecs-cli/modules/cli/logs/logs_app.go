@@ -257,7 +257,7 @@ func getContainerLogConfig(containerDef *ecs.ContainerDefinition, taskID string)
 	}
 
 	logPrefix, ok := containerDef.LogConfiguration.Options["awslogs-stream-prefix"]
-	if !ok {
+	if !ok || aws.StringValue(logPrefix) == "" {
 		return nil, nil, nil, fmt.Errorf("Container Definition %s: Log String Prefix (awslogs-stream-prefix) must be specified in each container definition in order to retrieve logs", aws.StringValue(containerDef.Name))
 	}
 
