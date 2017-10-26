@@ -78,7 +78,13 @@ func logsRequest(context *cli.Context, ecsClient ecsclient.ECSClient, params *co
 		return nil, "", errors.Wrap(err, fmt.Sprintf("Failed to Describe TaskDefinition; try using --%s to specify the Task Defintion.", command.TaskDefinitionFlag))
 	}
 
-	logGroup, logRegion, prefixes, err := getLogConfiguration(taskDef, taskID)
+	var logGroup, logRegion *string
+	var prefixes map[*string]*string
+	if containerName := context.String(command.ContainerNameFlag); containerName != "" {
+		logGroup, logRegion, prefixes, err = getLogConfigurationSingleContainerCase(taskDef, taskID, containerName)
+	} else {
+		logGroup, logRegion, prefixes, err = getLogConfiguration(taskDef, taskID)
+	}
 	if err != nil {
 		return nil, "", errors.Wrap(err, "Failed to get log configuration")
 	}
@@ -99,7 +105,8 @@ func logsRequest(context *cli.Context, ecsClient ecsclient.ECSClient, params *co
 func getTaskDefArn(context *cli.Context, ecsClient ecsclient.ECSClient, params *config.CliParams) ([]*ecs.Task, error) {
 	var taskIDs []*string
 	taskID := context.String(command.TaskIDFlag)
-	tasks, err := ecsClient.DescribeTasks(append(taskIDs, aws.String(taskID)))
+	taskIDs = append(taskIDs, aws.String(taskID))
+	tasks, err := ecsClient.DescribeTasks(taskIDs)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to Describe Task")
 	}
@@ -197,6 +204,26 @@ func logStreams(prefixes map[*string]*string, taskID string) []string {
 	}
 
 	return streams
+}
+
+func getLogConfigurationSingleContainerCase(taskDef *ecs.TaskDefinition, taskID string, containerName string) (logGroup *string, logRegion *string, prefixes map[*string]*string, err error) {
+	var container *ecs.ContainerDefinition
+	for _, containerDef := range taskDef.ContainerDefinitions {
+		if aws.StringValue(containerDef.Name) == containerName {
+			container = containerDef
+			break
+		}
+	}
+
+	logGroup, logRegion, prefix, err := getContainerLogConfig(container, taskID)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	prefixes = make(map[*string]*string)
+	prefixes[container.Name] = prefix
+
+	return logGroup, logRegion, prefixes, nil
+
 }
 
 func getLogConfiguration(taskDef *ecs.TaskDefinition, taskID string) (logGroup *string, logRegion *string, prefixes map[*string]*string, err error) {
