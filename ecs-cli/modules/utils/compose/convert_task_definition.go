@@ -16,7 +16,6 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -28,8 +27,6 @@ import (
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
 	"github.com/pkg/errors"
-	goyaml "gopkg.in/yaml.v2"
-	"io/ioutil"
 )
 
 const (
@@ -51,23 +48,6 @@ var supportedComposeYamlOptions = []string{
 }
 
 var supportedComposeYamlOptionsMap = getSupportedComposeYamlOptionsMap()
-
-type ECSParams struct {
-	Version        string
-	TaskDefinition ecsTaskDef `yaml:"task_definition"`
-}
-
-type ecsTaskDef struct {
-	NetworkMode          string        `yaml:"ecs_network_mode"`
-	TaskRoleArn          string        `yaml:"task_role_arn"`
-	ContainerDefinitions ContainerDefs `yaml:"services"`
-}
-
-type ContainerDefs map[string]ContainerDef
-
-type ContainerDef struct {
-	Essential bool `yaml:"essential"`
-}
 
 type volumes struct {
 	volumeWithHost  map[string]string
@@ -154,29 +134,6 @@ func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context
 	}
 
 	return taskDefinition, nil
-}
-
-func readECSParams(filename string) (*ECSParams, error) {
-	if filename == "" {
-		defaultFilename := "ecs-params.yml"
-		if _, err := os.Stat(defaultFilename); err == nil {
-			filename = defaultFilename
-		} else {
-			return nil, nil
-		}
-	}
-	ecsParamsData, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return nil, errors.Wrapf(err, "Error reading file '%v'", filename)
-	}
-
-	ecsParams := &ECSParams{}
-
-	if err = goyaml.Unmarshal([]byte(ecsParamsData), &ecsParams); err != nil {
-		return nil, errors.Wrapf(err, "Error unmarshalling yaml data from ECS params file: %v", filename)
-	}
-
-	return ecsParams, nil
 }
 
 // logUnsupportedConfigFields adds a WARNING to the customer about the fields that are unused.
