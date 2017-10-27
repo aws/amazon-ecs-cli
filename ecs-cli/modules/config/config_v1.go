@@ -93,8 +93,9 @@ func NewCLIConfig(cluster string) *CLIConfig {
 //    a) AWS_REGION (OR)
 //    b) AWS_DEFAULT_REGION
 //  4) AWS Profile - attempts to use region from AWS profile name
-//    a) --aws-profile flag (OR) AWS_PROFILE environment variable
-//    b) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
+//    a) --aws-profile flag
+//    b) AWS_PROFILE environment variable
+//    c) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
 //
 // Credentials: Order of resolution
 //  1) ECS CLI Profile Flags
@@ -122,12 +123,8 @@ func (cfg *CLIConfig) ToAWSSession(context *cli.Context) (*session.Session, erro
 		return defaultProvider(region)
 	} else if isDefaultECSProfileCase(cfg) {
 		return credsFromECSConfig(cfg, region)
-	} else if profile := os.Getenv(command.AwsDefaultProfileEnvVar); profile != "" {
-		// Currently the Go SDK does not by default pull creds from the AWS profile
-		// defined by AWS_DEFAULT_PROFILE.
-		return customProviderFromProfile(region, profile)
 	} else {
-		return defaultProvider(region)
+		return defaultProviderFromProfile(region, aws.Config{})
 	}
 
 }
@@ -150,6 +147,17 @@ func credsFromECSConfig(cfg *CLIConfig, region string) (*session.Session, error)
 	} else {
 		return customProviderFromProfile(region, cfg.AWSProfile)
 	}
+}
+
+// The argument svcConfig is needed to allow important unit tests to work
+// (for example: assume role)
+func defaultProviderFromProfile(region string, svcConfig aws.Config) (*session.Session, error) {
+	svcConfig.Region = aws.String(region)
+	return session.NewSessionWithOptions(session.Options{
+		Config:            svcConfig,
+		Profile:           os.Getenv(command.AwsDefaultProfileEnvVar),
+		SharedConfigState: session.SharedConfigEnable,
+	})
 }
 
 func defaultProvider(region string) (*session.Session, error) {
@@ -181,8 +189,9 @@ func customProviderFromKeys(region string, awsAccess string, awsSecret string) (
 //    a) AWS_REGION (OR)
 //    b) AWS_DEFAULT_REGION
 //  4) AWS Profile - attempts to use region from AWS profile name
-//    a) --aws-profile flag (OR) AWS_PROFILE environment variable
-//    b) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
+//    a) --aws-profile flag
+//    b) AWS_PROFILE environment variable
+//    c) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
 func (cfg *CLIConfig) getRegion() (string, error) {
 	region := cfg.Region
 
