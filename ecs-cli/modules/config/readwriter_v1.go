@@ -124,6 +124,10 @@ func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfi
 	cliConfig.Cluster = cluster.Cluster
 	cliConfig.ComposeServiceNamePrefix = cluster.ComposeServiceNamePrefix
 	cliConfig.CFNStackName = cluster.CFNStackName
+	// Fields must be explicitly set as empty because the iniReadWriter will set them to default
+	cliConfig.ComposeProjectNamePrefix = ""
+	cliConfig.CFNStackNamePrefix = ""
+	cliConfig.Version = yamlConfigVersion
 	return nil
 
 }
@@ -146,6 +150,7 @@ func readProfileConfig(path string, profileConfigKey string, cliConfig *CLIConfi
 	// Get the info out of the cluster
 	cliConfig.AWSSecretKey = profile.AWSSecretKey
 	cliConfig.AWSAccessKey = profile.AWSAccessKey
+	cliConfig.Version = yamlConfigVersion
 
 	return nil
 

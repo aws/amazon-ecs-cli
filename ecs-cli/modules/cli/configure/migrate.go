@@ -55,7 +55,7 @@ func hideCredsOldFile(data string) string {
 	return safeData
 }
 
-func migrateWarning(cliConfig *config.CLIConfig) error {
+func migrateWarning(cliConfig config.CLIConfig) error {
 	var oldConfig string
 	dest, err := config.NewDefaultDestination()
 	if err != nil {
@@ -67,7 +67,7 @@ func migrateWarning(cliConfig *config.CLIConfig) error {
 	}
 	oldConfig = string(dat)
 
-	hideCreds(cliConfig)
+	hideCreds(&cliConfig)
 	oldConfig = hideCredsOldFile(oldConfig)
 
 	optionalFields := ""
@@ -123,8 +123,9 @@ credentials:
     aws_secret_access_key: {{.AWSSecretKey}}
 
 [WARN] Please read the following changes carefully: http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_Configuration.html
-- The --compose-project-name-prefix and --compose-service-name-prefix options are deprecated. You can specify your desired names with the --project-name option.
-- The --cfn-stack-name-prefix option has been removed. To use an existing CloudFormation stack, please specify the full stack name; otherwise, the stack name defaults to amazon-ecs-cli-setup-<cluster_name>.
+- The option --compose-project-name-prefix has been removed (name used for create task definition: <compose_project_name_prefix> + <project_name>). You can specify your desired name with the --project-name option.
+- The --compose-service-name-prefix option has been deprecated (name used for create service: <compose_service_name_prefix> + <project_name>). This field can still be configured; however, if it is not configured there is no longer a default value assigned.
+- The --cfn-stack-name-prefix option has been removed. To use an existing CloudFormation stack, please specify the full stack name using the --cfn-stack-name option; otherwise, the stack name defaults to amazon-ecs-cli-setup-<cluster_name>.
 
 Are you sure you want to migrate[y/n]?
 `

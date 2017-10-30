@@ -127,6 +127,7 @@ cfn-stack-name-prefix =
 	assert.Equal(t, testClusterName, readConfig.Cluster, "Cluster name mismatch in config.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
 	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
+	assert.Equal(t, iniConfigVersion, readConfig.Version, "Expected ini config version to be set.")
 }
 
 func TestPrefixesDefaultOldINIFormat(t *testing.T) {
@@ -153,6 +154,7 @@ aws_secret_access_key =
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, ecscli.ComposeServiceNamePrefixDefaultValue, config.ComposeServiceNamePrefix, "ComposeServiceNamePrefix should be set to the default value.")
 	assert.Equal(t, ecscli.CFNStackNamePrefixDefaultValue, config.CFNStackNamePrefix, "CFNStackNamePrefix should be set to the default value.")
+	assert.Equal(t, iniConfigVersion, config.Version, "Expected ini config version to be set.")
 }
 
 func TestReadCredentialsFile(t *testing.T) {
@@ -186,12 +188,14 @@ ecs_profiles:
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, "default_key_id", config.AWSAccessKey, "Access Key should be present.")
 	assert.Equal(t, "default_key", config.AWSSecretKey, "Secret key should be present.")
+	assert.Equal(t, yamlConfigVersion, config.Version, "Expected yaml config version to be set.")
 
 	// Test read a specific profile
 	config, err = parser.Get("", "Alt")
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, "alt_key_id", config.AWSAccessKey, "Access Key should be present.")
 	assert.Equal(t, "alt_key", config.AWSSecretKey, "Secret key should be present.")
+	assert.Equal(t, yamlConfigVersion, config.Version, "Expected yaml config version to be set.")
 }
 
 func TestReadClusterConfigFile(t *testing.T) {
@@ -200,6 +204,8 @@ clusters:
   gamma_config:
     cluster: cli-demo-gamma
     region: us-west-1
+    compose-service-name-prefix: custom-service-
+    cfn-stack-name: cfn-custom-cli-demo-gamma
   beta_config:
     cluster: cli-demo-beta
     region: us-west-2
@@ -228,12 +234,18 @@ clusters:
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, "cli-demo-prod", config.Cluster, "Cluster should be present.")
 	assert.Equal(t, "us-east-2", config.Region, "Region should be present.")
+	assert.Equal(t, yamlConfigVersion, config.Version, "Expected yaml config version to be set.")
 
 	// Test read a specific config
 	config, err = parser.Get("gamma_config", "")
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, "cli-demo-gamma", config.Cluster, "Cluster should be present.")
 	assert.Equal(t, "us-west-1", config.Region, "Region should be present.")
+	assert.Equal(t, "custom-service-", config.ComposeServiceNamePrefix, "ComposeServiceNamePrefix should be present.")
+	assert.Equal(t, "cfn-custom-cli-demo-gamma", config.CFNStackName, "CFNStackName Name should be present.")
+	assert.Empty(t, config.CFNStackNamePrefix, "Expected CFNStackNamePrefix to be empty.")
+	assert.Empty(t, config.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty.")
+	assert.Equal(t, yamlConfigVersion, config.Version, "Expected yaml config version to be set.")
 }
 
 func TestOverwriteINIConfigFile(t *testing.T) {
@@ -270,5 +282,6 @@ cfn-stack-name-prefix = amazon-ecs-cli-setup-
 	assert.Equal(t, testClusterName, readConfig.Cluster, "Cluster name mismatch in config.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
 	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
+	assert.Equal(t, yamlConfigVersion, readConfig.Version, "Expected yaml config version to be set.")
 
 }
