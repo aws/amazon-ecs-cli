@@ -36,8 +36,10 @@ const (
 	awsAccessKey2            = "AKID2"
 	awsSecretKey             = "SKID"
 	awsSecretKey2            = "SKID2"
+	awsProfile               = "awsprofile"
 	composeServiceNamePrefix = "ecs-"
 	cfnStackNamePrefix       = "cfn-"
+	composeProjectNamePrefix = "ecs-compose-"
 )
 
 func createClusterConfig(name string, cluster string) *cli.Context {
@@ -480,4 +482,29 @@ aws_secret_access_key = SKID
 	assert.Equal(t, awsAccessKey, readConfig.AWSAccessKey, "Access Key mismatch in config.")
 	assert.Equal(t, awsSecretKey, readConfig.AWSSecretKey, "Secret Key name mismatch in config.")
 
+}
+
+func TestMigrateWarningConfigNotModified(t *testing.T) {
+	// Test case left for posterity. Currently migrateWarning
+	// uses pass by value so it can't modify the config.
+	cliConfig := config.CLIConfig{Cluster: clusterName,
+		Region:                   region,
+		AWSProfile:               awsProfile,
+		AWSAccessKey:             awsAccessKey,
+		AWSSecretKey:             awsSecretKey,
+		ComposeServiceNamePrefix: composeServiceNamePrefix,
+		ComposeProjectNamePrefix: composeProjectNamePrefix,
+		CFNStackNamePrefix:       cfnStackNamePrefix,
+		CFNStackName:             cfnStackNamePrefix,
+	}
+	migrateWarning(cliConfig)
+
+	assert.Equal(t, region, cliConfig.Region)
+	assert.Equal(t, awsProfile, cliConfig.AWSProfile)
+	assert.Equal(t, awsAccessKey, cliConfig.AWSAccessKey)
+	assert.Equal(t, awsSecretKey, cliConfig.AWSSecretKey)
+	assert.Equal(t, composeServiceNamePrefix, cliConfig.ComposeServiceNamePrefix)
+	assert.Equal(t, composeProjectNamePrefix, cliConfig.ComposeProjectNamePrefix)
+	assert.Equal(t, cfnStackNamePrefix, cliConfig.CFNStackNamePrefix)
+	assert.Equal(t, cfnStackNamePrefix, cliConfig.CFNStackName)
 }
