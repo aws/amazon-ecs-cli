@@ -72,7 +72,7 @@ func Migrate(context *cli.Context) error {
 	}
 
 	if !context.Bool(command.ForceFlag) {
-		if err = migrateWarning(oldConfig); err != nil {
+		if err = migrateWarning(*oldConfig); err != nil {
 			return err
 		}
 		scanner := bufio.NewScanner(os.Stdin)

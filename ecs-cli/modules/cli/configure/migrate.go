@@ -55,7 +55,7 @@ func hideCredsOldFile(data string) string {
 	return safeData
 }
 
-func migrateWarning(cliConfig *config.CLIConfig) error {
+func migrateWarning(cliConfig config.CLIConfig) error {
 	var oldConfig string
 	dest, err := config.NewDefaultDestination()
 	if err != nil {
@@ -67,7 +67,7 @@ func migrateWarning(cliConfig *config.CLIConfig) error {
 	}
 	oldConfig = string(dat)
 
-	hideCreds(cliConfig)
+	hideCreds(&cliConfig)
 	oldConfig = hideCredsOldFile(oldConfig)
 
 	optionalFields := ""
