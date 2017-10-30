@@ -124,6 +124,9 @@ func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfi
 	cliConfig.Cluster = cluster.Cluster
 	cliConfig.ComposeServiceNamePrefix = cluster.ComposeServiceNamePrefix
 	cliConfig.CFNStackName = cluster.CFNStackName
+	// Fields must be explicitly set as empty because the iniReadWriter will set them to default
+	cliConfig.ComposeProjectNamePrefix = ""
+	cliConfig.CFNStackNamePrefix = ""
 	return nil
 
 }

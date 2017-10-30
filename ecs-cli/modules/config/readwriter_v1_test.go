@@ -200,6 +200,8 @@ clusters:
   gamma_config:
     cluster: cli-demo-gamma
     region: us-west-1
+    compose-service-name-prefix: custom-service-
+    cfn-stack-name: cfn-custom-cli-demo-gamma
   beta_config:
     cluster: cli-demo-beta
     region: us-west-2
@@ -234,6 +236,10 @@ clusters:
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, "cli-demo-gamma", config.Cluster, "Cluster should be present.")
 	assert.Equal(t, "us-west-1", config.Region, "Region should be present.")
+	assert.Equal(t, "custom-service-", config.ComposeServiceNamePrefix, "ComposeServiceNamePrefix should be present.")
+	assert.Equal(t, "cfn-custom-cli-demo-gamma", config.CFNStackName, "CFNStackName Name should be present.")
+	assert.Empty(t, config.CFNStackNamePrefix, "Expected CFNStackNamePrefix to be empty.")
+	assert.Empty(t, config.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty.")
 }
 
 func TestOverwriteINIConfigFile(t *testing.T) {
