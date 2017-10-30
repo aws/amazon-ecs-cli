@@ -81,6 +81,7 @@ func (rdwr *INIReadWriter) GetConfig(cliConfig *CLIConfig) error {
 	}
 
 	// Convert to the new CliConfig
+	cliConfig.Version = iniConfigVersion
 	cliConfig.Cluster = iniFormat.Cluster
 	cliConfig.Region = iniFormat.Region
 	cliConfig.AWSProfile = iniFormat.AwsProfile

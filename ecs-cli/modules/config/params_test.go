@@ -20,7 +20,6 @@ import (
 	"testing"
 
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
@@ -28,7 +27,9 @@ import (
 
 const (
 	composeServiceNamePrefix = "ecs-service-"
+	composeProjectNamePrefix = "ecs-project-"
 	cfnStackName             = "cfn-stack-ecs"
+	cfnStackNamePrefix       = "cfn-stack-"
 	awsAccess                = "ecs-access"
 	awsSecret                = "ecs-secret"
 	awsAccessAWSProfile      = "aws-access"
@@ -36,18 +37,25 @@ const (
 	awsProfileName           = "awsprofile"
 )
 
-// mockReadWriter implements ReadWriter interface to return just the cluster
+// mockReadWriter implements ReadWriter interface
 // field whenperforming read.
 type mockReadWriter struct {
 	isKeyPresentValue bool
+	version           int
 }
 
 func (rdwr *mockReadWriter) Get(clusterConfig string, profileConfig string) (*CLIConfig, error) {
 	config := NewCLIConfig(clusterName)
-	if rdwr.isKeyPresentValue {
+	if rdwr.isKeyPresentValue && rdwr.version == iniConfigVersion {
+		config.ComposeServiceNamePrefix = composeServiceNamePrefix
+		config.CFNStackNamePrefix = cfnStackNamePrefix
+		config.ComposeProjectNamePrefix = composeProjectNamePrefix
+	}
+	if rdwr.isKeyPresentValue && rdwr.version == yamlConfigVersion {
 		config.ComposeServiceNamePrefix = composeServiceNamePrefix
 		config.CFNStackName = cfnStackName
 	}
+	config.Version = rdwr.version
 	return config, nil
 }
 
@@ -129,7 +137,7 @@ func TestNewCliParamsFromConfig(t *testing.T) {
 	assert.Equal(t, region, paramsRegion, "Region should match")
 }
 
-func TestNewCliParamsWhenPrefixesPresent(t *testing.T) {
+func TestNewCliParamsWhenPrefixesPresentINIVersion(t *testing.T) {
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	defer os.Clearenv()
@@ -137,14 +145,15 @@ func TestNewCliParamsWhenPrefixesPresent(t *testing.T) {
 	context := defaultConfig()
 
 	// Prefixes are present, and values are defaulted to empty
-	rdwr := &mockReadWriter{isKeyPresentValue: true}
+	rdwr := &mockReadWriter{isKeyPresentValue: true, version: iniConfigVersion}
 	params, err := NewCLIParams(context, rdwr)
 	assert.NoError(t, err, "Unexpected error when getting new cli params")
-	assert.Equal(t, composeServiceNamePrefix, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
-	assert.Equal(t, cfnStackName, params.CFNStackName, "Expected CFNStackName to be default")
+	assert.Equal(t, composeProjectNamePrefix, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be set")
+	assert.Equal(t, composeServiceNamePrefix, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be set")
+	assert.Equal(t, cfnStackNamePrefix+clusterName, params.CFNStackName, "Expected CFNStackName to be default")
 }
 
-func TestNewCliParamsWhenPrefixKeysAreNotPresent(t *testing.T) {
+func TestNewCliParamsWhenPrefixKeysAreNotPresentINIVersion(t *testing.T) {
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	defer func() {
@@ -155,9 +164,45 @@ func TestNewCliParamsWhenPrefixKeysAreNotPresent(t *testing.T) {
 	context := defaultConfig()
 
 	// Prefixes are present, and values should be set to defaults
-	rdwr := &mockReadWriter{isKeyPresentValue: false}
+	rdwr := &mockReadWriter{isKeyPresentValue: false, version: iniConfigVersion}
+	params, err := NewCLIParams(context, rdwr)
+	assert.NoError(t, err, "Unexpected error when getting new CLI params")
+	assert.Empty(t, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
+	assert.Empty(t, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
+	assert.Equal(t, clusterName, params.CFNStackName, "Expected CFNStackName to equal cluster name")
+}
+
+func TestNewCliParamsWhenPrefixesPresentYAMLVersion(t *testing.T) {
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "SECRET")
+	defer os.Clearenv()
+
+	context := defaultConfig()
+
+	// Prefixes are present, and values are defaulted to empty
+	rdwr := &mockReadWriter{isKeyPresentValue: true, version: yamlConfigVersion}
 	params, err := NewCLIParams(context, rdwr)
 	assert.NoError(t, err, "Unexpected error when getting new cli params")
+	assert.Empty(t, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
+	assert.Equal(t, composeServiceNamePrefix, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be set")
+	assert.Equal(t, cfnStackName, params.CFNStackName, "Expected CFNStackName to be set")
+}
+
+func TestNewCliParamsWhenPrefixKeysAreNotPresentYAMLVersion(t *testing.T) {
+	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
+	os.Setenv("AWS_SECRET_KEY", "SECRET")
+	defer func() {
+		os.Unsetenv("AWS_ACCESS_KEY")
+		os.Unsetenv("AWS_SECRET_KEY")
+	}()
+
+	context := defaultConfig()
+
+	// Prefixes are present, and values should be set to defaults
+	rdwr := &mockReadWriter{isKeyPresentValue: false, version: yamlConfigVersion}
+	params, err := NewCLIParams(context, rdwr)
+	assert.NoError(t, err, "Unexpected error when getting new cli params")
+	assert.Empty(t, params.ComposeProjectNamePrefix, "Expected ComposProjectNamePrefix to be empty")
 	assert.Empty(t, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
 	assert.Equal(t, ecscli.CFNStackNamePrefixDefaultValue+clusterName, params.CFNStackName, "Expected CFNStackName to be default")
 }

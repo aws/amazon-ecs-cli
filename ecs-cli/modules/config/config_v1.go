@@ -33,10 +33,13 @@ const (
 	clusterKey                  = "cluster"
 	clustersKey                 = "clusters"
 	regionKey                   = "region"
+	iniConfigVersion            = 0
+	yamlConfigVersion           = 1
 )
 
 // CLIConfig is the top level struct representing the configuration information
 type CLIConfig struct {
+	Version                  int // which format version was the config file that was read. 1 == yaml, 0 == old ini
 	Cluster                  string
 	AWSProfile               string
 	Region                   string
