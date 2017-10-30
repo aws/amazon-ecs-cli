@@ -25,8 +25,10 @@ import (
 type ECSParams struct {
 	Version        string
 	TaskDefinition EcsTaskDef `yaml:"task_definition"`
+	RunParams      RunParams  `yaml:"run_params"`
 }
 
+// ECS TaskDefinition fields
 type EcsTaskDef struct {
 	NetworkMode          string        `yaml:"ecs_network_mode"`
 	TaskRoleArn          string        `yaml:"task_role_arn"`
@@ -39,6 +41,28 @@ type ContainerDef struct {
 	Essential bool `yaml:"essential"`
 }
 
+// RunParams specifies non-TaskDefinition specific parameters
+type RunParams struct {
+	NetworkConfiguration NetworkConfiguration `yaml:"network_configuration"`
+}
+
+type NetworkConfiguration struct {
+	AwsVpcConfiguration AwsVpcConfiguration `yaml:"awsvpc_configuration"`
+}
+
+type AwsVpcConfiguration struct {
+	Subnets        []string       `yaml:"subnets"`
+	SecurityGroups []string       `yaml:"security_groups"`
+	AssignPublicIp AssignPublicIp `yaml:"assign_public_ip"`
+}
+
+type AssignPublicIp string
+
+const (
+	Enabled  AssignPublicIp = "enabled"
+	Disabled AssignPublicIp = "disabled"
+)
+
 func readECSParams(filename string) (*ECSParams, error) {
 	if filename == "" {
 		defaultFilename := "ecs-params.yml"
@@ -48,6 +72,9 @@ func readECSParams(filename string) (*ECSParams, error) {
 			return nil, nil
 		}
 	}
+
+	// NOTE: Readfile reads all data into memory and closes file. Could
+	// eventually refactor this to read different sections separately.
 	ecsParamsData, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Error reading file '%v'", filename)

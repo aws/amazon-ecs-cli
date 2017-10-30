@@ -41,7 +41,6 @@ task_definition:
 	err = tmpfile.Close()
 	assert.NoError(t, err, "Could not close tempfile")
 
-
 	ecsParams, err := readECSParams(ecsParamsFileName)
 
 	if assert.NoError(t, err) {
@@ -82,7 +81,6 @@ task_definition:
 	err = tmpfile.Close()
 	assert.NoError(t, err, "Could not close tempfile")
 
-
 	ecsParams, err := readECSParams(ecsParamsFileName)
 
 	if assert.NoError(t, err) {
@@ -94,5 +92,42 @@ task_definition:
 
 		assert.False(t, mysql.Essential, "Expected container to not be essential")
 		assert.True(t, wordpress.Essential, "Expected container to be essential")
+	}
+}
+
+func TestReadECSParams_WithRunParams(t *testing.T) {
+	ecsParamsString := `version: 1
+run_params:
+  network_configuration:
+    awsvpc_configuration:
+      subnets: [subnet-feedface, subnet-deadbeef]
+      security_groups:
+        - sg-bafff1ed
+        - sg-c0ffeefe
+      assign_public_ip: enabled`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs fields tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	defer os.Remove(ecsParamsFileName)
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParams, err := readECSParams(ecsParamsFileName)
+
+	if assert.NoError(t, err) {
+		awsvpcConfig := ecsParams.RunParams.NetworkConfiguration.AwsVpcConfiguration
+		assert.Equal(t, 2, len(awsvpcConfig.Subnets), "Expected 2 subnets")
+		assert.Equal(t, []string{"subnet-feedface", "subnet-deadbeef"}, awsvpcConfig.Subnets, "Expected subnets to match")
+		assert.Equal(t, 2, len(awsvpcConfig.SecurityGroups), "Expected 2 securityGroups")
+		assert.Equal(t, []string{"sg-bafff1ed", "sg-c0ffeefe"}, awsvpcConfig.SecurityGroups, "Expected security groups to match")
+		assert.Equal(t, Enabled, awsvpcConfig.AssignPublicIp, "Expected AssignPublicIp to be enabled")
 	}
 }
