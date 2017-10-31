@@ -16,6 +16,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
@@ -26,6 +27,12 @@ import (
 type Destination struct {
 	Path string
 	Mode *os.FileMode
+}
+
+// GetWindowsBaseDataPath returns the correct path to Append
+// to a user home directory to store application data.
+func GetWindowsBaseDataPath() string {
+	return filepath.Join("AppData", "local", "ecs")
 }
 
 // GetFilePermissions is a utility method that gets permissions of a file.
@@ -50,7 +57,10 @@ func newDefaultDestination() (*Destination, error) {
 	if err != nil {
 		return nil, err
 	}
+	path := filepath.Join(homeDir, ".ecs")
+	if runtime.GOOS == "windows" {
+		path = filepath.Join(homeDir, GetWindowsBaseDataPath(), "config")
+	}
 
-	// TODO: Move to const.
-	return &Destination{Path: filepath.Join(homeDir, ".ecs"), Mode: mode}, nil
+	return &Destination{Path: path, Mode: mode}, nil
 }

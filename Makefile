@@ -20,6 +20,7 @@ SOURCES := $(shell find $(SOURCEDIR) -name '*.go')
 LOCAL_BINARY := bin/local/ecs-cli
 LINUX_BINARY := bin/linux-amd64/ecs-cli
 DARWIN_BINARY := bin/darwin-amd64/ecs-cli
+WINDOWS_BINARY := bin/windows-amd64/ecs-cli.exe
 LOCAL_PATH := $(ROOT)/scripts:${PATH}
 
 .PHONY: build
@@ -43,6 +44,8 @@ generate-deps:
 	go get github.com/golang/mock/mockgen
 	go get golang.org/x/tools/cmd/goimports
 
+.PHONY: windows-build
+windows-build: $(WINDOWS_BINARY)
 
 .PHONY: docker-build
 docker-build:
@@ -56,6 +59,11 @@ docker-build:
 		--env GOPATH=/usr/src/app \
 		--env ECS_RELEASE=$(ECS_RELEASE) \
 		golang:1.8 make $(DARWIN_BINARY)
+	docker run -v $(shell pwd):/usr/src/app/src/github.com/aws/amazon-ecs-cli \
+		--workdir=/usr/src/app/src/github.com/aws/amazon-ecs-cli \
+		--env GOPATH=/usr/src/app \
+		--env ECS_RELEASE=$(ECS_RELEASE) \
+		golang:1.8 make $(WINDOWS_BINARY)
 
 .PHONY: docker-test
 docker-test:
@@ -67,6 +75,12 @@ docker-test:
 
 .PHONY: supported-platforms
 supported-platforms: $(LINUX_BINARY) $(DARWIN_BINARY)
+
+$(WINDOWS_BINARY): $(SOURCES)
+	@mkdir -p ./bin/windows-amd64
+	TARGET_GOOS=windows GOARCH=amd64 ./scripts/build_binary.sh ./bin/windows-amd64
+	mv ./bin/windows-amd64/ecs-cli ./bin/windows-amd64/ecs-cli.exe
+	@echo "Built ecs-cli.exe for windows"
 
 $(LINUX_BINARY): $(SOURCES)
 	@mkdir -p ./bin/linux-amd64

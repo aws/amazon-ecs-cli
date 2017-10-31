@@ -17,7 +17,9 @@ import (
 	"encoding/gob"
 	"os"
 	"path/filepath"
+	"runtime"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 )
 
@@ -39,8 +41,11 @@ func cacheDir(name string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// TODO, speciailize for windows, possibly OS X
-	return filepath.Join(homedir, ".cache", cachePrefix, name), nil
+	path := filepath.Join(homedir, ".cache", cachePrefix, name)
+	if runtime.GOOS == "windows" {
+		path = filepath.Join(homedir, config.GetWindowsBaseDataPath(), "cache")
+	}
+	return path, nil
 }
 
 type fsCache struct {
