@@ -118,7 +118,11 @@ func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfi
 		chosenCluster = config.Default
 	}
 
-	cluster := config.Clusters[chosenCluster]
+	cluster, ok := config.Clusters[chosenCluster]
+	if !ok {
+		return fmt.Errorf("Cluster Configuration %s could not be found. Configure clusters using 'ecs-cli configure'.", chosenCluster)
+	}
+
 	// Get the info out of the cluster
 	cliConfig.Region = cluster.Region
 	cliConfig.Cluster = cluster.Cluster
@@ -145,7 +149,10 @@ func readProfileConfig(path string, profileConfigKey string, cliConfig *CLIConfi
 	if profileConfigKey == "" {
 		chosenProfile = config.Default
 	}
-	profile := config.Profiles[chosenProfile]
+	profile, ok := config.Profiles[chosenProfile]
+	if !ok {
+		return fmt.Errorf("ECS Profile %s could not be found. Configure profiles using 'ecs-cli configure profile'.", chosenProfile)
+	}
 
 	// Get the info out of the cluster
 	cliConfig.AWSSecretKey = profile.AWSSecretKey
