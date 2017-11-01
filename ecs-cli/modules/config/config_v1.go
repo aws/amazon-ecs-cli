@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	flags "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -114,12 +114,12 @@ func (cfg *CLIConfig) ToAWSSession(context *cli.Context) (*session.Session, erro
 	region, err := cfg.getRegion()
 
 	if err != nil || region == "" {
-		return nil, fmt.Errorf("Set a region using ecs-cli configure command with the --%s flag or %s environment variable or --%s flag", command.RegionFlag, command.AwsRegionEnvVar, command.ProfileFlag)
+		return nil, fmt.Errorf("Set a region using ecs-cli configure command with the --%s flag or %s environment variable or --%s flag", flags.RegionFlag, flags.AwsRegionEnvVar, flags.ProfileFlag)
 	}
 
-	if isProfileFlagsCase(context) {
+	if hasProfileFlags(context) {
 		return credsFromECSConfig(cfg, region)
-	} else if isEnvVarCase(context) {
+	} else if hasEnvVars(context) {
 		return defaultProvider(region)
 	} else if isDefaultECSProfileCase(cfg) {
 		return credsFromECSConfig(cfg, region)
@@ -129,12 +129,12 @@ func (cfg *CLIConfig) ToAWSSession(context *cli.Context) (*session.Session, erro
 
 }
 
-func isProfileFlagsCase(context *cli.Context) bool {
-	return (recursiveFlagSearch(context, command.ECSProfileFlag) != "" || recursiveFlagSearch(context, command.AWSProfileNameFlag) != "")
+func hasProfileFlags(context *cli.Context) bool {
+	return (recursiveFlagSearch(context, flags.ECSProfileFlag) != "" || recursiveFlagSearch(context, flags.AWSProfileFlag) != "")
 }
 
-func isEnvVarCase(context *cli.Context) bool {
-	return (os.Getenv(command.AWSSecretKeyEnvVar) != "" && os.Getenv(command.AWSAccessKeyEnvVar) != "")
+func hasEnvVars(context *cli.Context) bool {
+	return (os.Getenv(flags.AWSSecretKeyEnvVar) != "" && os.Getenv(flags.AWSAccessKeyEnvVar) != "")
 }
 
 func isDefaultECSProfileCase(cfg *CLIConfig) bool {
@@ -155,7 +155,7 @@ func defaultProviderFromProfile(region string, svcConfig aws.Config) (*session.S
 	svcConfig.Region = aws.String(region)
 	return session.NewSessionWithOptions(session.Options{
 		Config:            svcConfig,
-		Profile:           os.Getenv(command.AwsDefaultProfileEnvVar),
+		Profile:           os.Getenv(flags.AwsDefaultProfileEnvVar),
 		SharedConfigState: session.SharedConfigEnable,
 	})
 }
@@ -197,7 +197,7 @@ func (cfg *CLIConfig) getRegion() (string, error) {
 
 	if region == "" {
 		// Search the chain of environment variables for region.
-		for _, envVar := range []string{command.AwsRegionEnvVar, command.AwsDefaultRegionEnvVar} {
+		for _, envVar := range []string{flags.AwsRegionEnvVar, flags.AwsDefaultRegionEnvVar} {
 			region = os.Getenv(envVar)
 			if region != "" {
 				break
@@ -217,7 +217,7 @@ func (cfg *CLIConfig) getRegionFromAWSProfile() (string, error) {
 	if cfg.AWSProfile != "" {
 		awsProfile = cfg.AWSProfile
 	} else {
-		awsProfile = os.Getenv(command.AwsDefaultProfileEnvVar)
+		awsProfile = os.Getenv(flags.AwsDefaultProfileEnvVar)
 	}
 
 	s, err := session.NewSessionWithOptions(session.Options{

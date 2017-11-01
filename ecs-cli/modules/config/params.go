@@ -70,7 +70,7 @@ func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 		ecsConfig.Region = regionFromFlag
 	}
 
-	if awsProfileFromFlag := recursiveFlagSearch(context, ecscli.AWSProfileNameFlag); awsProfileFromFlag != "" {
+	if awsProfileFromFlag := recursiveFlagSearch(context, ecscli.AWSProfileFlag); awsProfileFromFlag != "" {
 		ecsConfig.AWSProfile = awsProfileFromFlag
 		// unset Access Key and Secret Key, otherwise they will take precedence
 		ecsConfig.AWSAccessKey = ""

@@ -38,7 +38,7 @@ const (
 	ECSProfileFlag          = "ecs-profile"
 	ProfileNameFlag         = "profile-name"
 	ConfigNameFlag          = "config-name"
-	AWSProfileNameFlag      = "aws-profile"
+	AWSProfileFlag          = "aws-profile"
 	ECSProfileEnvVar        = "ECS_PROFILE"
 	AWSProfileEnvVar        = "AWS_PROFILE"
 	AWSAccessKeyEnvVar      = "AWS_ACCESS_KEY_ID"
@@ -119,7 +119,7 @@ func OptionalRegionAndProfileFlags() []cli.Flag {
 			),
 		},
 		cli.StringFlag{
-			Name:   AWSProfileNameFlag,
+			Name:   AWSProfileFlag,
 			EnvVar: AWSProfileEnvVar,
 			Usage: fmt.Sprintf(
 				"[Optional]  Use the AWS credentials from an existing named profile in ~/.aws/credentials.",
