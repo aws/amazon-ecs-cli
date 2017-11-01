@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	flags "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -62,6 +63,61 @@ const (
 //------------------------------------------------------------------------------
 // ToAWSSession() --> REGION TESTS
 //------------------------------------------------------------------------------
+
+func TestRegionOrderOfResolutionECSConfig(t *testing.T) {
+	// defaults
+	ecsConfig := NewCLIConfig(clusterName)
+	ecsConfig.AWSAccessKey = awsAccessKey
+	ecsConfig.AWSSecretKey = awsSecretKey
+
+	// set variable for test
+	ecsConfig.Region = region // takes precedence
+	ecsConfig.AWSProfile = customProfileName
+	os.Setenv("AWS_REGION", envAwsRegion)
+	os.Setenv("AWS_PROFILE", customProfileName)
+	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
+	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
+	defer os.Clearenv()
+
+	// invoke test and verify
+	testRegionInSession(t, ecsConfig, region)
+}
+
+func TestRegionOrderOfResolutionEnvVar(t *testing.T) {
+	// defaults
+	ecsConfig := NewCLIConfig(clusterName)
+	ecsConfig.AWSAccessKey = awsAccessKey
+	ecsConfig.AWSSecretKey = awsSecretKey
+
+	// set variable for test
+	ecsConfig.AWSProfile = customProfileName
+	os.Setenv("AWS_REGION", envAwsRegion) // takes precedence
+	os.Setenv("AWS_PROFILE", customProfileName)
+	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
+	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
+	defer os.Clearenv()
+
+	// invoke test and verify
+	testRegionInSession(t, ecsConfig, envAwsRegion)
+}
+
+func TestRegionOrderOfResolutionDefaultEnvVar(t *testing.T) {
+	// defaults
+	ecsConfig := NewCLIConfig(clusterName)
+	ecsConfig.AWSAccessKey = awsAccessKey
+	ecsConfig.AWSSecretKey = awsSecretKey
+
+	// set variable for test
+	ecsConfig.AWSProfile = customProfileName
+	os.Setenv("AWS_DEFAULT_REGION", envAwsRegion) // takes precedence
+	os.Setenv("AWS_PROFILE", customProfileName)
+	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
+	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
+	defer os.Clearenv()
+
+	// invoke test and verify
+	testRegionInSession(t, ecsConfig, envAwsRegion)
+}
 
 // 1a) Use AWS_REGION env variable
 func TestRegionWhenUsingEnvVariable(t *testing.T) {
@@ -378,9 +434,93 @@ func TestCredentialsWhenNoneSpecified(t *testing.T) {
 	assert.Error(t, err, "Expected error getting credentials")
 }
 
+func TestCredentialOrderOfResolutionECSProfileFlag(t *testing.T) {
+	// defaults
+	ecsConfig := NewCLIConfig(clusterName)
+
+	// set variables for test
+	ecsConfig.AWSAccessKey = awsAccessKey
+	ecsConfig.AWSSecretKey = awsSecretKey
+	os.Setenv("AWS_DEFAULT_PROFILE", defaultProfileName)
+	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
+	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
+	os.Setenv("AWS_ACCESS_KEY_ID", envAwsAccessKey)
+	os.Setenv("AWS_SECRET_ACCESS_KEY", envAwsSecretKey)
+	defer os.Clearenv()
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.ECSProfileFlag, "default", "")
+	context := cli.NewContext(nil, flagSet, nil)
+
+	// invoke test and verify
+	testCredentialsInSessionWithContext(t, context, ecsConfig, awsAccessKey, awsSecretKey)
+}
+
+func TestCredentialOrderOfResolutionAWSProfileFlag(t *testing.T) {
+	// defaults
+	ecsConfig := NewCLIConfig(clusterName)
+
+	// set variables for test
+	ecsConfig.AWSProfile = customProfileName
+	os.Setenv("AWS_DEFAULT_PROFILE", defaultProfileName)
+	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
+	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
+	os.Setenv("AWS_ACCESS_KEY_ID", envAwsAccessKey)
+	os.Setenv("AWS_SECRET_ACCESS_KEY", envAwsSecretKey)
+	defer os.Clearenv()
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.AWSProfileFlag, customProfileName, "")
+	context := cli.NewContext(nil, flagSet, nil)
+
+	// invoke test and verify
+	testCredentialsInSessionWithContext(t, context, ecsConfig, customAwsAccessKey, customAwsSecretKey)
+}
+
+func TestCredentialOrderOfResolutionEnvVar(t *testing.T) {
+	// defaults
+	ecsConfig := NewCLIConfig(clusterName)
+
+	// set variables for test
+	ecsConfig.AWSAccessKey = awsAccessKey
+	ecsConfig.AWSSecretKey = awsSecretKey
+	os.Setenv("AWS_DEFAULT_PROFILE", defaultProfileName)
+	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
+	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
+	os.Setenv("AWS_ACCESS_KEY_ID", envAwsAccessKey)
+	os.Setenv("AWS_SECRET_ACCESS_KEY", envAwsSecretKey)
+	defer os.Clearenv()
+
+	// invoke test and verify
+	testCredentialsInSession(t, ecsConfig, envAwsAccessKey, envAwsSecretKey)
+}
+
+func TestCredentialOrderOfResolutionECSConfig(t *testing.T) {
+	// defaults
+	ecsConfig := NewCLIConfig(clusterName)
+
+	// set variables for test
+	ecsConfig.AWSAccessKey = awsAccessKey
+	ecsConfig.AWSSecretKey = awsSecretKey
+	os.Setenv("AWS_DEFAULT_PROFILE", defaultProfileName)
+	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
+	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
+	defer os.Clearenv()
+
+	// invoke test and verify
+	testCredentialsInSession(t, ecsConfig, awsAccessKey, awsSecretKey)
+}
+
 func testCredentialsInSession(t *testing.T, inputConfig *CLIConfig, expectedAccessKey, expectedSecretKey string) {
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	context := cli.NewContext(nil, flagSet, nil)
+	awsSession, err := inputConfig.ToAWSSession(context)
+	assert.NoError(t, err, "Unexpected error generating a new session")
+
+	verifyCredentialsInSession(t, awsSession, expectedAccessKey, expectedSecretKey)
+}
+
+func testCredentialsInSessionWithContext(t *testing.T, context *cli.Context, inputConfig *CLIConfig, expectedAccessKey, expectedSecretKey string) {
 	awsSession, err := inputConfig.ToAWSSession(context)
 	assert.NoError(t, err, "Unexpected error generating a new session")
 
