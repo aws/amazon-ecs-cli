@@ -118,13 +118,13 @@ func (cfg *CLIConfig) ToAWSSession(context *cli.Context) (*session.Session, erro
 	}
 
 	if hasProfileFlags(context) {
-		return credsFromECSConfig(cfg, region)
+		return sessionFromECSConfig(cfg, region)
 	} else if hasEnvVars(context) {
-		return defaultProvider(region)
+		return defaultSession(region)
 	} else if isDefaultECSProfileCase(cfg) {
-		return credsFromECSConfig(cfg, region)
+		return sessionFromECSConfig(cfg, region)
 	} else {
-		return defaultProviderFromProfile(region, aws.Config{})
+		return defaultSessionFromProfile(region, aws.Config{})
 	}
 
 }
@@ -141,17 +141,17 @@ func isDefaultECSProfileCase(cfg *CLIConfig) bool {
 	return (cfg.AWSAccessKey != "" || cfg.AWSSecretKey != "" || cfg.AWSProfile != "")
 }
 
-func credsFromECSConfig(cfg *CLIConfig, region string) (*session.Session, error) {
+func sessionFromECSConfig(cfg *CLIConfig, region string) (*session.Session, error) {
 	if cfg.AWSSecretKey != "" {
-		return customProviderFromKeys(region, cfg.AWSAccessKey, cfg.AWSSecretKey)
+		return customSessionFromKeys(region, cfg.AWSAccessKey, cfg.AWSSecretKey)
 	} else {
-		return customProviderFromProfile(region, cfg.AWSProfile)
+		return customSessionFromProfile(region, cfg.AWSProfile)
 	}
 }
 
 // The argument svcConfig is needed to allow important unit tests to work
 // (for example: assume role)
-func defaultProviderFromProfile(region string, svcConfig aws.Config) (*session.Session, error) {
+func defaultSessionFromProfile(region string, svcConfig aws.Config) (*session.Session, error) {
 	svcConfig.Region = aws.String(region)
 	return session.NewSessionWithOptions(session.Options{
 		Config:            svcConfig,
@@ -160,20 +160,20 @@ func defaultProviderFromProfile(region string, svcConfig aws.Config) (*session.S
 	})
 }
 
-func defaultProvider(region string) (*session.Session, error) {
+func defaultSession(region string) (*session.Session, error) {
 	return session.NewSession(&aws.Config{
 		Region: aws.String(region),
 	})
 }
 
-func customProviderFromProfile(region string, awsProfile string) (*session.Session, error) {
+func customSessionFromProfile(region string, awsProfile string) (*session.Session, error) {
 	return session.NewSession(&aws.Config{
 		Region:      aws.String(region),
 		Credentials: credentials.NewSharedCredentials("", awsProfile),
 	})
 }
 
-func customProviderFromKeys(region string, awsAccess string, awsSecret string) (*session.Session, error) {
+func customSessionFromKeys(region string, awsAccess string, awsSecret string) (*session.Session, error) {
 	return session.NewSession(&aws.Config{
 		Region:      aws.String(region),
 		Credentials: credentials.NewStaticCredentials(awsAccess, awsSecret, ""),

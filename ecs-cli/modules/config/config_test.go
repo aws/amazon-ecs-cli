@@ -530,7 +530,7 @@ func testCredentialsInSessionWithContext(t *testing.T, context *cli.Context, inp
 func testCredentialsInSessionWithConfig(t *testing.T, inputConfig *CLIConfig, ecsConfig *aws.Config,
 	expectedAccessKey, expectedSecretKey string) {
 	//awsSession, err := inputConfig.toAWSSessionWithConfig(*ecsConfig)
-	awsSession, err := defaultProviderFromProfile(inputConfig.Region, *ecsConfig)
+	awsSession, err := defaultSessionFromProfile(inputConfig.Region, *ecsConfig)
 	assert.NoError(t, err, "Unexpected error generating a new session")
 
 	verifyCredentialsInSession(t, awsSession, expectedAccessKey, expectedSecretKey)
