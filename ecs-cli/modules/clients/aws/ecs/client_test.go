@@ -447,7 +447,38 @@ func TestRunTask(t *testing.T) {
 		assert.Equal(t, int64(count), aws.Int64Value(req.Count), "Expected count to match")
 	}).Return(&ecs.RunTaskOutput{}, nil)
 
-	_, err := client.RunTask(td, group, count)
+	_, err := client.RunTask(td, group, count, nil)
+	assert.NoError(t, err, "Unexpected error when calling RunTask")
+}
+
+func TestRunTask_WithTaskNetworking(t *testing.T) {
+	mockEcs, _, client, ctrl := setupTestController(t, getDefaultCliConfigParams(t))
+	defer ctrl.Finish()
+
+	td := "taskDef"
+	group := "taskGroup"
+	count := 5
+
+	subnets := []*string{aws.String("subnet-feedface")}
+	securityGroups := []*string{aws.String("sg-c0ffeefe")}
+	awsVpcConfig := &ecs.AwsVpcConfiguration{
+		Subnets:        subnets,
+		SecurityGroups: securityGroups,
+	}
+	networkConfig := &ecs.NetworkConfiguration{
+		AwsvpcConfiguration: awsVpcConfig,
+	}
+
+	mockEcs.EXPECT().RunTask(gomock.Any()).Do(func(input interface{}) {
+		req := input.(*ecs.RunTaskInput)
+		assert.Equal(t, clusterName, aws.StringValue(req.Cluster), "Expected clusterName to match")
+		assert.Equal(t, td, aws.StringValue(req.TaskDefinition), "Expected taskDefinition to match")
+		assert.Equal(t, group, aws.StringValue(req.Group), "Expected group to match")
+		assert.Equal(t, int64(count), aws.Int64Value(req.Count), "Expected count to match")
+		assert.Equal(t, networkConfig, req.NetworkConfiguration, "Expected networkConfiguration to match")
+	}).Return(&ecs.RunTaskOutput{}, nil)
+
+	_, err := client.RunTask(td, group, count, networkConfig)
 	assert.NoError(t, err, "Unexpected error when calling RunTask")
 }
 

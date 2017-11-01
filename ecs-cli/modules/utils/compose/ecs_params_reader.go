@@ -16,6 +16,8 @@ package utils
 // ECS Params Reader is used to parse the ecs-params.yml file and marshal the data into the ECSParams struct
 
 import (
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -28,7 +30,7 @@ type ECSParams struct {
 	RunParams      RunParams  `yaml:"run_params"`
 }
 
-// ECS TaskDefinition fields
+// EcsTaskDef corresponds to fields in an ECS TaskDefinition
 type EcsTaskDef struct {
 	NetworkMode          string        `yaml:"ecs_network_mode"`
 	TaskRoleArn          string        `yaml:"task_role_arn"`
@@ -51,18 +53,11 @@ type NetworkConfiguration struct {
 }
 
 type AwsVpcConfiguration struct {
-	Subnets        []string       `yaml:"subnets"`
-	SecurityGroups []string       `yaml:"security_groups"`
-	AssignPublicIp AssignPublicIp `yaml:"assign_public_ip"`
+	Subnets        []string `yaml:"subnets"`
+	SecurityGroups []string `yaml:"security_groups"`
 }
 
-type AssignPublicIp string
-
-const (
-	Enabled  AssignPublicIp = "enabled"
-	Disabled AssignPublicIp = "disabled"
-)
-
+// ReadECSParams parses the ecs-params.yml file and puts it into an ECSParams struct.
 func ReadECSParams(filename string) (*ECSParams, error) {
 	if filename == "" {
 		defaultFilename := "ecs-params.yml"
@@ -87,4 +82,39 @@ func ReadECSParams(filename string) (*ECSParams, error) {
 	}
 
 	return ecsParams, nil
+}
+
+// ConvertToECSNetworkConfiguration extracts out the NetworkConfiguration from
+// the ECSParams into a format that is compatible with ECSClient calls.
+func ConvertToECSNetworkConfiguration(ecsParams *ECSParams) (*ecs.NetworkConfiguration, error) {
+	networkConfig := ecsParams.RunParams.NetworkConfiguration
+	awsvpcConfig := networkConfig.AwsVpcConfiguration
+	subnets := awsvpcConfig.Subnets
+	securityGroups := awsvpcConfig.SecurityGroups
+	networkMode := ecsParams.TaskDefinition.NetworkMode
+
+	if networkMode == "awsvpc" && len(subnets) < 1 {
+		return nil, errors.New("at least one subnet is required in the network configuration")
+	}
+
+	ecsSubnets := make([]*string, len(subnets))
+	for i, subnet := range subnets {
+		ecsSubnets[i] = aws.String(subnet)
+	}
+
+	ecsSecurityGroups := make([]*string, len(securityGroups))
+	for i, sg := range securityGroups {
+		ecsSecurityGroups[i] = aws.String(sg)
+	}
+
+	ecsAwsVpcConfig := &ecs.AwsVpcConfiguration{
+		Subnets:        ecsSubnets,
+		SecurityGroups: ecsSecurityGroups,
+	}
+
+	ecsNetworkConfig := &ecs.NetworkConfiguration{
+		AwsvpcConfiguration: ecsAwsVpcConfig,
+	}
+
+	return ecsNetworkConfig, nil
 }

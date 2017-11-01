@@ -24,8 +24,8 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
+	"github.com/aws/aws-sdk-go/service/ecs"
 )
 
 // ecsChunkSize is the maximum number of elements to pass into a describe api
@@ -35,7 +35,7 @@ type ProcessTasksAction func(tasks []*ecs.Task) error
 
 // ECSClient is an interface that specifies only the methods used from the sdk interface. Intended to make mocking and testing easier.
 type ECSClient interface {
-	// TODO: Modify the interface and tbe client to not have the Initialize method.
+	// TODO: Modify the interface and the client to not have the Initialize method.
 	Initialize(params *config.CLIParams)
 
 	// Cluster related
@@ -44,9 +44,9 @@ type ECSClient interface {
 	IsActiveCluster(clusterName string) (bool, error)
 
 	// Service related
-	CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration) error
-	UpdateServiceCount(serviceName string, count int64, deploymentConfig *ecs.DeploymentConfiguration) error
-	UpdateService(serviceName, taskDefinitionName string, count int64, deploymentConfig *ecs.DeploymentConfiguration) error
+	CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration) error
+	UpdateServiceCount(serviceName string, count int64, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration) error
+	UpdateService(serviceName, taskDefinitionName string, count int64, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration) error
 	DescribeService(serviceName string) (*ecs.DescribeServicesOutput, error)
 	DeleteService(serviceName string) error
 
@@ -57,7 +57,7 @@ type ECSClient interface {
 
 	// Tasks related
 	GetTasksPages(listTasksInput *ecs.ListTasksInput, fn ProcessTasksAction) error
-	RunTask(taskDefinition, taskGroup string, count int) (*ecs.RunTaskOutput, error)
+	RunTask(taskDefinition, taskGroup string, count int, networkConfig *ecs.NetworkConfiguration) (*ecs.RunTaskOutput, error)
 	RunTaskWithOverrides(taskDefinition, taskGroup string, count int, overrides map[string][]string) (*ecs.RunTaskOutput, error)
 	StopTask(taskID string) error
 	DescribeTasks(taskIds []*string) ([]*ecs.Task, error)
@@ -132,7 +132,7 @@ func (c *ecsClient) DeleteService(serviceName string) error {
 	return nil
 }
 
-func (c *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration) error {
+func (c *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration) error {
 	createServiceInput := &ecs.CreateServiceInput{
 		DesiredCount:            aws.Int64(0),            // Required
 		ServiceName:             aws.String(serviceName), // Required
@@ -141,6 +141,7 @@ func (c *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer 
 		DeploymentConfiguration: deploymentConfig,
 		LoadBalancers:           []*ecs.LoadBalancer{loadBalancer},
 		Role:                    aws.String(role),
+		NetworkConfiguration:    networkConfig,
 	}
 
 	if _, err := c.client.CreateService(createServiceInput); err != nil {
@@ -166,17 +167,19 @@ func (c *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer 
 	return nil
 }
 
-func (c *ecsClient) UpdateServiceCount(serviceName string, count int64, deploymentConfig *ecs.DeploymentConfiguration) error {
-	return c.UpdateService(serviceName, "", count, deploymentConfig)
+func (c *ecsClient) UpdateServiceCount(serviceName string, count int64, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration) error {
+	return c.UpdateService(serviceName, "", count, deploymentConfig, networkConfig)
 }
 
-func (c *ecsClient) UpdateService(serviceName, taskDefinition string, count int64, deploymentConfig *ecs.DeploymentConfiguration) error {
+func (c *ecsClient) UpdateService(serviceName, taskDefinition string, count int64, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration) error {
 	input := &ecs.UpdateServiceInput{
 		DesiredCount:            aws.Int64(count),
 		Service:                 aws.String(serviceName),
 		Cluster:                 aws.String(c.params.Cluster),
 		DeploymentConfiguration: deploymentConfig,
+		NetworkConfiguration: 	 networkConfig,
 	}
+
 	if taskDefinition != "" {
 		input.TaskDefinition = aws.String(taskDefinition)
 	}
@@ -384,13 +387,17 @@ func (c *ecsClient) DescribeTasks(taskArns []*string) ([]*ecs.Task, error) {
 }
 
 // RunTask issues a run task request for the input task definition
-func (c *ecsClient) RunTask(taskDefinition, group string, count int) (*ecs.RunTaskOutput, error) {
-	resp, err := c.client.RunTask(&ecs.RunTaskInput{
+func (c *ecsClient) RunTask(taskDefinition, group string, count int, networkConfig *ecs.NetworkConfiguration) (*ecs.RunTaskOutput, error) {
+	runTaskInput := &ecs.RunTaskInput{
 		Cluster:        aws.String(c.params.Cluster),
 		TaskDefinition: aws.String(taskDefinition),
 		Group:          aws.String(group),
 		Count:          aws.Int64(int64(count)),
-	})
+		NetworkConfiguration: networkConfig,
+	}
+
+	resp, err := c.client.RunTask(runTaskInput)
+
 	if err != nil {
 		log.WithFields(log.Fields{
 			"task definition": taskDefinition,

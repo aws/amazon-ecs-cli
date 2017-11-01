@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/aws/aws-sdk-go/aws"
 )
 
 func TestReadECSParams(t *testing.T) {
@@ -48,6 +49,10 @@ task_definition:
 		taskDef := ecsParams.TaskDefinition
 		assert.Equal(t, "host", taskDef.NetworkMode, "Expected network mode to match")
 		assert.Equal(t, "arn:aws:iam::123456789012:role/my_role", taskDef.TaskRoleArn, "Expected task role ARN to match")
+		// Should still populate other fields with empty values
+		awsvpcConfig := ecsParams.RunParams.NetworkConfiguration.AwsVpcConfiguration
+		assert.Empty(t, awsvpcConfig.Subnets)
+		assert.Empty(t, awsvpcConfig.SecurityGroups)
 	}
 }
 
@@ -103,8 +108,7 @@ run_params:
       subnets: [subnet-feedface, subnet-deadbeef]
       security_groups:
         - sg-bafff1ed
-        - sg-c0ffeefe
-      assign_public_ip: enabled`
+        - sg-c0ffeefe`
 
 	content := []byte(ecsParamsString)
 
@@ -128,6 +132,85 @@ run_params:
 		assert.Equal(t, []string{"subnet-feedface", "subnet-deadbeef"}, awsvpcConfig.Subnets, "Expected subnets to match")
 		assert.Equal(t, 2, len(awsvpcConfig.SecurityGroups), "Expected 2 securityGroups")
 		assert.Equal(t, []string{"sg-bafff1ed", "sg-c0ffeefe"}, awsvpcConfig.SecurityGroups, "Expected security groups to match")
-		assert.Equal(t, Enabled, awsvpcConfig.AssignPublicIp, "Expected AssignPublicIp to be enabled")
 	}
+}
+
+func TestConvertToECSNetworkConfiguration(t *testing.T) {
+	taskDef := EcsTaskDef{ NetworkMode: "awsvpc" }
+	subnets :=[]string{"subnet-feedface"}
+	securityGroups :=  []string{"sg-c0ffeefe"}
+	awsVpconfig := AwsVpcConfiguration{
+		Subnets: subnets,
+		SecurityGroups: securityGroups,
+	}
+
+	networkConfig := NetworkConfiguration{
+		AwsVpcConfiguration: awsVpconfig,
+	}
+
+	ecsParams := &ECSParams{
+		TaskDefinition: taskDef,
+		RunParams: RunParams{
+			NetworkConfiguration: networkConfig,
+		},
+	}
+
+	ecsNetworkConfig, err := ConvertToECSNetworkConfiguration(ecsParams)
+
+	if assert.NoError(t, err) {
+		ecsAwsConfig := ecsNetworkConfig.AwsvpcConfiguration
+		assert.Equal(t, subnets[0], aws.StringValue(ecsAwsConfig.Subnets[0]), "Expected subnets to match")
+		assert.Equal(t, securityGroups[0], aws.StringValue(ecsAwsConfig.SecurityGroups[0]), "Expected securityGroups to match")
+	}
+}
+
+func TestConvertToECSNetworkConfiguration_NoSecurityGroups(t *testing.T) {
+	taskDef := EcsTaskDef{ NetworkMode: "awsvpc" }
+	subnets :=[]string{"subnet-feedface"}
+	awsVpconfig := AwsVpcConfiguration{
+		Subnets: subnets,
+	}
+
+	networkConfig := NetworkConfiguration{
+		AwsVpcConfiguration: awsVpconfig,
+	}
+
+	ecsParams := &ECSParams{
+		TaskDefinition: taskDef,
+		RunParams: RunParams{
+			NetworkConfiguration: networkConfig,
+		},
+	}
+
+	ecsNetworkConfig, err := ConvertToECSNetworkConfiguration(ecsParams)
+
+	if assert.NoError(t, err) {
+		ecsAwsConfig := ecsNetworkConfig.AwsvpcConfiguration
+		assert.Equal(t, subnets[0], aws.StringValue(ecsAwsConfig.Subnets[0]), "Expected subnets to match")
+	}
+}
+
+
+func TestConvertToECSNetworkConfiguration_ErrorWhenNoSubnets(t *testing.T) {
+	taskDef := EcsTaskDef{ NetworkMode: "awsvpc" }
+	subnets :=[]string{}
+
+	awsVpconfig := AwsVpcConfiguration{
+		Subnets: subnets,
+	}
+
+	networkConfig := NetworkConfiguration{
+		AwsVpcConfiguration: awsVpconfig,
+	}
+
+	ecsParams := &ECSParams{
+		TaskDefinition: taskDef,
+		RunParams: RunParams{
+			NetworkConfiguration: networkConfig,
+		},
+	}
+
+	_, err := ConvertToECSNetworkConfiguration(ecsParams)
+
+	assert.Error(t, err)
 }

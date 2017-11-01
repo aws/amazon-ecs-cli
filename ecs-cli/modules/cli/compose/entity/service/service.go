@@ -58,7 +58,7 @@ func NewService(context *context.Context) entity.ProjectEntity {
 	}
 }
 
-// LoadContext reads the context set in NewService and loads DeploymentConfiguration and LoadBalnacer
+// LoadContext reads the context set in NewService and loads DeploymentConfiguration and LoadBalancer
 func (s *Service) LoadContext() error {
 	maxPercent, err := getInt64FromCLIContext(s.Context(), flags.DeploymentMaxPercentFlag)
 	if err != nil {
@@ -239,7 +239,13 @@ func (s *Service) Up() error {
 	deploymentConfig := s.DeploymentConfig()
 	// if the task definitions were different, updateService with new task definition
 	// this creates a deployment in ECS and slowly takes down the containers with old ones and starts new ones
-	err = s.Context().ECSClient.UpdateService(ecsServiceName, newTaskDefinitionId, newCount, deploymentConfig)
+
+	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(s.projectContext.ECSParams)
+	if err != nil {
+		return err
+	}
+
+	err = s.Context().ECSClient.UpdateService(ecsServiceName, newTaskDefinitionId, newCount, deploymentConfig, networkConfig)
 	if err != nil {
 		return err
 	}
@@ -328,7 +334,12 @@ func (s *Service) createService() error {
 	serviceName := entity.GetServiceName(s)
 	taskDefinitionID := entity.GetIdFromArn(s.TaskDefinition().TaskDefinitionArn)
 
-	err := s.Context().ECSClient.CreateService(serviceName, taskDefinitionID, s.loadBalancer, s.role, s.DeploymentConfig())
+	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(s.projectContext.ECSParams)
+	if err != nil {
+		return err
+	}
+
+	err = s.Context().ECSClient.CreateService(serviceName, taskDefinitionID, s.loadBalancer, s.role, s.DeploymentConfig(), networkConfig)
 	if err != nil {
 		return err
 	}
@@ -372,9 +383,16 @@ func (s *Service) startService(ecsService *ecs.Service) error {
 func (s *Service) updateService(count int64) error {
 	serviceName := entity.GetServiceName(s)
 	deploymentConfig := s.DeploymentConfig()
-	if err := s.Context().ECSClient.UpdateServiceCount(serviceName, count, deploymentConfig); err != nil {
+	networkConfig, err  := composeutils.ConvertToECSNetworkConfiguration(s.projectContext.ECSParams)
+
+	if err != nil {
 		return err
 	}
+
+	if err = s.Context().ECSClient.UpdateServiceCount(serviceName, count, deploymentConfig, networkConfig); err != nil {
+		return err
+	}
+
 	fields := log.Fields{
 		"serviceName":  serviceName,
 		"desiredCount": count,

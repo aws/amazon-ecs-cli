@@ -23,6 +23,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
@@ -165,13 +166,23 @@ func createServiceTest(t *testing.T, cliContext *cli.Context,
 			req := x.(*ecs.RegisterTaskDefinitionInput)
 			assert.Equal(t, aws.StringValue(taskDefinition.Family), aws.StringValue(req.Family), "Task Definition family should match")
 		}).Return(&respTaskDef, nil),
-		mockEcs.EXPECT().CreateService(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Do(func(v, w, x, y, z interface{}) {
-			observedTaskDefID := w.(string)
+
+		mockEcs.EXPECT().CreateService(
+			gomock.Any(), // serviceName
+			gomock.Any(), // taskDefName
+			gomock.Any(), // loadBalancer
+			gomock.Any(), // role
+			gomock.Any(), // deploymentConfig
+			gomock.Any(), // networkConfig
+		).Do(func(a, b, c, d, e, f interface{}) {
+			observedTaskDefID := b.(string)
 			assert.Equal(t, taskDefID, observedTaskDefID, "Task Definition name should match")
-			observedLB := x.(*ecs.LoadBalancer)
-			observedRole := y.(string)
+
+			observedLB := c.(*ecs.LoadBalancer)
+			observedRole := d.(string)
 			validateLB(observedLB, observedRole)
-			observedDeploymentConfig := z.(*ecs.DeploymentConfiguration)
+
+			observedDeploymentConfig := e.(*ecs.DeploymentConfiguration)
 			validateDeploymentConfig(observedDeploymentConfig)
 
 		}).Return(nil),
@@ -181,6 +192,7 @@ func createServiceTest(t *testing.T, cliContext *cli.Context,
 		ECSClient:  mockEcs,
 		CLIParams:  &config.CLIParams{},
 		CLIContext: cliContext,
+		ECSParams: &utils.ECSParams{},
 	}
 
 	service := NewService(context)

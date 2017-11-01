@@ -267,14 +267,30 @@ Since there are certain fields in an ECS task definition that do not correspond 
 ```
 version: 1
 task_definition:
-  ecs_network_mode: string // supported string values: none, bridge, or host
+  ecs_network_mode: string // supported string values: none, bridge, host, or awsvpc
   task_role_arn: string
   services:
     <service_name>:
       essential: boolean
+run_params:
+  network_configuration:
+    awsvpc_configuration:
+      subnets: array of strings
+      security_groups: array of strings`
 ```
 
-`service_name` matches the name of the services listed in your docker compose file, and its fields will be merged into an [ECS Container Definition](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ecs-taskdefinition-containerdefinitions.html). The only field you can specify on it is `essential`. The default value for the essential field is true.
+Fields listed under `task_definition` correspond to fields that will be included in your ECS Task Definition.
+
+`ecs_network_mode` corresponds to NetworkMode on an ECS Task Definition (Not to be confused with the network_mode field in Docker Compose). Supported values are none, bridge, host, or awsvpc. If not specified, this will default to bridge mode.
+
+`task_role_arn` should be the ARN of an IAM role. **NOTE**: If this role does not have the proper permissions/trust relationships on it, the `up` command will fail.
+
+`service_name` matches the name of the services listed in your docker compose file, and its fields will be merged into an [ECS Container Definition](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ecs-taskdefinition-containerdefinitions.html).
+The only field you can specify on it is `essential`. The default value for the essential field is true.
+
+Fields listed under `run_params` are for values needed as options to API calls not related to a Task Definition, such as `compose up` (RunTask) and `compose service up` (CreateService).
+
+`network_configuration` is required if you specify `ecs_network_mode` as `awsvpc`.
 
 Example `ecs-params.yml` file:
 
@@ -286,6 +302,28 @@ task_definition:
   services:
     my_service:
       essential: false
+```
+
+or:
+
+```
+version: 1
+task_definition:
+  ecs_network_mode: awsvpc
+  task_role_arn: myCustomRole
+  services:
+    my_service:
+      essential: false
+
+run_params:
+  network_configuration:
+    awsvpc_configuration:
+      subnets:
+        - subnet-feedface
+        - subnet-deadbeef
+      security_groups:
+        - sg-bafff1ed
+        - sg-c0ffeefe`
 ```
 
 You can then start a task by calling:
