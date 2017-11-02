@@ -63,7 +63,7 @@ const (
 	Disabled AssignPublicIp = "disabled"
 )
 
-func readECSParams(filename string) (*ECSParams, error) {
+func ReadECSParams(filename string) (*ECSParams, error) {
 	if filename == "" {
 		defaultFilename := "ecs-params.yml"
 		if _, err := os.Stat(defaultFilename); err == nil {

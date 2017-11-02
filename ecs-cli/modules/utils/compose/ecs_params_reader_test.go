@@ -41,7 +41,7 @@ task_definition:
 	err = tmpfile.Close()
 	assert.NoError(t, err, "Could not close tempfile")
 
-	ecsParams, err := readECSParams(ecsParamsFileName)
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, "1", ecsParams.Version, "Expected version to match")
@@ -52,7 +52,7 @@ task_definition:
 }
 
 func TestReadECSParams_FileDoesNotExist(t *testing.T) {
-	_, err := readECSParams("nonexistant.yml")
+	_, err := ReadECSParams("nonexistant.yml")
 	assert.Error(t, err)
 }
 
@@ -81,7 +81,7 @@ task_definition:
 	err = tmpfile.Close()
 	assert.NoError(t, err, "Could not close tempfile")
 
-	ecsParams, err := readECSParams(ecsParamsFileName)
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
 
 	if assert.NoError(t, err) {
 		containerDefs := ecsParams.TaskDefinition.ContainerDefinitions
@@ -120,7 +120,7 @@ run_params:
 	err = tmpfile.Close()
 	assert.NoError(t, err, "Could not close tempfile")
 
-	ecsParams, err := readECSParams(ecsParamsFileName)
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
 
 	if assert.NoError(t, err) {
 		awsvpcConfig := ecsParams.RunParams.NetworkConfiguration.AwsVpcConfiguration
