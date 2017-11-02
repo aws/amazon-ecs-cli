@@ -285,10 +285,6 @@ func cachedTaskDefinitionRevisionIsActive(cachedTaskDefinition *ecs.TaskDefiniti
 	return *taskDefinitionOfRecord.Status == ecs.TaskDefinitionStatusActive
 }
 
-// constructTaskDefinitionCacheHash computes md5sum of the region, awsAccountId and the requested task definition data
-// BUG(juanrhenals) The requested Task Definition data (taskDefinitionRequest) is not created in a deterministic fashion because there are maps within
-// the request ecs.RegisterTaskDefinitionInput structure, and map iteration in Go is not deterministic. We need to fix this.
-// FIXED(pzimmermann) using a marshalled json representation for the task definition data to be deterministic
 func (c *ecsClient) constructTaskDefinitionCacheHash(taskDefinition *ecs.TaskDefinition, request *ecs.RegisterTaskDefinitionInput) string {
 	// Get the region from the ecsClient configuration
 	region := aws.StringValue(c.params.Session.Config.Region)

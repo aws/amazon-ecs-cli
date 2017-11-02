@@ -149,7 +149,10 @@ func UsageErrorFactory(command string) func(*cli.Context, error, bool) error {
 		if err != nil {
 			logrus.Error(err)
 		}
-		cli.ShowCommandHelp(c, command)
+		err = cli.ShowCommandHelp(c, command)
+		if err != nil {
+			logrus.Debug(err)
+		}
 		os.Exit(1)
 		return err
 	}
