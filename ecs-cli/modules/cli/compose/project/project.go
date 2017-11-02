@@ -104,11 +104,17 @@ func (p *ecsProject) Parse() error {
 	if err := context.Open(); err != nil {
 		return err
 	}
+
 	if err := p.Entity().LoadContext(); err != nil {
 		return err
 	}
 
 	if err := p.parseCompose(); err != nil {
+		return err
+	}
+
+	// Populates ecs-params onto project context
+	if err := p.parseECSParams(); err != nil {
 		return err
 	}
 
@@ -130,6 +136,21 @@ func (p *ecsProject) parseCompose() error {
 	return p.context.SetProjectName()
 }
 
+// parseECSParams sets data from the ecs-params.yml file on the ecsProject.context
+func (p *ecsProject) parseECSParams() error {
+	logrus.Debug("Parsing the ecs-params yaml...")
+	ecsParamsFileName := p.context.CLIContext.GlobalString(flags.ECSParamsFileNameFlag)
+	ecsParams, err := utils.ReadECSParams(ecsParamsFileName)
+
+	if err != nil {
+		return err
+	}
+
+	p.context.ECSParams = ecsParams
+
+	return nil
+}
+
 // transformTaskDefinition converts the compose yml and ecs-params yml into an ECS task definition
 func (p *ecsProject) transformTaskDefinition() error {
 	context := p.context
@@ -138,9 +159,15 @@ func (p *ecsProject) transformTaskDefinition() error {
 	logrus.Debug("Transforming yaml to task definition...")
 	taskDefinitionName := utils.GetTaskDefinitionName("", context.Context.ProjectName)
 	taskRoleArn := context.CLIContext.GlobalString(flags.TaskRoleArnFlag)
-	ecsParamsFileName := context.CLIContext.GlobalString(flags.ECSParamsFileNameFlag)
 
-	taskDefinition, err := utils.ConvertToTaskDefinition(taskDefinitionName, &context.Context, p.ServiceConfigs(), taskRoleArn, ecsParamsFileName)
+	taskDefinition, err := utils.ConvertToTaskDefinition(
+		taskDefinitionName,
+		&context.Context,
+		p.ServiceConfigs(),
+		taskRoleArn,
+		p.context.ECSParams,
+	)
+
 	if err != nil {
 		return err
 	}

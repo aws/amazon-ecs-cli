@@ -297,7 +297,62 @@ func TestParseComposeForVersion1WithEnvFile(t *testing.T) {
 	}
 }
 
+func TestParseECSParams(t *testing.T) {
+	ecsParamsString := `version: 1
+task_definition:
+  ecs_network_mode: host
+  task_role_arn: arn:aws:iam::123456789012:role/my_role
+  services:
+    mysql:
+      essential: false
+
+run_params:
+  network_configuration:
+    awsvpc_configuration:
+      subnets: [subnet-feedface, subnet-deadbeef]
+      security_groups:
+        - sg-bafff1ed
+        - sg-c0ffeefe`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs fields tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	defer os.Remove(ecsParamsFileName)
+
+	project := setupTestProjectWithEcsParams(t, ecsParamsFileName)
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+
+	if err := project.parseECSParams(); err != nil {
+		t.Fatalf("Unexpected error parsing the ecs-params data: %v", ecsParamsString, err)
+	}
+
+	ecsParams := project.context.ECSParams
+	assert.NotNil(t, ecsParams, "Expected ecsParams to be set on project")
+	assert.Equal(t, "1", ecsParams.Version, "Expected Version to match")
+
+	td := ecsParams.TaskDefinition
+
+	assert.Equal(t, "host", td.NetworkMode, "Expected NetworkMode to match")
+	assert.Equal(t, "arn:aws:iam::123456789012:role/my_role", td.TaskRoleArn, "Expected TaskRoleArn to match")
+
+	networkConfigs := ecsParams.RunParams.NetworkConfiguration.AwsVpcConfiguration
+	assert.Equal(t, []string{"subnet-feedface", "subnet-deadbeef"}, networkConfigs.Subnets, "Expected Subnets to match")
+	assert.Equal(t, []string{"sg-bafff1ed", "sg-c0ffeefe"}, networkConfigs.SecurityGroups, "Expected SecurityGroups to match")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+}
+
 func setupTestProject(t *testing.T) *ecsProject {
+	return setupTestProjectWithEcsParams(t, "")
+}
+
+func setupTestProjectWithEcsParams(t *testing.T, ecsParamsFileName string) *ecsProject {
 	envLookup, err := utils.GetDefaultEnvironmentLookup()
 	if err != nil {
 		t.Fatal("Unexpected error in setting up a project", err)
@@ -307,9 +362,11 @@ func setupTestProject(t *testing.T) *ecsProject {
 		t.Fatal("Unexpected error in setting up a project", err)
 	}
 
-	composeContext := flag.NewFlagSet("ecs-cli", 0)
-	composeContext.String(flags.ProjectNameFlag, testProjectName, "")
-	parentContext := cli.NewContext(nil, composeContext, nil)
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.String(flags.ProjectNameFlag, testProjectName, "")
+	flagSet.String(flags.ECSParamsFileNameFlag, ecsParamsFileName, "")
+
+	parentContext := cli.NewContext(nil, flagSet, nil)
 	cliContext := cli.NewContext(nil, nil, parentContext)
 
 	ecsContext := &context.Context{

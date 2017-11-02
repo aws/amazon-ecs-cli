@@ -64,18 +64,13 @@ func getSupportedComposeYamlOptionsMap() map[string]bool {
 
 // ConvertToTaskDefinition transforms the yaml configs to its ecs equivalent (task definition)
 func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context,
-	serviceConfigs *config.ServiceConfigs, taskRoleArn string, ecsParamsFileName string) (*ecs.TaskDefinition, error) {
+	serviceConfigs *config.ServiceConfigs, taskRoleArn string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
 
 	if serviceConfigs.Len() == 0 {
 		return nil, errors.New("cannot create a task definition with no containers; invalid service config")
 	}
 
 	logUnsupportedConfigFields(context.Project)
-
-	ecsParams, err := readECSParams(ecsParamsFileName)
-	if err != nil {
-		return nil, err
-	}
 
 	var networkMode string
 	var ecsParamsContainerDefs ContainerDefs

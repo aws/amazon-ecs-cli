@@ -141,8 +141,10 @@ task_definition:
 	assert.NoError(t, err, "Could not close tempfile")
 
 	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, "", ecsParamsFileName)
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, "", ecsParams)
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, "host", aws.StringValue(taskDefinition.NetworkMode), "Expected network mode to match")
@@ -177,8 +179,10 @@ task_definition:
 	assert.NoError(t, err, "Could not close tempfile")
 
 	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, "", ecsParamsFileName)
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, "", ecsParams)
 
 	containerDefs := taskDefinition.ContainerDefinitions
 	mysql := findContainerByName("mysql", containerDefs)
@@ -213,8 +217,10 @@ task_definition:
 	assert.NoError(t, err, "Could not close tempfile")
 
 	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, "", ecsParamsFileName)
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, "", ecsParams)
 
 	containerDefs := taskDefinition.ContainerDefinitions
 	mysql := findContainerByName("mysql", containerDefs)
@@ -249,8 +255,10 @@ task_definition:
 	assert.NoError(t, err, "Could not close tempfile")
 
 	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, "", ecsParamsFileName)
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, "", ecsParams)
 
 	containerDefs := taskDefinition.ContainerDefinitions
 	mysql := findContainerByName("mysql", containerDefs)
@@ -284,8 +292,10 @@ task_definition:
 	assert.NoError(t, err, "Could not close tempfile")
 
 	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, "", ecsParamsFileName)
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, "", ecsParams)
 
 	containerDefs := taskDefinition.ContainerDefinitions
 	mysql := findContainerByName("mysql", containerDefs)
@@ -320,8 +330,10 @@ task_definition:
 	assert.NoError(t, err, "Could not close tempfile")
 
 	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
 
-	_, err = convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, "", ecsParamsFileName)
+	_, err = convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, "", ecsParams)
 
 	// At least one container must be marked essential
 	assert.Error(t, err)
@@ -350,8 +362,10 @@ task_definition:
 	assert.NoError(t, err, "Could not close tempfile")
 
 	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
 
-	_, err = convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, "", ecsParamsFileName)
+	_, err = convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, "", ecsParams)
 
 	// At least one container must be marked essential
 	assert.Error(t, err)
@@ -377,22 +391,17 @@ task_definition:
 	assert.NoError(t, err, "Could not close tempfile")
 
 	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
 	taskRoleArn := "arn:aws:iam::123456789012:role/tweedledum"
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, taskRoleArn, ecsParamsFileName)
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, taskRoleArn, ecsParams)
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, "host", aws.StringValue(taskDefinition.NetworkMode), "Expected network mode to match")
 		assert.Equal(t, "arn:aws:iam::123456789012:role/tweedledum", aws.StringValue(taskDefinition.TaskRoleArn), "Expected task role arn to match")
 	}
-}
-
-func TestConvertToTaskDefinitionWithECSParamsWithNoSuchFileError(t *testing.T) {
-	ecsParamsFileName := "ecs-params.yml"
-	taskRoleArn := "arn:aws:iam::123456789012:role/tweedledum"
-
-	_, err := convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, taskRoleArn, ecsParamsFileName)
-	assert.Error(t, err)
 }
 
 func TestConvertToTaskDefinitionWithDnsSearch(t *testing.T) {
@@ -812,14 +821,14 @@ func convertToTaskDefinitionInTest(t *testing.T, name string, serviceConfig *con
 		EnvironmentLookup: envLookup,
 		ResourceLookup:    resourceLookup,
 	}
-	taskDefinition, err := ConvertToTaskDefinition(taskDefName, context, serviceConfigs, taskRoleArn, "")
+	taskDefinition, err := ConvertToTaskDefinition(taskDefName, context, serviceConfigs, taskRoleArn, nil)
 	if err != nil {
 		t.Errorf("Expected to convert [%v] serviceConfigs without errors. But got [%v]", serviceConfig, err)
 	}
 	return taskDefinition
 }
 
-func convertToTaskDefWithEcsParamsInTest(t *testing.T, names []string, serviceConfig *config.ServiceConfig, taskRoleArn string, ecsParamsFileName string) (*ecs.TaskDefinition, error) {
+func convertToTaskDefWithEcsParamsInTest(t *testing.T, names []string, serviceConfig *config.ServiceConfig, taskRoleArn string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
 	serviceConfigs := config.NewServiceConfigs()
 	for _, name := range names {
 		serviceConfigs.Add(name, serviceConfig)
@@ -839,7 +848,7 @@ func convertToTaskDefWithEcsParamsInTest(t *testing.T, names []string, serviceCo
 		EnvironmentLookup: envLookup,
 		ResourceLookup:    resourceLookup,
 	}
-	taskDefinition, err := ConvertToTaskDefinition(taskDefName, context, serviceConfigs, taskRoleArn, ecsParamsFileName)
+	taskDefinition, err := ConvertToTaskDefinition(taskDefName, context, serviceConfigs, taskRoleArn, ecsParams)
 	if err != nil {
 		return nil, err
 	}
@@ -958,7 +967,7 @@ func TestMemReservationHigherThanMemLimit(t *testing.T) {
 		EnvironmentLookup: envLookup,
 		ResourceLookup:    resourceLookup,
 	}
-	_, err = ConvertToTaskDefinition(taskDefName, context, serviceConfigs, "", "")
+	_, err = ConvertToTaskDefinition(taskDefName, context, serviceConfigs, "", nil)
 	assert.EqualError(t, err, "mem_limit should not be less than mem_reservation")
 }
 
