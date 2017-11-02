@@ -16,6 +16,7 @@ package main
 import (
 	"os"
 
+	"github.com/Sirupsen/logrus"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/factory"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/cluster"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/compose"
@@ -54,5 +55,8 @@ func main() {
 		composeCommand.ComposeCommand(composeFactory),
 	}
 
-	app.Run(os.Args)
+	err := app.Run(os.Args)
+	if err != nil {
+		logrus.Debug(err)
+	}
 }

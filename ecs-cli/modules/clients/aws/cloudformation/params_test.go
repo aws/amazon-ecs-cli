@@ -17,6 +17,7 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAddAndValidate(t *testing.T) {
@@ -72,11 +73,10 @@ func TestAddAndValidate(t *testing.T) {
 }
 
 func TestAddWithUsePreviousValueAndValidate(t *testing.T) {
-	cfnParams := NewCfnStackParamsForUpdate()
-	err := cfnParams.Validate()
-	if err != nil {
-		t.Error("Error validating params for update: ", err)
-	}
+	cfnParams, err := NewCfnStackParamsForUpdate()
+	assert.NoError(t, err, "Unexpected error getting New CFN Stack Params")
+	err = cfnParams.Validate()
+	assert.NoError(t, err, "Error validating params for update")
 
 	params := cfnParams.Get()
 	if 0 == len(params) {

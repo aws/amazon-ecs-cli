@@ -335,7 +335,10 @@ func scaleCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscli
 	}
 
 	// Populate update params for the cfn stack
-	cfnParams := cloudformation.NewCfnStackParamsForUpdate()
+	cfnParams, err := cloudformation.NewCfnStackParamsForUpdate()
+	if err != nil {
+		return err
+	}
 	cfnParams.Add(cloudformation.ParameterKeyAsgMaxSize, size)
 
 	// Update the stack.

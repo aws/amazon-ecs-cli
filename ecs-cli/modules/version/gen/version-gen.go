@@ -85,7 +85,10 @@ func gitHash() string {
 // cleanliness.
 func main() {
 
-	versionStr, _ := ioutil.ReadFile(filepath.Join("..", "..", "..", "VERSION"))
+	versionStr, err := ioutil.ReadFile(filepath.Join("..", "..", "..", "VERSION"))
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// default values
 	info := versionInfo{
