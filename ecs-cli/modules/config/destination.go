@@ -29,7 +29,13 @@ type Destination struct {
 	Mode *os.FileMode
 }
 
-// GetWindowsBaseDataPath returns the correct path to Append
+// getOSName returns runtime.GOOS
+// In unit tests it can be mocked
+var getOSName = func() string {
+	return runtime.GOOS
+}
+
+// GetWindowsBaseDataPath returns the correct path to append
 // to a user home directory to store application data.
 func GetWindowsBaseDataPath() string {
 	return filepath.Join("AppData", "local", "ecs")
@@ -58,8 +64,8 @@ func newDefaultDestination() (*Destination, error) {
 		return nil, err
 	}
 	path := filepath.Join(homeDir, ".ecs")
-	if runtime.GOOS == "windows" {
-		path = filepath.Join(homeDir, GetWindowsBaseDataPath(), "config")
+	if getOSName() == "windows" {
+		path = filepath.Join(homeDir, GetWindowsBaseDataPath())
 	}
 
 	return &Destination{Path: path, Mode: mode}, nil

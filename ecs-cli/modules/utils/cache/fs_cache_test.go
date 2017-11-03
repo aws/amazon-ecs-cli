@@ -16,6 +16,7 @@ package cache
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -42,6 +43,75 @@ func TestCacheCreatesDir(t *testing.T) {
 	if dir != expected {
 		t.Errorf("expected %v, got %v", expected, dir)
 	}
+}
+
+func TestCacheDirLinux(t *testing.T) {
+	// Mock GetOSName in the test, then reset it after the test
+	oldGetOSName := getOSName
+	getOSName = func() string {
+		return "linux"
+	}
+	defer func() { getOSName = oldGetOSName }()
+
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	defer os.Remove(tempDirName)
+
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+
+	path, err := cacheDir("name")
+	assert.NoError(t, err, "Unexpected error creating new config path")
+	assert.Equal(t, filepath.Join(tempDirName, ".cache", cachePrefix, "name"), path)
+}
+
+func TestCacheDirDarwin(t *testing.T) {
+	// Mock GetOSName in the test, then reset it after the test
+	oldGetOSName := getOSName
+	getOSName = func() string {
+		return "darwin"
+	}
+	defer func() { getOSName = oldGetOSName }()
+
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	defer os.Remove(tempDirName)
+
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+
+	path, err := cacheDir("name")
+	assert.NoError(t, err, "Unexpected error creating new config path")
+	assert.Equal(t, filepath.Join(tempDirName, ".cache", cachePrefix, "name"), path)
+}
+
+func TestCacheDirWindows(t *testing.T) {
+	// Mock GetOSName in the test, then reset it after the test
+	oldGetOSName := getOSName
+	getOSName = func() string {
+		return "windows"
+	}
+	defer func() { getOSName = oldGetOSName }()
+
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	defer os.Remove(tempDirName)
+
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+
+	path, err := cacheDir("name")
+	assert.NoError(t, err, "Unexpected error creating new config path")
+	assert.Equal(t, filepath.Join(tempDirName, "AppData", "local", "ecs", "cache", "name"), path)
 }
 
 func tempDir(t *testing.T) string {

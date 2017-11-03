@@ -74,7 +74,7 @@ docker-test:
 		golang:1.8 make test
 
 .PHONY: supported-platforms
-supported-platforms: $(LINUX_BINARY) $(DARWIN_BINARY)
+supported-platforms: $(LINUX_BINARY) $(DARWIN_BINARY) $(WINDOWS_BINARY)
 
 $(WINDOWS_BINARY): $(SOURCES)
 	@mkdir -p ./bin/windows-amd64
