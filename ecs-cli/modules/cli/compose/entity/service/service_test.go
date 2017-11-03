@@ -179,7 +179,7 @@ func createServiceTest(t *testing.T, cliContext *cli.Context,
 
 	context := &context.Context{
 		ECSClient:  mockEcs,
-		ECSParams:  &config.CLIParams{},
+		CLIParams:  &config.CLIParams{},
 		CLIContext: cliContext,
 	}
 
@@ -209,6 +209,7 @@ func TestLoadContext(t *testing.T) {
 	assert.NoError(t, err, "Unexpected error while loading context in load context test")
 
 	observedDeploymentConfig := service.DeploymentConfig()
+
 	assert.Equal(t, int64(deploymentMaxPercent),
 		aws.Int64Value(observedDeploymentConfig.MaximumPercent),
 		"DeploymentConfig.MaxPercent should match")

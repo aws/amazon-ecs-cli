@@ -33,7 +33,7 @@ type Context struct {
 	project.Context
 
 	CLIContext *cli.Context
-	ECSParams  *config.CLIParams
+	CLIParams  *config.CLIParams
 
 	// AWS Service Clients
 	ECSClient ecsclient.ECSClient
@@ -47,9 +47,9 @@ type Context struct {
 func (context *Context) Open() error {
 	// setup aws service clients
 	context.ECSClient = ecsclient.NewECSClient()
-	context.ECSClient.Initialize(context.ECSParams)
+	context.ECSClient.Initialize(context.CLIParams)
 
-	context.EC2Client = ec2client.NewEC2Client(context.ECSParams)
+	context.EC2Client = ec2client.NewEC2Client(context.CLIParams)
 
 	return nil
 }

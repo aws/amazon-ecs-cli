@@ -256,7 +256,7 @@ func GetTaskGroup(entity ProjectEntity) string {
 // GetTaskDefinitionFamily returns the family name
 func GetTaskDefinitionFamily(entity ProjectEntity) string {
 	// ComposeProjectNamePrefix is deprecated, but its use must remain for backwards compatibility
-	return entity.Context().ECSParams.ComposeProjectNamePrefix + GetProjectName(entity)
+	return entity.Context().CLIParams.ComposeProjectNamePrefix + GetProjectName(entity)
 }
 
 // GetProjectName returns the name of the project that was set in the context we are working with
@@ -266,7 +266,7 @@ func GetProjectName(entity ProjectEntity) string {
 
 // getProjectPrefix returns the prefix for the project name
 func getProjectPrefix(entity ProjectEntity) string {
-	return entity.Context().ECSParams.ComposeProjectNamePrefix
+	return entity.Context().CLIParams.ComposeProjectNamePrefix
 }
 
 // GetServiceName using project entity
@@ -275,7 +275,7 @@ func GetServiceName(entity ProjectEntity) string {
 }
 
 func getServicePrefix(entity ProjectEntity) string {
-	return entity.Context().ECSParams.ComposeServiceNamePrefix
+	return entity.Context().CLIParams.ComposeServiceNamePrefix
 }
 
 // GetIdFromArn gets the aws String value of the input arn and returns the id part of the arn

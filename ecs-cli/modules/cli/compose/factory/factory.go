@@ -77,10 +77,10 @@ func (projectFactory projectFactory) populateContext(ecsContext *context.Context
 	}
 	params, err := config.NewCLIParams(cliContext, rdwr)
 	if err != nil {
-		utils.LogError(err, "Unable to create an instance of ECSParams given the cli context")
+		utils.LogError(err, "Unable to create an instance of CLIParams given the cli context")
 		return err
 	}
-	ecsContext.ECSParams = params
+	ecsContext.CLIParams = params
 
 	// populate libcompose context
 	if err = projectFactory.populateLibcomposeContext(ecsContext); err != nil {
