@@ -40,7 +40,8 @@ type Context struct {
 	EC2Client ec2client.EC2Client
 
 	// IsService would decide if the resource created by this compose project would be ECS Tasks directly or through ECS Services
-	IsService bool
+	IsService      bool
+	ServiceConfigs []string
 }
 
 // Open populates the context with new ECS and EC2 Clients
@@ -50,6 +51,7 @@ func (context *Context) Open() error {
 	context.ECSClient.Initialize(context.ECSParams)
 
 	context.EC2Client = ec2client.NewEC2Client(context.ECSParams)
+	context.ServiceConfigs = context.CLIContext.StringSlice(command.ServiceConfigsFlag)
 
 	return nil
 }
@@ -90,12 +92,13 @@ func (c *Context) lookupProjectName() (string, error) {
 	f = toUnixPath(f)
 
 	parent := path.Base(path.Dir(f))
+	serviceconfigs := strings.Join(append([]string{""}, c.ServiceConfigs...), "-")
 	if parent != "" && parent != "." {
-		return parent, nil
+		return parent + serviceconfigs, nil
 	} else if wd, err := os.Getwd(); err != nil {
-		return "", err
+		return "" + serviceconfigs, err
 	} else {
-		return path.Base(toUnixPath(wd)), nil
+		return path.Base(toUnixPath(wd)) + serviceconfigs, nil
 	}
 }
 

@@ -79,6 +79,7 @@ const (
 	LoadBalancerNameFlag                    = "load-balancer-name"
 	RoleFlag                                = "role"
 	ComposeServiceTimeOutFlag               = "timeout"
+	ServiceConfigsFlag                      = "service-configs"
 )
 
 // OptionalClusterFlag inline overrides cluster
