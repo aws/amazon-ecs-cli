@@ -53,7 +53,7 @@ func TestCacheDirLinux(t *testing.T) {
 	}
 	defer func() { getOSName = oldGetOSName }()
 
-	// Create a temprorary directory for the dummy ecs config
+	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
 		t.Fatal("Error while creating the dummy ecs config directory")
@@ -76,7 +76,7 @@ func TestCacheDirDarwin(t *testing.T) {
 	}
 	defer func() { getOSName = oldGetOSName }()
 
-	// Create a temprorary directory for the dummy ecs config
+	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
 		t.Fatal("Error while creating the dummy ecs config directory")
@@ -99,7 +99,7 @@ func TestCacheDirWindows(t *testing.T) {
 	}
 	defer func() { getOSName = oldGetOSName }()
 
-	// Create a temprorary directory for the dummy ecs config
+	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
 		t.Fatal("Error while creating the dummy ecs config directory")
@@ -115,7 +115,7 @@ func TestCacheDirWindows(t *testing.T) {
 }
 
 func tempDir(t *testing.T) string {
-	// Create a temprorary directory for the dummy ecs config
+	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	assert.NoError(t, err, "Unexpected error while creating the dummy ecs config directory")
 	return tempDirName
