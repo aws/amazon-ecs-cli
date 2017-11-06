@@ -47,7 +47,7 @@ func recursiveFlagSearch(context *cli.Context, flag string) string {
 // NewCLIParams creates a new ECSParams object from the config file.
 func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 	clusterConfig := recursiveFlagSearch(context, ecscli.ClusterConfigFlag)
-	profileConfig := recursiveFlagSearch(context, ecscli.ProfileConfigFlag)
+	profileConfig := recursiveFlagSearch(context, ecscli.ECSProfileFlag)
 	ecsConfig, err := rdwr.Get(clusterConfig, profileConfig)
 
 	if err != nil {
@@ -70,14 +70,14 @@ func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 		ecsConfig.Region = regionFromFlag
 	}
 
-	if awsProfileFromFlag := recursiveFlagSearch(context, ecscli.AWSProfileNameFlag); awsProfileFromFlag != "" {
+	if awsProfileFromFlag := recursiveFlagSearch(context, ecscli.AWSProfileFlag); awsProfileFromFlag != "" {
 		ecsConfig.AWSProfile = awsProfileFromFlag
 		// unset Access Key and Secret Key, otherwise they will take precedence
 		ecsConfig.AWSAccessKey = ""
 		ecsConfig.AWSSecretKey = ""
 	}
 
-	svcSession, err := ecsConfig.ToAWSSession()
+	svcSession, err := ecsConfig.ToAWSSession(context)
 	if err != nil {
 		return nil, err
 	}

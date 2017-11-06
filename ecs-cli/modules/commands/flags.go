@@ -24,20 +24,25 @@ import (
 // Flag names used by the cli.
 const (
 	// Configure
-	AccessKeyFlag          = "access-key"
-	SecretKeyFlag          = "secret-key"
-	RegionFlag             = "region"
-	AwsRegionEnvVar        = "AWS_REGION"
-	AwsDefaultRegionEnvVar = "AWS_DEFAULT_REGION"
-	ProfileFlag            = "profile"
-	ClusterFlag            = "cluster"
-	ClusterEnvVar          = "ECS_CLUSTER"
-	VerboseFlag            = "verbose"
-	ClusterConfigFlag      = "cluster-config"
-	ProfileConfigFlag      = "ecs-profile"
-	ProfileNameFlag        = "profile-name"
-	ConfigNameFlag         = "config-name"
-	AWSProfileNameFlag     = "aws-profile"
+	AccessKeyFlag           = "access-key"
+	SecretKeyFlag           = "secret-key"
+	RegionFlag              = "region"
+	AwsRegionEnvVar         = "AWS_REGION"
+	AwsDefaultRegionEnvVar  = "AWS_DEFAULT_REGION"
+	AwsDefaultProfileEnvVar = "AWS_DEFAULT_PROFILE"
+	ProfileFlag             = "profile"
+	ClusterFlag             = "cluster"
+	ClusterEnvVar           = "ECS_CLUSTER"
+	VerboseFlag             = "verbose"
+	ClusterConfigFlag       = "cluster-config"
+	ECSProfileFlag          = "ecs-profile"
+	ProfileNameFlag         = "profile-name"
+	ConfigNameFlag          = "config-name"
+	AWSProfileFlag          = "aws-profile"
+	ECSProfileEnvVar        = "ECS_PROFILE"
+	AWSProfileEnvVar        = "AWS_PROFILE"
+	AWSAccessKeyEnvVar      = "AWS_ACCESS_KEY_ID"
+	AWSSecretKeyEnvVar      = "AWS_SECRET_ACCESS_KEY"
 
 	ComposeProjectNamePrefixFlag         = "compose-project-name-prefix"
 	ComposeProjectNamePrefixDefaultValue = "ecscompose-"
@@ -107,13 +112,15 @@ func OptionalRegionAndProfileFlags() []cli.Flag {
 			),
 		},
 		cli.StringFlag{
-			Name: ProfileConfigFlag,
+			Name:   ECSProfileFlag,
+			EnvVar: ECSProfileEnvVar,
 			Usage: fmt.Sprintf(
 				"[Optional] Specifies the name of the ECS profle configuration to use. Defaults to the default profile configuration.",
 			),
 		},
 		cli.StringFlag{
-			Name: AWSProfileNameFlag,
+			Name:   AWSProfileFlag,
+			EnvVar: AWSProfileEnvVar,
 			Usage: fmt.Sprintf(
 				"[Optional]  Use the AWS credentials from an existing named profile in ~/.aws/credentials.",
 			),
