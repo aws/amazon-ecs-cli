@@ -17,10 +17,11 @@ import (
 	"fmt"
 	"os"
 
-	cli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	flags "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/urfave/cli"
 )
 
 const (
@@ -87,91 +88,148 @@ func NewCLIConfig(cluster string) *CLIConfig {
 // ToAWSSession creates a new Session object from the CliConfig object.
 //
 // Region: Order of resolution
-//  1) Environment Variable - attempts to fetch the region from environment variables:
+//  1) ECS CLI Flags
+//   a) Region Flag --region
+//   b) Cluster Config Flag (--cluster-config)
+//  2) ECS Config - attempts to fetch the region from the default ECS Profile
+//  3) Environment Variable - attempts to fetch the region from environment variables:
 //    a) AWS_REGION (OR)
 //    b) AWS_DEFAULT_REGION
-//  2) ECS Config - attempts to fetch the region from the ECS config file
-//  3) AWS Profile - attempts to use region from AWS profile name
-//    a) profile name from ECS config file (OR)
-//    b) AWS_PROFILE environment variable (OR)
+//  4) AWS Profile - attempts to use region from AWS profile name
+//    a) --aws-profile flag
+//    b) AWS_PROFILE environment variable
 //    c) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
 //
 // Credentials: Order of resolution
-//  1) Environment Variable - attempts to fetch the credentials from environment variables:
-//   a) AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY (OR)
-//   b) AWS_ACCESS_KEY and AWS_SECRET_KEY
-//  2) ECS Config - attempts to fetch the credentials from the ECS config file
-//  3) AWS Profile - attempts to use credentials (aws_access_key_id, aws_secret_access_key) or assume_role (role_arn, source_profile) from AWS profile name
-//    a) profile name from ECS config file (OR)
-//    b) AWS_PROFILE environment variable (OR)
-//    c) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
-//  4) EC2 Instance role
-func (cfg *CLIConfig) ToAWSSession() (*session.Session, error) {
-	svcConfig := aws.Config{}
-	return cfg.toAWSSessionWithConfig(svcConfig)
-}
+//  1) ECS CLI Profile Flags
+//   a) ECS Profile (--ecs-profile)
+//   b) AWS Profile (--aws-profile)
+//  2) Environment Variables - attempts to fetch the credentials from environment variables:
+//   a) ECS_PROFILE
+//   b) AWS_PROFILE
+//   c) AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY, Optional: AWS_SESSION_TOKEN
+//  3) ECS Config - attempts to fetch the credentials from the default ECS Profile
+//  4) Default AWS Profile - attempts to use credentials (aws_access_key_id, aws_secret_access_key) or assume_role (role_arn, source_profile) from AWS profile name
+//    a) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
+//  5) EC2 Instance role
+func (cfg *CLIConfig) ToAWSSession(context *cli.Context) (*session.Session, error) {
 
-func (cfg *CLIConfig) toAWSSessionWithConfig(svcConfig aws.Config) (*session.Session, error) {
-	credentialProviders := cfg.getInitialCredentialProviders()
-	chainCredentials := credentials.NewChainCredentials(credentialProviders)
-	if _, err := chainCredentials.Get(); err == nil {
-		svcConfig.Credentials = chainCredentials
+	region, err := cfg.getRegion()
+
+	if err != nil || region == "" {
+		return nil, fmt.Errorf("Set a region using ecs-cli configure command with the --%s flag or %s environment variable or --%s flag", flags.RegionFlag, flags.AwsRegionEnvVar, flags.ProfileFlag)
 	}
 
-	svcConfig.Region = aws.String(cfg.getRegion())
+	if hasProfileFlags(context) {
+		return sessionFromECSConfig(cfg, region)
+	} else if hasEnvVars(context) {
+		return defaultSession(region)
+	} else if isDefaultECSProfileCase(cfg) {
+		return sessionFromECSConfig(cfg, region)
+	} else {
+		return defaultSessionFromProfile(region, aws.Config{})
+	}
 
-	svcSession, err := session.NewSessionWithOptions(session.Options{
+}
+
+func hasProfileFlags(context *cli.Context) bool {
+	return (recursiveFlagSearch(context, flags.ECSProfileFlag) != "" || recursiveFlagSearch(context, flags.AWSProfileFlag) != "")
+}
+
+func hasEnvVars(context *cli.Context) bool {
+	return (os.Getenv(flags.AWSSecretKeyEnvVar) != "" && os.Getenv(flags.AWSAccessKeyEnvVar) != "")
+}
+
+func isDefaultECSProfileCase(cfg *CLIConfig) bool {
+	return (cfg.AWSAccessKey != "" || cfg.AWSSecretKey != "" || cfg.AWSProfile != "")
+}
+
+func sessionFromECSConfig(cfg *CLIConfig, region string) (*session.Session, error) {
+	if cfg.AWSSecretKey != "" {
+		return customSessionFromKeys(region, cfg.AWSAccessKey, cfg.AWSSecretKey)
+	} else {
+		return customSessionFromProfile(region, cfg.AWSProfile)
+	}
+}
+
+// The argument svcConfig is needed to allow important unit tests to work
+// (for example: assume role)
+func defaultSessionFromProfile(region string, svcConfig aws.Config) (*session.Session, error) {
+	svcConfig.Region = aws.String(region)
+	return session.NewSessionWithOptions(session.Options{
 		Config:            svcConfig,
-		Profile:           cfg.AWSProfile,
+		Profile:           os.Getenv(flags.AwsDefaultProfileEnvVar),
 		SharedConfigState: session.SharedConfigEnable,
 	})
-	if err != nil {
-		return nil, err
-	}
-	region := *svcSession.Config.Region
+}
+
+func defaultSession(region string) (*session.Session, error) {
+	return session.NewSession(&aws.Config{
+		Region: aws.String(region),
+	})
+}
+
+func customSessionFromProfile(region string, awsProfile string) (*session.Session, error) {
+	return session.NewSession(&aws.Config{
+		Region:      aws.String(region),
+		Credentials: credentials.NewSharedCredentials("", awsProfile),
+	})
+}
+
+func customSessionFromKeys(region string, awsAccess string, awsSecret string) (*session.Session, error) {
+	return session.NewSession(&aws.Config{
+		Region:      aws.String(region),
+		Credentials: credentials.NewStaticCredentials(awsAccess, awsSecret, ""),
+	})
+}
+
+// Region: Order of resolution
+//  1) ECS CLI Flags
+//   a) Region Flag --region
+//   b) Cluster Config Flag (--cluster-config)
+//  2) ECS Config - attempts to fetch the region from the default ECS Profile
+//  3) Environment Variable - attempts to fetch the region from environment variables:
+//    a) AWS_REGION (OR)
+//    b) AWS_DEFAULT_REGION
+//  4) AWS Profile - attempts to use region from AWS profile name
+//    a) --aws-profile flag
+//    b) AWS_PROFILE environment variable
+//    c) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
+func (cfg *CLIConfig) getRegion() (string, error) {
+	region := cfg.Region
+
 	if region == "" {
-		return nil, fmt.Errorf("Set a region using ecs-cli configure command with the --%s flag or %s environment variable or --%s flag", cli.RegionFlag, cli.AwsRegionEnvVar, cli.ProfileFlag)
-	}
-
-	return svcSession, nil
-}
-
-// getInitialCredentialProviders gets the starting chain of credential providers to use when creating service clients.
-func (cfg *CLIConfig) getInitialCredentialProviders() []credentials.Provider {
-	// Append providers in the default credential providers chain to the chain.
-	// Order of credential resolution
-	//  1) Environment Variable
-	//  2) ECS Config
-	// the rest are handled by session.NewSessionWithOptions invoked in ToAWSSession()
-	credentialProviders := []credentials.Provider{
-		&credentials.EnvProvider{},
-		&credentials.StaticProvider{
-			Value: credentials.Value{
-				AccessKeyID:     cfg.AWSAccessKey,
-				SecretAccessKey: cfg.AWSSecretKey,
-			},
-		},
-	}
-
-	return credentialProviders
-}
-
-// getRegion gets the region to use from environment variables or ecs-cli's config file..
-func (cfg *CLIConfig) getRegion() string {
-	// Order of region resolution
-	//  1) Environment Variable
-	//  2) ECS Config
-	// the rest are handled by session.NewSessionWithOptions invoked in ToAWSSession()
-	region := ""
-	// Search the chain of environment variables for region.
-	for _, envVar := range []string{cli.AwsRegionEnvVar, cli.AwsDefaultRegionEnvVar} {
-		region = os.Getenv(envVar)
-		if region != "" {
-			break
+		// Search the chain of environment variables for region.
+		for _, envVar := range []string{flags.AwsRegionEnvVar, flags.AwsDefaultRegionEnvVar} {
+			region = os.Getenv(envVar)
+			if region != "" {
+				break
+			}
 		}
 	}
+
+	var err error = nil
 	if region == "" {
-		region = cfg.Region
+		region, err = cfg.getRegionFromAWSProfile()
 	}
-	return region
+	return region, err
+}
+
+func (cfg *CLIConfig) getRegionFromAWSProfile() (string, error) {
+	awsProfile := ""
+	if cfg.AWSProfile != "" {
+		awsProfile = cfg.AWSProfile
+	} else {
+		awsProfile = os.Getenv(flags.AwsDefaultProfileEnvVar)
+	}
+
+	s, err := session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+		Profile:           awsProfile,
+	})
+	if err != nil {
+		return "", err
+	}
+	return aws.StringValue(s.Config.Region), nil
+
 }
