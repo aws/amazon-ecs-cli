@@ -44,11 +44,10 @@ func hideCredsOldFile(data string) string {
 		if strings.Contains(line, "aws_secret_access_key") {
 			parts := strings.Split(line, "=")
 			if strings.TrimSpace(parts[1]) != "" {
-				safeData += fmt.Sprintf("%v= %v", parts[0], maskSecret(parts[1]))
+				line = fmt.Sprintf("%v= %v", parts[0], maskSecret(parts[1]))
 			}
-		} else {
-			safeData = safeData + line
 		}
+		safeData += line
 		safeData += "\n"
 	}
 
@@ -91,11 +90,7 @@ func migrateWarning(cliConfig config.CLIConfig) error {
 	}
 
 	t := template.Must(template.New("message").Parse(messageTemplate))
-	if err := t.Execute(os.Stdout, data); err != nil {
-		return err
-	}
-
-	return nil
+	return t.Execute(os.Stdout, data)
 }
 
 var messageTemplate = `
@@ -115,17 +110,20 @@ cluster-configurations:
     region: {{.Region}}
     {{.Optional_Fields}}
 
+{{if .AWSSecretKey}}
 ~/.ecs/credentials
 default: default
 credentials:
   default:
     aws_access_key_id: {{.AWSAccessKey}}
     aws_secret_access_key: {{.AWSSecretKey}}
+{{end}}
 
 [WARN] Please read the following changes carefully: http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_Configuration.html
 - The option --compose-project-name-prefix has been removed (name used for create task definition: <compose_project_name_prefix> + <project_name>). You can specify your desired name with the --project-name option.
 - The --compose-service-name-prefix option has been deprecated (name used for create service: <compose_service_name_prefix> + <project_name>). This field can still be configured; however, if it is not configured there is no longer a default value assigned.
 - The --cfn-stack-name-prefix option has been removed. To use an existing CloudFormation stack, please specify the full stack name using the --cfn-stack-name option; otherwise, the stack name defaults to amazon-ecs-cli-setup-<cluster_name>.
+- Storing an AWS Profile name in the config is no longer supported, please use the --aws-profile flag inline instead.
 
 Are you sure you want to migrate[y/n]?
 `
