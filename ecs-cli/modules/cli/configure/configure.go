@@ -60,10 +60,6 @@ func Migrate(context *cli.Context) error {
 		return errors.Wrap(err, "Error reading old configuration file.")
 	}
 
-	if oldConfig.AWSProfile != "" {
-		logrus.Warnf("Storing an AWS profile in the configuration file is no longer supported. Please use the %s flag inline in commands instead.", command.ProfileFlag)
-	}
-
 	if oldConfig.CFNStackNamePrefix == command.CFNStackNamePrefixDefaultValue {
 		// if CFNStackName is default; don't store it.
 		oldConfig.CFNStackName = ""
@@ -90,10 +86,6 @@ func Migrate(context *cli.Context) error {
 		CFNStackName:             oldConfig.CFNStackName,
 		ComposeServiceNamePrefix: oldConfig.ComposeServiceNamePrefix,
 	}
-	profile := &config.Profile{
-		AWSAccessKey: oldConfig.AWSAccessKey,
-		AWSSecretKey: oldConfig.AWSSecretKey,
-	}
 
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
@@ -102,8 +94,14 @@ func Migrate(context *cli.Context) error {
 	if err = rdwr.SaveCluster(defaultConfigName, cluster); err != nil {
 		return errors.Wrap(err, "Error saving cluster configuration")
 	}
-	if err = rdwr.SaveProfile(defaultConfigName, profile); err != nil {
-		return errors.Wrap(err, "Error saving profile")
+	if oldConfig.AWSSecretKey != "" {
+		profile := &config.Profile{
+			AWSAccessKey: oldConfig.AWSAccessKey,
+			AWSSecretKey: oldConfig.AWSSecretKey,
+		}
+		if err = rdwr.SaveProfile(defaultConfigName, profile); err != nil {
+			return errors.Wrap(err, "Error saving profile")
+		}
 	}
 
 	logrus.Info("Migrated ECS CLI configuration.")
