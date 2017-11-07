@@ -41,26 +41,29 @@ const (
 
 type mockReadWriter struct {
 	clusterName string
+	stackName   string
 }
 
-func (rdwr *mockReadWriter) GetConfig() (*config.CliConfig, error) {
-	return config.NewCliConfig(rdwr.clusterName), nil
+func (rdwr *mockReadWriter) Get(cluster string, profile string) (*config.CLIConfig, error) {
+	cliConfig := config.NewCLIConfig(rdwr.clusterName)
+	cliConfig.CFNStackName = rdwr.clusterName
+	return cliConfig, nil
 }
 
-func (rdwr *mockReadWriter) ReadFrom(ecsConfig *config.CliConfig) error {
+func (rdwr *mockReadWriter) SaveProfile(configName string, profile *config.Profile) error {
 	return nil
 }
 
-func (rdwr *mockReadWriter) IsInitialized() (bool, error) {
-	return true, nil
-}
-
-func (rdwr *mockReadWriter) Save(dest *config.Destination) error {
+func (rdwr *mockReadWriter) SaveCluster(configName string, cluster *config.Cluster) error {
 	return nil
 }
 
-func (rdwr *mockReadWriter) IsKeyPresent(section, key string) bool {
-	return true
+func (rdwr *mockReadWriter) SetDefaultProfile(configName string) error {
+	return nil
+}
+
+func (rdwr *mockReadWriter) SetDefaultCluster(configName string) error {
+	return nil
 }
 
 func newMockReadWriter() *mockReadWriter {
@@ -504,9 +507,10 @@ func TestClusterUpWithoutRegion(t *testing.T) {
 }
 
 func TestClusterDown(t *testing.T) {
-	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CliParams, error) {
-		return &config.CliParams{
-			Cluster: clusterName,
+	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CLIParams, error) {
+		return &config.CLIParams{
+			Cluster:      clusterName,
+			CFNStackName: stackName,
 		}, nil
 	}
 
@@ -552,9 +556,10 @@ func TestDeleteClusterPrompt(t *testing.T) {
 }
 
 func TestClusterScale(t *testing.T) {
-	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CliParams, error) {
-		return &config.CliParams{
-			Cluster: clusterName,
+	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CLIParams, error) {
+		return &config.CLIParams{
+			Cluster:      clusterName,
+			CFNStackName: stackName,
 		}, nil
 	}
 	defer os.Clearenv()
@@ -605,8 +610,8 @@ func TestClusterPSTaskGetInfoFail(t *testing.T) {
 	testSession, err := session.NewSession()
 	assert.NoError(t, err, "Unexpected error in creating session")
 
-	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CliParams, error) {
-		return &config.CliParams{
+	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CLIParams, error) {
+		return &config.CLIParams{
 			Cluster: clusterName,
 			Session: testSession,
 		}, nil

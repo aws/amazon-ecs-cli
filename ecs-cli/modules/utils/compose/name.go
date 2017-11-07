@@ -45,11 +45,6 @@ func GetServiceName(prefix, projectName string) string {
 	return fmt.Sprintf("%s%s", prefix, projectName)
 }
 
-// GetTaskDefinitionFamily returns the task definition family name
-func GetTaskDefinitionFamily(prefix, projectName string) string {
-	return fmt.Sprintf("%s%s", prefix, projectName)
-}
-
 // GetTaskGroup returns <task-group-prefix><task-definition-family> used for grouping tasks
 func GetTaskGroup(prefix, projectName string) string {
 	return fmt.Sprintf("%s:%s%s", TaskGroupPrefix, prefix, projectName)

@@ -24,21 +24,31 @@ import (
 // Flag names used by the cli.
 const (
 	// Configure
-	AccessKeyFlag          = "access-key"
-	SecretKeyFlag          = "secret-key"
-	RegionFlag             = "region"
-	AwsRegionEnvVar        = "AWS_REGION"
-	AwsDefaultRegionEnvVar = "AWS_DEFAULT_REGION"
-	ProfileFlag            = "profile"
-	ClusterFlag            = "cluster"
-	ClusterEnvVar          = "ECS_CLUSTER"
-	VerboseFlag            = "verbose"
+	AccessKeyFlag           = "access-key"
+	SecretKeyFlag           = "secret-key"
+	RegionFlag              = "region"
+	AwsRegionEnvVar         = "AWS_REGION"
+	AwsDefaultRegionEnvVar  = "AWS_DEFAULT_REGION"
+	AwsDefaultProfileEnvVar = "AWS_DEFAULT_PROFILE"
+	ProfileFlag             = "profile"
+	ClusterFlag             = "cluster"
+	ClusterEnvVar           = "ECS_CLUSTER"
+	VerboseFlag             = "verbose"
+	ClusterConfigFlag       = "cluster-config"
+	ECSProfileFlag          = "ecs-profile"
+	ProfileNameFlag         = "profile-name"
+	ConfigNameFlag          = "config-name"
+	AWSProfileFlag          = "aws-profile"
+	ECSProfileEnvVar        = "ECS_PROFILE"
+	AWSProfileEnvVar        = "AWS_PROFILE"
+	AWSAccessKeyEnvVar      = "AWS_ACCESS_KEY_ID"
+	AWSSecretKeyEnvVar      = "AWS_SECRET_ACCESS_KEY"
 
 	ComposeProjectNamePrefixFlag         = "compose-project-name-prefix"
 	ComposeProjectNamePrefixDefaultValue = "ecscompose-"
 	ComposeServiceNamePrefixFlag         = "compose-service-name-prefix"
 	ComposeServiceNamePrefixDefaultValue = ComposeProjectNamePrefixDefaultValue + "service-"
-	CFNStackNamePrefixFlag               = "cfn-stack-name-prefix"
+	CFNStackNameFlag                     = "cfn-stack-name"
 	CFNStackNamePrefixDefaultValue       = "amazon-ecs-cli-setup-"
 
 	// Cluster
@@ -82,6 +92,42 @@ const (
 	ComposeServiceTimeOutFlag               = "timeout"
 )
 
+// OptionalRegionAndProfileFlags provides these flags:
+// OptionalRegionFlag inline overrides region
+// OptionalClusterConfigFlag specifies the cluster profile to read from config
+// OptionalProfileConfigFlag specifies the credentials profile to read from the config
+// OptionalAWSProfileFlag specifies the AWS Profile to use for credential information
+func OptionalRegionAndProfileFlags() []cli.Flag {
+	return []cli.Flag{
+		cli.StringFlag{
+			Name: RegionFlag + ", r",
+			Usage: fmt.Sprintf(
+				"[Optional] Specifies the AWS region to use. Defaults to the region configured using the configure command",
+			),
+		},
+		cli.StringFlag{
+			Name: ClusterConfigFlag,
+			Usage: fmt.Sprintf(
+				"[Optional] Specifies the name of the ECS cluster configuration to use. Defaults to the default cluster configuration.",
+			),
+		},
+		cli.StringFlag{
+			Name:   ECSProfileFlag,
+			EnvVar: ECSProfileEnvVar,
+			Usage: fmt.Sprintf(
+				"[Optional] Specifies the name of the ECS profle configuration to use. Defaults to the default profile configuration.",
+			),
+		},
+		cli.StringFlag{
+			Name:   AWSProfileFlag,
+			EnvVar: AWSProfileEnvVar,
+			Usage: fmt.Sprintf(
+				"[Optional]  Use the AWS credentials from an existing named profile in ~/.aws/credentials.",
+			),
+		},
+	}
+}
+
 // OptionalClusterFlag inline overrides cluster
 func OptionalClusterFlag() cli.Flag {
 	return cli.StringFlag{
@@ -92,14 +138,9 @@ func OptionalClusterFlag() cli.Flag {
 	}
 }
 
-// OptionalRegionFlag inline overrides region
-func OptionalRegionFlag() cli.Flag {
-	return cli.StringFlag{
-		Name: RegionFlag + ", r",
-		Usage: fmt.Sprintf(
-			"[Optional] Specifies the AWS region to use. Defaults to the region configured using the configure command",
-		),
-	}
+// OptionalConfigFlags returns the concatenation of OptionalRegionAndProfileFlags and OptionalClusterFlag
+func OptionalConfigFlags() []cli.Flag {
+	return append(OptionalRegionAndProfileFlags(), OptionalClusterFlag())
 }
 
 // UsageErrorFactory Returns a usage error function for the specified command

@@ -57,90 +57,79 @@ func ServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 			stopServiceCommand(factory),
 			rmServiceCommand(factory),
 		},
-		Flags: []cli.Flag{
-			command.OptionalClusterFlag(),
-			command.OptionalRegionFlag(),
-		},
+		Flags: command.OptionalConfigFlags(),
 	}
 }
 
 func createServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 	return cli.Command{
-		Name:   "create",
-		Usage:  "Creates an ECS service from your compose file. The service is created with a desired count of 0, so no containers are started by this command. Note that we do not recommend using plain text environment variables for sensitive information, such as credential data.",
-		Action: compose.WithProject(factory, compose.ProjectCreate, true),
-		Flags:  append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalClusterFlag(), command.OptionalRegionFlag())...),
+		Name:         "create",
+		Usage:        "Creates an ECS service from your compose file. The service is created with a desired count of 0, so no containers are started by this command. Note that we do not recommend using plain text environment variables for sensitive information, such as credential data.",
+		Action:       compose.WithProject(factory, compose.ProjectCreate, true),
+		Flags:        append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalConfigFlags()...)...),
+		OnUsageError: command.UsageErrorFactory("create"),
 	}
 }
 
 func startServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 	return cli.Command{
-		Name:   "start",
-		Usage:  "Starts one copy of each of the containers on an existing ECS service by setting the desired count to 1 (only if the current desired count is 0).",
-		Action: compose.WithProject(factory, compose.ProjectStart, true),
-		Flags: []cli.Flag{
-			command.OptionalClusterFlag(),
-			command.OptionalRegionFlag(),
-			ComposeServiceTimeoutFlag(),
-		},
+		Name:         "start",
+		Usage:        "Starts one copy of each of the containers on an existing ECS service by setting the desired count to 1 (only if the current desired count is 0).",
+		Action:       compose.WithProject(factory, compose.ProjectStart, true),
+		Flags:        append(command.OptionalConfigFlags(), ComposeServiceTimeoutFlag()),
+		OnUsageError: command.UsageErrorFactory("start"),
 	}
 }
 
 func upServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 	return cli.Command{
-		Name:   "up",
-		Usage:  "Creates a new ECS service or updates an existing one according to your compose file. For new services or existing services with a current desired count of 0, the desired count for the service is set to 1. For existing services with non-zero desired counts, a new task definition is created to reflect any changes to the compose file and the service is updated to use that task definition. In this case, the desired count does not change.",
-		Action: compose.WithProject(factory, compose.ProjectUp, true),
-		Flags:  append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalClusterFlag(), command.OptionalRegionFlag(), ComposeServiceTimeoutFlag())...),
+		Name:         "up",
+		Usage:        "Creates a new ECS service or updates an existing one according to your compose file. For new services or existing services with a current desired count of 0, the desired count for the service is set to 1. For existing services with non-zero desired counts, a new task definition is created to reflect any changes to the compose file and the service is updated to use that task definition. In this case, the desired count does not change.",
+		Action:       compose.WithProject(factory, compose.ProjectUp, true),
+		Flags:        append(append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalConfigFlags()...)...), ComposeServiceTimeoutFlag()),
+		OnUsageError: command.UsageErrorFactory("up"),
 	}
 }
 
 func psServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 	return cli.Command{
-		Name:    "ps",
-		Aliases: []string{"list"},
-		Usage:   "Lists all the containers in your cluster that belong to the service created with the compose project.",
-		Action:  compose.WithProject(factory, compose.ProjectPs, true),
-		Flags: []cli.Flag{
-			command.OptionalClusterFlag(),
-			command.OptionalRegionFlag(),
-		},
+		Name:         "ps",
+		Aliases:      []string{"list"},
+		Usage:        "Lists all the containers in your cluster that belong to the service created with the compose project.",
+		Action:       compose.WithProject(factory, compose.ProjectPs, true),
+		Flags:        command.OptionalConfigFlags(),
+		OnUsageError: command.UsageErrorFactory("ps"),
 	}
 }
 
 func scaleServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 	return cli.Command{
-		Name:   "scale",
-		Usage:  "ecs-cli compose service scale [count] - scales the desired count of the service to the specified count",
-		Action: compose.WithProject(factory, compose.ProjectScale, true),
-		Flags:  append(deploymentConfigFlags(false), command.OptionalClusterFlag(), command.OptionalRegionFlag(), ComposeServiceTimeoutFlag()),
+		Name:         "scale",
+		Usage:        "ecs-cli compose service scale [count] - scales the desired count of the service to the specified count",
+		Action:       compose.WithProject(factory, compose.ProjectScale, true),
+		Flags:        append(append(deploymentConfigFlags(false), command.OptionalConfigFlags()...), ComposeServiceTimeoutFlag()),
+		OnUsageError: command.UsageErrorFactory("scale"),
 	}
 }
 
 func stopServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 	return cli.Command{
-		Name:   "stop",
-		Usage:  "Stops the running tasks that belong to the service created with the compose project. This command updates the desired count of the service to 0.",
-		Action: compose.WithProject(factory, compose.ProjectStop, true),
-		Flags: []cli.Flag{
-			command.OptionalClusterFlag(),
-			command.OptionalRegionFlag(),
-			ComposeServiceTimeoutFlag(),
-		},
+		Name:         "stop",
+		Usage:        "Stops the running tasks that belong to the service created with the compose project. This command updates the desired count of the service to 0.",
+		Action:       compose.WithProject(factory, compose.ProjectStop, true),
+		Flags:        append(command.OptionalConfigFlags(), ComposeServiceTimeoutFlag()),
+		OnUsageError: command.UsageErrorFactory("stop"),
 	}
 }
 
 func rmServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 	return cli.Command{
-		Name:    "rm",
-		Aliases: []string{"delete", "down"},
-		Usage:   "Updates the desired count of the service to 0 and then deletes the service.",
-		Action:  compose.WithProject(factory, compose.ProjectDown, true),
-		Flags: []cli.Flag{
-			command.OptionalClusterFlag(),
-			command.OptionalRegionFlag(),
-			ComposeServiceTimeoutFlag(),
-		},
+		Name:         "rm",
+		Aliases:      []string{"delete", "down"},
+		Usage:        "Updates the desired count of the service to 0 and then deletes the service.",
+		Action:       compose.WithProject(factory, compose.ProjectDown, true),
+		Flags:        append(command.OptionalConfigFlags(), ComposeServiceTimeoutFlag()),
+		OnUsageError: command.UsageErrorFactory("rm"),
 	}
 }
 

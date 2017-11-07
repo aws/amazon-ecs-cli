@@ -47,24 +47,24 @@ type mockReadWriter struct {
 	clusterName string
 }
 
-func (rdwr *mockReadWriter) GetConfig() (*config.CliConfig, error) {
-	return config.NewCliConfig(rdwr.clusterName), nil
+func (rdwr *mockReadWriter) Get(cluster string, profile string) (*config.CLIConfig, error) {
+	return config.NewCLIConfig(rdwr.clusterName), nil
 }
 
-func (rdwr *mockReadWriter) ReadFrom(ecsConfig *config.CliConfig) error {
+func (rdwr *mockReadWriter) SaveProfile(configName string, profile *config.Profile) error {
 	return nil
 }
 
-func (rdwr *mockReadWriter) IsInitialized() (bool, error) {
-	return true, nil
-}
-
-func (rdwr *mockReadWriter) Save(dest *config.Destination) error {
+func (rdwr *mockReadWriter) SaveCluster(configName string, cluster *config.Cluster) error {
 	return nil
 }
 
-func (rdwr *mockReadWriter) IsKeyPresent(section, key string) bool {
-	return true
+func (rdwr *mockReadWriter) SetDefaultProfile(configName string) error {
+	return nil
+}
+
+func (rdwr *mockReadWriter) SetDefaultCluster(configName string) error {
+	return nil
 }
 
 func newMockReadWriter() *mockReadWriter {
