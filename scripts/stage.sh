@@ -103,8 +103,9 @@ if ! ${ALLOW_DIRTY}; then
 fi
 
 make docker-build
+mv bin/windows-amd64/ecs-cli.exe bin/windows-amd64/ecs-cli
 
-for platform in "linux-amd64" "darwin-amd64"; do
+for platform in "linux-amd64" "darwin-amd64" "windows-amd64"; do
 	artifact="bin/${platform}/ecs-cli"
 	artifact_md5="$(mktemp)"
 	md5sum "${artifact}" | sed 's/ .*//' > "${artifact_md5}"
