@@ -16,13 +16,68 @@ package config
 import (
 	"io/ioutil"
 	"os"
-	"strings"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewDefaultDestination(t *testing.T) {
+func TestNewDefaultDestinationLinux(t *testing.T) {
+	// Mock GetOSName in the test, then reset it after the test
+	oldGetOSName := getOSName
+	getOSName = func() string {
+		return "linux"
+	}
+	defer func() { getOSName = oldGetOSName }()
+
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	defer os.Remove(tempDirName)
+
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+
+	dest, err := newDefaultDestination()
+	assert.NoError(t, err, "Unexpected error creating new config path")
+	assert.Equal(t, filepath.Join(tempDirName, ".ecs"), dest.Path)
+	assert.True(t, dest.Mode.IsDir(), "Expected user home directory to be in directory mode")
+}
+
+func TestNewDefaultDestinationDarwin(t *testing.T) {
+	// Mock GetOSName in the test, then reset it after the test
+	oldGetOSName := getOSName
+	getOSName = func() string {
+		return "darwin"
+	}
+	defer func() { getOSName = oldGetOSName }()
+
+	// Create a temprorary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	defer os.Remove(tempDirName)
+
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+
+	dest, err := newDefaultDestination()
+	assert.NoError(t, err, "Unexpected error creating new config path")
+	assert.Equal(t, filepath.Join(tempDirName, ".ecs"), dest.Path)
+	assert.True(t, dest.Mode.IsDir(), "Expected user home directory to be in directory mode")
+}
+
+func TestNewDefaultDestinationWindows(t *testing.T) {
+	// Mock GetOSName in the test, then reset it after the test
+	oldGetOSName := getOSName
+	getOSName = func() string {
+		return "windows"
+	}
+	defer func() { getOSName = oldGetOSName }()
+
 	// Create a temprorary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
@@ -35,8 +90,6 @@ func TestNewDefaultDestination(t *testing.T) {
 
 	dest, err := NewDefaultDestination()
 	assert.NoError(t, err, "Unexpected error creating new config path")
-	assert.Condition(t, func() bool {
-		return strings.HasSuffix(dest.Path, "ecs")
-	}, "Invalid suffix for ecs config path")
+	assert.Equal(t, filepath.Join(tempDirName, "AppData", "local", "ecs"), dest.Path)
 	assert.True(t, dest.Mode.IsDir(), "Expected user home directory to be in directory mode")
 }

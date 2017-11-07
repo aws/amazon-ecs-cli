@@ -48,7 +48,8 @@ verify the integrity of your download.
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-latest](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-latest)
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-latest.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-latest.md5)
 * Windows:
-  * (Not yet implemented)
+  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-latest.exe](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-latest.exe)
+  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-latest.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-latest.md5)
 
 #### Download Links for within China
 
@@ -60,8 +61,9 @@ As of v0.6.2 the ECS CLI supports the cn-north-1 region in China. The following 
 * Macintosh:
   * [https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-darwin-amd64-latest](https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-darwin-amd64-latest)
   * [https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-darwin-amd64-latest.md5](https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-darwin-amd64-latest.md5)
-  * Windows:
-    * (Not yet implemented)
+* Windows:
+  * [https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-windows-amd64-latest.exe](https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-windows-amd64-latest.exe)
+  * [https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-windows-amd64-latest.md5](https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-windows-amd64-latest.md5)
 
 ### Download specific version
 Using the URLs above, replace `latest` with the desired tag, for example `v0.4.1`. After downloading, remember to rename the binary file to `ecs-cli`.

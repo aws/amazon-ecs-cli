@@ -16,6 +16,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/pkg/errors"
@@ -26,6 +27,18 @@ import (
 type Destination struct {
 	Path string
 	Mode *os.FileMode
+}
+
+// getOSName returns runtime.GOOS
+// In unit tests it can be mocked
+var getOSName = func() string {
+	return runtime.GOOS
+}
+
+// GetWindowsBaseDataPath returns the correct path to append
+// to a user home directory to store application data.
+func GetWindowsBaseDataPath() string {
+	return filepath.Join("AppData", "local", "ecs")
 }
 
 // GetFilePermissions is a utility method that gets permissions of a file.
@@ -49,7 +62,10 @@ func NewDefaultDestination() (*Destination, error) {
 	if err != nil {
 		return nil, err
 	}
+	path := filepath.Join(homeDir, ".ecs")
+	if getOSName() == "windows" {
+		path = filepath.Join(homeDir, GetWindowsBaseDataPath())
+	}
 
-	// TODO: Move to const.
-	return &Destination{Path: filepath.Join(homeDir, ".ecs"), Mode: mode}, nil
+	return &Destination{Path: path, Mode: mode}, nil
 }
