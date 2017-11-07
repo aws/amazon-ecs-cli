@@ -40,7 +40,7 @@ func TestNewDefaultDestinationLinux(t *testing.T) {
 	os.Setenv("HOME", tempDirName)
 	defer os.Unsetenv("HOME")
 
-	dest, err := newDefaultDestination()
+	dest, err := NewDefaultDestination()
 	assert.NoError(t, err, "Unexpected error creating new config path")
 	assert.Equal(t, filepath.Join(tempDirName, ".ecs"), dest.Path)
 	assert.True(t, dest.Mode.IsDir(), "Expected user home directory to be in directory mode")
@@ -64,7 +64,7 @@ func TestNewDefaultDestinationDarwin(t *testing.T) {
 	os.Setenv("HOME", tempDirName)
 	defer os.Unsetenv("HOME")
 
-	dest, err := newDefaultDestination()
+	dest, err := NewDefaultDestination()
 	assert.NoError(t, err, "Unexpected error creating new config path")
 	assert.Equal(t, filepath.Join(tempDirName, ".ecs"), dest.Path)
 	assert.True(t, dest.Mode.IsDir(), "Expected user home directory to be in directory mode")
