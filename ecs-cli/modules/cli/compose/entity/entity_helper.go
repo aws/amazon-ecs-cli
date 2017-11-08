@@ -84,7 +84,15 @@ func createRegisterTaskDefinitionRequest(taskDefinition *ecs.TaskDefinition) *ec
 	}
 
 	if networkMode := taskDefinition.NetworkMode; aws.StringValue(networkMode) != "" {
-		request.NetworkMode = taskDefinition.NetworkMode
+		request.NetworkMode = networkMode
+	}
+
+	if cpu := taskDefinition.Cpu; aws.StringValue(cpu) != "" {
+		request.Cpu = cpu
+	}
+
+	if memory := taskDefinition.Memory; aws.StringValue(memory) != "" {
+		request.Memory = memory
 	}
 
 	return request

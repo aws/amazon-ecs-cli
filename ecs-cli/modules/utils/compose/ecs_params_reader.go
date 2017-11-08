@@ -35,12 +35,17 @@ type EcsTaskDef struct {
 	NetworkMode          string        `yaml:"ecs_network_mode"`
 	TaskRoleArn          string        `yaml:"task_role_arn"`
 	ContainerDefinitions ContainerDefs `yaml:"services"`
+	TaskSize             TaskSize      `yaml:"task_size"`
 }
 
 type ContainerDefs map[string]ContainerDef
 
 type ContainerDef struct {
 	Essential bool `yaml:"essential"`
+}
+type TaskSize struct {
+	Cpu    string `yaml:"cpu_limit"`
+	Memory string `yaml:"mem_limit"`
 }
 
 // RunParams specifies non-TaskDefinition specific parameters

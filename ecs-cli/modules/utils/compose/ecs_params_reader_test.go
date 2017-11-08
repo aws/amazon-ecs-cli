@@ -18,8 +18,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestReadECSParams(t *testing.T) {
@@ -140,7 +140,7 @@ func TestConvertToECSNetworkConfiguration(t *testing.T) {
 	subnets :=[]string{"subnet-feedface"}
 	securityGroups :=  []string{"sg-c0ffeefe"}
 	awsVpconfig := AwsVpcConfiguration{
-		Subnets: subnets,
+		Subnets:        subnets,
 		SecurityGroups: securityGroups,
 	}
 
@@ -213,4 +213,64 @@ func TestConvertToECSNetworkConfiguration_ErrorWhenNoSubnets(t *testing.T) {
 	_, err := ConvertToECSNetworkConfiguration(ecsParams)
 
 	assert.Error(t, err)
+}
+
+func TestReadECSParams_WithTaskSize(t *testing.T) {
+	ecsParamsString := `version: 1
+task_definition:
+  task_size:
+    mem_limit: 1000
+    cpu_limit: 200`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs fields tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	defer os.Remove(ecsParamsFileName)
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+
+	if assert.NoError(t, err) {
+		taskSize := ecsParams.TaskDefinition.TaskSize
+		assert.Equal(t, "200", taskSize.Cpu, "Expected CPU limit to match")
+		assert.Equal(t, "1000", taskSize.Memory, "Expected Memory limit to match")
+	}
+}
+
+func TestReadECSParams_MemoryWithUnits(t *testing.T) {
+	ecsParamsString := `version: 1
+task_definition:
+  task_size:
+    mem_limit: 10MB
+    cpu_limit: 200`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs fields tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	defer os.Remove(ecsParamsFileName)
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+
+	if assert.NoError(t, err) {
+		taskSize := ecsParams.TaskDefinition.TaskSize
+		assert.Equal(t, "200", taskSize.Cpu, "Expected CPU limit to match")
+		assert.Equal(t, "10MB", taskSize.Memory, "Expected Memory limit to match")
+	}
 }

@@ -158,6 +158,51 @@ task_definition:
 	}
 }
 
+func TestConvertToTaskDefinition_WithECSParamsAllFields(t *testing.T) {
+	ecsParamsString := `version: 1
+task_definition:
+  ecs_network_mode: host
+  task_role_arn: arn:aws:iam::123456789012:role/tweedledee
+  services:
+    mysql:
+      essential: false
+  task_size:
+    mem_limit: 5Gb
+    cpu_limit: 256`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs fields tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, "", ecsParams)
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	mysql := findContainerByName("mysql", containerDefs)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, "host", aws.StringValue(taskDefinition.NetworkMode), "Expected network mode to match")
+		assert.Equal(t, "arn:aws:iam::123456789012:role/tweedledee", aws.StringValue(taskDefinition.TaskRoleArn), "Expected task role ARN to match")
+
+		assert.False(t, aws.BoolValue(mysql.Essential), "Expected container with name: '%v' to be false", *mysql.Name)
+		assert.Equal(t, "256", aws.StringValue(taskDefinition.Cpu), "Expected CPU to match")
+		assert.Equal(t, "5Gb", aws.StringValue(taskDefinition.Memory), "Expected CPU to match")
+
+	}
+}
+
 func TestConvertToTaskDefinitionWithECSParams_Essential_OneContainer(t *testing.T) {
 	ecsParamsString := `version: 1
 task_definition:
@@ -401,6 +446,39 @@ task_definition:
 	if assert.NoError(t, err) {
 		assert.Equal(t, "host", aws.StringValue(taskDefinition.NetworkMode), "Expected network mode to match")
 		assert.Equal(t, "arn:aws:iam::123456789012:role/tweedledum", aws.StringValue(taskDefinition.TaskRoleArn), "Expected task role arn to match")
+	}
+}
+
+func TestConvertToTaskDefinition_WithTaskSize(t *testing.T) {
+	ecsParamsString := `version: 1
+task_definition:
+  task_size:
+    mem_limit: 10MB
+    cpu_limit: 200`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs fields tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, []string{"mysql", "wordpress"}, &config.ServiceConfig{}, "", ecsParams)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, "200", aws.StringValue(taskDefinition.Cpu), "Expected CPU to match")
+		assert.Equal(t, "10MB", aws.StringValue(taskDefinition.Memory), "Expected CPU to match")
+
 	}
 }
 
