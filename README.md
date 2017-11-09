@@ -66,43 +66,41 @@ As of v0.6.2 the ECS CLI supports the cn-north-1 region in China. The following 
   * [https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-windows-amd64-latest.md5](https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-windows-amd64-latest.md5)
 
 ### Download specific version
-Using the URLs above, replace `latest` with the desired tag, for example `v0.4.1`. After downloading, remember to rename the binary file to `ecs-cli`.
+Using the URLs above, replace `latest` with the desired tag, for example `v1.0.0`. After downloading, remember to rename the binary file to `ecs-cli`. Note that Windows is only supported starting with version `v1.0.0`.
 
 * Linux:
-  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.4.1](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.4.1)
-  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.4.1.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.4.1.md5)
+  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v1.0.0](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v1.0.0)
+  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v1.0.0.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v1.0.0.md5)
 * Macintosh:
-  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-v0.4.1](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-v0.4.1)
-  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-v0.4.1.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-v0.4.1.md5)
+  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-v1.0.0](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-v1.0.0)
+  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-v1.0.0.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-v1.0.0.md5)
 * Windows:
-  * (Not yet implemented)
+  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-v1.0.0.exe](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-v1.0.0.exe)
+  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-v1.0.0.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-v1.0.0.md5)
 
 ## Configuring the CLI
 
-Before using the CLI, you need to configure your AWS credentials, the AWS
-region in which to create your cluster, and the name of the ECS cluster to use
-with the `ecs-cli configure` command. These settings are stored in
-`~/.ecs/config`. You can use any existing AWS named profiles in
-`~/.aws/credentials` for your credentials with the `--profile` option.
+The Amazon ECS CLI requires some basic configuration information before you can use it, such as your AWS credentials, the AWS region in which to create your cluster, and the name of the Amazon ECS cluster to use. Configuration information is stored in the `~/.ecs` directory on macOS and Linux systems and in `C:\Users\<username>\AppData\local\ecs` on Windows systems.
 
-```
-$ ecs-cli help configure
-NAME:
-   configure - Configures your AWS credentials, the AWS region to use, and the ECS cluster name to use with the Amazon ECS CLI. The resulting configuration is stored in the ~/.ecs/config file.
+### ECS Profiles
 
-USAGE:
-   command configure [command options] [arguments...]
+The Amazon ECS CLI supports the configuring of multiple sets of AWS credentials as named profiles using the `ecs-cli configure profile command`. These profiles can then be referenced when you run Amazon ECS CLI commands that require credentials using the `--ecs-profile` flag otherwise the default profile is used.
 
-OPTIONS:
-   --region, -r 					Specifies the AWS region to use. If the AWS_REGION environment variable is set when ecs-cli configure is run, then the AWS region is set to the value of that environment variable. [$AWS_REGION]
-   --access-key 					Specifies the AWS access key to use. If the AWS_ACCESS_KEY_ID environment variable is set when ecs-cli configure is run, then the AWS access key ID is set to the value of that environment variable. [$AWS_ACCESS_KEY_ID]
-   --secret-key 					Specifies the AWS secret key to use. If the AWS_SECRET_ACCESS_KEY environment variable is set when ecs-cli configure is run, then the AWS secret access key is set to the value of that environment variable. [$AWS_SECRET_ACCESS_KEY]
-   --profile, -p 					Specifies your AWS credentials with an existing named profile from ~/.aws/credentials. If the AWS_PROFILE environment variable is set when ecs-cli configure is run, then the AWS named profile is set to the value of that environment variable. [$AWS_PROFILE]
-   --cluster, -c 					Specifies the ECS cluster name to use. If the cluster does not exist, it is created when you try to add resources to it with the ecs-cli up command.
-   --compose-project-name-prefix "ecscompose-"		[Optional] Specifies the prefix added to an ECS task definition created from a compose file. Format <prefix><project-name>.
-   --compose-service-name-prefix "ecscompose-service-"	[Optional] Specifies the prefix added to an ECS service created from a compose file. Format <prefix><project-name>.
-   --cfn-stack-name-prefix "amazon-ecs-cli-setup-"	[Optional] Specifies the prefix added to the AWS CloudFormation stack created on ecs-cli up. Format <prefix><cluster-name>.
-```
+Set up a CLI profile with the following command, substituting `profile_name` with your desired profile name, `$AWS_ACCESS_KEY_ID` and `$AWS_SECRET_ACCESS_KEY` environment variables with your AWS credentials.
+
+`ecs-cli configure profile --profile-name profile_name --access-key $AWS_ACCESS_KEY_ID --secret-key $AWS_SECRET_ACCESS_KEY`
+
+### Cluster Configurations
+
+A cluster configuration is a set of fields that describes an Amazon ECS cluster including the name of the cluster and the region. These configurations can then be referenced when you run Amazon ECS CLI commands using the `--cluster-config` flag otherwise the default configuration is used.
+
+Create a cluster configuration with the following command, substituting `region_name` with your desired AWS region, `cluster_name` with the name of an existing Amazon ECS cluster or a new cluster to use, and `configuration_name` for the name you'd like to give this configuration.
+
+`ecs-cli configure --cluster cluster_name --region region_name --config-name configuration_name`
+
+### Defaults
+
+The first Cluster Configuration or ECS Profile that you configure will be set as the default. The default ECS Profile can be changed using the `ecs-cli configure profile default` command; the default cluster configuration can be changed using the `ecs-cli configure default` command. Note that unlike in the AWS CLI, the default ECS Profile does not need to be named "default". 
 
 ## Using the CLI
 
