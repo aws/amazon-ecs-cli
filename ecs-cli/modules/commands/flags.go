@@ -66,6 +66,7 @@ const (
 	CapabilityIAMFlag               = "capability-iam"
 	NoAutoAssignPublicIPAddressFlag = "no-associate-public-ip-address"
 	ForceFlag                       = "force"
+	CustomTemplateFlag              = "template"
 
 	// Image
 	RegistryIdFlag = "registry-id"
@@ -90,6 +91,7 @@ const (
 	LoadBalancerNameFlag                    = "load-balancer-name"
 	RoleFlag                                = "role"
 	ComposeServiceTimeOutFlag               = "timeout"
+	ServiceConfigsFlag                      = "service-configs"
 )
 
 // OptionalRegionAndProfileFlags provides these flags:

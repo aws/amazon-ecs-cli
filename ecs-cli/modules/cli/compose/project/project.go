@@ -14,6 +14,9 @@
 package project
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
@@ -33,7 +36,7 @@ type Project interface {
 	Parse() error
 
 	Context() *context.Context
-	ServiceConfigs() *config.ServiceConfigs
+	ServiceConfigs() (*config.ServiceConfigs, error)
 	Entity() entity.ProjectEntity
 
 	// commands
@@ -87,8 +90,24 @@ func (p *ecsProject) Context() *context.Context {
 }
 
 // ServiceConfigs returns a map of Service Configuration loaded from compose yaml file
-func (p *ecsProject) ServiceConfigs() *config.ServiceConfigs {
-	return p.Project.ServiceConfigs
+func (p *ecsProject) ServiceConfigs() (*config.ServiceConfigs, error) {
+	if len(p.context.ServiceConfigs) == 0 {
+		return p.Project.ServiceConfigs, nil
+	}
+	var filtered *config.ServiceConfigs = config.NewServiceConfigs()
+	for _, serviceName := range p.Project.ServiceConfigs.Keys() {
+		serviceConfig, _ := p.Project.ServiceConfigs.Get(serviceName)
+		for _, desired := range p.context.ServiceConfigs {
+			if desired == serviceName {
+				filtered.Add(serviceName, serviceConfig)
+				break
+			}
+		}
+	}
+	if filtered.Len() == 0 {
+		return filtered, fmt.Errorf("No service configs found with name=[%s]", strings.Join(p.context.ServiceConfigs, ","))
+	}
+	return filtered, nil
 }
 
 // Entity returns the project entity that operates on the compose file and integrates with ecs
@@ -138,9 +157,12 @@ func (p *ecsProject) transformTaskDefinition() error {
 	logrus.Debug("Transforming yaml to task definition...")
 	taskDefinitionName := utils.GetTaskDefinitionName("", context.Context.ProjectName)
 	taskRoleArn := context.CLIContext.GlobalString(command.TaskRoleArnFlag)
+	serviceconfigs, err := p.ServiceConfigs()
+	if err != nil {
+		return err
+	}
 	ecsParamsFileName := context.CLIContext.GlobalString(command.ECSParamsFileNameFlag)
-
-	taskDefinition, err := utils.ConvertToTaskDefinition(taskDefinitionName, &context.Context, p.ServiceConfigs(), taskRoleArn, ecsParamsFileName)
+	taskDefinition, err := utils.ConvertToTaskDefinition(taskDefinitionName, &context.Context, serviceconfigs, taskRoleArn, ecsParamsFileName)
 	if err != nil {
 		return err
 	}

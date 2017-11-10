@@ -66,7 +66,7 @@ func createServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "create",
 		Usage:        "Creates an ECS service from your compose file. The service is created with a desired count of 0, so no containers are started by this command. Note that we do not recommend using plain text environment variables for sensitive information, such as credential data.",
 		Action:       compose.WithProject(factory, compose.ProjectCreate, true),
-		Flags:        append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalConfigFlags()...)...),
+		Flags:        append(append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalConfigFlags()...)...), OptionalServiceConfigsFlag()),
 		OnUsageError: command.UsageErrorFactory("create"),
 	}
 }
@@ -86,7 +86,7 @@ func upServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "up",
 		Usage:        "Creates a new ECS service or updates an existing one according to your compose file. For new services or existing services with a current desired count of 0, the desired count for the service is set to 1. For existing services with non-zero desired counts, a new task definition is created to reflect any changes to the compose file and the service is updated to use that task definition. In this case, the desired count does not change.",
 		Action:       compose.WithProject(factory, compose.ProjectUp, true),
-		Flags:        append(append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalConfigFlags()...)...), ComposeServiceTimeoutFlag()),
+		Flags:        append(append(deploymentConfigFlags(true), append(loadBalancerFlags(), command.OptionalConfigFlags()...)...), ComposeServiceTimeoutFlag(), OptionalServiceConfigsFlag()),
 		OnUsageError: command.UsageErrorFactory("up"),
 	}
 }
@@ -128,7 +128,7 @@ func rmServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Aliases:      []string{"delete", "down"},
 		Usage:        "Updates the desired count of the service to 0 and then deletes the service.",
 		Action:       compose.WithProject(factory, compose.ProjectDown, true),
-		Flags:        append(command.OptionalConfigFlags(), ComposeServiceTimeoutFlag()),
+		Flags:        append(command.OptionalConfigFlags(), ComposeServiceTimeoutFlag(), OptionalServiceConfigsFlag()),
 		OnUsageError: command.UsageErrorFactory("rm"),
 	}
 }
@@ -190,6 +190,15 @@ func ComposeServiceTimeoutFlag() cli.Flag {
 		Value: service.DefaultUpdateServiceTimeout,
 		Usage: fmt.Sprintf(
 			"Specifies the timeout value in minutes (decimals supported) to wait for the running task count to change. If the running task count has not changed for the specified period of time, then the CLI times out and returns an error. Setting the timeout to 0 will cause the command to return without checking for success.",
+		),
+	}
+}
+
+func OptionalServiceConfigsFlag() cli.Flag {
+	return cli.StringSliceFlag{
+		Name: command.ServiceConfigsFlag + ", s",
+		Usage: fmt.Sprintf(
+			"[Optional] Specifies services in the compose file. Defaults to all.",
 		),
 	}
 }

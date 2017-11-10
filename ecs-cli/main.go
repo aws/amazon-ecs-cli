@@ -45,6 +45,7 @@ func main() {
 	app.Commands = []cli.Command{
 		configureCommand.ConfigureCommand(),
 		clusterCommand.UpCommand(),
+		clusterCommand.TemplateUpCommand(),
 		clusterCommand.DownCommand(),
 		clusterCommand.ScaleCommand(),
 		clusterCommand.PsCommand(),
