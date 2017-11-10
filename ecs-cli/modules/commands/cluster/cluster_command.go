@@ -26,7 +26,7 @@ func UpCommand() cli.Command {
 		Usage:        "Creates the ECS cluster (if it does not already exist) and the AWS resources required to set up the cluster.",
 		Before:       ecscli.BeforeApp,
 		Action:       cluster.ClusterUp,
-		Flags:        append(clusterUpFlags(), append(existingUpFlags(), command.OptionalClusterFlag(), command.OptionalRegionFlag())...),
+		Flags:        append(clusterUpFlags(), append(existingUpFlags(), command.OptionalConfigFlags()...)...),
 		OnUsageError: command.UsageErrorFactory("up"),
 	}
 }
@@ -37,7 +37,7 @@ func TemplateUpCommand() cli.Command {
 		Usage:        "Follow this cluster creating template.",
 		Before:       ecscli.BeforeApp,
 		Action:       cluster.TemplateUp,
-		Flags:        append(templateUpFlags(), append(clusterUpFlags(), command.OptionalClusterFlag(), command.OptionalRegionFlag())...),
+		Flags:        append(templateUpFlags(), append(clusterUpFlags(), command.OptionalConfigFlags()...)...),
 		OnUsageError: command.UsageErrorFactory("template"),
 	}
 }
@@ -47,7 +47,7 @@ func DownCommand() cli.Command {
 		Name:         "down",
 		Usage:        "Deletes the CloudFormation stack that was created by ecs-cli up and the associated resources. The --force option is required.",
 		Action:       cluster.ClusterDown,
-		Flags:        append(clusterDownFlags(), command.OptionalClusterFlag(), command.OptionalRegionFlag()),
+		Flags:        append(clusterDownFlags(), command.OptionalConfigFlags()...),
 		OnUsageError: command.UsageErrorFactory("down"),
 	}
 }
@@ -57,7 +57,7 @@ func ScaleCommand() cli.Command {
 		Name:         "scale",
 		Usage:        "Modifies the number of container instances in your cluster. This command changes the desired and maximum instance count in the Auto Scaling group created by the ecs-cli up command. You can use this command to scale up (increase the number of instances) or scale down (decrease the number of instances) your cluster.",
 		Action:       cluster.ClusterScale,
-		Flags:        append(clusterScaleFlags(), command.OptionalClusterFlag(), command.OptionalRegionFlag()),
+		Flags:        append(clusterScaleFlags(), command.OptionalConfigFlags()...),
 		OnUsageError: command.UsageErrorFactory("scale"),
 	}
 }
@@ -67,13 +67,28 @@ func PsCommand() cli.Command {
 		Name:         "ps",
 		Usage:        "Lists all of the running containers in your ECS cluster",
 		Action:       cluster.ClusterPS,
-		Flags:        []cli.Flag{command.OptionalClusterFlag(), command.OptionalRegionFlag()},
+		Flags:        command.OptionalConfigFlags(),
 		OnUsageError: command.UsageErrorFactory("ps"),
 	}
 }
 
 func existingUpFlags() []cli.Flag {
 	return []cli.Flag{
+		cli.BoolFlag{
+			Name: command.VerboseFlag + ",debug",
+		},
+		cli.BoolFlag{
+			Name:  command.CapabilityIAMFlag,
+			Usage: "Acknowledges that this command may create IAM resources. Required if --instance-role is not specified.",
+		},
+		cli.StringFlag{
+			Name:  command.KeypairNameFlag,
+			Usage: "[Optional] Specifies the name of an existing Amazon EC2 key pair to enable SSH access to the EC2 instances in your cluster.",
+		},
+		cli.StringFlag{
+			Name:  command.AsgMaxSizeFlag,
+			Usage: "[Optional] Specifies the number of instances to launch and register to the cluster. Defaults to 1.",
+		},
 		cli.StringFlag{
 			Name:  command.VpcAzFlag,
 			Usage: "[Optional] Specifies a comma-separated list of 2 VPC Availability Zones in which to create subnets (these zones must have the available status). This option is recommended if you do not specify a VPC ID with the --vpc option. WARNING: Leaving this option blank can result in failure to launch container instances if an unavailable zone is chosen at random.",

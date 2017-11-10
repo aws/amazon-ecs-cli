@@ -14,30 +14,24 @@
 package config
 
 import (
-	"fmt"
 	"os"
 
-	"github.com/Sirupsen/logrus"
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 )
 
-// CliParams saves config to create an aws service clients
-type CliParams struct {
+// CLIParams saves config to create an aws service clients
+type CLIParams struct {
 	Cluster                  string
 	Session                  *session.Session
-	ComposeProjectNamePrefix string
 	ComposeServiceNamePrefix string
-	CFNStackNamePrefix       string
+	ComposeProjectNamePrefix string // Deprecated; remains for backwards compatibility
+	CFNStackName             string
 }
 
-// GetCfnStackName <cfn_stack_name_prefix> + <cluster_name>
-func (p *CliParams) GetCfnStackName() string {
-	return fmt.Sprintf("%s%s", p.CFNStackNamePrefix, p.Cluster)
-}
-
-// Searches as far up the context as necesarry. This function works no matter
+// Searches as far up the context as necessary. This function works no matter
 // how many layers of nested subcommands there are. It is more powerful
 // than merely calling context.String and context.GlobalString
 func recursiveFlagSearch(context *cli.Context, flag string) string {
@@ -50,23 +44,14 @@ func recursiveFlagSearch(context *cli.Context, flag string) string {
 	}
 }
 
-// NewCliParams creates a new ECSParams object from the config file.
-func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
-	ecsConfig, err := rdwr.GetConfig()
-	if err != nil {
-		logrus.Error("Error loading config: ", err)
-		return nil, err
-	}
+// NewCLIParams creates a new ECSParams object from the config file.
+func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
+	clusterConfig := recursiveFlagSearch(context, ecscli.ClusterConfigFlag)
+	profileConfig := recursiveFlagSearch(context, ecscli.ECSProfileFlag)
+	ecsConfig, err := rdwr.Get(clusterConfig, profileConfig)
 
-	// If Prefixes not found, set to defaults.
-	if !rdwr.IsKeyPresent(ecsSectionKey, composeProjectNamePrefixKey) {
-		ecsConfig.ComposeProjectNamePrefix = ecscli.ComposeProjectNamePrefixDefaultValue
-	}
-	if !rdwr.IsKeyPresent(ecsSectionKey, composeServiceNamePrefixKey) {
-		ecsConfig.ComposeServiceNamePrefix = ecscli.ComposeServiceNamePrefixDefaultValue
-	}
-	if !rdwr.IsKeyPresent(ecsSectionKey, cfnStackNamePrefixKey) {
-		ecsConfig.CFNStackNamePrefix = ecscli.CFNStackNamePrefixDefaultValue
+	if err != nil {
+		return nil, errors.Wrap(err, "Error loading config")
 	}
 
 	// Order of cluster resolution
@@ -76,7 +61,6 @@ func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 	if clusterFromEnv := os.Getenv(ecscli.ClusterEnvVar); clusterFromEnv != "" {
 		ecsConfig.Cluster = clusterFromEnv
 	}
-
 	if clusterFromFlag := recursiveFlagSearch(context, ecscli.ClusterFlag); clusterFromFlag != "" {
 		ecsConfig.Cluster = clusterFromFlag
 	}
@@ -86,16 +70,31 @@ func NewCliParams(context *cli.Context, rdwr ReadWriter) (*CliParams, error) {
 		ecsConfig.Region = regionFromFlag
 	}
 
-	svcSession, err := ecsConfig.ToAWSSession()
+	if awsProfileFromFlag := recursiveFlagSearch(context, ecscli.AWSProfileFlag); awsProfileFromFlag != "" {
+		ecsConfig.AWSProfile = awsProfileFromFlag
+		// unset Access Key and Secret Key, otherwise they will take precedence
+		ecsConfig.AWSAccessKey = ""
+		ecsConfig.AWSSecretKey = ""
+	}
+
+	svcSession, err := ecsConfig.ToAWSSession(context)
 	if err != nil {
 		return nil, err
 	}
 
-	return &CliParams{
+	if ecsConfig.Version == iniConfigVersion {
+		ecsConfig.CFNStackName = ecsConfig.CFNStackNamePrefix + ecsConfig.Cluster
+	}
+
+	if ecsConfig.CFNStackName == "" {
+		ecsConfig.CFNStackName = ecscli.CFNStackNamePrefixDefaultValue + ecsConfig.Cluster
+	}
+
+	return &CLIParams{
 		Cluster:                  ecsConfig.Cluster,
 		Session:                  svcSession,
-		ComposeProjectNamePrefix: ecsConfig.ComposeProjectNamePrefix,
 		ComposeServiceNamePrefix: ecsConfig.ComposeServiceNamePrefix,
-		CFNStackNamePrefix:       ecsConfig.CFNStackNamePrefix,
+		ComposeProjectNamePrefix: ecsConfig.ComposeProjectNamePrefix, // deprecated; remains for backwards compatibility
+		CFNStackName:             ecsConfig.CFNStackName,
 	}, nil
 }

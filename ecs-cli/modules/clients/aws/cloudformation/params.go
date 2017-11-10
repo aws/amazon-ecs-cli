@@ -51,7 +51,7 @@ var requiredParameters map[string]bool
 var parameterKeyNames []string
 
 func init() {
-	requiredParameterNames = []string{ParameterKeyKeyPairName, ParameterKeyCluster, ParameterKeyAmiId}
+	requiredParameterNames = []string{ParameterKeyCluster, ParameterKeyAmiId}
 	requiredParameters = make(map[string]bool)
 	for _, s := range requiredParameterNames {
 		requiredParameters[s] = true
@@ -88,13 +88,16 @@ func NewCfnStackParams() *CfnStackParams {
 }
 
 // NewCfnStackParamsForUpdate creates a new object of CfnStackParams struct and populates it for updating the stack.
-func NewCfnStackParamsForUpdate() *CfnStackParams {
+func NewCfnStackParamsForUpdate() (*CfnStackParams, error) {
 	params := NewCfnStackParams()
 	for _, key := range parameterKeyNames {
 		// Set UsePreviousValue = true for all the stack parameters.
-		params.AddWithUsePreviousValue(key, true)
+		err := params.AddWithUsePreviousValue(key, true)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return params
+	return params, nil
 }
 
 // Add adds a key and the value for the same to the cloudformation parameters. If the key already

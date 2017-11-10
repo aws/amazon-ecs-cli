@@ -32,7 +32,7 @@ func SetupTaskDefinitionCache() cache.Cache {
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
-		}).Warn("Unable to create cache for task definitions; extranious ones may be registered")
+		}).Warn("Unable to create cache for task definitions; extraneous ones may be registered")
 		tdCache = cache.NewNoopCache()
 	}
 	return tdCache
@@ -53,12 +53,9 @@ func GetOrCreateTaskDefinition(entity ProjectEntity) (*ecs.TaskDefinition, error
 		"TaskDefinition": taskDefinition,
 	}).Debug("Finding task definition in cache or creating if needed")
 
-	resp, err := entity.Context().ECSClient.RegisterTaskDefinitionIfNeeded(&ecs.RegisterTaskDefinitionInput{
-		Family:               taskDefinition.Family,
-		ContainerDefinitions: taskDefinition.ContainerDefinitions,
-		Volumes:              taskDefinition.Volumes,
-		TaskRoleArn:          taskDefinition.TaskRoleArn,
-	}, entity.TaskDefinitionCache())
+	request := createRegisterTaskDefinitionRequest(taskDefinition)
+
+	resp, err := entity.Context().ECSClient.RegisterTaskDefinitionIfNeeded(request, entity.TaskDefinitionCache())
 
 	if err != nil {
 		composeutils.LogError(err, "Create task definition failed")
@@ -72,6 +69,25 @@ func GetOrCreateTaskDefinition(entity ProjectEntity) (*ecs.TaskDefinition, error
 	// update the taskdefinition of the entity with the newly received TaskDefinition
 	entity.SetTaskDefinition(resp)
 	return resp, nil
+}
+
+func createRegisterTaskDefinitionRequest(taskDefinition *ecs.TaskDefinition) *ecs.RegisterTaskDefinitionInput {
+	// Valid values for network mode are none, host or bridge. If no value
+	// is passed for network mode, ECS will set it to 'bridge' on most
+	// platforms, but Windows has different network modes. Passing nil allows ECS
+	// to do the right thing for each platform.
+	request := &ecs.RegisterTaskDefinitionInput{
+		Family:               taskDefinition.Family,
+		ContainerDefinitions: taskDefinition.ContainerDefinitions,
+		Volumes:              taskDefinition.Volumes,
+		TaskRoleArn:          taskDefinition.TaskRoleArn,
+	}
+
+	if networkMode := taskDefinition.NetworkMode; aws.StringValue(networkMode) != "" {
+		request.NetworkMode = taskDefinition.NetworkMode
+	}
+
+	return request
 }
 
 // Info returns a formatted list of containers (running and stopped) in the current cluster
@@ -239,7 +255,8 @@ func GetTaskGroup(entity ProjectEntity) string {
 
 // GetTaskDefinitionFamily returns the family name
 func GetTaskDefinitionFamily(entity ProjectEntity) string {
-	return composeutils.GetTaskDefinitionFamily(getProjectPrefix(entity), GetProjectName(entity))
+	// ComposeProjectNamePrefix is deprecated, but its use must remain for backwards compatibility
+	return entity.Context().ECSParams.ComposeProjectNamePrefix + GetProjectName(entity)
 }
 
 // GetProjectName returns the name of the project that was set in the context we are working with

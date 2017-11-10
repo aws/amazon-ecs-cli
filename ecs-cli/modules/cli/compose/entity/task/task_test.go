@@ -47,7 +47,7 @@ func TestTaskCreate(t *testing.T) {
 
 	context := &context.Context{
 		ECSClient: mockEcs,
-		ECSParams: &config.CliParams{},
+		ECSParams: &config.CLIParams{},
 	}
 	task := NewTask(context)
 	task.SetTaskDefinition(&taskDefinition)

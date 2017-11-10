@@ -36,7 +36,7 @@ type ProcessTasksAction func(tasks []*ecs.Task) error
 // ECSClient is an interface that specifies only the methods used from the sdk interface. Intended to make mocking and testing easier.
 type ECSClient interface {
 	// TODO: Modify the interface and tbe client to not have the Initialize method.
-	Initialize(params *config.CliParams)
+	Initialize(params *config.CLIParams)
 
 	// Cluster related
 	CreateCluster(clusterName string) (string, error)
@@ -69,7 +69,7 @@ type ECSClient interface {
 // ecsClient implements ECSClient
 type ecsClient struct {
 	client ecsiface.ECSAPI
-	params *config.CliParams
+	params *config.CLIParams
 }
 
 // NewECSClient creates a new ECS client
@@ -77,7 +77,7 @@ func NewECSClient() ECSClient {
 	return &ecsClient{}
 }
 
-func (c *ecsClient) Initialize(params *config.CliParams) {
+func (c *ecsClient) Initialize(params *config.CLIParams) {
 	client := ecs.New(params.Session)
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
 	c.client = client
@@ -285,10 +285,6 @@ func cachedTaskDefinitionRevisionIsActive(cachedTaskDefinition *ecs.TaskDefiniti
 	return *taskDefinitionOfRecord.Status == ecs.TaskDefinitionStatusActive
 }
 
-// constructTaskDefinitionCacheHash computes md5sum of the region, awsAccountId and the requested task definition data
-// BUG(juanrhenals) The requested Task Definition data (taskDefinitionRequest) is not created in a deterministic fashion because there are maps within
-// the request ecs.RegisterTaskDefinitionInput structure, and map iteration in Go is not deterministic. We need to fix this.
-// FIXED(pzimmermann) using a marshalled json representation for the task definition data to be deterministic
 func (c *ecsClient) constructTaskDefinitionCacheHash(taskDefinition *ecs.TaskDefinition, request *ecs.RegisterTaskDefinitionInput) string {
 	// Get the region from the ecsClient configuration
 	region := aws.StringValue(c.params.Session.Config.Region)

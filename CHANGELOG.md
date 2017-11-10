@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0
+* Feature - Add support for configuring multiple named ECS Profiles and Cluster Configurations #364
+* Feature - Update the Order of Resolution for Credentials and Region #351
+* Feature - Add support for Task Role Arn, Essential, and Network Mode with the —ecs-params flag #328
+* Feature - Add support for running the ECS CLI on Windows #354
+* Enhancement - Make keypair optional in `ecs-cli up` command #347
+* Enhancement - Update CloudFormation template with all available instance types #340
+* Bug - Change default cluster MinSize to 0 #336
+
 ## 0.6.6
 * Feature - Add support for region ap-northeast-2
 

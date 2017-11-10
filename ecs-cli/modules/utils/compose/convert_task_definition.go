@@ -15,7 +15,6 @@ package utils
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -27,6 +26,7 @@ import (
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -64,7 +64,7 @@ func getSupportedComposeYamlOptionsMap() map[string]bool {
 
 // ConvertToTaskDefinition transforms the yaml configs to its ecs equivalent (task definition)
 func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context,
-	serviceConfigs *config.ServiceConfigs, taskRoleArn string) (*ecs.TaskDefinition, error) {
+	serviceConfigs *config.ServiceConfigs, taskRoleArn string, ecsParamsFileName string) (*ecs.TaskDefinition, error) {
 
 	if serviceConfigs.Len() == 0 {
 		return nil, errors.New("cannot create a task definition with no containers; invalid service config")
@@ -72,6 +72,24 @@ func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context
 
 	logUnsupportedConfigFields(context.Project)
 
+	ecsParams, err := readECSParams(ecsParamsFileName)
+	if err != nil {
+		return nil, err
+	}
+
+	var networkMode string
+	var ecsParamsContainerDefs ContainerDefs
+
+	if ecsParams != nil {
+		networkMode = ecsParams.TaskDefinition.NetworkMode
+		// The task-role-arn flag should take precedence over a taskRoleArn value specified in ECS fields file
+		if taskRoleArn == "" {
+			taskRoleArn = ecsParams.TaskDefinition.TaskRoleArn
+		}
+		ecsParamsContainerDefs = ecsParams.TaskDefinition.ContainerDefinitions
+	}
+
+	// Create containerDefinitions
 	containerDefinitions := []*ecs.ContainerDefinition{}
 	volumes := &volumes{
 		volumeWithHost: make(map[string]string), // map with key:=hostSourcePath value:=VolumeName
@@ -86,9 +104,24 @@ func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context
 		containerDef := &ecs.ContainerDefinition{
 			Name: aws.String(name),
 		}
-		if err := convertToContainerDef(context, serviceConfig, volumes, containerDef); err != nil {
+
+		// Check if there are ecs-params specified for the container
+		ecsContainerDef := &ContainerDef{Essential: true}
+
+		if cd, ok := ecsParamsContainerDefs[name]; ok {
+			ecsContainerDef = &cd
+		}
+
+		count := len(serviceConfigs.Keys())
+
+		if !hasEssential(ecsParamsContainerDefs, count) {
+			return nil, errors.New("Task definition does not have any essential containers.")
+		}
+
+		if err := convertToContainerDef(context, serviceConfig, volumes, containerDef, ecsContainerDef); err != nil {
 			return nil, err
 		}
+
 		containerDefinitions = append(containerDefinitions, containerDef)
 	}
 
@@ -97,7 +130,9 @@ func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context
 		ContainerDefinitions: containerDefinitions,
 		Volumes:              convertToECSVolumes(volumes),
 		TaskRoleArn:          aws.String(taskRoleArn),
+		NetworkMode:          aws.String(networkMode),
 	}
+
 	return taskDefinition, nil
 }
 
@@ -166,7 +201,7 @@ func isZero(v reflect.Value) bool {
 // convertToContainerDef transforms each service in the compose yml
 // to an equivalent container definition
 func convertToContainerDef(context *project.Context, inputCfg *config.ServiceConfig,
-	volumes *volumes, outputContDef *ecs.ContainerDefinition) error {
+	volumes *volumes, outputContDef *ecs.ContainerDefinition, ecsContainerDef *ContainerDef) error {
 	// setting memory
 	var mem int64
 	var memoryReservation int64
@@ -269,6 +304,10 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 	}
 	if inputCfg.CapDrop != nil {
 		outputContDef.LinuxParameters.Capabilities.SetDrop(aws.StringSlice(inputCfg.CapDrop))
+	}
+
+	if ecsContainerDef != nil {
+		outputContDef.Essential = aws.Bool(ecsContainerDef.Essential)
 	}
 
 	return nil
@@ -549,4 +588,28 @@ func SortedGoString(v interface{}) (string, error) {
 		return "", err
 	}
 	return string(b), nil
+}
+
+func hasEssential(ecsParamsContainerDefs ContainerDefs, count int) bool {
+	// If the customer does not set the "essential" field on any container
+	// definition, ECS will mark all containers in a TaskDefinition as
+	// essential. Previously, since the customer could not pass in the
+	// essential field, Task Definitions created through the CLI marked all
+	// containers as essential.
+
+	// Now that the essential field can  be set by the customer via the
+	// the ecs-params.yml file, we want to make sure that there is still at
+	// least one essential container, i.e. that the customer does not
+	// explicitly set all containers to be non-essential.
+
+	nonEssentialCount := 0
+
+	for _, containerDef := range ecsParamsContainerDefs {
+		if !containerDef.Essential {
+			nonEssentialCount += 1
+		}
+	}
+
+	// 'count' is the total number of containers specified in the service config
+	return nonEssentialCount != count
 }

@@ -41,26 +41,29 @@ const (
 
 type mockReadWriter struct {
 	clusterName string
+	stackName   string
 }
 
-func (rdwr *mockReadWriter) GetConfig() (*config.CliConfig, error) {
-	return config.NewCliConfig(rdwr.clusterName), nil
+func (rdwr *mockReadWriter) Get(cluster string, profile string) (*config.CLIConfig, error) {
+	cliConfig := config.NewCLIConfig(rdwr.clusterName)
+	cliConfig.CFNStackName = rdwr.clusterName
+	return cliConfig, nil
 }
 
-func (rdwr *mockReadWriter) ReadFrom(ecsConfig *config.CliConfig) error {
+func (rdwr *mockReadWriter) SaveProfile(configName string, profile *config.Profile) error {
 	return nil
 }
 
-func (rdwr *mockReadWriter) IsInitialized() (bool, error) {
-	return true, nil
-}
-
-func (rdwr *mockReadWriter) Save(dest *config.Destination) error {
+func (rdwr *mockReadWriter) SaveCluster(configName string, cluster *config.Cluster) error {
 	return nil
 }
 
-func (rdwr *mockReadWriter) IsKeyPresent(section, key string) bool {
-	return true
+func (rdwr *mockReadWriter) SetDefaultProfile(configName string) error {
+	return nil
+}
+
+func (rdwr *mockReadWriter) SetDefaultCluster(configName string) error {
+	return nil
 }
 
 func newMockReadWriter() *mockReadWriter {
@@ -83,17 +86,7 @@ func TestClusterUp(t *testing.T) {
 	defer os.Clearenv()
 	mockECS, mockCloudformation := setupTest(t)
 
-	gomock.InOrder(
-		mockECS.EXPECT().Initialize(gomock.Any()),
-		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
-	)
-
-	gomock.InOrder(
-		mockCloudformation.EXPECT().Initialize(gomock.Any()),
-		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
-		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
-	)
+	mocksForSuccessfulClusterUp(mockECS, mockCloudformation)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
@@ -173,17 +166,7 @@ func TestClusterUpWithVPC(t *testing.T) {
 	vpcID := "vpc-02dd3038"
 	subnetIds := "subnet-04726b21,subnet-04346b21"
 
-	gomock.InOrder(
-		mockECS.EXPECT().Initialize(gomock.Any()),
-		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
-	)
-
-	gomock.InOrder(
-		mockCloudformation.EXPECT().Initialize(gomock.Any()),
-		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
-		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
-	)
+	mocksForSuccessfulClusterUp(mockECS, mockCloudformation)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
@@ -202,17 +185,7 @@ func TestClusterUpWithAvailabilityZones(t *testing.T) {
 
 	vpcAZs := "us-west-2c,us-west-2a"
 
-	gomock.InOrder(
-		mockECS.EXPECT().Initialize(gomock.Any()),
-		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
-	)
-
-	gomock.InOrder(
-		mockCloudformation.EXPECT().Initialize(gomock.Any()),
-		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
-		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
-	)
+	mocksForSuccessfulClusterUp(mockECS, mockCloudformation)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
@@ -230,17 +203,7 @@ func TestClusterUpWithCustomRole(t *testing.T) {
 
 	instanceRole := "sparklepony"
 
-	gomock.InOrder(
-		mockECS.EXPECT().Initialize(gomock.Any()),
-		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
-	)
-
-	gomock.InOrder(
-		mockCloudformation.EXPECT().Initialize(gomock.Any()),
-		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
-		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
-	)
+	mocksForSuccessfulClusterUp(mockECS, mockCloudformation)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.String(command.KeypairNameFlag, "default", "")
@@ -315,10 +278,7 @@ func TestClusterUpWithoutKeyPair(t *testing.T) {
 	defer os.Clearenv()
 	mockECS, mockCloudformation := setupTest(t)
 
-	gomock.InOrder(
-		mockCloudformation.EXPECT().Initialize(gomock.Any()),
-		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-	)
+	mocksForSuccessfulClusterUp(mockECS, mockCloudformation)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
@@ -326,7 +286,8 @@ func TestClusterUpWithoutKeyPair(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
-	assert.Error(t, err, "Expected error for key pair name")
+
+	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
 func TestClusterUpWithSecurityGroupWithoutVPC(t *testing.T) {
@@ -355,21 +316,11 @@ func TestClusterUpWith2SecurityGroups(t *testing.T) {
 	defer os.Clearenv()
 	mockECS, mockCloudformation := setupTest(t)
 
+	mocksForSuccessfulClusterUp(mockECS, mockCloudformation)
+
 	securityGroupIds := "sg-eeaabc8d,sg-eaaebc8d"
 	vpcId := "vpc-02dd3038"
 	subnetIds := "subnet-04726b21,subnet-04346b21"
-
-	gomock.InOrder(
-		mockCloudformation.EXPECT().Initialize(gomock.Any()),
-		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
-		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
-	)
-
-	gomock.InOrder(
-		mockECS.EXPECT().Initialize(gomock.Any()),
-		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
-	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(command.CapabilityIAMFlag, true, "")
@@ -556,9 +507,10 @@ func TestClusterUpWithoutRegion(t *testing.T) {
 }
 
 func TestClusterDown(t *testing.T) {
-	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CliParams, error) {
-		return &config.CliParams{
-			Cluster: clusterName,
+	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CLIParams, error) {
+		return &config.CLIParams{
+			Cluster:      clusterName,
+			CFNStackName: stackName,
 		}, nil
 	}
 
@@ -604,9 +556,10 @@ func TestDeleteClusterPrompt(t *testing.T) {
 }
 
 func TestClusterScale(t *testing.T) {
-	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CliParams, error) {
-		return &config.CliParams{
-			Cluster: clusterName,
+	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CLIParams, error) {
+		return &config.CLIParams{
+			Cluster:      clusterName,
+			CFNStackName: stackName,
 		}, nil
 	}
 	defer os.Clearenv()
@@ -657,8 +610,8 @@ func TestClusterPSTaskGetInfoFail(t *testing.T) {
 	testSession, err := session.NewSession()
 	assert.NoError(t, err, "Unexpected error in creating session")
 
-	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CliParams, error) {
-		return &config.CliParams{
+	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CLIParams, error) {
+		return &config.CLIParams{
 			Cluster: clusterName,
 			Session: testSession,
 		}, nil
@@ -676,4 +629,17 @@ func TestClusterPSTaskGetInfoFail(t *testing.T) {
 	context := cli.NewContext(nil, flagSet, nil)
 	_, err = clusterPS(context, newMockReadWriter(), mockECS)
 	assert.Error(t, err, "Expected error in cluster ps")
+}
+
+func mocksForSuccessfulClusterUp(mockECS *mock_ecs.MockECSClient, mockCloudformation *mock_cloudformation.MockCloudformationClient) {
+	gomock.InOrder(
+		mockECS.EXPECT().Initialize(gomock.Any()),
+		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
+	)
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
+		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
+	)
 }

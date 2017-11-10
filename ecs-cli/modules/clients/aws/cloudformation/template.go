@@ -14,7 +14,7 @@
 package cloudformation
 
 func GetTemplate() string {
-	return template
+        return template
 }
 
 // TODO: Improvements:
@@ -49,6 +49,8 @@ var template = `
         "t2.small",
         "t2.medium",
         "t2.large",
+        "t2.xlarge",
+        "t2.2xlarge",
         "m3.medium",
         "m3.large",
         "m3.xlarge",
@@ -58,6 +60,7 @@ var template = `
         "m4.2xlarge",
         "m4.4xlarge",
         "m4.10xlarge",
+        "m4.16xlarge",
         "c4.large",
         "c4.xlarge",
         "c4.2xlarge",
@@ -68,13 +71,6 @@ var template = `
         "c3.2xlarge",
         "c3.4xlarge",
         "c3.8xlarge",
-        "p2.xlarge",
-        "p2.8xlarge",
-        "p2.16xlarge",
-        "g2.2xlarge",
-        "g2.16xlarge",
-        "x1.16xlarge",
-        "x1.32xlarge",
         "r3.large",
         "r3.xlarge",
         "r3.2xlarge",
@@ -86,21 +82,38 @@ var template = `
         "r4.4xlarge",
         "r4.8xlarge",
         "r4.16xlarge",
+        "x1.16xlarge",
+        "x1.32xlarge",
+        "x1e.32xlarge",
+        "d2.xlarge",
+        "d2.2xlarge",
+        "d2.4xlarge",
+        "d2.8xlarge",
         "i2.xlarge",
         "i2.2xlarge",
         "i2.4xlarge",
         "i2.8xlarge",
+        "i3.large",
+        "i3.xlarge",
+        "i3.2xlarge",
+        "i3.4xlarge",
+        "i3.8xlarge",
+        "i3.16xlarge",
+        "f1.2xlarge",
+        "f2.16xlarge",
         "g2.2xlarge",
         "g2.8xlarge",
-        "d2.xlarge",
-        "d2.2xlarge",
-        "d2.4xlarge",
-        "d2.8xlarge"
+        "g3.4xlarge",
+        "g3.8xlarge",
+        "g3.16xlarge",
+        "p2.xlarge",
+        "p2.8xlarge",
+        "p2.16xlarge"
       ],
       "ConstraintDescription": "must be a valid EC2 instance type."
     },
     "KeyName": {
-      "Type": "AWS::EC2::KeyPair::KeyName",
+      "Type": "String",
       "Description": "Optional - Name of an existing EC2 KeyPair to enable SSH access to the ECS instances",
       "Default": ""
     },
@@ -192,14 +205,6 @@ var template = `
             ""
           ]
         }
-      ]
-    },
-    "CreateEC2LCWithoutKeyPair": {
-      "Fn::Equals": [
-        {
-          "Ref": "KeyName"
-        },
-        ""
       ]
     },
     "UseSpecifiedVpcAvailabilityZones": {
@@ -443,7 +448,6 @@ var template = `
       }
     },
     "EcsInstanceLc": {
-      "Condition": "CreateEC2LCWithKeyPair",
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
         "ImageId": { "Ref" : "EcsAmiId" },
@@ -457,49 +461,15 @@ var template = `
           "Ref": "EcsInstanceProfile"
         },
         "KeyName": {
-          "Ref": "KeyName"
-        },
-        "SecurityGroups": {
           "Fn::If": [
-            "CreateSecurityGroup",
-            [ {
-              "Ref": "EcsSecurityGroup"
-            } ],
+            "CreateEC2LCWithKeyPair",
             {
-              "Ref": "SecurityGroupIds"
+              "Ref": "KeyName"
+            },
+            {
+              "Ref": "AWS::NoValue"
             }
           ]
-        },
-        "UserData": {
-          "Fn::Base64": {
-            "Fn::Join": [
-              "",
-              [
-                "#!/bin/bash\n",
-                "echo ECS_CLUSTER=",
-                {
-                  "Ref": "EcsCluster"
-                },
-                " >> /etc/ecs/ecs.config\n"
-              ]
-            ]
-          }
-        }
-      }
-    },
-    "EcsInstanceLcWithoutKeyPair": {
-      "Condition": "CreateEC2LCWithoutKeyPair",
-      "Type": "AWS::AutoScaling::LaunchConfiguration",
-      "Properties": {
-        "ImageId": { "Ref" : "EcsAmiId" },
-        "InstanceType": {
-          "Ref": "EcsInstanceType"
-        },
-        "AssociatePublicIpAddress": {
-          "Ref": "AssociatePublicIpAddress"
-        },
-        "IamInstanceProfile": {
-          "Ref": "EcsInstanceProfile"
         },
         "SecurityGroups": {
           "Fn::If": [
@@ -556,17 +526,9 @@ var template = `
           ]
         },
         "LaunchConfigurationName": {
-          "Fn::If": [
-            "CreateEC2LCWithKeyPair",
-            {
-              "Ref": "EcsInstanceLc"
-            },
-            {
-              "Ref": "EcsInstanceLcWithoutKeyPair"
-            }
-          ]
+          "Ref": "EcsInstanceLc"
         },
-        "MinSize": "1",
+        "MinSize": "0",
         "MaxSize": {
           "Ref": "AsgMaxSize"
         },

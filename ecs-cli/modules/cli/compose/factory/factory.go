@@ -16,6 +16,7 @@ package factory
 import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project"
+
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	libcomposecommand "github.com/docker/libcompose/cli/command"
@@ -55,23 +56,26 @@ func (projectFactory projectFactory) Create(cliContext *cli.Context, isService b
 	return project, nil
 }
 
-// populateContext sets the required CLI arguments to the context
+// populateContext sets the required CLI arguments to the ECS context
 func (projectFactory projectFactory) populateContext(ecsContext *context.Context, cliContext *cli.Context) error {
 	/*
-	 Populate the following libcompose fields to context
-	 - ComposeFiles: reads from `--file` or `-f` flags. Defaults to `docker-compose.yml` and `docker-compose.override.yml` if no flags are specified.
-	 - ProjectName: reads from `--project-name` or `-p` flags.
+		Populate the following libcompose fields on the ECS context:
+		 - ComposeFiles: reads from `--file` or `-f` flags. Defaults to
+		 `docker-compose.yml` and `docker-compose.override.yml` if no flags are
+		 specified.
+		 - ProjectName: reads from `--project-name` or `-p` flags.
 	*/
 	libcomposecommand.Populate(&ecsContext.Context, cliContext)
 	ecsContext.CLIContext = cliContext
 
-	// reads and sets the parameters (required to create ECS Service Client) from the cli context to ecs context
+	// reads and sets the parameters (required to create ECS Service
+	// Client) from the cli context to ECS context
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
 		utils.LogError(err, "Error loading config")
 		return err
 	}
-	params, err := config.NewCliParams(cliContext, rdwr)
+	params, err := config.NewCLIParams(cliContext, rdwr)
 	if err != nil {
 		utils.LogError(err, "Unable to create an instance of ECSParams given the cli context")
 		return err
@@ -86,7 +90,7 @@ func (projectFactory projectFactory) populateContext(ecsContext *context.Context
 	return nil
 }
 
-// populateLibcomposeContext sets the required Libcompose lookup utilities to the context
+// populateLibcomposeContext sets the required Libcompose lookup utilities on the ECS context
 func (projectFactory projectFactory) populateLibcomposeContext(ecsContext *context.Context) error {
 	envLookup, err := utils.GetDefaultEnvironmentLookup()
 	if err != nil {

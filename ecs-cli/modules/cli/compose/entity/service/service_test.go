@@ -179,7 +179,7 @@ func createServiceTest(t *testing.T, cliContext *cli.Context,
 
 	context := &context.Context{
 		ECSClient:  mockEcs,
-		ECSParams:  &config.CliParams{},
+		ECSParams:  &config.CLIParams{},
 		CLIContext: cliContext,
 	}
 

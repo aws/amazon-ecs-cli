@@ -16,9 +16,10 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
+	"github.com/pkg/errors"
 )
 
 // Destination stores the config destination path to write to and the permissions to create the
@@ -28,29 +29,43 @@ type Destination struct {
 	Mode *os.FileMode
 }
 
+// getOSName returns runtime.GOOS
+// In unit tests it can be mocked
+var getOSName = func() string {
+	return runtime.GOOS
+}
+
+// GetWindowsBaseDataPath returns the correct path to append
+// to a user home directory to store application data.
+func GetWindowsBaseDataPath() string {
+	return filepath.Join("AppData", "local", "ecs")
+}
+
 // GetFilePermissions is a utility method that gets permissions of a file.
 func GetFilePermissions(fileName string) (*os.FileMode, error) {
 	fileInfo, err := os.Stat(fileName)
 	if err != nil {
-		logrus.Warnf("Error getting permissions of file: %s", fileName)
-		return nil, err
+		return nil, errors.Wrap(err, "Error getting Home directory permissions for config file")
 	}
 
 	mode := fileInfo.Mode()
 	return &mode, nil
 }
 
-// newDefaultDestination creates a new Destination object.
-func newDefaultDestination() (*Destination, error) {
+// NewDefaultDestination creates a new Destination object.
+func NewDefaultDestination() (*Destination, error) {
 	homeDir, err := utils.GetHomeDir()
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Error finding Home directory to store config file")
 	}
 	mode, err := GetFilePermissions(homeDir)
 	if err != nil {
 		return nil, err
 	}
+	path := filepath.Join(homeDir, ".ecs")
+	if getOSName() == "windows" {
+		path = filepath.Join(homeDir, GetWindowsBaseDataPath())
+	}
 
-	// TODO: Move to const.
-	return &Destination{Path: filepath.Join(homeDir, ".ecs"), Mode: mode}, nil
+	return &Destination{Path: path, Mode: mode}, nil
 }
