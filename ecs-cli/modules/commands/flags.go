@@ -56,6 +56,7 @@ const (
 	CapabilityIAMFlag               = "capability-iam"
 	NoAutoAssignPublicIPAddressFlag = "no-associate-public-ip-address"
 	ForceFlag                       = "force"
+	CustomTemplateFlag              = "template"
 
 	// Image
 	RegistryIdFlag = "registry-id"

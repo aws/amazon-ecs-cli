@@ -140,6 +140,7 @@ func rmServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 			command.OptionalClusterFlag(),
 			command.OptionalRegionFlag(),
 			ComposeServiceTimeoutFlag(),
+			OptionalServiceConfigsFlag(),
 		},
 	}
 }

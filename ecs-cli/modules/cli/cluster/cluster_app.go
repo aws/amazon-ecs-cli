@@ -16,6 +16,7 @@ package cluster
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -54,6 +55,13 @@ func init() {
 		command.ImageIdFlag:       cloudformation.ParameterKeyAmiId,
 		command.InstanceRoleFlag:  cloudformation.ParameterKeyInstanceRole,
 	}
+}
+
+func TemplateUp(c *cli.Context) {
+	if err := validateCustomTemplate(c); err != nil {
+		logrus.Fatal("Error executing 'template': ", err)
+	}
+	ClusterUp(c)
 }
 
 func ClusterUp(c *cli.Context) {
@@ -247,7 +255,18 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 	}
 
 	// Create cfn stack
-	template := cloudformation.GetTemplate()
+	var template string
+	customTemplate := context.String(command.CustomTemplateFlag)
+	if customTemplate != "" {
+		bytes, err := ioutil.ReadFile(customTemplate)
+		if err != nil {
+			return err
+		}
+		template = string(bytes)
+	} else {
+		template = cloudformation.GetTemplate()
+	}
+
 	if _, err := cfnClient.CreateStack(template, stackName, cfnParams); err != nil {
 		return err
 	}
@@ -416,6 +435,13 @@ func isIAMAcknowledged(context *cli.Context) bool {
 // returns true if customer specifies a custom instance role via 'role' flag.
 func hasCustomRole(context *cli.Context) bool {
 	return context.String(command.InstanceRoleFlag) != "" // validate arn?
+}
+
+func validateCustomTemplate(context *cli.Context) error {
+	if context.String(command.CustomTemplateFlag) == "" {
+		return fmt.Errorf("You must specify a custom '--%s' flag", command.CustomTemplateFlag)
+	}
+	return nil
 }
 
 func validateInstanceRole(context *cli.Context) error {
