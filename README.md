@@ -100,7 +100,40 @@ Create a cluster configuration with the following command, substituting `region_
 
 ### Defaults
 
-The first Cluster Configuration or ECS Profile that you configure will be set as the default. The default ECS Profile can be changed using the `ecs-cli configure profile default` command; the default cluster configuration can be changed using the `ecs-cli configure default` command. Note that unlike in the AWS CLI, the default ECS Profile does not need to be named "default". 
+The first Cluster Configuration or ECS Profile that you configure will be set as the default. The default ECS Profile can be changed using the `ecs-cli configure profile default` command; the default cluster configuration can be changed using the `ecs-cli configure default` command. Note that unlike in the AWS CLI, the default ECS Profile does not need to be named "default".
+
+### Using Credentials from `~/.aws/credentials` and Assuming a Role
+
+The `--aws-profile` flag and `$AWS_PROFILE` environment variable allows you to reference any named profile in `~/.aws/credentials`.
+
+Here is an example on how to assume a role: [amazon-ecs-cli/blob/master/ecs-cli/modules/config/aws_credentials_example.ini](https://github.com/aws/amazon-ecs-cli/blob/master/ecs-cli/modules/config/aws_credentials_example.ini)
+
+### Order of Resolution for credentials
+
+1) ECS CLI Profile Flags
+  a) ECS Profile (--ecs-profile)
+  b) AWS Profile (--aws-profile)
+2) Environment Variables - attempts to fetch the credentials from environment variables:
+  a) ECS_PROFILE
+  b) AWS_PROFILE
+  c) AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY, Optional: AWS_SESSION_TOKEN
+3) ECS Config - attempts to fetch the credentials from the default ECS Profile
+4) Default AWS Profile - attempts to use credentials (aws_access_key_id, aws_secret_access_key) or assume_role (role_arn, source_profile) from AWS profile name
+  a) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
+5) EC2 Instance role
+
+### Order of Resolution for Region
+
+1) ECS CLI Flags
+  a) Region Flag --region
+  b) Cluster Config Flag (--cluster-config)
+2) ECS Config - attempts to fetch the region from the default ECS Profile
+3) Environment Variable - attempts to fetch the region from environment variables:
+  a) AWS_REGION (OR)
+  b) AWS_DEFAULT_REGION
+4) AWS Profile - attempts to use region from AWS profile name
+  a) AWS_PROFILE environment variable (OR) –aws-
+  b) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
 
 ## Using the CLI
 
