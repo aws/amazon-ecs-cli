@@ -102,11 +102,13 @@ Create a cluster configuration with the following command, substituting `region_
 
 The first Cluster Configuration or ECS Profile that you configure will be set as the default. The default ECS Profile can be changed using the `ecs-cli configure profile default` command; the default cluster configuration can be changed using the `ecs-cli configure default` command. Note that unlike in the AWS CLI, the default ECS Profile does not need to be named "default".
 
-### Using Credentials from `~/.aws/credentials` and Assuming a Role
+### Using Credentials from `~/.aws/credentials`, Assuming a Role, and Multi-Factor Authentication
 
 The `--aws-profile` flag and `$AWS_PROFILE` environment variable allows you to reference any named profile in `~/.aws/credentials`.
 
 Here is an example on how to assume a role: [amazon-ecs-cli/blob/master/ecs-cli/modules/config/aws_credentials_example.ini](https://github.com/aws/amazon-ecs-cli/blob/master/ecs-cli/modules/config/aws_credentials_example.ini)
+
+If you are trying to use Multi-Factor Authentication, please see this comment and the associated issue: [#284 (comment)](https://github.com/aws/amazon-ecs-cli/issues/284#issuecomment-336310034).
 
 ### Order of Resolution for credentials
 
