@@ -31,7 +31,7 @@ type cwLogsClient struct {
 }
 
 // NewCloudWatchLogsClient creates an instance of ec2Client object.
-func NewCloudWatchLogsClient(params *config.CliParams, logRegion string) Client {
+func NewCloudWatchLogsClient(params *config.CLIParams, logRegion string) Client {
 	session := params.Session
 	session.Config = session.Config.WithRegion(logRegion)
 	client := cloudwatchlogs.New(session)

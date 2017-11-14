@@ -18,7 +18,7 @@ import (
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"
-	command "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -93,10 +93,10 @@ func TestLogsRequestOneContainer(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(command.TaskIDFlag, taskID, "")
+	flagSet.String(flags.TaskIDFlag, taskID, "")
 	context := cli.NewContext(nil, flagSet, nil)
 
-	request, logRegion, err := logsRequest(context, mockECS, &config.CliParams{})
+	request, logRegion, err := logsRequest(context, mockECS, &config.CLIParams{})
 	assert.NoError(t, err, "Unexpected error getting logs")
 	assert.Equal(t, logRegion1, logRegion)
 	assert.Equal(t, logGroup1, aws.StringValue(request.LogGroupName))
@@ -124,10 +124,10 @@ func TestLogsRequestTwoContainers(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(command.TaskIDFlag, taskID, "")
+	flagSet.String(flags.TaskIDFlag, taskID, "")
 	context := cli.NewContext(nil, flagSet, nil)
 
-	request, logRegion, err := logsRequest(context, mockECS, &config.CliParams{})
+	request, logRegion, err := logsRequest(context, mockECS, &config.CLIParams{})
 	assert.NoError(t, err, "Unexpected error getting logs")
 	assert.Equal(t, logRegion1, logRegion)
 	assert.Equal(t, logGroup1, aws.StringValue(request.LogGroupName))
@@ -155,10 +155,10 @@ func TestLogsRequestTwoContainersDifferentPrefix(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(command.TaskIDFlag, taskID, "")
+	flagSet.String(flags.TaskIDFlag, taskID, "")
 	context := cli.NewContext(nil, flagSet, nil)
 
-	request, logRegion, err := logsRequest(context, mockECS, &config.CliParams{})
+	request, logRegion, err := logsRequest(context, mockECS, &config.CLIParams{})
 	assert.NoError(t, err, "Unexpected error getting logs")
 	assert.Equal(t, logRegion1, logRegion)
 	assert.Equal(t, logGroup1, aws.StringValue(request.LogGroupName))
@@ -180,11 +180,11 @@ func TestLogsRequestWithTaskDefFlag(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(command.TaskIDFlag, taskID, "")
-	flagSet.String(command.TaskDefinitionFlag, taskDefName, "")
+	flagSet.String(flags.TaskIDFlag, taskID, "")
+	flagSet.String(flags.TaskDefinitionFlag, taskDefName, "")
 	context := cli.NewContext(nil, flagSet, nil)
 
-	request, logRegion, err := logsRequest(context, mockECS, &config.CliParams{})
+	request, logRegion, err := logsRequest(context, mockECS, &config.CLIParams{})
 	assert.NoError(t, err, "Unexpected error getting logs")
 	assert.Equal(t, logRegion1, logRegion)
 	assert.Equal(t, logGroup1, aws.StringValue(request.LogGroupName))
@@ -212,11 +212,11 @@ func TestLogsRequestContainerFlag(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(command.TaskIDFlag, taskID, "")
-	flagSet.String(command.ContainerNameFlag, containerName, "")
+	flagSet.String(flags.TaskIDFlag, taskID, "")
+	flagSet.String(flags.ContainerNameFlag, containerName, "")
 	context := cli.NewContext(nil, flagSet, nil)
 
-	request, logRegion, err := logsRequest(context, mockECS, &config.CliParams{})
+	request, logRegion, err := logsRequest(context, mockECS, &config.CLIParams{})
 	assert.NoError(t, err, "Unexpected error getting logs")
 	assert.Equal(t, logRegion1, logRegion)
 	assert.Equal(t, logGroup1, aws.StringValue(request.LogGroupName))
@@ -246,10 +246,10 @@ func TestLogsRequestMismatchRegionError(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(command.TaskIDFlag, taskID, "")
+	flagSet.String(flags.TaskIDFlag, taskID, "")
 	context := cli.NewContext(nil, flagSet, nil)
 
-	_, _, err := logsRequest(context, mockECS, &config.CliParams{})
+	_, _, err := logsRequest(context, mockECS, &config.CLIParams{})
 	assert.Error(t, err, "Expected error getting logs")
 }
 
@@ -273,10 +273,10 @@ func TestLogsRequestMismatchLogGroupError(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(command.TaskIDFlag, taskID, "")
+	flagSet.String(flags.TaskIDFlag, taskID, "")
 	context := cli.NewContext(nil, flagSet, nil)
 
-	_, _, err := logsRequest(context, mockECS, &config.CliParams{})
+	_, _, err := logsRequest(context, mockECS, &config.CLIParams{})
 	assert.Error(t, err, "Expected error getting logs")
 }
 
@@ -299,10 +299,10 @@ func TestLogsRequestWrongLogDriver(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(command.TaskIDFlag, taskID, "")
+	flagSet.String(flags.TaskIDFlag, taskID, "")
 	context := cli.NewContext(nil, flagSet, nil)
 
-	_, _, err := logsRequest(context, mockECS, &config.CliParams{})
+	_, _, err := logsRequest(context, mockECS, &config.CLIParams{})
 	assert.Error(t, err, "Expected error getting logs")
 }
 
@@ -325,10 +325,10 @@ func TestLogsRequestNoPrefix(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(command.TaskIDFlag, taskID, "")
+	flagSet.String(flags.TaskIDFlag, taskID, "")
 	context := cli.NewContext(nil, flagSet, nil)
 
-	_, _, err := logsRequest(context, mockECS, &config.CliParams{})
+	_, _, err := logsRequest(context, mockECS, &config.CLIParams{})
 	assert.Error(t, err, "Expected error getting logs")
 }
 
@@ -344,11 +344,11 @@ func TestLogsRequestTaskNotFound(t *testing.T) {
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(command.TaskIDFlag, taskID, "")
+	flagSet.String(flags.TaskIDFlag, taskID, "")
 	context := cli.NewContext(nil, flagSet, nil)
 
 	// Error message for this case includes info obtained from the params
-	params := &config.CliParams{}
+	params := &config.CLIParams{}
 	params.Cluster = "Cluster"
 	sess, err := session.NewSession(&aws.Config{Region: aws.String("us-west-2")})
 	assert.NoError(t, err)
