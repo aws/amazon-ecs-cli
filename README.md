@@ -84,17 +84,17 @@ The Amazon ECS CLI requires some basic configuration information before you can 
 
 ### ECS Profiles
 
-The Amazon ECS CLI supports the configuring of multiple sets of AWS credentials as named profiles using the `ecs-cli configure profile command`. These profiles can then be referenced when you run Amazon ECS CLI commands that require credentials using the `--ecs-profile` flag otherwise the default profile is used.
+The Amazon ECS CLI supports configuring multiple sets of AWS credentials as named profiles using the `ecs-cli configure profile command`. These profiles can then be referenced when you run Amazon ECS CLI commands using the `--ecs-profile` flag; If a custom profile is not specified, the default profile will be used.
 
-Set up a CLI profile with the following command, substituting `profile_name` with your desired profile name, `$AWS_ACCESS_KEY_ID` and `$AWS_SECRET_ACCESS_KEY` environment variables with your AWS credentials.
+Set up a CLI profile with the following command, substituting `profile_name` with your desired profile name, and `$AWS_ACCESS_KEY_ID` and `$AWS_SECRET_ACCESS_KEY` environment variables with your AWS credentials.
 
 `ecs-cli configure profile --profile-name profile_name --access-key $AWS_ACCESS_KEY_ID --secret-key $AWS_SECRET_ACCESS_KEY`
 
 ### Cluster Configurations
 
-A cluster configuration is a set of fields that describes an Amazon ECS cluster including the name of the cluster and the region. These configurations can then be referenced when you run Amazon ECS CLI commands using the `--cluster-config` flag otherwise the default configuration is used.
+A cluster configuration is the set of fields that describes an Amazon ECS cluster, including the name of the cluster and the region. These configurations can then be referenced when you run Amazon ECS CLI commands using the `--cluster-config` flag; otherwise, the default configuration is used.
 
-Create a cluster configuration with the following command, substituting `region_name` with your desired AWS region, `cluster_name` with the name of an existing Amazon ECS cluster or a new cluster to use, and `configuration_name` for the name you'd like to give this configuration.
+Create a cluster configuration with the following command, substituting `region_name` with your desired AWS region, `cluster_name` with the name of an existing Amazon ECS cluster or a new cluster to use, and `configuration_name` with the name you'd like to give this configuration.
 
 `ecs-cli configure --cluster cluster_name --region region_name --config-name configuration_name`
 
@@ -104,7 +104,7 @@ The first Cluster Configuration or ECS Profile that you configure will be set as
 
 ### Using Credentials from `~/.aws/credentials`, Assuming a Role, and Multi-Factor Authentication
 
-The `--aws-profile` flag and `$AWS_PROFILE` environment variable allows you to reference any named profile in `~/.aws/credentials`.
+The `--aws-profile` flag and `$AWS_PROFILE` environment variable allow you to reference any named profile in `~/.aws/credentials`.
 
 Here is an example on how to assume a role: [amazon-ecs-cli/blob/master/ecs-cli/modules/config/aws_credentials_example.ini](https://github.com/aws/amazon-ecs-cli/blob/master/ecs-cli/modules/config/aws_credentials_example.ini)
 
