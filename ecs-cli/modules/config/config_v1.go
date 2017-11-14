@@ -113,6 +113,13 @@ func NewCLIConfig(cluster string) *CLIConfig {
 //    a) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
 //  5) EC2 Instance role
 func (cfg *CLIConfig) ToAWSSession(context *cli.Context) (*session.Session, error) {
+	return cfg.toAWSSessionWithConfig(context, &aws.Config{})
+}
+
+// ToAWSSessionWithConfig processes credential order of precedence
+// The argument svcConfig is needed to allow important unit tests to work
+// (for example: assume role)
+func (cfg *CLIConfig) toAWSSessionWithConfig(context *cli.Context, svcConfig *aws.Config) (*session.Session, error) {
 
 	region, err := cfg.getRegion()
 
@@ -121,13 +128,18 @@ func (cfg *CLIConfig) ToAWSSession(context *cli.Context) (*session.Session, erro
 	}
 
 	if hasProfileFlags(context) {
-		return sessionFromECSConfig(cfg, region)
+		// The AWS SDK Go lets Env Vars override sourcing a profile from the shared credential file
+		// This means that if the Env Vars are present, it will ignore the profile.
+		// So we unset them and then reset them, to allow our order of precedence to be correct.
+		keyID, secretKey := unsetEnvVars()
+		defer resetEnvVars(keyID, secretKey)
+		return sessionFromECSConfig(cfg, region, svcConfig)
 	} else if hasEnvVars(context) {
-		return defaultSession(region)
+		return sessionFromProfile("", region, svcConfig)
 	} else if isDefaultECSProfileCase(cfg) {
-		return sessionFromECSConfig(cfg, region)
+		return sessionFromECSConfig(cfg, region, svcConfig)
 	} else {
-		return defaultSessionFromProfile(region, aws.Config{})
+		return sessionFromProfile("", region, svcConfig)
 	}
 
 }
@@ -144,43 +156,41 @@ func isDefaultECSProfileCase(cfg *CLIConfig) bool {
 	return (cfg.AWSAccessKey != "" || cfg.AWSSecretKey != "" || cfg.AWSProfile != "")
 }
 
-func sessionFromECSConfig(cfg *CLIConfig, region string) (*session.Session, error) {
+func sessionFromECSConfig(cfg *CLIConfig, region string, svcConfig *aws.Config) (*session.Session, error) {
 	if cfg.AWSSecretKey != "" {
-		return customSessionFromKeys(region, cfg.AWSAccessKey, cfg.AWSSecretKey)
+		return sessionFromKeys(region, cfg.AWSAccessKey, cfg.AWSSecretKey, svcConfig)
 	} else {
-		return customSessionFromProfile(region, cfg.AWSProfile)
+		return sessionFromProfile(cfg.AWSProfile, region, svcConfig)
 	}
 }
 
-// The argument svcConfig is needed to allow important unit tests to work
-// (for example: assume role)
-func defaultSessionFromProfile(region string, svcConfig aws.Config) (*session.Session, error) {
+func unsetEnvVars() (keyID string, secretKey string) {
+	keyID = os.Getenv(flags.AWSAccessKeyEnvVar)
+	secretKey = os.Getenv(flags.AWSSecretKeyEnvVar)
+	os.Unsetenv(flags.AWSAccessKeyEnvVar)
+	os.Unsetenv(flags.AWSSecretKeyEnvVar)
+
+	return keyID, secretKey
+}
+
+func resetEnvVars(keyID string, secretKey string) {
+	os.Setenv(flags.AWSAccessKeyEnvVar, keyID)
+	os.Setenv(flags.AWSSecretKeyEnvVar, secretKey)
+}
+
+func sessionFromProfile(profile string, region string, svcConfig *aws.Config) (*session.Session, error) {
 	svcConfig.Region = aws.String(region)
 	return session.NewSessionWithOptions(session.Options{
-		Config:            svcConfig,
-		Profile:           os.Getenv(flags.AwsDefaultProfileEnvVar),
+		Config:            *svcConfig,
+		Profile:           profile,
 		SharedConfigState: session.SharedConfigEnable,
 	})
 }
 
-func defaultSession(region string) (*session.Session, error) {
-	return session.NewSession(&aws.Config{
-		Region: aws.String(region),
-	})
-}
-
-func customSessionFromProfile(region string, awsProfile string) (*session.Session, error) {
-	return session.NewSession(&aws.Config{
-		Region:      aws.String(region),
-		Credentials: credentials.NewSharedCredentials("", awsProfile),
-	})
-}
-
-func customSessionFromKeys(region string, awsAccess string, awsSecret string) (*session.Session, error) {
-	return session.NewSession(&aws.Config{
-		Region:      aws.String(region),
-		Credentials: credentials.NewStaticCredentials(awsAccess, awsSecret, ""),
-	})
+func sessionFromKeys(region string, awsAccess string, awsSecret string, svcConfig *aws.Config) (*session.Session, error) {
+	svcConfig.Region = aws.String(region)
+	svcConfig.Credentials = credentials.NewStaticCredentials(awsAccess, awsSecret, "")
+	return session.NewSession(svcConfig)
 }
 
 // Region: Order of resolution
