@@ -30,7 +30,7 @@ import (
 
 const (
 	taskID          = "task1234"
-	taskDefArn      = "ARN::TaskDef1234"
+	taskDefArn      = "arn:aws:ecs:us-west-2:123412341234:task-definition/myTaskDef:1"
 	taskDefName     = "testTaskDef:7"
 	containerName   = "wordpress"
 	containerImage  = "wordpress"
@@ -62,10 +62,11 @@ func dummyContainerDef(logRegion string, logGroup string, logPrefix string, logD
 	container.SetImage(image)
 	logConfig := &ecs.LogConfiguration{}
 	logConfig.SetLogDriver(logDriver)
-	options := make(map[string]*string)
-	options["awslogs-stream-prefix"] = aws.String(logPrefix)
-	options["awslogs-group"] = aws.String(logGroup)
-	options["awslogs-region"] = aws.String(logRegion)
+	options := map[string]*string{
+		"awslogs-stream-prefix": aws.String(logPrefix),
+		"awslogs-group":         aws.String(logGroup),
+		"awslogs-region":        aws.String(logRegion),
+	}
 
 	logConfig.SetOptions(options)
 	container.SetLogConfiguration(logConfig)
@@ -80,8 +81,7 @@ func TestLogsRequestOneContainer(t *testing.T) {
 
 	ecsTask := &ecs.Task{}
 	ecsTask.SetTaskDefinitionArn(taskDefArn)
-	var ecsTasks []*ecs.Task
-	ecsTasks = append(ecsTasks, ecsTask)
+	ecsTasks := []*ecs.Task{ecsTask}
 
 	var containers []*ecs.ContainerDefinition
 	containers = append(containers, dummyContainerDefFromLogOptions(logRegion1, logGroup1, logPrefix1))
@@ -111,12 +111,11 @@ func TestLogsRequestTwoContainers(t *testing.T) {
 
 	ecsTask := &ecs.Task{}
 	ecsTask.SetTaskDefinitionArn(taskDefArn)
-	var ecsTasks []*ecs.Task
-	ecsTasks = append(ecsTasks, ecsTask)
+	ecsTasks := []*ecs.Task{ecsTask}
 
-	var containers []*ecs.ContainerDefinition
-	containers = append(containers, dummyContainerDefFromLogOptions(logRegion1, logGroup1, logPrefix1))
-	containers = append(containers, dummyContainerDefFromLogOptions(logRegion1, logGroup1, logPrefix2))
+	container1 := dummyContainerDefFromLogOptions(logRegion1, logGroup1, logPrefix1)
+	container2 := dummyContainerDefFromLogOptions(logRegion1, logGroup1, logPrefix2)
+	containers := []*ecs.ContainerDefinition{container1, container2}
 	taskDef := dummyTaskDef(containers)
 
 	gomock.InOrder(
@@ -143,12 +142,11 @@ func TestLogsRequestTwoContainersDifferentPrefix(t *testing.T) {
 
 	ecsTask := &ecs.Task{}
 	ecsTask.SetTaskDefinitionArn(taskDefArn)
-	var ecsTasks []*ecs.Task
-	ecsTasks = append(ecsTasks, ecsTask)
+	ecsTasks := []*ecs.Task{ecsTask}
 
-	var containers []*ecs.ContainerDefinition
-	containers = append(containers, dummyContainerDefFromLogOptions(logRegion1, logGroup1, logPrefix1))
-	containers = append(containers, dummyContainerDefFromLogOptions(logRegion1, logGroup1, logPrefix2))
+	container1 := dummyContainerDefFromLogOptions(logRegion1, logGroup1, logPrefix1)
+	container2 := dummyContainerDefFromLogOptions(logRegion1, logGroup1, logPrefix2)
+	containers := []*ecs.ContainerDefinition{container1, container2}
 	taskDef := dummyTaskDef(containers)
 
 	gomock.InOrder(
@@ -173,8 +171,8 @@ func TestLogsRequestWithTaskDefFlag(t *testing.T) {
 	defer ctrl.Finish()
 	mockECS := mock_ecs.NewMockECSClient(ctrl)
 
-	var containers []*ecs.ContainerDefinition
-	containers = append(containers, dummyContainerDefFromLogOptions(logRegion1, logGroup1, logPrefix1))
+	container1 := dummyContainerDefFromLogOptions(logRegion1, logGroup1, logPrefix1)
+	containers := []*ecs.ContainerDefinition{container1}
 	taskDef := dummyTaskDef(containers)
 
 	gomock.InOrder(
@@ -201,12 +199,11 @@ func TestLogsRequestContainerFlag(t *testing.T) {
 
 	ecsTask := &ecs.Task{}
 	ecsTask.SetTaskDefinitionArn(taskDefArn)
-	var ecsTasks []*ecs.Task
-	ecsTasks = append(ecsTasks, ecsTask)
+	ecsTasks := []*ecs.Task{ecsTask}
 
-	var containers []*ecs.ContainerDefinition
-	containers = append(containers, dummyContainerDefFromLogOptions(logRegion1, logGroup1, logPrefix1))
-	containers = append(containers, dummyContainerDef(logRegion1, logGroup1, logPrefix1, "awslogs", containerName2, containerImage2))
+	container1 := dummyContainerDefFromLogOptions(logRegion1, logGroup1, logPrefix1)
+	container2 := dummyContainerDef(logRegion1, logGroup1, logPrefix1, "awslogs", containerName2, containerImage2)
+	containers := []*ecs.ContainerDefinition{container1, container2}
 	taskDef := dummyTaskDef(containers)
 
 	gomock.InOrder(
@@ -236,12 +233,11 @@ func TestLogsRequestMismatchRegionError(t *testing.T) {
 
 	ecsTask := &ecs.Task{}
 	ecsTask.SetTaskDefinitionArn(taskDefArn)
-	var ecsTasks []*ecs.Task
-	ecsTasks = append(ecsTasks, ecsTask)
+	ecsTasks := []*ecs.Task{ecsTask}
 
-	var containers []*ecs.ContainerDefinition
-	containers = append(containers, dummyContainerDefFromLogOptions(logRegion1, logGroup1, logPrefix1))
-	containers = append(containers, dummyContainerDefFromLogOptions(logRegion2, logGroup1, logPrefix2))
+	container1 := dummyContainerDefFromLogOptions(logRegion1, logGroup1, logPrefix1)
+	container2 := dummyContainerDefFromLogOptions(logRegion2, logGroup1, logPrefix2)
+	containers := []*ecs.ContainerDefinition{container1, container2}
 	taskDef := dummyTaskDef(containers)
 
 	gomock.InOrder(
@@ -264,12 +260,11 @@ func TestLogsRequestMismatchLogGroupError(t *testing.T) {
 
 	ecsTask := &ecs.Task{}
 	ecsTask.SetTaskDefinitionArn(taskDefArn)
-	var ecsTasks []*ecs.Task
-	ecsTasks = append(ecsTasks, ecsTask)
+	ecsTasks := []*ecs.Task{ecsTask}
 
-	var containers []*ecs.ContainerDefinition
-	containers = append(containers, dummyContainerDefFromLogOptions(logRegion1, logGroup1, logPrefix1))
-	containers = append(containers, dummyContainerDefFromLogOptions(logRegion1, logGroup2, logPrefix2))
+	container1 := dummyContainerDefFromLogOptions(logRegion1, logGroup1, logPrefix1)
+	container2 := dummyContainerDefFromLogOptions(logRegion1, logGroup2, logPrefix2)
+	containers := []*ecs.ContainerDefinition{container1, container2}
 	taskDef := dummyTaskDef(containers)
 
 	gomock.InOrder(
@@ -292,11 +287,10 @@ func TestLogsRequestWrongLogDriver(t *testing.T) {
 
 	ecsTask := &ecs.Task{}
 	ecsTask.SetTaskDefinitionArn(taskDefArn)
-	var ecsTasks []*ecs.Task
-	ecsTasks = append(ecsTasks, ecsTask)
+	ecsTasks := []*ecs.Task{ecsTask}
 
-	var containers []*ecs.ContainerDefinition
-	containers = append(containers, dummyContainerDef(logRegion1, logGroup1, logPrefix1, "mylogs", containerName, containerImage))
+	container1 := dummyContainerDef(logRegion1, logGroup1, logPrefix1, "mylogs", containerName, containerImage)
+	containers := []*ecs.ContainerDefinition{container1}
 	taskDef := dummyTaskDef(containers)
 
 	gomock.InOrder(
@@ -319,11 +313,10 @@ func TestLogsRequestNoPrefix(t *testing.T) {
 
 	ecsTask := &ecs.Task{}
 	ecsTask.SetTaskDefinitionArn(taskDefArn)
-	var ecsTasks []*ecs.Task
-	ecsTasks = append(ecsTasks, ecsTask)
+	ecsTasks := []*ecs.Task{ecsTask}
 
-	var containers []*ecs.ContainerDefinition
-	containers = append(containers, dummyContainerDefFromLogOptions(logRegion1, logGroup1, ""))
+	container1 := dummyContainerDefFromLogOptions(logRegion1, logGroup1, "")
+	containers := []*ecs.ContainerDefinition{container1}
 	taskDef := dummyTaskDef(containers)
 
 	gomock.InOrder(

@@ -36,10 +36,6 @@ func NewCloudWatchLogsClient(params *config.CliParams, logRegion string) Client 
 	session.Config = session.Config.WithRegion(logRegion)
 	client := cloudwatchlogs.New(session)
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
-	return newClient(params, client)
-}
-
-func newClient(params *config.CliParams, client cloudwatchlogsiface.CloudWatchLogsAPI) Client {
 	return &cwLogsClient{
 		client: client,
 	}

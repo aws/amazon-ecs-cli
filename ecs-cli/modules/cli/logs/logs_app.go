@@ -30,8 +30,20 @@ import (
 )
 
 const (
-	followLogsSleepSeconds = 30
+	followLogsWaitTime = 30
 )
+
+type logConfiguration struct {
+	logGroup  *string
+	logRegion *string
+	logPrefix *string
+}
+
+type logInfo struct {
+	logGroup  *string
+	logRegion *string
+	prefixes  map[*string]*string
+}
 
 // Logs is the action for logsCommand. It retrieves container logs for a task from CloudWatch
 func Logs(c *cli.Context) {
@@ -58,63 +70,57 @@ func Logs(c *cli.Context) {
 	cwLogsClient := cwlogsclient.NewCloudWatchLogsClient(ecsParams, logRegion)
 
 	printLogEvents(c, request, cwLogsClient)
-
 }
 
 func logsRequest(context *cli.Context, ecsClient ecsclient.ECSClient, params *config.CliParams) (*cloudwatchlogs.FilterLogEventsInput, string, error) {
 	taskID := context.String(command.TaskIDFlag)
-	taskDefNameOrArn := context.String(command.TaskDefinitionFlag)
+	taskDefIdentifier := context.String(command.TaskDefinitionFlag)
 
-	if taskDefNameOrArn == "" {
-		tasks, err := getTaskDefArn(context, ecsClient, params)
+	var err error
+	if taskDefIdentifier == "" {
+		taskDefIdentifier, err = getTaskDefArn(context, ecsClient, params)
 		if err != nil {
 			return nil, "", err
 		}
-		taskDefNameOrArn = aws.StringValue(tasks[0].TaskDefinitionArn)
 	}
 
-	taskDef, err := ecsClient.DescribeTaskDefinition(taskDefNameOrArn)
+	taskDef, err := ecsClient.DescribeTaskDefinition(taskDefIdentifier)
 	if err != nil {
 		return nil, "", errors.Wrap(err, fmt.Sprintf("Failed to Describe TaskDefinition; try using --%s to specify the Task Defintion.", command.TaskDefinitionFlag))
 	}
 
-	var logGroup, logRegion *string
-	var prefixes map[*string]*string
-	if containerName := context.String(command.ContainerNameFlag); containerName != "" {
-		logGroup, logRegion, prefixes, err = getLogConfigurationSingleContainerCase(taskDef, taskID, containerName)
-	} else {
-		logGroup, logRegion, prefixes, err = getLogConfiguration(taskDef, taskID)
-	}
+	containerName := context.String(command.ContainerNameFlag)
+	logConfig, err := getLogConfiguration(taskDef, taskID, containerName)
+
 	if err != nil {
 		return nil, "", errors.Wrap(err, "Failed to get log configuration")
 	}
 
-	streams := logStreams(prefixes, taskID)
+	streams := logStreams(logConfig.prefixes, taskID)
 
-	input, err := filterLogEventsInputFromContext(context)
+	request, err := filterLogEventsInputFromContext(context)
 	if err != nil {
 		return nil, "", errors.Wrap(err, "Failed to create FilterLogEvents request")
 	}
-	input.SetLogGroupName(aws.StringValue(logGroup))
-	input.SetLogStreamNames(aws.StringSlice(streams))
+	request.SetLogGroupName(aws.StringValue(logConfig.logGroup))
+	request.SetLogStreamNames(aws.StringSlice(streams))
 
-	return input, aws.StringValue(logRegion), nil
-
+	return request, aws.StringValue(logConfig.logRegion), nil
 }
 
-func getTaskDefArn(context *cli.Context, ecsClient ecsclient.ECSClient, params *config.CliParams) ([]*ecs.Task, error) {
+func getTaskDefArn(context *cli.Context, ecsClient ecsclient.ECSClient, params *config.CliParams) (string, error) {
 	var taskIDs []*string
 	taskID := context.String(command.TaskIDFlag)
 	taskIDs = append(taskIDs, aws.String(taskID))
 	tasks, err := ecsClient.DescribeTasks(taskIDs)
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to Describe Task")
+		return "", errors.Wrap(err, "Failed to Describe Task")
 	}
 	if len(tasks) == 0 {
-		return nil, fmt.Errorf("Failed to describe Task: Could Not Find Task %s in cluster %s in region %s. If the task has been stopped, use --%s to specify the Task Definition.", taskID, params.Cluster, aws.StringValue(params.Session.Config.Region), command.TaskDefinitionFlag)
+		return "", fmt.Errorf("Failed to describe Task: Could Not Find Task %s in cluster %s in region %s. If the task has been stopped, use --%s to specify the Task Definition.", taskID, params.Cluster, aws.StringValue(params.Session.Config.Region), command.TaskDefinitionFlag)
 	}
 
-	return tasks, nil
+	return aws.StringValue(tasks[0].TaskDefinitionArn), nil
 }
 
 func printLogEvents(context *cli.Context, input *cloudwatchlogs.FilterLogEventsInput, cwLogsClient cwlogsclient.Client) {
@@ -133,7 +139,7 @@ func printLogEvents(context *cli.Context, input *cloudwatchlogs.FilterLogEventsI
 	})
 
 	for context.Bool(command.FollowLogsFlag) && lastEvent != nil {
-		time.Sleep(followLogsSleepSeconds * time.Second)
+		time.Sleep(followLogsWaitTime * time.Second)
 		input.SetStartTime(aws.Int64Value(lastEvent.Timestamp) + 1)
 		printLogEvents(context, input, cwLogsClient)
 	}
@@ -206,66 +212,67 @@ func logStreams(prefixes map[*string]*string, taskID string) []string {
 	return streams
 }
 
-func getLogConfigurationSingleContainerCase(taskDef *ecs.TaskDefinition, taskID string, containerName string) (logGroup *string, logRegion *string, prefixes map[*string]*string, err error) {
-	var container *ecs.ContainerDefinition
-	for _, containerDef := range taskDef.ContainerDefinitions {
-		if aws.StringValue(containerDef.Name) == containerName {
-			container = containerDef
-			break
+func getLogConfiguration(taskDef *ecs.TaskDefinition, taskID string, containerName string) (*logInfo, error) {
+	logConfig := &logInfo{}
+	logConfig.prefixes = make(map[*string]*string)
+
+	if containerName != "" {
+		var container *ecs.ContainerDefinition
+		for _, containerDef := range taskDef.ContainerDefinitions {
+			if aws.StringValue(containerDef.Name) == containerName {
+				container = containerDef
+				break
+			}
 		}
-	}
-
-	logGroup, logRegion, prefix, err := getContainerLogConfig(container, taskID)
-	if err != nil {
-		return nil, nil, nil, err
-	}
-	prefixes = make(map[*string]*string)
-	prefixes[container.Name] = prefix
-
-	return logGroup, logRegion, prefixes, nil
-
-}
-
-func getLogConfiguration(taskDef *ecs.TaskDefinition, taskID string) (logGroup *string, logRegion *string, prefixes map[*string]*string, err error) {
-	logGroup, logRegion, prefix, err := getContainerLogConfig(taskDef.ContainerDefinitions[0], taskID)
-	prefixes = make(map[*string]*string)
-	if err != nil {
-		return nil, nil, nil, err
-	}
-	prefixes[taskDef.ContainerDefinitions[0].Name] = prefix
-	for _, containerDef := range taskDef.ContainerDefinitions {
-		group, region, prefix, err := getContainerLogConfig(containerDef, taskID)
+		info, err := getContainerLogConfig(container)
 		if err != nil {
-			return nil, nil, nil, err
+			return nil, err
 		}
-		if aws.StringValue(group) != aws.StringValue(logGroup) {
-			return nil, nil, nil, logConfigMisMatchError(taskDef, "awslogs-group")
+		logConfig.prefixes[container.Name] = info.logPrefix
+		logConfig.logGroup = info.logGroup
+		logConfig.logRegion = info.logRegion
+	} else {
+		info, err := getContainerLogConfig(taskDef.ContainerDefinitions[0])
+		if err != nil {
+			return nil, err
 		}
-		if aws.StringValue(region) != aws.StringValue(logRegion) {
-			return nil, nil, nil, logConfigMisMatchError(taskDef, "awslogs-region")
+		logConfig.logGroup = info.logGroup
+		logConfig.logRegion = info.logRegion
+		logConfig.prefixes[taskDef.ContainerDefinitions[0].Name] = info.logPrefix
+		for _, containerDef := range taskDef.ContainerDefinitions {
+			info, err := getContainerLogConfig(containerDef)
+			if err != nil {
+				return nil, err
+			}
+			if aws.StringValue(info.logGroup) != aws.StringValue(logConfig.logGroup) {
+				return nil, logConfigMisMatchError(taskDef, "awslogs-group")
+			}
+			if aws.StringValue(info.logRegion) != aws.StringValue(logConfig.logRegion) {
+				return nil, logConfigMisMatchError(taskDef, "awslogs-region")
+			}
+			logConfig.prefixes[containerDef.Name] = info.logPrefix
 		}
-		prefixes[containerDef.Name] = prefix
 	}
-
-	return logGroup, logRegion, prefixes, nil
-
+	return logConfig, nil
 }
 
-func getContainerLogConfig(containerDef *ecs.ContainerDefinition, taskID string) (logGroup *string, logRegion *string, logPrefix *string, err error) {
+func getContainerLogConfig(containerDef *ecs.ContainerDefinition) (*logConfiguration, error) {
+	logConfig := &logConfiguration{}
 	if aws.StringValue(containerDef.LogConfiguration.LogDriver) != "awslogs" {
-		return nil, nil, nil, fmt.Errorf("Container: Must specify log driver as awslogs")
+		return nil, fmt.Errorf("Container: Must specify log driver as awslogs")
 	}
 
-	logPrefix, ok := containerDef.LogConfiguration.Options["awslogs-stream-prefix"]
-	if !ok || aws.StringValue(logPrefix) == "" {
-		return nil, nil, nil, fmt.Errorf("Container Definition %s: Log String Prefix (awslogs-stream-prefix) must be specified in each container definition in order to retrieve logs", aws.StringValue(containerDef.Name))
+	var ok bool
+	logConfig.logPrefix, ok = containerDef.LogConfiguration.Options["awslogs-stream-prefix"]
+	if !ok || aws.StringValue(logConfig.logPrefix) == "" {
+		return nil, fmt.Errorf("Container Definition %s: Log String Prefix (awslogs-stream-prefix) must be specified in each container definition in order to retrieve logs", aws.StringValue(containerDef.Name))
 	}
 
-	logGroup = containerDef.LogConfiguration.Options["awslogs-group"]
+	logConfig.logGroup = containerDef.LogConfiguration.Options["awslogs-group"]
 
-	logRegion = containerDef.LogConfiguration.Options["awslogs-region"]
+	logConfig.logRegion = containerDef.LogConfiguration.Options["awslogs-region"]
 
-	return logGroup, logRegion, logPrefix, nil
+	return logConfig, nil
 
 }
 

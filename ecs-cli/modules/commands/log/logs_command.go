@@ -16,7 +16,7 @@ package logsCommand
 import (
 	"fmt"
 
-	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules"
+	flags "github.com/aws/amazon-ecs-cli/ecs-cli/modules"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/logs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands"
 	"github.com/urfave/cli"
@@ -27,7 +27,7 @@ func LogCommand() cli.Command {
 	return cli.Command{
 		Name:         "logs",
 		Usage:        "Retrieves container logs from CloudWatch logs. Assumes your Task Definition uses the awslogs driver and has a log stream prefix specified.",
-		Before:       ecscli.BeforeApp,
+		Before:       flags.BeforeApp,
 		Flags:        logFlags(),
 		Action:       logs.Logs,
 		OnUsageError: command.UsageErrorFactory("logs"),
