@@ -75,6 +75,7 @@ func TestRegionOrderOfResolutionECSConfig(t *testing.T) {
 	ecsConfig.AWSProfile = customProfileName
 	os.Setenv("AWS_REGION", envAwsRegion)
 	os.Setenv("AWS_PROFILE", customProfileName)
+	os.Setenv("AWS_DEFAULT_PROFILE", assumeRoleName)
 	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
 	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
 	defer os.Clearenv()
@@ -93,6 +94,7 @@ func TestRegionOrderOfResolutionEnvVar(t *testing.T) {
 	ecsConfig.AWSProfile = customProfileName
 	os.Setenv("AWS_REGION", envAwsRegion) // takes precedence
 	os.Setenv("AWS_PROFILE", customProfileName)
+	os.Setenv("AWS_DEFAULT_PROFILE", assumeRoleName)
 	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
 	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
 	defer os.Clearenv()
@@ -111,6 +113,7 @@ func TestRegionOrderOfResolutionDefaultEnvVar(t *testing.T) {
 	ecsConfig.AWSProfile = customProfileName
 	os.Setenv("AWS_DEFAULT_REGION", envAwsRegion) // takes precedence
 	os.Setenv("AWS_PROFILE", customProfileName)
+	os.Setenv("AWS_DEFAULT_PROFILE", assumeRoleName)
 	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
 	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
 	defer os.Clearenv()
@@ -328,34 +331,62 @@ func TestCredentialsWhenUsingDefaultAWSProfileEnvVariable(t *testing.T) {
 }
 
 // 3d) Use credentials from assume role profile
-func TestCredentialsWhenUsingAssumeRoleProfile(t *testing.T) {
+func TestCredentialsWhenUsingAssumeRoleAWSProfileFlag(t *testing.T) {
 	// defaults
 	ecsConfig := NewCLIConfig(clusterName)
 
 	// set variables for test
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.AWSProfileFlag, customProfileName, "")
+	context := cli.NewContext(nil, flagSet, nil)
+	ecsConfig.AWSProfile = assumeRoleName
+	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
+	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
+	defer os.Clearenv()
+
+	startingConfig := assumeRoleTestHelper()
+
+	// invoke test and verify
+	testCredentialsInSessionWithConfig(t, context, ecsConfig, startingConfig, assumeRoleAccessKey, assumeRoleSecretKey)
+}
+
+func TestCredentialsWhenUsingAssumeRoleEnvVar(t *testing.T) {
+	// defaults
+	ecsConfig := NewCLIConfig(clusterName)
+
+	// set variables for test
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	context := cli.NewContext(nil, flagSet, nil)
 	os.Setenv("AWS_DEFAULT_PROFILE", assumeRoleName)
 	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
 	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
 	defer os.Clearenv()
 
+	startingConfig := assumeRoleTestHelper()
+
+	// invoke test and verify
+	testCredentialsInSessionWithConfig(t, context, ecsConfig, startingConfig, assumeRoleAccessKey, assumeRoleSecretKey)
+}
+
+func assumeRoleTestHelper() *aws.Config {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		const respMsg = `
 	<AssumeRoleResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">
-	  <AssumeRoleResult>
-	    <AssumedRoleUser>
-	      <Arn>arn:aws:sts::account_id:assumed-role/role/session_name</Arn>
-	      <AssumedRoleId>AKID:session_name</AssumedRoleId>
-	    </AssumedRoleUser>
-	    <Credentials>
-	      <AccessKeyId>` + assumeRoleAccessKey + `</AccessKeyId>
-	      <SecretAccessKey>` + assumeRoleSecretKey + `</SecretAccessKey>
-	      <SessionToken>SESSION_TOKEN</SessionToken>
-	      <Expiration>%s</Expiration>
-	    </Credentials>
-	  </AssumeRoleResult>
-	  <ResponseMetadata>
-	    <RequestId>request-id</RequestId>
-	  </ResponseMetadata>
+		<AssumeRoleResult>
+			<AssumedRoleUser>
+				<Arn>arn:aws:sts::account_id:assumed-role/role/session_name</Arn>
+				<AssumedRoleId>AKID:session_name</AssumedRoleId>
+			</AssumedRoleUser>
+			<Credentials>
+				<AccessKeyId>` + assumeRoleAccessKey + `</AccessKeyId>
+				<SecretAccessKey>` + assumeRoleSecretKey + `</SecretAccessKey>
+				<SessionToken>SESSION_TOKEN</SessionToken>
+				<Expiration>%s</Expiration>
+			</Credentials>
+		</AssumeRoleResult>
+		<ResponseMetadata>
+			<RequestId>request-id</RequestId>
+		</ResponseMetadata>
 	</AssumeRoleResponse>
 	`
 		w.Write([]byte(fmt.Sprintf(respMsg, time.Now().Add(15*time.Minute).Format("2006-01-02T15:04:05Z"))))
@@ -365,8 +396,7 @@ func TestCredentialsWhenUsingAssumeRoleProfile(t *testing.T) {
 	startingConfig.Endpoint = aws.String(server.URL)
 	startingConfig.DisableSSL = aws.Bool(true)
 
-	// invoke test and verify
-	testCredentialsInSessionWithConfig(t, ecsConfig, &startingConfig, assumeRoleAccessKey, assumeRoleSecretKey)
+	return &startingConfig
 }
 
 //4) Use credentials from EC2 Instance Role
@@ -375,6 +405,8 @@ func TestCredentialsWhenUsingEC2InstanceRole(t *testing.T) {
 	ecsConfig := NewCLIConfig(clusterName)
 
 	// set variables for test
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	context := cli.NewContext(nil, flagSet, nil)
 	os.Setenv("AWS_DEFAULT_PROFILE", ec2InstanceRoleName)
 	os.Setenv("AWS_CONFIG_FILE", "aws_config_example.ini")
 	os.Setenv("AWS_SHARED_CREDENTIALS_FILE", "aws_credentials_example.ini")
@@ -410,7 +442,7 @@ func TestCredentialsWhenUsingEC2InstanceRole(t *testing.T) {
 	startingConfig.EndpointResolver = endpoints.ResolverFunc(myCustomResolver)
 
 	// invoke test and verify
-	testCredentialsInSessionWithConfig(t, ecsConfig, &startingConfig, ec2InstanceRoleAccessKey, ec2InstanceRoleSecretKey)
+	testCredentialsInSessionWithConfig(t, context, ecsConfig, &startingConfig, ec2InstanceRoleAccessKey, ec2InstanceRoleSecretKey)
 }
 
 // Error if Session.Credentials are nil
@@ -527,10 +559,9 @@ func testCredentialsInSessionWithContext(t *testing.T, context *cli.Context, inp
 	verifyCredentialsInSession(t, awsSession, expectedAccessKey, expectedSecretKey)
 }
 
-func testCredentialsInSessionWithConfig(t *testing.T, inputConfig *CLIConfig, ecsConfig *aws.Config,
+func testCredentialsInSessionWithConfig(t *testing.T, context *cli.Context, inputConfig *CLIConfig, ecsConfig *aws.Config,
 	expectedAccessKey, expectedSecretKey string) {
-	//awsSession, err := inputConfig.toAWSSessionWithConfig(*ecsConfig)
-	awsSession, err := defaultSessionFromProfile(inputConfig.Region, *ecsConfig)
+	awsSession, err := inputConfig.toAWSSessionWithConfig(context, ecsConfig)
 	assert.NoError(t, err, "Unexpected error generating a new session")
 
 	verifyCredentialsInSession(t, awsSession, expectedAccessKey, expectedSecretKey)
