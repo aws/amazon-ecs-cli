@@ -1260,6 +1260,44 @@ func (_mr *_MockEC2APIRecorder) CreateCustomerGatewayWithContext(arg0, arg1 inte
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateCustomerGatewayWithContext", _s...)
 }
 
+func (_m *MockEC2API) CreateDefaultSubnet(_param0 *ec2.CreateDefaultSubnetInput) (*ec2.CreateDefaultSubnetOutput, error) {
+	ret := _m.ctrl.Call(_m, "CreateDefaultSubnet", _param0)
+	ret0, _ := ret[0].(*ec2.CreateDefaultSubnetOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateDefaultSubnet(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateDefaultSubnet", arg0)
+}
+
+func (_m *MockEC2API) CreateDefaultSubnetRequest(_param0 *ec2.CreateDefaultSubnetInput) (*request.Request, *ec2.CreateDefaultSubnetOutput) {
+	ret := _m.ctrl.Call(_m, "CreateDefaultSubnetRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.CreateDefaultSubnetOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateDefaultSubnetRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateDefaultSubnetRequest", arg0)
+}
+
+func (_m *MockEC2API) CreateDefaultSubnetWithContext(_param0 aws.Context, _param1 *ec2.CreateDefaultSubnetInput, _param2 ...request.Option) (*ec2.CreateDefaultSubnetOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "CreateDefaultSubnetWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.CreateDefaultSubnetOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) CreateDefaultSubnetWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateDefaultSubnetWithContext", _s...)
+}
+
 func (_m *MockEC2API) CreateDefaultVpc(_param0 *ec2.CreateDefaultVpcInput) (*ec2.CreateDefaultVpcOutput, error) {
 	ret := _m.ctrl.Call(_m, "CreateDefaultVpc", _param0)
 	ret0, _ := ret[0].(*ec2.CreateDefaultVpcOutput)
@@ -8107,6 +8145,44 @@ func (_m *MockEC2API) ModifyVpcPeeringConnectionOptionsWithContext(_param0 aws.C
 func (_mr *_MockEC2APIRecorder) ModifyVpcPeeringConnectionOptionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	_s := append([]interface{}{arg0, arg1}, arg2...)
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyVpcPeeringConnectionOptionsWithContext", _s...)
+}
+
+func (_m *MockEC2API) ModifyVpcTenancy(_param0 *ec2.ModifyVpcTenancyInput) (*ec2.ModifyVpcTenancyOutput, error) {
+	ret := _m.ctrl.Call(_m, "ModifyVpcTenancy", _param0)
+	ret0, _ := ret[0].(*ec2.ModifyVpcTenancyOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyVpcTenancy(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyVpcTenancy", arg0)
+}
+
+func (_m *MockEC2API) ModifyVpcTenancyRequest(_param0 *ec2.ModifyVpcTenancyInput) (*request.Request, *ec2.ModifyVpcTenancyOutput) {
+	ret := _m.ctrl.Call(_m, "ModifyVpcTenancyRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.ModifyVpcTenancyOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyVpcTenancyRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyVpcTenancyRequest", arg0)
+}
+
+func (_m *MockEC2API) ModifyVpcTenancyWithContext(_param0 aws.Context, _param1 *ec2.ModifyVpcTenancyInput, _param2 ...request.Option) (*ec2.ModifyVpcTenancyOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifyVpcTenancyWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifyVpcTenancyOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyVpcTenancyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyVpcTenancyWithContext", _s...)
 }
 
 func (_m *MockEC2API) MonitorInstances(_param0 *ec2.MonitorInstancesInput) (*ec2.MonitorInstancesOutput, error) {
