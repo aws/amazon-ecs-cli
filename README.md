@@ -84,7 +84,7 @@ The Amazon ECS CLI requires some basic configuration information before you can 
 
 ### ECS Profiles
 
-The Amazon ECS CLI supports configuring multiple sets of AWS credentials as named profiles using the `ecs-cli configure profile command`. These profiles can then be referenced when you run Amazon ECS CLI commands using the `--ecs-profile` flag; If a custom profile is not specified, the default profile will be used.
+The Amazon ECS CLI supports configuring multiple sets of AWS credentials as named profiles using the `ecs-cli configure profile command`. These profiles can then be referenced when you run Amazon ECS CLI commands using the `--ecs-profile` flag; if a custom profile is not specified, the default profile will be used.
 
 Set up a CLI profile with the following command, substituting `profile_name` with your desired profile name, and `$AWS_ACCESS_KEY_ID` and `$AWS_SECRET_ACCESS_KEY` environment variables with your AWS credentials.
 
