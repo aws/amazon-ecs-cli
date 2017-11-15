@@ -48,7 +48,7 @@ const (
 	TaskIDFlag         = "task-id"
 	TaskDefinitionFlag = "task-def"
 	FollowLogsFlag     = "follow"
-	FilterPatternFlag  = "pattern"
+	FilterPatternFlag  = "filter-pattern"
 	SinceFlag          = "since"
 	StartTimeFlag      = "start-time"
 	EndTimeFlag        = "end-time"
