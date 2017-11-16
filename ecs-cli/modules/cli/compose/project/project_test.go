@@ -356,6 +356,62 @@ func TestParseECSParams_NoFile(t *testing.T) {
 	}
 }
 
+func TestParseECSParams_WithFargateParams(t *testing.T) {
+	ecsParamsString := `version: 1
+task_definition:
+  ecs_network_mode: awsvpc
+  task_execution_role: arn:aws:iam::123456789012:role/fargate_role
+  task_size:
+    mem_limit: 1000
+    cpu_limit: 200
+
+run_params:
+  network_configuration:
+    awsvpc_configuration:
+      subnets: [subnet-feedface, subnet-deadbeef]
+      security_groups:
+        - sg-bafff1ed
+        - sg-c0ffeefe
+      assign_public_ip: ENABLED`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs fields tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	defer os.Remove(ecsParamsFileName)
+
+	project := setupTestProjectWithEcsParams(t, ecsParamsFileName)
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+
+	err = project.parseECSParams()
+	if assert.NoError(t, err) {
+		ecsParams := project.context.ECSParams
+		assert.NotNil(t, ecsParams, "Expected ecsParams to be set on project")
+		assert.Equal(t, "1", ecsParams.Version, "Expected Version to match")
+
+		td := ecsParams.TaskDefinition
+		assert.Equal(t, "awsvpc", td.NetworkMode, "Expected NetworkMode to match")
+		assert.Equal(t, "arn:aws:iam::123456789012:role/fargate_role", td.ExecutionRole, "Expected ExecutionRole to match")
+
+		ts := td.TaskSize
+		assert.Equal(t, "200", ts.Cpu, "Expected CPU to match")
+		assert.Equal(t, "1000", ts.Memory, "Expected CPU to match")
+
+		networkConfig := ecsParams.RunParams.NetworkConfiguration.AwsVpcConfiguration
+		assert.Equal(t, []string{"subnet-feedface", "subnet-deadbeef"}, networkConfig.Subnets, "Expected Subnets to match")
+		assert.Equal(t, []string{"sg-bafff1ed", "sg-c0ffeefe"}, networkConfig.SecurityGroups, "Expected SecurityGroups to match")
+		assert.Equal(t, utils.Enabled, networkConfig.AssignPublicIp, "Expected AssignPublicIp to match")
+
+	}
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+}
+
 func setupTestProject(t *testing.T) *ecsProject {
 	return setupTestProjectWithEcsParams(t, "")
 }

@@ -68,6 +68,7 @@ type TaskDefParams struct {
 	cpu           string
 	memory        string
 	containerDefs ContainerDefs
+	executionRoleArn string
 }
 
 // ConvertToTaskDefinition transforms the yaml configs to its ecs equivalent (task definition)
@@ -135,6 +136,7 @@ func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context
 		NetworkMode:          aws.String(taskDefParams.networkMode),
 		Cpu:                  aws.String(taskDefParams.cpu),
 		Memory:               aws.String(taskDefParams.memory),
+		ExecutionRoleArn:     aws.String(taskDefParams.executionRoleArn),
 	}
 
 	if requiredCompatibilites != "" {
@@ -635,6 +637,7 @@ func convertTaskDefParams(ecsParams *ECSParams) (params TaskDefParams, e error) 
 	params.containerDefs = taskDef.ContainerDefinitions
 	params.cpu = taskDef.TaskSize.Cpu
 	params.memory = taskDef.TaskSize.Memory
+	params.executionRoleArn = taskDef.ExecutionRole
 
 	return params, nil
 }

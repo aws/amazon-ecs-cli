@@ -82,6 +82,29 @@ func TestCreateWithoutDeploymentConfig(t *testing.T) {
 	)
 }
 
+func TestCreateWithNetworkConfig(t *testing.T) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	cliContext := cli.NewContext(nil, flagSet, nil)
+
+	createServiceTest(
+		t,
+		cliContext,
+		&config.CLIParams{},
+		ecsParamsWithNetworkConfig(),
+		func(deploymentConfig *ecs.DeploymentConfiguration) {
+			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
+			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
+		},
+		func(loadBalancer *ecs.LoadBalancer, role string) {
+			assert.Nil(t, loadBalancer, "LoadBalancer should be nil")
+			assert.Empty(t, role, "Role should be empty")
+		},
+		func(launchType string) {
+			assert.NotEqual(t, "FARGATE", launchType)
+		},
+	)
+}
+
 func ecsParamsWithNetworkConfig() *utils.ECSParams {
 	return &utils.ECSParams{
 		TaskDefinition: utils.EcsTaskDef{
@@ -97,6 +120,27 @@ func ecsParamsWithNetworkConfig() *utils.ECSParams {
 	}
 }
 
+func ecsParamsWithFargateNetworkConfig() *utils.ECSParams {
+	return &utils.ECSParams{
+		TaskDefinition: utils.EcsTaskDef{
+			ExecutionRole: "arn:aws:iam::123456789012:role/fargate_role",
+			NetworkMode: "awsvpc",
+			TaskSize: utils.TaskSize{
+				Cpu: "512",
+				Memory: "1GB",
+			},
+		},
+		RunParams: utils.RunParams{
+			NetworkConfiguration: utils.NetworkConfiguration{
+				AwsVpcConfiguration: utils.AwsVpcConfiguration{
+					Subnets: []string{"sg-bafff1ed", "sg-c0ffeefe"},
+					AssignPublicIp: utils.Enabled,
+				},
+			},
+		},
+	}
+}
+
 func TestCreateFargate(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	cliContext := cli.NewContext(nil, flagSet, nil)
@@ -105,7 +149,30 @@ func TestCreateFargate(t *testing.T) {
 		t,
 		cliContext,
 		&config.CLIParams{LaunchType: "FARGATE"},
-		ecsParamsWithNetworkConfig(),
+		ecsParamsWithFargateNetworkConfig(),
+		func(deploymentConfig *ecs.DeploymentConfiguration) {
+			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
+			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
+		},
+		func(loadBalancer *ecs.LoadBalancer, role string) {
+			assert.Nil(t, loadBalancer, "LoadBalancer should be nil")
+			assert.Empty(t, role, "Role should be empty")
+		},
+		func(launchType string) {
+			assert.Equal(t, "FARGATE", launchType)
+		},
+	)
+}
+
+func TestCreateFargateWrongParams(t *testing.T) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	cliContext := cli.NewContext(nil, flagSet, nil)
+
+	createServiceTest(
+		t,
+		cliContext,
+		&config.CLIParams{LaunchType: "FARGATE"},
+		ecsParamsWithFargateNetworkConfig(),
 		func(deploymentConfig *ecs.DeploymentConfiguration) {
 			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
 			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")

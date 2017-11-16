@@ -482,6 +482,17 @@ func TestRunTaskWithLaunchTypeFargate(t *testing.T) {
 	group := "taskGroup"
 	count := 5
 
+	subnets := []*string{aws.String("subnet-feedface")}
+	securityGroups := []*string{aws.String("sg-c0ffeefe")}
+	awsVpcConfig := &ecs.AwsVpcConfiguration{
+		Subnets:        subnets,
+		SecurityGroups: securityGroups,
+		AssignPublicIp: aws.String("ENABLED"),
+	}
+	networkConfig := &ecs.NetworkConfiguration{
+		AwsvpcConfiguration: awsVpcConfig,
+	}
+
 	mockEcs.EXPECT().RunTask(gomock.Any()).Do(func(input interface{}) {
 		req := input.(*ecs.RunTaskInput)
 		assert.Equal(t, clusterName, aws.StringValue(req.Cluster), "Expected clusterName to match")
@@ -491,7 +502,7 @@ func TestRunTaskWithLaunchTypeFargate(t *testing.T) {
 		assert.Equal(t, "FARGATE", aws.StringValue(req.LaunchType))
 	}).Return(&ecs.RunTaskOutput{}, nil)
 
-	_, err := client.RunTask(td, group, count, nil, "FARGATE")
+	_, err := client.RunTask(td, group, count, networkConfig, "FARGATE")
 	assert.NoError(t, err, "Unexpected error when calling RunTask")
 }
 

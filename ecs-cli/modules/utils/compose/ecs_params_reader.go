@@ -35,7 +35,8 @@ type EcsTaskDef struct {
 	NetworkMode          string        `yaml:"ecs_network_mode"`
 	TaskRoleArn          string        `yaml:"task_role_arn"`
 	ContainerDefinitions ContainerDefs `yaml:"services"`
-	TaskSize             TaskSize      `yaml:"task_size"`
+	ExecutionRole        string        `yaml:"task_execution_role"` // Needed to run FARGATE tasks
+	TaskSize             TaskSize      `yaml:"task_size"`           // Needed to run FARGATE tasks
 }
 
 type ContainerDefs map[string]ContainerDef
@@ -43,6 +44,7 @@ type ContainerDefs map[string]ContainerDef
 type ContainerDef struct {
 	Essential bool `yaml:"essential"`
 }
+
 type TaskSize struct {
 	Cpu    string `yaml:"cpu_limit"`
 	Memory string `yaml:"mem_limit"`
@@ -58,9 +60,17 @@ type NetworkConfiguration struct {
 }
 
 type AwsVpcConfiguration struct {
-	Subnets        []string `yaml:"subnets"`
-	SecurityGroups []string `yaml:"security_groups"`
+	Subnets        []string       `yaml:"subnets"`
+	SecurityGroups []string       `yaml:"security_groups"`
+	AssignPublicIp AssignPublicIp `yaml:"assign_public_ip"`
 }
+
+type AssignPublicIp string
+
+const (
+	Enabled  AssignPublicIp = "ENABLED"
+	Disabled AssignPublicIp = "DISABLED"
+)
 
 // ReadECSParams parses the ecs-params.yml file and puts it into an ECSParams struct.
 func ReadECSParams(filename string) (*ECSParams, error) {
@@ -97,10 +107,12 @@ func ConvertToECSNetworkConfiguration(ecsParams *ECSParams) (*ecs.NetworkConfigu
 	}
 	networkConfig := ecsParams.RunParams.NetworkConfiguration
 	awsvpcConfig := networkConfig.AwsVpcConfiguration
+
 	subnets := awsvpcConfig.Subnets
 	securityGroups := awsvpcConfig.SecurityGroups
-	networkMode := ecsParams.TaskDefinition.NetworkMode
+	assignPublicIp := string(awsvpcConfig.AssignPublicIp)
 
+	networkMode := ecsParams.TaskDefinition.NetworkMode
 	if networkMode == "awsvpc" && len(subnets) < 1 {
 		return nil, errors.New("at least one subnet is required in the network configuration")
 	}
@@ -118,6 +130,7 @@ func ConvertToECSNetworkConfiguration(ecsParams *ECSParams) (*ecs.NetworkConfigu
 	ecsAwsVpcConfig := &ecs.AwsVpcConfiguration{
 		Subnets:        ecsSubnets,
 		SecurityGroups: ecsSecurityGroups,
+		AssignPublicIp: aws.String(assignPublicIp),
 	}
 
 	ecsNetworkConfig := &ecs.NetworkConfiguration{
