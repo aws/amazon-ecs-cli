@@ -72,7 +72,7 @@ type TaskDefParams struct {
 
 // ConvertToTaskDefinition transforms the yaml configs to its ecs equivalent (task definition)
 func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context,
-	serviceConfigs *config.ServiceConfigs, taskRoleArn string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
+	serviceConfigs *config.ServiceConfigs, taskRoleArn string, requiredCompatibilites string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
 
 	if serviceConfigs.Len() == 0 {
 		return nil, errors.New("cannot create a task definition with no containers; invalid service config")
@@ -135,6 +135,10 @@ func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context
 		NetworkMode:          aws.String(taskDefParams.networkMode),
 		Cpu:                  aws.String(taskDefParams.cpu),
 		Memory:               aws.String(taskDefParams.memory),
+	}
+
+	if requiredCompatibilites != "" {
+		taskDefinition.RequiresCompatibilities = []*string{aws.String(requiredCompatibilites)}
 	}
 
 	return taskDefinition, nil

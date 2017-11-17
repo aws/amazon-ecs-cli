@@ -43,6 +43,8 @@ func TestCreateWithDeploymentConfig(t *testing.T) {
 	createServiceTest(
 		t,
 		cliContext,
+		&config.CLIParams{},
+		&utils.ECSParams{},
 		func(deploymentConfig *ecs.DeploymentConfiguration) {
 			assert.Equal(t, int64(deploymentMaxPercent), aws.Int64Value(deploymentConfig.MaximumPercent), "DeploymentConfig.MaxPercent should match")
 			assert.Equal(t, int64(deploymentMinPercent), aws.Int64Value(deploymentConfig.MinimumHealthyPercent), "DeploymentConfig.MinimumHealthyPercent should match")
@@ -50,6 +52,9 @@ func TestCreateWithDeploymentConfig(t *testing.T) {
 		func(loadBalancer *ecs.LoadBalancer, role string) {
 			assert.Nil(t, loadBalancer, "LoadBalancer should be nil")
 			assert.Empty(t, role, "Role should be empty")
+		},
+		func(launchType string) {
+			assert.Empty(t, launchType)
 		},
 	)
 }
@@ -61,6 +66,8 @@ func TestCreateWithoutDeploymentConfig(t *testing.T) {
 	createServiceTest(
 		t,
 		cliContext,
+		&config.CLIParams{},
+		&utils.ECSParams{},
 		func(deploymentConfig *ecs.DeploymentConfiguration) {
 			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
 			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
@@ -68,6 +75,113 @@ func TestCreateWithoutDeploymentConfig(t *testing.T) {
 		func(loadBalancer *ecs.LoadBalancer, role string) {
 			assert.Nil(t, loadBalancer, "LoadBalancer should be nil")
 			assert.Empty(t, role, "Role should be empty")
+		},
+		func(launchType string) {
+			assert.Empty(t, launchType)
+		},
+	)
+}
+
+func ecsParamsWithNetworkConfig() *utils.ECSParams {
+	return &utils.ECSParams{
+		TaskDefinition: utils.EcsTaskDef{
+			NetworkMode: "awsvpc",
+		},
+		RunParams: utils.RunParams{
+			NetworkConfiguration: utils.NetworkConfiguration{
+				AwsVpcConfiguration: utils.AwsVpcConfiguration{
+					Subnets: []string{"sg-bafff1ed", "sg-c0ffeefe"},
+				},
+			},
+		},
+	}
+}
+
+func TestCreateFargate(t *testing.T) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	cliContext := cli.NewContext(nil, flagSet, nil)
+
+	createServiceTest(
+		t,
+		cliContext,
+		&config.CLIParams{LaunchType: "FARGATE"},
+		ecsParamsWithNetworkConfig(),
+		func(deploymentConfig *ecs.DeploymentConfiguration) {
+			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
+			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
+		},
+		func(loadBalancer *ecs.LoadBalancer, role string) {
+			assert.Nil(t, loadBalancer, "LoadBalancer should be nil")
+			assert.Empty(t, role, "Role should be empty")
+		},
+		func(launchType string) {
+			assert.Equal(t, "FARGATE", launchType)
+		},
+	)
+}
+
+func TestCreateFargateNetworkModeNotAWSVPC(t *testing.T) {
+	taskDefID := "taskDefinitionId"
+	taskDefArn := "arn/" + taskDefID
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+
+	taskDefinition := ecs.TaskDefinition{
+		Family:               aws.String("family"),
+		ContainerDefinitions: []*ecs.ContainerDefinition{},
+		Volumes:              []*ecs.Volume{},
+	}
+	respTaskDef := taskDefinition
+	respTaskDef.TaskDefinitionArn = aws.String(taskDefArn)
+
+	gomock.InOrder(
+		mockEcs.EXPECT().RegisterTaskDefinitionIfNeeded(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
+			// verify input fields
+			req := x.(*ecs.RegisterTaskDefinitionInput)
+			assert.Equal(t, aws.StringValue(taskDefinition.Family), aws.StringValue(req.Family), "Task Definition family should match")
+		}).Return(&respTaskDef, nil),
+	)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	cliContext := cli.NewContext(nil, flagSet, nil)
+
+	context := &context.Context{
+		ECSClient:  mockEcs,
+		CLIParams:  &config.CLIParams{LaunchType: "FARGATE"},
+		CLIContext: cliContext,
+		ECSParams:  &utils.ECSParams{},
+	}
+
+	service := NewService(context)
+	err := service.LoadContext()
+	assert.NoError(t, err, "Unexpected error while loading context in create service test")
+
+	service.SetTaskDefinition(&taskDefinition)
+	err = service.Create()
+	assert.Error(t, err, "Expected error creating service")
+}
+
+func TestCreateEC2Explicitly(t *testing.T) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	cliContext := cli.NewContext(nil, flagSet, nil)
+
+	createServiceTest(
+		t,
+		cliContext,
+		&config.CLIParams{LaunchType: "EC2"},
+		&utils.ECSParams{},
+		func(deploymentConfig *ecs.DeploymentConfiguration) {
+			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
+			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
+		},
+		func(loadBalancer *ecs.LoadBalancer, role string) {
+			assert.Nil(t, loadBalancer, "LoadBalancer should be nil")
+			assert.Empty(t, role, "Role should be empty")
+		},
+		func(launchType string) {
+			assert.Equal(t, "EC2", launchType)
 		},
 	)
 }
@@ -90,6 +204,8 @@ func TestCreateWithALB(t *testing.T) {
 	createServiceTest(
 		t,
 		cliContext,
+		&config.CLIParams{},
+		&utils.ECSParams{},
 		func(deploymentConfig *ecs.DeploymentConfiguration) {
 			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
 			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
@@ -101,6 +217,9 @@ func TestCreateWithALB(t *testing.T) {
 			assert.Equal(t, containerName, aws.StringValue(loadBalancer.ContainerName), "LoadBalancer.ContainerName should match")
 			assert.Equal(t, int64(containerPort), aws.Int64Value(loadBalancer.ContainerPort), "LoadBalancer.ContainerPort should match")
 			assert.Equal(t, role, observedRole, "Role should match")
+		},
+		func(launchType string) {
+			assert.Empty(t, launchType)
 		},
 	)
 }
@@ -123,6 +242,8 @@ func TestCreateWithELB(t *testing.T) {
 	createServiceTest(
 		t,
 		cliContext,
+		&config.CLIParams{},
+		&utils.ECSParams{},
 		func(deploymentConfig *ecs.DeploymentConfiguration) {
 			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
 			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
@@ -135,15 +256,23 @@ func TestCreateWithELB(t *testing.T) {
 			assert.Equal(t, int64(containerPort), aws.Int64Value(loadBalancer.ContainerPort), "LoadBalancer.ContainerPort should match")
 			assert.Equal(t, role, observedRole, "Role should match")
 		},
+		func(launchType string) {
+			assert.Empty(t, launchType)
+		},
 	)
 }
 
 type validateDeploymentConfiguration func(*ecs.DeploymentConfiguration)
 type validateLoadBalancer func(*ecs.LoadBalancer, string)
+type validateLaunchType func(string)
 
-func createServiceTest(t *testing.T, cliContext *cli.Context,
+func createServiceTest(t *testing.T,
+	cliContext *cli.Context,
+	cliParams *config.CLIParams,
+	ecsParams *utils.ECSParams,
 	validateDeploymentConfig validateDeploymentConfiguration,
-	validateLB validateLoadBalancer) {
+	validateLB validateLoadBalancer,
+	validateLT validateLaunchType) {
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -174,7 +303,8 @@ func createServiceTest(t *testing.T, cliContext *cli.Context,
 			gomock.Any(), // role
 			gomock.Any(), // deploymentConfig
 			gomock.Any(), // networkConfig
-		).Do(func(a, b, c, d, e, f interface{}) {
+			gomock.Any(), // launchType
+		).Do(func(a, b, c, d, e, f, g interface{}) {
 			observedTaskDefID := b.(string)
 			assert.Equal(t, taskDefID, observedTaskDefID, "Task Definition name should match")
 
@@ -185,14 +315,17 @@ func createServiceTest(t *testing.T, cliContext *cli.Context,
 			observedDeploymentConfig := e.(*ecs.DeploymentConfiguration)
 			validateDeploymentConfig(observedDeploymentConfig)
 
+			observedLaunchType := g.(string)
+			validateLT(observedLaunchType)
+
 		}).Return(nil),
 	)
 
 	context := &context.Context{
 		ECSClient:  mockEcs,
-		CLIParams:  &config.CLIParams{},
+		CLIParams:  cliParams,
 		CLIContext: cliContext,
-		ECSParams: &utils.ECSParams{},
+		ECSParams:  ecsParams,
 	}
 
 	service := NewService(context)

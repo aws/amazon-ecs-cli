@@ -333,13 +333,17 @@ func (s *Service) EntityType() types.Type {
 func (s *Service) createService() error {
 	serviceName := entity.GetServiceName(s)
 	taskDefinitionID := entity.GetIdFromArn(s.TaskDefinition().TaskDefinitionArn)
+	launchType := s.Context().CLIParams.LaunchType
 
 	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(s.projectContext.ECSParams)
 	if err != nil {
 		return err
 	}
+	if err = entity.ValidateFargateParams(s.Context().ECSParams.TaskDefinition.NetworkMode, launchType); err != nil {
+		return err
+	}
 
-	err = s.Context().ECSClient.CreateService(serviceName, taskDefinitionID, s.loadBalancer, s.role, s.DeploymentConfig(), networkConfig)
+	err = s.Context().ECSClient.CreateService(serviceName, taskDefinitionID, s.loadBalancer, s.role, s.DeploymentConfig(), networkConfig, launchType)
 	if err != nil {
 		return err
 	}
@@ -383,7 +387,7 @@ func (s *Service) startService(ecsService *ecs.Service) error {
 func (s *Service) updateService(count int64) error {
 	serviceName := entity.GetServiceName(s)
 	deploymentConfig := s.DeploymentConfig()
-	networkConfig, err  := composeutils.ConvertToECSNetworkConfiguration(s.projectContext.ECSParams)
+	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(s.projectContext.ECSParams)
 
 	if err != nil {
 		return err

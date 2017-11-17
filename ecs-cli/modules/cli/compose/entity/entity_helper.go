@@ -19,6 +19,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	composecontainer "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/container"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
 	composeutils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
@@ -77,10 +78,11 @@ func createRegisterTaskDefinitionRequest(taskDefinition *ecs.TaskDefinition) *ec
 	// platforms, but Windows has different network modes. Passing nil allows ECS
 	// to do the right thing for each platform.
 	request := &ecs.RegisterTaskDefinitionInput{
-		Family:               taskDefinition.Family,
-		ContainerDefinitions: taskDefinition.ContainerDefinitions,
-		Volumes:              taskDefinition.Volumes,
-		TaskRoleArn:          taskDefinition.TaskRoleArn,
+		Family:                  taskDefinition.Family,
+		ContainerDefinitions:    taskDefinition.ContainerDefinitions,
+		Volumes:                 taskDefinition.Volumes,
+		TaskRoleArn:             taskDefinition.TaskRoleArn,
+		RequiresCompatibilities: taskDefinition.RequiresCompatibilities,
 	}
 
 	if networkMode := taskDefinition.NetworkMode; aws.StringValue(networkMode) != "" {
@@ -289,4 +291,12 @@ func getServicePrefix(entity ProjectEntity) string {
 // GetIdFromArn gets the aws String value of the input arn and returns the id part of the arn
 func GetIdFromArn(arn *string) string {
 	return composeutils.GetIdFromArn(aws.StringValue(arn))
+}
+
+// ValidateFargateParams ensures that the correct config has been given to run a Fargate task
+func ValidateFargateParams(networkMode string, launchType string) error {
+	if networkMode != "awsvpc" && launchType == config.LaunchTypeFargate {
+		return fmt.Errorf("Launch Type %s requires network mode to be `awsvpc`. Set network mode using an ECS Params file.")
+	}
+	return nil
 }

@@ -69,7 +69,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	}
 
 	// convert
-	taskDefinition := convertToTaskDefinitionInTest(t, name, serviceConfig, taskRoleArn)
+	taskDefinition := convertToTaskDefinitionInTest(t, name, serviceConfig, taskRoleArn, "")
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 
 	// verify
@@ -114,11 +114,43 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	}
 	assert.Equal(t, taskRoleArn, aws.StringValue(taskDefinition.TaskRoleArn), "Expected taskRoleArn to match")
 
+	if len(taskDefinition.RequiresCompatibilities) > 0 {
+		t.Error("Did not expect RequiresCompatibilities to be set")
+	}
 	// If no containers are specified as being essential, all containers
 	// are marked "essential"
 	for _, container := range taskDefinition.ContainerDefinitions {
 		assert.True(t, aws.BoolValue(container.Essential), "Expected essential to be true")
 	}
+}
+
+func TestConvertToTaskDefinitionLaunchTypeEmpty(t *testing.T) {
+	serviceConfig := &config.ServiceConfig{}
+
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
+	if len(taskDefinition.RequiresCompatibilities) > 0 {
+		t.Error("Did not expect RequiresCompatibilities to be set")
+	}
+}
+
+func TestConvertToTaskDefinitionLaunchTypeEC2(t *testing.T) {
+	serviceConfig := &config.ServiceConfig{}
+
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "EC2")
+	if len(taskDefinition.RequiresCompatibilities) != 1 {
+		t.Error("Expected exactly one required compatibility to be set.")
+	}
+	assert.Equal(t, "EC2", aws.StringValue(taskDefinition.RequiresCompatibilities[0]))
+}
+
+func TestConvertToTaskDefinitionLaunchTypeFargate(t *testing.T) {
+	serviceConfig := &config.ServiceConfig{}
+
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "FARGATE")
+	if len(taskDefinition.RequiresCompatibilities) != 1 {
+		t.Error("Expected exactly one required compatibility to be set.")
+	}
+	assert.Equal(t, "FARGATE", aws.StringValue(taskDefinition.RequiresCompatibilities[0]))
 }
 
 func TestConvertToTaskDefinitionWithECSParams(t *testing.T) {
@@ -487,7 +519,7 @@ func TestConvertToTaskDefinitionWithDnsSearch(t *testing.T) {
 
 	serviceConfig := &config.ServiceConfig{DNSSearch: dnsSearchDomains}
 
-	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "")
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 	if !reflect.DeepEqual(dnsSearchDomains, aws.StringValueSlice(containerDef.DnsSearchDomains)) {
 		t.Errorf("Expected dnsSearchDomains [%v] But was [%v]", dnsSearchDomains,
@@ -500,7 +532,7 @@ func TestConvertToTaskDefinitionWithDnsServers(t *testing.T) {
 
 	serviceConfig := &config.ServiceConfig{DNS: []string{dnsServer}}
 
-	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "")
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 	if !reflect.DeepEqual([]string{dnsServer}, aws.StringValueSlice(containerDef.DnsServers)) {
 		t.Errorf("Expected dnsServer [%s] But was [%v]", dnsServer, aws.StringValueSlice(containerDef.DnsServers))
@@ -515,7 +547,7 @@ func TestConvertToTaskDefinitionWithDockerLabels(t *testing.T) {
 
 	serviceConfig := &config.ServiceConfig{Labels: dockerLabels}
 
-	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "")
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 	if !reflect.DeepEqual(dockerLabels, aws.StringValueMap(containerDef.DockerLabels)) {
 		t.Errorf("Expected dockerLabels [%v] But was [%v]", dockerLabels, aws.StringValueMap(containerDef.DockerLabels))
@@ -530,7 +562,7 @@ func TestConvertToTaskDefinitionWithEnv(t *testing.T) {
 		Environment: []string{env},
 	}
 
-	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "")
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 
 	if envKey != aws.StringValue(containerDef.Environment[0].Name) ||
@@ -554,7 +586,7 @@ func TestConvertToTaskDefinitionWithEnvFromShell(t *testing.T) {
 		os.Unsetenv(envKey1)
 	}()
 
-	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "")
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 
 	if containerDef.Environment == nil || len(containerDef.Environment) != 2 {
@@ -576,7 +608,7 @@ func TestConvertToTaskDefinitionWithEnvFromShell(t *testing.T) {
 func TestConvertToTaskDefinitionWithPortMappings(t *testing.T) {
 	serviceConfig := &config.ServiceConfig{Ports: []string{portMapping}}
 
-	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "")
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 	verifyPortMapping(t, containerDef.PortMappings[0], portNumber, portNumber, ecs.TransportProtocolTcp)
 }
@@ -599,7 +631,7 @@ func TestConvertToTaskDefinitionWithVolumesFrom(t *testing.T) {
 
 func setupAndTestVolumesFrom(t *testing.T, volume, sourceContainer string, readOnly bool) {
 	serviceConfig := &config.ServiceConfig{VolumesFrom: []string{volume}}
-	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "")
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 	verifyVolumeFrom(t, containerDef.VolumesFrom[0], sourceContainer, readOnly)
 }
@@ -611,13 +643,13 @@ func TestConvertToTaskDefinitionWithExtraHosts(t *testing.T) {
 	extraHost := hostname + ":" + ipAddress
 	serviceConfig := &config.ServiceConfig{ExtraHosts: []string{extraHost}}
 
-	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "")
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 	verifyExtraHost(t, containerDef.ExtraHosts[0], hostname, ipAddress)
 }
 
 func TestConvertToTaskDefinitionWithLogConfiguration(t *testing.T) {
-	taskDefinition := convertToTaskDefinitionInTest(t, "name", &config.ServiceConfig{}, "")
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", &config.ServiceConfig{}, "", "")
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 
 	if containerDef.LogConfiguration != nil {
@@ -636,7 +668,7 @@ func TestConvertToTaskDefinitionWithLogConfiguration(t *testing.T) {
 		},
 	}
 
-	taskDefinition = convertToTaskDefinitionInTest(t, "name", serviceConfig, "")
+	taskDefinition = convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
 	containerDef = *taskDefinition.ContainerDefinitions[0]
 	if logDriver != aws.StringValue(containerDef.LogConfiguration.LogDriver) {
 		t.Errorf("Expected Log driver [%s]. But was [%s]", logDriver, aws.StringValue(containerDef.LogConfiguration.LogDriver))
@@ -654,7 +686,7 @@ func TestConvertToTaskDefinitionWithUlimits(t *testing.T) {
 		Ulimits: yaml.Ulimits{Elements: []yaml.Ulimit{basicType}},
 	}
 
-	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "")
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 	verifyUlimit(t, containerDef.Ulimits[0], typeName, softLimit, softLimit)
 }
@@ -668,7 +700,7 @@ func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
 		VolumesFrom: volumesFrom,
 	}
 
-	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "")
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 
 	if len(volumesFrom) != len(containerDef.VolumesFrom) ||
@@ -881,7 +913,7 @@ func verifyUlimit(t *testing.T, output *ecs.Ulimit, name string, softLimit, hard
 	}
 }
 
-func convertToTaskDefinitionInTest(t *testing.T, name string, serviceConfig *config.ServiceConfig, taskRoleArn string) *ecs.TaskDefinition {
+func convertToTaskDefinitionInTest(t *testing.T, name string, serviceConfig *config.ServiceConfig, taskRoleArn string, launchType string) *ecs.TaskDefinition {
 	serviceConfigs := config.NewServiceConfigs()
 	serviceConfigs.Add(name, serviceConfig)
 
@@ -899,7 +931,7 @@ func convertToTaskDefinitionInTest(t *testing.T, name string, serviceConfig *con
 		EnvironmentLookup: envLookup,
 		ResourceLookup:    resourceLookup,
 	}
-	taskDefinition, err := ConvertToTaskDefinition(taskDefName, context, serviceConfigs, taskRoleArn, nil)
+	taskDefinition, err := ConvertToTaskDefinition(taskDefName, context, serviceConfigs, taskRoleArn, launchType, nil)
 	if err != nil {
 		t.Errorf("Expected to convert [%v] serviceConfigs without errors. But got [%v]", serviceConfig, err)
 	}
@@ -926,7 +958,7 @@ func convertToTaskDefWithEcsParamsInTest(t *testing.T, names []string, serviceCo
 		EnvironmentLookup: envLookup,
 		ResourceLookup:    resourceLookup,
 	}
-	taskDefinition, err := ConvertToTaskDefinition(taskDefName, context, serviceConfigs, taskRoleArn, ecsParams)
+	taskDefinition, err := ConvertToTaskDefinition(taskDefName, context, serviceConfigs, taskRoleArn, "", ecsParams)
 	if err != nil {
 		return nil, err
 	}
@@ -1045,7 +1077,7 @@ func TestMemReservationHigherThanMemLimit(t *testing.T) {
 		EnvironmentLookup: envLookup,
 		ResourceLookup:    resourceLookup,
 	}
-	_, err = ConvertToTaskDefinition(taskDefName, context, serviceConfigs, "", nil)
+	_, err = ConvertToTaskDefinition(taskDefName, context, serviceConfigs, "", "", nil)
 	assert.EqualError(t, err, "mem_limit should not be less than mem_reservation")
 }
 

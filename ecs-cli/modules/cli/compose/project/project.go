@@ -159,12 +159,14 @@ func (p *ecsProject) transformTaskDefinition() error {
 	logrus.Debug("Transforming yaml to task definition...")
 	taskDefinitionName := utils.GetTaskDefinitionName("", context.Context.ProjectName)
 	taskRoleArn := context.CLIContext.GlobalString(flags.TaskRoleArnFlag)
+	requiredCompatibilities := context.CLIParams.LaunchType
 
 	taskDefinition, err := utils.ConvertToTaskDefinition(
 		taskDefinitionName,
 		&context.Context,
 		p.ServiceConfigs(),
 		taskRoleArn,
+		requiredCompatibilities,
 		p.context.ECSParams,
 	)
 

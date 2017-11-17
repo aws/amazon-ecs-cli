@@ -237,13 +237,18 @@ func (t *Task) stopTasks(ecsTasks []*ecs.Task) error {
 
 // runTasks issues run task request to ECS Service in chunks of count=10
 func (t *Task) runTasks(taskDefinitionId string, totalCount int) ([]*ecs.Task, error) {
-	networkConfig,err  := composeutils.ConvertToECSNetworkConfiguration(t.projectContext.ECSParams)
+	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(t.projectContext.ECSParams)
 	if err != nil {
 		return nil, err
 	}
 
 	result := []*ecs.Task{}
 	chunkSize := 10 // can issue only upto 10 tasks in a RunTask Call
+	launchType := t.Context().CLIParams.LaunchType
+
+	if err := entity.ValidateFargateParams(t.Context().ECSParams.TaskDefinition.NetworkMode, launchType); err != nil {
+		return nil, err
+	}
 
 	for i := 0; i < totalCount; i += chunkSize {
 		count := chunkSize
@@ -251,7 +256,7 @@ func (t *Task) runTasks(taskDefinitionId string, totalCount int) ([]*ecs.Task, e
 			count = totalCount - i
 		}
 
-		ecsTasks, err := t.Context().ECSClient.RunTask(taskDefinitionId, entity.GetTaskGroup(t), count, networkConfig)
+		ecsTasks, err := t.Context().ECSClient.RunTask(taskDefinitionId, entity.GetTaskGroup(t), count, networkConfig, launchType)
 		if err != nil {
 			return nil, err
 		}
