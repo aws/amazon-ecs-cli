@@ -122,6 +122,7 @@ func clusterUpFlags() []cli.Flag {
 			Name:  flags.InstanceRoleFlag,
 			Usage: "[Optional] Specifies a custom IAM Role for instances in your cluster. Required if --capability-iam is not specified.",
 		},
+		flags.OptionalLaunchTypeFlag(),
 	}
 }
 

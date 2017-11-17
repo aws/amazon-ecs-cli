@@ -123,6 +123,11 @@ func Cluster(context *cli.Context) error {
 		return err
 	}
 
+	launchType := context.String(flags.DefaultLaunchTypeFlag)
+	if err := config.ValidateLaunchType(launchType); err != nil {
+		return err
+	}
+
 	cfnStackName := context.String(flags.CFNStackNameFlag)
 	composeServiceNamePrefix := context.String(flags.ComposeServiceNamePrefixFlag)
 
@@ -131,6 +136,7 @@ func Cluster(context *cli.Context) error {
 		Region:                   region,
 		CFNStackName:             cfnStackName,
 		ComposeServiceNamePrefix: composeServiceNamePrefix,
+		DefaultLaunchType:        launchType,
 	}
 
 	rdwr, err := config.NewReadWriter()

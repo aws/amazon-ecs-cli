@@ -61,6 +61,9 @@ const (
 	CFNStackNameFlag                     = "cfn-stack-name"
 	CFNStackNamePrefixDefaultValue       = "amazon-ecs-cli-setup-"
 
+	LaunchTypeFlag        = "launch-type"
+	DefaultLaunchTypeFlag = "default-launch-type"
+
 	// Cluster
 	AsgMaxSizeFlag                  = "size"
 	VpcAzFlag                       = "azs"
@@ -151,6 +154,16 @@ func OptionalClusterFlag() cli.Flag {
 // OptionalConfigFlags returns the concatenation of OptionalRegionAndProfileFlags and OptionalClusterFlag
 func OptionalConfigFlags() []cli.Flag {
 	return append(OptionalRegionAndProfileFlags(), OptionalClusterFlag())
+}
+
+// OptionalLaunchTypeFlag allows users to specify the launch type for their task/service/cluster
+func OptionalLaunchTypeFlag() cli.Flag {
+	return cli.StringFlag{
+		Name: LaunchTypeFlag,
+		Usage: fmt.Sprintf(
+			"[Optional] Specifies the launch type. Options: EC2 or Fargate. Overrides the default launch type stored in your cluster configuraion. Defaults to EC2 if a cluster configuration is not used.",
+		),
+	}
 }
 
 // UsageErrorFactory Returns a usage error function for the specified command

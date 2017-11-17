@@ -50,6 +50,7 @@ type CLIConfig struct {
 	ComposeProjectNamePrefix string // Deprecated; remains for backwards compatibility
 	CFNStackName             string
 	CFNStackNamePrefix       string // Deprecated; remains for backwards compatibility
+	DefaultLaunchType        string
 }
 
 // Profile is a simple struct for storing a single profile config
@@ -64,6 +65,7 @@ type Cluster struct {
 	Region                   string `yaml:"region"`
 	ComposeServiceNamePrefix string `yaml:"compose-service-name-prefix,omitempty"`
 	CFNStackName             string `yaml:"cfn-stack-name,omitempty"`
+	DefaultLaunchType        string `yaml:"default_launch_type"`
 }
 
 // ClusterConfig is the top level struct representing the cluster config file

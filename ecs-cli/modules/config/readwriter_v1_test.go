@@ -128,6 +128,7 @@ cfn-stack-name-prefix =
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
 	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
 	assert.Equal(t, iniConfigVersion, readConfig.Version, "Expected ini config version to be set.")
+	assert.Empty(t, readConfig.DefaultLaunchType, "Expected launch type to be empty.")
 }
 
 func TestPrefixesDefaultOldINIFormat(t *testing.T) {
@@ -155,6 +156,7 @@ aws_secret_access_key =
 	assert.Equal(t, flags.ComposeServiceNamePrefixDefaultValue, config.ComposeServiceNamePrefix, "ComposeServiceNamePrefix should be set to the default value.")
 	assert.Equal(t, flags.CFNStackNamePrefixDefaultValue, config.CFNStackNamePrefix, "CFNStackNamePrefix should be set to the default value.")
 	assert.Equal(t, iniConfigVersion, config.Version, "Expected ini config version to be set.")
+	assert.Empty(t, config.DefaultLaunchType, "Expected launch type to be empty.")
 }
 
 func TestReadCredentialsFile(t *testing.T) {
@@ -198,7 +200,7 @@ ecs_profiles:
 	assert.Equal(t, yamlConfigVersion, config.Version, "Expected yaml config version to be set.")
 }
 
-func TestReadClusterConfigFile(t *testing.T) {
+func TestReadClusterConfigFileNoLaunchType(t *testing.T) {
 	configContents := `default: prod_config
 clusters:
   gamma_config:
@@ -235,6 +237,7 @@ clusters:
 	assert.Equal(t, "cli-demo-prod", config.Cluster, "Cluster should be present.")
 	assert.Equal(t, "us-east-2", config.Region, "Region should be present.")
 	assert.Equal(t, yamlConfigVersion, config.Version, "Expected yaml config version to be set.")
+	assert.Empty(t, config.DefaultLaunchType, "Expected launch type to be empty.")
 
 	// Test read a specific config
 	config, err = parser.Get("gamma_config", "")
@@ -246,6 +249,61 @@ clusters:
 	assert.Empty(t, config.CFNStackNamePrefix, "Expected CFNStackNamePrefix to be empty.")
 	assert.Empty(t, config.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty.")
 	assert.Equal(t, yamlConfigVersion, config.Version, "Expected yaml config version to be set.")
+	assert.Empty(t, config.DefaultLaunchType, "Expected launch type to be empty.")
+}
+
+func TestReadClusterConfigFileWithLaunchType(t *testing.T) {
+	configContents := `default: prod_config
+clusters:
+  gamma_config:
+    cluster: cli-demo-gamma
+    region: us-west-1
+    compose-service-name-prefix: custom-service-
+    cfn-stack-name: cfn-custom-cli-demo-gamma
+    default_launch_type: EC2
+  beta_config:
+    cluster: cli-demo-beta
+    region: us-west-2
+  prod_config:
+    cluster: cli-demo-prod
+    region: us-east-2
+    default_launch_type: FARGATE
+`
+
+	dest, err := newMockDestination()
+	assert.NoError(t, err, "Error creating mock config destination")
+
+	err = os.MkdirAll(dest.Path, *dest.Mode)
+	assert.NoError(t, err, "Could not create config directory")
+
+	defer os.RemoveAll(dest.Path)
+
+	// Save the profile
+	err = ioutil.WriteFile(dest.Path+"/"+clusterConfigFileName, []byte(configContents), *dest.Mode)
+	assert.NoError(t, err)
+
+	// Read
+	parser := setupParser(t, dest, false)
+
+	// Test read the default config
+	config, err := parser.Get("", "")
+	assert.NoError(t, err, "Error reading config")
+	assert.Equal(t, "cli-demo-prod", config.Cluster, "Cluster should be present.")
+	assert.Equal(t, "us-east-2", config.Region, "Region should be present.")
+	assert.Equal(t, yamlConfigVersion, config.Version, "Expected yaml config version to be set.")
+	assert.Equal(t, LaunchTypeFargate, config.DefaultLaunchType)
+
+	// Test read a specific config
+	config, err = parser.Get("gamma_config", "")
+	assert.NoError(t, err, "Error reading config")
+	assert.Equal(t, "cli-demo-gamma", config.Cluster, "Cluster should be present.")
+	assert.Equal(t, "us-west-1", config.Region, "Region should be present.")
+	assert.Equal(t, "custom-service-", config.ComposeServiceNamePrefix, "ComposeServiceNamePrefix should be present.")
+	assert.Equal(t, "cfn-custom-cli-demo-gamma", config.CFNStackName, "CFNStackName Name should be present.")
+	assert.Empty(t, config.CFNStackNamePrefix, "Expected CFNStackNamePrefix to be empty.")
+	assert.Empty(t, config.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty.")
+	assert.Equal(t, yamlConfigVersion, config.Version, "Expected yaml config version to be set.")
+	assert.Equal(t, LaunchTypeEC2, config.DefaultLaunchType)
 }
 
 func TestOverwriteINIConfigFile(t *testing.T) {
@@ -283,5 +341,5 @@ cfn-stack-name-prefix = amazon-ecs-cli-setup-
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
 	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
 	assert.Equal(t, yamlConfigVersion, readConfig.Version, "Expected yaml config version to be set.")
-
+	assert.Empty(t, readConfig.DefaultLaunchType, "Expected launch type to be empty.")
 }

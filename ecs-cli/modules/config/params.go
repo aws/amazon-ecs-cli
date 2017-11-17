@@ -14,12 +14,19 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
+)
+
+const (
+	// Launch types are case sensitive
+	LaunchTypeFargate = "FARGATE"
+	LaunchTypeEC2     = "EC2"
 )
 
 // CLIParams saves config to create an aws service clients
@@ -29,6 +36,7 @@ type CLIParams struct {
 	ComposeServiceNamePrefix string
 	ComposeProjectNamePrefix string // Deprecated; remains for backwards compatibility
 	CFNStackName             string
+	LaunchType               string
 }
 
 // Searches as far up the context as necessary. This function works no matter
@@ -52,6 +60,15 @@ func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 
 	if err != nil {
 		return nil, errors.Wrap(err, "Error loading config")
+	}
+
+	// launch type from the flag overrides defaul launch type
+	if launchTypeFromFlag := recursiveFlagSearch(context, flags.LaunchTypeFlag); launchTypeFromFlag != "" {
+		ecsConfig.DefaultLaunchType = launchTypeFromFlag
+	}
+
+	if err = ValidateLaunchType(ecsConfig.DefaultLaunchType); err != nil {
+		return nil, err
 	}
 
 	// Order of cluster resolution
@@ -96,5 +113,14 @@ func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 		ComposeServiceNamePrefix: ecsConfig.ComposeServiceNamePrefix,
 		ComposeProjectNamePrefix: ecsConfig.ComposeProjectNamePrefix, // deprecated; remains for backwards compatibility
 		CFNStackName:             ecsConfig.CFNStackName,
+		LaunchType:               ecsConfig.DefaultLaunchType,
 	}, nil
+}
+
+// ValidateLaunchType checks that the launch type specified was an allowed value
+func ValidateLaunchType(launchType string) error {
+	if (launchType != "") && (launchType != LaunchTypeEC2) && (launchType != LaunchTypeFargate) {
+		return fmt.Errorf("Supported launch types are '%s' and '%s'; %s is not a valid launch type.", LaunchTypeEC2, LaunchTypeFargate, launchType)
+	}
+	return nil
 }

@@ -182,5 +182,11 @@ func configureFlags() []cli.Flag {
 				"[Optional] Specifies the name of AWS CloudFormation stack created on ecs-cli up. (default: \"amazon-ecs-cli-setup-<cluster-name>\")",
 			),
 		},
+		cli.StringFlag{
+			Name: flags.DefaultLaunchTypeFlag,
+			Usage: fmt.Sprintf(
+				"[Optional] Specifies the type of tasks that you would like to run. Options: EC2 or Fargate.",
+			),
+		},
 	}
 }

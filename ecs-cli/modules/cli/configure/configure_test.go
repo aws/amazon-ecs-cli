@@ -42,11 +42,12 @@ const (
 	composeProjectNamePrefix = "ecs-compose-"
 )
 
-func createClusterConfig(name string, cluster string) *cli.Context {
+func createClusterConfig(name string, cluster string, launchType string) *cli.Context {
 	flagSet := flag.NewFlagSet("ecs-cli", 0)
 	flagSet.String(flags.RegionFlag, region, "")
 	flagSet.String(flags.ClusterFlag, cluster, "")
 	flagSet.String(flags.ConfigNameFlag, name, "")
+	flagSet.String(flags.DefaultLaunchTypeFlag, launchType, "")
 	return cli.NewContext(nil, flagSet, nil)
 }
 
@@ -59,8 +60,8 @@ func createProfileConfig(name string, accessKey string, secretKey string) *cli.C
 }
 
 func TestDefaultCluster(t *testing.T) {
-	config1 := createClusterConfig(profileName, clusterName)
-	config2 := createClusterConfig(profileName2, secondCluster)
+	config1 := createClusterConfig(profileName, clusterName, config.LaunchTypeEC2)
+	config2 := createClusterConfig(profileName2, secondCluster, config.LaunchTypeFargate)
 	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
@@ -84,6 +85,7 @@ func TestDefaultCluster(t *testing.T) {
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, region, readConfig.Region, "Region mismatch in config.")
 	assert.Equal(t, secondCluster, readConfig.Cluster, "Cluster name mismatch in config.")
+	assert.Equal(t, config.LaunchTypeFargate, readConfig.DefaultLaunchType, "Launch Type mismatch in config.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
 	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
 
@@ -147,8 +149,8 @@ func TestConfigureProfile(t *testing.T) {
 
 }
 
-func TestConfigureCluster(t *testing.T) {
-	config1 := createClusterConfig(profileName, clusterName)
+func TestConfigureClusterNoLaunchType(t *testing.T) {
+	config1 := createClusterConfig(profileName, clusterName, "")
 	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
@@ -167,6 +169,59 @@ func TestConfigureCluster(t *testing.T) {
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, region, readConfig.Region, "Region mismatch in config.")
 	assert.Equal(t, clusterName, readConfig.Cluster, "Cluster name mismatch in config.")
+	assert.Empty(t, readConfig.DefaultLaunchType, "Launch Type expected to be empty")
+	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
+	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
+
+}
+
+func TestConfigureClusterFargate(t *testing.T) {
+	config1 := createClusterConfig(profileName, clusterName, config.LaunchTypeFargate)
+	// Create a temporary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+	defer os.RemoveAll(tempDirName)
+
+	err = Cluster(config1)
+	assert.NoError(t, err, "Unexpected error configuring cluster")
+
+	parser, err := config.NewReadWriter()
+	assert.NoError(t, err, "Error reading config")
+	readConfig, err := parser.Get("", "")
+	assert.NoError(t, err, "Error reading config")
+	assert.Equal(t, region, readConfig.Region, "Region mismatch in config.")
+	assert.Equal(t, clusterName, readConfig.Cluster, "Cluster name mismatch in config.")
+	assert.Equal(t, config.LaunchTypeFargate, readConfig.DefaultLaunchType, "Launch Type mismatch in config.")
+	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
+	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
+
+}
+
+func TestConfigureClusterEC2(t *testing.T) {
+	config1 := createClusterConfig(profileName, clusterName, config.LaunchTypeEC2)
+	// Create a temporary directory for the dummy ecs config
+	tempDirName, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal("Error while creating the dummy ecs config directory")
+	}
+	os.Setenv("HOME", tempDirName)
+	defer os.Unsetenv("HOME")
+	defer os.RemoveAll(tempDirName)
+
+	err = Cluster(config1)
+	assert.NoError(t, err, "Unexpected error configuring cluster")
+
+	parser, err := config.NewReadWriter()
+	assert.NoError(t, err, "Error reading config")
+	readConfig, err := parser.Get("", "")
+	assert.NoError(t, err, "Error reading config")
+	assert.Equal(t, region, readConfig.Region, "Region mismatch in config.")
+	assert.Equal(t, clusterName, readConfig.Cluster, "Cluster name mismatch in config.")
+	assert.Equal(t, config.LaunchTypeEC2, readConfig.DefaultLaunchType, "Launch Type mismatch in config.")
 	assert.Empty(t, readConfig.ComposeServiceNamePrefix, "Compose service prefix name should be empty.")
 	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
 
@@ -214,26 +269,6 @@ func TestConfigureClusterNoRegion(t *testing.T) {
 
 }
 
-func TestConfigureClusterNoConfigName(t *testing.T) {
-	flagSet := flag.NewFlagSet("ecs-cli", 0)
-	flagSet.String(flags.ClusterFlag, clusterName, "")
-	flagSet.String(flags.RegionFlag, region, "")
-	config1 := cli.NewContext(nil, flagSet, nil)
-
-	// Create a temporary directory for the dummy ecs config
-	tempDirName, err := ioutil.TempDir("", "test")
-	if err != nil {
-		t.Fatal("Error while creating the dummy ecs config directory")
-	}
-	os.Setenv("HOME", tempDirName)
-	defer os.Unsetenv("HOME")
-	defer os.RemoveAll(tempDirName)
-
-	// configure 2 profiles and set one as default
-	err = Cluster(config1)
-	assert.Error(t, err, "Expected error configuring cluster.")
-}
-
 func TestConfigureProfileNoAccessKey(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli", 0)
 	flagSet.String(flags.SecretKeyFlag, awsSecretKey, "")
@@ -274,29 +309,9 @@ func TestConfigureProfileNoSecretKey(t *testing.T) {
 
 }
 
-func TestConfigureProfileNoProfileName(t *testing.T) {
-	flagSet := flag.NewFlagSet("ecs-cli", 0)
-	flagSet.String(flags.AccessKeyFlag, awsAccessKey, "")
-	flagSet.String(flags.SecretKeyFlag, awsSecretKey, "")
-	config1 := cli.NewContext(nil, flagSet, nil)
-
-	// Create a temporary directory for the dummy ecs config
-	tempDirName, err := ioutil.TempDir("", "test")
-	if err != nil {
-		t.Fatal("Error while creating the dummy ecs config directory")
-	}
-	os.Setenv("HOME", tempDirName)
-	defer os.Unsetenv("HOME")
-	defer os.RemoveAll(tempDirName)
-
-	err = Profile(config1)
-	assert.Error(t, err, "Expected error configuring profile")
-
-}
-
 func TestDefaultClusterDoesNotExist(t *testing.T) {
-	config1 := createClusterConfig(profileName, clusterName)
-	config2 := createClusterConfig(profileName2, secondCluster)
+	config1 := createClusterConfig(profileName, clusterName, "")
+	config2 := createClusterConfig(profileName2, secondCluster, "")
 	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")
 	if err != nil {
@@ -382,6 +397,7 @@ cfn-stack-name-prefix = cfn-
 	assert.Equal(t, cfnStackNamePrefix+clusterName, readConfig.CFNStackName, "CFNStackName should be empty.")
 	assert.Equal(t, awsAccessKey, readConfig.AWSAccessKey, "Access Key mismatch in config.")
 	assert.Equal(t, awsSecretKey, readConfig.AWSSecretKey, "Secret Key name mismatch in config.")
+	assert.Empty(t, readConfig.DefaultLaunchType, "Launch Type expected to be empty")
 
 }
 
@@ -433,6 +449,7 @@ cfn-stack-name-prefix =
 	assert.Equal(t, clusterName, readConfig.CFNStackName, "CFNStackName should be empty.")
 	assert.Equal(t, awsAccessKey, readConfig.AWSAccessKey, "Access Key mismatch in config.")
 	assert.Equal(t, awsSecretKey, readConfig.AWSSecretKey, "Secret Key name mismatch in config.")
+	assert.Empty(t, readConfig.DefaultLaunchType, "Launch Type expected to be empty")
 
 }
 
@@ -481,6 +498,7 @@ aws_secret_access_key = SKID
 	assert.Empty(t, readConfig.CFNStackName, "CFNStackName should be empty.")
 	assert.Equal(t, awsAccessKey, readConfig.AWSAccessKey, "Access Key mismatch in config.")
 	assert.Equal(t, awsSecretKey, readConfig.AWSSecretKey, "Secret Key name mismatch in config.")
+	assert.Empty(t, readConfig.DefaultLaunchType, "Launch Type expected to be empty")
 
 }
 
