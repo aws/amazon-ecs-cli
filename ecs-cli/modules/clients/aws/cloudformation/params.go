@@ -36,6 +36,7 @@ const (
 	ParameterKeyAmiId                    = "EcsAmiId"
 	ParameterKeyAssociatePublicIPAddress = "AssociatePublicIpAddress"
 	ParameterKeyInstanceRole             = "InstanceRole"
+	ParameterKeyIsFargate                = "IsFargate"
 )
 
 var ParameterNotFoundError = errors.New("Parameter not found")

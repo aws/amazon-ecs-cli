@@ -40,13 +40,15 @@ const (
 )
 
 type mockReadWriter struct {
-	clusterName string
-	stackName   string
+	clusterName       string
+	stackName         string
+	defaultLaunchType string
 }
 
 func (rdwr *mockReadWriter) Get(cluster string, profile string) (*config.CLIConfig, error) {
 	cliConfig := config.NewCLIConfig(rdwr.clusterName)
 	cliConfig.CFNStackName = rdwr.clusterName
+	cliConfig.DefaultLaunchType = rdwr.defaultLaunchType
 	return cliConfig, nil
 }
 
@@ -67,7 +69,10 @@ func (rdwr *mockReadWriter) SetDefaultCluster(configName string) error {
 }
 
 func newMockReadWriter() *mockReadWriter {
-	return &mockReadWriter{clusterName: clusterName}
+	return &mockReadWriter{
+		clusterName:       clusterName,
+		defaultLaunchType: config.LaunchTypeEC2,
+	}
 }
 
 func setupTest(t *testing.T) (*mock_ecs.MockECSClient, *mock_cloudformation.MockCloudformationClient) {
@@ -220,11 +225,6 @@ func TestClusterUpWithTwoCustomRoles(t *testing.T) {
 
 	instanceRole := "sparklepony, sparkleunicorn"
 
-	gomock.InOrder(
-		mockECS.EXPECT().Initialize(gomock.Any()),
-		mockCloudformation.EXPECT().Initialize(gomock.Any()),
-	)
-
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
 	flagSet.String(flags.KeypairNameFlag, "default", "")
@@ -241,11 +241,6 @@ func TestClusterUpWithDefaultAndCustomRoles(t *testing.T) {
 
 	instanceRole := "sparklepony"
 
-	gomock.InOrder(
-		mockECS.EXPECT().Initialize(gomock.Any()),
-		mockCloudformation.EXPECT().Initialize(gomock.Any()),
-	)
-
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
 	flagSet.String(flags.KeypairNameFlag, "default", "")
@@ -259,11 +254,6 @@ func TestClusterUpWithDefaultAndCustomRoles(t *testing.T) {
 func TestClusterUpWithNoRoles(t *testing.T) {
 	defer os.Clearenv()
 	mockECS, mockCloudformation := setupTest(t)
-
-	gomock.InOrder(
-		mockECS.EXPECT().Initialize(gomock.Any()),
-		mockCloudformation.EXPECT().Initialize(gomock.Any()),
-	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(flags.CapabilityIAMFlag, false, "")
@@ -504,6 +494,72 @@ func TestClusterUpWithoutRegion(t *testing.T) {
 	context := cli.NewContext(nil, flagSet, nil)
 	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
 	assert.Error(t, err, "Expected error bringing up cluster")
+}
+
+func TestClusterUpWithFargateLaunchTypeFlag(t *testing.T) {
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
+
+	gomock.InOrder(
+		mockECS.EXPECT().Initialize(gomock.Any()),
+		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
+	)
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Do(func(x, y, z interface{}) {
+			cfnParams := z.(*cloudformation.CfnStackParams)
+			isFargate, err := cfnParams.GetParameter(cloudformation.ParameterKeyIsFargate)
+			assert.NoError(t, err, "Unexpected error getting cfn parameter")
+			assert.Equal(t, "true", aws.StringValue(isFargate.ParameterValue), "Should have EC2 launch type.")
+		}).Return("", nil),
+		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
+	)
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.LaunchTypeFlag, config.LaunchTypeFargate, "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := createCluster(context, newMockReadWriter(), mockECS, mockCloudformation, ami.NewStaticAmiIds())
+	assert.NoError(t, err, "Unexpected error bringing up cluster")
+}
+
+func TestClusterUpWithFargateDefaultLaunchTypeConfig(t *testing.T) {
+	rdwr := &mockReadWriter{
+		clusterName:       clusterName,
+		defaultLaunchType: config.LaunchTypeFargate,
+	}
+
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
+
+	gomock.InOrder(
+		mockECS.EXPECT().Initialize(gomock.Any()),
+		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
+	)
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Do(func(x, y, z interface{}) {
+			cfnParams := z.(*cloudformation.CfnStackParams)
+			isFargate, err := cfnParams.GetParameter(cloudformation.ParameterKeyIsFargate)
+			assert.NoError(t, err, "Unexpected error getting cfn parameter")
+			assert.Equal(t, "true", aws.StringValue(isFargate.ParameterValue), "Should have EC2 launch type.")
+		}).Return("", nil),
+		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
+	)
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := createCluster(context, rdwr, mockECS, mockCloudformation, ami.NewStaticAmiIds())
+	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
 func TestClusterDown(t *testing.T) {
