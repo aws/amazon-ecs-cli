@@ -61,6 +61,13 @@ func TestReadECSParams_FileDoesNotExist(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestReadECSParams_NoFile(t *testing.T) {
+	ecsParams, err := ReadECSParams("")
+	if assert.NoError(t, err) {
+		assert.Nil(t, ecsParams)
+	}
+}
+
 func TestReadECSParams_WithServices(t *testing.T) {
 	ecsParamsString := `version: 1
 task_definition:
@@ -136,9 +143,9 @@ run_params:
 }
 
 func TestConvertToECSNetworkConfiguration(t *testing.T) {
-	taskDef := EcsTaskDef{ NetworkMode: "awsvpc" }
-	subnets :=[]string{"subnet-feedface"}
-	securityGroups :=  []string{"sg-c0ffeefe"}
+	taskDef := EcsTaskDef{NetworkMode: "awsvpc"}
+	subnets := []string{"subnet-feedface"}
+	securityGroups := []string{"sg-c0ffeefe"}
 	awsVpconfig := AwsVpcConfiguration{
 		Subnets:        subnets,
 		SecurityGroups: securityGroups,
@@ -165,8 +172,8 @@ func TestConvertToECSNetworkConfiguration(t *testing.T) {
 }
 
 func TestConvertToECSNetworkConfiguration_NoSecurityGroups(t *testing.T) {
-	taskDef := EcsTaskDef{ NetworkMode: "awsvpc" }
-	subnets :=[]string{"subnet-feedface"}
+	taskDef := EcsTaskDef{NetworkMode: "awsvpc"}
+	subnets := []string{"subnet-feedface"}
 	awsVpconfig := AwsVpcConfiguration{
 		Subnets: subnets,
 	}
@@ -190,10 +197,9 @@ func TestConvertToECSNetworkConfiguration_NoSecurityGroups(t *testing.T) {
 	}
 }
 
-
 func TestConvertToECSNetworkConfiguration_ErrorWhenNoSubnets(t *testing.T) {
-	taskDef := EcsTaskDef{ NetworkMode: "awsvpc" }
-	subnets :=[]string{}
+	taskDef := EcsTaskDef{NetworkMode: "awsvpc"}
+	subnets := []string{}
 
 	awsVpconfig := AwsVpcConfiguration{
 		Subnets: subnets,
@@ -213,6 +219,14 @@ func TestConvertToECSNetworkConfiguration_ErrorWhenNoSubnets(t *testing.T) {
 	_, err := ConvertToECSNetworkConfiguration(ecsParams)
 
 	assert.Error(t, err)
+}
+
+func TestConvertToECSNetworkConfiguration_WhenNoECSParams(t *testing.T) {
+	ecsParams, err := ConvertToECSNetworkConfiguration(nil)
+
+	if assert.NoError(t, err) {
+		assert.Nil(t, ecsParams)
+	}
 }
 
 func TestReadECSParams_WithTaskSize(t *testing.T) {

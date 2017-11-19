@@ -445,6 +445,7 @@ func TestRunTask(t *testing.T) {
 		assert.Equal(t, td, aws.StringValue(req.TaskDefinition), "Expected taskDefinition to match")
 		assert.Equal(t, group, aws.StringValue(req.Group), "Expected group to match")
 		assert.Equal(t, int64(count), aws.Int64Value(req.Count), "Expected count to match")
+		assert.Nil(t, req.NetworkConfiguration, "Expected Network Config to be nil.")
 		assert.Nil(t, req.LaunchType, "Expected Launch Type to be nil.")
 	}).Return(&ecs.RunTaskOutput{}, nil)
 

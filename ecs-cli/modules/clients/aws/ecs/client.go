@@ -141,7 +141,10 @@ func (c *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer 
 		DeploymentConfiguration: deploymentConfig,
 		LoadBalancers:           []*ecs.LoadBalancer{loadBalancer},
 		Role:                    aws.String(role),
-		NetworkConfiguration:    networkConfig,
+	}
+
+	if networkConfig != nil {
+		createServiceInput.NetworkConfiguration = networkConfig
 	}
 
 	if launchType != "" {
@@ -181,7 +184,10 @@ func (c *ecsClient) UpdateService(serviceName, taskDefinition string, count int6
 		Service:                 aws.String(serviceName),
 		Cluster:                 aws.String(c.params.Cluster),
 		DeploymentConfiguration: deploymentConfig,
-		NetworkConfiguration:    networkConfig,
+	}
+
+	if networkConfig != nil {
+		input.NetworkConfiguration = networkConfig
 	}
 
 	if taskDefinition != "" {
@@ -397,7 +403,10 @@ func (c *ecsClient) RunTask(taskDefinition, group string, count int, networkConf
 		TaskDefinition:       aws.String(taskDefinition),
 		Group:                aws.String(group),
 		Count:                aws.Int64(int64(count)),
-		NetworkConfiguration: networkConfig,
+	}
+
+	if networkConfig != nil {
+		runTaskInput.NetworkConfiguration = networkConfig
 	}
 
 	if launchType != "" {

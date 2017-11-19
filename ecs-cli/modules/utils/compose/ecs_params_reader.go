@@ -92,6 +92,9 @@ func ReadECSParams(filename string) (*ECSParams, error) {
 // ConvertToECSNetworkConfiguration extracts out the NetworkConfiguration from
 // the ECSParams into a format that is compatible with ECSClient calls.
 func ConvertToECSNetworkConfiguration(ecsParams *ECSParams) (*ecs.NetworkConfiguration, error) {
+	if ecsParams == nil {
+		return nil, nil
+	}
 	networkConfig := ecsParams.RunParams.NetworkConfiguration
 	awsvpcConfig := networkConfig.AwsVpcConfiguration
 	subnets := awsvpcConfig.Subnets

@@ -339,7 +339,7 @@ func (s *Service) createService() error {
 	if err != nil {
 		return err
 	}
-	if err = entity.ValidateFargateParams(s.Context().ECSParams.TaskDefinition.NetworkMode, launchType); err != nil {
+	if err = entity.ValidateFargateParams(s.Context().ECSParams, launchType); err != nil {
 		return err
 	}
 

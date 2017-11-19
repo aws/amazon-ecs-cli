@@ -21,7 +21,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
-	composeutils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/docker/libcompose/project"
@@ -29,7 +29,7 @@ import (
 
 // SetupTaskDefinitionCache finds a file system cache to store the ecs task definitions
 func SetupTaskDefinitionCache() cache.Cache {
-	tdCache, err := cache.NewFSCache(composeutils.ProjectTDCache)
+	tdCache, err := cache.NewFSCache(utils.ProjectTDCache)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -59,7 +59,7 @@ func GetOrCreateTaskDefinition(entity ProjectEntity) (*ecs.TaskDefinition, error
 	resp, err := entity.Context().ECSClient.RegisterTaskDefinitionIfNeeded(request, entity.TaskDefinitionCache())
 
 	if err != nil {
-		composeutils.LogError(err, "Create task definition failed")
+		utils.LogError(err, "Create task definition failed")
 		return nil, err
 	}
 
@@ -260,7 +260,7 @@ func ConvertMapToSlice(mapItems map[string]bool) []*string {
 // GetTaskGroup returns an auto-generated formatted string
 // that can be supplied while starting an ECS task and is used to identify the owner of ECS Task
 func GetTaskGroup(entity ProjectEntity) string {
-	return composeutils.GetTaskGroup(getProjectPrefix(entity), GetProjectName(entity))
+	return utils.GetTaskGroup(getProjectPrefix(entity), GetProjectName(entity))
 }
 
 // GetTaskDefinitionFamily returns the family name
@@ -281,7 +281,7 @@ func getProjectPrefix(entity ProjectEntity) string {
 
 // GetServiceName using project entity
 func GetServiceName(entity ProjectEntity) string {
-	return composeutils.GetServiceName(getServicePrefix(entity), GetProjectName(entity))
+	return utils.GetServiceName(getServicePrefix(entity), GetProjectName(entity))
 }
 
 func getServicePrefix(entity ProjectEntity) string {
@@ -290,13 +290,20 @@ func getServicePrefix(entity ProjectEntity) string {
 
 // GetIdFromArn gets the aws String value of the input arn and returns the id part of the arn
 func GetIdFromArn(arn *string) string {
-	return composeutils.GetIdFromArn(aws.StringValue(arn))
+	return utils.GetIdFromArn(aws.StringValue(arn))
 }
 
 // ValidateFargateParams ensures that the correct config has been given to run a Fargate task
-func ValidateFargateParams(networkMode string, launchType string) error {
-	if networkMode != "awsvpc" && launchType == config.LaunchTypeFargate {
-		return fmt.Errorf("Launch Type %s requires network mode to be `awsvpc`. Set network mode using an ECS Params file.")
+func ValidateFargateParams(ecsParams *utils.ECSParams, launchType string) error {
+	if launchType == config.LaunchTypeFargate {
+		// If ecs-params.yml not passed in
+		if ecsParams == nil {
+			return fmt.Errorf("Launch Type %s requires network configuration to be set. Set network configuration using an ECS Params file.", launchType)
+		}
+		if ecsParams.TaskDefinition.NetworkMode != "awsvpc" {
+			return fmt.Errorf("Launch Type %s requires network mode to be 'awsvpc'. Set network mode using an ECS Params file.", launchType)
+		}
 	}
+
 	return nil
 }

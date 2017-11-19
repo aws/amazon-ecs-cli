@@ -348,6 +348,14 @@ run_params:
 	assert.NoError(t, err, "Could not close tempfile")
 }
 
+func TestParseECSParams_NoFile(t *testing.T) {
+	project := setupTestProject(t)
+	err := project.parseECSParams()
+	if assert.NoError(t, err) {
+		assert.Nil(t, project.context.ECSParams)
+	}
+}
+
 func setupTestProject(t *testing.T) *ecsProject {
 	return setupTestProjectWithEcsParams(t, "")
 }
