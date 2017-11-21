@@ -60,11 +60,11 @@ func logFlags() []cli.Flag {
 		},
 		cli.StringFlag{
 			Name:  flags.StartTimeFlag,
-			Usage: fmt.Sprintf("[Optional] Returns logs after a specific date (format: RFC 3339). Cannot be used with --%s flag", flags.SinceFlag),
+			Usage: fmt.Sprintf("[Optional] Returns logs after a specific date (format: RFC 3339. Example: 2006-01-02T15:04:05+07:00). Cannot be used with --%s flag", flags.SinceFlag),
 		},
 		cli.StringFlag{
 			Name:  flags.EndTimeFlag,
-			Usage: fmt.Sprintf("[Optional] Returns logs before a specific date (format: RFC 3339). Cannot be used with --%s", flags.FollowLogsFlag),
+			Usage: fmt.Sprintf("[Optional] Returns logs before a specific date (format: RFC 3339. Example: 2006-01-02T15:04:05+07:00). Cannot be used with --%s", flags.FollowLogsFlag),
 		},
 		cli.BoolFlag{
 			Name:  flags.TimeStampsFlag + ",t",

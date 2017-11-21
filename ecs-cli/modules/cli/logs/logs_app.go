@@ -30,6 +30,7 @@ import (
 )
 
 const (
+	// followLogsWaitTime is the time in seconds to sleep between API calls to get logs
 	followLogsWaitTime = 30
 )
 
@@ -40,9 +41,9 @@ type logConfiguration struct {
 }
 
 type logInfo struct {
-	logGroup  *string
-	logRegion *string
-	prefixes  map[*string]*string
+	logGroup    *string
+	logRegion   *string
+	logPrefixes map[*string]*string
 }
 
 // Logs is the action for logsCommand. It retrieves container logs for a task from CloudWatch
@@ -96,7 +97,7 @@ func logsRequest(context *cli.Context, ecsClient ecsclient.ECSClient, params *co
 		return nil, "", errors.Wrap(err, "Failed to get log configuration")
 	}
 
-	streams := logStreams(logConfig.prefixes, taskID)
+	streams := logStreams(logConfig.logPrefixes, taskID)
 
 	request, err := filterLogEventsInputFromContext(context)
 	if err != nil {
@@ -166,7 +167,7 @@ func validateLogFlags(context *cli.Context) error {
 }
 
 func cwTimestamp(t time.Time) int64 {
-	return t.UnixNano() / int64(time.Millisecond)
+	return (t.UnixNano() / 1e6)
 }
 
 // filterLogEventsInputFromContext takes the command line flags and builds a FilterLogEventsInput object
@@ -197,7 +198,10 @@ func filterLogEventsInputFromContext(context *cli.Context) (*cloudwatchlogs.Filt
 		now := time.Now()
 		then := now.Add(time.Duration(-since) * time.Minute)
 		input.SetStartTime(cwTimestamp(then))
-		input.SetEndTime(cwTimestamp(now))
+	}
+
+	if input.EndTime != nil && input.StartTime != nil && aws.Int64Value(input.EndTime) < aws.Int64Value(input.StartTime) {
+		return nil, fmt.Errorf("Start time value provided with --%s/--%s must be before End time value provided with --%s", flags.StartTimeFlag, flags.SinceFlag, flags.EndTimeFlag)
 	}
 
 	return input, nil
@@ -214,7 +218,7 @@ func logStreams(prefixes map[*string]*string, taskID string) []string {
 
 func getLogConfiguration(taskDef *ecs.TaskDefinition, taskID string, containerName string) (*logInfo, error) {
 	logConfig := &logInfo{}
-	logConfig.prefixes = make(map[*string]*string)
+	logConfig.logPrefixes = make(map[*string]*string)
 
 	if containerName != "" {
 		var container *ecs.ContainerDefinition
@@ -228,7 +232,7 @@ func getLogConfiguration(taskDef *ecs.TaskDefinition, taskID string, containerNa
 		if err != nil {
 			return nil, err
 		}
-		logConfig.prefixes[container.Name] = info.logPrefix
+		logConfig.logPrefixes[container.Name] = info.logPrefix
 		logConfig.logGroup = info.logGroup
 		logConfig.logRegion = info.logRegion
 	} else {
@@ -238,7 +242,7 @@ func getLogConfiguration(taskDef *ecs.TaskDefinition, taskID string, containerNa
 		}
 		logConfig.logGroup = info.logGroup
 		logConfig.logRegion = info.logRegion
-		logConfig.prefixes[taskDef.ContainerDefinitions[0].Name] = info.logPrefix
+		logConfig.logPrefixes[taskDef.ContainerDefinitions[0].Name] = info.logPrefix
 		for _, containerDef := range taskDef.ContainerDefinitions {
 			info, err := getContainerLogConfig(containerDef)
 			if err != nil {
@@ -250,7 +254,7 @@ func getLogConfiguration(taskDef *ecs.TaskDefinition, taskID string, containerNa
 			if aws.StringValue(info.logRegion) != aws.StringValue(logConfig.logRegion) {
 				return nil, logConfigMisMatchError(taskDef, "awslogs-region")
 			}
-			logConfig.prefixes[containerDef.Name] = info.logPrefix
+			logConfig.logPrefixes[containerDef.Name] = info.logPrefix
 		}
 	}
 	return logConfig, nil
