@@ -36,39 +36,39 @@ func logFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
 			Name:  flags.TaskIDFlag,
-			Usage: "[Required] Specify the task id of the task from which to find logs.",
+			Usage: "Print the logs for this ECS Task.",
 		},
 		cli.StringFlag{
 			Name:  flags.TaskDefinitionFlag,
-			Usage: "Task definition of the task for which you want to view logs. Required with Task ID if the task has been stopped already. Format: family:revision, or the full ARN.",
+			Usage: "[Optional] Specifies the name or full Amazon Resource Name (ARN) of the ECS Task Definition associated with the Task ID. This is only needed if the Task is using an inactive Task Definition.",
 		},
 		cli.BoolFlag{
 			Name:  flags.FollowLogsFlag,
-			Usage: "Continuously poll for new logs.",
+			Usage: "[Optional] Specifies if the logs should be streamed.",
 		},
 		cli.StringFlag{
 			Name:  flags.FilterPatternFlag,
-			Usage: "Substring to search for within the logs.",
+			Usage: "[Optional] Substring to search for within the logs.",
 		},
 		cli.StringFlag{
 			Name:  flags.ContainerNameFlag,
-			Usage: "Filter logs for a given container definition. Required if all the Container Definitions in your Task Definition do not use the same log group.",
+			Usage: "[Optional] Prints the logs for the given container. Required if containers in the Task use different log groups",
 		},
 		cli.IntFlag{
 			Name:  flags.SinceFlag,
-			Usage: fmt.Sprintf("Filter logs in the last X minutes. Can not be used with %s", flags.StartTimeFlag),
+			Usage: fmt.Sprintf("[Optional] Returns logs newer than a relative duration in minutes. Can not be used with --%s", flags.StartTimeFlag),
 		},
 		cli.StringFlag{
 			Name:  flags.StartTimeFlag,
-			Usage: fmt.Sprintf("Return logs after this time. Can not be used with %s", flags.SinceFlag),
+			Usage: fmt.Sprintf("[Optional] Returns logs after a specific date (format: RFC 3339). Cannot be used with --%s flag", flags.SinceFlag),
 		},
 		cli.StringFlag{
 			Name:  flags.EndTimeFlag,
-			Usage: fmt.Sprintf("Return logs before this time. Can not be used with %s", flags.FollowLogsFlag),
+			Usage: fmt.Sprintf("[Optional] Returns logs before a specific date (format: RFC 3339). Cannot be used with --%s", flags.FollowLogsFlag),
 		},
 		cli.BoolFlag{
 			Name:  flags.TimeStampsFlag + ",t",
-			Usage: "View timestamps with the logs",
+			Usage: "[Optional] Shows timestamps on each line in the log output.",
 		},
 	}
 }
