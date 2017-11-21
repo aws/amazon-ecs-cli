@@ -65,8 +65,23 @@ func ClusterUp(c *cli.Context) {
 	ecsClient := ecsclient.NewECSClient()
 	cfnClient := cloudformation.NewCloudformationClient()
 	amiIds := ami.NewStaticAmiIds()
-	if err := createCluster(c, rdwr, ecsClient, cfnClient, amiIds); err != nil {
+
+	cliParams, err := newCliParams(c, rdwr)
+	if err != nil {
 		logrus.Fatal("Error executing 'up': ", err)
+	}
+
+	err = createCluster(c, rdwr, ecsClient, cfnClient, amiIds, cliParams)
+	if err != nil {
+		logrus.Fatal("Error executing 'up': ", err)
+	}
+
+	fmt.Println("Cluster creation succeeded.")
+
+	// Displays resources create by CloudFormation, as a convenience for tasks launched
+	// with Task Networking or in Fargate mode.
+	if err := cfnClient.DescribeNetworkResources(cliParams.CFNStackName); err != nil {
+		logrus.Error("Error describing Cloudformation resources: ", err)
 	}
 }
 
@@ -143,14 +158,10 @@ func validateCommaSeparatedParam(cfnParams *cloudformation.CfnStackParams, param
 	return false
 }
 
-func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient, amiIds ami.ECSAmiIds) error {
-	cliParams, err := newCliParams(context, rdwr)
-	if err != nil {
-		return err
-	}
+func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient, amiIds ami.ECSAmiIds, cliParams *config.CLIParams) error {
+	var err error
 
 	launchType := cliParams.LaunchType
-
 	if launchType == "" {
 		launchType = config.LaunchTypeDefault
 	}

@@ -97,6 +97,7 @@ type CloudformationClient interface {
 	UpdateStack(string, *CfnStackParams) (string, error)
 	WaitUntilUpdateComplete(string) error
 	ValidateStackExists(string) error
+	DescribeNetworkResources(string) error
 }
 
 // cloudformationClient implements CloudFormationClient.
@@ -219,6 +220,7 @@ func (c *cloudformationClient) waitUntilComplete(stackName string, hasFailed fai
 
 		if successState == status {
 			return nil
+
 		} else {
 			_, exists := failureStates[status]
 			if exists {
@@ -307,6 +309,45 @@ func (c *cloudformationClient) describeStack(stackName string) (string, error) {
 	}
 
 	return aws.StringValue(output.Stacks[0].StackStatus), nil
+}
+
+func (c *cloudformationClient) DescribeNetworkResources(stackName string) error {
+	// Describe VPC
+	input:= &cloudformation.DescribeStackResourcesInput{
+		StackName: aws.String(stackName),
+		LogicalResourceId: aws.String(VPCLogicalResourceId),
+	}
+
+	output, err := c.client.DescribeStackResources(input)
+
+	if err != nil {
+		return err
+	}
+
+	if len(output.StackResources) > 0 {
+		vpc := aws.StringValue(output.StackResources[0].PhysicalResourceId)
+		fmt.Printf("VPC created: %v\n", vpc)
+	}
+
+	// Describe Subnets
+	subnets := []string{Subnet1LogicalResourceId, Subnet2LogicalResourceId}
+	for _, id := range subnets {
+		input:= &cloudformation.DescribeStackResourcesInput{
+			StackName: aws.String(stackName),
+			LogicalResourceId: aws.String(id),
+		}
+
+		output, err := c.client.DescribeStackResources(input)
+
+		if err != nil {
+			return err
+		}
+		if len(output.StackResources) > 0 {
+			subnet := aws.StringValue(output.StackResources[0].PhysicalResourceId)
+			fmt.Printf("Subnets created: %v\n", subnet)
+		}
+	}
+	return nil
 }
 
 // failureInCreateEvent returns an error if the stack event indicates that stack creation event has failed.

@@ -22,6 +22,16 @@ func GetTemplate() string {
 // 2. Auto detect existing key pairs
 // 3. Create key pair when none exist
 // 4. Remove the hardcoded 2 subnets creation
+
+// These are used to display CFN resources in the CreateCluster callback.
+// TODO: Find better way to use constants in template string itself.
+const (
+	Subnet1LogicalResourceId =  "PubSubnetAz1"
+	Subnet2LogicalResourceId =  "PubSubnetAz2"
+	VPCLogicalResourceId =  "Vpc"
+
+)
+
 var template = `
 {
   "AWSTemplateFormatVersion": "2010-09-09",
