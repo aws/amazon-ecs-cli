@@ -52,7 +52,7 @@ const (
 	SinceFlag          = "since"
 	StartTimeFlag      = "start-time"
 	EndTimeFlag        = "end-time"
-	TimeStampsFlag     = "time-stamps"
+	TimeStampsFlag     = "timestamps"
 
 	ComposeProjectNamePrefixFlag         = "compose-project-name-prefix"
 	ComposeProjectNamePrefixDefaultValue = "ecscompose-"

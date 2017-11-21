@@ -132,7 +132,8 @@ func TestLogsRequestTwoContainers(t *testing.T) {
 	assert.Equal(t, logRegion1, logRegion)
 	assert.Equal(t, logGroup1, aws.StringValue(request.LogGroupName))
 	assert.Equal(t, 2, len(request.LogStreamNames))
-	//TODO add assert for log stream names (requires sorting slice)
+	assert.Contains(t, aws.StringValueSlice(request.LogStreamNames), "testpre1/wordpress/task1234")
+	assert.Contains(t, aws.StringValueSlice(request.LogStreamNames), "testpre2/wordpress/task1234")
 }
 
 func TestLogsRequestTwoContainersDifferentPrefix(t *testing.T) {
@@ -163,7 +164,8 @@ func TestLogsRequestTwoContainersDifferentPrefix(t *testing.T) {
 	assert.Equal(t, logRegion1, logRegion)
 	assert.Equal(t, logGroup1, aws.StringValue(request.LogGroupName))
 	assert.Equal(t, 2, len(request.LogStreamNames))
-	//TODO add assert for log stream names (requires sorting slice)
+	assert.Contains(t, aws.StringValueSlice(request.LogStreamNames), "testpre1/wordpress/task1234")
+	assert.Contains(t, aws.StringValueSlice(request.LogStreamNames), "testpre2/wordpress/task1234")
 }
 
 func TestLogsRequestWithTaskDefFlag(t *testing.T) {

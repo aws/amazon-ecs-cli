@@ -55,19 +55,19 @@ func Logs(c *cli.Context) {
 	if err != nil {
 		logrus.Fatal("Error executing 'logs': ", err)
 	}
-	ecsParams, err := config.NewCLIParams(c, rdwr)
+	cliParams, err := config.NewCLIParams(c, rdwr)
 	if err != nil {
 		logrus.Fatal("Error executing 'logs': ", err)
 	}
 
 	ecsClient := ecsclient.NewECSClient()
-	ecsClient.Initialize(ecsParams)
-	request, logRegion, err := logsRequest(c, ecsClient, ecsParams)
+	ecsClient.Initialize(cliParams)
+	request, logRegion, err := logsRequest(c, ecsClient, cliParams)
 	if err != nil {
 		logrus.Fatal("Error executing 'logs': ", err)
 	}
 
-	cwLogsClient := cwlogsclient.NewCloudWatchLogsClient(ecsParams, logRegion)
+	cwLogsClient := cwlogsclient.NewCloudWatchLogsClient(cliParams, logRegion)
 
 	printLogEvents(c, request, cwLogsClient)
 }
