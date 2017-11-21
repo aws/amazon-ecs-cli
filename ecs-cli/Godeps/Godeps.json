@@ -160,6 +160,26 @@
 			"Rev": "beafda230a3568820b4de838683c0efd3c1b9af2"
 		},
 		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/cloudwatch",
+			"Comment": "v1.10.51-1-g4c984c1f",
+			"Rev": "4c984c1f412ef5c5cdbb1a3f1c6ce5e3155ca9ab"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/cloudwatch/cloudwatchiface",
+			"Comment": "v1.10.51-1-g4c984c1f",
+			"Rev": "4c984c1f412ef5c5cdbb1a3f1c6ce5e3155ca9ab"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/cloudwatchlogs",
+			"Comment": "v1.10.51-1-g4c984c1f",
+			"Rev": "4c984c1f412ef5c5cdbb1a3f1c6ce5e3155ca9ab"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/cloudwatchlogs/cloudwatchlogsiface",
+			"Comment": "v1.10.51-1-g4c984c1f",
+			"Rev": "4c984c1f412ef5c5cdbb1a3f1c6ce5e3155ca9ab"
+		},
+		{
 			"ImportPath": "github.com/aws/aws-sdk-go/service/ec2",
 			"Comment": "v1.12.19-27-gbeafda2",
 			"Rev": "beafda230a3568820b4de838683c0efd3c1b9af2"
