@@ -201,7 +201,7 @@ func filterLogEventsInputFromContext(context *cli.Context) (*cloudwatchlogs.Filt
 	}
 
 	if input.EndTime != nil && input.StartTime != nil && aws.Int64Value(input.EndTime) < aws.Int64Value(input.StartTime) {
-		return nil, fmt.Errorf("Start time value provided with --%s/--%s must be before End time value provided with --%s", flags.StartTimeFlag, flags.SinceFlag, flags.EndTimeFlag)
+		return nil, fmt.Errorf("Start time value provided with --%s or --%s must be before End time value provided with --%s", flags.StartTimeFlag, flags.SinceFlag, flags.EndTimeFlag)
 	}
 
 	return input, nil
