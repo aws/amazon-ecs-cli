@@ -80,6 +80,7 @@ const (
 	CapabilityIAMFlag               = "capability-iam"
 	NoAutoAssignPublicIPAddressFlag = "no-associate-public-ip-address"
 	ForceFlag                       = "force"
+	EmptyFlag                       = "empty"
 
 	// Image
 	RegistryIdFlag = "registry-id"
@@ -189,5 +190,21 @@ func UsageErrorFactory(command string) func(*cli.Context, error, bool) error {
 		}
 		os.Exit(1)
 		return err
+	}
+}
+
+func CFNResourceFlags() []string {
+	return []string{
+		AsgMaxSizeFlag,
+		VpcAzFlag,
+		SecurityGroupFlag,
+		SourceCidrFlag,
+		EcsPortFlag,
+		SubnetIdsFlag,
+		VpcIdFlag,
+		InstanceTypeFlag,
+		InstanceRoleFlag,
+		ImageIdFlag,
+		KeypairNameFlag,
 	}
 }

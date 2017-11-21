@@ -70,6 +70,10 @@ func clusterUpFlags() []cli.Flag {
 			Name:  flags.CapabilityIAMFlag,
 			Usage: "Acknowledges that this command may create IAM resources. Required if --instance-role is not specified. NOTE: Not applicable for launch type FARGATE.",
 		},
+		cli.BoolFlag{
+			Name:  flags.EmptyFlag + ",e",
+			Usage: "[Optional] Specifies that an ECS cluster will be created with no resources.",
+		},
 		cli.StringFlag{
 			Name:  flags.InstanceRoleFlag,
 			Usage: "[Optional] Specifies a custom IAM Role for instances in your cluster. Required if --capability-iam is not specified. NOTE: Not applicable for launch type FARGATE.",
