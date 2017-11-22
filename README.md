@@ -1,28 +1,25 @@
 # Amazon ECS CLI
 
-The Amazon ECS Command Line Interface (CLI) is a command line interface for Amazon
-EC2 Container Service (Amazon ECS) that provides high-level commands to simplify
-creating, updating, and monitoring clusters and tasks from a local development
-environment. The Amazon ECS CLI supports
-[Docker Compose](https://docs.docker.com/compose/), a popular open-source tool
-for defining and running multi-container applications. Use the CLI as part
-of your everyday development and testing cycle as an alternative to the AWS
-Management Console.
+The Amazon ECS Command Line Interface (CLI) is a command line interface for Amazon Elastic Container
+Service (Amazon ECS) that provides high-level commands to simplify creating, updating, and
+monitoring clusters and tasks from a local development environment. The Amazon ECS CLI supports
+[Docker Compose](https://docs.docker.com/compose/), a popular open-source tool for defining and
+running multi-container applications. Use the CLI as part of your everyday development and testing
+cycle as an alternative to the AWS Management Console.
 
-For more information about Amazon ECS, see the
-[Amazon ECS Developer Guide](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html).
-For information about installing and using the Amazon ECS CLI, see the
-[ECS Command Line Interface](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI.html).
+For more information about Amazon ECS, see the [Amazon ECS Developer
+Guide](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html).  For information
+about installing and using the Amazon ECS CLI, see the [ECS Command Line
+Interface](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI.html).
 
-The AWS Command Line Interface (AWS CLI) is a unified client for AWS services
-that provides commands for all public API operations. These commands are lower
-level than those provided by the Amazon ECS CLI. For more information about supported
-services and to download the AWS CLI, see the
-[AWS Command Line Interface](http://aws.amazon.com/cli/) product detail page.
+The AWS Command Line Interface (AWS CLI) is a unified client for AWS services that provides commands
+for all public API operations. These commands are lower level than those provided by the Amazon ECS
+CLI. For more information about supported services and to download the AWS CLI, see the [AWS Command
+Line Interface](http://aws.amazon.com/cli/) product detail page.
 
 - [Installing](#Installing)
 	- [Latest version](#latest-version)
-		- [Download Links for within China](#download-links-for-within-china)
+        - [Download Links for within China](#download-links-for-within-china)
 	- [Download specific version](#)
 - [Configuring the CLI](#configuring-the-cli)
 - [Using the CLI](#using-the-cli)
@@ -80,29 +77,44 @@ Using the URLs above, replace `latest` with the desired tag, for example `v1.0.0
 
 ## Configuring the CLI
 
-The Amazon ECS CLI requires some basic configuration information before you can use it, such as your AWS credentials, the AWS region in which to create your cluster, and the name of the Amazon ECS cluster to use. Configuration information is stored in the `~/.ecs` directory on macOS and Linux systems and in `C:\Users\<username>\AppData\local\ecs` on Windows systems.
+The Amazon ECS CLI requires some basic configuration information before you can use it, such as your
+AWS credentials, the AWS region in which to create your cluster, and the name of the Amazon ECS
+cluster to use. Configuration information is stored in the `~/.ecs` directory on macOS and Linux
+systems and in `C:\Users\<username>\AppData\local\ecs` on Windows systems.
 
 ### ECS Profiles
 
-The Amazon ECS CLI supports configuring multiple sets of AWS credentials as named profiles using the `ecs-cli configure profile command`. These profiles can then be referenced when you run Amazon ECS CLI commands using the `--ecs-profile` flag; if a custom profile is not specified, the default profile will be used.
+The Amazon ECS CLI supports configuring multiple sets of AWS credentials as named profiles using the
+`ecs-cli configure profile command`. These profiles can then be referenced when you run Amazon ECS
+CLI commands using the `--ecs-profile` flag; if a custom profile is not specified, the default
+profile will be used.
 
-Set up a CLI profile with the following command, substituting `profile_name` with your desired profile name, and `$AWS_ACCESS_KEY_ID` and `$AWS_SECRET_ACCESS_KEY` environment variables with your AWS credentials.
+Set up a CLI profile with the following command, substituting `profile_name` with your desired
+profile name, and `$AWS_ACCESS_KEY_ID` and `$AWS_SECRET_ACCESS_KEY` environment variables with your
+AWS credentials.
 
 `ecs-cli configure profile --profile-name profile_name --access-key $AWS_ACCESS_KEY_ID --secret-key $AWS_SECRET_ACCESS_KEY`
 
 ### Cluster Configurations
 
-A cluster configuration is the set of fields that describes an Amazon ECS cluster, including the name of the cluster and the region. These configurations can then be referenced when you run Amazon ECS CLI commands using the `--cluster-config` flag; otherwise, the default configuration is used.
+A cluster configuration is the set of fields that describes an Amazon ECS cluster, including the
+name of the cluster and the region. These configurations can then be referenced when you run Amazon
+ECS CLI commands using the `--cluster-config` flag; otherwise, the default configuration is used.
 
-Create a cluster configuration with the following command, substituting `region_name` with your desired AWS region, `cluster_name` with the name of an existing Amazon ECS cluster or a new cluster to use, and `configuration_name` with the name you'd like to give this configuration.
+Create a cluster configuration with the following command, substituting `region_name` with your
+desired AWS region, `cluster_name` with the name of an existing Amazon ECS cluster or a new cluster
+to use, and `configuration_name` with the name you'd like to give this configuration.
 
 `ecs-cli configure --cluster cluster_name --region region_name --config-name configuration_name`
 
-### Defaults
+#### Defaults
 
-The first Cluster Configuration or ECS Profile that you configure will be set as the default. The default ECS Profile can be changed using the `ecs-cli configure profile default` command; the default cluster configuration can be changed using the `ecs-cli configure default` command. Note that unlike in the AWS CLI, the default ECS Profile does not need to be named "default".
+The first Cluster Configuration or ECS Profile that you configure will be set as the default. The
+default ECS Profile can be changed using the `ecs-cli configure profile default` command; the
+default cluster configuration can be changed using the `ecs-cli configure default` command. Note
+that unlike in the AWS CLI, the default ECS Profile does not need to be named "default".
 
-### Using Credentials from `~/.aws/credentials`, Assuming a Role, and Multi-Factor Authentication
+#### Using Credentials from `~/.aws/credentials`, Assuming a Role, and Multi-Factor Authentication
 
 The `--aws-profile` flag and `$AWS_PROFILE` environment variable allow you to reference any named profile in `~/.aws/credentials`.
 
@@ -110,7 +122,7 @@ Here is an example on how to assume a role: [amazon-ecs-cli/blob/master/ecs-cli/
 
 If you are trying to use Multi-Factor Authentication, please see this comment and the associated issue: [#284 (comment)](https://github.com/aws/amazon-ecs-cli/issues/284#issuecomment-336310034).
 
-### Order of Resolution for credentials
+#### Order of Resolution for credentials
 
 1) ECS CLI Profile Flags
   a) ECS Profile (--ecs-profile)
@@ -124,7 +136,7 @@ If you are trying to use Multi-Factor Authentication, please see this comment an
   a) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
 5) EC2 Instance role
 
-### Order of Resolution for Region
+#### Order of Resolution for Region
 
 1) ECS CLI Flags
   a) Region Flag --region
@@ -194,15 +206,14 @@ $ aws ecs list-container-instances --cluster your-cluster-name
 
 ```
 
-**Note:** The default security group created by `ecs-cli up` allows inbound
-traffic on port 80 by default. To allow inbound traffic from a different port,
-specify the port you wish to open with the `--port` option. To add more ports
-to the default security group, go to **EC2 Security Groups** in the AWS Management
-Console and search for the security group containing “ecs-cli”. Add a rule as
-described in the
-[Adding Rules to a Security Group](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html#adding-security-group-rule) topic.
-Alternatively, you may specify one or more existing security group IDs with the
-`--security-group` option.
+**Note:** The default security group created by `ecs-cli up` allows inbound traffic on port 80 by
+default. To allow inbound traffic from a different port, specify the port you wish to open with the
+`--port` option. To add more ports to the default security group, go to **EC2 Security Groups** in
+the AWS Management Console and search for the security group containing “ecs-cli”. Add a rule as
+described in the [Adding Rules to a Security Group](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html#adding-security-group-rule)
+topic.
+
+Alternatively, you may specify one or more existing security group IDs with the `--security-group` option.
 
 ### Starting/Running Tasks
 After the cluster is created, you can run tasks – groups of containers – on the
@@ -221,9 +232,9 @@ services:
      - "80:80"
 ```
 
-To run the configuration file on Amazon ECS, use `ecs-cli compose up`. This
-creates an ECS task definition and starts an ECS task. You can see the task
-that is running with `ecs-cli compose ps`, for example:
+To run the configuration file on Amazon ECS, use `ecs-cli compose up`. This creates an ECS task
+definition and starts an ECS task. You can see the task that is running with `ecs-cli compose ps`,
+for example:
 
 ```
 $ ecs-cli compose ps
@@ -231,14 +242,12 @@ Name                                      State    Ports                     Tas
 fd8d5a69-87c5-46a4-80b6-51918092e600/web  RUNNING  54.209.244.64:80->80/tcp  ecscompose-web:1
 ```
 
-Navigate your web browser to the task’s IP address to see the sample app
-running in the ECS cluster.
+Navigate your web browser to the task’s IP address to see the sample app running in the ECS cluster.
 
 ### Creating a Service
-You can also run tasks as services. The ECS service scheduler ensures that the
-specified number of tasks are constantly running and reschedules tasks when a
-task fails (for example, if the underlying container instance fails for some
-reason).
+You can also run tasks as services. The ECS service scheduler ensures that the specified number of
+tasks are constantly running and reschedules tasks when a task fails (for example, if the underlying
+container instance fails for some reason).
 
 ```
 $ ecs-cli compose --project-name wordpress-test service create
@@ -262,35 +271,56 @@ Name                                            State    Ports                  
 
 ### Using ECS parameters
 
-Since there are certain fields in an ECS task definition that do not correspond to fields in a Docker Composefile, you can specify those values using the `--ecs-params` flag. Currently, the file supports the follow schema:
+Since there are certain fields in an ECS task definition that do not correspond to fields in a
+Docker Composefile, you can specify those values using the `--ecs-params` flag. Currently, the file
+supports the follow schema:
 
 ```
 version: 1
 task_definition:
-  ecs_network_mode: string // supported string values: none, bridge, host, or awsvpc
+  ecs_network_mode: string               // Supported string values: none, bridge, host, or awsvpc
   task_role_arn: string
+  task_execution_role: string            // Needed to use Cloudwatch Logs or ECR with your ECS tasks
+  task_size:                             // Required for running tasks in Fargate mode
+    Cpu: string
+    Memory: string
   services:
     <service_name>:
       essential: boolean
+
 run_params:
   network_configuration:
     awsvpc_configuration:
-      subnets: array of strings
-      security_groups: array of strings`
+      subnets: array of strings          // These should be in the same VPC and Availability Zone as your instance
+      security_groups: array of strings  // These should be in the same VPC as your instance
+      assign_public_ip: string           // supported values: ENABLED or DISABLED
 ```
 
+**Version**
+Schema version being used for the ecs-params.yml file. Currently, we only support version 1.
+
+**Task Definition**
 Fields listed under `task_definition` correspond to fields that will be included in your ECS Task Definition.
 
-`ecs_network_mode` corresponds to NetworkMode on an ECS Task Definition (Not to be confused with the network_mode field in Docker Compose). Supported values are none, bridge, host, or awsvpc. If not specified, this will default to bridge mode.
+* `ecs_network_mode` corresponds to NetworkMode on an ECS Task Definition (Not to be confused with the network_mode field in Docker Compose). Supported values are none, bridge, host, or awsvpc. If not specified, this will default to bridge mode. If you wish to run tasks with Network Configuration, this field *must* be set to `awsvpc`.
 
-`task_role_arn` should be the ARN of an IAM role. **NOTE**: If this role does not have the proper permissions/trust relationships on it, the `up` command will fail.
+* `task_role_arn` should be the ARN of an IAM role. **NOTE**: If this role does not have the proper permissions/trust relationships on it, the `up` command will fail.
 
-`service_name` matches the name of the services listed in your docker compose file, and its fields will be merged into an [ECS Container Definition](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ecs-taskdefinition-containerdefinitions.html).
+* `services` correspond to the services listed in your docker compose file, with `service_name` matching the name of the container you wish to run. Its fields will be merged into an [ECS Container Definition](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ecs-taskdefinition-containerdefinitions.html).
 The only field you can specify on it is `essential`. The default value for the essential field is true.
 
-Fields listed under `run_params` are for values needed as options to API calls not related to a Task Definition, such as `compose up` (RunTask) and `compose service up` (CreateService).
+* `task_execution_role` should be the ARN of an IAM role. **NOTE**: This field is required to enable ECS Tasks to be configured with Cloudwatch Logs, or to pull images from ECR for your tasks.
 
-`network_configuration` is required if you specify `ecs_network_mode` as `awsvpc`.
+* `task_size` Contains two fields, CPU and Memory. These fields are required for launching tasks in Fargate mode. See [the documentation on ECS Task Definition Parameters](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html) for more information.
+
+**Run Params**
+Fields listed under `run_params` are for values needed as options to API calls not related to a Task Definition, such as `compose up` (RunTask) and `compose service up` (CreateService).
+Currently, the only parameter supported under `run_params` is `network_configuration`. This is required to run tasks with [Task Networking](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-networking.html), as well as in Fargate mode.
+
+* `network_configuration` is required if you specify `ecs_network_mode` as `awsvpc`. It takes one nested parameter, `awsvpc_configuration`, which has three subfields:
+  * `subnets`: list of subnet ids used to launch tasks. ***NOTE*** These should be in the same VPC and availability zone as the instances on which you wish to launch your tasks.
+  * `security_groups`: list of securtiy-group ids used to launch tasks. ***NOTE*** These should be in the same VPC as the instances on which you wish to launch your tasks.
+  * `assign_public_ip`: supported values for this field are either "ENABLED" or "DISABLED". This field is *only* used for tasks launched in Fargate mode. If this field is present in tasks with network configuration launched in EC2 mode, the request will fail.
 
 Example `ecs-params.yml` file:
 
@@ -304,13 +334,12 @@ task_definition:
       essential: false
 ```
 
-or:
+Example `ecs-params.yml` with network configuration in **EC2** mode:
 
 ```
 version: 1
 task_definition:
   ecs_network_mode: awsvpc
-  task_role_arn: myCustomRole
   services:
     my_service:
       essential: false
@@ -323,7 +352,32 @@ run_params:
         - subnet-deadbeef
       security_groups:
         - sg-bafff1ed
-        - sg-c0ffeefe`
+        - sg-c0ffeefe
+```
+Example `ecs-params.yml` with network configuration in **FARGATE** mode:
+
+```
+version: 1
+task_definition:
+  ecs_network_mode: awsvpc
+  task_execution_role: myFargateRole
+  task_size:
+    cpu: 512
+    memory: 2GB
+  services:
+    my_service:
+      essential: false
+
+run_params:
+  network_configuration:
+    awsvpc_configuration:
+      subnets:
+        - subnet-feedface
+        - subnet-deadbeef
+      security_groups:
+        - sg-bafff1ed
+        - sg-c0ffeefe
+      assign_public_ip: ENABLED
 ```
 
 You can then start a task by calling:
@@ -343,15 +397,13 @@ For a complete list of commands, see the
 [Amazon ECS CLI documentation](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI.html).
 
 ## Contributing to the CLI
-Contributions and feedback are welcome! Proposals and pull requests will be
-considered and responded to. For more information, see
-[CONTRIBUTING.md](https://github.com/aws/amazon-ecs-cli/blob/master/CONTRIBUTING.md)
-file.
+Contributions and feedback are welcome! Proposals and pull requests will be considered and responded to.
+For more information, see the [CONTRIBUTING.md](https://github.com/aws/amazon-ecs-cli/blob/master/CONTRIBUTING.md) file.
 
 Amazon Web Services does not currently provide support for modified copies of
 this software.
 
 ## License
 
-The Amazon ECS CLI is distributed under the
-[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). See [LICENSE](https://github.com/aws/amazon-ecs-cli/blob/master/LICENSE) and [NOTICE](https://github.com/aws/amazon-ecs-cli/blob/master/NOTICE) for more information.
+The Amazon ECS CLI is distributed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+See [LICENSE](https://github.com/aws/amazon-ecs-cli/blob/master/LICENSE) and [NOTICE](https://github.com/aws/amazon-ecs-cli/blob/master/NOTICE) for more information.
