@@ -97,7 +97,11 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 
 	if assert.NoError(t, err) {
-		containerDefs := ecsParams.TaskDefinition.ContainerDefinitions
+		taskDef := ecsParams.TaskDefinition
+		assert.Equal(t, "host", ecsParams.TaskDefinition.NetworkMode, "Expected NetworkMode to match")
+		assert.Equal(t, "arn:aws:iam::123456789012:role/my_role", taskDef.TaskRoleArn, "Expected TaskRoleArn to match")
+
+		containerDefs := taskDef.ContainerDefinitions
 		assert.Equal(t, 2, len(containerDefs), "Expected 2 containers")
 
 		mysql := containerDefs["mysql"]
@@ -230,6 +234,38 @@ task_definition:
 	}
 }
 
+// Task Size must match specific CPU/Memory buckets, but we leave validation to ECS.
+func TestReadECSParams_WithTaskSize(t *testing.T) {
+	ecsParamsString := `version: 1
+task_definition:
+  task_size:
+    mem_limit: 1024
+    cpu_limit: 256`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs fields tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	defer os.Remove(ecsParamsFileName)
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+
+	if assert.NoError(t, err) {
+		taskSize := ecsParams.TaskDefinition.TaskSize
+		assert.Equal(t, "256", taskSize.Cpu, "Expected CPU limit to match")
+		assert.Equal(t, "1024", taskSize.Memory, "Expected Memory limit to match")
+	}
+}
+
+
 /** ConvertToECSNetworkConfiguration tests **/
 
 func TestConvertToECSNetworkConfiguration(t *testing.T) {
@@ -321,37 +357,6 @@ func TestConvertToECSNetworkConfiguration_WhenNoECSParams(t *testing.T) {
 	}
 }
 
-// Task Size must match specific CPU/Memory buckets, but we leave validation to ECS.
-func TestReadECSParams_WithTaskSize(t *testing.T) {
-	ecsParamsString := `version: 1
-task_definition:
-  task_size:
-    mem_limit: 1024
-    cpu_limit: 256`
-
-	content := []byte(ecsParamsString)
-
-	tmpfile, err := ioutil.TempFile("", "ecs-params")
-	assert.NoError(t, err, "Could not create ecs fields tempfile")
-
-	ecsParamsFileName := tmpfile.Name()
-	defer os.Remove(ecsParamsFileName)
-
-	_, err = tmpfile.Write(content)
-	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
-
-	err = tmpfile.Close()
-	assert.NoError(t, err, "Could not close tempfile")
-
-	ecsParams, err := ReadECSParams(ecsParamsFileName)
-
-	if assert.NoError(t, err) {
-		taskSize := ecsParams.TaskDefinition.TaskSize
-		assert.Equal(t, "256", taskSize.Cpu, "Expected CPU limit to match")
-		assert.Equal(t, "1024", taskSize.Memory, "Expected Memory limit to match")
-	}
-}
-
 func TestConvertToECSNetworkConfiguration_WithAssignPublicIp(t *testing.T) {
 	taskDef := EcsTaskDef{NetworkMode: "awsvpc"}
 	subnets := []string{"subnet-feedface"}
@@ -377,5 +382,19 @@ func TestConvertToECSNetworkConfiguration_WithAssignPublicIp(t *testing.T) {
 		ecsAwsConfig := ecsNetworkConfig.AwsvpcConfiguration
 		assert.Equal(t, subnets[0], aws.StringValue(ecsAwsConfig.Subnets[0]), "Expected subnets to match")
 		assert.Equal(t, "ENABLED", aws.StringValue(ecsAwsConfig.AssignPublicIp), "Expected AssignPublicIp to match")
+	}
+}
+
+func TestConvertToECSNetworkConfiguration_NoNetworkConfig(t *testing.T) {
+	taskDef := EcsTaskDef{NetworkMode: "bridge"}
+
+	ecsParams := &ECSParams{
+		TaskDefinition: taskDef,
+	}
+
+	ecsNetworkConfig, err := ConvertToECSNetworkConfiguration(ecsParams)
+
+	if assert.NoError(t, err) {
+		assert.Nil(t, ecsNetworkConfig, "Expected AssignPublicIp to be nil")
 	}
 }

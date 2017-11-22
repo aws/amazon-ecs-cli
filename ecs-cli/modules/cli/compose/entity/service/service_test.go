@@ -56,6 +56,9 @@ func TestCreateWithDeploymentConfig(t *testing.T) {
 		func(launchType string) {
 			assert.Empty(t, launchType)
 		},
+		func(networkConfig *ecs.NetworkConfiguration) {
+			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
+		},
 	)
 }
 
@@ -79,7 +82,25 @@ func TestCreateWithoutDeploymentConfig(t *testing.T) {
 		func(launchType string) {
 			assert.Empty(t, launchType)
 		},
+		func(networkConfig *ecs.NetworkConfiguration) {
+			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
+		},
 	)
+}
+
+func ecsParamsWithNetworkConfig() *utils.ECSParams {
+	return &utils.ECSParams{
+		TaskDefinition: utils.EcsTaskDef{
+			NetworkMode: "awsvpc",
+		},
+		RunParams: utils.RunParams{
+			NetworkConfiguration: utils.NetworkConfiguration{
+				AwsVpcConfiguration: utils.AwsVpcConfiguration{
+					Subnets: []string{"sg-bafff1ed", "sg-c0ffeefe"},
+				},
+			},
+		},
+	}
 }
 
 func TestCreateWithNetworkConfig(t *testing.T) {
@@ -102,22 +123,12 @@ func TestCreateWithNetworkConfig(t *testing.T) {
 		func(launchType string) {
 			assert.NotEqual(t, "FARGATE", launchType)
 		},
+		func(networkConfig *ecs.NetworkConfiguration) {
+			assert.NotNil(t, networkConfig, "NetworkConfiguration should not be nil")
+			assert.Equal(t, 2, len(networkConfig.AwsvpcConfiguration.Subnets))
+			assert.Nil(t, networkConfig.AwsvpcConfiguration.AssignPublicIp)
+		},
 	)
-}
-
-func ecsParamsWithNetworkConfig() *utils.ECSParams {
-	return &utils.ECSParams{
-		TaskDefinition: utils.EcsTaskDef{
-			NetworkMode: "awsvpc",
-		},
-		RunParams: utils.RunParams{
-			NetworkConfiguration: utils.NetworkConfiguration{
-				AwsVpcConfiguration: utils.AwsVpcConfiguration{
-					Subnets: []string{"sg-bafff1ed", "sg-c0ffeefe"},
-				},
-			},
-		},
-	}
 }
 
 func ecsParamsWithFargateNetworkConfig() *utils.ECSParams {
@@ -161,28 +172,10 @@ func TestCreateFargate(t *testing.T) {
 		func(launchType string) {
 			assert.Equal(t, "FARGATE", launchType)
 		},
-	)
-}
-
-func TestCreateFargateWrongParams(t *testing.T) {
-	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	cliContext := cli.NewContext(nil, flagSet, nil)
-
-	createServiceTest(
-		t,
-		cliContext,
-		&config.CLIParams{LaunchType: "FARGATE"},
-		ecsParamsWithFargateNetworkConfig(),
-		func(deploymentConfig *ecs.DeploymentConfiguration) {
-			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
-			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
-		},
-		func(loadBalancer *ecs.LoadBalancer, role string) {
-			assert.Nil(t, loadBalancer, "LoadBalancer should be nil")
-			assert.Empty(t, role, "Role should be empty")
-		},
-		func(launchType string) {
-			assert.Equal(t, "FARGATE", launchType)
+		func(networkConfig *ecs.NetworkConfiguration) {
+			assert.NotNil(t, networkConfig, "NetworkConfiguration should not be nil")
+			assert.Equal(t, 2, len(networkConfig.AwsvpcConfiguration.Subnets))
+			assert.Equal(t, string(utils.Enabled), aws.StringValue(networkConfig.AwsvpcConfiguration.AssignPublicIp))
 		},
 	)
 }
@@ -250,6 +243,9 @@ func TestCreateEC2Explicitly(t *testing.T) {
 		func(launchType string) {
 			assert.Equal(t, "EC2", launchType)
 		},
+		func(networkConfig *ecs.NetworkConfiguration) {
+			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
+		},
 	)
 }
 
@@ -287,6 +283,9 @@ func TestCreateWithALB(t *testing.T) {
 		},
 		func(launchType string) {
 			assert.Empty(t, launchType)
+		},
+		func(networkConfig *ecs.NetworkConfiguration) {
+			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
 		},
 	)
 }
@@ -326,12 +325,16 @@ func TestCreateWithELB(t *testing.T) {
 		func(launchType string) {
 			assert.Empty(t, launchType)
 		},
+		func(networkConfig *ecs.NetworkConfiguration) {
+			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
+		},
 	)
 }
 
 type validateDeploymentConfiguration func(*ecs.DeploymentConfiguration)
 type validateLoadBalancer func(*ecs.LoadBalancer, string)
 type validateLaunchType func(string)
+type validateNetworkConfig func(*ecs.NetworkConfiguration)
 
 func createServiceTest(t *testing.T,
 	cliContext *cli.Context,
@@ -339,7 +342,8 @@ func createServiceTest(t *testing.T,
 	ecsParams *utils.ECSParams,
 	validateDeploymentConfig validateDeploymentConfiguration,
 	validateLB validateLoadBalancer,
-	validateLT validateLaunchType) {
+	validateLT validateLaunchType,
+	validateNC validateNetworkConfig) {
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -384,6 +388,9 @@ func createServiceTest(t *testing.T,
 
 			observedLaunchType := g.(string)
 			validateLT(observedLaunchType)
+
+			observedNetworkConfig := f.(*ecs.NetworkConfiguration)
+			validateNC(observedNetworkConfig)
 
 		}).Return(nil),
 	)

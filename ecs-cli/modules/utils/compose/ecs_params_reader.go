@@ -35,7 +35,7 @@ type EcsTaskDef struct {
 	NetworkMode          string        `yaml:"ecs_network_mode"`
 	TaskRoleArn          string        `yaml:"task_role_arn"`
 	ContainerDefinitions ContainerDefs `yaml:"services"`
-	ExecutionRole        string        `yaml:"task_execution_role"` // Needed to run FARGATE tasks
+	ExecutionRole        string        `yaml:"task_execution_role"`
 	TaskSize             TaskSize      `yaml:"task_size"`           // Needed to run FARGATE tasks
 }
 
@@ -62,7 +62,7 @@ type NetworkConfiguration struct {
 type AwsVpcConfiguration struct {
 	Subnets        []string       `yaml:"subnets"`
 	SecurityGroups []string       `yaml:"security_groups"`
-	AssignPublicIp AssignPublicIp `yaml:"assign_public_ip"`
+	AssignPublicIp AssignPublicIp `yaml:"assign_public_ip"` // Needed to run FARGATE tasks
 }
 
 type AssignPublicIp string
@@ -105,17 +105,23 @@ func ConvertToECSNetworkConfiguration(ecsParams *ECSParams) (*ecs.NetworkConfigu
 	if ecsParams == nil {
 		return nil, nil
 	}
-	networkConfig := ecsParams.RunParams.NetworkConfiguration
-	awsvpcConfig := networkConfig.AwsVpcConfiguration
-
-	subnets := awsvpcConfig.Subnets
-	securityGroups := awsvpcConfig.SecurityGroups
-	assignPublicIp := string(awsvpcConfig.AssignPublicIp)
 
 	networkMode := ecsParams.TaskDefinition.NetworkMode
-	if networkMode == "awsvpc" && len(subnets) < 1 {
+
+	if networkMode != "awsvpc" {
+		return nil, nil
+	}
+
+	awsvpcConfig := ecsParams.RunParams.NetworkConfiguration.AwsVpcConfiguration
+
+	subnets := awsvpcConfig.Subnets
+
+	if len(subnets) < 1 {
 		return nil, errors.New("at least one subnet is required in the network configuration")
 	}
+
+	securityGroups := awsvpcConfig.SecurityGroups
+	assignPublicIp := string(awsvpcConfig.AssignPublicIp)
 
 	ecsSubnets := make([]*string, len(subnets))
 	for i, subnet := range subnets {

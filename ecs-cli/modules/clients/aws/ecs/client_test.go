@@ -468,6 +468,7 @@ func TestRunTaskWithLaunchTypeEC2(t *testing.T) {
 		assert.Equal(t, group, aws.StringValue(req.Group), "Expected group to match")
 		assert.Equal(t, int64(count), aws.Int64Value(req.Count), "Expected count to match")
 		assert.Equal(t, "EC2", aws.StringValue(req.LaunchType))
+		assert.Nil(t, req.NetworkConfiguration, "Expected Network Config to be nil.")
 	}).Return(&ecs.RunTaskOutput{}, nil)
 
 	_, err := client.RunTask(td, group, count, nil, "EC2")
@@ -500,6 +501,7 @@ func TestRunTaskWithLaunchTypeFargate(t *testing.T) {
 		assert.Equal(t, group, aws.StringValue(req.Group), "Expected group to match")
 		assert.Equal(t, int64(count), aws.Int64Value(req.Count), "Expected count to match")
 		assert.Equal(t, "FARGATE", aws.StringValue(req.LaunchType))
+		assert.NotNil(t, req.NetworkConfiguration, "Expected Network Config to not be nil.")
 	}).Return(&ecs.RunTaskOutput{}, nil)
 
 	_, err := client.RunTask(td, group, count, networkConfig, "FARGATE")
