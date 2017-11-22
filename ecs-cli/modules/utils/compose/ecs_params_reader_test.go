@@ -258,6 +258,7 @@ func TestConvertToECSNetworkConfiguration(t *testing.T) {
 		ecsAwsConfig := ecsNetworkConfig.AwsvpcConfiguration
 		assert.Equal(t, subnets[0], aws.StringValue(ecsAwsConfig.Subnets[0]), "Expected subnets to match")
 		assert.Equal(t, securityGroups[0], aws.StringValue(ecsAwsConfig.SecurityGroups[0]), "Expected securityGroups to match")
+		assert.Nil(t, ecsAwsConfig.AssignPublicIp, "Expected AssignPublicIp to be nil")
 	}
 }
 
@@ -284,6 +285,7 @@ func TestConvertToECSNetworkConfiguration_NoSecurityGroups(t *testing.T) {
 	if assert.NoError(t, err) {
 		ecsAwsConfig := ecsNetworkConfig.AwsvpcConfiguration
 		assert.Equal(t, subnets[0], aws.StringValue(ecsAwsConfig.Subnets[0]), "Expected subnets to match")
+		assert.Nil(t, ecsAwsConfig.AssignPublicIp, "Expected AssignPublicIp to be nil")
 	}
 }
 

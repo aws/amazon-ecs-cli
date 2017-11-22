@@ -130,7 +130,11 @@ func ConvertToECSNetworkConfiguration(ecsParams *ECSParams) (*ecs.NetworkConfigu
 	ecsAwsVpcConfig := &ecs.AwsVpcConfiguration{
 		Subnets:        ecsSubnets,
 		SecurityGroups: ecsSecurityGroups,
-		AssignPublicIp: aws.String(assignPublicIp),
+	}
+
+	// For tasks launched with network config in EC2 mode, assign_pubic_ip field is not accepted
+	if assignPublicIp != "" {
+		ecsAwsVpcConfig.AssignPublicIp = aws.String(assignPublicIp)
 	}
 
 	ecsNetworkConfig := &ecs.NetworkConfiguration{
