@@ -33,6 +33,7 @@ import (
 type validateListTasksInput func(*ecs.ListTasksInput, string, *testing.T)
 type setupEntityForTestInfo func(*context.Context) ProjectEntity
 
+// TestInfo tests ps commands
 func TestInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasksInput, t *testing.T, filterLocal bool) {
 	projectName := "project"
 	containerInstance := "containerInstance"

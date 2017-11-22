@@ -105,7 +105,7 @@ func TestPortString(t *testing.T) {
 	expectedBinding2 := ":80->8000/tcp"
 
 	container := setupContainer()
-	container.ecsContainer.NetworkBindings = []*ecs.NetworkBinding{binding1, binding2}
+	container.networkBindings = []*ecs.NetworkBinding{binding1, binding2}
 
 	portString := container.PortString()
 	if !strings.Contains(portString, expectedBinding1) {
@@ -117,8 +117,8 @@ func TestPortString(t *testing.T) {
 
 	// container without ec2IPAddress
 	container = setupContainer()
-	container.Ec2IPAddress = ""
-	container.ecsContainer.NetworkBindings = []*ecs.NetworkBinding{binding1}
+	container.EC2IPAddress = ""
+	container.networkBindings = []*ecs.NetworkBinding{binding1}
 	expectedBinding1WithoutEC2IpAddr := ipAddr + ":80->8000/udp"
 	portString = container.PortString()
 	if !strings.Contains(portString, expectedBinding1WithoutEC2IpAddr) {
@@ -134,5 +134,5 @@ func setupContainer() Container {
 	ecsTask := &ecs.Task{
 		TaskArn: aws.String(taskArn),
 	}
-	return NewContainer(ecsTask, ec2IPAddress, ecsContainer)
+	return NewContainer(ecsTask, ec2IPAddress, ecsContainer, nil)
 }
