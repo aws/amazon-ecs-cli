@@ -52,3 +52,14 @@ func (_m *MockEC2Client) DescribeInstances(_param0 []*string) (map[string]*ec2.I
 func (_mr *_MockEC2ClientRecorder) DescribeInstances(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeInstances", arg0)
 }
+
+func (_m *MockEC2Client) DescribeNetworkInterfaces(_param0 []*string) ([]*ec2.NetworkInterface, error) {
+	ret := _m.ctrl.Call(_m, "DescribeNetworkInterfaces", _param0)
+	ret0, _ := ret[0].([]*ec2.NetworkInterface)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2ClientRecorder) DescribeNetworkInterfaces(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeNetworkInterfaces", arg0)
+}
