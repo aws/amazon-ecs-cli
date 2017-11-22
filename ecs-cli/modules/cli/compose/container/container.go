@@ -34,17 +34,19 @@ var ContainerInfoColumns = []string{containerNameKey, containerStateKey, contain
 
 // Container is a wrapper around ecsContainer
 type Container struct {
-	task         *ecs.Task
-	Ec2IPAddress string
-	ecsContainer *ecs.Container
+	task            *ecs.Task
+	EC2IPAddress    string
+	networkBindings []*ecs.NetworkBinding
+	ecsContainer    *ecs.Container
 }
 
 // NewContainer creates a new instance of the container and sets the task id and ecs container to it
-func NewContainer(task *ecs.Task, ec2IPAddress string, container *ecs.Container) Container {
+func NewContainer(task *ecs.Task, ec2IPAddress string, container *ecs.Container, networkBindings []*ecs.NetworkBinding) Container {
 	return Container{
-		task:         task,
-		Ec2IPAddress: ec2IPAddress,
-		ecsContainer: container,
+		task:            task,
+		EC2IPAddress:    ec2IPAddress,
+		networkBindings: networkBindings,
+		ecsContainer:    container,
 	}
 }
 
@@ -88,14 +90,14 @@ func (c *Container) State() string {
 // in a comma seperated fashion
 func (c *Container) PortString() string {
 	result := []string{}
-	for _, port := range c.ecsContainer.NetworkBindings {
+	for _, port := range c.networkBindings {
 		protocol := ecs.TransportProtocolTcp
 		if port.Protocol != nil {
 			protocol = aws.StringValue(port.Protocol)
 		}
 		ipAddr := aws.StringValue(port.BindIP)
-		if c.Ec2IPAddress != "" {
-			ipAddr = c.Ec2IPAddress
+		if c.EC2IPAddress != "" {
+			ipAddr = c.EC2IPAddress
 		}
 		result = append(result, fmt.Sprintf("%s:%d->%d/%s",
 			ipAddr,

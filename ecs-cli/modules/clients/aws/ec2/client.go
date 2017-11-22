@@ -26,6 +26,7 @@ import (
 // EC2Client defines methods to interact with the EC2 API interface.
 type EC2Client interface {
 	DescribeInstances(ec2InstanceIds []*string) (map[string]*ec2.Instance, error)
+	DescribeNetworkInterfaces(networkInterfaceIDs []*string) ([]*ec2.NetworkInterface, error)
 }
 
 // ec2Client implements EC2Client
@@ -71,4 +72,15 @@ func (c *ec2Client) DescribeInstances(ec2InstanceIds []*string) (map[string]*ec2
 		}
 	}
 	return ec2Instances, nil
+}
+
+func (c *ec2Client) DescribeNetworkInterfaces(networkInterfaceIDs []*string) ([]*ec2.NetworkInterface, error) {
+	request := &ec2.DescribeNetworkInterfacesInput{
+		NetworkInterfaceIds: networkInterfaceIDs,
+	}
+	response, err := c.client.DescribeNetworkInterfaces(request)
+	if err != nil {
+		return nil, err
+	}
+	return response.NetworkInterfaces, nil
 }

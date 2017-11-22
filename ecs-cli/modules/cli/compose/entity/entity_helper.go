@@ -27,6 +27,36 @@ import (
 	"github.com/docker/libcompose/project"
 )
 
+const eniIDKey = "networkInterfaceId"
+
+// TaskDefinitionStore is an in memory cache of Task definitions
+// This is provided to reduce the number of calls to describe-task-definition
+type TaskDefinitionStore struct {
+	inMemoryTaskDefStore map[string]*ecs.TaskDefinition
+}
+
+// NewTaskDefinitionStore creates a new in memory task definition cache
+func NewTaskDefinitionStore() *TaskDefinitionStore {
+	return &TaskDefinitionStore{
+		inMemoryTaskDefStore: make(map[string]*ecs.TaskDefinition),
+	}
+}
+
+func (tdStore *TaskDefinitionStore) getTaskDefintion(entity ProjectEntity, taskDefArn string) (*ecs.TaskDefinition, error) {
+	// TODO: optimize even further by asynchronously storing to disk so that its available in the next ecs-cli invocation
+	td, ok := tdStore.inMemoryTaskDefStore[taskDefArn]
+	if !ok {
+		var err error
+		td, err = entity.Context().ECSClient.DescribeTaskDefinition(taskDefArn)
+		if err != nil {
+			return nil, err
+		}
+		tdStore.inMemoryTaskDefStore[taskDefArn] = td
+	}
+
+	return td, nil
+}
+
 // SetupTaskDefinitionCache finds a file system cache to store the ecs task definitions
 func SetupTaskDefinitionCache() cache.Cache {
 	tdCache, err := cache.NewFSCache(utils.ProjectTDCache)
@@ -118,7 +148,11 @@ func collectContainers(entity ProjectEntity, filterLocal bool) ([]composecontain
 	if err != nil {
 		return nil, err
 	}
-	return getContainersForTasks(entity, ecsTasks)
+	info, ecsTasks, err := getContainersForTasksWithTaskNetworking(entity, ecsTasks)
+	if err != nil {
+		return nil, err
+	}
+	return getContainersForTasks(entity, ecsTasks, info)
 }
 
 // collectTasks gets all the desiredStatus=RUNNING and STOPPED tasks
@@ -181,12 +215,113 @@ func constructListPagesRequest(entity ProjectEntity, status string, filterLocal 
 	return request
 }
 
-// getContainersForTasks returns the list of containers from the list of tasks.
-// It also fetches the ec2 public ip addresses of instances where the containers are running
-func getContainersForTasks(entity ProjectEntity, ecsTasks []*ecs.Task) ([]composecontainer.Container, error) {
-	result := []composecontainer.Container{}
+func convertToNetworkBindings(containerDef *ecs.ContainerDefinition) (bindings []*ecs.NetworkBinding) {
+	for _, portMapping := range containerDef.PortMappings {
+		bindings = append(bindings, &ecs.NetworkBinding{
+			ContainerPort: portMapping.ContainerPort,
+			HostPort:      portMapping.HostPort,
+			Protocol:      portMapping.Protocol,
+		})
+	}
+
+	return bindings
+}
+
+func getContainerDef(taskDef *ecs.TaskDefinition, name string) (*ecs.ContainerDefinition, error) {
+	for _, containerDef := range taskDef.ContainerDefinitions {
+		if aws.StringValue(containerDef.Name) == name {
+			return containerDef, nil
+		}
+	}
+	return nil, fmt.Errorf("Unexpected Error: Could not find container %s in task definition", name)
+}
+
+func getPublicIPsFromENIs(entity ProjectEntity, ecsTasks []*ecs.Task) (map[string]string, error) {
+	taskPublicIPs := make(map[string]string)
+	var eniIDs []*string
+	taskENIs := make(map[string]string)
+	for _, ecsTask := range ecsTasks {
+		if aws.StringValue(ecsTask.LaunchType) == config.LaunchTypeFargate && aws.StringValue(ecsTask.LastStatus) == ecs.DesiredStatusRunning {
+			for _, attachment := range ecsTask.Attachments {
+				for _, detail := range attachment.Details {
+					if aws.StringValue(detail.Name) == eniIDKey {
+						eniIDs = append(eniIDs, detail.Value)
+						taskENIs[aws.StringValue(detail.Value)] = aws.StringValue(ecsTask.TaskArn)
+					}
+				}
+			}
+		}
+	}
+
+	if len(eniIDs) == 0 {
+		return taskPublicIPs, nil
+	}
+
+	netInterfaces, err := entity.Context().EC2Client.DescribeNetworkInterfaces(eniIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, eni := range netInterfaces {
+		if eni.Association != nil {
+			taskArn := taskENIs[aws.StringValue(eni.NetworkInterfaceId)]
+			taskPublicIPs[taskArn] = aws.StringValue(eni.Association.PublicIp)
+		}
+	}
+
+	return taskPublicIPs, nil
+}
+
+func getContainersForTasksWithTaskNetworking(entity ProjectEntity, ecsTasks []*ecs.Task) ([]composecontainer.Container, []*ecs.Task, error) {
+	var tasksWithInstanceIPs []*ecs.Task
+	info := []composecontainer.Container{}
+	tdStore := NewTaskDefinitionStore()
+
 	if len(ecsTasks) == 0 {
-		return result, nil
+		return info, ecsTasks, nil
+	}
+
+	// For Fargate tasks
+	taskENIPublicIPs, err := getPublicIPsFromENIs(entity, ecsTasks)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	for _, ecsTask := range ecsTasks {
+		var hasTaskNetworking bool
+		for _, container := range ecsTask.Containers {
+			if len(container.NetworkInterfaces) > 0 {
+				taskDef, err := tdStore.getTaskDefintion(entity, aws.StringValue(ecsTask.TaskDefinitionArn))
+				if err != nil {
+					return nil, nil, err
+				}
+				containerDef, err := getContainerDef(taskDef, aws.StringValue(container.Name))
+				if err != nil {
+					return nil, nil, err
+				}
+				bindings := convertToNetworkBindings(containerDef)
+				ipAddress := aws.StringValue(container.NetworkInterfaces[0].PrivateIpv4Address)
+				if aws.StringValue(ecsTask.LaunchType) == config.LaunchTypeFargate {
+					if ip := taskENIPublicIPs[aws.StringValue(ecsTask.TaskArn)]; ip != "" {
+						ipAddress = ip
+					}
+				}
+				info = append(info, composecontainer.NewContainer(ecsTask, ipAddress, container, bindings))
+				hasTaskNetworking = true
+			}
+		}
+		if !hasTaskNetworking {
+			tasksWithInstanceIPs = append(tasksWithInstanceIPs, ecsTask)
+		}
+	}
+	return info, tasksWithInstanceIPs, nil
+}
+
+// getContainersForTasks returns the list of containers from the list of tasks.
+// It also fetches the ip addresses of instances where the containers are running
+func getContainersForTasks(entity ProjectEntity, ecsTasks []*ecs.Task, info []composecontainer.Container) ([]composecontainer.Container, error) {
+	if len(ecsTasks) == 0 {
+		return info, nil
 	}
 
 	// TODO, We are getting the container instances and then ec2 instances to fetch the IP Address of EC2 instance
@@ -219,10 +354,10 @@ func getContainersForTasks(entity ProjectEntity, ecsTasks []*ecs.Task) ([]compos
 			}
 		}
 		for _, container := range ecsTask.Containers {
-			result = append(result, composecontainer.NewContainer(ecsTask, ec2IPAddress, container))
+			info = append(info, composecontainer.NewContainer(ecsTask, ec2IPAddress, container, container.NetworkBindings))
 		}
 	}
-	return result, nil
+	return info, nil
 }
 
 // listEC2Ids converts a map of ContainerInstance:EC2Instance Ids to a
