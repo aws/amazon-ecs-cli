@@ -70,8 +70,7 @@ func (rdwr *mockReadWriter) SetDefaultCluster(configName string) error {
 
 func newMockReadWriter() *mockReadWriter {
 	return &mockReadWriter{
-		clusterName:       clusterName,
-		defaultLaunchType: config.LaunchTypeEC2,
+		clusterName: clusterName,
 	}
 }
 
@@ -519,7 +518,6 @@ func TestClusterUpWithFargateLaunchTypeFlag(t *testing.T) {
 	globalContext := cli.NewContext(nil, globalSet, nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
 	flagSet.String(flags.LaunchTypeFlag, config.LaunchTypeFargate, "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
@@ -560,6 +558,107 @@ func TestClusterUpWithFargateDefaultLaunchTypeConfig(t *testing.T) {
 	context := cli.NewContext(nil, flagSet, globalContext)
 	err := createCluster(context, rdwr, mockECS, mockCloudformation, ami.NewStaticAmiIds())
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
+}
+
+func TestClusterUpWithFargateLaunchTypeFlagOverride(t *testing.T) {
+	rdwr := &mockReadWriter{
+		clusterName:       clusterName,
+		defaultLaunchType: config.LaunchTypeEC2,
+	}
+
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
+
+	gomock.InOrder(
+		mockECS.EXPECT().Initialize(gomock.Any()),
+		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
+	)
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Do(func(x, y, z interface{}) {
+			cfnParams := z.(*cloudformation.CfnStackParams)
+			isFargate, err := cfnParams.GetParameter(cloudformation.ParameterKeyIsFargate)
+			assert.NoError(t, err, "Unexpected error getting cfn parameter")
+			assert.Equal(t, "true", aws.StringValue(isFargate.ParameterValue), "Should have EC2 launch type.")
+		}).Return("", nil),
+		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
+	)
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.LaunchTypeFlag, config.LaunchTypeFargate, "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := createCluster(context, rdwr, mockECS, mockCloudformation, ami.NewStaticAmiIds())
+	assert.NoError(t, err, "Unexpected error bringing up cluster")
+}
+
+func TestClusterUpWithEC2LaunchTypeFlagOverride(t *testing.T) {
+	rdwr := &mockReadWriter{
+		clusterName:       clusterName,
+		defaultLaunchType: config.LaunchTypeFargate,
+	}
+
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
+
+	gomock.InOrder(
+		mockECS.EXPECT().Initialize(gomock.Any()),
+		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
+	)
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
+		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
+	)
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.LaunchTypeFlag, config.LaunchTypeEC2, "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := createCluster(context, rdwr, mockECS, mockCloudformation, ami.NewStaticAmiIds())
+
+	// This is kind of hack - this error will only get checked if launch type is EC2
+	assert.Error(t, err, "Expected error for bringing up cluster with empty default launch type.")
+}
+
+func TestClusterUpWithBlankDefaultLaunchTypeConfig(t *testing.T) {
+	rdwr := &mockReadWriter{
+		clusterName:       clusterName,
+		defaultLaunchType: "",
+	}
+
+	defer os.Clearenv()
+	mockECS, mockCloudformation := setupTest(t)
+
+	gomock.InOrder(
+		mockECS.EXPECT().Initialize(gomock.Any()),
+		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
+	)
+	gomock.InOrder(
+		mockCloudformation.EXPECT().Initialize(gomock.Any()),
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
+		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
+	)
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	// Expect blank default launch type in config to be interpreted as 'EC2' for cluster up,
+	// which means the Capability IAM Flag is required
+	flagSet.Bool(flags.CapabilityIAMFlag, false, "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	err := createCluster(context, rdwr, mockECS, mockCloudformation, ami.NewStaticAmiIds())
+
+	// This is kind of hack - this error will only get checked if launch type is EC2
+	assert.Error(t, err, "Expected error for bringing up cluster with empty default launch type.")
 }
 
 func TestClusterDown(t *testing.T) {

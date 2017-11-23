@@ -27,6 +27,7 @@ const (
 	// Launch types are case sensitive
 	LaunchTypeFargate = "FARGATE"
 	LaunchTypeEC2     = "EC2"
+	LaunchTypeDefault = "EC2"
 )
 
 // CLIParams saves config to create an aws service clients

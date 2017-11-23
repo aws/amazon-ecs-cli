@@ -151,6 +151,10 @@ func createCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 
 	launchType := cliParams.LaunchType
 
+	if launchType == "" {
+		launchType = config.LaunchTypeDefault
+	}
+
 	// InstanceRole not needed when creating empty cluster for Fargate tasks
 	if launchType == config.LaunchTypeEC2 {
 		if err := validateInstanceRole(context); err != nil {
