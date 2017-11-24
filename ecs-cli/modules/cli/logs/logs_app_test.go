@@ -136,6 +136,36 @@ func TestLogsRequestTwoContainers(t *testing.T) {
 	assert.Contains(t, aws.StringValueSlice(request.LogStreamNames), "testpre2/wordpress/task1234")
 }
 
+func TestLogsRequestNoLogConfiguration(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockECS := mock_ecs.NewMockECSClient(ctrl)
+
+	ecsTask := &ecs.Task{}
+	ecsTask.SetTaskDefinitionArn(taskDefArn)
+	ecsTasks := []*ecs.Task{ecsTask}
+
+	containers := []*ecs.ContainerDefinition{
+		&ecs.ContainerDefinition{
+			Name:  aws.String(containerName),
+			Image: aws.String(containerImage),
+		},
+	}
+	taskDef := dummyTaskDef(containers)
+
+	gomock.InOrder(
+		mockECS.EXPECT().DescribeTasks(gomock.Any()).Return(ecsTasks, nil),
+		mockECS.EXPECT().DescribeTaskDefinition(taskDefArn).Return(taskDef, nil),
+	)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.TaskIDFlag, taskID, "")
+	context := cli.NewContext(nil, flagSet, nil)
+
+	_, _, err := logsRequest(context, mockECS, &config.CLIParams{})
+	assert.Error(t, err, "Unexpected error getting logs")
+}
+
 func TestLogsRequestTwoContainersDifferentPrefix(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
