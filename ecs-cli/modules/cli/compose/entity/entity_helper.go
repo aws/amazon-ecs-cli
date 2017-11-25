@@ -27,7 +27,11 @@ import (
 	"github.com/docker/libcompose/project"
 )
 
-const eniIDKey = "networkInterfaceId"
+const (
+	eniIDKey          = "networkInterfaceId"
+	ENIStatusAttached = "ATTACHED"
+	ENIAttachmentType = "ElasticNetworkInterface"
+)
 
 // TaskDefinitionStore is an in memory cache of Task definitions
 // This is provided to reduce the number of calls to describe-task-definition
@@ -236,6 +240,20 @@ func getContainerDef(taskDef *ecs.TaskDefinition, name string) (*ecs.ContainerDe
 	return nil, fmt.Errorf("Unexpected Error: Could not find container %s in task definition", name)
 }
 
+// processAttachment takes the attachment and associates the ID of an attached ENI with the TaskArn
+// Mutates: eniIDs, taskENIs
+func processAttachment(taskENIs map[string]string, eniIDs *[]*string, ecsTask *ecs.Task, attachment *ecs.Attachment) {
+	if aws.StringValue(attachment.Status) == ENIStatusAttached && aws.StringValue(attachment.Type) == ENIAttachmentType {
+		for _, detail := range attachment.Details {
+			if aws.StringValue(detail.Name) == eniIDKey {
+				eniID := detail.Value
+				*eniIDs = append(*eniIDs, eniID)
+				taskENIs[aws.StringValue(eniID)] = aws.StringValue(ecsTask.TaskArn)
+			}
+		}
+	}
+}
+
 func getPublicIPsFromENIs(entity ProjectEntity, ecsTasks []*ecs.Task) (map[string]string, error) {
 	taskPublicIPs := make(map[string]string)
 	var eniIDs []*string
@@ -243,12 +261,7 @@ func getPublicIPsFromENIs(entity ProjectEntity, ecsTasks []*ecs.Task) (map[strin
 	for _, ecsTask := range ecsTasks {
 		if aws.StringValue(ecsTask.LaunchType) == config.LaunchTypeFargate && aws.StringValue(ecsTask.LastStatus) == ecs.DesiredStatusRunning {
 			for _, attachment := range ecsTask.Attachments {
-				for _, detail := range attachment.Details {
-					if aws.StringValue(detail.Name) == eniIDKey {
-						eniIDs = append(eniIDs, detail.Value)
-						taskENIs[aws.StringValue(detail.Value)] = aws.StringValue(ecsTask.TaskArn)
-					}
-				}
+				processAttachment(taskENIs, &eniIDs, ecsTask, attachment)
 			}
 		}
 	}
@@ -259,7 +272,8 @@ func getPublicIPsFromENIs(entity ProjectEntity, ecsTasks []*ecs.Task) (map[strin
 
 	netInterfaces, err := entity.Context().EC2Client.DescribeNetworkInterfaces(eniIDs)
 	if err != nil {
-		return nil, err
+		log.Warnf("Failed to describe Elastic Network Interfaces; falling back to private IP obtained from DescribeTask. Reason: %s", err)
+		return taskPublicIPs, nil
 	}
 
 	for _, eni := range netInterfaces {

@@ -15,6 +15,7 @@ package entity
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
@@ -29,7 +30,7 @@ import (
 )
 
 const (
-	eniID            = "eni-123456"
+	eniIdentifier    = "eni-123456"
 	taskArn          = "arn:123346:task/mytask"
 	taskDefArn       = "arn:123456:taskdefinition/mytaskdef"
 	privateIPAddress = "10.0.0.1"
@@ -67,17 +68,23 @@ func TestGetContainersForTasks(t *testing.T) {
 }
 
 func ecsTask(launchType string) *ecs.Task {
+	return ecsTaskWithOptions(launchType, ENIStatusAttached, ecs.DesiredStatusRunning)
+}
+
+func ecsTaskWithOptions(launchType string, attachmentStatus string, taskStatus string) *ecs.Task {
 	return &ecs.Task{
 		TaskDefinitionArn: aws.String(taskDefArn),
 		TaskArn:           aws.String(taskArn),
 		LaunchType:        aws.String(launchType),
-		LastStatus:        aws.String(ecs.DesiredStatusRunning),
+		LastStatus:        aws.String(taskStatus),
 		Attachments: []*ecs.Attachment{
 			&ecs.Attachment{
+				Status: aws.String(attachmentStatus),
+				Type:   aws.String(ENIAttachmentType),
 				Details: []*ecs.KeyValuePair{
 					&ecs.KeyValuePair{
 						Name:  aws.String(eniIDKey),
-						Value: aws.String(eniID),
+						Value: aws.String(eniIdentifier),
 					},
 				},
 			},
@@ -138,6 +145,93 @@ func TestGetContainersForTasksWithTaskNetworkingNoNetworkInterfaces(t *testing.T
 	assert.Len(t, tasks, 1, "Expected to have 1 tasks without task networking")
 }
 
+func TestGetContainersForTasksWithTaskNetworkingFargateENIDeleted(t *testing.T) {
+	ecsTasks := []*ecs.Task{
+		ecsTaskWithOptions("FARGATE", "DELETED", ecs.DesiredStatusRunning),
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	mockEc2 := mock_ec2.NewMockEC2Client(ctrl)
+	mockProjectEntity := mock_entity.NewMockProjectEntity(ctrl)
+	mockContext := &context.Context{
+		ECSClient: mockEcs,
+		EC2Client: mockEc2,
+	}
+	taskDef := taskDefinition()
+
+	gomock.InOrder(
+		mockProjectEntity.EXPECT().Context().Return(mockContext),
+		mockEcs.EXPECT().DescribeTaskDefinition(taskDefArn).Return(taskDef, nil),
+	)
+
+	containers, tasks, err := getContainersForTasksWithTaskNetworking(mockProjectEntity, ecsTasks)
+	assert.NoError(t, err, "Unexpected error when calling getContainersForTasksWithTaskNetworking")
+	assert.Len(t, containers, 1, "Expected to have 1 container")
+	assert.Len(t, tasks, 0, "Expected to have 0 tasks without task networking")
+	assert.Equal(t, privateIPAddress, containers[0].EC2IPAddress)
+	assert.Equal(t, privateIPAddress+":80->80/tcp", containers[0].PortString())
+}
+
+func TestGetContainersForTasksWithTaskNetworkingFargateTaskStopped(t *testing.T) {
+	ecsTasks := []*ecs.Task{
+		ecsTaskWithOptions("FARGATE", "DELETED", ecs.DesiredStatusStopped),
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	mockEc2 := mock_ec2.NewMockEC2Client(ctrl)
+	mockProjectEntity := mock_entity.NewMockProjectEntity(ctrl)
+	mockContext := &context.Context{
+		ECSClient: mockEcs,
+		EC2Client: mockEc2,
+	}
+	taskDef := taskDefinition()
+
+	gomock.InOrder(
+		mockProjectEntity.EXPECT().Context().Return(mockContext),
+		mockEcs.EXPECT().DescribeTaskDefinition(taskDefArn).Return(taskDef, nil),
+	)
+
+	containers, tasks, err := getContainersForTasksWithTaskNetworking(mockProjectEntity, ecsTasks)
+	assert.NoError(t, err, "Unexpected error when calling getContainersForTasksWithTaskNetworking")
+	assert.Len(t, containers, 1, "Expected to have 1 container")
+	assert.Len(t, tasks, 0, "Expected to have 0 tasks without task networking")
+	assert.Equal(t, privateIPAddress, containers[0].EC2IPAddress)
+	assert.Equal(t, privateIPAddress+":80->80/tcp", containers[0].PortString())
+}
+
+func TestGetContainersForTasksWithTaskNetworkingEC2TaskStopped(t *testing.T) {
+	ecsTasks := []*ecs.Task{
+		ecsTaskWithOptions("EC2", "DELETED", ecs.DesiredStatusStopped),
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	mockEc2 := mock_ec2.NewMockEC2Client(ctrl)
+	mockProjectEntity := mock_entity.NewMockProjectEntity(ctrl)
+	mockContext := &context.Context{
+		ECSClient: mockEcs,
+		EC2Client: mockEc2,
+	}
+	taskDef := taskDefinition()
+
+	gomock.InOrder(
+		mockProjectEntity.EXPECT().Context().Return(mockContext),
+		mockEcs.EXPECT().DescribeTaskDefinition(taskDefArn).Return(taskDef, nil),
+	)
+
+	containers, tasks, err := getContainersForTasksWithTaskNetworking(mockProjectEntity, ecsTasks)
+	assert.NoError(t, err, "Unexpected error when calling getContainersForTasksWithTaskNetworking")
+	assert.Len(t, containers, 1, "Expected to have 1 container")
+	assert.Len(t, tasks, 0, "Expected to have 0 tasks without task networking")
+	assert.Equal(t, privateIPAddress, containers[0].EC2IPAddress)
+	assert.Equal(t, privateIPAddress+":80->80/tcp", containers[0].PortString())
+}
+
 func TestGetContainersForTasksWithTaskNetworkingEC2(t *testing.T) {
 	ecsTasks := []*ecs.Task{
 		ecsTask("EC2"),
@@ -176,7 +270,7 @@ func TestGetContainersForTasksWithTaskNetworkingFargate(t *testing.T) {
 	taskDef := taskDefinition()
 
 	eni := &ec2.NetworkInterface{
-		NetworkInterfaceId: aws.String(eniID),
+		NetworkInterfaceId: aws.String(eniIdentifier),
 		Association: &ec2.NetworkInterfaceAssociation{
 			PublicIp: aws.String(publicIPAddress),
 		},
@@ -196,7 +290,7 @@ func TestGetContainersForTasksWithTaskNetworkingFargate(t *testing.T) {
 		mockProjectEntity.EXPECT().Context().Return(mockContext),
 		mockEc2.EXPECT().DescribeNetworkInterfaces(gomock.Any()).Do(func(x interface{}) {
 			eniIDs := x.([]*string)
-			assert.Equal(t, eniID, aws.StringValue(eniIDs[0]))
+			assert.Equal(t, eniIdentifier, aws.StringValue(eniIDs[0]))
 		}).Return([]*ec2.NetworkInterface{eni}, nil),
 		mockProjectEntity.EXPECT().Context().Return(mockContext),
 		mockEcs.EXPECT().DescribeTaskDefinition(taskDefArn).Return(taskDef, nil),
@@ -210,6 +304,41 @@ func TestGetContainersForTasksWithTaskNetworkingFargate(t *testing.T) {
 	assert.Equal(t, publicIPAddress+":80->80/tcp", containers[0].PortString())
 }
 
+func TestGetContainersForTasksWithTaskNetworkingFargateENIDescribeFails(t *testing.T) {
+	ecsTasks := []*ecs.Task{
+		ecsTask("FARGATE"),
+	}
+
+	taskDef := taskDefinition()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	mockEc2 := mock_ec2.NewMockEC2Client(ctrl)
+	mockProjectEntity := mock_entity.NewMockProjectEntity(ctrl)
+	mockContext := &context.Context{
+		ECSClient: mockEcs,
+		EC2Client: mockEc2,
+	}
+
+	gomock.InOrder(
+		mockProjectEntity.EXPECT().Context().Return(mockContext),
+		mockEc2.EXPECT().DescribeNetworkInterfaces(gomock.Any()).Do(func(x interface{}) {
+			eniIDs := x.([]*string)
+			assert.Equal(t, eniIdentifier, aws.StringValue(eniIDs[0]))
+		}).Return(nil, fmt.Errorf("Some API Error")),
+		mockProjectEntity.EXPECT().Context().Return(mockContext),
+		mockEcs.EXPECT().DescribeTaskDefinition(taskDefArn).Return(taskDef, nil),
+	)
+
+	containers, tasks, err := getContainersForTasksWithTaskNetworking(mockProjectEntity, ecsTasks)
+	assert.NoError(t, err, "Unexpected error when calling getContainersForTasksWithTaskNetworking")
+	assert.Len(t, containers, 1, "Expected to have 1 container")
+	assert.Len(t, tasks, 0, "Expected to have 0 tasks without task networking")
+	assert.Equal(t, privateIPAddress, containers[0].EC2IPAddress)
+	assert.Equal(t, privateIPAddress+":80->80/tcp", containers[0].PortString())
+}
+
 func TestGetContainersForTasksWithTaskNetworkingFargateENIWithoutPublicIP(t *testing.T) {
 	ecsTasks := []*ecs.Task{
 		ecsTask("FARGATE"),
@@ -218,7 +347,7 @@ func TestGetContainersForTasksWithTaskNetworkingFargateENIWithoutPublicIP(t *tes
 	taskDef := taskDefinition()
 
 	eni := &ec2.NetworkInterface{
-		NetworkInterfaceId: aws.String(eniID),
+		NetworkInterfaceId: aws.String(eniIdentifier),
 	}
 
 	ctrl := gomock.NewController(t)
@@ -235,7 +364,7 @@ func TestGetContainersForTasksWithTaskNetworkingFargateENIWithoutPublicIP(t *tes
 		mockProjectEntity.EXPECT().Context().Return(mockContext),
 		mockEc2.EXPECT().DescribeNetworkInterfaces(gomock.Any()).Do(func(x interface{}) {
 			eniIDs := x.([]*string)
-			assert.Equal(t, eniID, aws.StringValue(eniIDs[0]))
+			assert.Equal(t, eniIdentifier, aws.StringValue(eniIDs[0]))
 		}).Return([]*ec2.NetworkInterface{eni}, nil),
 		mockProjectEntity.EXPECT().Context().Return(mockContext),
 		mockEcs.EXPECT().DescribeTaskDefinition(taskDefArn).Return(taskDef, nil),
