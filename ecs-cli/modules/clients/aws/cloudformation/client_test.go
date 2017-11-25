@@ -44,6 +44,18 @@ func createDescribeStacksOutput(status string) *cloudformation.DescribeStacksOut
 	}
 }
 
+func describeStackResourceOutput(logicalId string, physicalId string) *cloudformation.DescribeStackResourcesOutput{
+	output := &cloudformation.DescribeStackResourcesOutput{}
+	output.StackResources= []*cloudformation.StackResource{
+		&cloudformation.StackResource{
+			LogicalResourceId: aws.String(logicalId),
+			PhysicalResourceId: aws.String(physicalId),
+		},
+	}
+
+	return output
+}
+
 func TestWaitUntilCreateCompletes(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockCfn := mock_cloudformationiface.NewMockCloudFormationAPI(ctrl)
@@ -321,5 +333,23 @@ func TestValidateStackExists(t *testing.T) {
 	err = cfnClient.ValidateStackExists("")
 	if err != nil {
 		t.Error("Unexpected error validating if stack exists", err)
+	}
+}
+
+func TestDescribeNetworkResources(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	mockCfn := mock_cloudformationiface.NewMockCloudFormationAPI(ctrl)
+	cfnClient := NewCloudformationClient()
+	cfnClient.(*cloudformationClient).client = mockCfn
+	defer ctrl.Finish()
+
+	mockCfn.EXPECT().DescribeStackResources(gomock.Any()).Return(describeStackResourceOutput(VPCLogicalResourceId, "vpc-feedface"), nil)
+	mockCfn.EXPECT().DescribeStackResources(gomock.Any()).Return(describeStackResourceOutput(SecurityGroupLogicalResourceId, "sg-c0ffeefe"), nil)
+	mockCfn.EXPECT().DescribeStackResources(gomock.Any()).Return(describeStackResourceOutput(Subnet1LogicalResourceId, "subnet-baff1ed"), nil)
+	mockCfn.EXPECT().DescribeStackResources(gomock.Any()).Return(describeStackResourceOutput(Subnet2LogicalResourceId, "subnet-baff2ed"), nil)
+
+	err := cfnClient.DescribeNetworkResources("myStack")
+	if err != nil {
+		t.Error("Unexpected error describing network resources", err)
 	}
 }

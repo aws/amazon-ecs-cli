@@ -26,10 +26,10 @@ func GetTemplate() string {
 // These are used to display CFN resources in the CreateCluster callback.
 // TODO: Find better way to use constants in template string itself.
 const (
-	Subnet1LogicalResourceId =  "PubSubnetAz1"
-	Subnet2LogicalResourceId =  "PubSubnetAz2"
-	VPCLogicalResourceId =  "Vpc"
-
+	Subnet1LogicalResourceId       = "PubSubnetAz1"
+	Subnet2LogicalResourceId       = "PubSubnetAz2"
+	VPCLogicalResourceId           = "Vpc"
+	SecurityGroupLogicalResourceId = "EcsSecurityGroup"
 )
 
 var template = `

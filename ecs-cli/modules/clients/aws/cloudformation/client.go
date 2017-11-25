@@ -311,42 +311,56 @@ func (c *cloudformationClient) describeStack(stackName string) (string, error) {
 	return aws.StringValue(output.Stacks[0].StackStatus), nil
 }
 
-func (c *cloudformationClient) DescribeNetworkResources(stackName string) error {
-	// Describe VPC
-	input:= &cloudformation.DescribeStackResourcesInput{
-		StackName: aws.String(stackName),
-		LogicalResourceId: aws.String(VPCLogicalResourceId),
+func (c *cloudformationClient) describeStackResource(stackName string, logicalResourceId string) (*cloudformation.StackResource, error) {
+	input := &cloudformation.DescribeStackResourcesInput{
+		StackName:         aws.String(stackName),
+		LogicalResourceId: aws.String(logicalResourceId),
 	}
 
 	output, err := c.client.DescribeStackResources(input)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if len(output.StackResources) > 0 {
-		vpc := aws.StringValue(output.StackResources[0].PhysicalResourceId)
-		fmt.Printf("VPC created: %v\n", vpc)
+		resource := output.StackResources[0]
+		return resource, nil
 	}
 
-	// Describe Subnets
+	return nil, nil
+}
+
+func displayResourceId(resource *cloudformation.StackResource, name string) {
+	id := aws.StringValue(resource.PhysicalResourceId)
+	fmt.Printf("%v created: %v\n", name, id)
+}
+
+func (c *cloudformationClient) DescribeNetworkResources(stackName string) error {
+	// Describe EC2::VPC
+	resource, err := c.describeStackResource(stackName, VPCLogicalResourceId)
+	if err != nil {
+		return err
+	}
+	displayResourceId(resource, "VPC")
+
+	// Describe EC2::SecurityGroup
+	resource, err = c.describeStackResource(stackName, SecurityGroupLogicalResourceId)
+	if err != nil {
+		return err
+	}
+	displayResourceId(resource, "Security Group")
+
+	// Describe EC2::Subnets
 	subnets := []string{Subnet1LogicalResourceId, Subnet2LogicalResourceId}
 	for _, id := range subnets {
-		input:= &cloudformation.DescribeStackResourcesInput{
-			StackName: aws.String(stackName),
-			LogicalResourceId: aws.String(id),
-		}
-
-		output, err := c.client.DescribeStackResources(input)
-
+		resource, err = c.describeStackResource(stackName, id)
 		if err != nil {
 			return err
 		}
-		if len(output.StackResources) > 0 {
-			subnet := aws.StringValue(output.StackResources[0].PhysicalResourceId)
-			fmt.Printf("Subnets created: %v\n", subnet)
-		}
+		displayResourceId(resource, "Subnet")
 	}
+
 	return nil
 }
 
