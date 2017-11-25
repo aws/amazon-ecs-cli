@@ -282,8 +282,8 @@ task_definition:
   task_role_arn: string
   task_execution_role: string            // Needed to use Cloudwatch Logs or ECR with your ECS tasks
   task_size:                             // Required for running tasks in Fargate mode
-    Cpu: string
-    Memory: string
+    cpu_limit: string
+    mem_limit: string
   services:
     <service_name>:
       essential: boolean
@@ -362,8 +362,8 @@ task_definition:
   ecs_network_mode: awsvpc
   task_execution_role: myFargateRole
   task_size:
-    cpu: 512
-    memory: 2GB
+    cpu_limit: 512
+    mem_limit: 2GB
   services:
     my_service:
       essential: false
