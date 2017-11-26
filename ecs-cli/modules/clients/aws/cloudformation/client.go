@@ -332,8 +332,10 @@ func (c *cloudformationClient) describeStackResource(stackName string, logicalRe
 }
 
 func displayResourceId(resource *cloudformation.StackResource, name string) {
-	id := aws.StringValue(resource.PhysicalResourceId)
-	fmt.Printf("%v created: %v\n", name, id)
+	if resource != nil {
+		id := aws.StringValue(resource.PhysicalResourceId)
+		fmt.Printf("%v created: %v\n", name, id)
+	}
 }
 
 func (c *cloudformationClient) DescribeNetworkResources(stackName string) error {
