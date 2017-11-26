@@ -139,9 +139,11 @@ func printLogEvents(context *cli.Context, input *cloudwatchlogs.FilterLogEventsI
 		}
 	})
 
-	for context.Bool(flags.FollowLogsFlag) && lastEvent != nil {
+	for context.Bool(flags.FollowLogsFlag) {
 		time.Sleep(followLogsWaitTime * time.Second)
-		input.SetStartTime(aws.Int64Value(lastEvent.Timestamp) + 1)
+		if lastEvent != nil {
+			input.SetStartTime(aws.Int64Value(lastEvent.Timestamp) + 1)
+		}
 		printLogEvents(context, input, cwLogsClient)
 	}
 }
