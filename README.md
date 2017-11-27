@@ -281,7 +281,7 @@ task_definition:
   ecs_network_mode: string               // Supported string values: none, bridge, host, or awsvpc
   task_role_arn: string
   task_execution_role: string            // Needed to use Cloudwatch Logs or ECR with your ECS tasks
-  task_size:                             // Required for running tasks in Fargate mode
+  task_size:                             // Required for running tasks with Fargate launch type
     cpu_limit: string
     mem_limit: string
   services:
@@ -311,16 +311,16 @@ The only field you can specify on it is `essential`. The default value for the e
 
 * `task_execution_role` should be the ARN of an IAM role. **NOTE**: This field is required to enable ECS Tasks to be configured with Cloudwatch Logs, or to pull images from ECR for your tasks.
 
-* `task_size` Contains two fields, CPU and Memory. These fields are required for launching tasks in Fargate mode. See [the documentation on ECS Task Definition Parameters](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html) for more information.
+* `task_size` Contains two fields, CPU and Memory. These fields are required for launching tasks with Fargate launch type. See [the documentation on ECS Task Definition Parameters](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html) for more information.
 
 **Run Params**
 Fields listed under `run_params` are for values needed as options to API calls not related to a Task Definition, such as `compose up` (RunTask) and `compose service up` (CreateService).
-Currently, the only parameter supported under `run_params` is `network_configuration`. This is required to run tasks with [Task Networking](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-networking.html), as well as in Fargate mode.
+Currently, the only parameter supported under `run_params` is `network_configuration`. This is required to run tasks with [Task Networking](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-networking.html), as well as with Fargate launch type.
 
 * `network_configuration` is required if you specify `ecs_network_mode` as `awsvpc`. It takes one nested parameter, `awsvpc_configuration`, which has three subfields:
   * `subnets`: list of subnet ids used to launch tasks. ***NOTE*** These should be in the same VPC and availability zone as the instances on which you wish to launch your tasks.
   * `security_groups`: list of securtiy-group ids used to launch tasks. ***NOTE*** These should be in the same VPC as the instances on which you wish to launch your tasks.
-  * `assign_public_ip`: supported values for this field are either "ENABLED" or "DISABLED". This field is *only* used for tasks launched in Fargate mode. If this field is present in tasks with network configuration launched in EC2 mode, the request will fail.
+  * `assign_public_ip`: supported values for this field are either "ENABLED" or "DISABLED". This field is *only* used for tasks launched with Fargate launch type. If this field is present in tasks with network configuration launched with EC2 launch type, the request will fail.
 
 Example `ecs-params.yml` file:
 
@@ -334,7 +334,7 @@ task_definition:
       essential: false
 ```
 
-Example `ecs-params.yml` with network configuration in **EC2** mode:
+Example `ecs-params.yml` with network configuration with **EC2** launch type:
 
 ```
 version: 1
@@ -354,7 +354,7 @@ run_params:
         - sg-bafff1ed
         - sg-c0ffeefe
 ```
-Example `ecs-params.yml` with network configuration in **FARGATE** mode:
+Example `ecs-params.yml` with network configuration with **FARGATE** launch type:
 
 ```
 version: 1
