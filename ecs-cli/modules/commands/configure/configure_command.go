@@ -185,7 +185,7 @@ func configureFlags() []cli.Flag {
 		cli.StringFlag{
 			Name: flags.DefaultLaunchTypeFlag,
 			Usage: fmt.Sprintf(
-				"[Optional] Specifies the type of tasks that you would like to run. Options: EC2 or Fargate.",
+				"[Optional] Specifies the type of tasks that you would like to run. Options: EC2 or FARGATE. Defaults to empty string if none provided.",
 			),
 		},
 	}

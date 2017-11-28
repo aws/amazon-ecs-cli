@@ -161,7 +161,7 @@ func OptionalLaunchTypeFlag() cli.Flag {
 	return cli.StringFlag{
 		Name: LaunchTypeFlag,
 		Usage: fmt.Sprintf(
-			"[Optional] Specifies the launch type. Options: EC2 or Fargate. Overrides the default launch type stored in your cluster configuraion. Defaults to EC2 if a cluster configuration is not used.",
+			"[Optional] Specifies the launch type. Options: EC2 or FARGATE. Overrides the default launch type stored in your cluster configuration. Defaults to EC2 if a cluster configuration is not used.",
 		),
 	}
 }
