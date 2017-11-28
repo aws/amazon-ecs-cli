@@ -27,6 +27,8 @@ Line Interface](http://aws.amazon.com/cli/) product detail page.
 	- [Starting/Running Tasks](#startingrunning-tasks)
 	- [Creating a Service](#creating-a-service)
 	- [Using ECS parameters](#using-ecs-parameters)
+	- [Viewing Running Tasks](#viewing-running-tasks)
+	- [Viewing Container Logs](#viewing-container-logs)
 - [Amazon ECS CLI Commands](#amazon-ecs-cli-commands)
 - [Contributing to the CLI](#contributing-to-the-cli)
 - [License](#license)
@@ -389,6 +391,60 @@ If you have a file name `ecs-params.yml` in your current directory, `ecs-cli com
 
 ```
 ecs-cli compose up
+```
+
+### Viewing Running Tasks
+
+The PS commands allow you to see running and recently stopped tasks. To see the Tasks running in your cluster:
+
+```
+$ ecs-cli ps
+Name                                            State    Ports                     TaskDefinition
+37e873f6-37b4-42a7-af47-eac7275c6152/web        RUNNING  10.0.1.27:8080->8080/tcp  TaskNetworking:2
+37e873f6-37b4-42a7-af47-eac7275c6152/lb         RUNNING  10.0.1.27:80->80/tcp      TaskNetworking:2
+37e873f6-37b4-42a7-af47-eac7275c6152/redis      RUNNING                            TaskNetworking:2
+40bedf31-d707-446e-affc-766eac4cfb85/mysql      RUNNING                            fargate:1
+40bedf31-d707-446e-affc-766eac4cfb85/wordpress  RUNNING  54.16.93.6:80->80/tcp     fargate:1
+```
+
+The IP address displayed by the ECS CLI depends on how your cluster is configured and which launch-type is used. If you are running tasks with launch type EC2 without task networking, then the IP address shown will be the public IP of the EC2 instance running your task. If no public IP was assigned, the instance's private IP will be displayed.
+
+For tasks that use Task Networking with EC2 launch type, the ECS CLI will only show the private IP address of the ENI attached to the task.
+
+For Fargate tasks, the ECS CLI will return the public IP assigned to the ENI attached to the Fargate task. The ENI for your Fargate task will be assigned a public IP if `assign_public_ip: ENABLED` is present in your ECS Params file. If the ENI lacks a public IP, then its private IP is shown.
+
+### Viewing Container Logs
+
+View the CloudWatch Logs for a given task and container:
+
+`ecs-cli logs --task-id 4c2df707-a160-475e-9c16-15dfb9df01cc --container-name mysql`
+
+For Fargate tasks, it is recommended that you send your container logs to CloudWatch. *Note: For Fargate tasks you must specify a Task Execution IAM Role in your ECS Params file in order to use CloudWatch Logs.* You can specify the `awslogs` driver and logging options in your compose file like this:
+
+```
+services:
+  <My Service>:
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: <Log Group Name>
+        awslogs-region: <Log Region>
+        awslogs-stream-prefix: <Prefix Name>
+```
+
+The log stream prefix is technically optional; however, it is highly recommended that you specify it. If you do specify it, then you can use the `ecs-cli logs` command. The Logs command allows you to retrieve the Logs for a task. There are many options for the logs command:
+
+```
+OPTIONS:
+--task-id value            Print the logs for this ECS Task.
+--task-def value           [Optional] Specifies the name or full Amazon Resource Name (ARN) of the ECS Task Definition associated with the Task ID. This is only needed if the Task is using an inactive Task Definition.
+--follow                   [Optional] Specifies if the logs should be streamed.
+--filter-pattern value     [Optional] Substring to search for within the logs.
+--container-name value     [Optional] Prints the logs for the given container. Required if containers in the Task use different log groups
+--since value              [Optional] Returns logs newer than a relative duration in minutes. Can not be used with --start-time (default: 0)
+--start-time value         [Optional] Returns logs after a specific date (format: RFC 3339. Example: 2006-01-02T15:04:05+07:00). Cannot be used with --since flag
+--end-time value           [Optional] Returns logs before a specific date (format: RFC 3339. Example: 2006-01-02T15:04:05+07:00). Cannot be used with --follow
+--timestamps, -t           [Optional] Shows timestamps on each line in the log output.
 ```
 
 ## Amazon ECS CLI Commands
