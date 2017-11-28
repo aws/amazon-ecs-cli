@@ -68,15 +68,31 @@ func clusterUpFlags() []cli.Flag {
 		},
 		cli.BoolFlag{
 			Name:  flags.CapabilityIAMFlag,
-			Usage: "Acknowledges that this command may create IAM resources. Required if --instance-role is not specified.",
+			Usage: "Acknowledges that this command may create IAM resources. Required if --instance-role is not specified. NOTE: Not applicable for launch type FARGATE.",
+		},
+		cli.StringFlag{
+			Name:  flags.InstanceRoleFlag,
+			Usage: "[Optional] Specifies a custom IAM Role for instances in your cluster. Required if --capability-iam is not specified. NOTE: Not applicable for launch type FARGATE.",
 		},
 		cli.StringFlag{
 			Name:  flags.KeypairNameFlag,
-			Usage: "[Optional] Specifies the name of an existing Amazon EC2 key pair to enable SSH access to the EC2 instances in your cluster.",
+			Usage: "[Optional] Specifies the name of an existing Amazon EC2 key pair to enable SSH access to the EC2 instances in your cluster. Recommended for EC2 launch type. NOTE: Not applicable for launch type FARGATE.",
+		},
+		cli.StringFlag{
+			Name:  flags.InstanceTypeFlag,
+			Usage: "[Optional] Specifies the EC2 instance type for your container instances. Defaults to t2.micro. NOTE: Not applicable for launch type FARGATE.",
+		},
+		cli.StringFlag{
+			Name:  flags.ImageIdFlag,
+			Usage: "[Optional] Specify the AMI ID for your container instances. Defaults to amazon-ecs-optimized AMI. NOTE: Not applicable for launch type FARGATE.",
+		},
+		cli.BoolFlag{
+			Name:  flags.NoAutoAssignPublicIPAddressFlag,
+			Usage: "[Optional] Do not assign public IP addresses to new instances in this VPC. Unless this option is specified, new instances in this VPC receive an automatically assigned public IP address. NOTE: Not applicable for launch type FARGATE.",
 		},
 		cli.StringFlag{
 			Name:  flags.AsgMaxSizeFlag,
-			Usage: "[Optional] Specifies the number of instances to launch and register to the cluster. Defaults to 1.",
+			Usage: "[Optional] Specifies the number of instances to launch and register to the cluster. Defaults to 1. NOTE: Not applicable for launch type FARGATE.",
 		},
 		cli.StringFlag{
 			Name:  flags.VpcAzFlag,
@@ -102,25 +118,9 @@ func clusterUpFlags() []cli.Flag {
 			Name:  flags.VpcIdFlag,
 			Usage: "[Optional] Specifies the ID of an existing VPC in which to launch your container instances. If you specify a VPC ID, you must specify a list of existing subnets in that VPC with the --subnets option. If you do not specify a VPC ID, a new VPC is created with two subnets.",
 		},
-		cli.StringFlag{
-			Name:  flags.InstanceTypeFlag,
-			Usage: "[Optional] Specifies the EC2 instance type for your container instances. Defaults to t2.micro.",
-		},
-		cli.StringFlag{
-			Name:  flags.ImageIdFlag,
-			Usage: "[Optional] Specify the AMI ID for your container instances. Defaults to amazon-ecs-optimized AMI.",
-		},
-		cli.BoolFlag{
-			Name:  flags.NoAutoAssignPublicIPAddressFlag,
-			Usage: "[Optional] Do not assign public IP addresses to new instances in this VPC. Unless this option is specified, new instances in this VPC receive an automatically assigned public IP address.",
-		},
 		cli.BoolFlag{
 			Name:  flags.ForceFlag + ", f",
 			Usage: "[Optional] Forces the recreation of any existing resources that match your current configuration. This option is useful for cleaning up stale resources from previous failed attempts.",
-		},
-		cli.StringFlag{
-			Name:  flags.InstanceRoleFlag,
-			Usage: "[Optional] Specifies a custom IAM Role for instances in your cluster. Required if --capability-iam is not specified.",
 		},
 		flags.OptionalLaunchTypeFlag(),
 	}
