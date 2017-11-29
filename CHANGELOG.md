@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0
+* Feature - Add support for Task Networking
+* Feature - Add support for AWS Fargate
+* Feature - Add support for viewing Cloudwatch logs of an ECS task
+* Enhancement - Added Amazon Open Source Code of Conduct
+* Bug - Fix credential resolution using aws-profile #369
+
 ## 1.0.0
 * Feature - Add support for configuring multiple named ECS Profiles and Cluster Configurations #364
 * Feature - Update the Order of Resolution for Credentials and Region #351
