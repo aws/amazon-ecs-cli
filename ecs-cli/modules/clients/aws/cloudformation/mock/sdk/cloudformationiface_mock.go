@@ -1573,6 +1573,44 @@ func (_mr *_MockCloudFormationAPIRecorder) UpdateStack(arg0 interface{}) *gomock
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateStack", arg0)
 }
 
+func (_m *MockCloudFormationAPI) UpdateStackInstances(_param0 *cloudformation.UpdateStackInstancesInput) (*cloudformation.UpdateStackInstancesOutput, error) {
+	ret := _m.ctrl.Call(_m, "UpdateStackInstances", _param0)
+	ret0, _ := ret[0].(*cloudformation.UpdateStackInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) UpdateStackInstances(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateStackInstances", arg0)
+}
+
+func (_m *MockCloudFormationAPI) UpdateStackInstancesRequest(_param0 *cloudformation.UpdateStackInstancesInput) (*request.Request, *cloudformation.UpdateStackInstancesOutput) {
+	ret := _m.ctrl.Call(_m, "UpdateStackInstancesRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudformation.UpdateStackInstancesOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) UpdateStackInstancesRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateStackInstancesRequest", arg0)
+}
+
+func (_m *MockCloudFormationAPI) UpdateStackInstancesWithContext(_param0 aws.Context, _param1 *cloudformation.UpdateStackInstancesInput, _param2 ...request.Option) (*cloudformation.UpdateStackInstancesOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "UpdateStackInstancesWithContext", _s...)
+	ret0, _ := ret[0].(*cloudformation.UpdateStackInstancesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudFormationAPIRecorder) UpdateStackInstancesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateStackInstancesWithContext", _s...)
+}
+
 func (_m *MockCloudFormationAPI) UpdateStackRequest(_param0 *cloudformation.UpdateStackInput) (*request.Request, *cloudformation.UpdateStackOutput) {
 	ret := _m.ctrl.Call(_m, "UpdateStackRequest", _param0)
 	ret0, _ := ret[0].(*request.Request)
