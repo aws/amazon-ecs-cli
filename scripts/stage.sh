@@ -103,22 +103,27 @@ if ! ${ALLOW_DIRTY}; then
 fi
 
 make docker-build
-mv bin/windows-amd64/ecs-cli.exe bin/windows-amd64/ecs-cli
 
-for platform in "linux-amd64" "darwin-amd64" "windows-amd64"; do
-	artifact="bin/${platform}/ecs-cli"
+publish_binary() {
+	platform=$1
+	extension=$2
+	artifact="bin/${platform}/ecs-cli${extension}"
 	artifact_md5="$(mktemp)"
 	md5sum "${artifact}" | sed 's/ .*//' > "${artifact_md5}"
 
 	for tag in ${ARTIFACT_TAG_VERSION} ${ARTIFACT_TAG_SHA} ${ARTIFACT_TAG_LATEST}; do
-		key_name="ecs-cli-${platform}-${tag}"
+		key_name="ecs-cli-${platform}-${tag}${extension}"
 		echo "Publishing as ${key_name} with md5sum $(cat ${artifact_md5})"
 		dexec s3_cp "${artifact}" "s3://${S3_BUCKET}/${key_name}"
-		dexec s3_cp "${artifact_md5}" "s3://${S3_BUCKET}/${key_name}.md5"
+		dexec s3_cp "${artifact_md5}" "s3://${S3_BUCKET}/ecs-cli-${platform}-${tag}.md5"
 	done
 
 	rm "${artifact_md5}"
-done
+}
+
+publish_binary "linux-amd64" ""
+publish_binary "darwin-amd64" ""
+publish_binary "windows-amd64" ".exe"
 
 cd "${CWD}"
 
