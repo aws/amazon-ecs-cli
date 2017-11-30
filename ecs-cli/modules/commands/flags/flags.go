@@ -128,14 +128,14 @@ func OptionalRegionAndProfileFlags() []cli.Flag {
 			Name:   ECSProfileFlag,
 			EnvVar: ECSProfileEnvVar,
 			Usage: fmt.Sprintf(
-				"[Optional] Specifies the name of the ECS profle configuration to use. Defaults to the default profile configuration.",
+				"[Optional] Specifies the name of the ECS profile configuration to use. Defaults to the default profile configuration.",
 			),
 		},
 		cli.StringFlag{
 			Name:   AWSProfileFlag,
 			EnvVar: AWSProfileEnvVar,
 			Usage: fmt.Sprintf(
-				"[Optional]  Use the AWS credentials from an existing named profile in ~/.aws/credentials.",
+				"[Optional] Use the AWS credentials from an existing named profile in ~/.aws/credentials.",
 			),
 		},
 	}
