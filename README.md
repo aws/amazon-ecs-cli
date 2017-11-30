@@ -40,9 +40,8 @@ Line Interface](http://aws.amazon.com/cli/) product detail page.
 
 ## Installing
 
-Download the binary archive for your platform, decompress the archive, and
-install the binary on your `$PATH`. You can use the provided `md5` hash to
-verify the integrity of your download.
+Download the binary archive for your platform, and install the binary on your `$PATH`.
+You can use the provided `md5` hash to verify the integrity of your download.
 
 ### Latest version
 * Linux:
@@ -57,7 +56,8 @@ verify the integrity of your download.
 
 ### Download Links for within China
 
-As of v0.6.2 the ECS CLI supports the cn-north-1 region in China. The following links are the exact same binaries, but they are localized within China to provide a faster download experience.
+As of v0.6.2 the ECS CLI supports the cn-north-1 region in China. The following links are the exact
+same binaries, but they are localized within China to provide a faster download experience.
 
 * Linux:
   * [https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-linux-amd64-latest](https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-linux-amd64-latest)
@@ -70,7 +70,9 @@ As of v0.6.2 the ECS CLI supports the cn-north-1 region in China. The following 
   * [https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-windows-amd64-latest.md5](https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-windows-amd64-latest.md5)
 
 ### Download specific version
-Using the URLs above, replace `latest` with the desired tag, for example `v1.0.0`. After downloading, remember to rename the binary file to `ecs-cli`. Note that Windows is only supported starting with version `v1.0.0`.
+Using the URLs above, replace `latest` with the desired tag, for example `v1.0.0`. After
+downloading, remember to rename the binary file to `ecs-cli`.
+'''NOTE''': Windows is only supported starting with version `v1.0.0`.
 
 * Linux:
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v1.0.0](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v1.0.0)
