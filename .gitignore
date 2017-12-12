@@ -3,3 +3,4 @@ bin/
 *.swp
 *.orig
 ecs-cli/vendor/pkg
+.vscode/*
