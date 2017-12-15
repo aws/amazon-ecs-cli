@@ -494,7 +494,7 @@ var template = `
       }
     },
     "EcsInstanceProfile": {
-      "Condition": "CreateEcsInstanceRole",
+      "Condition": "LaunchInstances",
       "Type": "AWS::IAM::InstanceProfile",
       "Properties": {
         "Path": "/",
