@@ -98,6 +98,7 @@ type CloudformationClient interface {
 	WaitUntilUpdateComplete(string) error
 	ValidateStackExists(string) error
 	DescribeNetworkResources(string) error
+	GetStackParameters(string) ([]*cloudformation.Parameter, error)
 }
 
 // cloudformationClient implements CloudFormationClient.
@@ -168,6 +169,23 @@ func (c *cloudformationClient) UpdateStack(stackName string, params *CfnStackPar
 func (c *cloudformationClient) ValidateStackExists(stackName string) error {
 	_, err := c.describeStack(stackName)
 	return err
+}
+
+// describeStack describes the stack and gets the stack status.
+func (c *cloudformationClient) GetStackParameters(stackName string) ([]*cloudformation.Parameter, error) {
+	output, err := c.client.DescribeStacks(&cloudformation.DescribeStacksInput{
+		StackName: aws.String(stackName),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(output.Stacks) == 0 {
+		return nil, fmt.Errorf("Could not describe stack '%s'", stackName)
+	}
+
+	return output.Stacks[0].Parameters, nil
 }
 
 // WaitUntilCreateComplete waits until the stack creation completes.

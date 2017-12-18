@@ -89,11 +89,11 @@ func NewCfnStackParams() *CfnStackParams {
 }
 
 // NewCfnStackParamsForUpdate creates a new object of CfnStackParams struct and populates it for updating the stack.
-func NewCfnStackParamsForUpdate() (*CfnStackParams, error) {
+func NewCfnStackParamsForUpdate(existingParams []*cloudformation.Parameter) (*CfnStackParams, error) {
 	params := NewCfnStackParams()
-	for _, key := range parameterKeyNames {
+	for _, param := range existingParams {
 		// Set UsePreviousValue = true for all the stack parameters.
-		err := params.AddWithUsePreviousValue(key, true)
+		err := params.AddWithUsePreviousValue(aws.StringValue(param.ParameterKey), true)
 		if err != nil {
 			return nil, err
 		}

@@ -29,6 +29,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config/ami"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	cloudformationsdk "github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
@@ -817,9 +818,29 @@ func TestClusterScale(t *testing.T) {
 	mockECS.EXPECT().Initialize(gomock.Any())
 	mockECS.EXPECT().IsActiveCluster(gomock.Any()).Return(true, nil)
 
+	existingParameters := []*cloudformationsdk.Parameter{
+		&cloudformationsdk.Parameter{
+			ParameterKey: aws.String("SomeParam1"),
+		},
+		&cloudformationsdk.Parameter{
+			ParameterKey: aws.String("SomeParam2"),
+		},
+	}
+
 	mockCloudformation.EXPECT().Initialize(gomock.Any())
-	mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(nil)
-	mockCloudformation.EXPECT().UpdateStack(stackName, gomock.Any()).Return("", nil)
+	mockCloudformation.EXPECT().GetStackParameters(stackName).Return(existingParameters, nil)
+	mockCloudformation.EXPECT().UpdateStack(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
+		observedStackName := x.(string)
+		cfnParams := y.(*cloudformation.CfnStackParams)
+		assert.Equal(t, stackName, observedStackName)
+		_, err := cfnParams.GetParameter("SomeParam1")
+		assert.NoError(t, err, "Unexpected error on scale.")
+		_, err = cfnParams.GetParameter("SomeParam2")
+		assert.NoError(t, err, "Unexpected error on scale.")
+		param, err := cfnParams.GetParameter(cloudformation.ParameterKeyAsgMaxSize)
+		assert.NoError(t, err, "Unexpected error on scale.")
+		assert.Equal(t, "1", aws.StringValue(param.ParameterValue))
+	}).Return("", nil)
 	mockCloudformation.EXPECT().WaitUntilUpdateComplete(stackName).Return(nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli-down", 0)
