@@ -15,13 +15,17 @@ package logs
 
 import (
 	"flag"
+	"fmt"
 	"testing"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudwatchlogs/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -29,19 +33,20 @@ import (
 )
 
 const (
-	taskID          = "task1234"
-	taskDefArn      = "arn:aws:ecs:us-west-2:123412341234:task-definition/myTaskDef:1"
-	taskDefName     = "testTaskDef:7"
-	containerName   = "wordpress"
-	containerImage  = "wordpress"
-	containerName2  = "mysql"
-	containerImage2 = "mysql"
-	logRegion1      = "us-east-2"
-	logRegion2      = "us-east-1"
-	logGroup1       = "testlogs"
-	logGroup2       = "testlogs2"
-	logPrefix1      = "testpre1"
-	logPrefix2      = "testpre2"
+	taskID              = "task1234"
+	taskDefArn          = "arn:aws:ecs:us-west-2:123412341234:task-definition/myTaskDef:1"
+	taskDefName         = "testTaskDef:7"
+	containerName       = "wordpress"
+	containerImage      = "wordpress"
+	containerName2      = "mysql"
+	containerImage2     = "mysql"
+	logRegion1          = "us-east-2"
+	logRegion2          = "us-east-1"
+	logGroup1           = "testlogs"
+	logGroup2           = "testlogs2"
+	logPrefix1          = "testpre1"
+	logPrefix2          = "testpre2"
+	clientErrorMesssage = "Some Error with CloudWatch Logs Client"
 )
 
 func dummyTaskDef(containers []*ecs.ContainerDefinition) *ecs.TaskDefinition {
@@ -388,4 +393,103 @@ func TestLogsRequestTaskNotFound(t *testing.T) {
 
 	_, _, err = logsRequest(context, mockECS, params)
 	assert.Error(t, err, "Expected error getting logs")
+}
+
+/* Create Logs */
+
+func TestCreateLogGroups(t *testing.T) {
+	taskDef := dummyTaskDef([]*ecs.ContainerDefinition{
+		dummyContainerDef(logRegion1, logGroup1, logPrefix1, "awslogs", containerName, containerImage),
+	})
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockLogFactory := mock_cloudwatchlogs.NewMockLogClientFactory(ctrl)
+	mockLogClient := mock_cloudwatchlogs.NewMockClient(ctrl)
+
+	gomock.InOrder(
+		mockLogFactory.EXPECT().Get(logRegion1).Return(mockLogClient),
+		mockLogClient.EXPECT().CreateLogGroup(gomock.Any()),
+	)
+
+	err := CreateLogGroups(taskDef, mockLogFactory)
+	assert.NoError(t, err, "Unexpected error in call to CreateLogGroups()")
+}
+
+func TestCreateLogGroupsTwoContainers(t *testing.T) {
+	taskDef := dummyTaskDef([]*ecs.ContainerDefinition{
+		dummyContainerDef(logRegion1, logGroup1, logPrefix1, "awslogs", containerName, containerImage),
+		dummyContainerDef(logRegion2, logGroup2, logPrefix1, "awslogs", containerName, containerImage),
+	})
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockLogFactory := mock_cloudwatchlogs.NewMockLogClientFactory(ctrl)
+	mockLogClient := mock_cloudwatchlogs.NewMockClient(ctrl)
+
+	gomock.InOrder(
+		mockLogFactory.EXPECT().Get(logRegion1).Return(mockLogClient),
+		mockLogClient.EXPECT().CreateLogGroup(gomock.Any()),
+		mockLogFactory.EXPECT().Get(logRegion2).Return(mockLogClient),
+		mockLogClient.EXPECT().CreateLogGroup(gomock.Any()),
+	)
+
+	err := CreateLogGroups(taskDef, mockLogFactory)
+	assert.NoError(t, err, "Unexpected error in call to CreateLogGroups()")
+}
+
+func TestCreateLogGroupsWrongDriver(t *testing.T) {
+	taskDef := dummyTaskDef([]*ecs.ContainerDefinition{
+		dummyContainerDef(logRegion1, logGroup1, logPrefix1, "catsanddogslogger", containerName, containerImage),
+	})
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockLogFactory := mock_cloudwatchlogs.NewMockLogClientFactory(ctrl)
+
+	err := CreateLogGroups(taskDef, mockLogFactory)
+	assert.Error(t, err, "Expected error in call to CreateLogGroups()")
+}
+
+func TestCreateLogGroupsLogGroupAlreadyExists(t *testing.T) {
+	taskDef := dummyTaskDef([]*ecs.ContainerDefinition{
+		dummyContainerDef(logRegion1, logGroup1, logPrefix1, "awslogs", containerName, containerImage),
+	})
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockLogFactory := mock_cloudwatchlogs.NewMockLogClientFactory(ctrl)
+	mockLogClient := mock_cloudwatchlogs.NewMockClient(ctrl)
+
+	alreadyExistsErr := awserr.New(cloudwatchlogs.ErrCodeResourceAlreadyExistsException, "Resource Already Exists Exception", nil)
+
+	gomock.InOrder(
+		mockLogFactory.EXPECT().Get(logRegion1).Return(mockLogClient),
+		mockLogClient.EXPECT().CreateLogGroup(gomock.Any()).Return(alreadyExistsErr),
+	)
+
+	err := CreateLogGroups(taskDef, mockLogFactory)
+	assert.NoError(t, err, "Unexpected error in call to CreateLogGroups()")
+}
+
+func TestCreateLogGroupsErrorCase(t *testing.T) {
+	taskDef := dummyTaskDef([]*ecs.ContainerDefinition{
+		dummyContainerDef(logRegion1, logGroup1, logPrefix1, "awslogs", containerName, containerImage),
+	})
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockLogFactory := mock_cloudwatchlogs.NewMockLogClientFactory(ctrl)
+	mockLogClient := mock_cloudwatchlogs.NewMockClient(ctrl)
+
+	someErr := fmt.Errorf(clientErrorMesssage)
+
+	gomock.InOrder(
+		mockLogFactory.EXPECT().Get(logRegion1).Return(mockLogClient),
+		mockLogClient.EXPECT().CreateLogGroup(gomock.Any()).Return(someErr),
+	)
+
+	err := CreateLogGroups(taskDef, mockLogFactory)
+	assert.Error(t, err, "Expected error in call to CreateLogGroups()")
+	assert.Equal(t, clientErrorMesssage, err.Error())
 }

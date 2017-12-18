@@ -111,7 +111,7 @@ func createCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "create",
 		Usage:        "Creates an ECS task definition from your compose file. Note that we do not recommend using plain text environment variables for sensitive information, such as credential data.",
 		Action:       compose.WithProject(factory, compose.ProjectCreate, false),
-		Flags:        append(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag()),
+		Flags:        append(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag()),
 		OnUsageError: flags.UsageErrorFactory("create"),
 	}
 }
@@ -132,7 +132,7 @@ func upCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "up",
 		Usage:        "Creates an ECS task definition from your compose file (if it does not already exist) and runs one instance of that task on your cluster (a combination of create and start).",
 		Action:       compose.WithProject(factory, compose.ProjectUp, false),
-		Flags:        append(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag()),
+		Flags:        append(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag()),
 		OnUsageError: flags.UsageErrorFactory("up"),
 	}
 }
@@ -142,7 +142,7 @@ func startCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "start",
 		Usage:        "Starts a single task from the task definition created from your compose file.",
 		Action:       compose.WithProject(factory, compose.ProjectStart, false),
-		Flags:        append(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag()),
+		Flags:        append(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag()),
 		OnUsageError: flags.UsageErrorFactory("start"),
 	}
 }

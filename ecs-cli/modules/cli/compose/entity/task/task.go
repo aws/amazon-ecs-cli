@@ -83,6 +83,10 @@ func (t *Task) TaskDefinitionCache() cache.Cache {
 // and persists it in a cache locally. It always checks the cache before creating
 func (t *Task) Create() error {
 	_, err := entity.GetOrCreateTaskDefinition(t)
+	if err != nil {
+		return err
+	}
+	err = entity.OptionallyCreateLogs(t)
 	return err
 }
 
@@ -288,8 +292,12 @@ func (t *Task) up(updateTasks bool) error {
 	if err != nil {
 		return err
 	}
-
 	_, err = entity.GetOrCreateTaskDefinition(t)
+	if err != nil {
+		return err
+	}
+
+	err = entity.OptionallyCreateLogs(t)
 	if err != nil {
 		return err
 	}

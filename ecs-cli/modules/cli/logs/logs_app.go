@@ -23,6 +23,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/pkg/errors"
@@ -264,17 +265,17 @@ func getLogConfiguration(taskDef *ecs.TaskDefinition, taskID string, containerNa
 
 func getContainerLogConfig(containerDef *ecs.ContainerDefinition) (*logConfiguration, error) {
 	if containerDef.LogConfiguration == nil {
-		return nil, fmt.Errorf("Container '%s' is not configured to use logs; logConfigution is a required container definition field in order to use the 'logs' command", aws.StringValue(containerDef.Name))
+		return nil, fmt.Errorf("Container '%s' is not configured to use CloudWatch logs; logConfigution ('logging' in Docker Compose) is a required container definition field", aws.StringValue(containerDef.Name))
 	}
 	logConfig := &logConfiguration{}
 	if aws.StringValue(containerDef.LogConfiguration.LogDriver) != "awslogs" {
-		return nil, fmt.Errorf("Container: Must specify log driver as awslogs")
+		return nil, fmt.Errorf("Container '%s': Must specify log driver as awslogs", aws.StringValue(containerDef.Name))
 	}
 
 	var ok bool
 	logConfig.logPrefix, ok = containerDef.LogConfiguration.Options["awslogs-stream-prefix"]
 	if !ok || aws.StringValue(logConfig.logPrefix) == "" {
-		return nil, fmt.Errorf("Container Definition %s: Log String Prefix (awslogs-stream-prefix) must be specified in each container definition in order to retrieve logs", aws.StringValue(containerDef.Name))
+		return nil, fmt.Errorf("Container %s: ECS CLI Requires Log Stream Prefix (awslogs-stream-prefix) to be specified.", aws.StringValue(containerDef.Name))
 	}
 
 	logConfig.logGroup = containerDef.LogConfiguration.Options["awslogs-group"]
@@ -287,4 +288,32 @@ func getContainerLogConfig(containerDef *ecs.ContainerDefinition) (*logConfigura
 
 func logConfigMisMatchError(taskDef *ecs.TaskDefinition, fieldName string) error {
 	return fmt.Errorf("Log Configuration Field %s mismatches in at least one container definition in %s. Use the --%s option to query logs for an individual container.", fieldName, aws.StringValue(taskDef.TaskDefinitionArn), flags.ContainerNameFlag)
+}
+
+/* Create Logs */
+
+// CreateLogGroups creates any needed log groups for the task definition to use CloudWatch Logs
+func CreateLogGroups(taskDef *ecs.TaskDefinition, logClientFactory cwlogsclient.LogClientFactory) error {
+	for _, container := range taskDef.ContainerDefinitions {
+		logConfig, err := getContainerLogConfig(container)
+		if err != nil {
+			return err
+		}
+		region := aws.StringValue(logConfig.logRegion)
+		client := logClientFactory.Get(region)
+		err = client.CreateLogGroup(logConfig.logGroup)
+		if err != nil {
+			if aerr, ok := err.(awserr.Error); ok {
+				if aerr.Code() == cloudwatchlogs.ErrCodeResourceAlreadyExistsException {
+					// If the log group already exists warn the user but don't fail the command
+					logrus.Warnf("Failed to create log group %s in %s: %s", aws.StringValue(logConfig.logGroup), region, aerr.Message())
+					continue
+				}
+			}
+			return err
+		}
+		logrus.Infof("Created Log Group %s in %s", aws.StringValue(logConfig.logGroup), region)
+
+	}
+	return nil
 }
