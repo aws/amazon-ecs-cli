@@ -19,6 +19,7 @@ package mock_cloudformation
 import (
 	cloudformation "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudformation"
 	config "github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
+	cloudformation0 "github.com/aws/aws-sdk-go/service/cloudformation"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -72,6 +73,17 @@ func (_m *MockCloudformationClient) DescribeNetworkResources(_param0 string) err
 
 func (_mr *_MockCloudformationClientRecorder) DescribeNetworkResources(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeNetworkResources", arg0)
+}
+
+func (_m *MockCloudformationClient) GetStackParameters(_param0 string) ([]*cloudformation0.Parameter, error) {
+	ret := _m.ctrl.Call(_m, "GetStackParameters", _param0)
+	ret0, _ := ret[0].([]*cloudformation0.Parameter)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudformationClientRecorder) GetStackParameters(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetStackParameters", arg0)
 }
 
 func (_m *MockCloudformationClient) Initialize(_param0 *config.CLIParams) {

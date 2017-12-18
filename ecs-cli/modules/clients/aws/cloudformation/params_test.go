@@ -17,6 +17,7 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -72,11 +73,17 @@ func TestAddAndValidate(t *testing.T) {
 	}
 }
 
-func TestAddWithUsePreviousValueAndValidate(t *testing.T) {
-	cfnParams, err := NewCfnStackParamsForUpdate()
+func TestAddWithUsePreviousValue(t *testing.T) {
+	existingParameters := []*cloudformation.Parameter{
+		&cloudformation.Parameter{
+			ParameterKey: aws.String("SomeParam1"),
+		},
+		&cloudformation.Parameter{
+			ParameterKey: aws.String("SomeParam2"),
+		},
+	}
+	cfnParams, err := NewCfnStackParamsForUpdate(existingParameters)
 	assert.NoError(t, err, "Unexpected error getting New CFN Stack Params")
-	err = cfnParams.Validate()
-	assert.NoError(t, err, "Error validating params for update")
 
 	params := cfnParams.Get()
 	if 0 == len(params) {
@@ -98,10 +105,6 @@ func TestAddWithUsePreviousValueAndValidate(t *testing.T) {
 	err = cfnParams.AddWithUsePreviousValue(ParameterKeyAsgMaxSize, false)
 	if err != nil {
 		t.Errorf("Error adding parameter with use previous value '%s': '%v'", ParameterKeyAsgMaxSize, err)
-	}
-	err = cfnParams.Validate()
-	if err == nil {
-		t.Errorf("Expected error for param '%s' when usePrevious is false and value is not set", ParameterKeyAsgMaxSize)
 	}
 
 	size := "3"

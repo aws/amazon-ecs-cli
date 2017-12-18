@@ -355,12 +355,13 @@ func scaleCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscli
 	// Validate that we have a cfn stack for the cluster
 	cfnClient.Initialize(cliParams)
 	stackName := cliParams.CFNStackName
-	if err := cfnClient.ValidateStackExists(stackName); err != nil {
+	existingParameters, err := cfnClient.GetStackParameters(stackName)
+	if err != nil {
 		return fmt.Errorf("CloudFormation stack not found for cluster '%s'", cliParams.Cluster)
 	}
 
 	// Populate update params for the cfn stack
-	cfnParams, err := cloudformation.NewCfnStackParamsForUpdate()
+	cfnParams, err := cloudformation.NewCfnStackParamsForUpdate(existingParameters)
 	if err != nil {
 		return err
 	}
