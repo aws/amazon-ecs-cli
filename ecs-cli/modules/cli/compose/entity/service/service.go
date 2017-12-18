@@ -160,6 +160,10 @@ func (s *Service) Create() error {
 	if err != nil {
 		return err
 	}
+	err = entity.OptionallyCreateLogs(s)
+	if err != nil {
+		return err
+	}
 	return s.createService()
 }
 
@@ -177,6 +181,10 @@ func (s *Service) Start() error {
 			return fmt.Errorf("Please use '%s' command to create the service '%s' first",
 				flags.CreateServiceCommandName, entity.GetServiceName(s))
 		}
+		return err
+	}
+	err = entity.OptionallyCreateLogs(s)
+	if err != nil {
 		return err
 	}
 	return s.startService(ecsService)
@@ -201,6 +209,11 @@ func (s *Service) Up() error {
 	// get the current snapshot of compose yml
 	// and update this instance with the latest task definition
 	newTaskDefinition, err := entity.GetOrCreateTaskDefinition(s)
+	if err != nil {
+		return err
+	}
+
+	err = entity.OptionallyCreateLogs(s)
 	if err != nil {
 		return err
 	}

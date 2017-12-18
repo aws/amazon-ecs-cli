@@ -53,6 +53,7 @@ const (
 	StartTimeFlag      = "start-time"
 	EndTimeFlag        = "end-time"
 	TimeStampsFlag     = "timestamps"
+	CreateLogsFlag     = "create-log-groups"
 
 	ComposeProjectNamePrefixFlag         = "compose-project-name-prefix"
 	ComposeProjectNamePrefixDefaultValue = "ecscompose-"
@@ -162,6 +163,16 @@ func OptionalLaunchTypeFlag() cli.Flag {
 		Name: LaunchTypeFlag,
 		Usage: fmt.Sprintf(
 			"[Optional] Specifies the launch type. Options: EC2 or FARGATE. Overrides the default launch type stored in your cluster configuration. Defaults to EC2 if a cluster configuration is not used.",
+		),
+	}
+}
+
+// OptionalCreateLogsFlag allows users to specify the launch type for their task/service/cluster
+func OptionalCreateLogsFlag() cli.Flag {
+	return cli.BoolFlag{
+		Name: CreateLogsFlag,
+		Usage: fmt.Sprintf(
+			"[Optional] Create the CloudWatch log groups specified in your compose file(s).",
 		),
 	}
 }

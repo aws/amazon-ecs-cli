@@ -23,6 +23,7 @@ import (
 // Client defines methods to interact with the CloudWatch API interface.
 type Client interface {
 	FilterAllLogEvents(*cloudwatchlogs.FilterLogEventsInput, func([]*cloudwatchlogs.FilteredLogEvent)) error
+	CreateLogGroup(*string) error
 }
 
 // ec2Client implements EC2Client
@@ -48,4 +49,38 @@ func (c *cwLogsClient) FilterAllLogEvents(input *cloudwatchlogs.FilterLogEventsI
 			return !lastPage
 		})
 	return err
+}
+
+func (c *cwLogsClient) CreateLogGroup(group *string) error {
+	_, err := c.client.CreateLogGroup(&cloudwatchlogs.CreateLogGroupInput{
+		LogGroupName: group,
+	})
+	return err
+}
+
+// LogClientFactory is a factory which creates log clients for a region
+type LogClientFactory interface {
+	Get(string) Client
+}
+
+type clientFactory struct {
+	logClientForRegion map[string]Client
+	cliParams          *config.CLIParams
+}
+
+func (c *clientFactory) Get(region string) Client {
+	client, ok := c.logClientForRegion[region]
+	if !ok {
+		client = NewCloudWatchLogsClient(c.cliParams, region)
+		c.logClientForRegion[region] = client
+	}
+	return client
+}
+
+// NewLogClientFactory returns a factory which creates log clients for a region
+func NewLogClientFactory(cliParams *config.CLIParams) LogClientFactory {
+	return &clientFactory{
+		logClientForRegion: make(map[string]Client),
+		cliParams:          cliParams,
+	}
 }

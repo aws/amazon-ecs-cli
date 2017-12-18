@@ -14,6 +14,7 @@
 package task
 
 import (
+	"flag"
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
@@ -24,6 +25,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/urfave/cli"
 )
 
 func TestTaskCreate(t *testing.T) {
@@ -45,9 +47,13 @@ func TestTaskCreate(t *testing.T) {
 		assert.Equal(t, aws.StringValue(taskDefinition.Family), aws.StringValue(req.Family), "Expected Task Defintion family to match.")
 	}).Return(&respTaskDef, nil)
 
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	cliContext := cli.NewContext(nil, flagSet, nil)
+
 	context := &context.Context{
-		ECSClient: mockEcs,
-		CLIParams: &config.CLIParams{},
+		ECSClient:  mockEcs,
+		CLIParams:  &config.CLIParams{},
+		CLIContext: cliContext,
 	}
 	task := NewTask(context)
 	task.SetTaskDefinition(&taskDefinition)

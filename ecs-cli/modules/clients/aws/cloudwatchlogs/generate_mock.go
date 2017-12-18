@@ -14,4 +14,5 @@
 package cloudwatchlogs
 
 //go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudwatchlogs Client mock/client.go
+//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudwatchlogs LogClientFactory mock/factory.go
 //go:generate mockgen.sh github.com/aws/aws-sdk-go/service/cloudwatchlogs/cloudwatchlogsiface CloudWatchLogsAPI mock/sdk/cloudwatchlogsiface.go
