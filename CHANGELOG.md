@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0
+* Feature - Added `--create-log-groups` flag to create the CloudWatch log groups specified in your compose file. #389
+* Feature - Add support for region ap-south-1, sa-east-1, and eu-west-3
+* Enhancement - Update CloudFormation template with all available instance types #379
+* Enhancement - Make `ecs-cli scale` compatible with CloudFormation Templates created by the ECS Console #390
+* Bug - Fixed `ecs-cli up` with EC2 Launch Type and a custom instance role #394
+* Bug - Make `ecs-cli scale` compatible with CloudFormation templates created by older version of the ECS CLI #330
+
 ## 1.1.0
 * Feature - Add support for Task Networking
 * Feature - Add support for AWS Fargate
