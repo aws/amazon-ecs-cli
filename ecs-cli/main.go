@@ -21,6 +21,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/cluster"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/compose"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/configure"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/image"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/license"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/log"
@@ -55,6 +56,13 @@ func main() {
 		licenseCommand.LicenseCommand(),
 		composeCommand.ComposeCommand(composeFactory),
 		logsCommand.LogCommand(),
+	}
+
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:  flags.EndpointFlag,
+			Usage: "Use a custom endpoint with the ECS CLI",
+		},
 	}
 
 	err := app.Run(os.Args)

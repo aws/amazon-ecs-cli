@@ -28,6 +28,7 @@ const (
 	SecretKeyFlag           = "secret-key"
 	SessionTokenFlag        = "session-token"
 	RegionFlag              = "region"
+	EndpointFlag            = "endpoint"
 	AwsRegionEnvVar         = "AWS_REGION"
 	AwsDefaultRegionEnvVar  = "AWS_DEFAULT_REGION"
 	AwsDefaultProfileEnvVar = "AWS_DEFAULT_PROFILE"
