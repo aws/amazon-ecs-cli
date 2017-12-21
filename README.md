@@ -222,7 +222,7 @@ OPTIONS:
                                      Defaults to EC2 if a cluster configuration is not used.
    --region value, -r value          [Optional] Specifies the AWS region to use. Defaults to the region configured using the configure command
    --cluster-config value            [Optional] Specifies the name of the ECS cluster configuration to use. Defaults to the default cluster configuration.
-   --ecs-profile value               [Optional] Specifies the name of the ECS profle configuration to use. Defaults to the default profile configuration. [$ECS_PROFILE]
+   --ecs-profile value               [Optional] Specifies the name of the ECS profile configuration to use. Defaults to the default profile configuration. [$ECS_PROFILE]
    --aws-profile value               [Optional]  Use the AWS credentials from an existing named profile in ~/.aws/credentials. [$AWS_PROFILE]
    --cluster value, -c value         [Optional] Specifies the ECS cluster name to use. Defaults to the cluster configured using the configure command
 ```
@@ -528,7 +528,7 @@ OPTIONS:
 --follow                   [Optional] Specifies if the logs should be streamed.
 --filter-pattern value     [Optional] Substring to search for within the logs.
 --container-name value     [Optional] Prints the logs for the given container. Required if containers in the Task use different log groups
---since value              [Optional] Returns logs newer than a relative duration in minutes. Can not be used with --start-time (default: 0)
+--since value              [Optional] Returns logs newer than a relative duration in minutes. Cannot be used with --start-time (default: 0)
 --start-time value         [Optional] Returns logs after a specific date (format: RFC 3339. Example: 2006-01-02T15:04:05+07:00). Cannot be used with --since flag
 --end-time value           [Optional] Returns logs before a specific date (format: RFC 3339. Example: 2006-01-02T15:04:05+07:00). Cannot be used with --follow
 --timestamps, -t           [Optional] Shows timestamps on each line in the log output.
