@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.1
+* Feature - Update AMI to amzn-ami-2017.09.e-amazon-ecs-optimized
+
 ## 1.2.0
 * Feature - Added `--create-log-groups` flag to create the CloudWatch log groups specified in your compose file. #389
 * Feature - Add support for region ap-south-1, sa-east-1, and eu-west-3
