@@ -4794,6 +4794,44 @@ func (_mr *_MockEC2APIRecorder) DescribeInstanceAttributeWithContext(arg0, arg1 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeInstanceAttributeWithContext", _s...)
 }
 
+func (_m *MockEC2API) DescribeInstanceCreditSpecifications(_param0 *ec2.DescribeInstanceCreditSpecificationsInput) (*ec2.DescribeInstanceCreditSpecificationsOutput, error) {
+	ret := _m.ctrl.Call(_m, "DescribeInstanceCreditSpecifications", _param0)
+	ret0, _ := ret[0].(*ec2.DescribeInstanceCreditSpecificationsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeInstanceCreditSpecifications(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeInstanceCreditSpecifications", arg0)
+}
+
+func (_m *MockEC2API) DescribeInstanceCreditSpecificationsRequest(_param0 *ec2.DescribeInstanceCreditSpecificationsInput) (*request.Request, *ec2.DescribeInstanceCreditSpecificationsOutput) {
+	ret := _m.ctrl.Call(_m, "DescribeInstanceCreditSpecificationsRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.DescribeInstanceCreditSpecificationsOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeInstanceCreditSpecificationsRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeInstanceCreditSpecificationsRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeInstanceCreditSpecificationsWithContext(_param0 aws.Context, _param1 *ec2.DescribeInstanceCreditSpecificationsInput, _param2 ...request.Option) (*ec2.DescribeInstanceCreditSpecificationsOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeInstanceCreditSpecificationsWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeInstanceCreditSpecificationsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeInstanceCreditSpecificationsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeInstanceCreditSpecificationsWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeInstanceStatus(_param0 *ec2.DescribeInstanceStatusInput) (*ec2.DescribeInstanceStatusOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeInstanceStatus", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeInstanceStatusOutput)
@@ -8335,6 +8373,44 @@ func (_m *MockEC2API) ModifyInstanceAttributeWithContext(_param0 aws.Context, _p
 func (_mr *_MockEC2APIRecorder) ModifyInstanceAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	_s := append([]interface{}{arg0, arg1}, arg2...)
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyInstanceAttributeWithContext", _s...)
+}
+
+func (_m *MockEC2API) ModifyInstanceCreditSpecification(_param0 *ec2.ModifyInstanceCreditSpecificationInput) (*ec2.ModifyInstanceCreditSpecificationOutput, error) {
+	ret := _m.ctrl.Call(_m, "ModifyInstanceCreditSpecification", _param0)
+	ret0, _ := ret[0].(*ec2.ModifyInstanceCreditSpecificationOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyInstanceCreditSpecification(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyInstanceCreditSpecification", arg0)
+}
+
+func (_m *MockEC2API) ModifyInstanceCreditSpecificationRequest(_param0 *ec2.ModifyInstanceCreditSpecificationInput) (*request.Request, *ec2.ModifyInstanceCreditSpecificationOutput) {
+	ret := _m.ctrl.Call(_m, "ModifyInstanceCreditSpecificationRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.ModifyInstanceCreditSpecificationOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyInstanceCreditSpecificationRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyInstanceCreditSpecificationRequest", arg0)
+}
+
+func (_m *MockEC2API) ModifyInstanceCreditSpecificationWithContext(_param0 aws.Context, _param1 *ec2.ModifyInstanceCreditSpecificationInput, _param2 ...request.Option) (*ec2.ModifyInstanceCreditSpecificationOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ModifyInstanceCreditSpecificationWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.ModifyInstanceCreditSpecificationOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) ModifyInstanceCreditSpecificationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ModifyInstanceCreditSpecificationWithContext", _s...)
 }
 
 func (_m *MockEC2API) ModifyInstancePlacement(_param0 *ec2.ModifyInstancePlacementInput) (*ec2.ModifyInstancePlacementOutput, error) {
