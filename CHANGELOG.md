@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.2
+* Feature - Update AMI to amzn-ami-2017.09.f-amazon-ecs-optimized
+
 ## 1.2.1
 * Feature - Update AMI to amzn-ami-2017.09.e-amazon-ecs-optimized
 
