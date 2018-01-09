@@ -28,23 +28,23 @@ type staticAmiIds struct {
 
 func NewStaticAmiIds() ECSAmiIds {
 	regionToId := make(map[string]string)
-	// amzn-ami-2017.09.e-amazon-ecs-optimized AMIs
-	regionToId["ap-northeast-1"] = "ami-af46dbc9"
-	regionToId["ap-northeast-2"] = "ami-d6f454b8"
-	regionToId["ap-south-1"] = "ami-c80b5fa7"
-	regionToId["ap-southeast-1"] = "ami-fec3b482"
-	regionToId["ap-southeast-2"] = "ami-b88e7cda"
-	regionToId["ca-central-1"] = "ami-e8cb4e8c"
-	regionToId["cn-north-1"] = "ami-f9a37e94"
-	regionToId["eu-central-1"] = "ami-b378e8dc"
-	regionToId["eu-west-1"] = "ami-7827b301"
-	regionToId["eu-west-2"] = "ami-acd5cdc8"
-	regionToId["eu-west-3"] = "ami-bd10a7c0"
-	regionToId["sa-east-1"] = "ami-ca95d6a6"
-	regionToId["us-east-1"] = "ami-13401669"
-	regionToId["us-east-2"] = "ami-901338f5"
-	regionToId["us-west-1"] = "ami-b3adacd3"
-	regionToId["us-west-2"] = "ami-9a02a9e2"
+	// amzn-ami-2017.09.f-amazon-ecs-optimized AMIs
+	regionToId["ap-northeast-1"] = "ami-72f36a14"
+	regionToId["ap-northeast-2"] = "ami-59b71737"
+	regionToId["ap-south-1"] = "ami-f4db8f9b"
+	regionToId["ap-southeast-1"] = "ami-e782f29b"
+	regionToId["ap-southeast-2"] = "ami-7aa15c18"
+	regionToId["ca-central-1"] = "ami-9afc79fe"
+	regionToId["cn-north-1"] = "ami-e4c81589"
+	regionToId["eu-central-1"] = "ami-eacf5d85"
+	regionToId["eu-west-1"] = "ami-acb020d5"
+	regionToId["eu-west-2"] = "ami-4d809829"
+	regionToId["eu-west-3"] = "ami-5e02b523"
+	regionToId["sa-east-1"] = "ami-49256725"
+	regionToId["us-east-1"] = "ami-ba722dc0"
+	regionToId["us-east-2"] = "ami-13af8476"
+	regionToId["us-west-1"] = "ami-9df0f0fd"
+	regionToId["us-west-2"] = "ami-c9c87cb1"
 
 	return &staticAmiIds{regionToId: regionToId}
 }
