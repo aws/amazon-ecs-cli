@@ -343,6 +343,8 @@ Name                                            State    Ports                  
 34333aa6-e976-4096-991a-0ec4cd5af5bd/mysql      RUNNING                             ecscompose-wordpress-test:1
 ```
 
+See the `$ ecs-cli compose service` [documentation page](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cmd-ecs-cli-compose-service.html) for more information about available service options, including load balancing.
+
 ### Using ECS parameters
 
 Since there are certain fields in an ECS task definition that do not correspond to fields in a
