@@ -68,7 +68,7 @@ func clusterUpFlags() []cli.Flag {
 		},
 		cli.BoolFlag{
 			Name:  flags.CapabilityIAMFlag,
-			Usage: "Acknowledges that this command may create IAM resources. Required if --instance-role is not specified. NOTE: Not applicable for launch type FARGATE.",
+			Usage: "Acknowledges that this command may create IAM resources. Required if --instance-role is not specified. NOTE: Not applicable for launch type FARGATE or when creating an empty cluster.",
 		},
 		cli.BoolFlag{
 			Name:  flags.EmptyFlag + ",e",

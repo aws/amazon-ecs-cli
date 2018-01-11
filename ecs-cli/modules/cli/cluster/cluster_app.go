@@ -299,6 +299,9 @@ func createEmptyCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfn
 			logrus.Warnf("Value for flag '%v' will be ignored when creating an empty cluster", flag)
 		}
 	}
+	if isIAMAcknowledged(context) {
+		logrus.Warnf("The '--%v' flag will be ignored when creating an empty cluster", flags.CapabilityIAMFlag)
+	}
 
 	if isForceSet(context) {
 		logrus.Warn("Force flag is unsupported when creating an empty cluster.")

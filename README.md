@@ -180,52 +180,12 @@ service up`, regardless of which launch type is configured for your cluster (see
 Tasks](#startingrunning-tasks)).
 
 ### Creating an ECS Cluster
-After installing the Amazon ECS CLI and configuring your credentials, you are ready to create an ECS cluster.
-
+After installing the Amazon ECS CLI and configuring your credentials, you are ready to create an ECS cluster. The basic command for creating a cluster is:
 ```
-NAME:
-   ecs-cli up - Creates the ECS cluster (if it does not already exist) and the AWS resources required to set up the cluster.
-
-USAGE:
-   ecs-cli up [command options] [arguments...]
-
-OPTIONS:
-   --verbose, --debug
-   --capability-iam                  Acknowledges that this command may create IAM resources. Required if --instance-role is not specified.
-                                     NOTE: Not applicable for launch type FARGATE.
-   --instance-role value             [Optional] Specifies a custom IAM Role for instances in your cluster. Required if --capability-iam is not specified.
-                                     NOTE: Not applicable for launch type FARGATE.
-   --keypair value                   [Optional] Specifies the name of an existing Amazon EC2 key pair to enable SSH access to the EC2 instances in your cluster.
-                                     Recommended for EC2 launch type. NOTE: Not applicable for launch type FARGATE.
-   --instance-type value             [Optional] Specifies the EC2 instance type for your container instances. Defaults to t2.micro. NOTE: Not applicable for launch type FARGATE.
-   --image-id value                  [Optional] Specify the AMI ID for your container instances. Defaults to amazon-ecs-optimized AMI. NOTE: Not applicable for launch type FARGATE.
-   --no-associate-public-ip-address  [Optional] Do not assign public IP addresses to new instances in this VPC. Unless this option is specified,
-                                     new instances in this VPC receive an automatically assigned public IP address. NOTE: Not applicable for launch type FARGATE.
-   --size value                      [Optional] Specifies the number of instances to launch and register to the cluster. Defaults to 1. NOTE: Not applicable for launch type FARGATE.
-   --azs value                       [Optional] Specifies a comma-separated list of 2 VPC Availability Zones in which to create subnets (these zones must have the available status).
-                                     This option is recommended if you do not specify a VPC ID with the --vpc option.
-                                     WARNING: Leaving this option blank can result in failure to launch container instances if an unavailable zone is chosen at random.
-   --security-group value            [Optional] Specifies a comma-separated list of existing security groups to associate with your container instances.
-                                     If you do not specify a security group here, then a new one is created.
-   --cidr value                      [Optional] Specifies a CIDR/IP range for the security group to use for container instances in your cluster.
-                                     This parameter is ignored if an existing security group is specified with the --security-group option. Defaults to 0.0.0.0/0.
-   --port value                      [Optional] Specifies a port to open on the security group to use for container instances in your cluster.
-                                     This parameter is ignored if an existing security group is specified with the --security-group option. Defaults to port 80.
-   --subnets value                   [Optional] Specifies a comma-separated list of existing VPC Subnet IDs in which to launch your container instances.
-                                     This option is required if you specify a VPC with the --vpc option.
-   --vpc value                       [Optional] Specifies the ID of an existing VPC in which to launch your container instances.
-                                     If you specify a VPC ID, you must specify a list of existing subnets in that VPC with the --subnets option.
-                                     If you do not specify a VPC ID, a new VPC is created with two subnets.
-   --force, -f                       [Optional] Forces the recreation of any existing resources that match your current configuration.
-                                     This option is useful for cleaning up stale resources from previous failed attempts.
-   --launch-type value               [Optional] Specifies the launch type. Options: EC2 or FARGATE. Overrides the default launch type stored in your cluster configuration.
-                                     Defaults to EC2 if a cluster configuration is not used.
-   --region value, -r value          [Optional] Specifies the AWS region to use. Defaults to the region configured using the configure command
-   --cluster-config value            [Optional] Specifies the name of the ECS cluster configuration to use. Defaults to the default cluster configuration.
-   --ecs-profile value               [Optional] Specifies the name of the ECS profile configuration to use. Defaults to the default profile configuration. [$ECS_PROFILE]
-   --aws-profile value               [Optional]  Use the AWS credentials from an existing named profile in ~/.aws/credentials. [$AWS_PROFILE]
-   --cluster value, -c value         [Optional] Specifies the ECS cluster name to use. Defaults to the cluster configured using the configure command
+ecs-cli up
 ```
+
+(To see all available options, run `ecs-cli up --help`)
 
 For example, to create an ECS cluster with two Amazon EC2 instances using the EC2 launch type, use
 the following command:
@@ -269,6 +229,14 @@ described in the [Adding Rules to a Security Group](http://docs.aws.amazon.com/A
 topic.
 
 Alternatively, you may specify one or more existing security group IDs with the `--security-group` option.
+
+You can also create an empty ECS cluster by using the `--empty` or `--e` flag:
+
+```
+ecs-cli --empty up --cluster myCluster
+```
+
+This is equivalent to the [create-cluster command](https://docs.aws.amazon.com/cli/latest/reference/ecs/create-cluster.html), and will not create a CloudFormation stack associated with your cluster.
 
 #### Creating a Fargate cluster
 
