@@ -19,7 +19,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/pkg/errors"

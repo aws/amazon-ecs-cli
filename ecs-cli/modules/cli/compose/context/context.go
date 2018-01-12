@@ -19,7 +19,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	ec2client "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ec2"
 	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"

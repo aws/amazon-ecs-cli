@@ -17,7 +17,7 @@ import (
 	"os"
 	"strconv"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/container"
 	composeFactory "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/factory"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project"

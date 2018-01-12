@@ -18,7 +18,7 @@ import (
 	"errors"
 	"fmt"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
