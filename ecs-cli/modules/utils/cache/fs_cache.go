@@ -76,8 +76,8 @@ func NewFSCache(name string) (Cache, error) {
 	}, nil
 }
 
-func (self *fsCache) Put(key string, val interface{}) (retErr error) {
-	file, err := osCreate(filepath.Join(self.cacheDir, key))
+func (cache *fsCache) Put(key string, val interface{}) (retErr error) {
+	file, err := osCreate(filepath.Join(cache.cacheDir, key))
 	if err != nil {
 		return err
 	}
@@ -93,8 +93,8 @@ func (self *fsCache) Put(key string, val interface{}) (retErr error) {
 	return valEnc.Encode(val)
 }
 
-func (self *fsCache) Get(key string, i interface{}) error {
-	file, err := osOpen(filepath.Join(self.cacheDir, key))
+func (cache *fsCache) Get(key string, i interface{}) error {
+	file, err := osOpen(filepath.Join(cache.cacheDir, key))
 	if err != nil {
 		return err
 	}

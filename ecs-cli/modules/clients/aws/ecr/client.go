@@ -161,10 +161,8 @@ func (c *ecrClient) describeRepositories(repositoryNames []*string, registryID s
 
 	// Skip DescribeRepositories calls if repositoryNames are specified
 	if len(repositoryNames) > 0 {
-		if err := outputFn(repositoryNames); err != nil {
-			return err
-		}
-		return nil
+		err := outputFn(repositoryNames)
+		return err
 	}
 
 	if registryID != "" {

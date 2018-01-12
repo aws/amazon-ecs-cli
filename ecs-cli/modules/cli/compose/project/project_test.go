@@ -115,7 +115,7 @@ redis:
 	}
 
 	if testProjectName != project.context.ProjectName {
-		t.Errorf("ProjectName not overriden. Expected [%s] Got [%s]", testProjectName, project.context.ProjectName)
+		t.Errorf("ProjectName not overridden. Expected [%s] Got [%s]", testProjectName, project.context.ProjectName)
 	}
 
 	configs := project.ServiceConfigs()

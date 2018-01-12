@@ -44,7 +44,7 @@ func TestTaskCreate(t *testing.T) {
 	mockEcs.EXPECT().RegisterTaskDefinitionIfNeeded(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
 		// verify input fields
 		req := x.(*ecs.RegisterTaskDefinitionInput)
-		assert.Equal(t, aws.StringValue(taskDefinition.Family), aws.StringValue(req.Family), "Expected Task Defintion family to match.")
+		assert.Equal(t, aws.StringValue(taskDefinition.Family), aws.StringValue(req.Family), "Expected Task Definition family to match.")
 	}).Return(&respTaskDef, nil)
 
 	flagSet := flag.NewFlagSet("ecs-cli", 0)

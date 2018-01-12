@@ -63,11 +63,11 @@ func getSupportedComposeYamlOptionsMap() map[string]bool {
 }
 
 type TaskDefParams struct {
-	networkMode   string
-	taskRoleArn   string
-	cpu           string
-	memory        string
-	containerDefs ContainerDefs
+	networkMode      string
+	taskRoleArn      string
+	cpu              string
+	memory           string
+	containerDefs    ContainerDefs
 	executionRoleArn string
 }
 

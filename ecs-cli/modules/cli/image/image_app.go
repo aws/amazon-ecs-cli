@@ -159,11 +159,8 @@ func pushImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient
 		ServerAddress: ecrAuth.ProxyEndpoint,
 	}
 
-	if err := dockerClient.PushImage(repositoryURI, tag, ecrAuth.Registry, dockerAuth); err != nil {
-		return err
-	}
-
-	return nil
+	err = dockerClient.PushImage(repositoryURI, tag, ecrAuth.Registry, dockerAuth)
+	return err
 }
 
 func pullImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient.Client, ecrClient ecrclient.Client, stsClient stsclient.Client) error {
@@ -193,11 +190,8 @@ func pullImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient
 	}
 
 	// Pull Image
-	if err := dockerClient.PullImage(repositoryURI, tag, dockerAuth); err != nil {
-		return err
-	}
-
-	return nil
+	err = dockerClient.PullImage(repositoryURI, tag, dockerAuth)
+	return err
 }
 
 type imageInfo struct {

@@ -265,7 +265,6 @@ task_definition:
 	}
 }
 
-
 /** ConvertToECSNetworkConfiguration tests **/
 
 func TestConvertToECSNetworkConfiguration(t *testing.T) {

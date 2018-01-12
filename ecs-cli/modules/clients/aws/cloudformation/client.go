@@ -214,7 +214,7 @@ func (c *cloudformationClient) WaitUntilUpdateComplete(stackName string) error {
 	return c.waitUntilComplete(stackName, failureInUpdateEvent, cloudformation.StackStatusUpdateComplete, updateStackFailures, maxRetriesUpdate)
 }
 
-// failureInStackEvent defines the callback type, which determins if there's the cloudformation
+// failureInStackEvent defines the callback type, which determines if there's the cloudformation
 // stack event's status indicates failure in creating/updating/deleting a resource.
 type failureInStackEvent func(*cloudformation.StackEvent) bool
 
@@ -238,19 +238,18 @@ func (c *cloudformationClient) waitUntilComplete(stackName string, hasFailed fai
 
 		if successState == status {
 			return nil
+		}
 
-		} else {
-			_, exists := failureStates[status]
-			if exists {
-				log.Debug("Stack creation failed. Getting first failed event")
-				if failureEvent, err := c.firstStackEventWithFailure(stackName, nil, failureStates); err == nil {
-					log.WithFields(log.Fields{
-						"reason":       aws.StringValue(failureEvent.ResourceStatusReason),
-						"resourceType": aws.StringValue(failureEvent.ResourceType),
-					}).Error("Failure event")
-				}
-				return fmt.Errorf("Cloudformation failure waiting for '%s'. State is '%s'", successState, status)
+		_, exists := failureStates[status]
+		if exists {
+			log.Debug("Stack creation failed. Getting first failed event")
+			if failureEvent, err := c.firstStackEventWithFailure(stackName, nil, failureStates); err == nil {
+				log.WithFields(log.Fields{
+					"reason":       aws.StringValue(failureEvent.ResourceStatusReason),
+					"resourceType": aws.StringValue(failureEvent.ResourceType),
+				}).Error("Failure event")
 			}
+			return fmt.Errorf("Cloudformation failure waiting for '%s'. State is '%s'", successState, status)
 		}
 
 		if retryCount%2 == 0 {

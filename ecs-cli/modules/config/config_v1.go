@@ -140,10 +140,9 @@ func (cfg *CLIConfig) toAWSSessionWithConfig(context *cli.Context, svcConfig *aw
 		return sessionFromProfile("", region, svcConfig)
 	} else if isDefaultECSProfileCase(cfg) {
 		return sessionFromECSConfig(cfg, region, svcConfig)
-	} else {
-		return sessionFromProfile("", region, svcConfig)
 	}
 
+	return sessionFromProfile("", region, svcConfig)
 }
 
 func hasProfileFlags(context *cli.Context) bool {
@@ -161,9 +160,9 @@ func isDefaultECSProfileCase(cfg *CLIConfig) bool {
 func sessionFromECSConfig(cfg *CLIConfig, region string, svcConfig *aws.Config) (*session.Session, error) {
 	if cfg.AWSSecretKey != "" {
 		return sessionFromKeys(region, cfg.AWSAccessKey, cfg.AWSSecretKey, svcConfig)
-	} else {
-		return sessionFromProfile(cfg.AWSProfile, region, svcConfig)
 	}
+
+	return sessionFromProfile(cfg.AWSProfile, region, svcConfig)
 }
 
 func unsetEnvVars() (keyID string, secretKey string) {
@@ -220,7 +219,7 @@ func (cfg *CLIConfig) getRegion() (string, error) {
 		}
 	}
 
-	var err error = nil
+	var err error
 	if region == "" {
 		region, err = cfg.getRegionFromAWSProfile()
 	}

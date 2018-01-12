@@ -23,10 +23,10 @@ func NewNoopCache() Cache {
 	return noopCache{}
 }
 
-func (self noopCache) Put(key string, val interface{}) error {
+func (cache noopCache) Put(key string, val interface{}) error {
 	return nil
 }
 
-func (self noopCache) Get(key string, i interface{}) error {
+func (cache noopCache) Get(key string, i interface{}) error {
 	return errors.New("noop cache")
 }

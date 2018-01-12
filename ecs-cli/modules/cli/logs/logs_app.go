@@ -88,7 +88,7 @@ func logsRequest(context *cli.Context, ecsClient ecsclient.ECSClient, params *co
 
 	taskDef, err := ecsClient.DescribeTaskDefinition(taskDefIdentifier)
 	if err != nil {
-		return nil, "", errors.Wrap(err, fmt.Sprintf("Failed to Describe TaskDefinition; try using --%s to specify the Task Defintion.", flags.TaskDefinitionFlag))
+		return nil, "", errors.Wrap(err, fmt.Sprintf("Failed to Describe TaskDefinition; try using --%s to specify the Task Definition.", flags.TaskDefinitionFlag))
 	}
 
 	containerName := context.String(flags.ContainerNameFlag)

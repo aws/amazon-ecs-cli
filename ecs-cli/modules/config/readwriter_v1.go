@@ -172,7 +172,7 @@ func (rdwr *YAMLReadWriter) Get(clusterConfig string, profileConfig string) (*CL
 	profilePath := credentialsFilePath(rdwr.destination)
 	configPath := ConfigFilePath(rdwr.destination)
 
-	// try to readINI first; it is either sucessful or it
+	// try to readINI first; it is either successful or it
 	// set cliConfig to be its default value (all fields empty strings)
 	readINI(rdwr.destination, cliConfig)
 

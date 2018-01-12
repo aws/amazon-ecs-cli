@@ -87,7 +87,7 @@ func (c *Container) State() string {
 }
 
 // PortString returns a formatted string with container's network bindings
-// in a comma seperated fashion
+// in a comma separated fashion
 func (c *Container) PortString() string {
 	result := []string{}
 	for _, port := range c.networkBindings {
