@@ -151,7 +151,10 @@ func logUnsupportedConfigFields(project *project.Project) {
 	if project.VolumeConfigs != nil && len(project.VolumeConfigs) > 0 {
 		log.WithFields(log.Fields{"option name": "volumes"}).Warn("Skipping unsupported YAML option...")
 	}
-	if project.NetworkConfigs != nil && len(project.NetworkConfigs) > 0 {
+	// ecsProject#parseCompose, which calls the underlying libcompose.Project#Parse(),
+	// always populates the project.NetworkConfig with one entry ("default").
+	// See: https://github.com/docker/libcompose/blob/master/project/project.go#L277
+	if project.NetworkConfigs != nil && len(project.NetworkConfigs) > 1 {
 		log.WithFields(log.Fields{"option name": "networks"}).Warn("Skipping unsupported YAML option...")
 	}
 }
@@ -174,15 +177,36 @@ func logUnsupportedServiceConfigFields(serviceName string, config *config.Servic
 			}
 		}
 
+		if tagName == "networks" && !validNetworksForService(config) {
+			log.WithFields(log.Fields{
+				"option name":  tagName,
+				"service name": serviceName,
+			}).Warn("Skipping unsupported YAML option for service...")
+		}
+
 		zeroValue := isZero(field)
 		// if value is present for the field that is not in supportedYamlTags map, log a warning
-		if !zeroValue && !supportedComposeYamlOptionsMap[tagName] {
+		if tagName != "networks" && !zeroValue && !supportedComposeYamlOptionsMap[tagName] {
 			log.WithFields(log.Fields{
 				"option name":  tagName,
 				"service name": serviceName,
 			}).Warn("Skipping unsupported YAML option for service...")
 		}
 	}
+}
+
+func validNetworksForService(config *config.ServiceConfig) bool {
+	if config.Networks == nil {
+		return false
+	}
+	if config.Networks.Networks == nil {
+		return false
+	}
+	if len(config.Networks.Networks) != 1 {
+		return false
+	}
+
+	return true
 }
 
 // isZero checks if the value is nil or empty or zero
