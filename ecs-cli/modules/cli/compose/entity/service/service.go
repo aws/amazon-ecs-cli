@@ -266,7 +266,7 @@ func (s *Service) Up() error {
 		return err
 	}
 
-	err = s.Context().ECSClient.UpdateService(ecsServiceName, newTaskDefinitionId, newCount, deploymentConfig, networkConfig, s.healthCheckGP)
+	err = s.Context().ECSClient.UpdateService(ecsServiceName, newTaskDefinitionId, newCount, deploymentConfig, networkConfig, s.healthCheckGP, false)
 	if err != nil {
 		return err
 	}
@@ -420,7 +420,7 @@ func (s *Service) updateService(count int64) error {
 		return err
 	}
 
-	if err = s.Context().ECSClient.UpdateServiceCount(serviceName, count, deploymentConfig, networkConfig, s.healthCheckGP); err != nil {
+	if err = s.Context().ECSClient.UpdateServiceCount(serviceName, count, deploymentConfig, networkConfig, s.healthCheckGP, false); err != nil {
 		return err
 	}
 

@@ -45,8 +45,8 @@ type ECSClient interface {
 
 	// Service related
 	CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, launchType string, healthCheckGracePeriod *int64) error
-	UpdateServiceCount(serviceName string, count int64, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, healthCheckGracePeriod *int64) error
-	UpdateService(serviceName, taskDefinitionName string, count int64, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, healthCheckGracePeriod *int64) error
+	UpdateServiceCount(serviceName string, count int64, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, healthCheckGracePeriod *int64, force bool) error
+	UpdateService(serviceName, taskDefinitionName string, count int64, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, healthCheckGracePeriod *int64, force bool) error
 	DescribeService(serviceName string) (*ecs.DescribeServicesOutput, error)
 	DeleteService(serviceName string) error
 
@@ -181,16 +181,17 @@ func (c *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer 
 	return nil
 }
 
-func (c *ecsClient) UpdateServiceCount(serviceName string, count int64, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, healthCheckGracePeriod *int64) error {
-	return c.UpdateService(serviceName, "", count, deploymentConfig, networkConfig, healthCheckGracePeriod)
+func (c *ecsClient) UpdateServiceCount(serviceName string, count int64, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, healthCheckGracePeriod *int64, force bool) error {
+	return c.UpdateService(serviceName, "", count, deploymentConfig, networkConfig, healthCheckGracePeriod, force)
 }
 
-func (c *ecsClient) UpdateService(serviceName, taskDefinition string, count int64, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, healthCheckGracePeriod *int64) error {
+func (c *ecsClient) UpdateService(serviceName, taskDefinition string, count int64, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, healthCheckGracePeriod *int64, force bool) error {
 	input := &ecs.UpdateServiceInput{
 		DesiredCount:            aws.Int64(count),
 		Service:                 aws.String(serviceName),
 		Cluster:                 aws.String(c.params.Cluster),
 		DeploymentConfiguration: deploymentConfig,
+		ForceNewDeployment:		&force,
 	}
 
 	if healthCheckGracePeriod != nil {
