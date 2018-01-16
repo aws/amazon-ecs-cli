@@ -266,7 +266,9 @@ func (s *Service) Up() error {
 		return err
 	}
 
-	err = s.Context().ECSClient.UpdateService(ecsServiceName, newTaskDefinitionId, newCount, deploymentConfig, networkConfig, s.healthCheckGP, false)
+	forceDeployment := s.Context().CLIContext.Bool(flags.ForceDeploymentFlag)
+
+	err = s.Context().ECSClient.UpdateService(ecsServiceName, newTaskDefinitionId, newCount, deploymentConfig, networkConfig, s.healthCheckGP, forceDeployment)
 	if err != nil {
 		return err
 	}
@@ -397,8 +399,17 @@ func (s *Service) describeService() (*ecs.Service, error) {
 // startService checks if the service has a zero desired count and updates the count to 1 (of each container)
 func (s *Service) startService(ecsService *ecs.Service) error {
 	desiredCount := aws.Int64Value(ecsService.DesiredCount)
+	forceDeployment := s.Context().CLIContext.Bool(flags.ForceDeploymentFlag)
 	if desiredCount != 0 {
 		serviceName := aws.StringValue(ecsService.ServiceName)
+		if forceDeployment {
+			log.WithFields(log.Fields{
+				"serviceName":      serviceName,
+				"desiredCount":     desiredCount,
+				"force-deployment": strconv.FormatBool(forceDeployment),
+			}).Info("Forcing new deployment of running ECS Service")
+			return s.updateService(desiredCount)
+		}
 		//NoOp
 		log.WithFields(log.Fields{
 			"serviceName":  serviceName,
@@ -415,12 +426,13 @@ func (s *Service) updateService(count int64) error {
 	serviceName := entity.GetServiceName(s)
 	deploymentConfig := s.DeploymentConfig()
 	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(s.projectContext.ECSParams)
+	forceDeployment := s.Context().CLIContext.Bool(flags.ForceDeploymentFlag)
 
 	if err != nil {
 		return err
 	}
 
-	if err = s.Context().ECSClient.UpdateServiceCount(serviceName, count, deploymentConfig, networkConfig, s.healthCheckGP, false); err != nil {
+	if err = s.Context().ECSClient.UpdateServiceCount(serviceName, count, deploymentConfig, networkConfig, s.healthCheckGP, forceDeployment); err != nil {
 		return err
 	}
 
@@ -436,6 +448,9 @@ func (s *Service) updateService(count int64) error {
 	}
 	if s.healthCheckGP != nil {
 		fields["health-check-grace-period"] = *s.healthCheckGP
+	}
+	if forceDeployment {
+		fields["force-deployment"] = forceDeployment
 	}
 
 	log.WithFields(fields).Info("Updated ECS service successfully")

@@ -106,6 +106,7 @@ const (
 	HealthCheckGracePeriodFlag              = "health-check-grace-period"
 	RoleFlag                                = "role"
 	ComposeServiceTimeOutFlag               = "timeout"
+	ForceDeploymentFlag                     = "force-deployment"
 )
 
 // OptionalRegionAndProfileFlags provides these flags:

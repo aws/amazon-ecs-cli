@@ -191,7 +191,7 @@ func (c *ecsClient) UpdateService(serviceName, taskDefinition string, count int6
 		Service:                 aws.String(serviceName),
 		Cluster:                 aws.String(c.params.Cluster),
 		DeploymentConfiguration: deploymentConfig,
-		ForceNewDeployment:		&force,
+		ForceNewDeployment:      &force,
 	}
 
 	if healthCheckGracePeriod != nil {

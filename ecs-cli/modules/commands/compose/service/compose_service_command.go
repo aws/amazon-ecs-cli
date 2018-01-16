@@ -76,7 +76,7 @@ func startServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "start",
 		Usage:        "Starts one copy of each of the containers on an existing ECS service by setting the desired count to 1 (only if the current desired count is 0).",
 		Action:       compose.WithProject(factory, compose.ProjectStart, true),
-		Flags:        append(flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag(), flags.OptionalCreateLogsFlag()),
+		Flags:        append(append(flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag(), flags.OptionalCreateLogsFlag()), ForceNewDeploymentFlag()),
 		OnUsageError: flags.UsageErrorFactory("start"),
 	}
 }
@@ -86,7 +86,7 @@ func upServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "up",
 		Usage:        "Creates a new ECS service or updates an existing one according to your compose file. For new services or existing services with a current desired count of 0, the desired count for the service is set to 1. For existing services with non-zero desired counts, a new task definition is created to reflect any changes to the compose file and the service is updated to use that task definition. In this case, the desired count does not change.",
 		Action:       compose.WithProject(factory, compose.ProjectUp, true),
-		Flags:        append(append(append(deploymentConfigFlags(true), append(loadBalancerFlags(), flags.OptionalConfigFlags()...)...), ComposeServiceTimeoutFlag()), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag()),
+		Flags:        append(append(append(append(deploymentConfigFlags(true), append(loadBalancerFlags(), flags.OptionalConfigFlags()...)...), ComposeServiceTimeoutFlag()), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag()), ForceNewDeploymentFlag()),
 		OnUsageError: flags.UsageErrorFactory("up"),
 	}
 }
@@ -196,5 +196,12 @@ func ComposeServiceTimeoutFlag() cli.Flag {
 		Usage: fmt.Sprintf(
 			"Specifies the timeout value in minutes (decimals supported) to wait for the running task count to change. If the running task count has not changed for the specified period of time, then the CLI times out and returns an error. Setting the timeout to 0 will cause the command to return without checking for success.",
 		),
+	}
+}
+
+func ForceNewDeploymentFlag() cli.Flag {
+	return cli.BoolFlag{
+		Name:  flags.ForceDeploymentFlag,
+		Usage: "[Optional] Whether or not to force a new deployment of the service.",
 	}
 }
