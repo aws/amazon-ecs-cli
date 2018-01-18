@@ -34,7 +34,7 @@ func UpCommand() cli.Command {
 func DownCommand() cli.Command {
 	return cli.Command{
 		Name:         "down",
-		Usage:        "Deletes the CloudFormation stack that was created by ecs-cli up and the associated resources. The --force option is required.",
+		Usage:        "Deletes the CloudFormation stack that was created by ecs-cli up and the associated resources.",
 		Action:       cluster.ClusterDown,
 		Flags:        append(clusterDownFlags(), flags.OptionalConfigFlags()...),
 		OnUsageError: flags.UsageErrorFactory("down"),
@@ -134,7 +134,7 @@ func clusterDownFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.BoolFlag{
 			Name:  flags.ForceFlag + ", f",
-			Usage: "Acknowledges that this command permanently deletes resources.",
+			Usage: "[Optional] Acknowledges that this command permanently deletes resources.",
 		},
 	}
 }
