@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0
+* Feature - Update AMI to amzn-ami-2017.09.g-amazon-ecs-optimized
+* Feature - Add health-check-grace-period flag for compose service up
+* Feature - Add empty flag for cluster up
+
 ## 1.2.2
 * Feature - Update AMI to amzn-ami-2017.09.f-amazon-ecs-optimized
 
