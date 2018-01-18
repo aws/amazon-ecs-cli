@@ -26,6 +26,7 @@ const (
 	// Configure
 	AccessKeyFlag           = "access-key"
 	SecretKeyFlag           = "secret-key"
+	SessionTokenFlag        = "session-token"
 	RegionFlag              = "region"
 	AwsRegionEnvVar         = "AWS_REGION"
 	AwsDefaultRegionEnvVar  = "AWS_DEFAULT_REGION"

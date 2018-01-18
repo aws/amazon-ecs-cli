@@ -31,6 +31,7 @@ const (
 	cfnStackNamePrefixKey       = "cfn-stack-name-prefix"
 	awsAccessKey                = "aws_access_key_id"
 	awsSecretKey                = "aws_secret_access_key"
+	awsSessionToken             = "aws_session_token"
 	clusterKey                  = "cluster"
 	clustersKey                 = "clusters"
 	regionKey                   = "region"
@@ -46,6 +47,7 @@ type CLIConfig struct {
 	Region                   string
 	AWSAccessKey             string
 	AWSSecretKey             string
+	AWSSessionToken          string
 	ComposeServiceNamePrefix string
 	ComposeProjectNamePrefix string // Deprecated; remains for backwards compatibility
 	CFNStackName             string
@@ -55,8 +57,9 @@ type CLIConfig struct {
 
 // Profile is a simple struct for storing a single profile config
 type Profile struct {
-	AWSAccessKey string `yaml:"aws_access_key_id"`
-	AWSSecretKey string `yaml:"aws_secret_access_key"`
+	AWSAccessKey    string `yaml:"aws_access_key_id"`
+	AWSSecretKey    string `yaml:"aws_secret_access_key"`
+	AWSSessionToken string `yaml:"aws_session_token,omitempty"`
 }
 
 // Cluster is a simple struct for storing a single cluster config
@@ -159,7 +162,7 @@ func isDefaultECSProfileCase(cfg *CLIConfig) bool {
 
 func sessionFromECSConfig(cfg *CLIConfig, region string, svcConfig *aws.Config) (*session.Session, error) {
 	if cfg.AWSSecretKey != "" {
-		return sessionFromKeys(region, cfg.AWSAccessKey, cfg.AWSSecretKey, svcConfig)
+		return sessionFromKeys(region, cfg.AWSAccessKey, cfg.AWSSecretKey, cfg.AWSSessionToken, svcConfig)
 	}
 
 	return sessionFromProfile(cfg.AWSProfile, region, svcConfig)
@@ -188,9 +191,9 @@ func sessionFromProfile(profile string, region string, svcConfig *aws.Config) (*
 	})
 }
 
-func sessionFromKeys(region string, awsAccess string, awsSecret string, svcConfig *aws.Config) (*session.Session, error) {
+func sessionFromKeys(region string, awsAccess string, awsSecret string, sessionToken string, svcConfig *aws.Config) (*session.Session, error) {
 	svcConfig.Region = aws.String(region)
-	svcConfig.Credentials = credentials.NewStaticCredentials(awsAccess, awsSecret, "")
+	svcConfig.Credentials = credentials.NewStaticCredentials(awsAccess, awsSecret, sessionToken)
 	return session.NewSession(svcConfig)
 }
 

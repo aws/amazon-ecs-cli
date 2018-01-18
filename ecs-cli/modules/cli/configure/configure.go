@@ -161,13 +161,15 @@ func Profile(context *cli.Context) error {
 	if err := fieldEmpty(accessKey, flags.AccessKeyFlag); err != nil {
 		return err
 	}
+	sessionToken := context.String(flags.SessionTokenFlag)
 	profileName := context.String(flags.ProfileNameFlag)
 	if err := fieldEmpty(profileName, flags.ProfileNameFlag); err != nil {
 		return err
 	}
 	profile := &config.Profile{
-		AWSAccessKey: accessKey,
-		AWSSecretKey: secretKey,
+		AWSAccessKey:    accessKey,
+		AWSSecretKey:    secretKey,
+		AWSSessionToken: sessionToken,
 	}
 
 	rdwr, err := config.NewReadWriter()
