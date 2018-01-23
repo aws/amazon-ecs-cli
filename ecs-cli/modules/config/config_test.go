@@ -34,6 +34,7 @@ const (
 	clusterName             = "defaultCluster"
 	region                  = "us-east-1"
 	credentialProviderCount = 2
+	awsToken                = "session-token"
 
 	customProfileName  = "customProfile"
 	customAwsAccessKey = "customAKID"
@@ -272,7 +273,7 @@ func TestCredentialsWhenUsingDefaultEnvVariable(t *testing.T) {
 }
 
 // 2) Use access and secrets keys from ECS Config
-func TestCredentialsWhenUsingECSConfigRegion(t *testing.T) {
+func TestCredentialsWhenUsingECSConfig(t *testing.T) {
 	// defaults
 	ecsConfig := NewCLIConfig(clusterName)
 	ecsConfig.Region = region
@@ -280,9 +281,10 @@ func TestCredentialsWhenUsingECSConfigRegion(t *testing.T) {
 	// set variables for test
 	ecsConfig.AWSAccessKey = awsAccessKey
 	ecsConfig.AWSSecretKey = awsSecretKey
+	ecsConfig.AWSSessionToken = awsToken
 
 	// invoke test and verify
-	testCredentialsInSession(t, ecsConfig, awsAccessKey, awsSecretKey)
+	testCredentialsInSessionWithToken(t, ecsConfig, awsAccessKey, awsSecretKey, awsToken)
 }
 
 // 3a) Use credentials from profile in ECS Config
@@ -543,6 +545,15 @@ func TestCredentialOrderOfResolutionECSConfig(t *testing.T) {
 	testCredentialsInSession(t, ecsConfig, awsAccessKey, awsSecretKey)
 }
 
+func testCredentialsInSessionWithToken(t *testing.T, inputConfig *CLIConfig, expectedAccessKey, expectedSecretKey, expectedSessionToken string) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	context := cli.NewContext(nil, flagSet, nil)
+	awsSession, err := inputConfig.ToAWSSession(context)
+	assert.NoError(t, err, "Unexpected error generating a new session")
+
+	verifyCredentialsInSessionWithToken(t, awsSession, expectedAccessKey, expectedSecretKey, expectedSessionToken)
+}
+
 func testCredentialsInSession(t *testing.T, inputConfig *CLIConfig, expectedAccessKey, expectedSecretKey string) {
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	context := cli.NewContext(nil, flagSet, nil)
@@ -573,4 +584,13 @@ func verifyCredentialsInSession(t *testing.T, awsSession *session.Session, expec
 	assert.NoError(t, err, "Unexpected error fetching credentials from the chain provider")
 	assert.Equal(t, expectedAccessKey, resolvedCredentials.AccessKeyID, "Expected access key to match")
 	assert.Equal(t, expectedSecretKey, resolvedCredentials.SecretAccessKey, "Expected secret key to match")
+}
+
+func verifyCredentialsInSessionWithToken(t *testing.T, awsSession *session.Session, expectedAccessKey, expectedSecretKey, expectedToken string) {
+	awsConfig := awsSession.Config
+	resolvedCredentials, err := awsConfig.Credentials.Get()
+	assert.NoError(t, err, "Unexpected error fetching credentials from the chain provider")
+	assert.Equal(t, expectedAccessKey, resolvedCredentials.AccessKeyID, "Expected access key to match")
+	assert.Equal(t, expectedSecretKey, resolvedCredentials.SecretAccessKey, "Expected secret key to match")
+	assert.Equal(t, expectedToken, resolvedCredentials.SessionToken, "Expected session token to match")
 }
