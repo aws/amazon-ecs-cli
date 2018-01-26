@@ -147,7 +147,7 @@ func configureProfileFlags() []cli.Flag {
 		cli.StringFlag{
 			Name: flags.SessionTokenFlag,
 			Usage: fmt.Sprintf(
-				"Specifies the AWS session token to use. The ECS CLI uses the value of your $AWS_SESSION_TOKEN environment variable if it is set.",
+				"[Optional] Specifies the AWS session token to use. The ECS CLI uses the value of your $AWS_SESSION_TOKEN environment variable if it is set.",
 			),
 			EnvVar: "AWS_SESSION_TOKEN",
 		},
