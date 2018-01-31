@@ -726,97 +726,12 @@ func getDefaultUpdateInput() UpdateServiceParams {
 	}
 }
 
-func upServiceWithCurrentTaskDefTest(t *testing.T,
-	cliContext *cli.Context,
-	cliParams *config.CLIParams,
-	ecsParams *utils.ECSParams,
-	expectedInput UpdateServiceParams,
-	existingService *ecs.Service) {
-
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	// setup expected task def
-	taskDefID := "taskDefinitionId"
-	if existingService != nil {
-		// set to existing if provided
-		taskDefID = entity.GetIdFromArn(existingService.TaskDefinition)
-	}
-	taskDefArn, taskDefinition, registerTaskDefResponse := getTestTaskDef(taskDefID)
-
-	// setup DescribeService() response
-	describeServiceResponse := getDescribeServiceTestResponse(existingService)
-
-	mockEcs := mock_ecs.NewMockECSClient(ctrl)
-	gomock.InOrder(
-		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(describeServiceResponse, nil),
-
-		mockEcs.EXPECT().RegisterTaskDefinitionIfNeeded(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
-			verifyTaskDefinitionInput(t, taskDefinition, x.(*ecs.RegisterTaskDefinitionInput))
-		}).Return(&registerTaskDefResponse, nil),
-
-		mockEcs.EXPECT().UpdateServiceCount(
-			gomock.Any(), // serviceName
-			gomock.Any(), // count
-			gomock.Any(), // deploymentConfig
-			gomock.Any(), // networkConfig
-			gomock.Any(), // healthCheckGracePeriod
-			gomock.Any(), // force
-		).Do(func(a, b, c, d, e, f interface{}) {
-			// validate the client is called with the expected inputs
-			observedInput := UpdateServiceParams{
-				serviceName:            a.(string),
-				count:                  b.(int64),
-				deploymentConfig:       c.(*ecs.DeploymentConfiguration),
-				networkConfig:          d.(*ecs.NetworkConfiguration),
-				healthCheckGracePeriod: e.(*int64),
-				forceDeployment:        f.(bool),
-			}
-			assert.Equal(t, expectedInput, observedInput)
-
-		}).Return(nil),
-	)
-
-	context := &context.Context{
-		ECSClient:  mockEcs,
-		CLIParams:  cliParams,
-		CLIContext: cliContext,
-		ECSParams:  ecsParams,
-	}
-	if existingService != nil {
-		context.ProjectName = *existingService.ServiceName
-	}
-	service := NewService(context)
-	err := service.LoadContext()
-	assert.NoError(t, err, "Unexpected error while loading context in create service test")
-
-	service.SetTaskDefinition(&taskDefinition)
-	err = service.Up()
-	assert.NoError(t, err, "Unexpected error while create")
-
-	// task definition should be set
-	assert.Equal(t, taskDefArn, aws.StringValue(service.TaskDefinition().TaskDefinitionArn), "TaskDefArn should match")
-}
-
-func upServiceWithNewTaskDefTest(t *testing.T,
-	cliContext *cli.Context,
-	cliParams *config.CLIParams,
-	ecsParams *utils.ECSParams,
-	expectedInput UpdateServiceParams,
-	existingService *ecs.Service) {
-
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	// setup expected (new) task def
-	taskDefID := "newTaskDefinitionId"
-	taskDefArn, taskDefinition, registerTaskDefResponse := getTestTaskDef(taskDefID)
-
-	// expect input to include new task def
-	expectedInput.taskDefinition = taskDefID
-
-	// setup DescribeService() response
-	describeServiceResponse := getDescribeServiceTestResponse(existingService)
+func getUpdateServiceMockClient(t *testing.T,
+	ctrl *gomock.Controller,
+	describeServiceResponse *ecs.DescribeServicesOutput,
+	taskDefinition ecs.TaskDefinition,
+	registerTaskDefResponse ecs.TaskDefinition,
+	expectedInput UpdateServiceParams) *mock_ecs.MockECSClient {
 
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	gomock.InOrder(
@@ -849,6 +764,75 @@ func upServiceWithNewTaskDefTest(t *testing.T,
 
 		}).Return(nil),
 	)
+	return mockEcs
+}
+
+func upServiceWithCurrentTaskDefTest(t *testing.T,
+	cliContext *cli.Context,
+	cliParams *config.CLIParams,
+	ecsParams *utils.ECSParams,
+	expectedInput UpdateServiceParams,
+	existingService *ecs.Service) {
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	// set up expected task def
+	taskDefID := "taskDefinitionId"
+	if existingService != nil {
+		// set to existing if provided
+		taskDefID = entity.GetIdFromArn(existingService.TaskDefinition)
+	}
+	taskDefArn, taskDefinition, registerTaskDefResponse := getTestTaskDef(taskDefID)
+
+	// set up DescribeService() response
+	describeServiceResponse := getDescribeServiceTestResponse(existingService)
+
+	mockEcs := getUpdateServiceMockClient(t, ctrl, describeServiceResponse, taskDefinition, registerTaskDefResponse, expectedInput)
+
+	context := &context.Context{
+		ECSClient:  mockEcs,
+		CLIParams:  cliParams,
+		CLIContext: cliContext,
+		ECSParams:  ecsParams,
+	}
+	// if taskDef is unchanged, serviceName is taken from current context
+	if existingService != nil {
+		context.ProjectName = *existingService.ServiceName
+	}
+	service := NewService(context)
+	err := service.LoadContext()
+	assert.NoError(t, err, "Unexpected error while loading context in update service with current task def test")
+
+	service.SetTaskDefinition(&taskDefinition)
+	err = service.Up()
+	assert.NoError(t, err, "Unexpected error on service up with current task def")
+
+	// task definition should be set
+	assert.Equal(t, taskDefArn, aws.StringValue(service.TaskDefinition().TaskDefinitionArn), "TaskDefArn should match")
+}
+
+func upServiceWithNewTaskDefTest(t *testing.T,
+	cliContext *cli.Context,
+	cliParams *config.CLIParams,
+	ecsParams *utils.ECSParams,
+	expectedInput UpdateServiceParams,
+	existingService *ecs.Service) {
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	// set up expected (new) task def
+	taskDefID := "newTaskDefinitionId"
+	taskDefArn, taskDefinition, registerTaskDefResponse := getTestTaskDef(taskDefID)
+
+	// expect input to include new task def
+	expectedInput.taskDefinition = taskDefID
+
+	// set up DescribeService() response
+	describeServiceResponse := getDescribeServiceTestResponse(existingService)
+
+	mockEcs := getUpdateServiceMockClient(t, ctrl, describeServiceResponse, taskDefinition, registerTaskDefResponse, expectedInput)
 
 	context := &context.Context{
 		ECSClient:  mockEcs,
@@ -858,11 +842,11 @@ func upServiceWithNewTaskDefTest(t *testing.T,
 	}
 	service := NewService(context)
 	err := service.LoadContext()
-	assert.NoError(t, err, "Unexpected error while loading context in create service test")
+	assert.NoError(t, err, "Unexpected error while loading context in update service with new task def test")
 
 	service.SetTaskDefinition(&taskDefinition)
 	err = service.Up()
-	assert.NoError(t, err, "Unexpected error while create")
+	assert.NoError(t, err, "Unexpected error on service up with new task def")
 
 	// task definition should be set
 	assert.Equal(t, taskDefArn, aws.StringValue(service.TaskDefinition().TaskDefinitionArn), "TaskDefArn should match")

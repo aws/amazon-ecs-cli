@@ -243,9 +243,6 @@ func (s *Service) Up() error {
 		}).Warn("You cannot update the load balancer configuration on an existing service.")
 	}
 
-	oldTaskDefinitionId := entity.GetIdFromArn(ecsService.TaskDefinition)
-	newTaskDefinitionId := entity.GetIdFromArn(newTaskDefinition.TaskDefinitionArn)
-
 	oldCount := aws.Int64Value(ecsService.DesiredCount)
 	newCount := int64(1)
 	if oldCount != 0 {
@@ -253,6 +250,9 @@ func (s *Service) Up() error {
 	}
 
 	// if both the task definitions are the same, call update with the new count
+	oldTaskDefinitionId := entity.GetIdFromArn(ecsService.TaskDefinition)
+	newTaskDefinitionId := entity.GetIdFromArn(newTaskDefinition.TaskDefinitionArn)
+
 	if oldTaskDefinitionId == newTaskDefinitionId {
 		return s.updateService(newCount)
 	}
@@ -432,7 +432,7 @@ func (s *Service) updateService(count int64) error {
 		return err
 	}
 
-	if err = s.Context().ECSClient.UpdateServiceCount(serviceName, count, deploymentConfig, networkConfig, s.healthCheckGP, forceDeployment); err != nil {
+	if err = s.Context().ECSClient.UpdateService(serviceName, "", count, deploymentConfig, networkConfig, s.healthCheckGP, forceDeployment); err != nil {
 		return err
 	}
 
