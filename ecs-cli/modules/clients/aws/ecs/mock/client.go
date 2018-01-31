@@ -223,13 +223,3 @@ func (_m *MockECSClient) UpdateService(_param0 string, _param1 string, _param2 i
 func (_mr *_MockECSClientRecorder) UpdateService(arg0, arg1, arg2, arg3, arg4, arg5, arg6 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateService", arg0, arg1, arg2, arg3, arg4, arg5, arg6)
 }
-
-func (_m *MockECSClient) UpdateServiceCount(_param0 string, _param1 int64, _param2 *ecs.DeploymentConfiguration, _param3 *ecs.NetworkConfiguration, _param4 *int64, _param5 bool) error {
-	ret := _m.ctrl.Call(_m, "UpdateServiceCount", _param0, _param1, _param2, _param3, _param4, _param5)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-func (_mr *_MockECSClientRecorder) UpdateServiceCount(arg0, arg1, arg2, arg3, arg4, arg5 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateServiceCount", arg0, arg1, arg2, arg3, arg4, arg5)
-}
