@@ -36,6 +36,7 @@ const (
 	awsAccessKey2            = "AKID2"
 	awsSecretKey             = "SKID"
 	awsSecretKey2            = "SKID2"
+	awsSessionToken          = "token"
 	awsProfile               = "awsprofile"
 	composeServiceNamePrefix = "ecs-"
 	cfnStackNamePrefix       = "cfn-"
@@ -56,6 +57,15 @@ func createProfileConfig(name string, accessKey string, secretKey string) *cli.C
 	flagSet.String(flags.AccessKeyFlag, accessKey, "")
 	flagSet.String(flags.SecretKeyFlag, secretKey, "")
 	flagSet.String(flags.ProfileNameFlag, name, "")
+	return cli.NewContext(nil, flagSet, nil)
+}
+
+func createProfileConfigWithSessionToken(name string, accessKey string, secretKey string, sessionToken string) *cli.Context {
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.String(flags.AccessKeyFlag, accessKey, "")
+	flagSet.String(flags.SecretKeyFlag, secretKey, "")
+	flagSet.String(flags.ProfileNameFlag, name, "")
+	flagSet.String(flags.SessionTokenFlag, sessionToken, "")
 	return cli.NewContext(nil, flagSet, nil)
 }
 
@@ -124,7 +134,7 @@ func TestDefaultProfile(t *testing.T) {
 }
 
 func TestConfigureProfile(t *testing.T) {
-	config1 := createProfileConfig(profileName, awsAccessKey, awsSecretKey)
+	config1 := createProfileConfigWithSessionToken(profileName, awsAccessKey, awsSecretKey, awsSessionToken)
 
 	// Create a temporary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")

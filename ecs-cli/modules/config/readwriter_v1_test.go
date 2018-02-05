@@ -168,6 +168,7 @@ ecs_profiles:
   Alt:
     aws_access_key_id: alt_key_id
     aws_secret_access_key: alt_key
+    aws_session_token: alt_token
 `
 
 	dest, err := newMockDestination()
@@ -197,6 +198,7 @@ ecs_profiles:
 	assert.NoError(t, err, "Error reading config")
 	assert.Equal(t, "alt_key_id", config.AWSAccessKey, "Access Key should be present.")
 	assert.Equal(t, "alt_key", config.AWSSecretKey, "Secret key should be present.")
+	assert.Equal(t, "alt_token", config.AWSSessionToken, "Session token should be present.")
 	assert.Equal(t, yamlConfigVersion, config.Version, "Expected yaml config version to be set.")
 }
 

@@ -158,6 +158,7 @@ func readProfileConfig(path string, profileConfigKey string, cliConfig *CLIConfi
 	// Get the info out of the cluster
 	cliConfig.AWSSecretKey = profile.AWSSecretKey
 	cliConfig.AWSAccessKey = profile.AWSAccessKey
+	cliConfig.AWSSessionToken = profile.AWSSessionToken
 	cliConfig.Version = yamlConfigVersion
 
 	return nil
