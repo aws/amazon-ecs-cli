@@ -19,7 +19,10 @@
 # [[override]]
 #  name = "github.com/x/y"
 #  version = "2.4.0"
-
+[prune]
+  non-go = true
+  unused-packages = true
+  go-tests = true
 
 [[constraint]]
   name = "github.com/aws/aws-sdk-go"
