@@ -63,7 +63,8 @@
     "service/sts",
     "service/sts/stsiface"
   ]
-  revision = "ccb909e564ddced884491d966808d9b245a86e6a"
+  revision = "de28909e9837364f0368d94ddcba085c57af3c12"
+  version = "v1.12.73"
 
 [[projects]]
   name = "github.com/awslabs/amazon-ecr-credential-helper"
@@ -138,7 +139,6 @@
   revision = "e30f1e79f3cd72542f2026ceec18d3bd67ab859c"
 
 [[projects]]
-  branch = "master"
   name = "github.com/docker/libcompose"
   packages = [
     "cli/app",
@@ -245,7 +245,8 @@
 [[projects]]
   name = "github.com/urfave/cli"
   packages = ["."]
-  revision = "2526b57c56f30b50466c96c4133b1a4ad0f0191f"
+  revision = "cfb38830724cc34fedffe9a2a29fb54fa9169cd1"
+  version = "v1.20.0"
 
 [[projects]]
   name = "github.com/xeipuuv/gojsonpointer"
@@ -291,6 +292,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "17f3a45e6fd9d0c80cbd7ec0e69717669ffba283b5332d66438311b4e5051007"
+  inputs-digest = "1782b227ee7235ff5dcf1960c283deb17f64ebaa129fc177d8adb921e082faf1"
   solver-name = "gps-cdcl"
   solver-version = 1

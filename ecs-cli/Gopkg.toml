@@ -26,6 +26,7 @@
 
 [[constraint]]
   name = "github.com/aws/aws-sdk-go"
+  version = "1.12.58"
 
 [[constraint]]
   name = "github.com/awslabs/amazon-ecr-credential-helper"
@@ -38,6 +39,7 @@
 
 [[constraint]]
   name = "github.com/docker/libcompose"
+  revision = "57bd716502dcbe1799f026148016022b0f3b989c"
 
 [[constraint]]
   branch = "master"
@@ -48,8 +50,10 @@
 
 [[constraint]]
   name = "github.com/go-ini/ini"
+  version = "1.32.0"
 
 [[constraint]]
+  branch = "master"
   name = "github.com/golang/mock"
 
 [[constraint]]
@@ -64,6 +68,7 @@
 
 [[constraint]]
   name = "github.com/urfave/cli"
+  version = "1.19.1"
 
 [[constraint]]
   name = "gopkg.in/yaml.v2"
