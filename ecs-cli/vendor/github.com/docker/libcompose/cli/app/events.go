@@ -8,9 +8,9 @@ import (
 
 	"golang.org/x/net/context"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/project/events"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 

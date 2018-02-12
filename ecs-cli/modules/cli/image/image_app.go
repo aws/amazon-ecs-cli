@@ -21,7 +21,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	ecrclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecr"
 	stsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/sts"
 	dockerclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/docker"

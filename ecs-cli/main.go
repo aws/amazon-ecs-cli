@@ -16,7 +16,7 @@ package main
 import (
 	"os"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/factory"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/cluster"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/compose"
