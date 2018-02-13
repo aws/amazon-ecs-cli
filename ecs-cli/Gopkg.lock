@@ -35,7 +35,6 @@
   revision = "a98235bd6d927ba8379ef4f0050c32c9a2ea17b8"
 
 [[projects]]
-  branch = "master"
   name = "github.com/containerd/continuity"
   packages = ["pathdriver"]
   revision = "b2b946a77f5973f420514090d6f6dd58b08303f0"
@@ -52,7 +51,6 @@
   revision = "41368a84bb8b1502450b316b34c732d7bb1a103d"
 
 [[projects]]
-  branch = "master"
   name = "github.com/docker/docker"
   packages = ["api/types","api/types/blkiodev","api/types/container","api/types/filters","api/types/mount","api/types/network","api/types/registry","api/types/strslice","api/types/swarm","api/types/swarm/runtime","api/types/versions","opts","pkg/archive","pkg/fileutils","pkg/homedir","pkg/idtools","pkg/ioutils","pkg/jsonmessage","pkg/longpath","pkg/mount","pkg/pools","pkg/stdcopy","pkg/system","pkg/term","pkg/term/windows","pkg/urlutil"]
   revision = "92309e34e42aec3a0e041403bdd3c4fc0dc20269"
@@ -68,13 +66,11 @@
   revision = "e30f1e79f3cd72542f2026ceec18d3bd67ab859c"
 
 [[projects]]
-  branch = "master"
   name = "github.com/docker/libcompose"
   packages = ["cli/app","cli/command","config","logger","lookup","project","project/events","project/options","utils","version","yaml"]
   revision = "57bd716502dcbe1799f026148016022b0f3b989c"
 
 [[projects]]
-  branch = "master"
   name = "github.com/flynn/go-shlex"
   packages = ["."]
   revision = "3f9db97f856818214da2e1057f8ad84803971cff"
@@ -91,7 +87,6 @@
   version = "v1.32.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/gogo/protobuf"
   packages = ["proto"]
   revision = "160de10b2537169b5ae3e7e221d28269ef40d311"
@@ -123,7 +118,6 @@
   version = "v1.0.0-rc1"
 
 [[projects]]
-  branch = "master"
   name = "github.com/opencontainers/image-spec"
   packages = ["specs-go","specs-go/v1"]
   revision = "577479e4dc273d3779f00c223c7e0dba4cd6b8b0"
@@ -166,7 +160,6 @@
   revision = "e0fe6f68307607d540ed8eac07a342c33fa1b54a"
 
 [[projects]]
-  branch = "master"
   name = "github.com/xeipuuv/gojsonreference"
   packages = ["."]
   revision = "e02fc20de94c78484cd5ffb007f8af96be030a45"
@@ -177,7 +170,6 @@
   revision = "e18f0065e8c148fcf567ac43a3f8f5b66ac0720b"
 
 [[projects]]
-  branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
   revision = "5f55bce93ad2c89f411e009659bb1fd83da36e7b"
@@ -188,7 +180,6 @@
   revision = "a6577fac2d73be281a500b310739095313165611"
 
 [[projects]]
-  branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix","windows"]
   revision = "810d7000345868fc619eb81f46307107118f4ae1"
@@ -201,6 +192,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "17f3a45e6fd9d0c80cbd7ec0e69717669ffba283b5332d66438311b4e5051007"
+  inputs-digest = "2d99798c7ff13359605093e507c2580a909f3cb66a939c25af816149771f5185"
   solver-name = "gps-cdcl"
   solver-version = 1
