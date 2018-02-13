@@ -16,7 +16,7 @@ package entity
 import (
 	"fmt"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	composecontainer "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/container"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/logs"

@@ -1,0 +1,80 @@
+
+# Gopkg.toml example
+#
+# Refer to https://github.com/golang/dep/blob/master/docs/Gopkg.toml.md
+# for detailed Gopkg.toml documentation.
+#
+# required = ["github.com/user/thing/cmd/thing"]
+# ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
+#
+# [[constraint]]
+#   name = "github.com/user/project"
+#   version = "1.0.0"
+#
+# [[constraint]]
+#   name = "github.com/user/project2"
+#   branch = "dev"
+#   source = "github.com/myfork/project2"
+#
+# [[override]]
+#  name = "github.com/x/y"
+#  version = "2.4.0"
+
+
+[[constraint]]
+  name = "github.com/aws/aws-sdk-go"
+  # version = "1.12.58"
+  revision = "ccb909e564ddced884491d966808d9b245a86e6a"
+
+[[constraint]]
+  name = "github.com/awslabs/amazon-ecr-credential-helper"
+  revision = "19c5038b3c1fc63328b4eb99c507c72f12a27f66"
+
+[[constraint]]
+  name = "github.com/cihub/seelog"
+  revision = "a98235bd6d927ba8379ef4f0050c32c9a2ea17b8"
+
+[[constraint]]
+  name = "github.com/docker/go-units"
+  revision = "e30f1e79f3cd72542f2026ceec18d3bd67ab859c"
+
+[[constraint]]
+  name = "github.com/docker/libcompose"
+  revision = "57bd716502dcbe1799f026148016022b0f3b989c"
+
+[[constraint]]
+  name = "github.com/flynn/go-shlex"
+  revision = "3f9db97f856818214da2e1057f8ad84803971cff"
+
+[[constraint]]
+  name = "github.com/fsouza/go-dockerclient"
+  revision = "4a934a8fd3ec3d4f84d9dcd8b47e7b277918c366"
+
+[[constraint]]
+  name = "github.com/go-ini/ini"
+  revision = "32e4c1e6bc4e7d0d8451aa6b75200d19e37a536a"
+
+[[constraint]]
+  name = "github.com/golang/mock"
+  revision = "bd3c8e81be01eef76d4b503f5e687d2d1354d2d9"
+
+[[constraint]]
+  name = "github.com/pkg/errors"
+  revision = "248dadf4e9068a0b3e79f02ed0a610d935de5302"
+
+[[constraint]]
+  name = "github.com/sirupsen/logrus"
+  version = "1.0.4"
+
+[[constraint]]
+  name = "github.com/stretchr/testify"
+  revision = "2402e8e7a02fc811447d11f881aa9746cdc57983"
+
+[[constraint]]
+  name = "github.com/urfave/cli"
+  # version = "1.19.1"
+  revision = "2526b57c56f30b50466c96c4133b1a4ad0f0191f"
+
+[[constraint]]
+  name = "gopkg.in/yaml.v2"
+  revision = "a5b47d31c556af34a302ce5d659e6fea44d90de0"

@@ -18,7 +18,7 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"

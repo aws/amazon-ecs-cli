@@ -17,7 +17,7 @@ import (
 	"flag"
 	"testing"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/urfave/cli"
 )

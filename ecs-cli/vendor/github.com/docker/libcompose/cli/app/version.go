@@ -6,8 +6,8 @@ import (
 	"runtime"
 	"text/template"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/docker/libcompose/version"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 

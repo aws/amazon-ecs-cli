@@ -14,7 +14,7 @@
 package docker
 
 import (
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/docker/dockeriface"
 	"github.com/fsouza/go-dockerclient"
 	"github.com/pkg/errors"
