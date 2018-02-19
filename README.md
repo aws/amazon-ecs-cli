@@ -281,7 +281,7 @@ for example:
 ```
 $ ecs-cli compose ps
 Name                                      State    Ports                     TaskDefinition
-fd8d5a69-87c5-46a4-80b6-51918092e600/web  RUNNING  54.209.244.64:80->80/tcp  ecscompose-web:1
+fd8d5a69-87c5-46a4-80b6-51918092e600/web  RUNNING  54.209.244.64:80->80/tcp  web:1
 ```
 
 Navigate your web browser to the task’s IP address to see the sample app running in the ECS cluster.
@@ -294,8 +294,8 @@ container instance fails for some reason).
 ```
 $ ecs-cli compose --project-name wordpress-test service create
 
-INFO[0000] Using Task definition                         TaskDefinition=ecscompose-wordpress-test:1
-INFO[0000] Created an ECS Service                        serviceName=ecscompose-service-wordpress-test taskDefinition=ecscompose-wordpress-test:1
+INFO[0000] Using Task definition                         TaskDefinition=wordpress-test:1
+INFO[0000] Created an ECS Service                        serviceName=wordpress-test taskDefinition=wordpress-test:1
 
 ```
 
@@ -307,8 +307,8 @@ the following command:
 ```
 $ ecs-cli compose --project-name wordpress-test service ps
 Name                                            State    Ports                      TaskDefinition
-34333aa6-e976-4096-991a-0ec4cd5af5bd/wordpress  RUNNING  54.186.138.217:80->80/tcp  ecscompose-wordpress-test:1
-34333aa6-e976-4096-991a-0ec4cd5af5bd/mysql      RUNNING                             ecscompose-wordpress-test:1
+34333aa6-e976-4096-991a-0ec4cd5af5bd/wordpress  RUNNING  54.186.138.217:80->80/tcp  wordpress-test:1
+34333aa6-e976-4096-991a-0ec4cd5af5bd/mysql      RUNNING                             wordpress-test:1
 ```
 
 See the `$ ecs-cli compose service` [documentation page](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cmd-ecs-cli-compose-service.html) for more information about available service options, including load balancing.
