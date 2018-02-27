@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -502,6 +503,17 @@ func SortedGoString(v interface{}) (string, error) {
 		return "", err
 	}
 	return string(b), nil
+}
+
+// Necessary in conjunction with SortedGoString to avoid spurious tdcache misses
+func SortedContainerDefinitionsByName(request *ecs.RegisterTaskDefinitionInput) ecs.RegisterTaskDefinitionInput {
+	cdefs := request.ContainerDefinitions
+	sort.Slice(cdefs, func(i, j int) bool {
+		return *cdefs[i].Name < *cdefs[j].Name
+	})
+	sorted := *request
+	sorted.ContainerDefinitions = cdefs
+	return sorted
 }
 
 // ConvertCamelCaseToUnderScore returns an underscore-separated name for a given camelcased string

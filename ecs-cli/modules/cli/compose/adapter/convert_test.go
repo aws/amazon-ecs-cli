@@ -15,7 +15,9 @@ package adapter
 
 import (
 	"fmt"
+	"math/rand"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -561,6 +563,48 @@ func TestConvertToVolumes_ErrorsWithExternalSubfield(t *testing.T) {
 	_, err = ConvertToVolumes(libcomposeVolumeConfigs)
 
 	assert.Error(t, err, "Expected error converting libcompose volume configs when external is specified")
+}
+
+func TestRegisterTaskDefinitionInputEquivalence(t *testing.T) {
+	family := aws.String("family1")
+	dockerLabels := map[string]string{
+		"label1":         "",
+		"com.foo.label2": "value",
+	}
+	cdefs := []*ecs.ContainerDefinition{}
+	N := 10
+	for i := 0; i < N; i++ {
+		command := make([]string, i+1)
+		for j := 0; j < i+1; j++ {
+			command[j] = strings.Repeat(string(rune(65+j)), i+1)
+		}
+		cdefs = append(cdefs, &ecs.ContainerDefinition{
+			Name:         aws.String(strings.Repeat(string(rune(65+i)), i+1)),
+			Command:      aws.StringSlice(command),
+			DockerLabels: aws.StringMap(dockerLabels),
+		})
+	}
+	inputA := ecs.RegisterTaskDefinitionInput{
+		Family:               family,
+		ContainerDefinitions: cdefs,
+	}
+
+	shuffle_cdefs := make([]*ecs.ContainerDefinition, len(cdefs))
+	for i, v := range rand.Perm(len(cdefs)) {
+		shuffle_cdefs[v] = cdefs[i]
+	}
+
+	inputB := ecs.RegisterTaskDefinitionInput{
+		ContainerDefinitions: shuffle_cdefs,
+		Family:               family,
+	}
+
+	strA, err := SortedGoString(SortedContainerDefinitionsByName(&inputA))
+	assert.NoError(t, err, "Unexpected error generating sorted map string")
+	strB, err := SortedGoString(SortedContainerDefinitionsByName(&inputB))
+	assert.NoError(t, err, "Unexpected error generating sorted map string")
+
+	assert.Equal(t, strA, strB, "Sorted inputs should match")
 }
 
 func TestSortedGoString(t *testing.T) {
