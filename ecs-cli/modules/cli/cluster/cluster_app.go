@@ -115,13 +115,13 @@ func ClusterScale(c *cli.Context) {
 func ClusterPS(c *cli.Context) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
-		logrus.Fatal("Error executing 'ps ", err)
+		logrus.Fatal("Error executing 'ps': ", err)
 	}
 
 	ecsClient := ecsclient.NewECSClient()
 	infoSet, err := clusterPS(c, rdwr, ecsClient)
 	if err != nil {
-		logrus.Fatal("Error executing 'ps ", err)
+		logrus.Fatal("Error executing 'ps': ", err)
 	}
 	os.Stdout.WriteString(infoSet.String(container.ContainerInfoColumns, displayTitle))
 }
@@ -162,6 +162,11 @@ func validateCommaSeparatedParam(cfnParams *cloudformation.CfnStackParams, param
 func createCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient, cliParams *config.CLIParams) error {
 	var err error
 
+	// Check if cluster is specified
+	if cliParams.Cluster == "" {
+		return clusterNotSetError()
+	}
+
 	if context.Bool(flags.EmptyFlag) {
 		err = createEmptyCluster(context, ecsClient, cfnClient, cliParams)
 		if err != nil {
@@ -185,11 +190,6 @@ func createCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfnClien
 			logrus.Warn("You will not be able to SSH into your EC2 instances without a key pair.")
 		}
 
-	}
-
-	// Check if cluster is specified
-	if cliParams.Cluster == "" {
-		return fmt.Errorf("Please configure a cluster using the configure command or the '--%s' flag", flags.ClusterFlag)
 	}
 
 	// Check if cfn stack already exists
@@ -305,10 +305,6 @@ func createEmptyCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfn
 
 	if isForceSet(context) {
 		logrus.Warn("Force flag is unsupported when creating an empty cluster.")
-	}
-
-	if cliParams.Cluster == "" {
-		return fmt.Errorf("Please configure a cluster using the configure command or the '--%s' flag", flags.ClusterFlag)
 	}
 
 	// Check if non-empty cluster with same name already exists
@@ -450,6 +446,9 @@ func clusterPS(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient
 
 // validateCluster validates if the cluster exists in ECS and is in "ACTIVE" state.
 func validateCluster(clusterName string, ecsClient ecsclient.ECSClient) error {
+	if clusterName == "" {
+		return clusterNotSetError()
+	}
 	isClusterActive, err := ecsClient.IsActiveCluster(clusterName)
 	if err != nil {
 		return err
@@ -514,6 +513,11 @@ func validateInstanceRole(context *cli.Context) error {
 // isForceSet returns true if the 'force' flag is set from CLI.
 func isForceSet(context *cli.Context) bool {
 	return context.Bool(flags.ForceFlag)
+}
+
+// clusterNotSetError recommends that users either configure or provide a cluster flag
+func clusterNotSetError() error {
+	return fmt.Errorf("Please configure a cluster using the configure command or the '--%s' flag", flags.ClusterFlag)
 }
 
 // getClusterSize gets the value for the 'size' flag from CLI.
