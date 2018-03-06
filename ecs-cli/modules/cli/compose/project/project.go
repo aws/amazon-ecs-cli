@@ -14,6 +14,7 @@
 package project
 
 import (
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/containerconfig"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/service"
@@ -34,6 +35,7 @@ type Project interface {
 
 	Context() *context.ECSContext
 	ServiceConfigs() *config.ServiceConfigs
+	ContainerConfigs() []containerconfig.ContainerConfig
 	Entity() entity.ProjectEntity
 
 	// commands
@@ -51,6 +53,9 @@ type Project interface {
 type ecsProject struct {
 	project.Project
 
+	// TODO: use this instead of project.Project
+	containerConfigs []containerconfig.ContainerConfig
+
 	ecsContext *context.ECSContext
 
 	// TODO: track a map of entities [taskDefinition -> Entity]
@@ -63,8 +68,9 @@ func NewProject(ecsContext *context.ECSContext) Project {
 	libcomposeProject := project.NewProject(&ecsContext.Context, nil, nil)
 
 	p := &ecsProject{
-		ecsContext: ecsContext,
-		Project:    *libcomposeProject,
+		ecsContext:       ecsContext,
+		Project:          *libcomposeProject,
+		containerConfigs: []containerconfig.ContainerConfig{},
 	}
 
 	if ecsContext.IsService {
@@ -94,6 +100,10 @@ func (p *ecsProject) ServiceConfigs() *config.ServiceConfigs {
 // VolumeConfigs returns a map of Volume Configuration loaded from compose yaml file
 func (p *ecsProject) VolumeConfigs() map[string]*config.VolumeConfig {
 	return p.Project.VolumeConfigs
+}
+
+func (p *ecsProject) ContainerConfigs() []containerconfig.ContainerConfig {
+	return p.containerConfigs
 }
 
 // Entity returns the project entity that operates on the compose file and integrates with ecs
@@ -133,6 +143,7 @@ func (p *ecsProject) parseCompose() error {
 	// context. It sets up the name, the composefile and the composebytes
 	// (the composefile content). This is where p.ServiceConfigs gets loaded.
 
+	//TODO: check version, verify same, call parseV1V2() or parseV3() as needed
 	if err := p.Project.Parse(); err != nil {
 		return err
 	}
@@ -181,6 +192,16 @@ func (p *ecsProject) transformTaskDefinition() error {
 	}
 	p.entity.SetTaskDefinition(taskDefinition)
 	return nil
+}
+
+func (p *ecsProject) parseV1V2() {
+	// parse with libcompose
+	// convert ServiceConfigs struct to ContainerConfigs
+}
+
+func (p *ecsProject) parseV3() {
+	// parse with v3
+	// convert ServiceConfigs to ContainerConfigs
 }
 
 //* ----------------- commands ----------------- */
