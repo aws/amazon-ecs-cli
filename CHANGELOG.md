@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.0
+* Feature - Update AMI to amzn-ami-2017.09.j-amazon-ecs-optimized
+* Feature - Add force-deployment flag to compose service (#144)
+* Feature - Support aws_session token in ECS Profiles (#415)
+* Feature - Add support for us-gov-west-1
+* Bug - Fix YAML parse warnings on networks field (#237)
+* Enhancement - Add issue template
+
 ## 1.3.0
 * Feature - Update AMI to amzn-ami-2017.09.g-amazon-ecs-optimized
 * Feature - Add health-check-grace-period flag for compose service up
