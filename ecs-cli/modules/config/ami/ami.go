@@ -28,24 +28,24 @@ type staticAmiIds struct {
 
 func NewStaticAmiIds() ECSAmiIds {
 	regionToId := map[string]string{
-		// amzn-ami-2017.09.g-amazon-ecs-optimized AMIs
-		"ap-northeast-1": "ami-872c4ae1",
-		"ap-northeast-2": "ami-c212b2ac",
-		"ap-south-1":     "ami-00491f6f",
-		"ap-southeast-1": "ami-910d72ed",
-		"ap-southeast-2": "ami-58bb443a",
-		"ca-central-1":   "ami-435bde27",
-		"cn-north-1":     "ami-1300dd7e",
-		"eu-central-1":   "ami-509a053f",
-		"eu-west-1":      "ami-1d46df64",
-		"eu-west-2":      "ami-67cbd003",
-		"eu-west-3":      "ami-9aef59e7",
-		"sa-east-1":      "ami-af521fc3",
-		"us-east-1":      "ami-28456852",
-		"us-east-2":      "ami-ce1c36ab",
-		"us-west-1":      "ami-74262414",
-		"us-west-2":      "ami-decc7fa6",
-		"us-gov-west-1":  "ami-0a69e06b",
+		// amzn-ami-2017.09.j-amazon-ecs-optimized AMIs
+		"ap-northeast-1": "ami-bb5f13dd",
+		"ap-northeast-2": "ami-3b19b455",
+		"ap-south-1":     "ami-9e91cff1",
+		"ap-southeast-1": "ami-f88ade84",
+		"ap-southeast-2": "ami-a677b6c4",
+		"ca-central-1":   "ami-db48cfbf",
+		"cn-north-1":     "ami-ca508ca7",
+		"eu-central-1":   "ami-3b7d1354",
+		"eu-west-1":      "ami-64c4871d",
+		"eu-west-2":      "ami-25f51242",
+		"eu-west-3":      "ami-0356e07e",
+		"sa-east-1":      "ami-da2c66b6",
+		"us-east-1":      "ami-cad827b7",
+		"us-east-2":      "ami-ef64528a",
+		"us-west-1":      "ami-29b8b249",
+		"us-west-2":      "ami-baa236c2",
+		"us-gov-west-1":  "ami-cc3cb7ad",
 	}
 
 	return &staticAmiIds{regionToId: regionToId}
