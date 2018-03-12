@@ -108,14 +108,14 @@ redis:
 	composeBytes := [][]byte{}
 	composeBytes = append(composeBytes, []byte(composeFileString))
 	project := setupTestProject(t)
-	project.context.ComposeBytes = composeBytes
+	project.ecsContext.ComposeBytes = composeBytes
 
 	if err := project.parseCompose(); err != nil {
 		t.Fatalf("Unexpected error parsing the compose string [%s]: %v", composeFileString, err)
 	}
 
-	if testProjectName != project.context.ProjectName {
-		t.Errorf("ProjectName not overridden. Expected [%s] Got [%s]", testProjectName, project.context.ProjectName)
+	if testProjectName != project.ecsContext.ProjectName {
+		t.Errorf("ProjectName not overridden. Expected [%s] Got [%s]", testProjectName, project.ecsContext.ProjectName)
 	}
 
 	configs := project.ServiceConfigs()
@@ -223,7 +223,7 @@ services:
 	composeBytes := [][]byte{}
 	composeBytes = append(composeBytes, []byte(composeFileString))
 	project := setupTestProject(t)
-	project.context.ComposeBytes = composeBytes
+	project.ecsContext.ComposeBytes = composeBytes
 
 	if err := project.parseCompose(); err != nil {
 		t.Fatalf("Unexpected error parsing the compose string [%s]: %v", composeFileString, err)
@@ -274,7 +274,7 @@ func TestParseComposeForVersion1WithEnvFile(t *testing.T) {
 	composeBytes := [][]byte{}
 	composeBytes = append(composeBytes, []byte(composeFileString))
 	project := setupTestProject(t)
-	project.context.ComposeBytes = composeBytes
+	project.ecsContext.ComposeBytes = composeBytes
 
 	if err := project.parseCompose(); err != nil {
 		t.Fatalf("Unexpected error parsing the compose string [%s]: %v", composeFileString, err)
@@ -331,7 +331,7 @@ run_params:
 		t.Fatalf("Unexpected error parsing the ecs-params data [%s]: %v", ecsParamsString, err)
 	}
 
-	ecsParams := project.context.ECSParams
+	ecsParams := project.ecsContext.ECSParams
 	assert.NotNil(t, ecsParams, "Expected ecsParams to be set on project")
 	assert.Equal(t, "1", ecsParams.Version, "Expected Version to match")
 
@@ -352,7 +352,7 @@ func TestParseECSParams_NoFile(t *testing.T) {
 	project := setupTestProject(t)
 	err := project.parseECSParams()
 	if assert.NoError(t, err) {
-		assert.Nil(t, project.context.ECSParams)
+		assert.Nil(t, project.ecsContext.ECSParams)
 	}
 }
 
@@ -389,7 +389,7 @@ run_params:
 
 	err = project.parseECSParams()
 	if assert.NoError(t, err) {
-		ecsParams := project.context.ECSParams
+		ecsParams := project.ecsContext.ECSParams
 		assert.NotNil(t, ecsParams, "Expected ecsParams to be set on project")
 		assert.Equal(t, "1", ecsParams.Version, "Expected Version to match")
 
@@ -433,7 +433,7 @@ func setupTestProjectWithEcsParams(t *testing.T, ecsParamsFileName string) *ecsP
 	parentContext := cli.NewContext(nil, flagSet, nil)
 	cliContext := cli.NewContext(nil, nil, parentContext)
 
-	ecsContext := &context.Context{
+	ecsContext := &context.ECSContext{
 		CLIContext: cliContext,
 	}
 	ecsContext.EnvironmentLookup = envLookup
@@ -441,7 +441,7 @@ func setupTestProjectWithEcsParams(t *testing.T, ecsParamsFileName string) *ecsP
 	libcomposeProject := project.NewProject(&ecsContext.Context, nil, nil)
 
 	return &ecsProject{
-		context: ecsContext,
-		Project: *libcomposeProject,
+		ecsContext: ecsContext,
+		Project:    *libcomposeProject,
 	}
 }
