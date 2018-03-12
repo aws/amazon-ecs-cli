@@ -19,22 +19,24 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/sirupsen/logrus"
 	ec2client "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ec2"
 	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/docker/libcompose/project"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
-// Context is a wrapper around libcompose.project.Context
-type Context struct {
+// ECSContext is a wrapper around libcompose.project.Context
+type ECSContext struct {
 	project.Context
 
 	CLIContext *cli.Context
-	CLIParams  *config.CLIParams
+
+	CLIParams *config.CLIParams
+
 	// NOTE: Ideally, would like to only store the non-TaskDef related fields here (e.g. "DeploymentConfig")
 	ECSParams *utils.ECSParams
 
@@ -46,13 +48,13 @@ type Context struct {
 	IsService bool
 }
 
-// Open populates the context with new ECS and EC2 Clients
-func (context *Context) Open() error {
-	// setup aws service clients
-	context.ECSClient = ecsclient.NewECSClient()
-	context.ECSClient.Initialize(context.CLIParams)
+// Open populates the ECSContext with new ECS and EC2 Clients
+func (ecsContext *ECSContext) Open() error {
+	// setup AWS service clients
+	ecsContext.ECSClient = ecsclient.NewECSClient()
+	ecsContext.ECSClient.Initialize(ecsContext.CLIParams)
 
-	context.EC2Client = ec2client.NewEC2Client(context.CLIParams)
+	ecsContext.EC2Client = ec2client.NewEC2Client(ecsContext.CLIParams)
 
 	return nil
 }
@@ -61,27 +63,27 @@ func (context *Context) Open() error {
 // 1. Command line option
 // 2. Environment variable
 // 3. Current working directory
-func (context *Context) SetProjectName() error {
-	projectName := context.CLIContext.GlobalString(flags.ProjectNameFlag)
+func (ecsContext *ECSContext) SetProjectName() error {
+	projectName := ecsContext.CLIContext.GlobalString(flags.ProjectNameFlag)
 	if projectName != "" {
-		context.ProjectName = projectName
+		ecsContext.ProjectName = projectName
 		return nil
 	}
-	projectName, err := context.lookupProjectName()
+	projectName, err := ecsContext.lookupProjectName()
 	if err != nil {
 		return err
 	}
-	context.ProjectName = projectName
+	ecsContext.ProjectName = projectName
 	return nil
 }
 
 // This following is derived from Docker's Libcompose project, Copyright 2015 Docker, Inc.
 // The original code may be found :
 // https://github.com/docker/libcompose/blob/master/project/context.go
-func (context *Context) lookupProjectName() (string, error) {
+func (ecsContext *ECSContext) lookupProjectName() (string, error) {
 	file := "."
-	if len(context.ComposeFiles) > 0 {
-		file = context.ComposeFiles[0]
+	if len(ecsContext.ComposeFiles) > 0 {
+		file = ecsContext.ComposeFiles[0]
 	}
 
 	f, err := filepath.Abs(file)

@@ -31,7 +31,7 @@ import (
 )
 
 type validateListTasksInput func(*ecs.ListTasksInput, string, *testing.T)
-type setupEntityForTestInfo func(*context.Context) ProjectEntity
+type setupEntityForTestInfo func(*context.ECSContext) ProjectEntity
 
 // TestInfo tests ps commands
 func TestInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasksInput, t *testing.T, filterLocal bool) {
@@ -103,7 +103,7 @@ func TestInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasks
 		mockEc2.EXPECT().DescribeInstances([]*string{&ec2InstanceID}).Return(ec2InstancesMap, nil),
 	)
 
-	context := &context.Context{
+	context := &context.ECSContext{
 		ECSClient: mockEcs,
 		EC2Client: mockEc2,
 		CLIParams: &config.CLIParams{},

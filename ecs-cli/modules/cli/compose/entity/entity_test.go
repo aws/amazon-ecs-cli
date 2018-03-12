@@ -155,7 +155,7 @@ func TestGetContainersForTasksWithTaskNetworkingFargateENIDeleted(t *testing.T) 
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	mockEc2 := mock_ec2.NewMockEC2Client(ctrl)
 	mockProjectEntity := mock_entity.NewMockProjectEntity(ctrl)
-	mockContext := &context.Context{
+	mockContext := &context.ECSContext{
 		ECSClient: mockEcs,
 		EC2Client: mockEc2,
 	}
@@ -184,7 +184,7 @@ func TestGetContainersForTasksWithTaskNetworkingFargateTaskStopped(t *testing.T)
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	mockEc2 := mock_ec2.NewMockEC2Client(ctrl)
 	mockProjectEntity := mock_entity.NewMockProjectEntity(ctrl)
-	mockContext := &context.Context{
+	mockContext := &context.ECSContext{
 		ECSClient: mockEcs,
 		EC2Client: mockEc2,
 	}
@@ -213,7 +213,7 @@ func TestGetContainersForTasksWithTaskNetworkingEC2TaskStopped(t *testing.T) {
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	mockEc2 := mock_ec2.NewMockEC2Client(ctrl)
 	mockProjectEntity := mock_entity.NewMockProjectEntity(ctrl)
-	mockContext := &context.Context{
+	mockContext := &context.ECSContext{
 		ECSClient: mockEcs,
 		EC2Client: mockEc2,
 	}
@@ -244,7 +244,7 @@ func TestGetContainersForTasksWithTaskNetworkingEC2(t *testing.T) {
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	mockEc2 := mock_ec2.NewMockEC2Client(ctrl)
 	mockProjectEntity := mock_entity.NewMockProjectEntity(ctrl)
-	mockContext := &context.Context{
+	mockContext := &context.ECSContext{
 		ECSClient: mockEcs,
 		EC2Client: mockEc2,
 	}
@@ -281,7 +281,7 @@ func TestGetContainersForTasksWithTaskNetworkingFargate(t *testing.T) {
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	mockEc2 := mock_ec2.NewMockEC2Client(ctrl)
 	mockProjectEntity := mock_entity.NewMockProjectEntity(ctrl)
-	mockContext := &context.Context{
+	mockContext := &context.ECSContext{
 		ECSClient: mockEcs,
 		EC2Client: mockEc2,
 	}
@@ -316,7 +316,7 @@ func TestGetContainersForTasksWithTaskNetworkingFargateENIDescribeFails(t *testi
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	mockEc2 := mock_ec2.NewMockEC2Client(ctrl)
 	mockProjectEntity := mock_entity.NewMockProjectEntity(ctrl)
-	mockContext := &context.Context{
+	mockContext := &context.ECSContext{
 		ECSClient: mockEcs,
 		EC2Client: mockEc2,
 	}
@@ -355,7 +355,7 @@ func TestGetContainersForTasksWithTaskNetworkingFargateENIWithoutPublicIP(t *tes
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	mockEc2 := mock_ec2.NewMockEC2Client(ctrl)
 	mockProjectEntity := mock_entity.NewMockProjectEntity(ctrl)
-	mockContext := &context.Context{
+	mockContext := &context.ECSContext{
 		ECSClient: mockEcs,
 		EC2Client: mockEc2,
 	}
@@ -455,7 +455,7 @@ func TestGetContainersForTasksErrorCases(t *testing.T) {
 	containerInstances[containerInstanceArn] = ec2InstanceID
 
 	mockEc2, mockEcs, mockProjectEntity := setupTest(t)
-	mockContext := &context.Context{
+	mockContext := &context.ECSContext{
 		ECSClient: mockEcs,
 		EC2Client: mockEc2,
 	}
@@ -495,7 +495,7 @@ func setupMocks(t *testing.T, getEc2InstanceIDsRequest []*string, getEc2Instance
 
 	mockEc2, mockEcs, mockProjectEntity := setupTest(t)
 
-	mockContext := &context.Context{
+	mockContext := &context.ECSContext{
 		ECSClient: mockEcs,
 		EC2Client: mockEc2,
 	}
