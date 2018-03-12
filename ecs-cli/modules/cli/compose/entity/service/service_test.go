@@ -207,7 +207,7 @@ func TestCreateFargateNetworkModeNotAWSVPC(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	cliContext := cli.NewContext(nil, flagSet, nil)
 
-	context := &context.Context{
+	context := &context.ECSContext{
 		ECSClient:  mockEcs,
 		CLIParams:  &config.CLIParams{LaunchType: "FARGATE"},
 		CLIContext: cliContext,
@@ -507,7 +507,7 @@ func createServiceWithHealthCheckGPTest(t *testing.T,
 		}).Return(nil),
 	)
 
-	context := &context.Context{
+	context := &context.ECSContext{
 		ECSClient:  mockEcs,
 		CLIParams:  cliParams,
 		CLIContext: cliContext,
@@ -533,7 +533,7 @@ func TestLoadContext(t *testing.T) {
 	flagSet.String(flags.DeploymentMaxPercentFlag, strconv.Itoa(deploymentMaxPercent), "")
 	cliContext := cli.NewContext(nil, flagSet, nil)
 	service := &Service{
-		projectContext: &context.Context{CLIContext: cliContext},
+		ecsContext: &context.ECSContext{CLIContext: cliContext},
 	}
 
 	err := service.LoadContext()
@@ -556,7 +556,7 @@ func TestLoadContextForIncorrectInput(t *testing.T) {
 	flagSet.String(flags.DeploymentMaxPercentFlag, deploymentMaxPercent, "")
 	cliContext := cli.NewContext(nil, flagSet, nil)
 	service := &Service{
-		projectContext: &context.Context{CLIContext: cliContext},
+		ecsContext: &context.ECSContext{CLIContext: cliContext},
 	}
 
 	err := service.LoadContext()
@@ -572,7 +572,7 @@ func TestLoadContextForLoadBalancerInputError(t *testing.T) {
 	flagSet.String(flags.LoadBalancerNameFlag, loadBalancerName, "")
 	cliContext := cli.NewContext(nil, flagSet, nil)
 	service := &Service{
-		projectContext: &context.Context{CLIContext: cliContext},
+		ecsContext: &context.ECSContext{CLIContext: cliContext},
 	}
 
 	err := service.LoadContext()
@@ -580,7 +580,7 @@ func TestLoadContextForLoadBalancerInputError(t *testing.T) {
 }
 
 func TestServiceInfo(t *testing.T) {
-	entity.TestInfo(func(context *context.Context) entity.ProjectEntity {
+	entity.TestInfo(func(context *context.ECSContext) entity.ProjectEntity {
 		return NewService(context)
 	}, func(req *ecs.ListTasksInput, projectName string, t *testing.T) {
 		assert.Contains(t, aws.StringValue(req.ServiceName), projectName, "ServiceName should contain ProjectName")
@@ -589,7 +589,7 @@ func TestServiceInfo(t *testing.T) {
 }
 
 func TestServiceRun(t *testing.T) {
-	service := NewService(&context.Context{})
+	service := NewService(&context.ECSContext{})
 	err := service.Run(map[string][]string{})
 	assert.Error(t, err, "Expected unsupported error")
 }
@@ -790,7 +790,7 @@ func upServiceWithCurrentTaskDefTest(t *testing.T,
 
 	mockEcs := getUpdateServiceMockClient(t, ctrl, describeServiceResponse, taskDefinition, registerTaskDefResponse, expectedInput)
 
-	context := &context.Context{
+	ecsContext := &context.ECSContext{
 		ECSClient:  mockEcs,
 		CLIParams:  cliParams,
 		CLIContext: cliContext,
@@ -798,9 +798,9 @@ func upServiceWithCurrentTaskDefTest(t *testing.T,
 	}
 	// if taskDef is unchanged, serviceName is taken from current context
 	if existingService != nil {
-		context.ProjectName = *existingService.ServiceName
+		ecsContext.ProjectName = *existingService.ServiceName
 	}
-	service := NewService(context)
+	service := NewService(ecsContext)
 	err := service.LoadContext()
 	assert.NoError(t, err, "Unexpected error while loading context in update service with current task def test")
 
@@ -834,13 +834,13 @@ func upServiceWithNewTaskDefTest(t *testing.T,
 
 	mockEcs := getUpdateServiceMockClient(t, ctrl, describeServiceResponse, taskDefinition, registerTaskDefResponse, expectedInput)
 
-	context := &context.Context{
+	ecsContext := &context.ECSContext{
 		ECSClient:  mockEcs,
 		CLIParams:  cliParams,
 		CLIContext: cliContext,
 		ECSParams:  ecsParams,
 	}
-	service := NewService(context)
+	service := NewService(ecsContext)
 	err := service.LoadContext()
 	assert.NoError(t, err, "Unexpected error while loading context in update service with new task def test")
 

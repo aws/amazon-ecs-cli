@@ -50,7 +50,7 @@ func TestTaskCreate(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli", 0)
 	cliContext := cli.NewContext(nil, flagSet, nil)
 
-	context := &context.Context{
+	context := &context.ECSContext{
 		ECSClient:  mockEcs,
 		CLIParams:  &config.CLIParams{},
 		CLIContext: cliContext,
@@ -64,7 +64,7 @@ func TestTaskCreate(t *testing.T) {
 }
 
 func TestTaskInfoFilterLocal(t *testing.T) {
-	entity.TestInfo(func(context *context.Context) entity.ProjectEntity {
+	entity.TestInfo(func(context *context.ECSContext) entity.ProjectEntity {
 		return NewTask(context)
 	}, func(req *ecs.ListTasksInput, projectName string, t *testing.T) {
 		assert.Equal(t, projectName, aws.StringValue(req.Family), "Expected Task Definition Family to be project name")
@@ -72,7 +72,7 @@ func TestTaskInfoFilterLocal(t *testing.T) {
 }
 
 func TestTaskInfoAll(t *testing.T) {
-	entity.TestInfo(func(context *context.Context) entity.ProjectEntity {
+	entity.TestInfo(func(context *context.ECSContext) entity.ProjectEntity {
 		return NewTask(context)
 	}, func(req *ecs.ListTasksInput, projectName string, t *testing.T) {
 		assert.Nil(t, req.StartedBy, "Unexpected filter on StartedBy")

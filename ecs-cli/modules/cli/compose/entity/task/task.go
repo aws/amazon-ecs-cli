@@ -14,7 +14,6 @@
 package task
 
 import (
-	log "github.com/sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
@@ -24,23 +23,24 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/docker/libcompose/project"
+	log "github.com/sirupsen/logrus"
 )
 
 // Task type is placeholder for a single task definition and its cache
 // and it performs compose operations at a task definition level
 type Task struct {
-	taskDef        *ecs.TaskDefinition
-	cache          cache.Cache
-	projectContext *context.Context
-	timeSleeper    *utils.TimeSleeper
+	taskDef     *ecs.TaskDefinition
+	cache       cache.Cache
+	ecsContext  *context.ECSContext
+	timeSleeper *utils.TimeSleeper
 }
 
 // NewTask creates an instance of a Task and also sets up a cache for task definition
-func NewTask(context *context.Context) entity.ProjectEntity {
+func NewTask(context *context.ECSContext) entity.ProjectEntity {
 	return &Task{
-		cache:          entity.SetupTaskDefinitionCache(),
-		projectContext: context,
-		timeSleeper:    &utils.TimeSleeper{},
+		cache:       entity.SetupTaskDefinitionCache(),
+		ecsContext:  context,
+		timeSleeper: &utils.TimeSleeper{},
 	}
 }
 
@@ -56,8 +56,8 @@ func (t *Task) SetTaskDefinition(taskDefinition *ecs.TaskDefinition) {
 }
 
 // Context returs the context of this project
-func (t *Task) Context() *context.Context {
-	return t.projectContext
+func (t *Task) Context() *context.ECSContext {
+	return t.ecsContext
 }
 
 // Sleeper returs an instance of TimeSleeper used to wait until Tasks has either started running or stopped
@@ -241,7 +241,7 @@ func (t *Task) stopTasks(ecsTasks []*ecs.Task) error {
 
 // runTasks issues run task request to ECS Service in chunks of count=10
 func (t *Task) runTasks(taskDefinitionId string, totalCount int) ([]*ecs.Task, error) {
-	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(t.projectContext.ECSParams)
+	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(t.ecsContext.ECSParams)
 	if err != nil {
 		return nil, err
 	}

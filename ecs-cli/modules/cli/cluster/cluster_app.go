@@ -20,9 +20,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/container"
-	composecontext "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
+	ecscontext "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/task"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudformation"
 	ec2client "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ec2"
@@ -32,6 +31,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config/ami"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/docker/libcompose/project"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
@@ -443,7 +443,7 @@ func clusterPS(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient
 	}
 	ec2Client := ec2client.NewEC2Client(cliParams)
 
-	ecsContext := &composecontext.Context{ECSClient: ecsClient, EC2Client: ec2Client}
+	ecsContext := &ecscontext.ECSContext{ECSClient: ecsClient, EC2Client: ec2Client}
 	task := task.NewTask(ecsContext)
 	return task.Info(false)
 }
