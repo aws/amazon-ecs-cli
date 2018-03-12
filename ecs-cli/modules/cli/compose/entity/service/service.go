@@ -18,7 +18,6 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
@@ -30,6 +29,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/docker/libcompose/project"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 // Service type is placeholder for a single task definition and its cache
@@ -37,7 +37,7 @@ import (
 type Service struct {
 	taskDef          *ecs.TaskDefinition
 	cache            cache.Cache
-	projectContext   *context.Context
+	ecsContext       *context.ECSContext
 	timeSleeper      *utils.TimeSleeper
 	deploymentConfig *ecs.DeploymentConfiguration
 	loadBalancer     *ecs.LoadBalancer
@@ -51,15 +51,17 @@ const (
 )
 
 // NewService creates an instance of a Service and also sets up a cache for task definition
-func NewService(context *context.Context) entity.ProjectEntity {
+func NewService(ecsContext *context.ECSContext) entity.ProjectEntity {
 	return &Service{
-		cache:          entity.SetupTaskDefinitionCache(),
-		projectContext: context,
-		timeSleeper:    &utils.TimeSleeper{},
+		cache:       entity.SetupTaskDefinitionCache(),
+		ecsContext:  ecsContext,
+		timeSleeper: &utils.TimeSleeper{},
 	}
 }
 
-// LoadContext reads the context set in NewService and loads DeploymentConfiguration and LoadBalancer
+// LoadContext reads the ECS context set in NewService and loads DeploymentConfiguration and LoadBalancer
+// TODO: refactor to memoize s.Context().CLIContext, since that's the only
+// thing that LoadContext seems to care about? (even in getInt64FromCLIContext)
 func (s *Service) LoadContext() error {
 	maxPercent, err := getInt64FromCLIContext(s.Context(), flags.DeploymentMaxPercentFlag)
 	if err != nil {
@@ -114,7 +116,7 @@ func (s *Service) LoadContext() error {
 }
 
 // getInt64FromCLIContext reads the flag from the cli context and typecasts into *int64
-func getInt64FromCLIContext(context *context.Context, flag string) (*int64, error) {
+func getInt64FromCLIContext(context *context.ECSContext, flag string) (*int64, error) {
 	value := context.CLIContext.String(flag)
 	if value == "" {
 		return nil, nil
@@ -132,8 +134,8 @@ func (s *Service) SetTaskDefinition(taskDefinition *ecs.TaskDefinition) {
 }
 
 // Context returs the context of this project
-func (s *Service) Context() *context.Context {
-	return s.projectContext
+func (s *Service) Context() *context.ECSContext {
+	return s.ecsContext
 }
 
 // Sleeper returs an instance of TimeSleeper used to wait until Service has gone to a stable state
@@ -261,7 +263,7 @@ func (s *Service) Up() error {
 	// if the task definitions were different, updateService with new task definition
 	// this creates a deployment in ECS and slowly takes down the containers with old ones and starts new ones
 
-	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(s.projectContext.ECSParams)
+	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(s.ecsContext.ECSParams)
 	if err != nil {
 		return err
 	}
@@ -361,7 +363,7 @@ func (s *Service) createService() error {
 	taskDefinitionID := entity.GetIdFromArn(s.TaskDefinition().TaskDefinitionArn)
 	launchType := s.Context().CLIParams.LaunchType
 
-	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(s.projectContext.ECSParams)
+	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(s.ecsContext.ECSParams)
 	if err != nil {
 		return err
 	}
@@ -425,7 +427,7 @@ func (s *Service) startService(ecsService *ecs.Service) error {
 func (s *Service) updateService(count int64) error {
 	serviceName := entity.GetServiceName(s)
 	deploymentConfig := s.DeploymentConfig()
-	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(s.projectContext.ECSParams)
+	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(s.ecsContext.ECSParams)
 	forceDeployment := s.Context().CLIContext.Bool(flags.ForceDeploymentFlag)
 
 	if err != nil {

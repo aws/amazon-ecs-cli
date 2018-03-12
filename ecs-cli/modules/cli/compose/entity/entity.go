@@ -35,7 +35,7 @@ type ProjectEntity interface {
 	Down() error
 
 	LoadContext() error
-	Context() *context.Context
+	Context() *context.ECSContext
 	Sleeper() *utils.TimeSleeper
 	TaskDefinition() *ecs.TaskDefinition
 	TaskDefinitionCache() cache.Cache

@@ -40,7 +40,7 @@ func NewProjectFactory() ProjectFactory {
 // Create is a factory function that creates and configures ECS Compose project using the supplied command line arguments
 func (projectFactory projectFactory) Create(cliContext *cli.Context, isService bool) (ecscompose.Project, error) {
 	// creates and populates the ecs context
-	ecsContext := &context.Context{}
+	ecsContext := &context.ECSContext{}
 	if err := projectFactory.populateContext(ecsContext, cliContext); err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (projectFactory projectFactory) Create(cliContext *cli.Context, isService b
 }
 
 // populateContext sets the required CLI arguments to the ECS context
-func (projectFactory projectFactory) populateContext(ecsContext *context.Context, cliContext *cli.Context) error {
+func (projectFactory projectFactory) populateContext(ecsContext *context.ECSContext, cliContext *cli.Context) error {
 	/*
 		Populate the following libcompose fields on the ECS context:
 		 - ComposeFiles: reads from `--file` or `-f` flags. Defaults to
@@ -91,7 +91,7 @@ func (projectFactory projectFactory) populateContext(ecsContext *context.Context
 }
 
 // populateLibcomposeContext sets the required Libcompose lookup utilities on the ECS context
-func (projectFactory projectFactory) populateLibcomposeContext(ecsContext *context.Context) error {
+func (projectFactory projectFactory) populateLibcomposeContext(ecsContext *context.ECSContext) error {
 	envLookup, err := utils.GetDefaultEnvironmentLookup()
 	if err != nil {
 		return err

@@ -45,9 +45,9 @@ func (_m *MockProject) EXPECT() *_MockProjectRecorder {
 	return _m.recorder
 }
 
-func (_m *MockProject) Context() *context.Context {
+func (_m *MockProject) Context() *context.ECSContext {
 	ret := _m.ctrl.Call(_m, "Context")
-	ret0, _ := ret[0].(*context.Context)
+	ret0, _ := ret[0].(*context.ECSContext)
 	return ret0
 }
 
