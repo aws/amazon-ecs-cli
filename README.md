@@ -1,16 +1,14 @@
 # Amazon ECS CLI
 
-The Amazon ECS Command Line Interface (CLI) is a command line interface for Amazon Elastic Container
+The Amazon ECS Command Line Interface (CLI) is a command line tool for Amazon Elastic Container
 Service (Amazon ECS) that provides high-level commands to simplify creating, updating, and
 monitoring clusters and tasks from a local development environment. The Amazon ECS CLI supports
 [Docker Compose](https://docs.docker.com/compose/), a popular open-source tool for defining and
 running multi-container applications. Use the CLI as part of your everyday development and testing
-cycle as an alternative to the AWS Management Console.
+cycle as an alternative to the AWS Management Console or the AWS CLI.
 
 For more information about Amazon ECS, see the [Amazon ECS Developer
-Guide](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html). For information
-about installing and using the Amazon ECS CLI, see the [ECS Command Line
-Interface](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI.html).
+Guide](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html).
 
 The AWS Command Line Interface (AWS CLI) is a unified client for AWS services that provides commands
 for all public API operations. These commands are lower level than those provided by the Amazon ECS
@@ -42,6 +40,8 @@ Line Interface](http://aws.amazon.com/cli/) product detail page.
 
 Download the binary archive for your platform, and install the binary on your `$PATH`.
 You can use the provided `md5` hash to verify the integrity of your download.
+
+For information about installing and using the Amazon ECS CLI, see the [ECS Command Line Interface](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI.html).
 
 ### Latest version
 * Linux:
@@ -165,6 +165,9 @@ If you are trying to use Multi-Factor Authentication, please see this comment an
    a) AWS_PROFILE environment variable (OR) –aws-
    b) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
 
+
+For more information, see [ECS CLI Configuration](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_Configuration.html).
+
 ## Using the CLI
 
 ECS now offers two different launch types for tasks and services: EC2 and FARGATE. With the FARGATE
@@ -258,6 +261,8 @@ following resources:
 The subnet and VPC ids will be printed to the terminal once the creation is complete. You can then
 use the subnet IDs in your ECS Params file to launch Fargate tasks.
 
+For more information on using AWS Fargate, see the [ECS CLI Fargate tutorial](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_tutorial_fargate.html).
+
 ### Starting/Running Tasks
 After the cluster is created, you can run tasks – groups of containers – on the ECS cluster. First,
 author a [Docker Compose configuration file](https://docs.docker.com/compose).  You can run the
@@ -281,7 +286,7 @@ for example:
 ```
 $ ecs-cli compose ps
 Name                                      State    Ports                     TaskDefinition
-fd8d5a69-87c5-46a4-80b6-51918092e600/web  RUNNING  54.209.244.64:80->80/tcp  ecscompose-web:1
+fd8d5a69-87c5-46a4-80b6-51918092e600/web  RUNNING  54.209.244.64:80->80/tcp  web:1
 ```
 
 Navigate your web browser to the task’s IP address to see the sample app running in the ECS cluster.
@@ -294,8 +299,8 @@ container instance fails for some reason).
 ```
 $ ecs-cli compose --project-name wordpress-test service create
 
-INFO[0000] Using Task definition                         TaskDefinition=ecscompose-wordpress-test:1
-INFO[0000] Created an ECS Service                        serviceName=ecscompose-service-wordpress-test taskDefinition=ecscompose-wordpress-test:1
+INFO[0000] Using Task definition                         TaskDefinition=wordpress-test:1
+INFO[0000] Created an ECS Service                        serviceName=wordpress-test taskDefinition=wordpress-test:1
 
 ```
 
@@ -307,8 +312,8 @@ the following command:
 ```
 $ ecs-cli compose --project-name wordpress-test service ps
 Name                                            State    Ports                      TaskDefinition
-34333aa6-e976-4096-991a-0ec4cd5af5bd/wordpress  RUNNING  54.186.138.217:80->80/tcp  ecscompose-wordpress-test:1
-34333aa6-e976-4096-991a-0ec4cd5af5bd/mysql      RUNNING                             ecscompose-wordpress-test:1
+34333aa6-e976-4096-991a-0ec4cd5af5bd/wordpress  RUNNING  54.186.138.217:80->80/tcp  wordpress-test:1
+34333aa6-e976-4096-991a-0ec4cd5af5bd/mysql      RUNNING                             wordpress-test:1
 ```
 
 See the `$ ecs-cli compose service` [documentation page](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cmd-ecs-cli-compose-service.html) for more information about available service options, including load balancing.
