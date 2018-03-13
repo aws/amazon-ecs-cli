@@ -155,8 +155,8 @@ var template = `
       "Type": "String",
       "Description": "Optional - VPC Id of existing VPC. Leave blank to have a new VPC created",
       "Default": "",
-      "AllowedPattern": "^(?:vpc-[0-9a-f]{8}|)$",
-      "ConstraintDescription": "VPC Id must begin with 'vpc-' or leave blank to have a new VPC created"
+      "AllowedPattern": "^(?:vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17}|)$",
+      "ConstraintDescription": "VPC Id must begin with 'vpc-' followed by either an 8 or 17 character identifier, or leave blank to have a new VPC created"
     },
     "SubnetIds": {
       "Type": "CommaDelimitedList",
