@@ -5,7 +5,9 @@ os:
     - osx
 go_import_path: github.com/aws/amazon-ecs-cli
 go:
-    - 1.8
+    - 1.8.x
+    - 1.9.x
+    - 1.10.x
 script:
     - make test
     - make

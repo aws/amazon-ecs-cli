@@ -111,7 +111,7 @@ redis:
 	project.context.ComposeBytes = composeBytes
 
 	if err := project.parseCompose(); err != nil {
-		t.Fatalf("Unexpected error parsing the compose string [%s]", composeFileString, err)
+		t.Fatalf("Unexpected error parsing the compose string [%s]: %v", composeFileString, err)
 	}
 
 	if testProjectName != project.context.ProjectName {
@@ -131,7 +131,7 @@ redis:
 		t.Fatalf("Expected [%s] as a service but got configs [%v]", "web", configs)
 	}
 	if cpuShares != int64(web.CPUShares) {
-		t.Errorf("Expected cpuShares to be [%s] but got [%s]", cpuShares, web.CPUShares)
+		t.Errorf("Expected cpuShares to be [%d] but got [%d]", cpuShares, web.CPUShares)
 	}
 	if len(web.Command) != 1 || !reflect.DeepEqual(command[0], web.Command[0]) {
 		t.Errorf("Expected command to be [%v] but got [%v]", command, web.Command)
@@ -175,16 +175,16 @@ redis:
 		t.Errorf("Expected logOpts to be [%v] but got [%v]", logOpts, web.Logging.Options)
 	}
 	if memLimit != int64(web.MemLimit) {
-		t.Errorf("Expected memLimit to be [%s] but got [%s]", memLimit, web.MemLimit)
+		t.Errorf("Expected memLimit to be [%d] but got [%d]", memLimit, web.MemLimit)
 	}
 	if !reflect.DeepEqual(ports, web.Ports) {
 		t.Errorf("Expected ports to be [%v] but got [%v]", ports, web.Ports)
 	}
 	if privileged != web.Privileged {
-		t.Errorf("Expected privileged to be [%s] but got [%s]", privileged, web.Privileged)
+		t.Errorf("Expected privileged to be [%t] but got [%t]", privileged, web.Privileged)
 	}
 	if readonly != web.ReadOnly {
-		t.Errorf("Expected readonly to be [%s] but got [%s]", readonly, web.ReadOnly)
+		t.Errorf("Expected readonly to be [%t] but got [%t]", readonly, web.ReadOnly)
 	}
 	if !reflect.DeepEqual(securityOpts, web.SecurityOpt) {
 		t.Errorf("Expected securityOpts to be [%v] but got [%v]", securityOpts, web.SecurityOpt)
@@ -226,7 +226,7 @@ services:
 	project.context.ComposeBytes = composeBytes
 
 	if err := project.parseCompose(); err != nil {
-		t.Fatalf("Unexpected error parsing the compose string [%s]", composeFileString, err)
+		t.Fatalf("Unexpected error parsing the compose string [%s]: %v", composeFileString, err)
 	}
 
 	configs := project.ServiceConfigs()
@@ -277,7 +277,7 @@ func TestParseComposeForVersion1WithEnvFile(t *testing.T) {
 	project.context.ComposeBytes = composeBytes
 
 	if err := project.parseCompose(); err != nil {
-		t.Fatalf("Unexpected error parsing the compose string [%s]", composeFileString, err)
+		t.Fatalf("Unexpected error parsing the compose string [%s]: %v", composeFileString, err)
 	}
 
 	configs := project.ServiceConfigs()
@@ -328,7 +328,7 @@ run_params:
 	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
 
 	if err := project.parseECSParams(); err != nil {
-		t.Fatalf("Unexpected error parsing the ecs-params data: %v", ecsParamsString, err)
+		t.Fatalf("Unexpected error parsing the ecs-params data [%s]: %v", ecsParamsString, err)
 	}
 
 	ecsParams := project.context.ECSParams

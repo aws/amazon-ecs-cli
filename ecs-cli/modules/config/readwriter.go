@@ -64,7 +64,7 @@ func NewINIReadWriter(dest *Destination) (*INIReadWriter, error) {
 func (rdwr *INIReadWriter) GetConfig(cliConfig *CLIConfig) error {
 
 	// read old ini formatted file
-	iniFormat := &iniCLIConfig{iniSectionKeys: new(iniSectionKeys)}
+	iniFormat := &iniCLIConfig{IniSectionKeys: &IniSectionKeys{}}
 	if err := rdwr.cfg.MapTo(iniFormat); err != nil {
 		return err
 	}

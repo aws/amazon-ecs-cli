@@ -82,7 +82,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 		t.Errorf("Expected Name [%s] But was [%s]", name, aws.StringValue(containerDef.Name))
 	}
 	if cpu != aws.Int64Value(containerDef.Cpu) {
-		t.Errorf("Expected cpu [%s] But was [%s]", cpu, aws.Int64Value(containerDef.Cpu))
+		t.Errorf("Expected cpu [%d] But was [%d]", cpu, aws.Int64Value(containerDef.Cpu))
 	}
 	if len(containerDef.Command) != 1 || command != aws.StringValue(containerDef.Command[0]) {
 		t.Errorf("Expected command [%s] But was [%v]", command, containerDef.Command)
@@ -100,16 +100,16 @@ func TestConvertToTaskDefinition(t *testing.T) {
 		t.Errorf("Expected links [%v] But was [%v]", links, aws.StringValueSlice(containerDef.Links))
 	}
 	if memory != aws.Int64Value(containerDef.Memory) {
-		t.Errorf("Expected memory [%s] But was [%s]", memory, aws.Int64Value(containerDef.Memory))
+		t.Errorf("Expected memory [%d] But was [%d]", memory, aws.Int64Value(containerDef.Memory))
 	}
 
 	assert.Equal(t, memoryReservation, aws.Int64Value(containerDef.MemoryReservation), "Expected memoryReservation to match")
 
 	if privileged != aws.BoolValue(containerDef.Privileged) {
-		t.Errorf("Expected privileged [%s] But was [%s]", privileged, aws.BoolValue(containerDef.Privileged))
+		t.Errorf("Expected privileged [%t] But was [%t]", privileged, aws.BoolValue(containerDef.Privileged))
 	}
 	if readOnly != aws.BoolValue(containerDef.ReadonlyRootFilesystem) {
-		t.Errorf("Expected ReadonlyRootFilesystem [%s] But was [%s]", readOnly, aws.BoolValue(containerDef.ReadonlyRootFilesystem))
+		t.Errorf("Expected ReadonlyRootFilesystem [%t] But was [%t]", readOnly, aws.BoolValue(containerDef.ReadonlyRootFilesystem))
 	}
 	if user != aws.StringValue(containerDef.User) {
 		t.Errorf("Expected user [%s] But was [%s]", user, aws.StringValue(containerDef.User))
@@ -778,10 +778,10 @@ func verifyPortMapping(t *testing.T, output *ecs.PortMapping, hostPort, containe
 		t.Errorf("Expected protocol [%s] But was [%s]", protocol, *output.Protocol)
 	}
 	if hostPort != *output.HostPort {
-		t.Errorf("Expected hostPort [%s] But was [%s]", hostPort, *output.HostPort)
+		t.Errorf("Expected hostPort [%d] But was [%d]", hostPort, *output.HostPort)
 	}
 	if containerPort != *output.ContainerPort {
-		t.Errorf("Expected containerPort [%s] But was [%s]", containerPort, *output.ContainerPort)
+		t.Errorf("Expected containerPort [%d] But was [%d]", containerPort, *output.ContainerPort)
 	}
 }
 
@@ -934,10 +934,10 @@ func verifyUlimit(t *testing.T, output *ecs.Ulimit, name string, softLimit, hard
 		t.Errorf("Expected name [%s] But was [%s]", name, *output.Name)
 	}
 	if softLimit != *output.SoftLimit {
-		t.Errorf("Expected softLimit [%s] But was [%s]", softLimit, *output.SoftLimit)
+		t.Errorf("Expected softLimit [%d] But was [%d]", softLimit, *output.SoftLimit)
 	}
 	if hardLimit != *output.HardLimit {
-		t.Errorf("Expected hardLimit [%s] But was [%s]", hardLimit, *output.HardLimit)
+		t.Errorf("Expected hardLimit [%d] But was [%d]", hardLimit, *output.HardLimit)
 	}
 }
 
@@ -1067,7 +1067,7 @@ func TestIsZeroWhenConfigHasValues(t *testing.T) {
 		zeroValue := isZero(f)
 		_, hasValue := hasValues[fieldName]
 		if zeroValue == hasValue {
-			t.Errorf("Expected field [%s]: hasValues[%t] but found[%t]", ft.Name, hasValues, !zeroValue)
+			t.Errorf("Expected field [%s]: hasValues[%v] but found[%t]", ft.Name, hasValues, !zeroValue)
 		}
 	}
 }

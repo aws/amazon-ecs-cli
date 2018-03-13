@@ -40,7 +40,7 @@ type ReadWriter interface {
 	Get(string, string) (*CLIConfig, error)
 }
 
-// YAMLReadWriter implments the ReadWriter interfaces. It can be used to save and load
+// YAMLReadWriter implements the ReadWriter interfaces. It can be used to save and load
 // ecs-cli config. Sample ecs-cli config:
 // cluster: test
 // aws_profile:

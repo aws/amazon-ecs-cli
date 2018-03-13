@@ -26,11 +26,11 @@ const (
 // This is to allow us to read old ini based config files
 // CliConfig has been updated to use the yaml annotations
 type iniCLIConfig struct {
-	*iniSectionKeys `ini:"ecs"`
+	*IniSectionKeys `ini:"ecs"`
 }
 
 // SectionKeys is the struct embedded in iniCLIConfig. It groups all the keys in the 'ecs' section in the ini file.
-type iniSectionKeys struct {
+type IniSectionKeys struct {
 	Cluster                  string `ini:"cluster"`
 	AwsProfile               string `ini:"aws_profile"`
 	Region                   string `ini:"region"`

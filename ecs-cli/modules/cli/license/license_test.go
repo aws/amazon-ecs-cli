@@ -24,7 +24,7 @@ func TestVendorDirectoryStructure(t *testing.T) {
 
 	directories, _ := ioutil.ReadDir("./../../../vendor")
 	if len(directories) != expectedDirCount {
-		t.Errorf("Should have exactly 3 directories under vendor/. Found [%s] directories", len(directories))
+		t.Errorf("Should have exactly 3 directories under vendor/. Found [%d] directories", len(directories))
 	}
 	foundDirCount := 0
 	for _, dir := range directories {
