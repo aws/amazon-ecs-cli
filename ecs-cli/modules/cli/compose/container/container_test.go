@@ -79,7 +79,7 @@ func TestStatus(t *testing.T) {
 	ecsCont.ExitCode = aws.Int64(int64(exitCode))
 	state = container.State()
 	if !strings.Contains(state, strconv.Itoa(exitCode)) {
-		t.Errorf("Expected state to contain [%s] but got [%s]", exitCode, state)
+		t.Errorf("Expected state to contain [%d] but got [%s]", exitCode, state)
 	}
 }
 
