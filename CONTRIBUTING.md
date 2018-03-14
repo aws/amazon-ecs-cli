@@ -1,6 +1,6 @@
 # Contributing to the CLI
 ### Setting up your environment
-* Make sure you are using go1.8 (`go version`).
+* Make sure you are using Go 1.10 (`go version`).
 * Copy the source code (`go get github.com/aws/amazon-ecs-cli`).
 
 ### Building
