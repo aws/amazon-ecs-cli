@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.1
+* Bug - Ensure tests pass on go 1.10
+* Enhancement - Support longer resource IDs in Cloudformation template
+
 ## 1.4.0
 * Feature - Update AMI to amzn-ami-2017.09.j-amazon-ecs-optimized
 * Feature - Add force-deployment flag to compose service (#144)
