@@ -16,6 +16,7 @@
 set -e
 
 DRYRUN=true
+PGP_PUBLISH=true
 
 AWS_PROFILE=""
 STAGE_S3_BUCKET=""
@@ -37,6 +38,7 @@ usage() {
 	echo "  -s  BUCKET      AWS S3 Bucket for staging"
 	echo "  -b  BUCKET      AWS S3 Bucket for publishing (default is ${PUBLISH_S3_BUCKET})"
 	echo "  -a  ACL         AWS S3 Object Canned ACL (default is public-read)"
+	echo "  -c  true|false  Publish PGP Signatures (default is true)"
 	echo "  -h              Display this help message"
 }
 
@@ -45,23 +47,34 @@ publish_s3() {
 		echo "Publishing as ecs-cli-linux-amd64-${tag}"
 		dexec s3_pull_push "s3://${STAGE_S3_BUCKET}/ecs-cli-linux-amd64-${tag}" "s3://${PUBLISH_S3_BUCKET}/ecs-cli-linux-amd64-${tag}"
 		dexec s3_pull_push "s3://${STAGE_S3_BUCKET}/ecs-cli-linux-amd64-${tag}.md5" "s3://${PUBLISH_S3_BUCKET}/ecs-cli-linux-amd64-${tag}.md5"
-		dexec s3_pull_push "s3://${STAGE_S3_BUCKET}/ecs-cli-linux-amd64-${tag}.asc" "s3://${PUBLISH_S3_BUCKET}/ecs-cli-linux-amd64-${tag}.asc"
+		if ${PGP_PUBLISH}; then
+			dexec s3_pull_push "s3://${STAGE_S3_BUCKET}/ecs-cli-linux-amd64-${tag}.asc" "s3://${PUBLISH_S3_BUCKET}/ecs-cli-linux-amd64-${tag}.asc"
+		fi
 		echo "Publishing as ecs-cli-darwin-amd64-${tag}"
 		dexec s3_pull_push "s3://${STAGE_S3_BUCKET}/ecs-cli-darwin-amd64-${tag}" "s3://${PUBLISH_S3_BUCKET}/ecs-cli-darwin-amd64-${tag}"
 		dexec s3_pull_push "s3://${STAGE_S3_BUCKET}/ecs-cli-darwin-amd64-${tag}.md5" "s3://${PUBLISH_S3_BUCKET}/ecs-cli-darwin-amd64-${tag}.md5"
-		dexec s3_pull_push "s3://${STAGE_S3_BUCKET}/ecs-cli-darwin-amd64-${tag}.asc" "s3://${PUBLISH_S3_BUCKET}/ecs-cli-darwin-amd64-${tag}.asc"
+		if ${PGP_PUBLISH}; then
+			dexec s3_pull_push "s3://${STAGE_S3_BUCKET}/ecs-cli-darwin-amd64-${tag}.asc" "s3://${PUBLISH_S3_BUCKET}/ecs-cli-darwin-amd64-${tag}.asc"
+		fi
 		echo "Publishing as ecs-cli-windows-amd64-${tag}.exe"
 		dexec s3_pull_push "s3://${STAGE_S3_BUCKET}/ecs-cli-windows-amd64-${tag}.exe" "s3://${PUBLISH_S3_BUCKET}/ecs-cli-windows-amd64-${tag}.exe"
 		dexec s3_pull_push "s3://${STAGE_S3_BUCKET}/ecs-cli-windows-amd64-${tag}.md5" "s3://${PUBLISH_S3_BUCKET}/ecs-cli-windows-amd64-${tag}.md5"
-		dexec s3_pull_push "s3://${STAGE_S3_BUCKET}/ecs-cli-windows-amd64-${tag}.exe.asc" "s3://${PUBLISH_S3_BUCKET}/ecs-cli-windows-amd64-${tag}.exe.asc"
+		if ${PGP_PUBLISH}; then
+			dexec s3_pull_push "s3://${STAGE_S3_BUCKET}/ecs-cli-windows-amd64-${tag}.exe.asc" "s3://${PUBLISH_S3_BUCKET}/ecs-cli-windows-amd64-${tag}.exe.asc"
+		fi
 	done
 }
 
-while getopts ":d:p:o:s:b:i:a:h" opt; do
+while getopts ":d:p:o:s:b:i:a:h:c" opt; do
 	case ${opt} in
 		d)
 			if [[ "${OPTARG}" = "false" ]]; then
 				DRYRUN=false
+			fi
+			;;
+		c)
+			if [[ "${OPTARG}" = "false" ]]; then
+				PGP_PUBLISH=false
 			fi
 			;;
 		p)
