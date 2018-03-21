@@ -1,7 +1,21 @@
 # Contributing to the CLI
-### Setting up your environment
+
+- [Development Setup](#development-setup)
+  * [Environment](#environment)
+  * [Building](#building)
+  * [Adding/updating new dependencies](#adding-updating-new-dependencies)
+  * [Generating mocks/licenses](#generating-mocks-licenses)
+  * [Cross-compiling](#cross-compiling)
+  * [Testing](#testing)
+- [Contributing code](#contributing-code)
+- [Amazon Open Source Code of Conduct](#amazon-open-source-code-of-conduct)
+- [Licensing](#licensing)
+
+## Development Setup
+### Environment
 * Make sure you are using Go 1.10 (`go version`).
 * Copy the source code (`go get github.com/aws/amazon-ecs-cli`).
+* We use [dep](https://github.com/golang/dep) to manage dependencies. Make sure you have version 0.3.2 of [dep](https://github.com/golang/dep/releases/tag/v0.3.2) (installation instructions [here](https://golang.github.io/dep/docs/installation.html)).
 
 ### Building
 From `$GOPATH/src/github.com/aws/amazon-ecs-cli`:
@@ -36,11 +50,27 @@ for the Darwin and Linux platforms.
 ### Testing
 * To run unit tests, run `make test` from `$GOPATH/src/github.com/aws/amazon-ecs-cli`.
 
-### Licensing
-The Amazon ECS CLI is released under an [Apache 2.0](http://aws.amazon.com/apache-2-0/) license. Any code you submit will be released under that license.
+## Contributing code
+* Please check the existing issues and FAQ to see if your feedback has already been reported.
 
-For significant changes, we may ask you to sign a [Contributor License Agreement](http://en.wikipedia.org/wiki/Contributor_License_Agreement).
+* Let us know if you are interested in working on an issue by leaving a comment
+on the issue in GitHub. This helps avoid multiple people unknowingly working on
+the same issue.
 
+* If you would like to propose a new feature, please open an issue on GitHub with
+a detailed description. This enables us to collaborate on the feature design
+more easily and increases the chances that your feature request will be accepted.
+
+* New features should include full test coverage.
+
+* All submissions, including submissions by project members, require review. We
+  use GitHub pull requests for this purpose. Consult GitHub Help for more
+information on using pull requests.
+
+* Please submit any PRs against the `dev` branch.
+
+* For any PR where you're updating `Gopkg.toml`, make sure to run `dep ensure
+  && dep prune` and commit all changes to vendor as a separate commit.
 
 ## Amazon Open Source Code of Conduct
 
@@ -66,3 +96,8 @@ The use of violent threats, abusive, discriminatory, or derogatory language;
 Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting opensource-codeofconduct@amazon.com. All complaints will be reviewed and investigated and will result in a response that is deemed necessary and appropriate to the circumstances.
 
 **Attribution.** _This code of conduct is based on the [template](http://todogroup.org/opencodeofconduct) established by the [TODO Group](http://todogroup.org/) and the Scope section from the [Contributor Covenant version 1.4](http://contributor-covenant.org/version/1/4/)._
+
+## Licensing
+The Amazon ECS CLI is released under an [Apache 2.0](http://aws.amazon.com/apache-2-0/) license. Any code you submit will be released under that license.
+
+For significant changes, we may ask you to sign a [Contributor License Agreement](http://en.wikipedia.org/wiki/Contributor_License_Agreement).
