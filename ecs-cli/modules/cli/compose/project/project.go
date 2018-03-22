@@ -172,7 +172,7 @@ func (p *ecsProject) transformTaskDefinition() error {
 
 	taskDefinitionName := utils.GetTaskDefinitionName("", ecsContext.Context.ProjectName)
 	taskRoleArn := ecsContext.CLIContext.GlobalString(flags.TaskRoleArnFlag)
-	requiredCompatibilities := ecsContext.CLIParams.LaunchType
+	requiredCompatibilities := ecsContext.CommandConfig.LaunchType
 
 	taskDefinition, err := utils.ConvertToTaskDefinition(
 		taskDefinitionName,

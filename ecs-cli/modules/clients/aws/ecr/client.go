@@ -49,27 +49,27 @@ type Client interface {
 type ecrClient struct {
 	client      ecriface.ECRAPI
 	loginClient login.Client
-	params      *config.CLIParams
+	config      *config.CommandConfig
 	auth        *Auth
 }
 
 // NewClient Creates a new ECR client
-func NewClient(params *config.CLIParams) Client {
-	client := ecr.New(params.Session, params.Session.Config)
+func NewClient(config *config.CommandConfig) Client {
+	client := ecr.New(config.Session, config.Session.Config)
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
 	loginClient := login.DefaultClientFactory{}.NewClientWithOptions(login.Options{
-		Session:  params.Session,
-		Config:   params.Session.Config,
+		Session:  config.Session,
+		Config:   config.Session.Config,
 		CacheDir: CacheDir,
 	})
-	return newClient(params, client, loginClient)
+	return newClient(config, client, loginClient)
 }
 
-func newClient(params *config.CLIParams, client ecriface.ECRAPI, loginClient login.Client) Client {
+func newClient(config *config.CommandConfig, client ecriface.ECRAPI, loginClient login.Client) Client {
 	return &ecrClient{
 		client:      client,
 		loginClient: loginClient,
-		params:      params,
+		config:      config,
 	}
 }
 

@@ -80,16 +80,16 @@ func (rdwr *mockReadWriter) SetDefaultCluster(configName string) error {
 	return nil
 }
 
-func TestNewCliParamsFromEnvVarsWithRegionNotSpecified(t *testing.T) {
+func TestNewCommandConfigFromEnvVarsWithRegionNotSpecified(t *testing.T) {
 	context, rdwr := setupTest(t)
 
-	_, err := NewCLIParams(context, rdwr)
+	_, err := NewCommandConfig(context, rdwr)
 	if err == nil {
 		t.Errorf("Expected error when region not specified")
 	}
 }
 
-func TestNewCliParamsFromEnvVarsWithRegionSpecifiedAsEnvVariable(t *testing.T) {
+func TestNewCommandConfigFromEnvVarsWithRegionSpecifiedAsEnvVariable(t *testing.T) {
 	region := "us-west-1"
 	context, rdwr := setupTest(t)
 
@@ -98,14 +98,14 @@ func TestNewCliParamsFromEnvVarsWithRegionSpecifiedAsEnvVariable(t *testing.T) {
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	defer os.Clearenv()
 
-	params, err := NewCLIParams(context, rdwr)
+	config, err := NewCommandConfig(context, rdwr)
 	assert.NoError(t, err, "Unexpected error when region is specified using environment variable AWS_REGION")
 
-	paramsRegion := aws.StringValue(params.Session.Config.Region)
-	assert.Equal(t, region, paramsRegion, "Region should match")
+	configRegion := aws.StringValue(config.Session.Config.Region)
+	assert.Equal(t, region, configRegion, "Region should match")
 }
 
-func TestNewCliParamsFromEnvVarsWithRegionSpecifiedinAwsDefaultEnvVariable(t *testing.T) {
+func TestNewCommandConfigFromEnvVarsWithRegionSpecifiedinAwsDefaultEnvVariable(t *testing.T) {
 	region := "us-west-2"
 	context, rdwr := setupTest(t)
 
@@ -114,14 +114,14 @@ func TestNewCliParamsFromEnvVarsWithRegionSpecifiedinAwsDefaultEnvVariable(t *te
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	defer os.Clearenv()
 
-	params, err := NewCLIParams(context, rdwr)
+	config, err := NewCommandConfig(context, rdwr)
 	assert.NoError(t, err, "Unexpected error when region is specified using environment variable AWS_DEFAULT_REGION")
 
-	paramsRegion := aws.StringValue(params.Session.Config.Region)
-	assert.Equal(t, region, paramsRegion, "Region should match")
+	configRegion := aws.StringValue(config.Session.Config.Region)
+	assert.Equal(t, region, configRegion, "Region should match")
 }
 
-func TestNewCliParamsFromConfig(t *testing.T) {
+func TestNewCommandConfigFromConfig(t *testing.T) {
 	region := "us-east-1"
 
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
@@ -135,14 +135,14 @@ func TestNewCliParamsFromConfig(t *testing.T) {
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	defer os.Clearenv()
 
-	params, err := NewCLIParams(context, rdwr)
+	config, err := NewCommandConfig(context, rdwr)
 	assert.NoError(t, err, "Unexpected error when region is specified")
 
-	paramsRegion := aws.StringValue(params.Session.Config.Region)
-	assert.Equal(t, region, paramsRegion, "Region should match")
+	configRegion := aws.StringValue(config.Session.Config.Region)
+	assert.Equal(t, region, configRegion, "Region should match")
 }
 
-func TestNewCliParamsWhenPrefixesPresentINIVersion(t *testing.T) {
+func TestNewCommandConfigWhenPrefixesPresentINIVersion(t *testing.T) {
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	defer os.Clearenv()
@@ -151,15 +151,15 @@ func TestNewCliParamsWhenPrefixesPresentINIVersion(t *testing.T) {
 
 	// Prefixes are present, and values are defaulted to empty
 	rdwr := &mockReadWriter{isKeyPresentValue: true, version: iniConfigVersion}
-	params, err := NewCLIParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error when getting new cli params")
-	assert.Equal(t, composeProjectNamePrefix, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be set")
-	assert.Equal(t, composeServiceNamePrefix, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be set")
-	assert.Equal(t, cfnStackNamePrefix+clusterName, params.CFNStackName, "Expected CFNStackName to be default")
-	assert.Empty(t, params.LaunchType, "Expected Launch Type to be empty")
+	config, err := NewCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error when getting new cli config")
+	assert.Equal(t, composeProjectNamePrefix, config.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be set")
+	assert.Equal(t, composeServiceNamePrefix, config.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be set")
+	assert.Equal(t, cfnStackNamePrefix+clusterName, config.CFNStackName, "Expected CFNStackName to be default")
+	assert.Empty(t, config.LaunchType, "Expected Launch Type to be empty")
 }
 
-func TestNewCliParamsWhenPrefixKeysAreNotPresentINIVersion(t *testing.T) {
+func TestNewCommandConfigWhenPrefixKeysAreNotPresentINIVersion(t *testing.T) {
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	defer func() {
@@ -171,15 +171,15 @@ func TestNewCliParamsWhenPrefixKeysAreNotPresentINIVersion(t *testing.T) {
 
 	// Prefixes are present, and values should be set to defaults
 	rdwr := &mockReadWriter{isKeyPresentValue: false, version: iniConfigVersion}
-	params, err := NewCLIParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error when getting new CLI params")
-	assert.Empty(t, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
-	assert.Empty(t, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
-	assert.Equal(t, clusterName, params.CFNStackName, "Expected CFNStackName to equal cluster name")
-	assert.Empty(t, params.LaunchType, "Expected Launch Type to be empty")
+	config, err := NewCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error when getting new CLI config")
+	assert.Empty(t, config.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
+	assert.Empty(t, config.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
+	assert.Equal(t, clusterName, config.CFNStackName, "Expected CFNStackName to equal cluster name")
+	assert.Empty(t, config.LaunchType, "Expected Launch Type to be empty")
 }
 
-func TestNewCliParamsINIVersionLaunchTypeFlagEC2(t *testing.T) {
+func TestNewCommandConfigINIVersionLaunchTypeFlagEC2(t *testing.T) {
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	defer func() {
@@ -191,15 +191,15 @@ func TestNewCliParamsINIVersionLaunchTypeFlagEC2(t *testing.T) {
 
 	// Prefixes are present, and values should be set to defaults
 	rdwr := &mockReadWriter{isKeyPresentValue: false, version: iniConfigVersion}
-	params, err := NewCLIParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error when getting new CLI params")
-	assert.Empty(t, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
-	assert.Empty(t, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
-	assert.Equal(t, clusterName, params.CFNStackName, "Expected CFNStackName to equal cluster name")
-	assert.Equal(t, LaunchTypeEC2, params.LaunchType)
+	config, err := NewCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error when getting new CLI config")
+	assert.Empty(t, config.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
+	assert.Empty(t, config.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
+	assert.Equal(t, clusterName, config.CFNStackName, "Expected CFNStackName to equal cluster name")
+	assert.Equal(t, LaunchTypeEC2, config.LaunchType)
 }
 
-func TestNewCliParamsINIVersionLaunchTypeFlagFargate(t *testing.T) {
+func TestNewCommandConfigINIVersionLaunchTypeFlagFargate(t *testing.T) {
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	defer func() {
@@ -211,15 +211,15 @@ func TestNewCliParamsINIVersionLaunchTypeFlagFargate(t *testing.T) {
 
 	// Prefixes are present, and values should be set to defaults
 	rdwr := &mockReadWriter{isKeyPresentValue: false, version: iniConfigVersion}
-	params, err := NewCLIParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error when getting new CLI params")
-	assert.Empty(t, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
-	assert.Empty(t, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
-	assert.Equal(t, clusterName, params.CFNStackName, "Expected CFNStackName to equal cluster name")
-	assert.Equal(t, LaunchTypeFargate, params.LaunchType)
+	config, err := NewCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error when getting new CLI config")
+	assert.Empty(t, config.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
+	assert.Empty(t, config.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
+	assert.Equal(t, clusterName, config.CFNStackName, "Expected CFNStackName to equal cluster name")
+	assert.Equal(t, LaunchTypeFargate, config.LaunchType)
 }
 
-func TestNewCliParamsWhenPrefixesPresentYAMLVersion(t *testing.T) {
+func TestNewCommandConfigWhenPrefixesPresentYAMLVersion(t *testing.T) {
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	defer os.Clearenv()
@@ -228,15 +228,15 @@ func TestNewCliParamsWhenPrefixesPresentYAMLVersion(t *testing.T) {
 
 	// Prefixes are present, and values are defaulted to empty
 	rdwr := &mockReadWriter{isKeyPresentValue: true, version: yamlConfigVersion}
-	params, err := NewCLIParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error when getting new cli params")
-	assert.Empty(t, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
-	assert.Equal(t, composeServiceNamePrefix, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be set")
-	assert.Equal(t, cfnStackName, params.CFNStackName, "Expected CFNStackName to be set")
-	assert.Equal(t, LaunchTypeEC2, params.LaunchType)
+	config, err := NewCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error when getting new cli config")
+	assert.Empty(t, config.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
+	assert.Equal(t, composeServiceNamePrefix, config.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be set")
+	assert.Equal(t, cfnStackName, config.CFNStackName, "Expected CFNStackName to be set")
+	assert.Equal(t, LaunchTypeEC2, config.LaunchType)
 }
 
-func TestNewCliParamsWhenPrefixKeysAreNotPresentYAMLVersion(t *testing.T) {
+func TestNewCommandConfigWhenPrefixKeysAreNotPresentYAMLVersion(t *testing.T) {
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	defer func() {
@@ -248,15 +248,15 @@ func TestNewCliParamsWhenPrefixKeysAreNotPresentYAMLVersion(t *testing.T) {
 
 	// Prefixes are present, and values should be set to defaults
 	rdwr := &mockReadWriter{isKeyPresentValue: false, version: yamlConfigVersion}
-	params, err := NewCLIParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error when getting new cli params")
-	assert.Empty(t, params.ComposeProjectNamePrefix, "Expected ComposProjectNamePrefix to be empty")
-	assert.Empty(t, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
-	assert.Equal(t, flags.CFNStackNamePrefixDefaultValue+clusterName, params.CFNStackName, "Expected CFNStackName to be default")
-	assert.Empty(t, params.LaunchType, "Expected Launch Type to be empty")
+	config, err := NewCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error when getting new cli config")
+	assert.Empty(t, config.ComposeProjectNamePrefix, "Expected ComposProjectNamePrefix to be empty")
+	assert.Empty(t, config.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be empty")
+	assert.Equal(t, flags.CFNStackNamePrefixDefaultValue+clusterName, config.CFNStackName, "Expected CFNStackName to be default")
+	assert.Empty(t, config.LaunchType, "Expected Launch Type to be empty")
 }
 
-func TestNewCliParamsYAMLVersionLaunchTypeEC2(t *testing.T) {
+func TestNewCommandConfigYAMLVersionLaunchTypeEC2(t *testing.T) {
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	defer os.Clearenv()
@@ -265,15 +265,15 @@ func TestNewCliParamsYAMLVersionLaunchTypeEC2(t *testing.T) {
 
 	// Prefixes are present, and values are defaulted to empty
 	rdwr := &mockReadWriter{isKeyPresentValue: true, version: yamlConfigVersion, fargate: false}
-	params, err := NewCLIParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error when getting new cli params")
-	assert.Empty(t, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
-	assert.Equal(t, composeServiceNamePrefix, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be set")
-	assert.Equal(t, cfnStackName, params.CFNStackName, "Expected CFNStackName to be set")
-	assert.Equal(t, LaunchTypeEC2, params.LaunchType)
+	config, err := NewCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error when getting new cli config")
+	assert.Empty(t, config.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
+	assert.Equal(t, composeServiceNamePrefix, config.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be set")
+	assert.Equal(t, cfnStackName, config.CFNStackName, "Expected CFNStackName to be set")
+	assert.Equal(t, LaunchTypeEC2, config.LaunchType)
 }
 
-func TestNewCliParamsYAMLVersionLaunchTypeFargate(t *testing.T) {
+func TestNewCommandConfigYAMLVersionLaunchTypeFargate(t *testing.T) {
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	defer os.Clearenv()
@@ -282,15 +282,15 @@ func TestNewCliParamsYAMLVersionLaunchTypeFargate(t *testing.T) {
 
 	// Prefixes are present, and values are defaulted to empty
 	rdwr := &mockReadWriter{isKeyPresentValue: true, version: yamlConfigVersion, fargate: true}
-	params, err := NewCLIParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error when getting new cli params")
-	assert.Empty(t, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
-	assert.Equal(t, composeServiceNamePrefix, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be set")
-	assert.Equal(t, cfnStackName, params.CFNStackName, "Expected CFNStackName to be set")
-	assert.Equal(t, LaunchTypeFargate, params.LaunchType)
+	config, err := NewCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error when getting new cli config")
+	assert.Empty(t, config.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
+	assert.Equal(t, composeServiceNamePrefix, config.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be set")
+	assert.Equal(t, cfnStackName, config.CFNStackName, "Expected CFNStackName to be set")
+	assert.Equal(t, LaunchTypeFargate, config.LaunchType)
 }
 
-func TestNewCliParamsYAMLVersionLaunchTypeOverriddenFargate(t *testing.T) {
+func TestNewCommandConfigYAMLVersionLaunchTypeOverriddenFargate(t *testing.T) {
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	defer os.Clearenv()
@@ -299,15 +299,15 @@ func TestNewCliParamsYAMLVersionLaunchTypeOverriddenFargate(t *testing.T) {
 
 	// Prefixes are present, and values are defaulted to empty
 	rdwr := &mockReadWriter{isKeyPresentValue: true, version: yamlConfigVersion, fargate: false}
-	params, err := NewCLIParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error when getting new cli params")
-	assert.Empty(t, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
-	assert.Equal(t, composeServiceNamePrefix, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be set")
-	assert.Equal(t, cfnStackName, params.CFNStackName, "Expected CFNStackName to be set")
-	assert.Equal(t, LaunchTypeFargate, params.LaunchType)
+	config, err := NewCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error when getting new cli config")
+	assert.Empty(t, config.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
+	assert.Equal(t, composeServiceNamePrefix, config.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be set")
+	assert.Equal(t, cfnStackName, config.CFNStackName, "Expected CFNStackName to be set")
+	assert.Equal(t, LaunchTypeFargate, config.LaunchType)
 }
 
-func TestNewCliParamsYAMLVersionLaunchTypeOverriddenEC2(t *testing.T) {
+func TestNewCommandConfigYAMLVersionLaunchTypeOverriddenEC2(t *testing.T) {
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "SECRET")
 	defer os.Clearenv()
@@ -316,15 +316,15 @@ func TestNewCliParamsYAMLVersionLaunchTypeOverriddenEC2(t *testing.T) {
 
 	// Prefixes are present, and values are defaulted to empty
 	rdwr := &mockReadWriter{isKeyPresentValue: true, version: yamlConfigVersion, fargate: true}
-	params, err := NewCLIParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error when getting new cli params")
-	assert.Empty(t, params.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
-	assert.Equal(t, composeServiceNamePrefix, params.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be set")
-	assert.Equal(t, cfnStackName, params.CFNStackName, "Expected CFNStackName to be set")
-	assert.Equal(t, LaunchTypeEC2, params.LaunchType)
+	config, err := NewCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error when getting new cli config")
+	assert.Empty(t, config.ComposeProjectNamePrefix, "Expected ComposeProjectNamePrefix to be empty")
+	assert.Equal(t, composeServiceNamePrefix, config.ComposeServiceNamePrefix, "Expected ComposeServiceNamePrefix to be set")
+	assert.Equal(t, cfnStackName, config.CFNStackName, "Expected CFNStackName to be set")
+	assert.Equal(t, LaunchTypeEC2, config.LaunchType)
 }
 
-func TestNewCliParamsWithAWSProfile(t *testing.T) {
+func TestNewCommandConfigWithAWSProfile(t *testing.T) {
 	// Keys in env vars take highest precedence; ensure they are not set
 	os.Unsetenv("AWS_ACCESS_KEY")
 	os.Unsetenv("AWS_SECRET_KEY")
@@ -359,9 +359,9 @@ aws_secret_access_key = aws-secret
 	context := cli.NewContext(nil, flagSet, globalContext)
 	rdwr := &mockReadWriter{}
 
-	params, err := NewCLIParams(context, rdwr)
+	config, err := NewCommandConfig(context, rdwr)
 	assert.NoError(t, err)
-	creds, err := params.Session.Config.Credentials.Get()
+	creds, err := config.Session.Config.Credentials.Get()
 	assert.NoError(t, err)
 	assert.Equal(t, awsAccessAWSProfile, creds.AccessKeyID, "Expected AWS Access Key to be read from the AWS Profile")
 	assert.Equal(t, awsSecretAWSProfile, creds.SecretAccessKey, "Expected AWS Secret Access Key to be read from the AWS Profile")

@@ -58,7 +58,7 @@ func setupTestController(t *testing.T) (*mock_stsiface.MockSTSAPI, Client, *gomo
 	mockSession, err := session.NewSession()
 	assert.NoError(t, err, "Unexpected error in creating session")
 
-	client := newClient(&config.CLIParams{Session: mockSession}, mockSts)
+	client := newClient(&config.CommandConfig{Session: mockSession}, mockSts)
 
 	return mockSts, client, ctrl
 }

@@ -65,12 +65,12 @@ func ClusterUp(c *cli.Context) {
 	ecsClient := ecsclient.NewECSClient()
 	cfnClient := cloudformation.NewCloudformationClient()
 
-	cliParams, err := newCliParams(c, rdwr)
+	commandConfig, err := newCommandConfig(c, rdwr)
 	if err != nil {
 		logrus.Fatal("Error executing 'up': ", err)
 	}
 
-	err = createCluster(c, ecsClient, cfnClient, cliParams)
+	err = createCluster(c, ecsClient, cfnClient, commandConfig)
 	if err != nil {
 		logrus.Fatal("Error executing 'up': ", err)
 	}
@@ -78,7 +78,7 @@ func ClusterUp(c *cli.Context) {
 	if !c.Bool(flags.EmptyFlag) {
 		// Displays resources create by CloudFormation, as a convenience for tasks launched
 		// with Task Networking or in Fargate mode.
-		if err := cfnClient.DescribeNetworkResources(cliParams.CFNStackName); err != nil {
+		if err := cfnClient.DescribeNetworkResources(commandConfig.CFNStackName); err != nil {
 			logrus.Error("Error describing Cloudformation resources: ", err)
 		}
 	}
@@ -159,23 +159,23 @@ func validateCommaSeparatedParam(cfnParams *cloudformation.CfnStackParams, param
 	return false
 }
 
-func createCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient, cliParams *config.CLIParams) error {
+func createCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient, commandConfig *config.CommandConfig) error {
 	var err error
 
 	// Check if cluster is specified
-	if cliParams.Cluster == "" {
+	if commandConfig.Cluster == "" {
 		return clusterNotSetError()
 	}
 
 	if context.Bool(flags.EmptyFlag) {
-		err = createEmptyCluster(context, ecsClient, cfnClient, cliParams)
+		err = createEmptyCluster(context, ecsClient, cfnClient, commandConfig)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
 
-	launchType := cliParams.LaunchType
+	launchType := commandConfig.LaunchType
 	if launchType == "" {
 		launchType = config.LaunchTypeDefault
 	}
@@ -193,19 +193,19 @@ func createCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfnClien
 	}
 
 	// Check if cfn stack already exists
-	cfnClient.Initialize(cliParams)
-	stackName := cliParams.CFNStackName
+	cfnClient.Initialize(commandConfig)
+	stackName := commandConfig.CFNStackName
 	var deleteStack bool
 	if err = cfnClient.ValidateStackExists(stackName); err == nil {
 		if !isForceSet(context) {
-			return fmt.Errorf("A CloudFormation stack already exists for the cluster '%s'. Please specify '--%s' to clean up your existing resources", cliParams.Cluster, flags.ForceFlag)
+			return fmt.Errorf("A CloudFormation stack already exists for the cluster '%s'. Please specify '--%s' to clean up your existing resources", commandConfig.Cluster, flags.ForceFlag)
 		}
 		deleteStack = true
 	}
 
 	// Populate cfn params
 	cfnParams := cliFlagsToCfnStackParams(context)
-	cfnParams.Add(cloudformation.ParameterKeyCluster, cliParams.Cluster)
+	cfnParams.Add(cloudformation.ParameterKeyCluster, commandConfig.Cluster)
 	if context.Bool(flags.NoAutoAssignPublicIPAddressFlag) {
 		cfnParams.Add(cloudformation.ParameterKeyAssociatePublicIPAddress, "false")
 	}
@@ -248,7 +248,7 @@ func createCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfnClien
 	amiIds := ami.NewStaticAmiIds()
 	_, err = cfnParams.GetParameter(cloudformation.ParameterKeyAmiId)
 	if err == cloudformation.ParameterNotFoundError {
-		amiId, err := amiIds.Get(aws.StringValue(cliParams.Session.Config.Region))
+		amiId, err := amiIds.Get(aws.StringValue(commandConfig.Session.Config.Region))
 		if err != nil {
 			return err
 		}
@@ -261,8 +261,8 @@ func createCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfnClien
 	}
 
 	// Create ECS cluster
-	ecsClient.Initialize(cliParams)
-	if _, err := ecsClient.CreateCluster(cliParams.Cluster); err != nil {
+	ecsClient.Initialize(commandConfig)
+	if _, err := ecsClient.CreateCluster(commandConfig.Cluster); err != nil {
 		return err
 	}
 
@@ -289,11 +289,11 @@ func createCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfnClien
 	return cfnClient.WaitUntilCreateComplete(stackName)
 }
 
-var newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CLIParams, error) {
-	return config.NewCLIParams(context, rdwr)
+var newCommandConfig = func(context *cli.Context, rdwr config.ReadWriter) (*config.CommandConfig, error) {
+	return config.NewCommandConfig(context, rdwr)
 }
 
-func createEmptyCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient, cliParams *config.CLIParams) error {
+func createEmptyCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient, commandConfig *config.CommandConfig) error {
 	for _, flag := range flags.CFNResourceFlags() {
 		if context.String(flag) != "" {
 			logrus.Warnf("Value for flag '%v' will be ignored when creating an empty cluster", flag)
@@ -308,22 +308,22 @@ func createEmptyCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfn
 	}
 
 	// Check if non-empty cluster with same name already exists
-	cfnClient.Initialize(cliParams)
-	stackName := cliParams.CFNStackName
+	cfnClient.Initialize(commandConfig)
+	stackName := commandConfig.CFNStackName
 	if err := cfnClient.ValidateStackExists(stackName); err == nil {
-		return fmt.Errorf("A CloudFormation stack already exists for the cluster '%s'.", cliParams.Cluster)
+		return fmt.Errorf("A CloudFormation stack already exists for the cluster '%s'.", commandConfig.Cluster)
 	}
 
-	ecsClient.Initialize(cliParams)
-	if _, err := ecsClient.CreateCluster(cliParams.Cluster); err != nil {
+	ecsClient.Initialize(commandConfig)
+	if _, err := ecsClient.CreateCluster(commandConfig.Cluster); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-var deleteCFNStack = func(cfnClient cloudformation.CloudformationClient, cliParams *config.CLIParams) error {
-	stackName := cliParams.CFNStackName
+var deleteCFNStack = func(cfnClient cloudformation.CloudformationClient, commandConfig *config.CommandConfig) error {
+	stackName := commandConfig.CFNStackName
 	if err := cfnClient.DeleteStack(stackName); err != nil {
 		return err
 	}
@@ -345,31 +345,31 @@ func deleteCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 		}
 	}
 
-	cliParams, err := newCliParams(context, rdwr)
+	commandConfig, err := newCommandConfig(context, rdwr)
 	if err != nil {
 		return err
 	}
 
 	// Validate that cluster exists in ECS
-	ecsClient.Initialize(cliParams)
-	if err := validateCluster(cliParams.Cluster, ecsClient); err != nil {
+	ecsClient.Initialize(commandConfig)
+	if err := validateCluster(commandConfig.Cluster, ecsClient); err != nil {
 		return err
 	}
 
 	// Validate that a cfn stack exists for the cluster
-	cfnClient.Initialize(cliParams)
-	stackName := cliParams.CFNStackName
+	cfnClient.Initialize(commandConfig)
+	stackName := commandConfig.CFNStackName
 
 	if err := cfnClient.ValidateStackExists(stackName); err != nil {
-		logrus.Infof("No CloudFormation stack found for cluster '%s'.", cliParams.Cluster)
+		logrus.Infof("No CloudFormation stack found for cluster '%s'.", commandConfig.Cluster)
 	} else {
-		if err := deleteCFNStack(cfnClient, cliParams); err != nil {
+		if err := deleteCFNStack(cfnClient, commandConfig); err != nil {
 			return err
 		}
 	}
 
 	// Delete cluster in ECS
-	if _, err := ecsClient.DeleteCluster(cliParams.Cluster); err != nil {
+	if _, err := ecsClient.DeleteCluster(commandConfig.Cluster); err != nil {
 		return err
 	}
 
@@ -391,23 +391,23 @@ func scaleCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscli
 		return fmt.Errorf("Missing required flag '--%s'", flags.AsgMaxSizeFlag)
 	}
 
-	cliParams, err := newCliParams(context, rdwr)
+	commandConfig, err := newCommandConfig(context, rdwr)
 	if err != nil {
 		return err
 	}
 
 	// Validate that cluster exists in ECS
-	ecsClient.Initialize(cliParams)
-	if err := validateCluster(cliParams.Cluster, ecsClient); err != nil {
+	ecsClient.Initialize(commandConfig)
+	if err := validateCluster(commandConfig.Cluster, ecsClient); err != nil {
 		return err
 	}
 
 	// Validate that we have a cfn stack for the cluster
-	cfnClient.Initialize(cliParams)
-	stackName := cliParams.CFNStackName
+	cfnClient.Initialize(commandConfig)
+	stackName := commandConfig.CFNStackName
 	existingParameters, err := cfnClient.GetStackParameters(stackName)
 	if err != nil {
-		return fmt.Errorf("CloudFormation stack not found for cluster '%s'", cliParams.Cluster)
+		return fmt.Errorf("CloudFormation stack not found for cluster '%s'", commandConfig.Cluster)
 	}
 
 	// Populate update params for the cfn stack
@@ -427,17 +427,17 @@ func scaleCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscli
 }
 
 func clusterPS(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient.ECSClient) (project.InfoSet, error) {
-	cliParams, err := newCliParams(context, rdwr)
+	commandConfig, err := newCommandConfig(context, rdwr)
 	if err != nil {
 		return nil, err
 	}
 
 	// Validate that cluster exists in ECS
-	ecsClient.Initialize(cliParams)
-	if err := validateCluster(cliParams.Cluster, ecsClient); err != nil {
+	ecsClient.Initialize(commandConfig)
+	if err := validateCluster(commandConfig.Cluster, ecsClient); err != nil {
 		return nil, err
 	}
-	ec2Client := ec2client.NewEC2Client(cliParams)
+	ec2Client := ec2client.NewEC2Client(commandConfig)
 
 	ecsContext := &ecscontext.ECSContext{ECSClient: ecsClient, EC2Client: ec2Client}
 	task := task.NewTask(ecsContext)

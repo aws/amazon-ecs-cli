@@ -35,7 +35,7 @@ type ECSContext struct {
 
 	CLIContext *cli.Context
 
-	CLIParams *config.CLIParams
+	CommandConfig *config.CommandConfig
 
 	// NOTE: Ideally, would like to only store the non-TaskDef related fields here (e.g. "DeploymentConfig")
 	ECSParams *utils.ECSParams
@@ -52,9 +52,9 @@ type ECSContext struct {
 func (ecsContext *ECSContext) Open() error {
 	// setup AWS service clients
 	ecsContext.ECSClient = ecsclient.NewECSClient()
-	ecsContext.ECSClient.Initialize(ecsContext.CLIParams)
+	ecsContext.ECSClient.Initialize(ecsContext.CommandConfig)
 
-	ecsContext.EC2Client = ec2client.NewEC2Client(ecsContext.CLIParams)
+	ecsContext.EC2Client = ec2client.NewEC2Client(ecsContext.CommandConfig)
 
 	return nil
 }

@@ -56,7 +56,7 @@ func ImagePush(c *cli.Context) {
 		logrus.Fatal("Error executing 'push': ", err)
 	}
 
-	ecsParams, err := config.NewCLIParams(c, rdwr)
+	commandConfig, err := config.NewCommandConfig(c, rdwr)
 	if err != nil {
 		logrus.Fatal("Error executing 'push': ", err)
 	}
@@ -65,8 +65,8 @@ func ImagePush(c *cli.Context) {
 	if err != nil {
 		logrus.Fatal("Error executing 'push': ", err)
 	}
-	ecrClient := ecrclient.NewClient(ecsParams)
-	stsClient := stsclient.NewClient(ecsParams)
+	ecrClient := ecrclient.NewClient(commandConfig)
+	stsClient := stsclient.NewClient(commandConfig)
 
 	if err := pushImage(c, rdwr, dockerClient, ecrClient, stsClient); err != nil {
 		logrus.Fatal("Error executing 'push': ", err)
@@ -80,7 +80,7 @@ func ImagePull(c *cli.Context) {
 		logrus.Fatal("Error executing 'pull': ", err)
 	}
 
-	ecsParams, err := config.NewCLIParams(c, rdwr)
+	commandConfig, err := config.NewCommandConfig(c, rdwr)
 	if err != nil {
 		logrus.Fatal("Error executing 'pull': ", err)
 	}
@@ -89,8 +89,8 @@ func ImagePull(c *cli.Context) {
 	if err != nil {
 		logrus.Fatal("Error executing 'pull': ", err)
 	}
-	ecrClient := ecrclient.NewClient(ecsParams)
-	stsClient := stsclient.NewClient(ecsParams)
+	ecrClient := ecrclient.NewClient(commandConfig)
+	stsClient := stsclient.NewClient(commandConfig)
 
 	if err := pullImage(c, rdwr, dockerClient, ecrClient, stsClient); err != nil {
 		logrus.Fatal("Error executing 'pull': ", err)
@@ -104,12 +104,12 @@ func ImageList(c *cli.Context) {
 		logrus.Fatal("Error executing 'images': ", err)
 	}
 
-	ecsParams, err := config.NewCLIParams(c, rdwr)
+	commandConfig, err := config.NewCommandConfig(c, rdwr)
 	if err != nil {
 		logrus.Fatal("Error executing 'images': ", err)
 	}
 
-	ecrClient := ecrclient.NewClient(ecsParams)
+	ecrClient := ecrclient.NewClient(commandConfig)
 	if err := getImages(c, rdwr, ecrClient); err != nil {
 		logrus.Fatal("Error executing 'images': ", err)
 		return

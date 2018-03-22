@@ -58,7 +58,7 @@ func TestPopulateContext(t *testing.T) {
 		t.Fatal("Error while populating the context")
 	}
 
-	if ecsContext.CLIParams == nil {
+	if ecsContext.CommandConfig == nil {
 		t.Error("CLI Params was expected to be set for ecsContext but was nil")
 	}
 }

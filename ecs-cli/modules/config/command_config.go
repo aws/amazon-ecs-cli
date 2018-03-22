@@ -30,8 +30,8 @@ const (
 	LaunchTypeDefault = "EC2"
 )
 
-// CLIParams saves config to create an aws service clients
-type CLIParams struct {
+// CommandConfig contains the configuration parameters and AWS Session required to run a specific command
+type CommandConfig struct {
 	Cluster                  string
 	Session                  *session.Session
 	ComposeServiceNamePrefix string
@@ -41,8 +41,8 @@ type CLIParams struct {
 }
 
 // Searches as far up the context as necessary. This function works no matter
-// how many layers of nested subcommands there are. It is more powerful
-// than merely calling context.String and context.GlobalString
+// how many layers of nested subcommands there are. It is more powerful than
+// merely calling context.String and context.GlobalString
 func RecursiveFlagSearch(context *cli.Context, flag string) string {
 	if context == nil {
 		return ""
@@ -53,8 +53,8 @@ func RecursiveFlagSearch(context *cli.Context, flag string) string {
 	}
 }
 
-// NewCLIParams creates a new CLIParams object from the config file.
-func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
+// NewCommandConfig creates a new CommandConfig object from the local ECS config file and flags
+func NewCommandConfig(context *cli.Context, rdwr ReadWriter) (*CommandConfig, error) {
 	clusterConfig := RecursiveFlagSearch(context, flags.ClusterConfigFlag)
 	profileConfig := RecursiveFlagSearch(context, flags.ECSProfileFlag)
 	ecsConfig, err := rdwr.Get(clusterConfig, profileConfig)
@@ -63,7 +63,8 @@ func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 		return nil, errors.Wrap(err, "Error loading config")
 	}
 
-	// launch type from the flag overrides defaul launch type
+	// Determine Launch Type
+	// The launch type flag overrides default launch type stored in the local config
 	if launchTypeFromFlag := RecursiveFlagSearch(context, flags.LaunchTypeFlag); launchTypeFromFlag != "" {
 		ecsConfig.DefaultLaunchType = launchTypeFromFlag
 	}
@@ -72,7 +73,8 @@ func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 		return nil, err
 	}
 
-	// Order of cluster resolution
+	// Determine cluster
+	// Order of cluster resolution:
 	//  1) Inline flag
 	//  2) Environment Variable
 	//  3) ECS Config
@@ -83,11 +85,14 @@ func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 		ecsConfig.Cluster = clusterFromFlag
 	}
 
-	//--region flag has the highest precedence to set ecs-cli region config.
+	// Determine region
+	// The --region flag takes highest precedence
 	if regionFromFlag := RecursiveFlagSearch(context, flags.RegionFlag); regionFromFlag != "" {
 		ecsConfig.Region = regionFromFlag
 	}
 
+	// Determine profile
+	// The --profile flag takes highest precedence
 	if awsProfileFromFlag := RecursiveFlagSearch(context, flags.AWSProfileFlag); awsProfileFromFlag != "" {
 		ecsConfig.AWSProfile = awsProfileFromFlag
 		// unset Access Key and Secret Key, otherwise they will take precedence
@@ -95,20 +100,21 @@ func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 		ecsConfig.AWSSecretKey = ""
 	}
 
+	// Instantiate AWS Session
 	svcSession, err := ecsConfig.ToAWSSession(context)
 	if err != nil {
 		return nil, err
 	}
 
+	// Determine Cloudformation StackName
 	if ecsConfig.Version == iniConfigVersion {
 		ecsConfig.CFNStackName = ecsConfig.CFNStackNamePrefix + ecsConfig.Cluster
 	}
-
 	if ecsConfig.CFNStackName == "" {
 		ecsConfig.CFNStackName = flags.CFNStackNamePrefixDefaultValue + ecsConfig.Cluster
 	}
 
-	return &CLIParams{
+	return &CommandConfig{
 		Cluster:                  ecsConfig.Cluster,
 		Session:                  svcSession,
 		ComposeServiceNamePrefix: ecsConfig.ComposeServiceNamePrefix,

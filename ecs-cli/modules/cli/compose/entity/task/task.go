@@ -248,7 +248,7 @@ func (t *Task) runTasks(taskDefinitionId string, totalCount int) ([]*ecs.Task, e
 
 	result := []*ecs.Task{}
 	chunkSize := 10 // can issue only upto 10 tasks in a RunTask Call
-	launchType := t.Context().CLIParams.LaunchType
+	launchType := t.Context().CommandConfig.LaunchType
 
 	if err := entity.ValidateFargateParams(t.Context().ECSParams, launchType); err != nil {
 		return nil, err

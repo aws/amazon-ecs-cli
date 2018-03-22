@@ -106,7 +106,7 @@ func TestInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasks
 	context := &context.ECSContext{
 		ECSClient: mockEcs,
 		EC2Client: mockEc2,
-		CLIParams: &config.CLIParams{},
+		CommandConfig: &config.CommandConfig{},
 		Context: project.Context{
 			ProjectName: projectName,
 		},

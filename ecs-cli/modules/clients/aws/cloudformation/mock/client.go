@@ -86,7 +86,7 @@ func (_mr *_MockCloudformationClientRecorder) GetStackParameters(arg0 interface{
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetStackParameters", arg0)
 }
 
-func (_m *MockCloudformationClient) Initialize(_param0 *config.CLIParams) {
+func (_m *MockCloudformationClient) Initialize(_param0 *config.CommandConfig) {
 	_m.ctrl.Call(_m, "Initialize", _param0)
 }
 

@@ -32,7 +32,7 @@ type cwLogsClient struct {
 }
 
 // NewCloudWatchLogsClient creates an instance of ec2Client object.
-func NewCloudWatchLogsClient(params *config.CLIParams, logRegion string) Client {
+func NewCloudWatchLogsClient(params *config.CommandConfig, logRegion string) Client {
 	session := params.Session
 	session.Config = session.Config.WithRegion(logRegion)
 	client := cloudwatchlogs.New(session)
@@ -65,22 +65,22 @@ type LogClientFactory interface {
 
 type clientFactory struct {
 	logClientForRegion map[string]Client
-	cliParams          *config.CLIParams
+	commandConfig      *config.CommandConfig
 }
 
 func (c *clientFactory) Get(region string) Client {
 	client, ok := c.logClientForRegion[region]
 	if !ok {
-		client = NewCloudWatchLogsClient(c.cliParams, region)
+		client = NewCloudWatchLogsClient(c.commandConfig, region)
 		c.logClientForRegion[region] = client
 	}
 	return client
 }
 
 // NewLogClientFactory returns a factory which creates log clients for a region
-func NewLogClientFactory(cliParams *config.CLIParams) LogClientFactory {
+func NewLogClientFactory(commandConfig *config.CommandConfig) LogClientFactory {
 	return &clientFactory{
 		logClientForRegion: make(map[string]Client),
-		cliParams:          cliParams,
+		commandConfig:      commandConfig,
 	}
 }
