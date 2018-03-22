@@ -236,7 +236,7 @@ Alternatively, you may specify one or more existing security group IDs with the 
 You can also create an empty ECS cluster by using the `--empty` or `--e` flag:
 
 ```
-ecs-cli --empty up --cluster myCluster
+ecs-cli up --cluster myCluster --empty
 ```
 
 This is equivalent to the [create-cluster command](https://docs.aws.amazon.com/cli/latest/reference/ecs/create-cluster.html), and will not create a CloudFormation stack associated with your cluster.
