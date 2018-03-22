@@ -65,7 +65,7 @@ publish_s3() {
 	done
 }
 
-while getopts ":d:p:o:s:b:i:a:h:c" opt; do
+while getopts ":d:p:o:s:b:i:a:h:c:" opt; do
 	case ${opt} in
 		d)
 			if [[ "${OPTARG}" = "false" ]]; then
