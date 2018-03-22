@@ -265,7 +265,7 @@ func getLogConfiguration(taskDef *ecs.TaskDefinition, taskID string, containerNa
 
 func getContainerLogConfig(containerDef *ecs.ContainerDefinition) (*logConfiguration, error) {
 	if containerDef.LogConfiguration == nil {
-		return nil, fmt.Errorf("Container '%s' is not configured to use CloudWatch logs; logConfigution ('logging' in Docker Compose) is a required container definition field", aws.StringValue(containerDef.Name))
+		return nil, fmt.Errorf("Container '%s' is not configured to use CloudWatch logs; logConfiguration ('logging' in Docker Compose) is a required container definition field", aws.StringValue(containerDef.Name))
 	}
 	logConfig := &logConfiguration{}
 	if aws.StringValue(containerDef.LogConfiguration.LogDriver) != "awslogs" {
