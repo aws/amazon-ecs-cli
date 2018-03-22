@@ -19,10 +19,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
@@ -37,7 +37,7 @@ func fieldEmpty(field string, flagName string) error {
 
 // Migrate converts the old ini formatted config to a new YAML formatted config
 func Migrate(context *cli.Context) error {
-	oldConfig := &config.CLIConfig{}
+	oldConfig := &config.LocalConfig{}
 	dest, err := config.NewDefaultDestination()
 	if err != nil {
 		return errors.Wrap(err, "Error reading old configuration file.")

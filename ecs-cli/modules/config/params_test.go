@@ -45,8 +45,8 @@ type mockReadWriter struct {
 	version           int
 }
 
-func (rdwr *mockReadWriter) Get(clusterConfig string, profileConfig string) (*CLIConfig, error) {
-	config := NewCLIConfig(clusterName)
+func (rdwr *mockReadWriter) Get(clusterConfig string, profileConfig string) (*LocalConfig, error) {
+	config := NewLocalConfig(clusterName)
 	if rdwr.isKeyPresentValue && rdwr.version == iniConfigVersion {
 		config.ComposeServiceNamePrefix = composeServiceNamePrefix
 		config.CFNStackNamePrefix = cfnStackNamePrefix

@@ -40,8 +40,8 @@ const (
 	yamlConfigVersion           = 1
 )
 
-// CLIConfig is the top level struct representing the local ECS configuration
-type CLIConfig struct {
+// LocalConfig is the top level struct representing the local ECS configuration
+type LocalConfig struct {
 	Version                  int // which format version was the config file that was read. 1 == yaml, 0 == old ini
 	Cluster                  string
 	AWSProfile               string
@@ -86,9 +86,9 @@ type ProfileConfig struct {
 	Profiles map[string]Profile `yaml:"ecs_profiles"`
 }
 
-// NewCLIConfig creates a new instance of CliConfig from the cluster name.
-func NewCLIConfig(cluster string) *CLIConfig {
-	return &CLIConfig{Cluster: cluster}
+// NewLocalConfig creates a new instance of CliConfig from the cluster name.
+func NewLocalConfig(cluster string) *LocalConfig {
+	return &LocalConfig{Cluster: cluster}
 }
 
 // ToAWSSession creates a new Session object from the CliConfig object.
@@ -117,7 +117,7 @@ func NewCLIConfig(cluster string) *CLIConfig {
 //  4) Default AWS Profile - attempts to use credentials (aws_access_key_id, aws_secret_access_key) or assume_role (role_arn, source_profile) from AWS profile name
 //    a) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
 //  5) EC2 Instance role
-func (cfg *CLIConfig) ToAWSSession(context *cli.Context) (*session.Session, error) {
+func (cfg *LocalConfig) ToAWSSession(context *cli.Context) (*session.Session, error) {
 	svcConfig := aws.Config{}
 	if ecsEndpoint := RecursiveFlagSearch(context, flags.EndpointFlag); ecsEndpoint != "" {
 		defaultResolver := endpoints.DefaultResolver()
@@ -138,7 +138,7 @@ func (cfg *CLIConfig) ToAWSSession(context *cli.Context) (*session.Session, erro
 // ToAWSSessionWithConfig processes credential order of precedence
 // The argument svcConfig is needed to allow important unit tests to work
 // (for example: assume role)
-func (cfg *CLIConfig) toAWSSessionWithConfig(context *cli.Context, svcConfig *aws.Config) (*session.Session, error) {
+func (cfg *LocalConfig) toAWSSessionWithConfig(context *cli.Context, svcConfig *aws.Config) (*session.Session, error) {
 	region, err := cfg.getRegion()
 
 	if err != nil || region == "" {
@@ -169,11 +169,11 @@ func hasEnvVars(context *cli.Context) bool {
 	return (os.Getenv(flags.AWSSecretKeyEnvVar) != "" && os.Getenv(flags.AWSAccessKeyEnvVar) != "")
 }
 
-func isDefaultECSProfileCase(cfg *CLIConfig) bool {
+func isDefaultECSProfileCase(cfg *LocalConfig) bool {
 	return (cfg.AWSAccessKey != "" || cfg.AWSSecretKey != "" || cfg.AWSProfile != "")
 }
 
-func sessionFromECSConfig(cfg *CLIConfig, region string, svcConfig *aws.Config) (*session.Session, error) {
+func sessionFromECSConfig(cfg *LocalConfig, region string, svcConfig *aws.Config) (*session.Session, error) {
 	if cfg.AWSSecretKey != "" {
 		return sessionFromKeys(region, cfg.AWSAccessKey, cfg.AWSSecretKey, cfg.AWSSessionToken, svcConfig)
 	}
@@ -223,7 +223,7 @@ func sessionFromKeys(region string, awsAccess string, awsSecret string, sessionT
 //    a) --aws-profile flag
 //    b) AWS_PROFILE environment variable
 //    c) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
-func (cfg *CLIConfig) getRegion() (string, error) {
+func (cfg *LocalConfig) getRegion() (string, error) {
 	region := cfg.Region
 
 	if region == "" {
@@ -244,7 +244,7 @@ func (cfg *CLIConfig) getRegion() (string, error) {
 	return region, err
 }
 
-func (cfg *CLIConfig) getRegionFromAWSProfile() (string, error) {
+func (cfg *LocalConfig) getRegionFromAWSProfile() (string, error) {
 	awsProfile := ""
 	if cfg.AWSProfile != "" {
 		awsProfile = cfg.AWSProfile

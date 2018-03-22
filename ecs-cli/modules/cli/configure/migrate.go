@@ -31,7 +31,7 @@ func maskSecret(secret string) (out string) {
 	return out
 }
 
-func hideCreds(cliConfig *config.CLIConfig) {
+func hideCreds(cliConfig *config.LocalConfig) {
 	if cliConfig.AWSSecretKey != "" {
 		cliConfig.AWSSecretKey = maskSecret(cliConfig.AWSSecretKey)
 	}
@@ -54,7 +54,7 @@ func hideCredsOldFile(data string) string {
 	return safeData
 }
 
-func migrateWarning(cliConfig config.CLIConfig) error {
+func migrateWarning(cliConfig config.LocalConfig) error {
 	var oldConfig string
 	dest, err := config.NewDefaultDestination()
 	if err != nil {

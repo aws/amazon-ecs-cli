@@ -41,8 +41,8 @@ const clusterName = "clusterName"
 // field whenperforming read.
 type mockReadWriter struct{}
 
-func (rdwr *mockReadWriter) Get(cluster string, profile string) (*config.CLIConfig, error) {
-	return config.NewCLIConfig(clusterName), nil
+func (rdwr *mockReadWriter) Get(cluster string, profile string) (*config.LocalConfig, error) {
+	return config.NewLocalConfig(clusterName), nil
 }
 
 func (rdwr *mockReadWriter) SaveProfile(configName string, profile *config.Profile) error {

@@ -19,8 +19,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/sirupsen/logrus"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -37,7 +37,7 @@ type ReadWriter interface {
 	SaveCluster(string, *Cluster) error
 	SetDefaultProfile(string) error
 	SetDefaultCluster(string) error
-	Get(string, string) (*CLIConfig, error)
+	Get(string, string) (*LocalConfig, error)
 }
 
 // YAMLReadWriter implements the ReadWriter interfaces. It can be used to save and load
@@ -64,14 +64,14 @@ func NewReadWriter() (*YAMLReadWriter, error) {
 	return &YAMLReadWriter{destination: dest}, nil
 }
 
-func readINI(dest *Destination, cliConfig *CLIConfig) error {
+func readINI(dest *Destination, localConfig *LocalConfig) error {
 	// Only read if the file exists; ini library is not good about throwing file not exist errors
 	if _, err := os.Stat(ConfigFilePath(dest)); err == nil {
 		iniReadWriter, err := NewINIReadWriter(dest)
 		if err != nil {
 			return err
 		}
-		return iniReadWriter.GetConfig(cliConfig)
+		return iniReadWriter.GetConfig(localConfig)
 	}
 
 	return nil
@@ -106,7 +106,7 @@ func ReadCredFile(path string) (*ProfileConfig, error) {
 }
 
 // readClusterConfig does all the work to read and parse the yaml cluster config
-func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfig) error {
+func readClusterConfig(path string, clusterConfigKey string, localConfig *LocalConfig) error {
 	// read cluster file
 	config, err := ReadClusterFile(path)
 	if err != nil {
@@ -124,21 +124,21 @@ func readClusterConfig(path string, clusterConfigKey string, cliConfig *CLIConfi
 	}
 
 	// Get the info out of the cluster
-	cliConfig.Region = cluster.Region
-	cliConfig.Cluster = cluster.Cluster
-	cliConfig.ComposeServiceNamePrefix = cluster.ComposeServiceNamePrefix
-	cliConfig.CFNStackName = cluster.CFNStackName
-	cliConfig.DefaultLaunchType = cluster.DefaultLaunchType
+	localConfig.Region = cluster.Region
+	localConfig.Cluster = cluster.Cluster
+	localConfig.ComposeServiceNamePrefix = cluster.ComposeServiceNamePrefix
+	localConfig.CFNStackName = cluster.CFNStackName
+	localConfig.DefaultLaunchType = cluster.DefaultLaunchType
 	// Fields must be explicitly set as empty because the iniReadWriter will set them to default
-	cliConfig.ComposeProjectNamePrefix = ""
-	cliConfig.CFNStackNamePrefix = ""
-	cliConfig.Version = yamlConfigVersion
+	localConfig.ComposeProjectNamePrefix = ""
+	localConfig.CFNStackNamePrefix = ""
+	localConfig.Version = yamlConfigVersion
 	return nil
 
 }
 
 // readProfileConfig does all the work to read and parse the yaml cluster config
-func readProfileConfig(path string, profileConfigKey string, cliConfig *CLIConfig) error {
+func readProfileConfig(path string, profileConfigKey string, localConfig *LocalConfig) error {
 	// read profile file
 	config, err := ReadCredFile(path)
 	if err != nil {
@@ -156,10 +156,10 @@ func readProfileConfig(path string, profileConfigKey string, cliConfig *CLIConfi
 	}
 
 	// Get the info out of the cluster
-	cliConfig.AWSSecretKey = profile.AWSSecretKey
-	cliConfig.AWSAccessKey = profile.AWSAccessKey
-	cliConfig.AWSSessionToken = profile.AWSSessionToken
-	cliConfig.Version = yamlConfigVersion
+	localConfig.AWSSecretKey = profile.AWSSecretKey
+	localConfig.AWSAccessKey = profile.AWSAccessKey
+	localConfig.AWSSessionToken = profile.AWSSessionToken
+	localConfig.Version = yamlConfigVersion
 
 	return nil
 
@@ -168,22 +168,22 @@ func readProfileConfig(path string, profileConfigKey string, cliConfig *CLIConfi
 // Get gets the ecs-cli config object from the config file(s).
 // This function either reads the old single configuration file
 // Or if the new files are present, it reads from them instead
-func (rdwr *YAMLReadWriter) Get(clusterConfig string, profileConfig string) (*CLIConfig, error) {
-	cliConfig := &CLIConfig{}
+func (rdwr *YAMLReadWriter) Get(clusterConfig string, profileConfig string) (*LocalConfig, error) {
+	localConfig := &LocalConfig{}
 	profilePath := credentialsFilePath(rdwr.destination)
 	configPath := ConfigFilePath(rdwr.destination)
 
 	// try to readINI first; it is either successful or it
-	// set cliConfig to be its default value (all fields empty strings)
-	readINI(rdwr.destination, cliConfig)
+	// set localConfig to be its default value (all fields empty strings)
+	readINI(rdwr.destination, localConfig)
 
 	// Try to read the config as YAML
 	// nothing will happen if it fails
-	errYAML := readClusterConfig(configPath, clusterConfig, cliConfig)
+	errYAML := readClusterConfig(configPath, clusterConfig, localConfig)
 
 	if _, err := os.Stat(profilePath); err == nil {
 		// credentials file exists- so that means we are using the new style configs
-		err = readProfileConfig(profilePath, profileConfig, cliConfig)
+		err = readProfileConfig(profilePath, profileConfig, localConfig)
 		if err != nil {
 			return nil, err
 		}
@@ -192,12 +192,12 @@ func (rdwr *YAMLReadWriter) Get(clusterConfig string, profileConfig string) (*CL
 	// Check if there was a format error on the config file
 	// this happens when both ini and yaml readers fail to read anything
 	// but the file does exist (the files are allowed to not exist).
-	if _, err := os.Stat(configPath); err == nil && cliConfig.Cluster == "" && cliConfig.Region == "" {
+	if _, err := os.Stat(configPath); err == nil && localConfig.Cluster == "" && localConfig.Region == "" {
 		return nil, errors.Wrapf(errYAML, "Error parsing %s", configPath)
 	}
 
 	// if no configs exist, we return an empty object
-	return cliConfig, nil
+	return localConfig, nil
 
 }
 

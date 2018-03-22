@@ -45,8 +45,8 @@ type mockReadWriter struct {
 	defaultLaunchType string
 }
 
-func (rdwr *mockReadWriter) Get(cluster string, profile string) (*config.CLIConfig, error) {
-	cliConfig := config.NewCLIConfig(rdwr.clusterName)
+func (rdwr *mockReadWriter) Get(cluster string, profile string) (*config.LocalConfig, error) {
+	cliConfig := config.NewLocalConfig(rdwr.clusterName)
 	cliConfig.CFNStackName = rdwr.clusterName
 	cliConfig.DefaultLaunchType = rdwr.defaultLaunchType
 	return cliConfig, nil
