@@ -45,7 +45,7 @@ type ssmClient struct {
 }
 
 // NewSSMClient creates an instance of Client.
-func NewSSMClient(params *config.CLIParams) Client {
+func NewSSMClient(params *config.CommandConfig) Client {
 	client := ssm.New(params.Session)
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
 	return &ssmClient{

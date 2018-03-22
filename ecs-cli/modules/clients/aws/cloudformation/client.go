@@ -18,7 +18,6 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
@@ -26,6 +25,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -89,7 +89,7 @@ func init() {
 // CloudformationClient defines methods to interact the with the CloudFormationAPI interface.
 type CloudformationClient interface {
 	// TODO: Modify the interface and tbe client to not have the Initialize method.
-	Initialize(*config.CLIParams)
+	Initialize(*config.CommandConfig)
 	CreateStack(string, string, *CfnStackParams) (string, error)
 	WaitUntilCreateComplete(string) error
 	DeleteStack(string) error
@@ -103,9 +103,9 @@ type CloudformationClient interface {
 
 // cloudformationClient implements CloudFormationClient.
 type cloudformationClient struct {
-	client    cloudformationiface.CloudFormationAPI
-	cliParams *config.CLIParams
-	sleeper   utils.Sleeper
+	client  cloudformationiface.CloudFormationAPI
+	config  *config.CommandConfig
+	sleeper utils.Sleeper
 }
 
 // NewCloudformationClient creates an instance of cloudFormationClient object.
@@ -114,11 +114,11 @@ func NewCloudformationClient() CloudformationClient {
 }
 
 // Initialize initializes all the fields of the cloudFormationClient object.
-func (c *cloudformationClient) Initialize(params *config.CLIParams) {
-	cfnClient := cloudformation.New(params.Session)
+func (c *cloudformationClient) Initialize(config *config.CommandConfig) {
+	cfnClient := cloudformation.New(config.Session)
 	cfnClient.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
 	c.client = cfnClient
-	c.cliParams = params
+	c.config = config
 	c.sleeper = &utils.TimeSleeper{}
 }
 

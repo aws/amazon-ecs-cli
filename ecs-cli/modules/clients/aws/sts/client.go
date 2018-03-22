@@ -31,20 +31,20 @@ type Client interface {
 // stsClient implements Client
 type stsClient struct {
 	client stsiface.STSAPI
-	params *config.CLIParams
+	config *config.CommandConfig
 }
 
 // NewClient Creates a new sts client
-func NewClient(params *config.CLIParams) Client {
-	client := sts.New(session.New(params.Session.Config))
+func NewClient(config *config.CommandConfig) Client {
+	client := sts.New(session.New(config.Session.Config))
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
-	return newClient(params, client)
+	return newClient(config, client)
 }
 
-func newClient(params *config.CLIParams, client stsiface.STSAPI) Client {
+func newClient(config *config.CommandConfig, client stsiface.STSAPI) Client {
 	return &stsClient{
 		client: client,
-		params: params,
+		config: config,
 	}
 }
 

@@ -419,7 +419,7 @@ func GetTaskGroup(entity ProjectEntity) string {
 // GetTaskDefinitionFamily returns the family name
 func GetTaskDefinitionFamily(entity ProjectEntity) string {
 	// ComposeProjectNamePrefix is deprecated, but its use must remain for backwards compatibility
-	return entity.Context().CLIParams.ComposeProjectNamePrefix + GetProjectName(entity)
+	return entity.Context().CommandConfig.ComposeProjectNamePrefix + GetProjectName(entity)
 }
 
 // GetProjectName returns the name of the project that was set in the context we are working with
@@ -429,7 +429,7 @@ func GetProjectName(entity ProjectEntity) string {
 
 // getProjectPrefix returns the prefix for the project name
 func getProjectPrefix(entity ProjectEntity) string {
-	return entity.Context().CLIParams.ComposeProjectNamePrefix
+	return entity.Context().CommandConfig.ComposeProjectNamePrefix
 }
 
 // GetServiceName using project entity
@@ -438,7 +438,7 @@ func GetServiceName(entity ProjectEntity) string {
 }
 
 func getServicePrefix(entity ProjectEntity) string {
-	return entity.Context().CLIParams.ComposeServiceNamePrefix
+	return entity.Context().CommandConfig.ComposeServiceNamePrefix
 }
 
 // GetIdFromArn gets the aws String value of the input arn and returns the id part of the arn
@@ -464,7 +464,7 @@ func ValidateFargateParams(ecsParams *utils.ECSParams, launchType string) error 
 // OptionallyCreateLogs creates CW log groups if the --create-log-group flag is present.
 func OptionallyCreateLogs(entity ProjectEntity) error {
 	if entity.Context().CLIContext.Bool(flags.CreateLogsFlag) {
-		err := logs.CreateLogGroups(entity.TaskDefinition(), cloudwatchlogs.NewLogClientFactory(entity.Context().CLIParams))
+		err := logs.CreateLogGroups(entity.TaskDefinition(), cloudwatchlogs.NewLogClientFactory(entity.Context().CommandConfig))
 		if err != nil {
 			return err
 		}

@@ -43,7 +43,7 @@ func TestCreateWithDeploymentConfig(t *testing.T) {
 	createServiceTest(
 		t,
 		cliContext,
-		&config.CLIParams{},
+		&config.CommandConfig{},
 		&utils.ECSParams{},
 		func(deploymentConfig *ecs.DeploymentConfiguration) {
 			assert.Equal(t, int64(deploymentMaxPercent), aws.Int64Value(deploymentConfig.MaximumPercent), "DeploymentConfig.MaxPercent should match")
@@ -69,7 +69,7 @@ func TestCreateWithoutDeploymentConfig(t *testing.T) {
 	createServiceTest(
 		t,
 		cliContext,
-		&config.CLIParams{},
+		&config.CommandConfig{},
 		&utils.ECSParams{},
 		func(deploymentConfig *ecs.DeploymentConfiguration) {
 			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
@@ -110,7 +110,7 @@ func TestCreateWithNetworkConfig(t *testing.T) {
 	createServiceTest(
 		t,
 		cliContext,
-		&config.CLIParams{},
+		&config.CommandConfig{},
 		ecsParamsWithNetworkConfig(),
 		func(deploymentConfig *ecs.DeploymentConfiguration) {
 			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
@@ -159,7 +159,7 @@ func TestCreateFargate(t *testing.T) {
 	createServiceTest(
 		t,
 		cliContext,
-		&config.CLIParams{LaunchType: "FARGATE"},
+		&config.CommandConfig{LaunchType: "FARGATE"},
 		ecsParamsWithFargateNetworkConfig(),
 		func(deploymentConfig *ecs.DeploymentConfiguration) {
 			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
@@ -209,7 +209,7 @@ func TestCreateFargateNetworkModeNotAWSVPC(t *testing.T) {
 
 	context := &context.ECSContext{
 		ECSClient:  mockEcs,
-		CLIParams:  &config.CLIParams{LaunchType: "FARGATE"},
+		CommandConfig:  &config.CommandConfig{LaunchType: "FARGATE"},
 		CLIContext: cliContext,
 		ECSParams:  &utils.ECSParams{},
 	}
@@ -230,7 +230,7 @@ func TestCreateEC2Explicitly(t *testing.T) {
 	createServiceTest(
 		t,
 		cliContext,
-		&config.CLIParams{LaunchType: "EC2"},
+		&config.CommandConfig{LaunchType: "EC2"},
 		&utils.ECSParams{},
 		func(deploymentConfig *ecs.DeploymentConfiguration) {
 			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
@@ -267,7 +267,7 @@ func TestCreateWithALB(t *testing.T) {
 	createServiceTest(
 		t,
 		cliContext,
-		&config.CLIParams{},
+		&config.CommandConfig{},
 		&utils.ECSParams{},
 		func(deploymentConfig *ecs.DeploymentConfiguration) {
 			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
@@ -309,7 +309,7 @@ func TestCreateWithHealthCheckGracePeriodAndALB(t *testing.T) {
 	createServiceWithHealthCheckGPTest(
 		t,
 		cliContext,
-		&config.CLIParams{},
+		&config.CommandConfig{},
 		&utils.ECSParams{},
 		func(deploymentConfig *ecs.DeploymentConfiguration) {
 			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
@@ -353,7 +353,7 @@ func TestCreateWithELB(t *testing.T) {
 	createServiceTest(
 		t,
 		cliContext,
-		&config.CLIParams{},
+		&config.CommandConfig{},
 		&utils.ECSParams{},
 		func(deploymentConfig *ecs.DeploymentConfiguration) {
 			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
@@ -395,7 +395,7 @@ func TestCreateWithHealthCheckGracePeriodAndELB(t *testing.T) {
 	createServiceWithHealthCheckGPTest(
 		t,
 		cliContext,
-		&config.CLIParams{},
+		&config.CommandConfig{},
 		&utils.ECSParams{},
 		func(deploymentConfig *ecs.DeploymentConfiguration) {
 			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
@@ -429,7 +429,7 @@ type validateHealthCheckGracePeriod func(*int64)
 
 func createServiceTest(t *testing.T,
 	cliContext *cli.Context,
-	cliParams *config.CLIParams,
+	commandConfig *config.CommandConfig,
 	ecsParams *utils.ECSParams,
 	validateDeploymentConfig validateDeploymentConfiguration,
 	validateLB validateLoadBalancer,
@@ -439,7 +439,7 @@ func createServiceTest(t *testing.T,
 	createServiceWithHealthCheckGPTest(
 		t,
 		cliContext,
-		cliParams,
+		commandConfig,
 		ecsParams,
 		validateDeploymentConfig,
 		validateLB,
@@ -453,7 +453,7 @@ func createServiceTest(t *testing.T,
 
 func createServiceWithHealthCheckGPTest(t *testing.T,
 	cliContext *cli.Context,
-	cliParams *config.CLIParams,
+	commandConfig *config.CommandConfig,
 	ecsParams *utils.ECSParams,
 	validateDeploymentConfig validateDeploymentConfiguration,
 	validateLB validateLoadBalancer,
@@ -509,7 +509,7 @@ func createServiceWithHealthCheckGPTest(t *testing.T,
 
 	context := &context.ECSContext{
 		ECSClient:  mockEcs,
-		CLIParams:  cliParams,
+		CommandConfig:  commandConfig,
 		CLIContext: cliContext,
 		ECSParams:  ecsParams,
 	}
@@ -629,8 +629,8 @@ func TestUpdateExistingServiceWithForceFlag(t *testing.T) {
 	expectedInput.forceDeployment = forceFlagValue
 
 	// call tests
-	upServiceWithCurrentTaskDefTest(t, cliContext, &config.CLIParams{}, &utils.ECSParams{}, expectedInput, existingService)
-	upServiceWithNewTaskDefTest(t, cliContext, &config.CLIParams{}, &utils.ECSParams{}, expectedInput, existingService)
+	upServiceWithCurrentTaskDefTest(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
+	upServiceWithNewTaskDefTest(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
 }
 
 func TestUpdateExistingServiceWithNewDeploymentConfig(t *testing.T) {
@@ -661,8 +661,8 @@ func TestUpdateExistingServiceWithNewDeploymentConfig(t *testing.T) {
 	}
 
 	// call tests
-	upServiceWithCurrentTaskDefTest(t, cliContext, &config.CLIParams{}, &utils.ECSParams{}, expectedInput, existingService)
-	upServiceWithNewTaskDefTest(t, cliContext, &config.CLIParams{}, &utils.ECSParams{}, expectedInput, existingService)
+	upServiceWithCurrentTaskDefTest(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
+	upServiceWithNewTaskDefTest(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
 }
 
 func TestUpdateExistingServiceWithNewHCGP(t *testing.T) {
@@ -689,8 +689,8 @@ func TestUpdateExistingServiceWithNewHCGP(t *testing.T) {
 	expectedInput.healthCheckGracePeriod = aws.Int64(int64(healthCheckGracePeriod))
 
 	// call tests
-	upServiceWithCurrentTaskDefTest(t, cliContext, &config.CLIParams{}, &utils.ECSParams{}, expectedInput, existingService)
-	upServiceWithNewTaskDefTest(t, cliContext, &config.CLIParams{}, &utils.ECSParams{}, expectedInput, existingService)
+	upServiceWithCurrentTaskDefTest(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
+	upServiceWithNewTaskDefTest(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
 }
 
 func TestUpdateExistingServiceWithDesiredCountOverOne(t *testing.T) {
@@ -715,8 +715,8 @@ func TestUpdateExistingServiceWithDesiredCountOverOne(t *testing.T) {
 	expectedInput.count = *aws.Int64(int64(existingDesiredCount))
 
 	// call tests
-	upServiceWithCurrentTaskDefTest(t, cliContext, &config.CLIParams{}, &utils.ECSParams{}, expectedInput, existingService)
-	upServiceWithNewTaskDefTest(t, cliContext, &config.CLIParams{}, &utils.ECSParams{}, expectedInput, existingService)
+	upServiceWithCurrentTaskDefTest(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
+	upServiceWithNewTaskDefTest(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
 }
 
 func getDefaultUpdateInput() UpdateServiceParams {
@@ -769,7 +769,7 @@ func getUpdateServiceMockClient(t *testing.T,
 
 func upServiceWithCurrentTaskDefTest(t *testing.T,
 	cliContext *cli.Context,
-	cliParams *config.CLIParams,
+	commandConfig *config.CommandConfig,
 	ecsParams *utils.ECSParams,
 	expectedInput UpdateServiceParams,
 	existingService *ecs.Service) {
@@ -792,7 +792,7 @@ func upServiceWithCurrentTaskDefTest(t *testing.T,
 
 	ecsContext := &context.ECSContext{
 		ECSClient:  mockEcs,
-		CLIParams:  cliParams,
+		CommandConfig:  commandConfig,
 		CLIContext: cliContext,
 		ECSParams:  ecsParams,
 	}
@@ -814,7 +814,7 @@ func upServiceWithCurrentTaskDefTest(t *testing.T,
 
 func upServiceWithNewTaskDefTest(t *testing.T,
 	cliContext *cli.Context,
-	cliParams *config.CLIParams,
+	commandConfig *config.CommandConfig,
 	ecsParams *utils.ECSParams,
 	expectedInput UpdateServiceParams,
 	existingService *ecs.Service) {
@@ -836,7 +836,7 @@ func upServiceWithNewTaskDefTest(t *testing.T,
 
 	ecsContext := &context.ECSContext{
 		ECSClient:  mockEcs,
-		CLIParams:  cliParams,
+		CommandConfig:  commandConfig,
 		CLIContext: cliContext,
 		ECSParams:  ecsParams,
 	}

@@ -75,12 +75,12 @@ func (projectFactory projectFactory) populateContext(ecsContext *context.ECSCont
 		utils.LogError(err, "Error loading config")
 		return err
 	}
-	params, err := config.NewCLIParams(cliContext, rdwr)
+	config, err := config.NewCommandConfig(cliContext, rdwr)
 	if err != nil {
-		utils.LogError(err, "Unable to create an instance of CLIParams given the cli context")
+		utils.LogError(err, "Unable to create an instance of CommandConfig given the cli context")
 		return err
 	}
-	ecsContext.CLIParams = params
+	ecsContext.CommandConfig = config
 
 	// populate libcompose context
 	if err = projectFactory.populateLibcomposeContext(ecsContext); err != nil {

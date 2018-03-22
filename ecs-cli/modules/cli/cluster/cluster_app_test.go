@@ -106,10 +106,10 @@ func TestClusterUp(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
@@ -142,10 +142,10 @@ func TestClusterUpWithForce(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
@@ -184,10 +184,10 @@ func TestClusterUpWithoutPublicIP(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
@@ -208,10 +208,10 @@ func TestClusterUpWithVPC(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
@@ -230,10 +230,10 @@ func TestClusterUpWithAvailabilityZones(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
@@ -251,10 +251,10 @@ func TestClusterUpWithCustomRole(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
@@ -271,10 +271,10 @@ func TestClusterUpWithTwoCustomRoles(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.Error(t, err, "Expected error for custom instance role")
 }
 
@@ -291,10 +291,10 @@ func TestClusterUpWithDefaultAndCustomRoles(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.Error(t, err, "Expected error for custom instance role")
 }
 
@@ -308,10 +308,10 @@ func TestClusterUpWithNoRoles(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.Error(t, err, "Expected error for custom instance role")
 }
 
@@ -327,10 +327,10 @@ func TestClusterUpWithoutKeyPair(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
@@ -353,10 +353,10 @@ func TestClusterUpWithSecurityGroupWithoutVPC(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.Error(t, err, "Expected error for security group without VPC")
 }
 
@@ -380,10 +380,10 @@ func TestClusterUpWith2SecurityGroups(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
@@ -406,10 +406,10 @@ func TestClusterUpWithSubnetsWithoutVPC(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.Error(t, err, "Expected error for subnets without VPC")
 }
 
@@ -432,10 +432,10 @@ func TestClusterUpWithVPCWithoutSubnets(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.Error(t, err, "Expected error for VPC without subnets")
 }
 
@@ -460,10 +460,10 @@ func TestClusterUpWithAvailabilityZonesWithVPC(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.Error(t, err, "Expected error for VPC with AZs")
 }
 
@@ -486,10 +486,10 @@ func TestClusterUpWithout2AvailabilityZones(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.Error(t, err, "Expected error for 2 AZs")
 }
 
@@ -547,10 +547,10 @@ func TestClusterUpForImageIdInput(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
@@ -567,10 +567,10 @@ func TestClusterUpWithClusterNameEmpty(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	rdwr := &mockReadWriter{clusterName: ""}
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.Error(t, err, "Expected error bringing up cluster")
 }
 
@@ -582,7 +582,7 @@ func TestClusterUpWithoutRegion(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	_, err := newCliParams(context, rdwr)
+	_, err := newCommandConfig(context, rdwr)
 	assert.Error(t, err, "Expected error due to missing region in bringing up cluster")
 }
 
@@ -617,12 +617,12 @@ func TestClusterUpWithFargateLaunchTypeFlag(t *testing.T) {
 
 	context := cli.NewContext(nil, flagSet, globalContext)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 
-	assert.Equal(t, config.LaunchTypeFargate, cliParams.LaunchType, "Launch Type should be FARGATE")
+	assert.Equal(t, config.LaunchTypeFargate, commandConfig.LaunchType, "Launch Type should be FARGATE")
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
@@ -658,12 +658,12 @@ func TestClusterUpWithFargateDefaultLaunchTypeConfig(t *testing.T) {
 	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 
-	assert.Equal(t, config.LaunchTypeFargate, cliParams.LaunchType, "Launch Type should be FARGATE")
+	assert.Equal(t, config.LaunchTypeFargate, commandConfig.LaunchType, "Launch Type should be FARGATE")
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
@@ -702,12 +702,12 @@ func TestClusterUpWithFargateLaunchTypeFlagOverride(t *testing.T) {
 	flagSet.String(flags.LaunchTypeFlag, config.LaunchTypeFargate, "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 
-	assert.Equal(t, config.LaunchTypeFargate, cliParams.LaunchType, "Launch Type should be FARGATE")
+	assert.Equal(t, config.LaunchTypeFargate, commandConfig.LaunchType, "Launch Type should be FARGATE")
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 }
 
@@ -740,10 +740,10 @@ func TestClusterUpWithEC2LaunchTypeFlagOverride(t *testing.T) {
 	flagSet.String(flags.LaunchTypeFlag, config.LaunchTypeEC2, "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 
 	// This is kind of hack - this error will only get checked if launch type is EC2
 	assert.Error(t, err, "Expected error for bringing up cluster with empty default launch type.")
@@ -775,10 +775,10 @@ func TestClusterUpWithBlankDefaultLaunchTypeConfig(t *testing.T) {
 	flagSet.Bool(flags.CapabilityIAMFlag, false, "")
 
 	context := cli.NewContext(nil, flagSet, globalContext)
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 
 	// This is kind of hack - this error will only get checked if launch type is EC2
 	assert.Error(t, err, "Expected error for bringing up cluster with empty default launch type.")
@@ -803,10 +803,10 @@ func TestClusterUpWithEmptyCluster(t *testing.T) {
 	flagSet.Bool(flags.EmptyFlag, true, "")
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.NoError(t, err, "Unexpected error bringing up empty cluster")
 }
 
@@ -829,10 +829,10 @@ func TestClusterUpWithEmptyClusterWithExistingStack(t *testing.T) {
 	flagSet.Bool(flags.EmptyFlag, true, "")
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
-	cliParams, err := newCliParams(context, rdwr)
-	assert.NoError(t, err, "Unexpected error creating CLIParams")
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
 
-	err = createCluster(context, mockECS, mockCloudformation, mockSSM, cliParams)
+	err = createCluster(context, mockECS, mockCloudformation, mockSSM, commandConfig)
 	assert.Error(t, err, "Unexpected error bringing up empty cluster")
 }
 
@@ -840,8 +840,8 @@ func TestClusterUpWithEmptyClusterWithExistingStack(t *testing.T) {
 // Cluster Down //
 //////////////////
 func TestClusterDown(t *testing.T) {
-	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CLIParams, error) {
-		return &config.CLIParams{
+	newCommandConfig = func(context *cli.Context, rdwr config.ReadWriter) (*config.CommandConfig, error) {
+		return &config.CommandConfig{
 			Cluster:      clusterName,
 			CFNStackName: stackName,
 		}, nil
@@ -878,8 +878,8 @@ func TestClusterDownWithoutForce(t *testing.T) {
 }
 
 func TestClusterDownForEmptyCluster(t *testing.T) {
-	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CLIParams, error) {
-		return &config.CLIParams{
+	newCommandConfig = func(context *cli.Context, rdwr config.ReadWriter) (*config.CommandConfig, error) {
+		return &config.CommandConfig{
 			Cluster:      clusterName,
 			CFNStackName: stackName,
 		}, nil
@@ -921,8 +921,8 @@ func TestDeleteClusterPrompt(t *testing.T) {
 //////////////////
 
 func TestClusterScale(t *testing.T) {
-	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CLIParams, error) {
-		return &config.CLIParams{
+	newCommandConfig = func(context *cli.Context, rdwr config.ReadWriter) (*config.CommandConfig, error) {
+		return &config.CommandConfig{
 			Cluster:      clusterName,
 			CFNStackName: stackName,
 		}, nil
@@ -999,8 +999,8 @@ func TestClusterPSTaskGetInfoFail(t *testing.T) {
 	testSession, err := session.NewSession()
 	assert.NoError(t, err, "Unexpected error in creating session")
 
-	newCliParams = func(context *cli.Context, rdwr config.ReadWriter) (*config.CLIParams, error) {
-		return &config.CLIParams{
+	newCommandConfig = func(context *cli.Context, rdwr config.ReadWriter) (*config.CommandConfig, error) {
+		return &config.CommandConfig{
 			Cluster: clusterName,
 			Session: testSession,
 		}, nil

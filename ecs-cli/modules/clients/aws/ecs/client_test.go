@@ -68,17 +68,17 @@ func TestNewECSClientWithRegion(t *testing.T) {
 	globalContext := cli.NewContext(nil, globalSet, nil)
 	context := cli.NewContext(nil, nil, globalContext)
 	rdwr := &mockReadWriter{}
-	_, err := config.NewCLIParams(context, rdwr)
+	_, err := config.NewCommandConfig(context, rdwr)
 	assert.Error(t, err, "Expected error when region not specified")
 
 	globalSet.String("region", "us-east-1", "")
 	globalContext = cli.NewContext(nil, globalSet, nil)
 	context = cli.NewContext(nil, nil, globalContext)
-	params, err := config.NewCLIParams(context, rdwr)
+	config, err := config.NewCommandConfig(context, rdwr)
 	assert.NoError(t, err, "Unexpected error creating opts")
 
 	client := NewECSClient()
-	client.Initialize(params)
+	client.Initialize(config)
 
 	// test for UserAgent
 	realClient, ok := client.(*ecsClient).client.(*ecs.ECS)
@@ -650,7 +650,7 @@ func TestGetEC2InstanceIDsErrorCase(t *testing.T) {
 /*
 	Helpers
 */
-func setupTestController(t *testing.T, configParams *config.CLIParams) (*mock_ecsiface.MockECSAPI, *mock_cache.MockCache,
+func setupTestController(t *testing.T, configParams *config.CommandConfig) (*mock_ecsiface.MockECSAPI, *mock_cache.MockCache,
 	ECSClient, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 	mockEcs := mock_ecsiface.NewMockECSAPI(ctrl)
@@ -666,25 +666,25 @@ func setupTestController(t *testing.T, configParams *config.CLIParams) (*mock_ec
 	return mockEcs, mockCache, client, ctrl
 }
 
-func getDefaultCLIConfigParams(t *testing.T) *config.CLIParams {
+func getDefaultCLIConfigParams(t *testing.T) *config.CommandConfig {
 	setDefaultAWSEnvVariables()
 
 	testSession, err := session.NewSession()
 	assert.NoError(t, err, "Unexpected error in creating session")
 
-	return &config.CLIParams{
+	return &config.CommandConfig{
 		Cluster: clusterName,
 		Session: testSession,
 	}
 }
 
-func getCLIConfigParamsWithLaunchType(t *testing.T, launchType string) *config.CLIParams {
+func getCLIConfigParamsWithLaunchType(t *testing.T, launchType string) *config.CommandConfig {
 	setDefaultAWSEnvVariables()
 
 	testSession, err := session.NewSession()
 	assert.NoError(t, err, "Unexpected error in creating session")
 
-	return &config.CLIParams{
+	return &config.CommandConfig{
 		Cluster:    clusterName,
 		Session:    testSession,
 		LaunchType: launchType,

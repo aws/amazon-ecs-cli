@@ -52,7 +52,7 @@ func TestTaskCreate(t *testing.T) {
 
 	context := &context.ECSContext{
 		ECSClient:  mockEcs,
-		CLIParams:  &config.CLIParams{},
+		CommandConfig:  &config.CommandConfig{},
 		CLIContext: cliContext,
 	}
 	task := NewTask(context)

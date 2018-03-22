@@ -361,7 +361,7 @@ func (s *Service) EntityType() types.Type {
 func (s *Service) createService() error {
 	serviceName := entity.GetServiceName(s)
 	taskDefinitionID := entity.GetIdFromArn(s.TaskDefinition().TaskDefinitionArn)
-	launchType := s.Context().CLIParams.LaunchType
+	launchType := s.Context().CommandConfig.LaunchType
 
 	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(s.ecsContext.ECSParams)
 	if err != nil {

@@ -285,7 +285,7 @@ func setupTestController(t *testing.T) (*mock_ecriface.MockECRAPI, *mock_login.M
 	mockSession, err := session.NewSession()
 	assert.NoError(t, err, "Unexpected error in creating session")
 
-	client := newClient(&config.CLIParams{Session: mockSession}, mockEcr, mockLogin)
+	client := newClient(&config.CommandConfig{Session: mockSession}, mockEcr, mockLogin)
 
 	return mockEcr, mockLogin, client, ctrl
 }
