@@ -16,8 +16,7 @@ package main
 import (
 	"os"
 
-	"github.com/sirupsen/logrus"
-	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/factory"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/factory"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/cluster"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/compose"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/configure"
@@ -28,6 +27,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/logger"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/version"
 	"github.com/cihub/seelog"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
@@ -42,7 +42,7 @@ func main() {
 	app.Version = version.String()
 	app.Author = "Amazon Web Services"
 
-	composeFactory := ecscompose.NewProjectFactory()
+	composeFactory := factory.NewProjectFactory()
 
 	app.Commands = []cli.Command{
 		configureCommand.ConfigureCommand(),

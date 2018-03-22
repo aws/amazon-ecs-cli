@@ -40,7 +40,7 @@ const (
 	yamlConfigVersion           = 1
 )
 
-// CLIConfig is the top level struct representing the configuration information
+// CLIConfig is the top level struct representing the local ECS configuration
 type CLIConfig struct {
 	Version                  int // which format version was the config file that was read. 1 == yaml, 0 == old ini
 	Cluster                  string
@@ -56,14 +56,14 @@ type CLIConfig struct {
 	DefaultLaunchType        string
 }
 
-// Profile is a simple struct for storing a single profile config
+// Profile is a simple struct for storing a single AWS profile config
 type Profile struct {
 	AWSAccessKey    string `yaml:"aws_access_key_id"`
 	AWSSecretKey    string `yaml:"aws_secret_access_key"`
 	AWSSessionToken string `yaml:"aws_session_token,omitempty"`
 }
 
-// Cluster is a simple struct for storing a single cluster config
+// Cluster is a simple struct for storing a single ECS cluster config
 type Cluster struct {
 	Cluster                  string `yaml:"cluster"`
 	Region                   string `yaml:"region"`
@@ -92,7 +92,6 @@ func NewCLIConfig(cluster string) *CLIConfig {
 }
 
 // ToAWSSession creates a new Session object from the CliConfig object.
-//
 // Region: Order of resolution
 //  1) ECS CLI Flags
 //   a) Region Flag --region
@@ -140,7 +139,6 @@ func (cfg *CLIConfig) ToAWSSession(context *cli.Context) (*session.Session, erro
 // The argument svcConfig is needed to allow important unit tests to work
 // (for example: assume role)
 func (cfg *CLIConfig) toAWSSessionWithConfig(context *cli.Context, svcConfig *aws.Config) (*session.Session, error) {
-
 	region, err := cfg.getRegion()
 
 	if err != nil || region == "" {
@@ -209,6 +207,7 @@ func sessionFromProfile(profile string, region string, svcConfig *aws.Config) (*
 func sessionFromKeys(region string, awsAccess string, awsSecret string, sessionToken string, svcConfig *aws.Config) (*session.Session, error) {
 	svcConfig.Region = aws.String(region)
 	svcConfig.Credentials = credentials.NewStaticCredentials(awsAccess, awsSecret, sessionToken)
+
 	return session.NewSession(svcConfig)
 }
 
@@ -241,6 +240,7 @@ func (cfg *CLIConfig) getRegion() (string, error) {
 	if region == "" {
 		region, err = cfg.getRegionFromAWSProfile()
 	}
+
 	return region, err
 }
 
@@ -259,6 +259,6 @@ func (cfg *CLIConfig) getRegionFromAWSProfile() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return aws.StringValue(s.Config.Region), nil
 
+	return aws.StringValue(s.Config.Region), nil
 }
