@@ -61,10 +61,10 @@ func NewINIReadWriter(dest *Destination) (*INIReadWriter, error) {
 // map contains the keys that are present in the config file (maps string field name to string field value)
 // map is type map[interface{}]interface{} to ensure fowards compatibility with changes that will
 // cause certain keys to be mapped to maps of keys
-func (rdwr *INIReadWriter) GetConfig(cliConfig *CLIConfig) error {
+func (rdwr *INIReadWriter) GetConfig(cliConfig *LocalConfig) error {
 
 	// read old ini formatted file
-	iniFormat := &iniCLIConfig{IniSectionKeys: &IniSectionKeys{}}
+	iniFormat := &iniLocalConfig{IniSectionKeys: &IniSectionKeys{}}
 	if err := rdwr.cfg.MapTo(iniFormat); err != nil {
 		return err
 	}

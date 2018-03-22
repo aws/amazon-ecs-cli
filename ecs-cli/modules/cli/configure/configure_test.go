@@ -515,7 +515,7 @@ aws_secret_access_key = SKID
 func TestMigrateWarningConfigNotModified(t *testing.T) {
 	// Test case left for posterity. Currently migrateWarning
 	// uses pass by value so it can't modify the config.
-	cliConfig := config.CLIConfig{Cluster: clusterName,
+	cliConfig := config.LocalConfig{Cluster: clusterName,
 		Region:                   region,
 		AWSProfile:               awsProfile,
 		AWSAccessKey:             awsAccessKey,
