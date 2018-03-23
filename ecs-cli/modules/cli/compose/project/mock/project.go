@@ -17,6 +17,7 @@
 package mock_project
 
 import (
+	containerconfig "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/containerconfig"
 	context "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	entity "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	config "github.com/docker/libcompose/config"
@@ -43,6 +44,16 @@ func NewMockProject(ctrl *gomock.Controller) *MockProject {
 
 func (_m *MockProject) EXPECT() *_MockProjectRecorder {
 	return _m.recorder
+}
+
+func (_m *MockProject) ContainerConfigs() []containerconfig.ContainerConfig {
+	ret := _m.ctrl.Call(_m, "ContainerConfigs")
+	ret0, _ := ret[0].([]containerconfig.ContainerConfig)
+	return ret0
+}
+
+func (_mr *_MockProjectRecorder) ContainerConfigs() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ContainerConfigs")
 }
 
 func (_m *MockProject) Context() *context.ECSContext {
