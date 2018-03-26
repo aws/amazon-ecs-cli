@@ -147,9 +147,15 @@ func (p *ecsProject) parseCompose() error {
 	}
 	switch version {
 	case "", "1", "1.0", "2", "2.0":
-		p.parseV1V2()
+		p.containerConfigs, err = p.parseV1V2()
+		if err != nil {
+			return err
+		}
 	case "3", "3.0":
-		p.parseV3()
+		p.containerConfigs, err = p.parseV3()
+		if err != nil {
+			return err
+		}
 	default:
 		logrus.Errorf("Unsupported Docker Compose version found: %s", version)
 	}
