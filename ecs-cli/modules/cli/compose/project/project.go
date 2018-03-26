@@ -139,11 +139,25 @@ func (p *ecsProject) Parse() error {
 // parseCompose sets data from the compose files on the ecsProject
 func (p *ecsProject) parseCompose() error {
 	logrus.Debug("Parsing the compose yaml...")
+
+	// check for Compose version and call appropriate parsing function
+	version, err := p.checkComposeVersion()
+	if err != nil {
+		return err
+	}
+	switch version {
+	case "", "1", "1.0", "2", "2.0":
+		p.parseV1V2()
+	case "3", "3.0":
+		p.parseV3()
+	default:
+		logrus.Errorf("Unsupported Docker Compose version found: %s", version)
+	}
+
 	// libcompose.Project#Parse populates project information based on its
 	// context. It sets up the name, the composefile and the composebytes
 	// (the composefile content). This is where p.ServiceConfigs gets loaded.
-
-	//TODO: check version, verify same, call parseV1V2() or parseV3() as needed
+	// TODO: remove this after parseV1V2 & parseV3 are implemented.
 	if err := p.Project.Parse(); err != nil {
 		return err
 	}
@@ -192,16 +206,6 @@ func (p *ecsProject) transformTaskDefinition() error {
 	}
 	p.entity.SetTaskDefinition(taskDefinition)
 	return nil
-}
-
-func (p *ecsProject) parseV1V2() {
-	// parse with libcompose
-	// convert ServiceConfigs struct to ContainerConfigs
-}
-
-func (p *ecsProject) parseV3() {
-	// parse with v3
-	// convert ServiceConfigs to ContainerConfigs
 }
 
 //* ----------------- commands ----------------- */
