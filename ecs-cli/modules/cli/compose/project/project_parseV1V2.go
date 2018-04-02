@@ -6,12 +6,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (p *ecsProject) parseV1V2() ([]containerconfig.ContainerConfig, error) {
+func (p *ecsProject) parseV1V2() (*[]containerconfig.ContainerConfig, error) {
 	libProject := project.NewProject(&p.ecsContext.Context, nil, nil)
-	libProject.Parse()
+	if err := libProject.Parse(); err != nil {
+		return nil, err
+	}
 
 	logrus.Debug("Parsing v1/2 project...")
 
 	//TODO: convert parsed project.ServiceConfigs to ContainerConfigs
-	return []containerconfig.ContainerConfig{}, nil
+	return &[]containerconfig.ContainerConfig{}, nil
 }
