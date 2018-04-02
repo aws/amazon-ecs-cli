@@ -3,6 +3,8 @@ package project
 import (
 	"fmt"
 	"io/ioutil"
+	"regexp"
+	"strconv"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -12,7 +14,7 @@ import (
 func (p *ecsProject) checkComposeVersion() (string, error) {
 	var composeVersion string
 	if len(p.ecsContext.ComposeFiles) == 0 {
-		logrus.Error("No Compose files found.")
+		return "", fmt.Errorf("No Compose files found")
 	}
 	for _, file := range p.ecsContext.ComposeFiles {
 		fileVersion, err := getFileVersion(file)
@@ -24,6 +26,19 @@ func (p *ecsProject) checkComposeVersion() (string, error) {
 		}
 		composeVersion = fileVersion
 	}
+
+	// if minor version of 1 or 2 found, log warning
+	match, _ := regexp.MatchString("^.+\\..", composeVersion)
+	if composeVersion != "" && match {
+		versionNumber, err := strconv.ParseFloat(composeVersion, 64)
+		if err != nil {
+			return "", err
+		}
+		if 0 < versionNumber && versionNumber < 3 {
+			logrus.Warnf("Minor version (%s) detected. Please format to include only major version (%d).", composeVersion, int(versionNumber))
+		}
+	}
+
 	return composeVersion, nil
 }
 

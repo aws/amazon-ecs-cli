@@ -105,10 +105,20 @@ redis:
   image: redis`
 
 	// setup project and parse
-	composeBytes := [][]byte{}
-	composeBytes = append(composeBytes, []byte(composeFileString))
+	tmpfile, err := ioutil.TempFile("", "test")
+	if err != nil {
+		t.Fatal("Unexpected error in creating test file", err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	if _, err := tmpfile.Write([]byte(composeFileString)); err != nil {
+		t.Fatal("Unexpected error writing to test file: ", err)
+	}
+	if err := tmpfile.Close(); err != nil {
+		t.Fatal("Unexpected error closing test file: ", err)
+	}
 	project := setupTestProject(t)
-	project.ecsContext.ComposeBytes = composeBytes
+	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, tmpfile.Name())
 
 	if err := project.parseCompose(); err != nil {
 		t.Fatalf("Unexpected error parsing the compose string [%s]: %v", composeFileString, err)
@@ -228,10 +238,20 @@ services:
     image: mysql`
 
 	// setup project and parse
-	composeBytes := [][]byte{}
-	composeBytes = append(composeBytes, []byte(composeFileString))
+	tmpfile, err := ioutil.TempFile("", "test")
+	if err != nil {
+		t.Fatal("Unexpected error in creating test file: ", err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	if _, err := tmpfile.Write([]byte(composeFileString)); err != nil {
+		t.Fatal("Unexpected error writing to test file: ", err)
+	}
+	if err := tmpfile.Close(); err != nil {
+		t.Fatal("Unexpected error closing test file: ", err)
+	}
 	project := setupTestProject(t)
-	project.ecsContext.ComposeBytes = composeBytes
+	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, tmpfile.Name())
 
 	if err := project.parseCompose(); err != nil {
 		t.Fatalf("Unexpected error parsing the compose string [%s]: %v", composeFileString, err)
@@ -282,10 +302,20 @@ func TestParseComposeForVersion1WithEnvFile(t *testing.T) {
   - ` + envFile.Name()
 
 	// setup project and parse
-	composeBytes := [][]byte{}
-	composeBytes = append(composeBytes, []byte(composeFileString))
+	tmpfile, err := ioutil.TempFile("", "test")
+	if err != nil {
+		t.Fatal("Unexpected error in creating test file", err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	if _, err := tmpfile.Write([]byte(composeFileString)); err != nil {
+		t.Fatal("Unexpected error writing to test file: ", err)
+	}
+	if err := tmpfile.Close(); err != nil {
+		t.Fatal("Unexpected error closing test file: ", err)
+	}
 	project := setupTestProject(t)
-	project.ecsContext.ComposeBytes = composeBytes
+	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, tmpfile.Name())
 
 	if err := project.parseCompose(); err != nil {
 		t.Fatalf("Unexpected error parsing the compose string [%s]: %v", composeFileString, err)
@@ -440,8 +470,12 @@ services:
 		t.Fatal("Unexpected error in creating test file", err)
 	}
 	defer os.Remove(tmpfile.Name())
-	tmpfile.Write([]byte(composeFileString))
-	tmpfile.Close()
+	if _, err := tmpfile.Write([]byte(composeFileString)); err != nil {
+		t.Fatal("Unexpected error writing to test file: ", err)
+	}
+	if err := tmpfile.Close(); err != nil {
+		t.Fatal("Unexpected error closing test file: ", err)
+	}
 
 	// set up project and parse
 	project := setupTestProject(t)
