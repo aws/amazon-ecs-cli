@@ -14,6 +14,8 @@
 package project
 
 import (
+	"fmt"
+
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/containerconfig"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
@@ -157,7 +159,7 @@ func (p *ecsProject) parseCompose() error {
 			return err
 		}
 	default:
-		logrus.Errorf("Unsupported Docker Compose version found: %s", version)
+		return fmt.Errorf("Unsupported Docker Compose version found: %s", version)
 	}
 
 	// libcompose.Project#Parse populates project information based on its
