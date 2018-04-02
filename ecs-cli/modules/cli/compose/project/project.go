@@ -149,15 +149,17 @@ func (p *ecsProject) parseCompose() error {
 	}
 	switch version {
 	case "", "1", "1.0", "2", "2.0":
-		p.containerConfigs, err = p.parseV1V2()
+		configs, err := p.parseV1V2()
 		if err != nil {
 			return err
 		}
+		p.containerConfigs = *configs
 	case "3", "3.0":
-		p.containerConfigs, err = p.parseV3()
+		configs, err := p.parseV3()
 		if err != nil {
 			return err
 		}
+		p.containerConfigs = *configs
 	default:
 		return fmt.Errorf("Unsupported Docker Compose version found: %s", version)
 	}
