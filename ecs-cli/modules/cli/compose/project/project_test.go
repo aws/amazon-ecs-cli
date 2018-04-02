@@ -423,6 +423,38 @@ run_params:
 	assert.NoError(t, err, "Could not close tempfile")
 }
 
+func TestThrowErrorForUnsupportedComposeVersion(t *testing.T) {
+	unsupportedVersion := "4"
+	composeFileString := `version: '` + unsupportedVersion + `'
+services:
+  wordpress:
+    image: wordpress
+    ports: ["80:80"]
+    mem_reservation: 500000000
+  mysql:
+    image: mysql`
+
+	// set up compose file
+	tmpfile, err := ioutil.TempFile("", "test")
+	if err != nil {
+		t.Fatal("Unexpected error in creating test file", err)
+	}
+	defer os.Remove(tmpfile.Name())
+	tmpfile.Write([]byte(composeFileString))
+	tmpfile.Close()
+
+	// set up project and parse
+	project := setupTestProject(t)
+	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, tmpfile.Name())
+	observedError := project.parseCompose()
+
+	expectedError := "Unsupported Docker Compose version found: " + unsupportedVersion
+
+	if assert.Error(t, observedError) {
+		assert.Equal(t, expectedError, observedError.Error())
+	}
+}
+
 func setupTestProject(t *testing.T) *ecsProject {
 	return setupTestProjectWithEcsParams(t, "")
 }
