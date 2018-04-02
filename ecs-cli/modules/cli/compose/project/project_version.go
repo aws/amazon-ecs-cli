@@ -1,6 +1,7 @@
 package project
 
 import (
+	"fmt"
 	"io/ioutil"
 
 	"github.com/pkg/errors"
@@ -10,13 +11,16 @@ import (
 
 func (p *ecsProject) checkComposeVersion() (string, error) {
 	var composeVersion string
+	if len(p.ecsContext.ComposeFiles) == 0 {
+		logrus.Error("No Compose files found.")
+	}
 	for _, file := range p.ecsContext.ComposeFiles {
 		fileVersion, err := getFileVersion(file)
 		if err != nil {
 			return "", err
 		}
-		if len(p.ecsContext.ComposeFiles) > 0 && composeVersion != "" && composeVersion != fileVersion {
-			logrus.Errorf("Compose files must be of the same version. Found: %s and %s", composeVersion, fileVersion)
+		if composeVersion != "" && composeVersion != fileVersion {
+			return "", fmt.Errorf("Compose files must be of the same version. Found: %s and %s", composeVersion, fileVersion)
 		}
 		composeVersion = fileVersion
 	}
