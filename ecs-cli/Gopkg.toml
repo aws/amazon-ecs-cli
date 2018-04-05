@@ -23,8 +23,7 @@
 
 [[constraint]]
   name = "github.com/aws/aws-sdk-go"
-  # version = "1.12.58"
-  revision = "ccb909e564ddced884491d966808d9b245a86e6a"
+  version = "1.13.17"
 
 [[constraint]]
   name = "github.com/awslabs/amazon-ecr-credential-helper"

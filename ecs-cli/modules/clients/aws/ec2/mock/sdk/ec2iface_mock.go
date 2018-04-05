@@ -3920,6 +3920,44 @@ func (_mr *_MockEC2APIRecorder) DescribeAddressesWithContext(arg0, arg1 interfac
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeAddressesWithContext", _s...)
 }
 
+func (_m *MockEC2API) DescribeAggregateIdFormat(_param0 *ec2.DescribeAggregateIdFormatInput) (*ec2.DescribeAggregateIdFormatOutput, error) {
+	ret := _m.ctrl.Call(_m, "DescribeAggregateIdFormat", _param0)
+	ret0, _ := ret[0].(*ec2.DescribeAggregateIdFormatOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeAggregateIdFormat(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeAggregateIdFormat", arg0)
+}
+
+func (_m *MockEC2API) DescribeAggregateIdFormatRequest(_param0 *ec2.DescribeAggregateIdFormatInput) (*request.Request, *ec2.DescribeAggregateIdFormatOutput) {
+	ret := _m.ctrl.Call(_m, "DescribeAggregateIdFormatRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.DescribeAggregateIdFormatOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeAggregateIdFormatRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeAggregateIdFormatRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribeAggregateIdFormatWithContext(_param0 aws.Context, _param1 *ec2.DescribeAggregateIdFormatInput, _param2 ...request.Option) (*ec2.DescribeAggregateIdFormatOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribeAggregateIdFormatWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribeAggregateIdFormatOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribeAggregateIdFormatWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeAggregateIdFormatWithContext", _s...)
+}
+
 func (_m *MockEC2API) DescribeAvailabilityZones(_param0 *ec2.DescribeAvailabilityZonesInput) (*ec2.DescribeAvailabilityZonesOutput, error) {
 	ret := _m.ctrl.Call(_m, "DescribeAvailabilityZones", _param0)
 	ret0, _ := ret[0].(*ec2.DescribeAvailabilityZonesOutput)
@@ -5437,6 +5475,44 @@ func (_m *MockEC2API) DescribePrefixListsWithContext(_param0 aws.Context, _param
 func (_mr *_MockEC2APIRecorder) DescribePrefixListsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	_s := append([]interface{}{arg0, arg1}, arg2...)
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribePrefixListsWithContext", _s...)
+}
+
+func (_m *MockEC2API) DescribePrincipalIdFormat(_param0 *ec2.DescribePrincipalIdFormatInput) (*ec2.DescribePrincipalIdFormatOutput, error) {
+	ret := _m.ctrl.Call(_m, "DescribePrincipalIdFormat", _param0)
+	ret0, _ := ret[0].(*ec2.DescribePrincipalIdFormatOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribePrincipalIdFormat(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribePrincipalIdFormat", arg0)
+}
+
+func (_m *MockEC2API) DescribePrincipalIdFormatRequest(_param0 *ec2.DescribePrincipalIdFormatInput) (*request.Request, *ec2.DescribePrincipalIdFormatOutput) {
+	ret := _m.ctrl.Call(_m, "DescribePrincipalIdFormatRequest", _param0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.DescribePrincipalIdFormatOutput)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribePrincipalIdFormatRequest(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribePrincipalIdFormatRequest", arg0)
+}
+
+func (_m *MockEC2API) DescribePrincipalIdFormatWithContext(_param0 aws.Context, _param1 *ec2.DescribePrincipalIdFormatInput, _param2 ...request.Option) (*ec2.DescribePrincipalIdFormatOutput, error) {
+	_s := []interface{}{_param0, _param1}
+	for _, _x := range _param2 {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "DescribePrincipalIdFormatWithContext", _s...)
+	ret0, _ := ret[0].(*ec2.DescribePrincipalIdFormatOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockEC2APIRecorder) DescribePrincipalIdFormatWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribePrincipalIdFormatWithContext", _s...)
 }
 
 func (_m *MockEC2API) DescribeRegions(_param0 *ec2.DescribeRegionsInput) (*ec2.DescribeRegionsOutput, error) {

@@ -21,8 +21,9 @@
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
-  packages = ["aws","aws/awserr","aws/awsutil","aws/client","aws/client/metadata","aws/corehandlers","aws/credentials","aws/credentials/ec2rolecreds","aws/credentials/endpointcreds","aws/credentials/stscreds","aws/defaults","aws/ec2metadata","aws/endpoints","aws/request","aws/session","aws/signer/v4","internal/shareddefaults","private/protocol","private/protocol/ec2query","private/protocol/json/jsonutil","private/protocol/jsonrpc","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/xml/xmlutil","service/cloudformation","service/cloudformation/cloudformationiface","service/cloudwatchlogs","service/cloudwatchlogs/cloudwatchlogsiface","service/ec2","service/ec2/ec2iface","service/ecr","service/ecr/ecriface","service/ecs","service/ecs/ecsiface","service/sts","service/sts/stsiface"]
-  revision = "ccb909e564ddced884491d966808d9b245a86e6a"
+  packages = ["aws","aws/awserr","aws/awsutil","aws/client","aws/client/metadata","aws/corehandlers","aws/credentials","aws/credentials/ec2rolecreds","aws/credentials/endpointcreds","aws/credentials/stscreds","aws/defaults","aws/ec2metadata","aws/endpoints","aws/request","aws/session","aws/signer/v4","internal/sdkio","internal/sdkrand","internal/shareddefaults","private/protocol","private/protocol/ec2query","private/protocol/json/jsonutil","private/protocol/jsonrpc","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/xml/xmlutil","service/cloudformation","service/cloudformation/cloudformationiface","service/cloudwatchlogs","service/cloudwatchlogs/cloudwatchlogsiface","service/ec2","service/ec2/ec2iface","service/ecr","service/ecr/ecriface","service/ecs","service/ecs/ecsiface","service/sts","service/sts/stsiface"]
+  revision = "7f68df2a5baf19398d17def23a514a6e617e5937"
+  version = "v1.13.28"
 
 [[projects]]
   name = "github.com/awslabs/amazon-ecr-credential-helper"
@@ -192,6 +193,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2d99798c7ff13359605093e507c2580a909f3cb66a939c25af816149771f5185"
+  inputs-digest = "b911e31ad580796071e4d98e7b5d2d0eafb01d15c968aba682e83ca05659e94d"
   solver-name = "gps-cdcl"
   solver-version = 1
