@@ -778,6 +778,68 @@ func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
 	}
 }
 
+func TestConvertToTaskDefinitionWithTmpfs(t *testing.T) {
+	tmpfs := []string{"/run:rw,noexec,nosuid,size=65536k", "/foo:size=1gb", "/bar:size=1gb,rw,runbindable"}
+
+	serviceConfig := &config.ServiceConfig{
+		Tmpfs: tmpfs,
+	}
+
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
+	containerDef := *taskDefinition.ContainerDefinitions[0]
+	tmpfsMounts := containerDef.LinuxParameters.Tmpfs
+	mount1 := tmpfsMounts[0]
+	mount2 := tmpfsMounts[1]
+	mount3 := tmpfsMounts[2]
+
+	assert.Equal(t, "/run", aws.StringValue(mount1.ContainerPath))
+	assert.Equal(t, []string{"rw", "noexec", "nosuid"}, aws.StringValueSlice(mount1.MountOptions))
+	assert.Equal(t, int64(64), aws.Int64Value(mount1.Size))
+
+	assert.Equal(t, "/foo", aws.StringValue(mount2.ContainerPath))
+	assert.Equal(t, []string{}, aws.StringValueSlice(mount2.MountOptions))
+	assert.Equal(t, int64(1024), aws.Int64Value(mount2.Size))
+
+	assert.Equal(t, "/bar", aws.StringValue(mount3.ContainerPath))
+	assert.Equal(t, []string{"rw", "runbindable"}, aws.StringValueSlice(mount3.MountOptions))
+	assert.Equal(t, int64(1024), aws.Int64Value(mount3.Size))
+}
+
+func TestConvertToTmpfs_NoPath(t *testing.T) {
+	tmpfs := []string{"size=65536k"}
+	_, err := convertToTmpfs(tmpfs)
+
+	assert.Error(t, err)
+}
+
+func TestConvertToTmpfs_BadOptionFormat(t *testing.T) {
+	tmpfs := []string{"/run,size=65536k"}
+	_, err := convertToTmpfs(tmpfs)
+
+	assert.Error(t, err)
+}
+
+func TestConvertToTmpfs_NoSize(t *testing.T) {
+	tmpfs := []string{"/run"}
+	_, err := convertToTmpfs(tmpfs)
+
+	assert.Error(t, err)
+}
+
+func TestConvertToTmpfs_WithOptionsNoSize(t *testing.T) {
+	tmpfs := []string{"/run:rw"}
+	_, err := convertToTmpfs(tmpfs)
+
+	assert.Error(t, err)
+}
+
+func TestConvertToTmpfs_WithMalformedSize(t *testing.T) {
+	tmpfs := []string{"/run:1gb"}
+	_, err := convertToTmpfs(tmpfs)
+
+	assert.Error(t, err)
+}
+
 func TestConvertToPortMappings(t *testing.T) {
 	implicitTcp := portMapping                      // 8000:8000
 	explicitTcp := portMapping + "/tcp"             // "8000:8000/tcp"
