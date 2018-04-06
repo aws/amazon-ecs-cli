@@ -32,6 +32,7 @@ import (
 const (
 	defaultMemLimit = 512
 	kiB             = 1024
+	miB		= kiB * kiB // 1048576 bytes
 
 	// access mode with which the volume is mounted
 	readOnlyVolumeAccessMode  = "ro"
@@ -44,7 +45,7 @@ var supportedComposeYamlOptions = []string{
 	"cpu_shares", "command", "dns", "dns_search", "entrypoint", "env_file",
 	"environment", "extra_hosts", "hostname", "image", "labels", "links",
 	"logging", "log_driver", "log_opt", "mem_limit", "mem_reservation", "ports", "privileged", "read_only",
-	"security_opt", "ulimits", "user", "volumes", "volumes_from", "working_dir", "cap_add", "cap_drop",
+	"security_opt", "ulimits", "user", "volumes", "volumes_from", "working_dir", "cap_add", "cap_drop", "shm_size",
 }
 
 var supportedComposeYamlOptionsMap = getSupportedComposeYamlOptionsMap()
@@ -53,7 +54,6 @@ type volumes struct {
 	volumeWithHost  map[string]string
 	volumeEmptyHost []string
 }
-
 func getSupportedComposeYamlOptionsMap() map[string]bool {
 	optionsMap := make(map[string]bool)
 	for _, value := range supportedComposeYamlOptions {
@@ -233,10 +233,10 @@ func isZero(v reflect.Value) bool {
 }
 
 // convertToContainerDef transforms each service in the compose yml
-// to an equivalent container definition
+// to an equivalent ECS container definition
 func convertToContainerDef(context *project.Context, inputCfg *config.ServiceConfig,
 	volumes *volumes, outputContDef *ecs.ContainerDefinition, ecsContainerDef *ContainerDef) error {
-	// setting memory
+	// setting memory limit
 	var mem int64
 	var memoryReservation int64
 	if inputCfg.MemReservation != 0 {
@@ -251,8 +251,18 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 		return errors.New("mem_limit should not be less than mem_reservation")
 	}
 
+	// TODO: We should be letting docker set the default here -- see note on default shared
+	// memory size?
 	if mem == 0 && memoryReservation == 0 {
 		mem = defaultMemLimit
+	}
+
+	// convert shared memory size
+	var shmSize int64
+	if inputCfg.ShmSize != 0 {
+		// libcompose will parse this field in the docker compose file as bytes but ECS
+		// expects sharedMemorySize in MiB
+		shmSize = int64(inputCfg.ShmSize) / miB
 	}
 
 	// convert environment variables
@@ -338,6 +348,13 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 	}
 	if inputCfg.CapDrop != nil {
 		outputContDef.LinuxParameters.Capabilities.SetDrop(aws.StringSlice(inputCfg.CapDrop))
+	}
+
+	// Only set shmSize if specified. Otherwise we expect this sharedMemorySize for the
+	// containerDefinition to be null; Docker will by default allocate 64M for shared memory if
+	// shmSize is null.
+	if shmSize != 0 {
+		outputContDef.LinuxParameters.SetSharedMemorySize(shmSize)
 	}
 
 	if ecsContainerDef != nil {

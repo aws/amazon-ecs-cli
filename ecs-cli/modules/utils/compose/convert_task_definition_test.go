@@ -57,6 +57,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	user := "user"
 	workingDir := "/var"
 	taskRoleArn := "arn:aws:iam::123456789012:role/my_role"
+
 	serviceConfig := &config.ServiceConfig{
 		CPUShares:      yaml.StringorInt(cpu),
 		Command:        []string{command},
@@ -105,6 +106,8 @@ func TestConvertToTaskDefinition(t *testing.T) {
 
 	assert.Equal(t, memoryReservation, aws.Int64Value(containerDef.MemoryReservation), "Expected memoryReservation to match")
 
+	assert.Nil(t, containerDef.LinuxParameters.SharedMemorySize, "Expected sharedMemorySize to be null")
+
 	if privileged != aws.BoolValue(containerDef.Privileged) {
 		t.Errorf("Expected privileged [%t] But was [%t]", privileged, aws.BoolValue(containerDef.Privileged))
 	}
@@ -127,6 +130,31 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	for _, container := range taskDefinition.ContainerDefinitions {
 		assert.True(t, aws.BoolValue(container.Essential), "Expected essential to be true")
 	}
+}
+
+func TestConvertToTaskDefinitionWithNoSharedMemorySize(t *testing.T) {
+	serviceConfig := serviceConfigWithDefaultNetworks()
+
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
+	containerDef := *taskDefinition.ContainerDefinitions[0]
+
+	assert.Nil(t, containerDef.LinuxParameters.SharedMemorySize, "Expected sharedMemorySize to be null")
+}
+
+func TestConvertToTaskDefinitionWithSharedMemorySize(t *testing.T) {
+	// Realistically, we expect customers to specify sizes larger than the default of 64M
+	expectedMBs := 128
+	shmSize := yaml.MemStringorInt(int64(expectedMBs * miB))
+
+	serviceConfig := &config.ServiceConfig{
+		ShmSize:  shmSize,
+		Networks: &yaml.Networks{Networks: []*yaml.Network{defaultNetwork}},
+	}
+
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
+	containerDef := *taskDefinition.ContainerDefinitions[0]
+
+	assert.Equal(t, int64(expectedMBs), aws.Int64Value(containerDef.LinuxParameters.SharedMemorySize), "Expected sharedMemorySize to match")
 }
 
 func TestConvertToTaskDefinitionLaunchTypeEmpty(t *testing.T) {
