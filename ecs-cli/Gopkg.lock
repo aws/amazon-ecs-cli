@@ -48,8 +48,8 @@
 
 [[projects]]
   name = "github.com/docker/cli"
-  packages = ["opts"]
-  revision = "41368a84bb8b1502450b316b34c732d7bb1a103d"
+  packages = ["cli/compose/interpolation","cli/compose/loader","cli/compose/schema","cli/compose/template","cli/compose/types","opts"]
+  revision = "1872bd802c697f39eb783a9b7d25e60d6fe601d6"
 
 [[projects]]
   name = "github.com/docker/docker"
@@ -103,14 +103,32 @@
   revision = "ad28ea4487f05916463e2423a55166280e8254b5"
 
 [[projects]]
+  name = "github.com/imdario/mergo"
+  packages = ["."]
+  revision = "9d5f1277e9a8ed20c3684bda8fde67c05628518c"
+  version = "v0.3.4"
+
+[[projects]]
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
   revision = "0b12d6b5"
 
 [[projects]]
+  name = "github.com/mattn/go-shellwords"
+  packages = ["."]
+  revision = "02e3cf038dcea8290e44424da473dd12be796a8a"
+  version = "v1.0.3"
+
+[[projects]]
   name = "github.com/mitchellh/go-homedir"
   packages = ["."]
   revision = "981ab348d865cf048eb7d17e78ac7192632d8415"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/mitchellh/mapstructure"
+  packages = ["."]
+  revision = "00c29f56e2386353d58c599509e8dc3801b0d716"
 
 [[projects]]
   name = "github.com/opencontainers/go-digest"
