@@ -59,8 +59,8 @@ func TestAddAndValidate(t *testing.T) {
 	}
 
 	paramsMap := cfnParams.Get()
-	if len(requiredParameterNames) != len(paramsMap) {
-		t.Errorf("Mismatch in number of keys in params map. %d != %d", len(requiredParameterNames), len(paramsMap))
+	if len(paramsMap) != 2 { // 2 parameters have been added
+		t.Errorf("Mismatch in number of keys in params map. Expected 2, found: %d", len(paramsMap))
 	}
 
 	clusterValue, exists := cfnParams.nameToKeys[ParameterKeyCluster]
