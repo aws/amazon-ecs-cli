@@ -22,6 +22,7 @@ LINUX_BINARY := bin/linux-amd64/ecs-cli
 DARWIN_BINARY := bin/darwin-amd64/ecs-cli
 WINDOWS_BINARY := bin/windows-amd64/ecs-cli.exe
 LOCAL_PATH := $(ROOT)/scripts:${PATH}
+DEP_RELEASE_TAG := v0.4.1
 
 .PHONY: build
 build: $(LOCAL_BINARY)
@@ -40,7 +41,8 @@ generate: $(SOURCES)
 
 .PHONY: generate-deps
 generate-deps:
-	go get github.com/tools/godep
+	DEP_RELEASE_TAG=$DEP_RELEASE_TAG
+	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 	go get github.com/golang/mock/mockgen
 	go get golang.org/x/tools/cmd/goimports
 
