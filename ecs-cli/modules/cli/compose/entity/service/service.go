@@ -235,6 +235,10 @@ func (s *Service) Up() error {
 		if err != nil {
 			return err
 		}
+		err = waitForServiceDescribable(s)
+		if err != nil {
+			return err
+		}
 		return s.Start()
 	}
 
