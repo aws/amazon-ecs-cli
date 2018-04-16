@@ -3,6 +3,8 @@ package containerconfig
 // ContainerConfig all compose fields supported by the ecs-cli
 // TODO: finalize fields
 type ContainerConfig struct {
+	Name string
+
 	CapAdd      []string
 	CapDrop     []string
 	Command     string // type TBD
