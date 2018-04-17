@@ -36,7 +36,7 @@ test:
 
 .PHONY: generate
 generate: $(SOURCES) generate-deps
-	PATH=$(LOCAL_PATH) go generate $(SOURCEDIR)/modules/...
+	PATH=$(LOCAL_PATH) ./scripts/top_mockgen.sh
 
 .PHONY: generate-deps
 generate-deps:
