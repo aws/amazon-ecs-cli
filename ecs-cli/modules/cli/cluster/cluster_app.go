@@ -66,11 +66,9 @@ func ClusterUp(c *cli.Context) {
 		logrus.Fatal("Error executing 'up': ", err)
 	}
 
-	ecsClient := ecsclient.NewECSClient()
-	cfnClient := cloudformation.NewCloudformationClient()
-	ssmClient := ssm.NewSSMClient(commandConfig)
+	awsClients := newAWSClients(commandConfig)
 
-	err = createCluster(c, ecsClient, cfnClient, ssmClient, commandConfig)
+	err = createCluster(c, awsClients, commandConfig)
 	if err != nil {
 		logrus.Fatal("Error executing 'up': ", err)
 	}
@@ -78,7 +76,7 @@ func ClusterUp(c *cli.Context) {
 	if !c.Bool(flags.EmptyFlag) {
 		// Displays resources create by CloudFormation, as a convenience for tasks launched
 		// with Task Networking or in Fargate mode.
-		if err := cfnClient.DescribeNetworkResources(commandConfig.CFNStackName); err != nil {
+		if err := awsClients.CFNClient.DescribeNetworkResources(commandConfig.CFNStackName); err != nil {
 			logrus.Error("Error describing Cloudformation resources: ", err)
 		}
 	}
@@ -159,8 +157,26 @@ func validateCommaSeparatedParam(cfnParams *cloudformation.CfnStackParams, param
 	return false
 }
 
-func createCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient, ssmClient ssm.Client, commandConfig *config.CommandConfig) error {
+type AWSClients struct {
+	ECSClient ecsclient.ECSClient
+	CFNClient cloudformation.CloudformationClient
+	SSMClient ssm.Client
+}
+
+func newAWSClients(commandConfig *config.CommandConfig) *AWSClients {
+	ecsClient := ecsclient.NewECSClient()
+	cfnClient := cloudformation.NewCloudformationClient()
+	ssmClient := ssm.NewSSMClient(commandConfig)
+
+	return &AWSClients{ecsClient, cfnClient, ssmClient}
+}
+
+func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *config.CommandConfig) error {
 	var err error
+
+	ecsClient := awsClients.ECSClient
+	cfnClient := awsClients.CFNClient
+	ssmClient := awsClients.SSMClient
 
 	// Check if cluster is specified
 	if commandConfig.Cluster == "" {
