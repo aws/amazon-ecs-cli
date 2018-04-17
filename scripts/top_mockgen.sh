@@ -18,7 +18,7 @@
 set -e
 declare -A MODULES
 declare -A DONE
-path=$(dirname $(realpath $0))
+path=$(dirname "$0")
 cd $path/..
 for file in $(git ls-files ecs-cli/modules) ; do
     if grep -ql "//go:generate" $file ; then

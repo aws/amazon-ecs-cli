@@ -22,7 +22,7 @@ outputfile=${3?Must provide an output file}
 
 export PATH="${GOPATH//://bin:}/bin:$PATH"
 
-wd=$(dirname $(realpath $0))
+wd=$(dirname "$0")
 data=$(
 cat << EOF
 // Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
