@@ -95,7 +95,7 @@
 [[projects]]
   name = "github.com/golang/mock"
   packages = ["gomock"]
-  revision = "bd3c8e81be01eef76d4b503f5e687d2d1354d2d9"
+  revision = "58cd061d09382b6011f84c1291ebe50ef2e25bab"
 
 [[projects]]
   name = "github.com/hashicorp/go-cleanhttp"
@@ -193,6 +193,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ef0a39362eca40e396dfd56b7fec991eeac9d4f2632c40985642d9b34fad7b9b"
+  inputs-digest = "d65cd59d5a9e796a10fbd31e566a87a659379cc2c58a9420e4708c53265a894d"
   solver-name = "gps-cdcl"
   solver-version = 1
