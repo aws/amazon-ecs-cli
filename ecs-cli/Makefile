@@ -4,7 +4,7 @@ MOCKFQ := $(ROOT)/$(MOCKGEN)
 all: generate-deps
 
 .PHONY: generate-deps
-generate-deps: $(GOPATH)/bin/goimports
+generate-deps: $(GOPATH)/bin/goimports $(GOPATH)/bin/dep
 	dep ensure
 	dep prune 2> /dev/null
 	-rm $(ROOT)/../scripts/mockgen 2> /dev/null
@@ -12,3 +12,6 @@ generate-deps: $(GOPATH)/bin/goimports
 
 $(GOPATH)/bin/goimports:
 	go get golang.org/x/tools/cmd/goimports
+
+$(GOPATH)/bin/dep:
+	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
