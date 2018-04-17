@@ -16,14 +16,14 @@
 # This script wraps the mockgen tool and inserts licensing information.
 
 set -e
-declare -A MODULES
-declare -A DONE
+declare -a MODULES
+declare -a DONE
 path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $path/..
 for file in $(git ls-files ecs-cli/modules) ; do
     if grep -ql "//go:generate" $file ; then
         module=$(go list -f '{{ .ImportPath }}' ./$(dirname $file)) 
-        MODULES+=([$module]=1)
+        MODULES+=("$module")
     fi
 done
 
@@ -37,7 +37,7 @@ function containsElement {
 
 function isAmongModules {
     local module
-    for module in "${!MODULES[@]}" ; do
+    for module in "${MODULES[@]}" ; do
         if [[ $1 = $module* ]] ; then
             echo $module
         fi
@@ -46,7 +46,7 @@ function isAmongModules {
 
 function tryGen {
     local module=$1
-    if test "${DONE[$module]+isset}" ; then
+    if containsElement "$module" "${DONE[@]}" ; then
         return
     fi
     for import in $(go list -f '{{ join .TestImports " " }}' $module) ; do
@@ -57,9 +57,9 @@ function tryGen {
         fi
     done
     PATH=$path:$PATH go generate $module
-    DONE+=([$module]=1)
+    DONE+=("$module")
 }
 
-for module in "${!MODULES[@]}" ; do
+for module in "${MODULES[@]}" ; do
     tryGen $module
 done
