@@ -32,17 +32,15 @@ $(LOCAL_BINARY): $(SOURCES)
 
 .PHONY: test
 test:
-	env -i PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT go test -timeout=120s -v -cover ./ecs-cli/modules/...
+	env -i PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT go test -timeout=120s -v -cover $(SOURCEDIR)/modules/...
 
 .PHONY: generate
-generate: $(SOURCES)
-	PATH=$(LOCAL_PATH) go generate ./ecs-cli/modules/...
+generate: $(SOURCES) generate-deps
+	PATH=$(LOCAL_PATH) go generate $(SOURCEDIR)/modules/...
 
 .PHONY: generate-deps
 generate-deps:
-	go get github.com/tools/godep
-	go get github.com/golang/mock/mockgen
-	go get golang.org/x/tools/cmd/goimports
+	$(MAKE) -C $(SOURCEDIR) all
 
 .PHONY: windows-build
 windows-build: $(WINDOWS_BINARY)

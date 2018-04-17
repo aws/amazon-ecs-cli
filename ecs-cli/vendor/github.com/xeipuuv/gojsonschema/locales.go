@@ -26,7 +26,7 @@
 package gojsonschema
 
 type (
-	// locale is an interface for definining custom error strings
+	// locale is an interface for defining custom error strings
 	locale interface {
 		Required() string
 		InvalidType() string
@@ -73,7 +73,8 @@ type (
 		ReferenceMustBeCanonical() string
 		NotAValidType() string
 		Duplicated() string
-		httpBadStatus() string
+		HttpBadStatus() string
+		ParseError() string
 
 		// ErrorFormat
 		ErrorFormat() string
@@ -249,20 +250,25 @@ func (l DefaultLocale) ReferenceMustBeCanonical() string {
 }
 
 func (l DefaultLocale) NotAValidType() string {
-	return `{{.type}} is not a valid type -- `
+	return `has a primitive type that is NOT VALID -- given: {{.given}} Expected valid values are:{{.expected}}`
 }
 
 func (l DefaultLocale) Duplicated() string {
 	return `{{.type}} type is duplicated`
 }
 
-func (l DefaultLocale) httpBadStatus() string {
+func (l DefaultLocale) HttpBadStatus() string {
 	return `Could not read schema from HTTP, response status is {{.status}}`
 }
 
 // Replacement options: field, description, context, value
 func (l DefaultLocale) ErrorFormat() string {
 	return `{{.field}}: {{.description}}`
+}
+
+//Parse error
+func (l DefaultLocale) ParseError() string {
+	return `Expected: %expected%, given: Invalid JSON`
 }
 
 const (
