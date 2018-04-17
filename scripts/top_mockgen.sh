@@ -52,8 +52,8 @@ function tryGen {
     for import in $(go list -f '{{ join .TestImports " " }}' $module) ; do
         IFS='/' read -r -a fn <<<${import#*$module}
         local matched=$(isAmongModules $import)
-        if [ ! -z $matched ] && [[ $import != $matched* ]] && containsElement "mock" "${fn[@]}" ; then
-            tryGen $import
+        if [ ! -z $matched ] && [[ "$matched" != $module* ]] && containsElement "mock" "${fn[@]}" ; then
+            tryGen $matched
         fi
     done
     PATH=$path:$PATH go generate $module
