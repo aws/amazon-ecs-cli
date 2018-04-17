@@ -18,7 +18,7 @@
 set -e
 declare -A MODULES
 declare -A DONE
-path=$(dirname "$0")
+path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $path/..
 for file in $(git ls-files ecs-cli/modules) ; do
     if grep -ql "//go:generate" $file ; then
