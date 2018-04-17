@@ -19,6 +19,7 @@ Line Interface](http://aws.amazon.com/cli/) product detail page.
 	- [Latest version](#latest-version)
 	- [Download Links for within China](#download-links-for-within-china)
 	- [Download specific version](#download-specific-version)
+	- [Verifying Signatures](#verifying-signatures)
 - [Configuring the CLI](#configuring-the-cli)
 	- [ECS Profiles](#ecs-profiles)
 	- [Cluster Configurations](#cluster-configurations)
@@ -83,6 +84,91 @@ downloading, remember to rename the binary file to `ecs-cli`.
 * Windows:
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-v1.0.0.exe](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-v1.0.0.exe)
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-v1.0.0.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-v1.0.0.md5)
+
+### Verifying Signatures
+
+If you wish to verify your ECS CLI download, you can use the PGP Signatures.
+
+#### 1. Install [GnuPG](https://www.gnupg.org/)
+
+###### Linux
+
+Install `gpg` using the package manager on your flavor of linux.
+
+###### Mac
+
+One easy way is to use Homebrew, a package manager for OS X. Install Homebrew using the [instructions on its site](https://brew.sh/).
+
+```
+brew install gnupg
+```
+
+###### Windows
+
+Go to the GnuPG [download page](https://gnupg.org/download/) and download the simple installer for Windows. Use the installer to install the GPG tool.
+
+#### 2. Import the Amazon ECS PGP Public Key
+
+You can find the Public Key in our GitHub Repo, in the file [amazon-ecs-public-key.gpg](amazon-ecs-public-key.gpg).
+
+```
+gpg --import amazon-ecs-public-key.gpg
+```
+
+Key Metadata:
+
+- Key ID: 0x2D51784F
+- Type: RSA
+- Size: 4096/4096
+- Expires: Never
+- User ID: Amazon ECS <ecs-security@amazon.com>
+- Key fingerprint: F34C 3DDA E729 26B0 79BE AEC6 BCE9 D9A4 2D51 784F
+
+#### 4. Downloading Signatures
+
+ECS CLI signatures are ascii armored detached PGP signatures stored in files with the extension ".asc". The signatures file will have the same name as its corresponding executable with ".asc" appended. In the
+
+###### Mac
+```
+curl -o ecs-cli.asc https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-latest.asc
+```
+
+###### Linux
+```
+curl -o ecs-cli.asc https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest.asc
+```
+
+###### Windows
+```
+PS C:\> Invoke-WebRequest -OutFile ecs-cli.asc https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-latest.exe.asc
+```
+#### 4. Verifying a Signature
+
+Assuming you installed the ECS CLI in the recommended location for your platform:
+
+###### Mac and Linux
+```
+gpg --verify ecs-cli.asc /usr/local/bin/ecs-cli
+```
+###### Windows
+```
+gpg --verify ecs-cli.asc C:\Program Files\Amazon\ECSCLI\ecs-cli.exe
+```
+
+Expected output:
+
+```
+gpg: Signature made Tue Apr  3 13:29:30 2018 PDT
+gpg:                using RSA key DE3CBD61ADAF8B8E
+gpg: Good signature from "Amazon ECS <ecs-security@amazon.com>" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: F34C 3DDA E729 26B0 79BE  AEC6 BCE9 D9A4 2D51 784F
+     Subkey fingerprint: EB3D F841 E2C9 212A 2BD4  2232 DE3C BD61 ADAF 8B8E
+```
+
+The warning in the output is expected and is not problematic; it occurs because there is not a chain of trust between your personal PGP key (if you have one) and the Amazon ECS PGP key. For more information, learn about the [Web of trust](https://en.wikipedia.org/wiki/Web_of_trust).
+
 
 ## Configuring the CLI
 
