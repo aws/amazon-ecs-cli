@@ -6,7 +6,9 @@ all: generate-deps
 .PHONY: generate-deps
 generate-deps: $(GOPATH)/bin/goimports $(GOPATH)/bin/dep
 	dep ensure -v
-	dep prune 2> /dev/null
+#dep prune 2> /dev/null
+	find . -name vendor
+	find . -name mockgen
 	-rm $(ROOT)/../scripts/mockgen 2> /dev/null
 	set -e ; cd $(MOCKFQ) ; go build ; cd $(ROOT)/../scripts ; ln -s ../$(shell basename $(ROOT))/$(MOCKGEN)/mockgen .
 
