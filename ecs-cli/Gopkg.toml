@@ -42,10 +42,6 @@
   revision = "e30f1e79f3cd72542f2026ceec18d3bd67ab859c"
 
 [[constraint]]
-  name = "github.com/docker/libcompose"
-  revision = "b2c0c6e7006959f15d7d3f64a653a339a4b68ff3"
-
-[[constraint]]
   name = "github.com/flynn/go-shlex"
   revision = "3f9db97f856818214da2e1057f8ad84803971cff"
 
