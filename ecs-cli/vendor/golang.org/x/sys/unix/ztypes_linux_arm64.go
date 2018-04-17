@@ -172,7 +172,7 @@ type Dirent struct {
 }
 
 type Fsid struct {
-	_ [2]int32
+	Val [2]int32
 }
 
 type Flock_t struct {
@@ -736,7 +736,7 @@ const (
 )
 
 type Sigset_t struct {
-	_ [16]uint64
+	Val [16]uint64
 }
 
 const RNDGETENTCNT = 0x80045200

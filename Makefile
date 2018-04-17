@@ -31,7 +31,7 @@ $(LOCAL_BINARY): $(SOURCES)
 	@echo "Built ecs-cli"
 
 .PHONY: test
-test:
+test: generate
 	env -i PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT go test -timeout=120s -v -cover $(SOURCEDIR)/modules/...
 
 .PHONY: generate
