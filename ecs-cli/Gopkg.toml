@@ -21,10 +21,13 @@
 #  version = "2.4.0"
 
 
+[[override]]
+  name = "github.com/xeipuuv/gojsonschema"
+  revision = "0c8571ac0ce161a5feb57375a9cdf148c98c0f70"
+
 [[constraint]]
   name = "github.com/aws/aws-sdk-go"
-  # version = "1.12.58"
-  revision = "ccb909e564ddced884491d966808d9b245a86e6a"
+  version = "1.13.17"
 
 [[constraint]]
   name = "github.com/awslabs/amazon-ecr-credential-helper"
@@ -56,7 +59,7 @@
 
 [[constraint]]
   name = "github.com/golang/mock"
-  revision = "bd3c8e81be01eef76d4b503f5e687d2d1354d2d9"
+  version = "1.1.1"
 
 [[constraint]]
   name = "github.com/pkg/errors"

@@ -57,6 +57,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	user := "user"
 	workingDir := "/var"
 	taskRoleArn := "arn:aws:iam::123456789012:role/my_role"
+
 	serviceConfig := &config.ServiceConfig{
 		CPUShares:      yaml.StringorInt(cpu),
 		Command:        []string{command},
@@ -105,6 +106,8 @@ func TestConvertToTaskDefinition(t *testing.T) {
 
 	assert.Equal(t, memoryReservation, aws.Int64Value(containerDef.MemoryReservation), "Expected memoryReservation to match")
 
+	assert.Nil(t, containerDef.LinuxParameters.SharedMemorySize, "Expected sharedMemorySize to be null")
+
 	if privileged != aws.BoolValue(containerDef.Privileged) {
 		t.Errorf("Expected privileged [%t] But was [%t]", privileged, aws.BoolValue(containerDef.Privileged))
 	}
@@ -127,6 +130,31 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	for _, container := range taskDefinition.ContainerDefinitions {
 		assert.True(t, aws.BoolValue(container.Essential), "Expected essential to be true")
 	}
+}
+
+func TestConvertToTaskDefinitionWithNoSharedMemorySize(t *testing.T) {
+	serviceConfig := serviceConfigWithDefaultNetworks()
+
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
+	containerDef := *taskDefinition.ContainerDefinitions[0]
+
+	assert.Nil(t, containerDef.LinuxParameters.SharedMemorySize, "Expected sharedMemorySize to be null")
+}
+
+func TestConvertToTaskDefinitionWithSharedMemorySize(t *testing.T) {
+	// Realistically, we expect customers to specify sizes larger than the default of 64M
+	expectedMBs := 128
+	shmSize := yaml.MemStringorInt(int64(expectedMBs * miB))
+
+	serviceConfig := &config.ServiceConfig{
+		ShmSize:  shmSize,
+		Networks: &yaml.Networks{Networks: []*yaml.Network{defaultNetwork}},
+	}
+
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
+	containerDef := *taskDefinition.ContainerDefinitions[0]
+
+	assert.Equal(t, int64(expectedMBs), aws.Int64Value(containerDef.LinuxParameters.SharedMemorySize), "Expected sharedMemorySize to match")
 }
 
 func TestConvertToTaskDefinitionLaunchTypeEmpty(t *testing.T) {
@@ -748,6 +776,68 @@ func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
 			"Got Volume.Name=[%s] And MountPoint.SourceVolume=[%s]",
 			aws.StringValue(volumeDef.Name), aws.StringValue(mountPoint.SourceVolume))
 	}
+}
+
+func TestConvertToTaskDefinitionWithTmpfs(t *testing.T) {
+	tmpfs := []string{"/run:rw,noexec,nosuid,size=65536k", "/foo:size=1gb", "/bar:size=1gb,rw,runbindable"}
+
+	serviceConfig := &config.ServiceConfig{
+		Tmpfs: tmpfs,
+	}
+
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
+	containerDef := *taskDefinition.ContainerDefinitions[0]
+	tmpfsMounts := containerDef.LinuxParameters.Tmpfs
+	mount1 := tmpfsMounts[0]
+	mount2 := tmpfsMounts[1]
+	mount3 := tmpfsMounts[2]
+
+	assert.Equal(t, "/run", aws.StringValue(mount1.ContainerPath))
+	assert.Equal(t, []string{"rw", "noexec", "nosuid"}, aws.StringValueSlice(mount1.MountOptions))
+	assert.Equal(t, int64(64), aws.Int64Value(mount1.Size))
+
+	assert.Equal(t, "/foo", aws.StringValue(mount2.ContainerPath))
+	assert.Equal(t, []string{}, aws.StringValueSlice(mount2.MountOptions))
+	assert.Equal(t, int64(1024), aws.Int64Value(mount2.Size))
+
+	assert.Equal(t, "/bar", aws.StringValue(mount3.ContainerPath))
+	assert.Equal(t, []string{"rw", "runbindable"}, aws.StringValueSlice(mount3.MountOptions))
+	assert.Equal(t, int64(1024), aws.Int64Value(mount3.Size))
+}
+
+func TestConvertToTmpfs_NoPath(t *testing.T) {
+	tmpfs := []string{"size=65536k"}
+	_, err := convertToTmpfs(tmpfs)
+
+	assert.Error(t, err)
+}
+
+func TestConvertToTmpfs_BadOptionFormat(t *testing.T) {
+	tmpfs := []string{"/run,size=65536k"}
+	_, err := convertToTmpfs(tmpfs)
+
+	assert.Error(t, err)
+}
+
+func TestConvertToTmpfs_NoSize(t *testing.T) {
+	tmpfs := []string{"/run"}
+	_, err := convertToTmpfs(tmpfs)
+
+	assert.Error(t, err)
+}
+
+func TestConvertToTmpfs_WithOptionsNoSize(t *testing.T) {
+	tmpfs := []string{"/run:rw"}
+	_, err := convertToTmpfs(tmpfs)
+
+	assert.Error(t, err)
+}
+
+func TestConvertToTmpfs_WithMalformedSize(t *testing.T) {
+	tmpfs := []string{"/run:1gb"}
+	_, err := convertToTmpfs(tmpfs)
+
+	assert.Error(t, err)
 }
 
 func TestConvertToPortMappings(t *testing.T) {

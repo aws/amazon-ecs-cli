@@ -43,20 +43,20 @@ type CLIParams struct {
 // Searches as far up the context as necessary. This function works no matter
 // how many layers of nested subcommands there are. It is more powerful
 // than merely calling context.String and context.GlobalString
-func recursiveFlagSearch(context *cli.Context, flag string) string {
+func RecursiveFlagSearch(context *cli.Context, flag string) string {
 	if context == nil {
 		return ""
 	} else if value := context.String(flag); value != "" {
 		return value
 	} else {
-		return recursiveFlagSearch(context.Parent(), flag)
+		return RecursiveFlagSearch(context.Parent(), flag)
 	}
 }
 
 // NewCLIParams creates a new CLIParams object from the config file.
 func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
-	clusterConfig := recursiveFlagSearch(context, flags.ClusterConfigFlag)
-	profileConfig := recursiveFlagSearch(context, flags.ECSProfileFlag)
+	clusterConfig := RecursiveFlagSearch(context, flags.ClusterConfigFlag)
+	profileConfig := RecursiveFlagSearch(context, flags.ECSProfileFlag)
 	ecsConfig, err := rdwr.Get(clusterConfig, profileConfig)
 
 	if err != nil {
@@ -64,7 +64,7 @@ func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 	}
 
 	// launch type from the flag overrides defaul launch type
-	if launchTypeFromFlag := recursiveFlagSearch(context, flags.LaunchTypeFlag); launchTypeFromFlag != "" {
+	if launchTypeFromFlag := RecursiveFlagSearch(context, flags.LaunchTypeFlag); launchTypeFromFlag != "" {
 		ecsConfig.DefaultLaunchType = launchTypeFromFlag
 	}
 
@@ -79,16 +79,16 @@ func NewCLIParams(context *cli.Context, rdwr ReadWriter) (*CLIParams, error) {
 	if clusterFromEnv := os.Getenv(flags.ClusterEnvVar); clusterFromEnv != "" {
 		ecsConfig.Cluster = clusterFromEnv
 	}
-	if clusterFromFlag := recursiveFlagSearch(context, flags.ClusterFlag); clusterFromFlag != "" {
+	if clusterFromFlag := RecursiveFlagSearch(context, flags.ClusterFlag); clusterFromFlag != "" {
 		ecsConfig.Cluster = clusterFromFlag
 	}
 
 	//--region flag has the highest precedence to set ecs-cli region config.
-	if regionFromFlag := recursiveFlagSearch(context, flags.RegionFlag); regionFromFlag != "" {
+	if regionFromFlag := RecursiveFlagSearch(context, flags.RegionFlag); regionFromFlag != "" {
 		ecsConfig.Region = regionFromFlag
 	}
 
-	if awsProfileFromFlag := recursiveFlagSearch(context, flags.AWSProfileFlag); awsProfileFromFlag != "" {
+	if awsProfileFromFlag := RecursiveFlagSearch(context, flags.AWSProfileFlag); awsProfileFromFlag != "" {
 		ecsConfig.AWSProfile = awsProfileFromFlag
 		// unset Access Key and Secret Key, otherwise they will take precedence
 		ecsConfig.AWSAccessKey = ""

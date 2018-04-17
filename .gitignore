@@ -5,3 +5,4 @@ bin/
 *.orig
 ecs-cli/vendor/pkg
 .vscode/*
+.idea/*

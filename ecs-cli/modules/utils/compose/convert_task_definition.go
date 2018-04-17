@@ -17,21 +17,24 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/docker/go-units"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
 	defaultMemLimit = 512
 	kiB             = 1024
+	miB             = kiB * kiB // 1048576 bytes
 
 	// access mode with which the volume is mounted
 	readOnlyVolumeAccessMode  = "ro"
@@ -44,7 +47,7 @@ var supportedComposeYamlOptions = []string{
 	"cpu_shares", "command", "dns", "dns_search", "entrypoint", "env_file",
 	"environment", "extra_hosts", "hostname", "image", "labels", "links",
 	"logging", "log_driver", "log_opt", "mem_limit", "mem_reservation", "ports", "privileged", "read_only",
-	"security_opt", "ulimits", "user", "volumes", "volumes_from", "working_dir", "cap_add", "cap_drop",
+	"security_opt", "ulimits", "user", "volumes", "volumes_from", "working_dir", "cap_add", "cap_drop", "shm_size", "tmpfs",
 }
 
 var supportedComposeYamlOptionsMap = getSupportedComposeYamlOptionsMap()
@@ -233,10 +236,10 @@ func isZero(v reflect.Value) bool {
 }
 
 // convertToContainerDef transforms each service in the compose yml
-// to an equivalent container definition
+// to an equivalent ECS container definition
 func convertToContainerDef(context *project.Context, inputCfg *config.ServiceConfig,
 	volumes *volumes, outputContDef *ecs.ContainerDefinition, ecsContainerDef *ContainerDef) error {
-	// setting memory
+	// setting memory limit
 	var mem int64
 	var memoryReservation int64
 	if inputCfg.MemReservation != 0 {
@@ -251,8 +254,18 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 		return errors.New("mem_limit should not be less than mem_reservation")
 	}
 
+	// TODO: We should be letting docker set the default here -- see note on default shared
+	// memory size?
 	if mem == 0 && memoryReservation == 0 {
 		mem = defaultMemLimit
+	}
+
+	// convert shared memory size
+	var shmSize int64
+	if inputCfg.ShmSize != 0 {
+		// libcompose will parse this field in the docker compose file as bytes but ECS
+		// expects sharedMemorySize in MiB
+		shmSize = int64(inputCfg.ShmSize) / miB
 	}
 
 	// convert environment variables
@@ -297,6 +310,12 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 		return err
 	}
 
+	// convert Tmpfs
+	tmpfs, err := convertToTmpfs(inputCfg.Tmpfs)
+	if err != nil {
+		return err
+	}
+
 	// populating container definition, offloading the validation to aws-sdk
 	outputContDef.Cpu = aws.Int64(int64(inputCfg.CPUShares))
 	outputContDef.Command = aws.StringSlice(inputCfg.Command)
@@ -323,7 +342,7 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 	outputContDef.Privileged = aws.Bool(inputCfg.Privileged)
 	outputContDef.PortMappings = portMappings
 	outputContDef.ReadonlyRootFilesystem = aws.Bool(inputCfg.ReadOnly)
-	outputContDef.Ulimits = ulimits
+	outputContDef.Ulimits = ulimits // TODO: use SetUlimit API?
 	if inputCfg.User != "" {
 		outputContDef.User = aws.String(inputCfg.User)
 	}
@@ -338,6 +357,17 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 	}
 	if inputCfg.CapDrop != nil {
 		outputContDef.LinuxParameters.Capabilities.SetDrop(aws.StringSlice(inputCfg.CapDrop))
+	}
+
+	// Only set shmSize if specified. Otherwise we expect this sharedMemorySize for the
+	// containerDefinition to be null; Docker will by default allocate 64M for shared memory if
+	// shmSize is null.
+	if shmSize != 0 {
+		outputContDef.LinuxParameters.SetSharedMemorySize(shmSize)
+	}
+
+	if inputCfg.Tmpfs != nil {
+		outputContDef.LinuxParameters.SetTmpfs(tmpfs)
 	}
 
 	if ecsContainerDef != nil {
@@ -612,6 +642,56 @@ func convertToULimits(cfgUlimits yaml.Ulimits) ([]*ecs.Ulimit, error) {
 	}
 
 	return ulimits, nil
+}
+
+// convertToTmpfs transforms the yml Tmpfs slice of strings to slice of pointers to Tmpfs structs
+func convertToTmpfs(tmpfsPaths yaml.Stringorslice) ([]*ecs.Tmpfs, error) {
+	mounts := []*ecs.Tmpfs{}
+	for _, mount := range tmpfsPaths {
+
+		// mount should be of the form "<path>:<options>"
+		tmpfsParams := strings.SplitN(mount, ":", 2)
+
+		if len(tmpfsParams) < 2 {
+			return nil, errors.New("Path and Size are required options for tmpfs")
+		}
+
+		path := tmpfsParams[0]
+		options := strings.Split(tmpfsParams[1], ",")
+
+		var mountOptions []string
+		var size int64
+
+		// See: https://github.com/docker/go-units/blob/master/size.go#L34
+		s := regexp.MustCompile(`size=(\d+(\.\d+)*) ?([kKmMgGtTpP])?[bB]?`)
+
+		for _, option := range options {
+			if sizeOption := s.FindString(option); sizeOption != "" {
+				sizeValue := strings.SplitN(sizeOption, "=", 2)[1]
+				sizeInBytes, err := units.RAMInBytes(sizeValue)
+
+				if err != nil {
+					return nil, err
+				}
+
+				size = sizeInBytes / miB
+			} else {
+				mountOptions = append(mountOptions, option)
+			}
+		}
+
+		if size == 0 {
+			return nil, errors.New("You must specify the size option for tmpfs")
+		}
+
+		tmpfs := &ecs.Tmpfs{
+			ContainerPath: aws.String(path),
+			MountOptions:  aws.StringSlice(mountOptions),
+			Size:          aws.Int64(size),
+		}
+		mounts = append(mounts, tmpfs)
+	}
+	return mounts, nil
 }
 
 // GoString returns deterministic string representation

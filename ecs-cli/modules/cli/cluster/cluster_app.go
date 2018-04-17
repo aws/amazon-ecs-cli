@@ -20,18 +20,17 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/container"
 	composecontext "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/task"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudformation"
 	ec2client "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ec2"
 	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ssm"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config/ami"
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/docker/libcompose/project"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
@@ -62,15 +61,16 @@ func ClusterUp(c *cli.Context) {
 		logrus.Fatal("Error executing 'up': ", err)
 	}
 
-	ecsClient := ecsclient.NewECSClient()
-	cfnClient := cloudformation.NewCloudformationClient()
-
 	cliParams, err := newCliParams(c, rdwr)
 	if err != nil {
 		logrus.Fatal("Error executing 'up': ", err)
 	}
 
-	err = createCluster(c, ecsClient, cfnClient, cliParams)
+	ecsClient := ecsclient.NewECSClient()
+	cfnClient := cloudformation.NewCloudformationClient()
+	ssmClient := ssm.NewSSMClient(cliParams)
+
+	err = createCluster(c, ecsClient, cfnClient, ssmClient, cliParams)
 	if err != nil {
 		logrus.Fatal("Error executing 'up': ", err)
 	}
@@ -115,13 +115,13 @@ func ClusterScale(c *cli.Context) {
 func ClusterPS(c *cli.Context) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
-		logrus.Fatal("Error executing 'ps ", err)
+		logrus.Fatal("Error executing 'ps': ", err)
 	}
 
 	ecsClient := ecsclient.NewECSClient()
 	infoSet, err := clusterPS(c, rdwr, ecsClient)
 	if err != nil {
-		logrus.Fatal("Error executing 'ps ", err)
+		logrus.Fatal("Error executing 'ps': ", err)
 	}
 	os.Stdout.WriteString(infoSet.String(container.ContainerInfoColumns, displayTitle))
 }
@@ -159,8 +159,13 @@ func validateCommaSeparatedParam(cfnParams *cloudformation.CfnStackParams, param
 	return false
 }
 
-func createCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient, cliParams *config.CLIParams) error {
+func createCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient, ssmClient ssm.Client, cliParams *config.CLIParams) error {
 	var err error
+
+	// Check if cluster is specified
+	if cliParams.Cluster == "" {
+		return clusterNotSetError()
+	}
 
 	if context.Bool(flags.EmptyFlag) {
 		err = createEmptyCluster(context, ecsClient, cfnClient, cliParams)
@@ -185,11 +190,6 @@ func createCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfnClien
 			logrus.Warn("You will not be able to SSH into your EC2 instances without a key pair.")
 		}
 
-	}
-
-	// Check if cluster is specified
-	if cliParams.Cluster == "" {
-		return fmt.Errorf("Please configure a cluster using the configure command or the '--%s' flag", flags.ClusterFlag)
 	}
 
 	// Check if cfn stack already exists
@@ -245,16 +245,19 @@ func createCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfnClien
 	}
 
 	// Check if image id was supplied, else populate
-	amiIds := ami.NewStaticAmiIds()
-	_, err = cfnParams.GetParameter(cloudformation.ParameterKeyAmiId)
-	if err == cloudformation.ParameterNotFoundError {
-		amiId, err := amiIds.Get(aws.StringValue(cliParams.Session.Config.Region))
-		if err != nil {
+	if launchType == config.LaunchTypeEC2 {
+		// Check if image id was supplied, else populate
+		_, err = cfnParams.GetParameter(cloudformation.ParameterKeyAmiId)
+		if err == cloudformation.ParameterNotFoundError {
+			amiMetadata, err := ssmClient.GetRecommendedECSLinuxAMI()
+			if err != nil {
+				return err
+			}
+			logrus.Infof("Using recommended %s AMI with ECS Agent %s and %s", amiMetadata.OsName, amiMetadata.AgentVersion, amiMetadata.RuntimeVersion)
+			cfnParams.Add(cloudformation.ParameterKeyAmiId, amiMetadata.ImageID)
+		} else if err != nil {
 			return err
 		}
-		cfnParams.Add(cloudformation.ParameterKeyAmiId, amiId)
-	} else if err != nil {
-		return err
 	}
 	if err := cfnParams.Validate(); err != nil {
 		return err
@@ -276,7 +279,6 @@ func createCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfnClien
 			return err
 		}
 	}
-
 	// Create cfn stack
 	template := cloudformation.GetTemplate()
 
@@ -305,10 +307,6 @@ func createEmptyCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfn
 
 	if isForceSet(context) {
 		logrus.Warn("Force flag is unsupported when creating an empty cluster.")
-	}
-
-	if cliParams.Cluster == "" {
-		return fmt.Errorf("Please configure a cluster using the configure command or the '--%s' flag", flags.ClusterFlag)
 	}
 
 	// Check if non-empty cluster with same name already exists
@@ -450,6 +448,9 @@ func clusterPS(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient
 
 // validateCluster validates if the cluster exists in ECS and is in "ACTIVE" state.
 func validateCluster(clusterName string, ecsClient ecsclient.ECSClient) error {
+	if clusterName == "" {
+		return clusterNotSetError()
+	}
 	isClusterActive, err := ecsClient.IsActiveCluster(clusterName)
 	if err != nil {
 		return err
@@ -514,6 +515,11 @@ func validateInstanceRole(context *cli.Context) error {
 // isForceSet returns true if the 'force' flag is set from CLI.
 func isForceSet(context *cli.Context) bool {
 	return context.Bool(flags.ForceFlag)
+}
+
+// clusterNotSetError recommends that users either configure or provide a cluster flag
+func clusterNotSetError() error {
+	return fmt.Errorf("Please configure a cluster using the configure command or the '--%s' flag", flags.ClusterFlag)
 }
 
 // getClusterSize gets the value for the 'size' flag from CLI.

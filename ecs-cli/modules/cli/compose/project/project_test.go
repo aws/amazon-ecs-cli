@@ -209,6 +209,8 @@ func TestParseComposeForVersion2Files(t *testing.T) {
 	mysqlImage := "mysql"
 	ports := []string{"80:80"}
 	memoryReservation := int64(500000000)
+	shmSize := yaml.MemStringorInt(1073741824) // 1 gb = 1024 * 1024 * 1024 bytes
+	tmpfs := yaml.Stringorslice{"/run", "/tmp"}
 
 	composeFileString := `version: '2'
 services:
@@ -216,6 +218,10 @@ services:
     image: wordpress
     ports: ["80:80"]
     mem_reservation: 500000000
+    shm_size: 1gb
+    tmpfs:
+      - /run
+      - /tmp
   mysql:
     image: mysql`
 
@@ -241,6 +247,8 @@ services:
 	}
 
 	assert.Equal(t, memoryReservation, int64(wordpress.MemReservation), "Expected memoryReservation to match")
+	assert.Equal(t, shmSize, wordpress.ShmSize, "Expected shmSize to match")
+	assert.Equal(t, tmpfs, wordpress.Tmpfs, "Expected tmpfs to match")
 
 	// verify mysql ServiceConfig
 	mysql, ok := configs.Get("mysql")

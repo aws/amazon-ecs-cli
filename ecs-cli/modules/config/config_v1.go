@@ -20,6 +20,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/urfave/cli"
 )
@@ -118,7 +119,21 @@ func NewCLIConfig(cluster string) *CLIConfig {
 //    a) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
 //  5) EC2 Instance role
 func (cfg *CLIConfig) ToAWSSession(context *cli.Context) (*session.Session, error) {
-	return cfg.toAWSSessionWithConfig(context, &aws.Config{})
+	svcConfig := aws.Config{}
+	if ecsEndpoint := RecursiveFlagSearch(context, flags.EndpointFlag); ecsEndpoint != "" {
+		defaultResolver := endpoints.DefaultResolver()
+		ecsCustomResolverFn := func(service, region string, optFns ...func(*endpoints.Options)) (endpoints.ResolvedEndpoint, error) {
+			if service == "ecs" {
+				return endpoints.ResolvedEndpoint{
+					URL: ecsEndpoint,
+				}, nil
+			}
+			return defaultResolver.EndpointFor(service, region, optFns...)
+		}
+		svcConfig.EndpointResolver = endpoints.ResolverFunc(ecsCustomResolverFn)
+	}
+
+	return cfg.toAWSSessionWithConfig(context, &svcConfig)
 }
 
 // ToAWSSessionWithConfig processes credential order of precedence
@@ -149,7 +164,7 @@ func (cfg *CLIConfig) toAWSSessionWithConfig(context *cli.Context, svcConfig *aw
 }
 
 func hasProfileFlags(context *cli.Context) bool {
-	return (recursiveFlagSearch(context, flags.ECSProfileFlag) != "" || recursiveFlagSearch(context, flags.AWSProfileFlag) != "")
+	return (RecursiveFlagSearch(context, flags.ECSProfileFlag) != "" || RecursiveFlagSearch(context, flags.AWSProfileFlag) != "")
 }
 
 func hasEnvVars(context *cli.Context) bool {
