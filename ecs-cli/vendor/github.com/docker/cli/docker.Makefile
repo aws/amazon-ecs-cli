@@ -5,7 +5,6 @@
 #
 
 DEV_DOCKER_IMAGE_NAME = docker-cli-dev$(IMAGE_TAG)
-BINARY_NATIVE_IMAGE_NAME = docker-cli-native$(IMAGE_TAG)
 LINTER_IMAGE_NAME = docker-cli-lint$(IMAGE_TAG)
 CROSS_IMAGE_NAME = docker-cli-cross$(IMAGE_TAG)
 VALIDATE_IMAGE_NAME = docker-cli-shell-validate$(IMAGE_TAG)
@@ -31,17 +30,11 @@ build_cross_image:
 build_shell_validate_image:
 	docker build -t $(VALIDATE_IMAGE_NAME) -f ./dockerfiles/Dockerfile.shellcheck .
 
-.PHONY: build_binary_native_image
-build_binary_native_image:
-	docker build -t $(BINARY_NATIVE_IMAGE_NAME) -f ./dockerfiles/Dockerfile.binary-native .
-
-
 # build executable using a container
-binary: build_binary_native_image
-	docker run --rm $(ENVVARS) $(MOUNTS) $(BINARY_NATIVE_IMAGE_NAME)
+binary: build_docker_image
+	docker run --rm $(ENVVARS) $(MOUNTS) $(DEV_DOCKER_IMAGE_NAME) make binary
 
 build: binary
-
 
 # clean build artifacts using a container
 .PHONY: clean

@@ -2,7 +2,6 @@ package opts
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 
@@ -12,29 +11,18 @@ import (
 // ReadKVStrings reads a file of line terminated key=value pairs, and overrides any keys
 // present in the file with additional pairs specified in the override parameter
 func ReadKVStrings(files []string, override []string) ([]string, error) {
-	return readKVStrings(files, override, nil)
-}
-
-// ReadKVEnvStrings reads a file of line terminated key=value pairs, and overrides any keys
-// present in the file with additional pairs specified in the override parameter.
-// If a key has no value, it will get the value from the environment.
-func ReadKVEnvStrings(files []string, override []string) ([]string, error) {
-	return readKVStrings(files, override, os.Getenv)
-}
-
-func readKVStrings(files []string, override []string, emptyFn func(string) string) ([]string, error) {
-	variables := []string{}
+	envVariables := []string{}
 	for _, ef := range files {
-		parsedVars, err := parseKeyValueFile(ef, emptyFn)
+		parsedVars, err := ParseEnvFile(ef)
 		if err != nil {
 			return nil, err
 		}
-		variables = append(variables, parsedVars...)
+		envVariables = append(envVariables, parsedVars...)
 	}
 	// parse the '-e' and '--env' after, to allow override
-	variables = append(variables, override...)
+	envVariables = append(envVariables, override...)
 
-	return variables, nil
+	return envVariables, nil
 }
 
 // ConvertKVStringsToMap converts ["key=value"] to {"key":"value"}

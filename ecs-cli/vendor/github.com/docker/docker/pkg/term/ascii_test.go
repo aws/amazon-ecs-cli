@@ -1,25 +1,25 @@
-package term // import "github.com/docker/docker/pkg/term"
+package term
 
 import (
 	"testing"
 
-	"github.com/gotestyourself/gotestyourself/assert"
-	is "github.com/gotestyourself/gotestyourself/assert/cmp"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestToBytes(t *testing.T) {
 	codes, err := ToBytes("ctrl-a,a")
-	assert.NilError(t, err)
-	assert.Check(t, is.DeepEqual([]byte{1, 97}, codes))
+	require.NoError(t, err)
+	assert.Equal(t, []byte{1, 97}, codes)
 
 	_, err = ToBytes("shift-z")
-	assert.Check(t, is.ErrorContains(err, ""))
+	assert.Error(t, err)
 
 	codes, err = ToBytes("ctrl-@,ctrl-[,~,ctrl-o")
-	assert.NilError(t, err)
-	assert.Check(t, is.DeepEqual([]byte{0, 27, 126, 15}, codes))
+	require.NoError(t, err)
+	assert.Equal(t, []byte{0, 27, 126, 15}, codes)
 
 	codes, err = ToBytes("DEL,+")
-	assert.NilError(t, err)
-	assert.Check(t, is.DeepEqual([]byte{127, 43}, codes))
+	require.NoError(t, err)
+	assert.Equal(t, []byte{127, 43}, codes)
 }

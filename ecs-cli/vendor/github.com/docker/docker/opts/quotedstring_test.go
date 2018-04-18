@@ -1,30 +1,29 @@
-package opts // import "github.com/docker/docker/opts"
+package opts
 
 import (
 	"testing"
 
-	"github.com/gotestyourself/gotestyourself/assert"
-	is "github.com/gotestyourself/gotestyourself/assert/cmp"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestQuotedStringSetWithQuotes(t *testing.T) {
 	value := ""
 	qs := NewQuotedString(&value)
-	assert.Check(t, qs.Set(`"something"`))
-	assert.Check(t, is.Equal("something", qs.String()))
-	assert.Check(t, is.Equal("something", value))
+	assert.NoError(t, qs.Set(`"something"`))
+	assert.Equal(t, "something", qs.String())
+	assert.Equal(t, "something", value)
 }
 
 func TestQuotedStringSetWithMismatchedQuotes(t *testing.T) {
 	value := ""
 	qs := NewQuotedString(&value)
-	assert.Check(t, qs.Set(`"something'`))
-	assert.Check(t, is.Equal(`"something'`, qs.String()))
+	assert.NoError(t, qs.Set(`"something'`))
+	assert.Equal(t, `"something'`, qs.String())
 }
 
 func TestQuotedStringSetWithNoQuotes(t *testing.T) {
 	value := ""
 	qs := NewQuotedString(&value)
-	assert.Check(t, qs.Set("something"))
-	assert.Check(t, is.Equal("something", qs.String()))
+	assert.NoError(t, qs.Set("something"))
+	assert.Equal(t, "something", qs.String())
 }

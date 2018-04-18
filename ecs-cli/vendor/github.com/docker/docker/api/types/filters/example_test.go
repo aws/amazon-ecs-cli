@@ -1,4 +1,4 @@
-package filters // import "github.com/docker/docker/api/types/filters"
+package filters
 
 func ExampleArgs_MatchKVList() {
 	args := NewArgs(

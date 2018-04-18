@@ -1,4 +1,4 @@
-package ioutils // import "github.com/docker/docker/pkg/ioutils"
+package ioutils
 
 import (
 	"fmt"
@@ -7,8 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gotestyourself/gotestyourself/assert"
-	is "github.com/gotestyourself/gotestyourself/assert/cmp"
+	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"
 )
 
@@ -37,7 +36,7 @@ func TestReaderErrWrapperReadOnError(t *testing.T) {
 		called = true
 	})
 	_, err := wrapper.Read([]byte{})
-	assert.Check(t, is.Error(err, "error reader always fail"))
+	assert.EqualError(t, err, "error reader always fail")
 	if !called {
 		t.Fatalf("readErrWrapper should have call the anonymous function on failure")
 	}

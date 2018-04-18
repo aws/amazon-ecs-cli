@@ -1,6 +1,6 @@
 // +build linux
 
-package mount // import "github.com/docker/docker/pkg/mount"
+package mount
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ import (
 
 func TestMount(t *testing.T) {
 	if os.Getuid() != 0 {
-		t.Skip("root required")
+		t.Skip("not root tests would fail")
 	}
 
 	source, err := ioutil.TempDir("", "mount-test-source-")

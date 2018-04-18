@@ -1,4 +1,4 @@
-package pools // import "github.com/docker/docker/pkg/pools"
+package pools
 
 import (
 	"bufio"
@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gotestyourself/gotestyourself/assert"
-	is "github.com/gotestyourself/gotestyourself/assert/cmp"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestBufioReaderPoolGetWithNoReaderShouldCreateOne(t *testing.T) {
@@ -95,16 +95,16 @@ func TestBufioWriterPoolPutAndGet(t *testing.T) {
 	buf := new(bytes.Buffer)
 	bw := bufio.NewWriter(buf)
 	writer := BufioWriter32KPool.Get(bw)
-	assert.Assert(t, writer != nil)
+	require.NotNil(t, writer)
 
 	written, err := writer.Write([]byte("foobar"))
-	assert.NilError(t, err)
-	assert.Check(t, is.Equal(6, written))
+	require.NoError(t, err)
+	assert.Equal(t, 6, written)
 
 	// Make sure we Flush all the way ?
 	writer.Flush()
 	bw.Flush()
-	assert.Check(t, is.Len(buf.Bytes(), 6))
+	assert.Len(t, buf.Bytes(), 6)
 	// Reset the buffer
 	buf.Reset()
 	BufioWriter32KPool.Put(writer)
