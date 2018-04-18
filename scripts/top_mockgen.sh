@@ -15,7 +15,7 @@
 #
 # This script wraps the mockgen tool and inserts licensing information.
 
-set -e
+set -ex
 declare -a MODULES
 declare -a DONE
 path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
