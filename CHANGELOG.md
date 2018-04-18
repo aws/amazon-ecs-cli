@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.0
+* Feature - Add support for tmpfs
+* Feature - Add support for shm_size
+* Feature - Add Amazon ECS PGP Public Key and instructions on verifying signatures
+* Feature - Retrieve ECS AMI ID from SSM on cluster creation
+
 ## 1.4.2
 * Feature - Update AMI to amzn-ami-2017.09.k-amazon-ecs-optimized
 
