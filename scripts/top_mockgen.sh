@@ -46,13 +46,13 @@ function isAmongModules {
 
 function tryGen {
     local module=$1
-    if containsElement "$module" "${DONE[@]}" ; then
+    if containsElement "$module" ${DONE[@]} ; then
         return
     fi
     for import in $(go list -f '{{ join .TestImports " " }}' $module) ; do
         IFS='/' read -r -a fn <<<${import#*$module}
         local matched=$(isAmongModules $import)
-        if [ ! -z $matched ] && [[ "$matched" != $module* ]] && containsElement "mock" "${fn[@]}" ; then
+        if [ ! -z $matched ] && [[ "$matched" != $module* ]] && containsElement "mock" ${fn[@]} ; then
             tryGen $matched
         fi
     done
