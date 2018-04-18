@@ -1,4 +1,4 @@
-package archive // import "github.com/docker/docker/pkg/archive"
+package archive
 
 import (
 	"io/ioutil"
@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/docker/docker/pkg/system"
-	"github.com/gotestyourself/gotestyourself/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func max(x, y int) int {
@@ -76,19 +76,19 @@ func provisionSampleDir(t *testing.T, root string, files []FileData) {
 		p := path.Join(root, info.path)
 		if info.filetype == Dir {
 			err := os.MkdirAll(p, info.permissions)
-			assert.NilError(t, err)
+			require.NoError(t, err)
 		} else if info.filetype == Regular {
 			err := ioutil.WriteFile(p, []byte(info.contents), info.permissions)
-			assert.NilError(t, err)
+			require.NoError(t, err)
 		} else if info.filetype == Symlink {
 			err := os.Symlink(info.contents, p)
-			assert.NilError(t, err)
+			require.NoError(t, err)
 		}
 
 		if info.filetype != Symlink {
 			// Set a consistent ctime, atime for all files and dirs
 			err := system.Chtimes(p, now, now)
-			assert.NilError(t, err)
+			require.NoError(t, err)
 		}
 	}
 }
@@ -118,14 +118,14 @@ func TestChangesWithNoChanges(t *testing.T) {
 		t.Skip("symlinks on Windows")
 	}
 	rwLayer, err := ioutil.TempDir("", "docker-changes-test")
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	defer os.RemoveAll(rwLayer)
 	layer, err := ioutil.TempDir("", "docker-changes-test-layer")
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	defer os.RemoveAll(layer)
 	createSampleDir(t, layer)
 	changes, err := Changes([]string{layer}, rwLayer)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	if len(changes) != 0 {
 		t.Fatalf("Changes with no difference should have detect no changes, but detected %d", len(changes))
 	}
@@ -139,14 +139,14 @@ func TestChangesWithChanges(t *testing.T) {
 	}
 	// Mock the readonly layer
 	layer, err := ioutil.TempDir("", "docker-changes-test-layer")
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	defer os.RemoveAll(layer)
 	createSampleDir(t, layer)
 	os.MkdirAll(path.Join(layer, "dir1/subfolder"), 0740)
 
 	// Mock the RW layer
 	rwLayer, err := ioutil.TempDir("", "docker-changes-test")
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	defer os.RemoveAll(rwLayer)
 
 	// Create a folder in RW layer
@@ -163,7 +163,7 @@ func TestChangesWithChanges(t *testing.T) {
 	ioutil.WriteFile(newFile, []byte{}, 0740)
 
 	changes, err := Changes([]string{layer}, rwLayer)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	expectedChanges := []Change{
 		{"/dir1", ChangeModify},
@@ -183,7 +183,7 @@ func TestChangesWithChangesGH13590(t *testing.T) {
 		t.Skip("symlinks on Windows")
 	}
 	baseLayer, err := ioutil.TempDir("", "docker-changes-test.")
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	defer os.RemoveAll(baseLayer)
 
 	dir3 := path.Join(baseLayer, "dir1/dir2/dir3")
@@ -193,7 +193,7 @@ func TestChangesWithChangesGH13590(t *testing.T) {
 	ioutil.WriteFile(file, []byte("hello"), 0666)
 
 	layer, err := ioutil.TempDir("", "docker-changes-test2.")
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	defer os.RemoveAll(layer)
 
 	// Test creating a new file
@@ -206,7 +206,7 @@ func TestChangesWithChangesGH13590(t *testing.T) {
 	ioutil.WriteFile(file, []byte("bye"), 0666)
 
 	changes, err := Changes([]string{baseLayer}, layer)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	expectedChanges := []Change{
 		{"/dir1/dir2/dir3", ChangeModify},
@@ -216,7 +216,7 @@ func TestChangesWithChangesGH13590(t *testing.T) {
 
 	// Now test changing a file
 	layer, err = ioutil.TempDir("", "docker-changes-test3.")
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	defer os.RemoveAll(layer)
 
 	if err := copyDir(baseLayer+"/dir1", layer+"/"); err != nil {
@@ -227,7 +227,7 @@ func TestChangesWithChangesGH13590(t *testing.T) {
 	ioutil.WriteFile(file, []byte("bye"), 0666)
 
 	changes, err = Changes([]string{baseLayer}, layer)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	expectedChanges = []Change{
 		{"/dir1/dir2/dir3/file.txt", ChangeModify},
@@ -243,15 +243,15 @@ func TestChangesDirsEmpty(t *testing.T) {
 		t.Skip("symlinks on Windows")
 	}
 	src, err := ioutil.TempDir("", "docker-changes-test")
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	defer os.RemoveAll(src)
 	createSampleDir(t, src)
 	dst := src + "-copy"
 	err = copyDir(src, dst)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	defer os.RemoveAll(dst)
 	changes, err := ChangesDirs(dst, src)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	if len(changes) != 0 {
 		t.Fatalf("Reported changes for identical dirs: %v", changes)
@@ -263,64 +263,64 @@ func TestChangesDirsEmpty(t *testing.T) {
 func mutateSampleDir(t *testing.T, root string) {
 	// Remove a regular file
 	err := os.RemoveAll(path.Join(root, "file1"))
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	// Remove a directory
 	err = os.RemoveAll(path.Join(root, "dir1"))
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	// Remove a symlink
 	err = os.RemoveAll(path.Join(root, "symlink1"))
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	// Rewrite a file
 	err = ioutil.WriteFile(path.Join(root, "file2"), []byte("fileNN\n"), 0777)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	// Replace a file
 	err = os.RemoveAll(path.Join(root, "file3"))
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	err = ioutil.WriteFile(path.Join(root, "file3"), []byte("fileMM\n"), 0404)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	// Touch file
 	err = system.Chtimes(path.Join(root, "file4"), time.Now().Add(time.Second), time.Now().Add(time.Second))
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	// Replace file with dir
 	err = os.RemoveAll(path.Join(root, "file5"))
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	err = os.MkdirAll(path.Join(root, "file5"), 0666)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	// Create new file
 	err = ioutil.WriteFile(path.Join(root, "filenew"), []byte("filenew\n"), 0777)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	// Create new dir
 	err = os.MkdirAll(path.Join(root, "dirnew"), 0766)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	// Create a new symlink
 	err = os.Symlink("targetnew", path.Join(root, "symlinknew"))
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	// Change a symlink
 	err = os.RemoveAll(path.Join(root, "symlink2"))
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	err = os.Symlink("target2change", path.Join(root, "symlink2"))
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	// Replace dir with file
 	err = os.RemoveAll(path.Join(root, "dir2"))
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	err = ioutil.WriteFile(path.Join(root, "dir2"), []byte("dir2\n"), 0777)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	// Touch dir
 	err = system.Chtimes(path.Join(root, "dir3"), time.Now().Add(time.Second), time.Now().Add(time.Second))
-	assert.NilError(t, err)
+	require.NoError(t, err)
 }
 
 func TestChangesDirsMutated(t *testing.T) {
@@ -330,18 +330,18 @@ func TestChangesDirsMutated(t *testing.T) {
 		t.Skip("symlinks on Windows")
 	}
 	src, err := ioutil.TempDir("", "docker-changes-test")
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	createSampleDir(t, src)
 	dst := src + "-copy"
 	err = copyDir(src, dst)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	defer os.RemoveAll(src)
 	defer os.RemoveAll(dst)
 
 	mutateSampleDir(t, dst)
 
 	changes, err := ChangesDirs(dst, src)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	sort.Sort(changesByPath(changes))
 
@@ -386,29 +386,29 @@ func TestApplyLayer(t *testing.T) {
 		t.Skip("symlinks on Windows")
 	}
 	src, err := ioutil.TempDir("", "docker-changes-test")
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	createSampleDir(t, src)
 	defer os.RemoveAll(src)
 	dst := src + "-copy"
 	err = copyDir(src, dst)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	mutateSampleDir(t, dst)
 	defer os.RemoveAll(dst)
 
 	changes, err := ChangesDirs(dst, src)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	layer, err := ExportChanges(dst, changes, nil, nil)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	layerCopy, err := NewTempArchive(layer, "")
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	_, err = ApplyLayer(src, layerCopy)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	changes2, err := ChangesDirs(src, dst)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	if len(changes2) != 0 {
 		t.Fatalf("Unexpected differences after reapplying mutation: %v", changes2)
@@ -422,18 +422,18 @@ func TestChangesSizeWithHardlinks(t *testing.T) {
 		t.Skip("hardlinks on Windows")
 	}
 	srcDir, err := ioutil.TempDir("", "docker-test-srcDir")
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	defer os.RemoveAll(srcDir)
 
 	destDir, err := ioutil.TempDir("", "docker-test-destDir")
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	defer os.RemoveAll(destDir)
 
 	creationSize, err := prepareUntarSourceDirectory(100, destDir, true)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	changes, err := ChangesDirs(destDir, srcDir)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	got := ChangesSize(destDir, changes)
 	if got != int64(creationSize) {
@@ -460,14 +460,14 @@ func TestChangesSizeWithOnlyDeleteChanges(t *testing.T) {
 
 func TestChangesSize(t *testing.T) {
 	parentPath, err := ioutil.TempDir("", "docker-changes-test")
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	defer os.RemoveAll(parentPath)
 	addition := path.Join(parentPath, "addition")
 	err = ioutil.WriteFile(addition, []byte{0x01, 0x01, 0x01}, 0744)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 	modification := path.Join(parentPath, "modification")
 	err = ioutil.WriteFile(modification, []byte{0x01, 0x01, 0x01}, 0744)
-	assert.NilError(t, err)
+	require.NoError(t, err)
 
 	changes := []Change{
 		{Path: "addition", Kind: ChangeAdd},

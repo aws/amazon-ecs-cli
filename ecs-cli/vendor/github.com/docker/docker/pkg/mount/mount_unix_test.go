@@ -1,6 +1,6 @@
 // +build !windows
 
-package mount // import "github.com/docker/docker/pkg/mount"
+package mount
 
 import (
 	"os"
@@ -25,10 +25,6 @@ func TestMountOptionsParsing(t *testing.T) {
 }
 
 func TestMounted(t *testing.T) {
-	if os.Getuid() != 0 {
-		t.Skip("root required")
-	}
-
 	tmp := path.Join(os.TempDir(), "mount-tests")
 	if err := os.MkdirAll(tmp, 0777); err != nil {
 		t.Fatal(err)
@@ -80,10 +76,6 @@ func TestMounted(t *testing.T) {
 }
 
 func TestMountReadonly(t *testing.T) {
-	if os.Getuid() != 0 {
-		t.Skip("root required")
-	}
-
 	tmp := path.Join(os.TempDir(), "mount-tests")
 	if err := os.MkdirAll(tmp, 0777); err != nil {
 		t.Fatal(err)

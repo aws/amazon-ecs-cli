@@ -1,4 +1,4 @@
-package fileutils // import "github.com/docker/docker/pkg/fileutils"
+package fileutils
 
 import (
 	"fmt"
@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gotestyourself/gotestyourself/assert"
-	is "github.com/gotestyourself/gotestyourself/assert/cmp"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // CopyFile with invalid src
@@ -384,9 +384,9 @@ func TestMatches(t *testing.T) {
 	for _, test := range tests {
 		desc := fmt.Sprintf("pattern=%q text=%q", test.pattern, test.text)
 		pm, err := NewPatternMatcher([]string{test.pattern})
-		assert.NilError(t, err, desc)
+		require.NoError(t, err, desc)
 		res, _ := pm.Matches(test.text)
-		assert.Check(t, is.Equal(test.pass, res), desc)
+		assert.Equal(t, test.pass, res, desc)
 	}
 }
 

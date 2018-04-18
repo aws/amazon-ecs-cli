@@ -20,6 +20,13 @@
 #  name = "github.com/x/y"
 #  version = "2.4.0"
 
+[[override]]
+  name = "github.com/docker/cli"
+  revision = "41368a84bb8b1502450b316b34c732d7bb1a103d"
+
+[[override]]
+  name = "github.com/docker/docker"
+  revision = "92309e34e42aec3a0e041403bdd3c4fc0dc20269"
 
 [[override]]
   name = "github.com/xeipuuv/gojsonschema"

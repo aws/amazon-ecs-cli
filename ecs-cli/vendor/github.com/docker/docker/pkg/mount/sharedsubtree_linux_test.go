@@ -1,6 +1,6 @@
 // +build linux
 
-package mount // import "github.com/docker/docker/pkg/mount"
+package mount
 
 import (
 	"os"
@@ -12,10 +12,6 @@ import (
 
 // nothing is propagated in or out
 func TestSubtreePrivate(t *testing.T) {
-	if os.Getuid() != 0 {
-		t.Skip("root required")
-	}
-
 	tmp := path.Join(os.TempDir(), "mount-tests")
 	if err := os.MkdirAll(tmp, 0777); err != nil {
 		t.Fatal(err)
@@ -114,10 +110,6 @@ func TestSubtreePrivate(t *testing.T) {
 // Testing that when a target is a shared mount,
 // then child mounts propagate to the source
 func TestSubtreeShared(t *testing.T) {
-	if os.Getuid() != 0 {
-		t.Skip("root required")
-	}
-
 	tmp := path.Join(os.TempDir(), "mount-tests")
 	if err := os.MkdirAll(tmp, 0777); err != nil {
 		t.Fatal(err)
@@ -186,10 +178,6 @@ func TestSubtreeShared(t *testing.T) {
 // testing that mounts to a shared source show up in the slave target,
 // and that mounts into a slave target do _not_ show up in the shared source
 func TestSubtreeSharedSlave(t *testing.T) {
-	if os.Getuid() != 0 {
-		t.Skip("root required")
-	}
-
 	tmp := path.Join(os.TempDir(), "mount-tests")
 	if err := os.MkdirAll(tmp, 0777); err != nil {
 		t.Fatal(err)
@@ -294,10 +282,6 @@ func TestSubtreeSharedSlave(t *testing.T) {
 }
 
 func TestSubtreeUnbindable(t *testing.T) {
-	if os.Getuid() != 0 {
-		t.Skip("root required")
-	}
-
 	tmp := path.Join(os.TempDir(), "mount-tests")
 	if err := os.MkdirAll(tmp, 0777); err != nil {
 		t.Fatal(err)

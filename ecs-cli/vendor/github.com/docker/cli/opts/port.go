@@ -49,7 +49,7 @@ func (p *PortOpt) Set(value string) error {
 
 			switch key {
 			case portOptProtocol:
-				if value != string(swarm.PortConfigProtocolTCP) && value != string(swarm.PortConfigProtocolUDP) && value != string(swarm.PortConfigProtocolSCTP) {
+				if value != string(swarm.PortConfigProtocolTCP) && value != string(swarm.PortConfigProtocolUDP) {
 					return fmt.Errorf("invalid protocol value %s", value)
 				}
 

@@ -1,11 +1,11 @@
-package filters // import "github.com/docker/docker/api/types/filters"
+package filters
 
 import (
 	"errors"
 	"testing"
 
-	"github.com/gotestyourself/gotestyourself/assert"
-	is "github.com/gotestyourself/gotestyourself/assert/cmp"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParseArgs(t *testing.T) {
@@ -22,10 +22,10 @@ func TestParseArgs(t *testing.T) {
 
 	for i := range flagArgs {
 		args, err = ParseFlag(flagArgs[i], args)
-		assert.NilError(t, err)
+		require.NoError(t, err)
 	}
-	assert.Check(t, is.Len(args.Get("created"), 1))
-	assert.Check(t, is.Len(args.Get("image.name"), 2))
+	assert.Len(t, args.Get("created"), 1)
+	assert.Len(t, args.Get("image.name"), 2)
 }
 
 func TestParseArgsEdgeCase(t *testing.T) {
@@ -231,7 +231,7 @@ func TestArgsMatch(t *testing.T) {
 	}
 
 	for args, field := range matches {
-		assert.Check(t, args.Match(field, source),
+		assert.True(t, args.Match(field, source),
 			"Expected field %s to match %s", field, source)
 	}
 
@@ -255,7 +255,8 @@ func TestArgsMatch(t *testing.T) {
 	}
 
 	for args, field := range differs {
-		assert.Check(t, !args.Match(field, source), "Expected field %s to not match %s", field, source)
+		assert.False(t, args.Match(field, source),
+			"Expected field %s to not match %s", field, source)
 	}
 }
 
