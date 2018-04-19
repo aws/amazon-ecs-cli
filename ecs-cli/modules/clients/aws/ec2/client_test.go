@@ -18,9 +18,7 @@ import (
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ec2/mock/sdk"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -111,12 +109,13 @@ func TestDescribeInstancesErrorCaseWithEmptyReservation(t *testing.T) {
 
 func setupTest(t *testing.T) (*mock_ec2iface.MockEC2API, EC2Client) {
 	ctrl := gomock.NewController(t)
+	// TODO will having defer within scope of this function call the
+	// expectations on the mocks correctly? Might need to move out of this
+	// function (see setup function in other client tests)
 	defer ctrl.Finish()
 	mockEC2 := mock_ec2iface.NewMockEC2API(ctrl)
-	mockSession, err := session.NewSession()
-	assert.NoError(t, err, "Unexpected error in creating session")
 
-	client := newClient(&config.CommandConfig{Session: mockSession}, mockEC2)
+	client := newClient(mockEC2)
 
 	return mockEC2, client
 }
