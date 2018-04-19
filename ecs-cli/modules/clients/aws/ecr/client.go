@@ -16,7 +16,6 @@ package ecr
 import (
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
@@ -24,6 +23,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecr/ecriface"
 	login "github.com/awslabs/amazon-ecr-credential-helper/ecr-login/api"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -67,9 +67,9 @@ func NewClient(config *config.CommandConfig) Client {
 
 func newClient(config *config.CommandConfig, client ecriface.ECRAPI, loginClient login.Client) Client {
 	return &ecrClient{
+		config:      config,
 		client:      client,
 		loginClient: loginClient,
-		config:      config,
 	}
 }
 
