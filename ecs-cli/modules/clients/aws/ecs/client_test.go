@@ -77,8 +77,7 @@ func TestNewECSClientWithRegion(t *testing.T) {
 	config, err := config.NewCommandConfig(context, rdwr)
 	assert.NoError(t, err, "Unexpected error creating opts")
 
-	client := NewECSClient()
-	client.Initialize(config)
+	client := NewECSClient(config)
 
 	// test for UserAgent
 	realClient, ok := client.(*ecsClient).client.(*ecs.ECS)
@@ -277,7 +276,7 @@ func TestRegisterTaskDefinitionIfNeededTDBecomesInactive(t *testing.T) {
 }
 
 func TestRegisterTaskDefinitionIfNeededFamilyNameNotProvided(t *testing.T) {
-	_, _, client, ctrl := setupTestController(t, nil)
+	_, _, client, ctrl := setupTestController(t, getDefaultCLIConfigParams(t))
 	defer ctrl.Finish()
 
 	_, err := client.RegisterTaskDefinitionIfNeeded(&ecs.RegisterTaskDefinitionInput{}, nil)
@@ -540,7 +539,7 @@ func TestRunTask_WithTaskNetworking(t *testing.T) {
 }
 
 func TestIsActiveCluster(t *testing.T) {
-	mockEcs, _, client, ctrl := setupTestController(t, nil)
+	mockEcs, _, client, ctrl := setupTestController(t, getDefaultCLIConfigParams(t))
 	defer ctrl.Finish()
 
 	// API error
@@ -605,7 +604,7 @@ func TestGetEC2InstanceIDs(t *testing.T) {
 }
 
 func TestGetEC2InstanceIDsWithEmptyArns(t *testing.T) {
-	_, _, client, ctrl := setupTestController(t, nil)
+	_, _, client, ctrl := setupTestController(t, getDefaultCLIConfigParams(t))
 	defer ctrl.Finish()
 
 	containerToEC2InstanceMap, err := client.GetEC2InstanceIDs([]*string{})
@@ -650,18 +649,12 @@ func TestGetEC2InstanceIDsErrorCase(t *testing.T) {
 /*
 	Helpers
 */
-func setupTestController(t *testing.T, configParams *config.CommandConfig) (*mock_ecsiface.MockECSAPI, *mock_cache.MockCache,
-	ECSClient, *gomock.Controller) {
+func setupTestController(t *testing.T, config *config.CommandConfig) (*mock_ecsiface.MockECSAPI, *mock_cache.MockCache, ECSClient, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 	mockEcs := mock_ecsiface.NewMockECSAPI(ctrl)
 	mockCache := mock_cache.NewMockCache(ctrl)
-	client := NewECSClient()
 
-	if configParams != nil {
-		client.Initialize(configParams)
-	}
-
-	client.(*ecsClient).client = mockEcs
+	client := newClient(config, mockEcs)
 
 	return mockEcs, mockCache, client, ctrl
 }
@@ -694,5 +687,5 @@ func getCLIConfigParamsWithLaunchType(t *testing.T, launchType string) *config.C
 func setDefaultAWSEnvVariables() {
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "secret")
-	os.Setenv("AWS_REGION", "region1")
+	os.Setenv("AWS_REGION", "us-east-1")
 }

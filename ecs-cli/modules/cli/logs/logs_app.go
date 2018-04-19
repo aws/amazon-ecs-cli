@@ -62,8 +62,7 @@ func Logs(c *cli.Context) {
 		logrus.Fatal("Error executing 'logs': ", err)
 	}
 
-	ecsClient := ecsclient.NewECSClient()
-	ecsClient.Initialize(commandConfig)
+	ecsClient := ecsclient.NewECSClient(commandConfig)
 	request, logRegion, err := logsRequest(c, ecsClient, commandConfig)
 	if err != nil {
 		logrus.Fatal("Error executing 'logs': ", err)

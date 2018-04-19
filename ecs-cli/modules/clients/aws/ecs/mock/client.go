@@ -18,7 +18,6 @@ package mock_ecs
 
 import (
 	ecs0 "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
-	config "github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	cache "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
 	ecs "github.com/aws/aws-sdk-go/service/ecs"
 	gomock "github.com/golang/mock/gomock"
@@ -139,14 +138,6 @@ func (_m *MockECSClient) GetTasksPages(_param0 *ecs.ListTasksInput, _param1 ecs0
 
 func (_mr *_MockECSClientRecorder) GetTasksPages(arg0, arg1 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetTasksPages", arg0, arg1)
-}
-
-func (_m *MockECSClient) Initialize(_param0 *config.CommandConfig) {
-	_m.ctrl.Call(_m, "Initialize", _param0)
-}
-
-func (_mr *_MockECSClientRecorder) Initialize(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Initialize", arg0)
 }
 
 func (_m *MockECSClient) IsActiveCluster(_param0 string) (bool, error) {

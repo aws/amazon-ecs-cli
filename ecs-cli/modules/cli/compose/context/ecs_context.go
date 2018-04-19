@@ -51,9 +51,7 @@ type ECSContext struct {
 // Open populates the ECSContext with new ECS and EC2 Clients
 func (ecsContext *ECSContext) Open() error {
 	// setup AWS service clients
-	ecsContext.ECSClient = ecsclient.NewECSClient()
-	ecsContext.ECSClient.Initialize(ecsContext.CommandConfig)
-
+	ecsContext.ECSClient = ecsclient.NewECSClient(ecsContext.CommandConfig)
 	ecsContext.EC2Client = ec2client.NewEC2Client(ecsContext.CommandConfig)
 
 	return nil
