@@ -44,11 +44,11 @@ func createDescribeStacksOutput(status string) *cloudformation.DescribeStacksOut
 	}
 }
 
-func describeStackResourceOutput(logicalId string, physicalId string) *cloudformation.DescribeStackResourcesOutput{
+func describeStackResourceOutput(logicalId string, physicalId string) *cloudformation.DescribeStackResourcesOutput {
 	output := &cloudformation.DescribeStackResourcesOutput{}
-	output.StackResources= []*cloudformation.StackResource{
+	output.StackResources = []*cloudformation.StackResource{
 		&cloudformation.StackResource{
-			LogicalResourceId: aws.String(logicalId),
+			LogicalResourceId:  aws.String(logicalId),
 			PhysicalResourceId: aws.String(physicalId),
 		},
 	}
@@ -57,11 +57,7 @@ func describeStackResourceOutput(logicalId string, physicalId string) *cloudform
 }
 
 func TestWaitUntilCreateCompletes(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockCfn := mock_cloudformationiface.NewMockCloudFormationAPI(ctrl)
-	cfnClient := NewCloudformationClient()
-	cfnClient.(*cloudformationClient).client = mockCfn
-	cfnClient.(*cloudformationClient).sleeper = &noopsleeper{}
+	mockCfn, cfnClient, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
 	eventCreateComplete := createStackEvent(cloudformation.ResourceStatusCreateComplete)
@@ -74,11 +70,7 @@ func TestWaitUntilCreateCompletes(t *testing.T) {
 }
 
 func TestWaitUntilCreateCompleteFails(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockCfn := mock_cloudformationiface.NewMockCloudFormationAPI(ctrl)
-	cfnClient := NewCloudformationClient()
-	cfnClient.(*cloudformationClient).client = mockCfn
-	cfnClient.(*cloudformationClient).sleeper = &noopsleeper{}
+	mockCfn, cfnClient, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
 	eventCreateInProgress := createStackEvent(cloudformation.ResourceStatusCreateInProgress)
@@ -94,11 +86,7 @@ func TestWaitUntilCreateCompleteFails(t *testing.T) {
 }
 
 func TestWaitUntilDeleteCompletes(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockCfn := mock_cloudformationiface.NewMockCloudFormationAPI(ctrl)
-	cfnClient := NewCloudformationClient()
-	cfnClient.(*cloudformationClient).client = mockCfn
-	cfnClient.(*cloudformationClient).sleeper = &noopsleeper{}
+	mockCfn, cfnClient, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
 	eventDeleteComplete := createStackEvent(cloudformation.ResourceStatusDeleteComplete)
@@ -111,11 +99,7 @@ func TestWaitUntilDeleteCompletes(t *testing.T) {
 }
 
 func TestWaitUntilDeleteCompleteFails(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockCfn := mock_cloudformationiface.NewMockCloudFormationAPI(ctrl)
-	cfnClient := NewCloudformationClient()
-	cfnClient.(*cloudformationClient).client = mockCfn
-	cfnClient.(*cloudformationClient).sleeper = &noopsleeper{}
+	mockCfn, cfnClient, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
 	eventDeleteInProgress := createStackEvent(cloudformation.ResourceStatusDeleteInProgress)
@@ -131,11 +115,7 @@ func TestWaitUntilDeleteCompleteFails(t *testing.T) {
 }
 
 func TestWaitUntilUpdateCompletes(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockCfn := mock_cloudformationiface.NewMockCloudFormationAPI(ctrl)
-	cfnClient := NewCloudformationClient()
-	cfnClient.(*cloudformationClient).client = mockCfn
-	cfnClient.(*cloudformationClient).sleeper = &noopsleeper{}
+	mockCfn, cfnClient, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
 	eventInProgress := createStackEvent(cloudformation.ResourceStatusUpdateInProgress)
@@ -151,11 +131,7 @@ func TestWaitUntilUpdateCompletes(t *testing.T) {
 }
 
 func TestWaitUntilUpdateCompleteFails(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockCfn := mock_cloudformationiface.NewMockCloudFormationAPI(ctrl)
-	cfnClient := NewCloudformationClient()
-	cfnClient.(*cloudformationClient).client = mockCfn
-	cfnClient.(*cloudformationClient).sleeper = &noopsleeper{}
+	mockCfn, cfnClient, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
 	eventInProgress := createStackEvent(cloudformation.ResourceStatusUpdateInProgress)
@@ -171,11 +147,7 @@ func TestWaitUntilUpdateCompleteFails(t *testing.T) {
 }
 
 func TestWaitDescribeEventsError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockCfn := mock_cloudformationiface.NewMockCloudFormationAPI(ctrl)
-	cfnClient := NewCloudformationClient()
-	cfnClient.(*cloudformationClient).client = mockCfn
-	cfnClient.(*cloudformationClient).sleeper = &noopsleeper{}
+	mockCfn, cfnClient, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
 	mockCfn.EXPECT().DescribeStackEvents(gomock.Any()).AnyTimes().Return(nil, errors.New(""))
@@ -197,11 +169,7 @@ func TestWaitDescribeEventsError(t *testing.T) {
 }
 
 func TestWaitExhaustRetries(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockCfn := mock_cloudformationiface.NewMockCloudFormationAPI(ctrl)
-	cfnClient := NewCloudformationClient()
-	cfnClient.(*cloudformationClient).client = mockCfn
-	cfnClient.(*cloudformationClient).sleeper = &noopsleeper{}
+	mockCfn, cfnClient, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
 	eventCreateInProgress := createStackEvent(cloudformation.ResourceStatusCreateInProgress)
@@ -225,11 +193,7 @@ func TestWaitExhaustRetries(t *testing.T) {
 }
 
 func TestWaitDescribeStackFailure(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockCfn := mock_cloudformationiface.NewMockCloudFormationAPI(ctrl)
-	cfnClient := NewCloudformationClient()
-	cfnClient.(*cloudformationClient).client = mockCfn
-	cfnClient.(*cloudformationClient).sleeper = &noopsleeper{}
+	mockCfn, cfnClient, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
 	// Create some stack events for firstStackEventWithFailure() to process.
@@ -317,10 +281,7 @@ func TestFailureInUpdateEvent(t *testing.T) {
 }
 
 func TestValidateStackExists(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockCfn := mock_cloudformationiface.NewMockCloudFormationAPI(ctrl)
-	cfnClient := NewCloudformationClient()
-	cfnClient.(*cloudformationClient).client = mockCfn
+	mockCfn, cfnClient, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
 	mockCfn.EXPECT().DescribeStacks(gomock.Any()).Return(nil, errors.New("describe-stacks error"))
@@ -337,10 +298,7 @@ func TestValidateStackExists(t *testing.T) {
 }
 
 func TestDescribeNetworkResources(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockCfn := mock_cloudformationiface.NewMockCloudFormationAPI(ctrl)
-	cfnClient := NewCloudformationClient()
-	cfnClient.(*cloudformationClient).client = mockCfn
+	mockCfn, cfnClient, ctrl := setupTestController(t)
 	defer ctrl.Finish()
 
 	mockCfn.EXPECT().DescribeStackResources(gomock.Any()).Return(describeStackResourceOutput(VPCLogicalResourceId, "vpc-feedface"), nil)
@@ -352,4 +310,15 @@ func TestDescribeNetworkResources(t *testing.T) {
 	if err != nil {
 		t.Error("Unexpected error describing network resources", err)
 	}
+}
+
+func setupTestController(t *testing.T) (*mock_cloudformationiface.MockCloudFormationAPI, CloudformationClient, *gomock.Controller) {
+	ctrl := gomock.NewController(t)
+	// defer ctrl.Finish()
+	mockCfn := mock_cloudformationiface.NewMockCloudFormationAPI(ctrl)
+	cfnClient := NewCloudformationClient()
+	cfnClient.(*cloudformationClient).client = mockCfn
+	cfnClient.(*cloudformationClient).sleeper = &noopsleeper{}
+
+	return mockCfn, cfnClient, ctrl
 }
