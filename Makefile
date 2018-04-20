@@ -18,7 +18,11 @@ all: build
 SOURCEDIR := ./ecs-cli
 SOURCES := $(shell find $(SOURCEDIR) -name '*.go')
 GENSOURCES := $(shell for file in `git ls-files $(SOURCEDIR)/modules` ; do if grep -ql '//go:generate' $$file ; then find `dirname $$file` -name '*.go' ! -path '*/license/*' ! -path '*/mock/*' ; fi ; done)
-GENOUT := $(shell for file in `git ls-files ./ecs-cli/modules` ; do for out in `grep  '//go:generate' $$file | cut -d' ' -f5` ; do if [ ! -z "$$out" ] ; then echo `dirname $$file`/$$out ; fi  ;  done ; done)
+LATEST_GENSOURCE := $(shell ls -t $(GENSOURCES) | head -1)
+GENOUT := $(shell for file in `git ls-files $(SOURCEDIR)/modules` ; do for out in `grep  '//go:generate' $$file | cut -d' ' -f5` ; do if [ ! -z "$$out" ] && ( [ ! -e `dirname $$file`/$$out ] || test $(LATEST_GENSOURCE) -nt `dirname $$file`/$$out ) ; then echo `dirname $$file`/$$out ; fi ;  done ; done)
+GENOUT := $(firstword $(GENOUT))
+#$(info GENOUT="$(GENOUT) $(LATEST_GENSOURCE)") 
+
 LOCAL_BINARY := bin/local/ecs-cli
 LINUX_BINARY := bin/linux-amd64/ecs-cli
 DARWIN_BINARY := bin/darwin-amd64/ecs-cli
@@ -39,9 +43,11 @@ test: generate
 .PHONY: generate
 generate: $(GENOUT)
 
-$(GENOUT): $(GENSOURCES) $(SOURCEDIR)/Gopkg.lock
+ifneq "$(GENOUT)" ""
+$(GENOUT): $(LATEST_GENSOURCE) $(SOURCEDIR)/Gopkg.lock
 #	 $(info GENOUT="$(GENSOURCES)") 
 	PATH=$(LOCAL_PATH) ./scripts/top_mockgen.sh
+endif
 
 .PHONY: generate-deps
 generate-deps:
