@@ -1,10 +1,9 @@
 ROOT := $(shell pwd)
 MOCKGEN := vendor/github.com/golang/mock/mockgen
 MOCKFQ := $(ROOT)/$(MOCKGEN)
-all: generate-deps
+all: $(ROOT)/Gopkg.lock
 
-.PHONY: generate-deps
-generate-deps: $(GOPATH)/bin/goimports $(GOPATH)/bin/dep
+$(ROOT)/Gopkg.lock: $(ROOT)/Gopkg.toml $(GOPATH)/bin/goimports $(GOPATH)/bin/dep
 	dep ensure
 	-rm $(ROOT)/../scripts/mockgen 2> /dev/null
 	set -e ; cd $(MOCKFQ) ; go build ; cd $(ROOT)/../scripts ; ln -s ../$(shell basename $(ROOT))/$(MOCKGEN)/mockgen .

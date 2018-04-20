@@ -577,6 +577,50 @@ func (mr *MockSSMAPIMockRecorder) DeleteDocumentWithContext(arg0, arg1 interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDocumentWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DeleteDocumentWithContext), varargs...)
 }
 
+// DeleteInventory mocks base method
+func (m *MockSSMAPI) DeleteInventory(arg0 *ssm.DeleteInventoryInput) (*ssm.DeleteInventoryOutput, error) {
+	ret := m.ctrl.Call(m, "DeleteInventory", arg0)
+	ret0, _ := ret[0].(*ssm.DeleteInventoryOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteInventory indicates an expected call of DeleteInventory
+func (mr *MockSSMAPIMockRecorder) DeleteInventory(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteInventory", reflect.TypeOf((*MockSSMAPI)(nil).DeleteInventory), arg0)
+}
+
+// DeleteInventoryRequest mocks base method
+func (m *MockSSMAPI) DeleteInventoryRequest(arg0 *ssm.DeleteInventoryInput) (*request.Request, *ssm.DeleteInventoryOutput) {
+	ret := m.ctrl.Call(m, "DeleteInventoryRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ssm.DeleteInventoryOutput)
+	return ret0, ret1
+}
+
+// DeleteInventoryRequest indicates an expected call of DeleteInventoryRequest
+func (mr *MockSSMAPIMockRecorder) DeleteInventoryRequest(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteInventoryRequest", reflect.TypeOf((*MockSSMAPI)(nil).DeleteInventoryRequest), arg0)
+}
+
+// DeleteInventoryWithContext mocks base method
+func (m *MockSSMAPI) DeleteInventoryWithContext(arg0 aws.Context, arg1 *ssm.DeleteInventoryInput, arg2 ...request.Option) (*ssm.DeleteInventoryOutput, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteInventoryWithContext", varargs...)
+	ret0, _ := ret[0].(*ssm.DeleteInventoryOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteInventoryWithContext indicates an expected call of DeleteInventoryWithContext
+func (mr *MockSSMAPIMockRecorder) DeleteInventoryWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteInventoryWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DeleteInventoryWithContext), varargs...)
+}
+
 // DeleteMaintenanceWindow mocks base method
 func (m *MockSSMAPI) DeleteMaintenanceWindow(arg0 *ssm.DeleteMaintenanceWindowInput) (*ssm.DeleteMaintenanceWindowOutput, error) {
 	ret := m.ctrl.Call(m, "DeleteMaintenanceWindow", arg0)
@@ -1645,6 +1689,50 @@ func (m *MockSSMAPI) DescribeInstancePatchesWithContext(arg0 aws.Context, arg1 *
 func (mr *MockSSMAPIMockRecorder) DescribeInstancePatchesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatchesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatchesWithContext), varargs...)
+}
+
+// DescribeInventoryDeletions mocks base method
+func (m *MockSSMAPI) DescribeInventoryDeletions(arg0 *ssm.DescribeInventoryDeletionsInput) (*ssm.DescribeInventoryDeletionsOutput, error) {
+	ret := m.ctrl.Call(m, "DescribeInventoryDeletions", arg0)
+	ret0, _ := ret[0].(*ssm.DescribeInventoryDeletionsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeInventoryDeletions indicates an expected call of DescribeInventoryDeletions
+func (mr *MockSSMAPIMockRecorder) DescribeInventoryDeletions(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInventoryDeletions", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInventoryDeletions), arg0)
+}
+
+// DescribeInventoryDeletionsRequest mocks base method
+func (m *MockSSMAPI) DescribeInventoryDeletionsRequest(arg0 *ssm.DescribeInventoryDeletionsInput) (*request.Request, *ssm.DescribeInventoryDeletionsOutput) {
+	ret := m.ctrl.Call(m, "DescribeInventoryDeletionsRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ssm.DescribeInventoryDeletionsOutput)
+	return ret0, ret1
+}
+
+// DescribeInventoryDeletionsRequest indicates an expected call of DescribeInventoryDeletionsRequest
+func (mr *MockSSMAPIMockRecorder) DescribeInventoryDeletionsRequest(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInventoryDeletionsRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInventoryDeletionsRequest), arg0)
+}
+
+// DescribeInventoryDeletionsWithContext mocks base method
+func (m *MockSSMAPI) DescribeInventoryDeletionsWithContext(arg0 aws.Context, arg1 *ssm.DescribeInventoryDeletionsInput, arg2 ...request.Option) (*ssm.DescribeInventoryDeletionsOutput, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeInventoryDeletionsWithContext", varargs...)
+	ret0, _ := ret[0].(*ssm.DescribeInventoryDeletionsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeInventoryDeletionsWithContext indicates an expected call of DescribeInventoryDeletionsWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeInventoryDeletionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInventoryDeletionsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInventoryDeletionsWithContext), varargs...)
 }
 
 // DescribeMaintenanceWindowExecutionTaskInvocations mocks base method
