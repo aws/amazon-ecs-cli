@@ -19,10 +19,10 @@ set -e
 package=${1?Must provide package}
 interfaces=${2?Must provide interface names}
 outputfile=${3?Must provide an output file}
-PROJECT_VENDOR="github.com\/aws\/amazon-ecs-cli\/ecs-cli\/vendor\/"
 
 export PATH="${GOPATH//://bin:}/bin:$PATH"
 
+wd="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 data=$(
 cat << EOF
 // Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
@@ -38,10 +38,9 @@ cat << EOF
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-$(mockgen "$package" "$interfaces")
+$($wd/mockgen "$package" "$interfaces")
 EOF
 )
 
-# Explicitly removing the vendor directory from the mock imports
-# https://github.com/golang/mock/issues/30
-echo "$data" | sed -e "s/${PROJECT_VENDOR}//" | goimports > "${outputfile}"
+mkdir -p ./$(dirname $outputfile)
+echo "$data" | goimports > "${outputfile}"

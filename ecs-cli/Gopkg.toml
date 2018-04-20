@@ -20,6 +20,17 @@
 #  name = "github.com/x/y"
 #  version = "2.4.0"
 
+[[override]]
+  name = "github.com/docker/cli"
+  revision = "41368a84bb8b1502450b316b34c732d7bb1a103d"
+
+[[override]]
+  name = "github.com/docker/docker"
+  revision = "92309e34e42aec3a0e041403bdd3c4fc0dc20269"
+
+[[override]]
+  name = "github.com/xeipuuv/gojsonschema"
+  revision = "0c8571ac0ce161a5feb57375a9cdf148c98c0f70"
 
 [[constraint]]
   name = "github.com/aws/aws-sdk-go"
@@ -38,10 +49,6 @@
   revision = "e30f1e79f3cd72542f2026ceec18d3bd67ab859c"
 
 [[constraint]]
-  name = "github.com/docker/libcompose"
-  revision = "57bd716502dcbe1799f026148016022b0f3b989c"
-
-[[constraint]]
   name = "github.com/flynn/go-shlex"
   revision = "3f9db97f856818214da2e1057f8ad84803971cff"
 
@@ -55,7 +62,7 @@
 
 [[constraint]]
   name = "github.com/golang/mock"
-  revision = "bd3c8e81be01eef76d4b503f5e687d2d1354d2d9"
+  version = "1.1.1"
 
 [[constraint]]
   name = "github.com/pkg/errors"

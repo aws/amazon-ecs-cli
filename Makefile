@@ -31,18 +31,16 @@ $(LOCAL_BINARY): $(SOURCES)
 	@echo "Built ecs-cli"
 
 .PHONY: test
-test:
-	env -i PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT go test -timeout=120s -v -cover ./ecs-cli/modules/...
+test: generate
+	env -i PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT go test -timeout=120s -v -cover $(SOURCEDIR)/modules/...
 
 .PHONY: generate
-generate: $(SOURCES)
-	PATH=$(LOCAL_PATH) go generate ./ecs-cli/modules/...
+generate: $(SOURCES) generate-deps
+	PATH=$(LOCAL_PATH) ./scripts/top_mockgen.sh
 
 .PHONY: generate-deps
 generate-deps:
-	go get github.com/tools/godep
-	go get github.com/golang/mock/mockgen
-	go get golang.org/x/tools/cmd/goimports
+	$(MAKE) -C $(SOURCEDIR) all
 
 .PHONY: windows-build
 windows-build: $(WINDOWS_BINARY)
