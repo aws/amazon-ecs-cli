@@ -24,7 +24,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock/sdk"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache/mocks"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/version"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/request"

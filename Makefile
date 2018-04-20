@@ -17,7 +17,7 @@ all: build
 
 SOURCEDIR := ./ecs-cli
 SOURCES := $(shell find $(SOURCEDIR) -name '*.go')
-GENSOURCES := $(shell for file in `git ls-files $(SOURCEDIR)/modules` ; do if grep -ql '//go:generate' $$file ; then find `dirname $$file` -maxdepth 1 -name '*.go' ! -path '*/license/*' ; fi ; done)
+GENSOURCES := $(shell for file in `git ls-files $(SOURCEDIR)/modules` ; do if grep -ql '//go:generate' $$file ; then find `dirname $$file` -name '*.go' ! -path '*/license/*' ! -path '*/mock/*' ; fi ; done)
 GENOUT := $(shell for file in `git ls-files ./ecs-cli/modules` ; do for out in `grep  '//go:generate' $$file | cut -d' ' -f5` ; do if [ ! -z "$$out" ] ; then echo `dirname $$file`/$$out ; fi  ;  done ; done)
 LOCAL_BINARY := bin/local/ecs-cli
 LINUX_BINARY := bin/linux-amd64/ecs-cli
@@ -40,7 +40,7 @@ test: generate
 generate: $(GENOUT)
 
 $(GENOUT): $(GENSOURCES) $(SOURCEDIR)/Gopkg.lock
-# $(info GENOUT="$(GENOUT)") 
+#	 $(info GENOUT="$(GENSOURCES)") 
 	PATH=$(LOCAL_PATH) ./scripts/top_mockgen.sh
 
 .PHONY: generate-deps

@@ -13,4 +13,4 @@
 
 package cache
 
-//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache Cache mocks/cache.go
+//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache Cache mock/cache.go
