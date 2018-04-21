@@ -21,7 +21,6 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	ecrclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecr"
 	stsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/sts"
 	dockerclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/docker"
@@ -31,6 +30,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecr"
 	units "github.com/docker/go-units"
 	docker "github.com/fsouza/go-dockerclient"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
@@ -301,7 +301,7 @@ func splitImageName(image string, seperatorRegExp string,
 	format string) (registry string, repository string, tag string, err error) {
 
 	re := regexp.MustCompile(
-		`^(?:([0-9A-Za-z.\-]+)/)?` + // repository uri (Optional)
+		`^(?:((?:[a-zA-Z0-9][a-zA-Z0-9-_]*)\.dkr\.ecr\.[a-zA-Z0-9\-_]+\.amazonaws\.com(?:\.cn)?)/)?` + // repository uri (Optional)
 			`([0-9a-z\-_/]+)` + // repository
 			`(?:` + seperatorRegExp + `([0-9A-Za-z_.\-:]+))?$`) // tag (Optional)
 	matches := re.FindStringSubmatch(image)

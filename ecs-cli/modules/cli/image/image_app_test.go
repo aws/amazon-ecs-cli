@@ -34,13 +34,14 @@ import (
 )
 
 const (
-	repository    = "repository"
-	tag           = "tag-v0.1.0"
-	image         = repository + ":" + tag
-	registry      = "registry"
-	registryID    = "123456789"
-	repositoryURI = registry + "/" + repository
-	clusterName   = "defaultCluster"
+	repository          = "repository"
+	repositoryWithSlash = "hi/repo"
+	tag                 = "tag-v0.1.0"
+	image               = repository + ":" + tag
+	registry            = "registry"
+	registryID          = "123456789"
+	repositoryURI       = registry + "/" + repository
+	clusterName         = "defaultCluster"
 )
 
 type mockReadWriter struct {
@@ -349,6 +350,71 @@ func TestSplitImageNameWithSha256(t *testing.T) {
 	assert.Empty(t, observedRegistryURI, "RegistryURI should be empty")
 	assert.Equal(t, repository, observedRepo, "Repository should match")
 	assert.Equal(t, sha, observedTag, "Tag should match")
+	assert.NoError(t, err, "Error splitting image name")
+}
+
+func TestSplitImageNameWithSlashInImageName(t *testing.T) {
+	expectedImage := repositoryWithSlash
+	observedRegistryURI, observedRepo, observedTag, err := splitImageName(expectedImage, "[:|@]", "format")
+
+	assert.Empty(t, observedRegistryURI, "RegistryURI should be empty")
+	assert.Equal(t, repositoryWithSlash, observedRepo, "Repository should match")
+	assert.Empty(t, observedTag, "Tag should be empty")
+	assert.NoError(t, err, "Error splitting image name")
+}
+
+func TestSplitImageNameWithSlashInImageNameAndSha256(t *testing.T) {
+	sha := "sha256:0b3787ac21ffb4edbd6710e0e60f991d5ded8d8a4f558209ef5987f73db4211a"
+	expectedImage := repositoryWithSlash + "@" + sha
+	observedRegistryURI, observedRepo, observedTag, err := splitImageName(expectedImage, "[:|@]", "format")
+
+	assert.Empty(t, observedRegistryURI, "RegistryURI should be empty")
+	assert.Equal(t, repositoryWithSlash, observedRepo, "Repository should match")
+	assert.Equal(t, sha, observedTag, "Tag should match")
+	assert.NoError(t, err, "Error splitting image name")
+}
+
+func TestSplitImageNameWithSlashInImageNameAndSha256AndURI(t *testing.T) {
+	sha := "sha256:0b3787ac21ffb4edbd6710e0e60f991d5ded8d8a4f558209ef5987f73db4211a"
+	uri := "012345678912.dkr.ecr.us-east-1.amazonaws.com"
+	expectedImage := uri + "/" + repositoryWithSlash + "@" + sha
+	observedRegistryURI, observedRepo, observedTag, err := splitImageName(expectedImage, "[:|@]", "format")
+
+	assert.Equal(t, uri, observedRegistryURI, "RegistryURI should match")
+	assert.Equal(t, repositoryWithSlash, observedRepo, "Repository should match")
+	assert.Equal(t, sha, observedTag, "Tag should match")
+	assert.NoError(t, err, "Error splitting image name")
+}
+
+func TestSplitImageNameWithSlashInImageNameAndTag(t *testing.T) {
+	expectedImage := repositoryWithSlash + ":" + tag
+	observedRegistryURI, observedRepo, observedTag, err := splitImageName(expectedImage, "[:|@]", "format")
+
+	assert.Empty(t, observedRegistryURI, "RegistryURI should be empty")
+	assert.Equal(t, repositoryWithSlash, observedRepo, "Repository should match")
+	assert.Equal(t, tag, observedTag, "Expected tag to match")
+	assert.NoError(t, err, "Error splitting image name")
+}
+
+func TestSplitImageNameWithSlashInImageNameAndURI(t *testing.T) {
+	uri := "012345678912.dkr.ecr.us-east-1.amazonaws.com"
+	expectedImage := uri + "/" + repositoryWithSlash
+	observedRegistryURI, observedRepo, observedTag, err := splitImageName(expectedImage, "[:|@]", "format")
+
+	assert.Equal(t, uri, observedRegistryURI, "RegistryURI should match")
+	assert.Equal(t, repositoryWithSlash, observedRepo, "Repository should match")
+	assert.Empty(t, observedTag, "Tag should be empty")
+	assert.NoError(t, err, "Error splitting image name")
+}
+
+func TestSplitImageNameWithSlashInImageNameAndURIAndTag(t *testing.T) {
+	uri := "012345678912.dkr.ecr.us-east-1.amazonaws.com"
+	expectedImage := uri + "/" + repositoryWithSlash + ":" + tag
+	observedRegistryURI, observedRepo, observedTag, err := splitImageName(expectedImage, "[:|@]", "format")
+
+	assert.Equal(t, uri, observedRegistryURI, "RegistryURI should match")
+	assert.Equal(t, repositoryWithSlash, observedRepo, "Repository should match")
+	assert.Equal(t, tag, observedTag, "Expected tag to match")
 	assert.NoError(t, err, "Error splitting image name")
 }
 
