@@ -55,6 +55,23 @@ func init() {
 	}
 }
 
+type AWSClients struct {
+	ECSClient ecsclient.ECSClient
+	CFNClient cloudformation.CloudformationClient
+	SSMClient ssm.Client
+}
+
+func newAWSClients(commandConfig *config.CommandConfig) *AWSClients {
+	ecsClient := ecsclient.NewECSClient(commandConfig)
+	cfnClient := cloudformation.NewCloudformationClient(commandConfig)
+	ssmClient := ssm.NewSSMClient(commandConfig)
+
+	return &AWSClients{ecsClient, cfnClient, ssmClient}
+}
+
+///////////////////////
+// Public Functions //
+/////////////////////
 func ClusterUp(c *cli.Context) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
@@ -133,53 +150,12 @@ func ClusterPS(c *cli.Context) {
 	os.Stdout.WriteString(infoSet.String(container.ContainerInfoColumns, displayTitle))
 }
 
-// If param1 exists, param2 is not allowed.
-func validateMutuallyExclusiveParams(cfnParams *cloudformation.CfnStackParams, param1, param2 string) bool {
-	if _, err := cfnParams.GetParameter(param1); err != nil {
-		return false
-	}
-	if _, err := cfnParams.GetParameter(param2); err != cloudformation.ParameterNotFoundError {
-		return true
-	}
-	return false
-}
 
-// If param1 exists, param2 is required.
-func validateDependentParams(cfnParams *cloudformation.CfnStackParams, param1, param2 string) bool {
-	if _, err := cfnParams.GetParameter(param1); err != nil {
-		return false
-	}
-	if _, err := cfnParams.GetParameter(param2); err == cloudformation.ParameterNotFoundError {
-		return true
-	}
-	return false
-}
+///////////////////////
+// Helper functions //
+//////////////////////
 
-func validateCommaSeparatedParam(cfnParams *cloudformation.CfnStackParams, param string, minLength, maxLength int) bool {
-	values, err := cfnParams.GetParameter(param)
-	if err != nil {
-		return false
-	}
-	if splitValues := strings.Split(*values.ParameterValue, ","); len(splitValues) < minLength || len(splitValues) > maxLength {
-		return true
-	}
-	return false
-}
-
-type AWSClients struct {
-	ECSClient ecsclient.ECSClient
-	CFNClient cloudformation.CloudformationClient
-	SSMClient ssm.Client
-}
-
-func newAWSClients(commandConfig *config.CommandConfig) *AWSClients {
-	ecsClient := ecsclient.NewECSClient(commandConfig)
-	cfnClient := cloudformation.NewCloudformationClient(commandConfig)
-	ssmClient := ssm.NewSSMClient(commandConfig)
-
-	return &AWSClients{ecsClient, cfnClient, ssmClient}
-}
-
+// createCluster executes the 'up' command.
 func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *config.CommandConfig) error {
 	var err error
 
@@ -358,6 +334,7 @@ var deleteCFNStack = func(cfnClient cloudformation.CloudformationClient, command
 	return nil
 }
 
+// deleteCluster executes the 'down' command.
 func deleteCluster(context *cli.Context, awsClients *AWSClients, commandConfig *config.CommandConfig) error {
 	// Validate cli flags
 	if !isForceSet(context) {
@@ -438,6 +415,8 @@ func scaleCluster(context *cli.Context, awsClients *AWSClients, commandConfig *c
 	return cfnClient.WaitUntilUpdateComplete(stackName)
 }
 
+
+// createPS executes the 'ps' command.
 func clusterPS(context *cli.Context, rdwr config.ReadWriter) (project.InfoSet, error) {
 	commandConfig, err := newCommandConfig(context, rdwr)
 	if err != nil {
@@ -542,4 +521,37 @@ func getClusterSize(context *cli.Context) (string, error) {
 	}
 
 	return size, nil
+}
+
+// If param1 exists, param2 is not allowed.
+func validateMutuallyExclusiveParams(cfnParams *cloudformation.CfnStackParams, param1, param2 string) bool {
+	if _, err := cfnParams.GetParameter(param1); err != nil {
+		return false
+	}
+	if _, err := cfnParams.GetParameter(param2); err != cloudformation.ParameterNotFoundError {
+		return true
+	}
+	return false
+}
+
+// If param1 exists, param2 is required.
+func validateDependentParams(cfnParams *cloudformation.CfnStackParams, param1, param2 string) bool {
+	if _, err := cfnParams.GetParameter(param1); err != nil {
+		return false
+	}
+	if _, err := cfnParams.GetParameter(param2); err == cloudformation.ParameterNotFoundError {
+		return true
+	}
+	return false
+}
+
+func validateCommaSeparatedParam(cfnParams *cloudformation.CfnStackParams, param string, minLength, maxLength int) bool {
+	values, err := cfnParams.GetParameter(param)
+	if err != nil {
+		return false
+	}
+	if splitValues := strings.Split(*values.ParameterValue, ","); len(splitValues) < minLength || len(splitValues) > maxLength {
+		return true
+	}
+	return false
 }
