@@ -19,9 +19,12 @@ import (
 	"time"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudformation/mock/sdk"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 )
 
 type noopsleeper struct{}
@@ -316,9 +319,12 @@ func setupTestController(t *testing.T) (*mock_cloudformationiface.MockCloudForma
 	ctrl := gomock.NewController(t)
 	// defer ctrl.Finish()
 	mockCfn := mock_cloudformationiface.NewMockCloudFormationAPI(ctrl)
-	cfnClient := NewCloudformationClient()
-	cfnClient.(*cloudformationClient).client = mockCfn
-	cfnClient.(*cloudformationClient).sleeper = &noopsleeper{}
 
-	return mockCfn, cfnClient, ctrl
+	mockSession, err := session.NewSession()
+	assert.NoError(t, err, "Unexpected error in creating session")
+
+	client := newClient(&config.CommandConfig{Session: mockSession}, mockCfn)
+	client.(*cloudformationClient).sleeper = &noopsleeper{}
+
+	return mockCfn, client, ctrl
 }

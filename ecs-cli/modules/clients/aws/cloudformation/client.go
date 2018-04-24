@@ -88,8 +88,6 @@ func init() {
 
 // CloudformationClient defines methods to interact the with the CloudFormationAPI interface.
 type CloudformationClient interface {
-	// TODO: Modify the interface and tbe client to not have the Initialize method.
-	Initialize(*config.CommandConfig)
 	CreateStack(string, string, *CfnStackParams) (string, error)
 	WaitUntilCreateComplete(string) error
 	DeleteStack(string) error
@@ -109,17 +107,19 @@ type cloudformationClient struct {
 }
 
 // NewCloudformationClient creates an instance of cloudFormationClient object.
-func NewCloudformationClient() CloudformationClient {
-	return &cloudformationClient{}
-}
-
-// Initialize initializes all the fields of the cloudFormationClient object.
-func (c *cloudformationClient) Initialize(config *config.CommandConfig) {
+func NewCloudformationClient(config *config.CommandConfig) CloudformationClient  {
 	cfnClient := cloudformation.New(config.Session)
 	cfnClient.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
-	c.client = cfnClient
-	c.config = config
-	c.sleeper = &utils.TimeSleeper{}
+
+	return newClient(config, cfnClient)
+}
+
+func newClient(config *config.CommandConfig, client cloudformationiface.CloudFormationAPI) CloudformationClient {
+	return &cloudformationClient{
+		config:  config,
+		client:  client,
+		sleeper: &utils.TimeSleeper{},
+	}
 }
 
 // CreateStack creates the cloudformation stack by invoking the sdk's CreateStack API and returns the stack id.

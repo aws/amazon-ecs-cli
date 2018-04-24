@@ -35,9 +35,6 @@ type ProcessTasksAction func(tasks []*ecs.Task) error
 
 // ECSClient is an interface that specifies only the methods used from the sdk interface. Intended to make mocking and testing easier.
 type ECSClient interface {
-	// TODO: Modify the interface and the client to not have the Initialize method.
-	Initialize(config *config.CommandConfig)
-
 	// Cluster related
 	CreateCluster(clusterName string) (string, error)
 	DeleteCluster(clusterName string) (string, error)
@@ -72,15 +69,18 @@ type ecsClient struct {
 }
 
 // NewECSClient creates a new ECS client
-func NewECSClient() ECSClient {
-	return &ecsClient{}
-}
-
-func (c *ecsClient) Initialize(config *config.CommandConfig) {
+func NewECSClient(config *config.CommandConfig) ECSClient {
 	client := ecs.New(config.Session)
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
-	c.client = client
-	c.config = config
+
+	return newClient(config, client)
+}
+
+func newClient(config *config.CommandConfig, client ecsiface.ECSAPI) ECSClient {
+	return &ecsClient{
+		config: config,
+		client: client,
+	}
 }
 
 func (c *ecsClient) CreateCluster(clusterName string) (string, error) {

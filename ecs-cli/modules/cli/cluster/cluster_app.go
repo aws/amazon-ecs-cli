@@ -55,6 +55,23 @@ func init() {
 	}
 }
 
+type AWSClients struct {
+	ECSClient ecsclient.ECSClient
+	CFNClient cloudformation.CloudformationClient
+	SSMClient ssm.Client
+}
+
+func newAWSClients(commandConfig *config.CommandConfig) *AWSClients {
+	ecsClient := ecsclient.NewECSClient(commandConfig)
+	cfnClient := cloudformation.NewCloudformationClient(commandConfig)
+	ssmClient := ssm.NewSSMClient(commandConfig)
+
+	return &AWSClients{ecsClient, cfnClient, ssmClient}
+}
+
+///////////////////////
+// Public Functions //
+/////////////////////
 func ClusterUp(c *cli.Context) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
@@ -90,9 +107,14 @@ func ClusterDown(c *cli.Context) {
 		logrus.Fatal("Error executing 'down': ", err)
 	}
 
-	ecsClient := ecsclient.NewECSClient()
-	cfnClient := cloudformation.NewCloudformationClient()
-	if err := deleteCluster(c, rdwr, ecsClient, cfnClient); err != nil {
+	commandConfig, err := newCommandConfig(c, rdwr)
+	if err != nil {
+		logrus.Fatal("Error executing 'down': ", err)
+	}
+
+	awsClients := newAWSClients(commandConfig)
+
+	if err := deleteCluster(c, awsClients, commandConfig); err != nil {
 		logrus.Fatal("Error executing 'down': ", err)
 	}
 }
@@ -103,9 +125,14 @@ func ClusterScale(c *cli.Context) {
 		logrus.Fatal("Error executing 'scale': ", err)
 	}
 
-	ecsClient := ecsclient.NewECSClient()
-	cfnClient := cloudformation.NewCloudformationClient()
-	if err := scaleCluster(c, rdwr, ecsClient, cfnClient); err != nil {
+	commandConfig, err := newCommandConfig(c, rdwr)
+	if err != nil {
+		logrus.Fatal("Error executing 'scale': ", err)
+	}
+
+	awsClients := newAWSClients(commandConfig)
+
+	if err := scaleCluster(c, awsClients, commandConfig); err != nil {
 		logrus.Fatal("Error executing 'scale': ", err)
 	}
 }
@@ -116,61 +143,19 @@ func ClusterPS(c *cli.Context) {
 		logrus.Fatal("Error executing 'ps': ", err)
 	}
 
-	ecsClient := ecsclient.NewECSClient()
-	infoSet, err := clusterPS(c, rdwr, ecsClient)
+	infoSet, err := clusterPS(c, rdwr)
 	if err != nil {
 		logrus.Fatal("Error executing 'ps': ", err)
 	}
 	os.Stdout.WriteString(infoSet.String(container.ContainerInfoColumns, displayTitle))
 }
 
-// If param1 exists, param2 is not allowed.
-func validateMutuallyExclusiveParams(cfnParams *cloudformation.CfnStackParams, param1, param2 string) bool {
-	if _, err := cfnParams.GetParameter(param1); err != nil {
-		return false
-	}
-	if _, err := cfnParams.GetParameter(param2); err != cloudformation.ParameterNotFoundError {
-		return true
-	}
-	return false
-}
 
-// If param1 exists, param2 is required.
-func validateDependentParams(cfnParams *cloudformation.CfnStackParams, param1, param2 string) bool {
-	if _, err := cfnParams.GetParameter(param1); err != nil {
-		return false
-	}
-	if _, err := cfnParams.GetParameter(param2); err == cloudformation.ParameterNotFoundError {
-		return true
-	}
-	return false
-}
+///////////////////////
+// Helper functions //
+//////////////////////
 
-func validateCommaSeparatedParam(cfnParams *cloudformation.CfnStackParams, param string, minLength, maxLength int) bool {
-	values, err := cfnParams.GetParameter(param)
-	if err != nil {
-		return false
-	}
-	if splitValues := strings.Split(*values.ParameterValue, ","); len(splitValues) < minLength || len(splitValues) > maxLength {
-		return true
-	}
-	return false
-}
-
-type AWSClients struct {
-	ECSClient ecsclient.ECSClient
-	CFNClient cloudformation.CloudformationClient
-	SSMClient ssm.Client
-}
-
-func newAWSClients(commandConfig *config.CommandConfig) *AWSClients {
-	ecsClient := ecsclient.NewECSClient()
-	cfnClient := cloudformation.NewCloudformationClient()
-	ssmClient := ssm.NewSSMClient(commandConfig)
-
-	return &AWSClients{ecsClient, cfnClient, ssmClient}
-}
-
+// createCluster executes the 'up' command.
 func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *config.CommandConfig) error {
 	var err error
 
@@ -209,7 +194,6 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 	}
 
 	// Check if cfn stack already exists
-	cfnClient.Initialize(commandConfig)
 	stackName := commandConfig.CFNStackName
 	var deleteStack bool
 	if err = cfnClient.ValidateStackExists(stackName); err == nil {
@@ -279,7 +263,6 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 	}
 
 	// Create ECS cluster
-	ecsClient.Initialize(commandConfig)
 	if _, err := ecsClient.CreateCluster(commandConfig.Cluster); err != nil {
 		return err
 	}
@@ -325,13 +308,11 @@ func createEmptyCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfn
 	}
 
 	// Check if non-empty cluster with same name already exists
-	cfnClient.Initialize(commandConfig)
 	stackName := commandConfig.CFNStackName
 	if err := cfnClient.ValidateStackExists(stackName); err == nil {
 		return fmt.Errorf("A CloudFormation stack already exists for the cluster '%s'.", commandConfig.Cluster)
 	}
 
-	ecsClient.Initialize(commandConfig)
 	if _, err := ecsClient.CreateCluster(commandConfig.Cluster); err != nil {
 		return err
 	}
@@ -353,7 +334,8 @@ var deleteCFNStack = func(cfnClient cloudformation.CloudformationClient, command
 	return nil
 }
 
-func deleteCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient) error {
+// deleteCluster executes the 'down' command.
+func deleteCluster(context *cli.Context, awsClients *AWSClients, commandConfig *config.CommandConfig) error {
 	// Validate cli flags
 	if !isForceSet(context) {
 		reader := bufio.NewReader(os.Stdin)
@@ -362,19 +344,14 @@ func deleteCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 		}
 	}
 
-	commandConfig, err := newCommandConfig(context, rdwr)
-	if err != nil {
-		return err
-	}
-
 	// Validate that cluster exists in ECS
-	ecsClient.Initialize(commandConfig)
+	ecsClient := awsClients.ECSClient
 	if err := validateCluster(commandConfig.Cluster, ecsClient); err != nil {
 		return err
 	}
 
 	// Validate that a cfn stack exists for the cluster
-	cfnClient.Initialize(commandConfig)
+	cfnClient := awsClients.CFNClient
 	stackName := commandConfig.CFNStackName
 
 	if err := cfnClient.ValidateStackExists(stackName); err != nil {
@@ -394,7 +371,7 @@ func deleteCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscl
 }
 
 // scaleCluster executes the 'scale' command.
-func scaleCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient.ECSClient, cfnClient cloudformation.CloudformationClient) error {
+func scaleCluster(context *cli.Context, awsClients *AWSClients, commandConfig *config.CommandConfig) error {
 	// Validate cli flags
 	if !isIAMAcknowledged(context) {
 		return fmt.Errorf("Please acknowledge that this command may create IAM resources with the '--%s' flag", flags.CapabilityIAMFlag)
@@ -408,19 +385,14 @@ func scaleCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscli
 		return fmt.Errorf("Missing required flag '--%s'", flags.AsgMaxSizeFlag)
 	}
 
-	commandConfig, err := newCommandConfig(context, rdwr)
-	if err != nil {
-		return err
-	}
-
 	// Validate that cluster exists in ECS
-	ecsClient.Initialize(commandConfig)
+	ecsClient := awsClients.ECSClient
 	if err := validateCluster(commandConfig.Cluster, ecsClient); err != nil {
 		return err
 	}
 
 	// Validate that we have a cfn stack for the cluster
-	cfnClient.Initialize(commandConfig)
+	cfnClient := awsClients.CFNClient
 	stackName := commandConfig.CFNStackName
 	existingParameters, err := cfnClient.GetStackParameters(stackName)
 	if err != nil {
@@ -443,14 +415,16 @@ func scaleCluster(context *cli.Context, rdwr config.ReadWriter, ecsClient ecscli
 	return cfnClient.WaitUntilUpdateComplete(stackName)
 }
 
-func clusterPS(context *cli.Context, rdwr config.ReadWriter, ecsClient ecsclient.ECSClient) (project.InfoSet, error) {
+
+// createPS executes the 'ps' command.
+func clusterPS(context *cli.Context, rdwr config.ReadWriter) (project.InfoSet, error) {
 	commandConfig, err := newCommandConfig(context, rdwr)
 	if err != nil {
 		return nil, err
 	}
 
 	// Validate that cluster exists in ECS
-	ecsClient.Initialize(commandConfig)
+	ecsClient := ecsclient.NewECSClient(commandConfig)
 	if err := validateCluster(commandConfig.Cluster, ecsClient); err != nil {
 		return nil, err
 	}
@@ -547,4 +521,37 @@ func getClusterSize(context *cli.Context) (string, error) {
 	}
 
 	return size, nil
+}
+
+// If param1 exists, param2 is not allowed.
+func validateMutuallyExclusiveParams(cfnParams *cloudformation.CfnStackParams, param1, param2 string) bool {
+	if _, err := cfnParams.GetParameter(param1); err != nil {
+		return false
+	}
+	if _, err := cfnParams.GetParameter(param2); err != cloudformation.ParameterNotFoundError {
+		return true
+	}
+	return false
+}
+
+// If param1 exists, param2 is required.
+func validateDependentParams(cfnParams *cloudformation.CfnStackParams, param1, param2 string) bool {
+	if _, err := cfnParams.GetParameter(param1); err != nil {
+		return false
+	}
+	if _, err := cfnParams.GetParameter(param2); err == cloudformation.ParameterNotFoundError {
+		return true
+	}
+	return false
+}
+
+func validateCommaSeparatedParam(cfnParams *cloudformation.CfnStackParams, param string, minLength, maxLength int) bool {
+	values, err := cfnParams.GetParameter(param)
+	if err != nil {
+		return false
+	}
+	if splitValues := strings.Split(*values.ParameterValue, ","); len(splitValues) < minLength || len(splitValues) > maxLength {
+		return true
+	}
+	return false
 }
