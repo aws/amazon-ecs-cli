@@ -1064,6 +1064,9 @@ func verifyUlimit(t *testing.T, output *ecs.Ulimit, name string, softLimit, hard
 }
 
 func convertToTaskDefinitionInTest(t *testing.T, name string, serviceConfig *config.ServiceConfig, taskRoleArn string, launchType string) *ecs.TaskDefinition {
+	volumeConfigs := make(map[string]*config.VolumeConfig)
+	volumeConfigs[namedVolume] = &config.VolumeConfig{}
+
 	serviceConfigs := config.NewServiceConfigs()
 	serviceConfigs.Add(name, serviceConfig)
 
@@ -1076,16 +1079,12 @@ func convertToTaskDefinitionInTest(t *testing.T, name string, serviceConfig *con
 	if err != nil {
 		t.Fatal("Unexpected error setting up resource lookup")
 	}
-	volumeConfigs := make(map[string]*config.VolumeConfig)
-	volumeConfigs[namedVolume] = &config.VolumeConfig{}
 	context := &project.Context{
-		Project: &project.Project{
-			VolumeConfigs: volumeConfigs,
-		},
+		Project:           &project.Project{},
 		EnvironmentLookup: envLookup,
 		ResourceLookup:    resourceLookup,
 	}
-	taskDefinition, err := ConvertToTaskDefinition(taskDefName, context, serviceConfigs, taskRoleArn, launchType, nil)
+	taskDefinition, err := ConvertToTaskDefinition(taskDefName, context, volumeConfigs, serviceConfigs, taskRoleArn, launchType, nil)
 	if err != nil {
 		t.Errorf("Expected to convert [%v] serviceConfigs without errors. But got [%v]", serviceConfig, err)
 	}
@@ -1099,6 +1098,8 @@ func serviceConfigWithDefaultNetworks() *config.ServiceConfig {
 }
 
 func convertToTaskDefWithEcsParamsInTest(t *testing.T, names []string, serviceConfig *config.ServiceConfig, taskRoleArn string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
+	volumeConfigs := make(map[string]*config.VolumeConfig)
+
 	serviceConfigs := config.NewServiceConfigs()
 	for _, name := range names {
 		serviceConfigs.Add(name, serviceConfig)
@@ -1118,7 +1119,7 @@ func convertToTaskDefWithEcsParamsInTest(t *testing.T, names []string, serviceCo
 		EnvironmentLookup: envLookup,
 		ResourceLookup:    resourceLookup,
 	}
-	taskDefinition, err := ConvertToTaskDefinition(taskDefName, context, serviceConfigs, taskRoleArn, "", ecsParams)
+	taskDefinition, err := ConvertToTaskDefinition(taskDefName, context, volumeConfigs, serviceConfigs, taskRoleArn, "", ecsParams)
 	if err != nil {
 		return nil, err
 	}
@@ -1225,6 +1226,8 @@ func TestMemReservationHigherThanMemLimit(t *testing.T) {
 		Networks:       &yaml.Networks{Networks: []*yaml.Network{defaultNetwork}},
 	}
 
+	volumeConfigs := make(map[string]*config.VolumeConfig)
+
 	serviceConfigs := config.NewServiceConfigs()
 	serviceConfigs.Add(name, serviceConfig)
 
@@ -1238,7 +1241,7 @@ func TestMemReservationHigherThanMemLimit(t *testing.T) {
 		EnvironmentLookup: envLookup,
 		ResourceLookup:    resourceLookup,
 	}
-	_, err = ConvertToTaskDefinition(taskDefName, context, serviceConfigs, "", "", nil)
+	_, err = ConvertToTaskDefinition(taskDefName, context, volumeConfigs, serviceConfigs, "", "", nil)
 	assert.EqualError(t, err, "mem_limit should not be less than mem_reservation")
 }
 

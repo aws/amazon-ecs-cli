@@ -78,7 +78,7 @@ type TaskDefParams struct {
 }
 
 // ConvertToTaskDefinition transforms the yaml configs to its ecs equivalent (task definition)
-func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context,
+func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context, volumeConfigs map[string]*config.VolumeConfig,
 	serviceConfigs *config.ServiceConfigs, taskRoleArn string, requiredCompatibilites string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
 
 	if serviceConfigs.Len() == 0 {
@@ -105,8 +105,8 @@ func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context
 	}
 
 	// Add named volume configs:
-	if context.Project.VolumeConfigs != nil {
-		for name, config := range context.Project.VolumeConfigs {
+	if volumeConfigs != nil {
+		for name, config := range volumeConfigs {
 			if config != nil {
 				if config.Driver != "" {
 					log.WithFields(log.Fields{
