@@ -45,10 +45,36 @@ const (
 
 // supported fields/options from compose YAML file
 var supportedComposeYamlOptions = []string{
-	"cpu_shares", "command", "dns", "dns_search", "entrypoint", "env_file",
-	"environment", "extra_hosts", "hostname", "image", "labels", "links",
-	"logging", "log_driver", "log_opt", "mem_limit", "mem_reservation", "ports", "privileged", "read_only",
-	"security_opt", "ulimits", "user", "volumes", "volumes_from", "working_dir", "cap_add", "cap_drop", "shm_size", "tmpfs",
+	"cap_add",
+	"cap_drop",
+	"command",
+	"cpu_shares",
+	"dns",
+	"dns_search",
+	"entrypoint",
+	"env_file",
+	"environment",
+	"extra_hosts",
+	"hostname",
+	"image",
+	"labels",
+	"links",
+	"logging",
+	"log_driver", // v1 only
+	"log_opt",    // v1 only
+	"mem_limit",
+	"mem_reservation",
+	"ports",
+	"privileged",
+	"read_only",
+	"security_opt",
+	"shm_size",
+	"tmpfs",
+	"ulimits",
+	"user",
+	"volumes",
+	"volumes_from",
+	"working_dir",
 }
 
 var supportedComposeYamlOptionsMap = getSupportedComposeYamlOptionsMap()
