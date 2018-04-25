@@ -35,6 +35,7 @@ const (
 	containerPath  = "/tmp/cache"
 	containerPath2 = "/tmp/cache2"
 	hostPath       = "./cache"
+	namedVolume    = "named_volume"
 )
 
 var defaultNetwork = &yaml.Network{
@@ -778,6 +779,32 @@ func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
 	}
 }
 
+func TestConvertToTaskDefinitionWithNamedVolume(t *testing.T) {
+	volume := yaml.Volume{Source: namedVolume, Destination: containerPath}
+
+	serviceConfig := &config.ServiceConfig{
+		Volumes:  &yaml.Volumes{Volumes: []*yaml.Volume{&volume}},
+		Networks: &yaml.Networks{Networks: []*yaml.Network{defaultNetwork}},
+	}
+
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", serviceConfig, "", "")
+	containerDef := *taskDefinition.ContainerDefinitions[0]
+
+	volumeDef := *taskDefinition.Volumes[0]
+	mountPoint := *containerDef.MountPoints[0]
+	if volumeDef.Host != nil {
+		t.Errorf("Expected volume host to be nil But was [%s]", volumeDef.Host)
+	}
+	if containerPath != aws.StringValue(mountPoint.ContainerPath) {
+		t.Errorf("Expected containerPath [%s] But was [%s]", containerPath, aws.StringValue(mountPoint.ContainerPath))
+	}
+	if aws.StringValue(volumeDef.Name) != aws.StringValue(mountPoint.SourceVolume) {
+		t.Errorf("Expected volume name to match. "+
+			"Got Volume.Name=[%s] And MountPoint.SourceVolume=[%s]",
+			aws.StringValue(volumeDef.Name), aws.StringValue(mountPoint.SourceVolume))
+	}
+}
+
 func TestConvertToTaskDefinitionWithTmpfs(t *testing.T) {
 	tmpfs := []string{"/run:rw,noexec,nosuid,size=65536k", "/foo:size=1gb", "/bar:size=1gb,rw,runbindable"}
 
@@ -882,14 +909,16 @@ func TestConvertToMountPoints(t *testing.T) {
 	onlyContainerPathWithRO := yaml.Volume{Destination: containerPath, AccessMode: "ro"}
 	hostAndContainerPathWithRO := yaml.Volume{Source: hostPath, Destination: containerPath, AccessMode: "ro"} // "./cache:/tmp/cache:ro"
 	hostAndContainerPathWithRW := yaml.Volume{Source: hostPath, Destination: containerPath, AccessMode: "rw"}
+	namedVolumeAndContainerPath := yaml.Volume{Source: namedVolume, Destination: containerPath}
 
 	volumes := &volumes{
-		volumeWithHost: make(map[string]string), // map with key:=hostSourcePath value:=VolumeName
+		volumeWithHost:  make(map[string]string), // map with key:=hostSourcePath value:=VolumeName
+		volumeEmptyHost: []string{namedVolume},   // Declare one volume with an empty host
 	}
 
 	// Valid inputs with host and container paths set
 	mountPointsIn := yaml.Volumes{Volumes: []*yaml.Volume{&onlyContainerPath, &onlyContainerPath2, &hostAndContainerPath,
-		&onlyContainerPathWithRO, &hostAndContainerPathWithRO, &hostAndContainerPathWithRW}}
+		&onlyContainerPathWithRO, &hostAndContainerPathWithRO, &hostAndContainerPathWithRW, &namedVolumeAndContainerPath}}
 
 	mountPointsOut, err := ConvertToMountPoints(&mountPointsIn, volumes)
 	if err != nil {
@@ -899,12 +928,13 @@ func TestConvertToMountPoints(t *testing.T) {
 		t.Errorf("Incorrect conversion. Input [%v] Output [%v]", mountPointsIn, mountPointsOut)
 	}
 
-	verifyMountPoint(t, mountPointsOut[0], volumes, "", containerPath, false, 0)  // 0 is the counter for the first volume with an empty host path
-	verifyMountPoint(t, mountPointsOut[1], volumes, "", containerPath2, false, 1) // 1 is the counter for the second volume with an empty host path
-	verifyMountPoint(t, mountPointsOut[2], volumes, hostPath, containerPath, false, 1)
-	verifyMountPoint(t, mountPointsOut[3], volumes, "", containerPath, true, 2) // 2 is the counter for the third volume with an empty host path
-	verifyMountPoint(t, mountPointsOut[4], volumes, hostPath, containerPath, true, 2)
-	verifyMountPoint(t, mountPointsOut[5], volumes, hostPath, containerPath, false, 2)
+	verifyMountPoint(t, mountPointsOut[0], volumes, "", containerPath, false, 1)  // 1 is the counter for the first volume with an empty host path
+	verifyMountPoint(t, mountPointsOut[1], volumes, "", containerPath2, false, 2) // 2 is the counter for the second volume with an empty host path
+	verifyMountPoint(t, mountPointsOut[2], volumes, hostPath, containerPath, false, 2)
+	verifyMountPoint(t, mountPointsOut[3], volumes, "", containerPath, true, 3) // 3 is the counter for the third volume with an empty host path
+	verifyMountPoint(t, mountPointsOut[4], volumes, hostPath, containerPath, true, 3)
+	verifyMountPoint(t, mountPointsOut[5], volumes, hostPath, containerPath, false, 3)
+	verifyMountPoint(t, mountPointsOut[6], volumes, namedVolume, containerPath, false, 3)
 
 	if mountPointsOut[0].SourceVolume == mountPointsOut[1].SourceVolume {
 		t.Errorf("Expected volume %v (onlyContainerPath) and %v (onlyContainerPath2) to be different", mountPointsOut[0].SourceVolume, mountPointsOut[1].SourceVolume)
@@ -932,15 +962,17 @@ func TestConvertToMountPoints(t *testing.T) {
 }
 
 func verifyMountPoint(t *testing.T, output *ecs.MountPoint, volumes *volumes,
-	hostPath, containerPath string, readonly bool, EmptyHostCtr int) {
+	source, containerPath string, readonly bool, EmptyHostCtr int) {
 	sourceVolume := ""
 	if containerPath != *output.ContainerPath {
 		t.Errorf("Expected containerPath [%s] But was [%s]", containerPath, *output.ContainerPath)
 	}
-	if hostPath != "" {
-		sourceVolume = volumes.volumeWithHost[hostPath]
-	} else {
+	if source == "" {
 		sourceVolume = volumes.volumeEmptyHost[EmptyHostCtr]
+	} else if project.IsNamedVolume(source) {
+		sourceVolume = source
+	} else {
+		sourceVolume = volumes.volumeWithHost[source]
 	}
 	if sourceVolume != *output.SourceVolume {
 		t.Errorf("Expected sourceVolume [%s] But was [%s]", sourceVolume, *output.SourceVolume)
@@ -1044,8 +1076,12 @@ func convertToTaskDefinitionInTest(t *testing.T, name string, serviceConfig *con
 	if err != nil {
 		t.Fatal("Unexpected error setting up resource lookup")
 	}
+	volumeConfigs := make(map[string]*config.VolumeConfig)
+	volumeConfigs[namedVolume] = &config.VolumeConfig{}
 	context := &project.Context{
-		Project:           &project.Project{},
+		Project: &project.Project{
+			VolumeConfigs: volumeConfigs,
+		},
 		EnvironmentLookup: envLookup,
 		ResourceLookup:    resourceLookup,
 	}

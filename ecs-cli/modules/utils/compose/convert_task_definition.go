@@ -21,6 +21,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/docker/go-units"
@@ -103,6 +104,13 @@ func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context
 		volumeWithHost: make(map[string]string), // map with key:=hostSourcePath value:=VolumeName
 	}
 
+	// Add named volume configs:
+	if context.Project.VolumeConfigs != nil {
+		for name := range context.Project.VolumeConfigs {
+			volumes.volumeEmptyHost = append(volumes.volumeEmptyHost, name)
+		}
+	}
+
 	for _, name := range serviceConfigs.Keys() {
 		serviceConfig, ok := serviceConfigs.Get(name)
 		if !ok {
@@ -153,9 +161,6 @@ func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context
 
 // logUnsupportedConfigFields adds a WARNING to the customer about the fields that are unused.
 func logUnsupportedConfigFields(project *project.Project) {
-	if project.VolumeConfigs != nil && len(project.VolumeConfigs) > 0 {
-		log.WithFields(log.Fields{"option name": "volumes"}).Warn("Skipping unsupported YAML option...")
-	}
 	// ecsProject#parseCompose, which calls the underlying libcompose.Project#Parse(),
 	// always populates the project.NetworkConfig with one entry ("default").
 	// See: https://github.com/docker/libcompose/blob/master/project/project.go#L277
@@ -562,7 +567,7 @@ func ConvertToMountPoints(cfgVolumes *yaml.Volumes, volumes *volumes) ([]*ecs.Mo
 		return mountPoints, nil
 	}
 	for _, cfgVolume := range cfgVolumes.Volumes {
-		hostPath := cfgVolume.Source
+		source := cfgVolume.Source
 		containerPath := cfgVolume.Destination
 
 		accessMode := cfgVolume.AccessMode
@@ -580,17 +585,23 @@ func ConvertToMountPoints(cfgVolumes *yaml.Volumes, volumes *volumes) ([]*ecs.Mo
 
 		var volumeName string
 		numVol := len(volumes.volumeWithHost) + len(volumes.volumeEmptyHost)
-		if hostPath == "" {
+		if source == "" {
 			// add mount point for volumes with an empty host path
 			volumeName = getVolumeName(numVol)
 			volumes.volumeEmptyHost = append(volumes.volumeEmptyHost, volumeName)
+		} else if project.IsNamedVolume(source) {
+			if !utils.InSlice(source, volumes.volumeEmptyHost) {
+				return nil, fmt.Errorf(
+					"named volume [%s] is used but no declaration was found in the volumes section", cfgVolume)
+			}
+			volumeName = source
 		} else {
 			// add mount point for volumes with a host path
-			volumeName = volumes.volumeWithHost[hostPath]
+			volumeName = volumes.volumeWithHost[source]
 
 			if volumeName == "" {
 				volumeName = getVolumeName(numVol)
-				volumes.volumeWithHost[hostPath] = volumeName
+				volumes.volumeWithHost[source] = volumeName
 			}
 		}
 

@@ -19,6 +19,16 @@ import (
 	"os"
 )
 
+// InSlice checks if the given string exists in the given slice:
+func InSlice(str string, list []string) bool {
+	for _, s := range list {
+		if s == str {
+			return true
+		}
+	}
+	return false
+}
+
 // GetHomeDir returns the file path of the user's home directory.
 func GetHomeDir() (string, error) {
 	// Can not use user.Current https://github.com/golang/go/issues/6376
