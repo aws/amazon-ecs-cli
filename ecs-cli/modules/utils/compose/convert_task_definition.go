@@ -106,7 +106,27 @@ func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context
 
 	// Add named volume configs:
 	if context.Project.VolumeConfigs != nil {
-		for name := range context.Project.VolumeConfigs {
+		for name, config := range context.Project.VolumeConfigs {
+			if config != nil {
+				if config.Driver != "" {
+					log.WithFields(log.Fields{
+						"volume name": name,
+						"option name": "driver",
+					}).Warn("Skipping unsupported YAML option...")
+				}
+				if len(config.DriverOpts) != 0 {
+					log.WithFields(log.Fields{
+						"volume name": name,
+						"option name": "driver_opts",
+					}).Warn("Skipping unsupported YAML option...")
+				}
+				if config.External.External {
+					log.WithFields(log.Fields{
+						"volume name": name,
+						"option name": "external",
+					}).Warn("Skipping unsupported YAML option...")
+				}
+			}
 			volumes.volumeEmptyHost = append(volumes.volumeEmptyHost, name)
 		}
 	}
