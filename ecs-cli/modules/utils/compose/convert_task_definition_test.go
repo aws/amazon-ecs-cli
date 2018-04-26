@@ -807,35 +807,35 @@ func TestConvertToTaskDefinitionWithTmpfs(t *testing.T) {
 
 func TestConvertToTmpfs_NoPath(t *testing.T) {
 	tmpfs := []string{"size=65536k"}
-	_, err := convertToTmpfs(tmpfs)
+	_, err := ConvertToTmpfs(tmpfs)
 
 	assert.Error(t, err)
 }
 
 func TestConvertToTmpfs_BadOptionFormat(t *testing.T) {
 	tmpfs := []string{"/run,size=65536k"}
-	_, err := convertToTmpfs(tmpfs)
+	_, err := ConvertToTmpfs(tmpfs)
 
 	assert.Error(t, err)
 }
 
 func TestConvertToTmpfs_NoSize(t *testing.T) {
 	tmpfs := []string{"/run"}
-	_, err := convertToTmpfs(tmpfs)
+	_, err := ConvertToTmpfs(tmpfs)
 
 	assert.Error(t, err)
 }
 
 func TestConvertToTmpfs_WithOptionsNoSize(t *testing.T) {
 	tmpfs := []string{"/run:rw"}
-	_, err := convertToTmpfs(tmpfs)
+	_, err := ConvertToTmpfs(tmpfs)
 
 	assert.Error(t, err)
 }
 
 func TestConvertToTmpfs_WithMalformedSize(t *testing.T) {
 	tmpfs := []string{"/run:1gb"}
-	_, err := convertToTmpfs(tmpfs)
+	_, err := ConvertToTmpfs(tmpfs)
 
 	assert.Error(t, err)
 }
@@ -849,7 +849,7 @@ func TestConvertToPortMappings(t *testing.T) {
 
 	portMappingsIn := []string{implicitTcp, explicitTcp, udpPort, containerPortOnly, portWithIpAddress}
 
-	portMappingsOut, err := convertToPortMappings("test", portMappingsIn)
+	portMappingsOut, err := ConvertToPortMappings("test", portMappingsIn)
 	if err != nil {
 		t.Errorf("Expected to convert [%v] portMappings without errors. But got [%v]", portMappingsIn, err)
 	}
@@ -891,7 +891,7 @@ func TestConvertToMountPoints(t *testing.T) {
 	mountPointsIn := yaml.Volumes{Volumes: []*yaml.Volume{&onlyContainerPath, &onlyContainerPath2, &hostAndContainerPath,
 		&onlyContainerPathWithRO, &hostAndContainerPathWithRO, &hostAndContainerPathWithRW}}
 
-	mountPointsOut, err := convertToMountPoints(&mountPointsIn, volumes)
+	mountPointsOut, err := ConvertToMountPoints(&mountPointsIn, volumes)
 	if err != nil {
 		t.Fatalf("Expected to convert [%v] mountPoints without errors. But got [%v]", mountPointsIn, err)
 	}
@@ -917,12 +917,12 @@ func TestConvertToMountPoints(t *testing.T) {
 	// Invalid access mode input
 	hostAndContainerPathWithIncorrectAccess := yaml.Volume{Source: hostPath, Destination: containerPath, AccessMode: "readonly"}
 	mountPointsIn = yaml.Volumes{Volumes: []*yaml.Volume{&hostAndContainerPathWithIncorrectAccess}}
-	mountPointsOut, err = convertToMountPoints(&mountPointsIn, volumes)
+	mountPointsOut, err = ConvertToMountPoints(&mountPointsIn, volumes)
 	if err == nil {
 		t.Errorf("Expected to get error for mountPoint[%s] but didn't.", hostAndContainerPathWithIncorrectAccess)
 	}
 
-	mountPointsOut, err = convertToMountPoints(nil, volumes)
+	mountPointsOut, err = ConvertToMountPoints(nil, volumes)
 	if err != nil {
 		t.Fatalf("Expected to convert nil mountPoints without errors. But got [%v]", err)
 	}
@@ -957,7 +957,7 @@ func TestConvertToExtraHosts(t *testing.T) {
 	extraHost := hostname + ":" + ipAddress
 
 	extraHostsIn := []string{extraHost}
-	extraHostsOut, err := convertToExtraHosts(extraHostsIn)
+	extraHostsOut, err := ConvertToExtraHosts(extraHostsIn)
 	if err != nil {
 		t.Errorf("Expected to convert [%v] extra hosts without errors. But got [%v]", extraHostsIn, err)
 	}
@@ -967,13 +967,13 @@ func TestConvertToExtraHosts(t *testing.T) {
 	verifyExtraHost(t, extraHostsOut[0], hostname, ipAddress)
 
 	incorrectHost := hostname + "=" + ipAddress
-	_, err = convertToExtraHosts([]string{incorrectHost})
+	_, err = ConvertToExtraHosts([]string{incorrectHost})
 	if err == nil {
 		t.Errorf("Expected to get formatting error for extraHost=[%s], but got none", incorrectHost)
 	}
 
 	extraHostWithPort := fmt.Sprintf("%s:%s:%d", hostname, ipAddress, portNumber)
-	_, err = convertToExtraHosts([]string{extraHostWithPort})
+	_, err = ConvertToExtraHosts([]string{extraHostWithPort})
 	if err == nil {
 		t.Errorf("Expected to get formatting error for extraHost=[%s], but got none", extraHostWithPort)
 	}
@@ -1008,7 +1008,7 @@ func TestConvertToUlimits(t *testing.T) {
 	ulimitsIn := yaml.Ulimits{
 		Elements: []yaml.Ulimit{basicType, typeWithHardLimit},
 	}
-	ulimitsOut, err := convertToULimits(ulimitsIn)
+	ulimitsOut, err := ConvertToULimits(ulimitsIn)
 	if err != nil {
 		t.Errorf("Expected to convert [%v] ulimits without errors. But got [%v]", ulimitsIn, err)
 	}

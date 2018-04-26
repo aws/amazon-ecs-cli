@@ -261,57 +261,49 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 	}
 
 	// convert shared memory size
-	var shmSize int64
-	if inputCfg.ShmSize != 0 {
-		// libcompose will parse this field in the docker compose file as bytes but ECS
-		// expects sharedMemorySize in MiB
-		shmSize = int64(inputCfg.ShmSize) / miB
-	}
+        shmSize := ConvertToSharedMemorySize(inputCfg)
 
 	// convert environment variables
 	environment := convertToKeyValuePairs(context, inputCfg.Environment, *outputContDef.Name)
 
 	// convert port mappings
-	portMappings, err := convertToPortMappings(*outputContDef.Name, inputCfg.Ports)
+	portMappings, err := ConvertToPortMappings(*outputContDef.Name, inputCfg.Ports)
 	if err != nil {
 		return err
 	}
 
 	// convert volumes from
-	volumesFrom, err := convertToVolumesFrom(inputCfg.VolumesFrom)
+	volumesFrom, err := ConvertToVolumesFrom(inputCfg.VolumesFrom)
 	if err != nil {
 		return err
 	}
 
 	// convert mount points
-	mountPoints, err := convertToMountPoints(inputCfg.Volumes, volumes)
+	mountPoints, err := ConvertToMountPoints(inputCfg.Volumes, volumes)
 	if err != nil {
 		return err
 	}
 
 	// convert extra hosts
-	extraHosts, err := convertToExtraHosts(inputCfg.ExtraHosts)
+	extraHosts, err := ConvertToExtraHosts(inputCfg.ExtraHosts)
 	if err != nil {
 		return err
 	}
 
 	// convert log configuration
-	var logConfig *ecs.LogConfiguration
-	if inputCfg.Logging.Driver != "" {
-		logConfig = &ecs.LogConfiguration{
-			LogDriver: aws.String(inputCfg.Logging.Driver),
-			Options:   aws.StringMap(inputCfg.Logging.Options),
-		}
+        logConfig, err := ConvertToLogConfiguration(inputCfg)
+	if err != nil {
+		return err
 	}
 
 	// convert ulimits
-	ulimits, err := convertToULimits(inputCfg.Ulimits)
+	ulimits, err := ConvertToULimits(inputCfg.Ulimits)
 	if err != nil {
 		return err
 	}
 
 	// convert Tmpfs
-	tmpfs, err := convertToTmpfs(inputCfg.Tmpfs)
+	tmpfs, err := ConvertToTmpfs(inputCfg.Tmpfs)
 	if err != nil {
 		return err
 	}
@@ -380,8 +372,7 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 // convertToKeyValuePairs transforms the map of environment variables into list of ecs.KeyValuePair.
 // Environment variables with only a key are resolved by reading the variable from the shell where ecscli is executed from.
 // TODO: use this logic to generate RunTask overrides for ecscli compose commands (instead of always creating a new task def)
-func convertToKeyValuePairs(context *project.Context, envVars yaml.MaporEqualSlice,
-	serviceName string) []*ecs.KeyValuePair {
+func convertToKeyValuePairs(context *project.Context, envVars yaml.MaporEqualSlice, serviceName string) []*ecs.KeyValuePair {
 	environment := []*ecs.KeyValuePair{}
 	for _, env := range envVars {
 		parts := strings.SplitN(env, "=", 2)
@@ -446,7 +437,7 @@ func convertToECSVolumes(hostPaths *volumes) []*ecs.Volume {
 }
 
 // convertToPortMappings transforms the yml ports string slice to ecs compatible PortMappings slice
-func convertToPortMappings(serviceName string, cfgPorts []string) ([]*ecs.PortMapping, error) {
+func ConvertToPortMappings(serviceName string, cfgPorts []string) ([]*ecs.PortMapping, error) {
 	portMappings := []*ecs.PortMapping{}
 	for _, portMapping := range cfgPorts {
 		// TODO: suffix-check case insensitive?
@@ -507,7 +498,7 @@ func convertToPortMappings(serviceName string, cfgPorts []string) ([]*ecs.PortMa
 // - service_name:ro
 // - container_name
 // - container_name:rw
-func convertToVolumesFrom(cfgVolumesFrom []string) ([]*ecs.VolumeFrom, error) {
+func ConvertToVolumesFrom(cfgVolumesFrom []string) ([]*ecs.VolumeFrom, error) {
 	volumesFrom := []*ecs.VolumeFrom{}
 
 	for _, cfgVolumeFrom := range cfgVolumesFrom {
@@ -563,7 +554,7 @@ func convertToVolumesFrom(cfgVolumesFrom []string) ([]*ecs.VolumeFrom, error) {
 
 // convertToMountPoints transforms the yml volumes slice to ecs compatible MountPoints slice
 // It also uses the hostPath from volumes if present, else adds one to it
-func convertToMountPoints(cfgVolumes *yaml.Volumes, volumes *volumes) ([]*ecs.MountPoint, error) {
+func ConvertToMountPoints(cfgVolumes *yaml.Volumes, volumes *volumes) ([]*ecs.MountPoint, error) {
 	mountPoints := []*ecs.MountPoint{}
 	if cfgVolumes == nil {
 		return mountPoints, nil
@@ -611,7 +602,7 @@ func convertToMountPoints(cfgVolumes *yaml.Volumes, volumes *volumes) ([]*ecs.Mo
 }
 
 // convertToExtraHosts transforms the yml extra hosts slice to ecs compatible HostEntry slice
-func convertToExtraHosts(cfgExtraHosts []string) ([]*ecs.HostEntry, error) {
+func ConvertToExtraHosts(cfgExtraHosts []string) ([]*ecs.HostEntry, error) {
 	extraHosts := []*ecs.HostEntry{}
 	for _, cfgExtraHost := range cfgExtraHosts {
 		parts := strings.Split(cfgExtraHost, ":")
@@ -630,7 +621,7 @@ func convertToExtraHosts(cfgExtraHosts []string) ([]*ecs.HostEntry, error) {
 }
 
 // convertToULimits transforms the yml extra hosts slice to ecs compatible Ulimit slice
-func convertToULimits(cfgUlimits yaml.Ulimits) ([]*ecs.Ulimit, error) {
+func ConvertToULimits(cfgUlimits yaml.Ulimits) ([]*ecs.Ulimit, error) {
 	ulimits := []*ecs.Ulimit{}
 	for _, cfgUlimit := range cfgUlimits.Elements {
 		ulimit := &ecs.Ulimit{
@@ -645,7 +636,7 @@ func convertToULimits(cfgUlimits yaml.Ulimits) ([]*ecs.Ulimit, error) {
 }
 
 // convertToTmpfs transforms the yml Tmpfs slice of strings to slice of pointers to Tmpfs structs
-func convertToTmpfs(tmpfsPaths yaml.Stringorslice) ([]*ecs.Tmpfs, error) {
+func ConvertToTmpfs(tmpfsPaths yaml.Stringorslice) ([]*ecs.Tmpfs, error) {
 	mounts := []*ecs.Tmpfs{}
 	for _, mount := range tmpfsPaths {
 
@@ -744,4 +735,25 @@ func convertTaskDefParams(ecsParams *ECSParams) (params TaskDefParams, e error) 
 	params.executionRoleArn = taskDef.ExecutionRole
 
 	return params, nil
+}
+
+func ConvertToLogConfiguration(inputCfg *config.ServiceConfig) (*ecs.LogConfiguration, error) {
+	var logConfig *ecs.LogConfiguration
+	if inputCfg.Logging.Driver != "" {
+		logConfig = &ecs.LogConfiguration{
+			LogDriver: aws.String(inputCfg.Logging.Driver),
+			Options:   aws.StringMap(inputCfg.Logging.Options),
+		}
+	}
+        return logConfig, nil
+}
+
+func ConvertToSharedMemorySize(inputCfg *config.ServiceConfig) int64 {
+	var shmSize int64
+	if inputCfg.ShmSize != 0 {
+		// libcompose will parse this field in the docker compose file as bytes but ECS
+		// expects sharedMemorySize in MiB
+		shmSize = int64(inputCfg.ShmSize) / miB
+	}
+        return shmSize
 }
