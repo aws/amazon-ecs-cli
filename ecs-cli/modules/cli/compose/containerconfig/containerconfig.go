@@ -18,7 +18,7 @@ type ContainerConfig struct {
 	DockerSecurityOptions []string
 	Entrypoint            []string
 	Environment           []*ecs.KeyValuePair
-	ExtraHosts            []string
+	ExtraHosts            []*ecs.HostEntry
 	Hostname              string
 	// HealthCheck        *ecs.HealthCheck
 	Image             string
@@ -31,7 +31,7 @@ type ContainerConfig struct {
 	Privileged        bool
 	ReadOnly          bool
 	ShmSize           int64
-	Tmpfs             []string
+	Tmpfs             []*ecs.Tmpfs
 	Ulimits           []*ecs.Ulimit
 	VolumesFrom       []*ecs.VolumeFrom
 	User              string
