@@ -65,6 +65,8 @@ func getSupportedComposeYamlOptionsMap() map[string]bool {
 	return optionsMap
 }
 
+// TaskDefParams contains basic fields to build an
+// ECS task definition
 type TaskDefParams struct {
 	networkMode      string
 	taskRoleArn      string
@@ -121,7 +123,7 @@ func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context
 		count := len(serviceConfigs.Keys())
 
 		if !hasEssential(taskDefParams.containerDefs, count) {
-			return nil, errors.New("Task definition does not have any essential containers.")
+			return nil, errors.New("Task definition does not have any essential containers")
 		}
 
 		if err := convertToContainerDef(context, serviceConfig, volumes, containerDef, ecsContainerDef); err != nil {
@@ -261,7 +263,7 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 	}
 
 	// convert shared memory size
-        shmSize := ConvertToSharedMemorySize(inputCfg)
+	shmSize := ConvertToSharedMemorySize(inputCfg)
 
 	// convert environment variables
 	environment := convertToKeyValuePairs(context, inputCfg.Environment, *outputContDef.Name)
@@ -291,7 +293,7 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 	}
 
 	// convert log configuration
-        logConfig, err := ConvertToLogConfiguration(inputCfg)
+	logConfig, err := ConvertToLogConfiguration(inputCfg)
 	if err != nil {
 		return err
 	}
@@ -436,7 +438,7 @@ func convertToECSVolumes(hostPaths *volumes) []*ecs.Volume {
 	return output
 }
 
-// convertToPortMappings transforms the yml ports string slice to ecs compatible PortMappings slice
+// ConvertToPortMappings transforms the yml ports string slice to ecs compatible PortMappings slice
 func ConvertToPortMappings(serviceName string, cfgPorts []string) ([]*ecs.PortMapping, error) {
 	portMappings := []*ecs.PortMapping{}
 	for _, portMapping := range cfgPorts {
@@ -485,7 +487,7 @@ func ConvertToPortMappings(serviceName string, cfgPorts []string) ([]*ecs.PortMa
 	return portMappings, nil
 }
 
-// convertToVolumesFrom transforms the yml volumes from to ecs compatible VolumesFrom slice
+// ConvertToVolumesFrom transforms the yml volumes from to ecs compatible VolumesFrom slice
 // Examples for compose format v2:
 // volumes_from:
 // - service_name
@@ -552,7 +554,7 @@ func ConvertToVolumesFrom(cfgVolumesFrom []string) ([]*ecs.VolumeFrom, error) {
 	return volumesFrom, nil
 }
 
-// convertToMountPoints transforms the yml volumes slice to ecs compatible MountPoints slice
+// ConvertToMountPoints transforms the yml volumes slice to ecs compatible MountPoints slice
 // It also uses the hostPath from volumes if present, else adds one to it
 func ConvertToMountPoints(cfgVolumes *yaml.Volumes, volumes *volumes) ([]*ecs.MountPoint, error) {
 	mountPoints := []*ecs.MountPoint{}
@@ -601,7 +603,7 @@ func ConvertToMountPoints(cfgVolumes *yaml.Volumes, volumes *volumes) ([]*ecs.Mo
 	return mountPoints, nil
 }
 
-// convertToExtraHosts transforms the yml extra hosts slice to ecs compatible HostEntry slice
+// ConvertToExtraHosts transforms the yml extra hosts slice to ecs compatible HostEntry slice
 func ConvertToExtraHosts(cfgExtraHosts []string) ([]*ecs.HostEntry, error) {
 	extraHosts := []*ecs.HostEntry{}
 	for _, cfgExtraHost := range cfgExtraHosts {
@@ -620,7 +622,7 @@ func ConvertToExtraHosts(cfgExtraHosts []string) ([]*ecs.HostEntry, error) {
 	return extraHosts, nil
 }
 
-// convertToULimits transforms the yml extra hosts slice to ecs compatible Ulimit slice
+// ConvertToULimits transforms the yml extra hosts slice to ecs compatible Ulimit slice
 func ConvertToULimits(cfgUlimits yaml.Ulimits) ([]*ecs.Ulimit, error) {
 	ulimits := []*ecs.Ulimit{}
 	for _, cfgUlimit := range cfgUlimits.Elements {
@@ -635,7 +637,7 @@ func ConvertToULimits(cfgUlimits yaml.Ulimits) ([]*ecs.Ulimit, error) {
 	return ulimits, nil
 }
 
-// convertToTmpfs transforms the yml Tmpfs slice of strings to slice of pointers to Tmpfs structs
+// ConvertToTmpfs transforms the yml Tmpfs slice of strings to slice of pointers to Tmpfs structs
 func ConvertToTmpfs(tmpfsPaths yaml.Stringorslice) ([]*ecs.Tmpfs, error) {
 	mounts := []*ecs.Tmpfs{}
 	for _, mount := range tmpfsPaths {
@@ -685,7 +687,7 @@ func ConvertToTmpfs(tmpfsPaths yaml.Stringorslice) ([]*ecs.Tmpfs, error) {
 	return mounts, nil
 }
 
-// GoString returns deterministic string representation
+// SortedGoString returns deterministic string representation
 // json Marshal sorts map keys, making it deterministic
 func SortedGoString(v interface{}) (string, error) {
 	b, err := json.Marshal(v)
@@ -711,7 +713,7 @@ func hasEssential(ecsParamsContainerDefs ContainerDefs, count int) bool {
 
 	for _, containerDef := range ecsParamsContainerDefs {
 		if !containerDef.Essential {
-			nonEssentialCount += 1
+			nonEssentialCount++
 		}
 	}
 
@@ -737,6 +739,8 @@ func convertTaskDefParams(ecsParams *ECSParams) (params TaskDefParams, e error) 
 	return params, nil
 }
 
+// ConvertToLogConfiguration converts a libcompose logging
+// fields to an ECS LogConfiguration
 func ConvertToLogConfiguration(inputCfg *config.ServiceConfig) (*ecs.LogConfiguration, error) {
 	var logConfig *ecs.LogConfiguration
 	if inputCfg.Logging.Driver != "" {
@@ -745,15 +749,15 @@ func ConvertToLogConfiguration(inputCfg *config.ServiceConfig) (*ecs.LogConfigur
 			Options:   aws.StringMap(inputCfg.Logging.Options),
 		}
 	}
-        return logConfig, nil
+	return logConfig, nil
 }
 
+// ConvertToSharedMemorySize converts libcompose-parsed bytes
+// to MiB, expected by ECS
 func ConvertToSharedMemorySize(inputCfg *config.ServiceConfig) int64 {
 	var shmSize int64
 	if inputCfg.ShmSize != 0 {
-		// libcompose will parse this field in the docker compose file as bytes but ECS
-		// expects sharedMemorySize in MiB
 		shmSize = int64(inputCfg.ShmSize) / miB
 	}
-        return shmSize
+	return shmSize
 }
