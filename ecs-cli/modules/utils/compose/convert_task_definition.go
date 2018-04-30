@@ -78,14 +78,15 @@ type TaskDefParams struct {
 }
 
 // ConvertToTaskDefinition transforms the yaml configs to its ecs equivalent (task definition)
-func ConvertToTaskDefinition(taskDefinitionName string, context *project.Context, volumeConfigs map[string]*config.VolumeConfig,
+func ConvertToTaskDefinition(context *project.Context, volumeConfigs map[string]*config.VolumeConfig,
 	serviceConfigs *config.ServiceConfigs, taskRoleArn string, requiredCompatibilites string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
-
 	if serviceConfigs.Len() == 0 {
 		return nil, errors.New("cannot create a task definition with no containers; invalid service config")
 	}
 
 	logUnsupportedConfigFields(context.Project)
+
+	taskDefinitionName := context.ProjectName
 
 	// Instantiates zero values for fields on task def specified by ecs-params
 	taskDefParams, err := convertTaskDefParams(ecsParams)

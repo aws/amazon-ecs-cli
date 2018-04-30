@@ -1072,7 +1072,6 @@ func convertToTaskDefinitionInTest(t *testing.T, name string, volumeConfig *conf
 	serviceConfigs := config.NewServiceConfigs()
 	serviceConfigs.Add(name, serviceConfig)
 
-	taskDefName := "ProjectName"
 	envLookup, err := GetDefaultEnvironmentLookup()
 	if err != nil {
 		t.Fatal("Unexpected error setting up environment lookup")
@@ -1082,11 +1081,12 @@ func convertToTaskDefinitionInTest(t *testing.T, name string, volumeConfig *conf
 		t.Fatal("Unexpected error setting up resource lookup")
 	}
 	context := &project.Context{
+		ProjectName:       "ProjectName",
 		Project:           &project.Project{},
 		EnvironmentLookup: envLookup,
 		ResourceLookup:    resourceLookup,
 	}
-	taskDefinition, err := ConvertToTaskDefinition(taskDefName, context, volumeConfigs, serviceConfigs, taskRoleArn, launchType, nil)
+	taskDefinition, err := ConvertToTaskDefinition(context, volumeConfigs, serviceConfigs, taskRoleArn, launchType, nil)
 	if err != nil {
 		t.Errorf("Expected to convert [%v] serviceConfigs without errors. But got [%v]", serviceConfig, err)
 	}
@@ -1110,7 +1110,6 @@ func convertToTaskDefWithEcsParamsInTest(t *testing.T, names []string, volumeCon
 		serviceConfigs.Add(name, serviceConfig)
 	}
 
-	taskDefName := "ProjectName"
 	envLookup, err := GetDefaultEnvironmentLookup()
 	if err != nil {
 		t.Fatal("Unexpected error setting up environment lookup")
@@ -1120,11 +1119,12 @@ func convertToTaskDefWithEcsParamsInTest(t *testing.T, names []string, volumeCon
 		t.Fatal("Unexpected error setting up resource lookup")
 	}
 	context := &project.Context{
+		ProjectName:       "ProjectName",
 		Project:           &project.Project{},
 		EnvironmentLookup: envLookup,
 		ResourceLookup:    resourceLookup,
 	}
-	taskDefinition, err := ConvertToTaskDefinition(taskDefName, context, volumeConfigs, serviceConfigs, taskRoleArn, "", ecsParams)
+	taskDefinition, err := ConvertToTaskDefinition(context, volumeConfigs, serviceConfigs, taskRoleArn, "", ecsParams)
 	if err != nil {
 		return nil, err
 	}
@@ -1205,7 +1205,6 @@ func TestIsZeroWhenConfigHasValues(t *testing.T) {
 }
 
 func TestMemReservationHigherThanMemLimit(t *testing.T) {
-
 	name := "api"
 	cpu := int64(131072) // 128 * 1024
 	command := "cmd"
@@ -1236,17 +1235,17 @@ func TestMemReservationHigherThanMemLimit(t *testing.T) {
 	serviceConfigs := config.NewServiceConfigs()
 	serviceConfigs.Add(name, serviceConfig)
 
-	taskDefName := "ProjectName"
 	envLookup, err := GetDefaultEnvironmentLookup()
 	assert.NoError(t, err, "Unexpected error setting up environment lookup")
 	resourceLookup, err := GetDefaultResourceLookup()
 	assert.NoError(t, err, "Unexpected error setting up resource lookup")
 	context := &project.Context{
+		ProjectName:       "ProjectName",
 		Project:           &project.Project{},
 		EnvironmentLookup: envLookup,
 		ResourceLookup:    resourceLookup,
 	}
-	_, err = ConvertToTaskDefinition(taskDefName, context, volumeConfigs, serviceConfigs, "", "", nil)
+	_, err = ConvertToTaskDefinition(context, volumeConfigs, serviceConfigs, "", "", nil)
 	assert.EqualError(t, err, "mem_limit should not be less than mem_reservation")
 }
 
