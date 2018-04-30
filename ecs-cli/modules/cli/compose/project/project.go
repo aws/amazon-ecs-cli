@@ -173,7 +173,7 @@ func (p *ecsProject) transformTaskDefinition() error {
 		p.ServiceConfigs(),
 		taskRoleArn,
 		requiredCompatibilities,
-		p.ecsContext.ECSParams,
+		ecsContext.ECSParams,
 	)
 
 	if err != nil {
