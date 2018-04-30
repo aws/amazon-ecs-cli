@@ -67,6 +67,6 @@ func main() {
 
 	err := app.Run(os.Args)
 	if err != nil {
-		logrus.Debug(err)
+		logrus.Fatal(err)
 	}
 }
