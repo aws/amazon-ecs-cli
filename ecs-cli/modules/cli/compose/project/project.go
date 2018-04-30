@@ -91,6 +91,11 @@ func (p *ecsProject) ServiceConfigs() *config.ServiceConfigs {
 	return p.Project.ServiceConfigs
 }
 
+// VolumeConfigs returns a map of Volume Configuration loaded from compose yaml file
+func (p *ecsProject) VolumeConfigs() map[string]*config.VolumeConfig {
+	return p.Project.VolumeConfigs
+}
+
 // Entity returns the project entity that operates on the compose file and integrates with ecs
 func (p *ecsProject) Entity() entity.ProjectEntity {
 	return p.entity
@@ -166,6 +171,7 @@ func (p *ecsProject) transformTaskDefinition() error {
 	taskDefinition, err := utils.ConvertToTaskDefinition(
 		taskDefinitionName,
 		&ecsContext.Context,
+		p.VolumeConfigs(),
 		p.ServiceConfigs(),
 		taskRoleArn,
 		requiredCompatibilities,
