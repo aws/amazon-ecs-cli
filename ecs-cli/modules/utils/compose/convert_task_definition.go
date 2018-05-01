@@ -263,33 +263,29 @@ func isZero(v reflect.Value) bool {
 	return v.Interface() == zero.Interface()
 }
 
-// convertToContainerDef transforms each service in the compose yml
-// to an equivalent ECS container definition
+// convertToContainerDef transforms each service in docker-compose.yml and
+// ecs-params.yml to an equivalent ECS container definition
 func convertToContainerDef(context *project.Context, inputCfg *config.ServiceConfig,
 	volumes *volumes, outputContDef *ecs.ContainerDefinition, ecsContainerDef *ContainerDef) error {
+
 	// setting memory limit
-	var mem int64
-	var memoryReservation int64
-	if inputCfg.MemReservation != 0 {
-		memoryReservation = int64(inputCfg.MemReservation) / miB // convert bytes to MiB
-	}
+	// MemLimit and MemReservation on libcompose ServiceConfig are parsed
+	// as yaml.MemStringorInt value representing the memory in bytes
+	mem := ConvertToMemoryInMB(int64(inputCfg.MemLimit))
+	memoryReservation := ConvertToMemoryInMB(int64(inputCfg.MemReservation))
 
-	if inputCfg.MemLimit != 0 {
-		mem = int64(inputCfg.MemLimit) / miB // convert bytes to MiB
-	}
-	// mem_limit should be > mem_reservation, if it is specified
 	if mem != 0 && memoryReservation != 0 && mem < memoryReservation {
-		return errors.New("mem_limit should not be less than mem_reservation")
+		return errors.New("mem_limit must be greater than mem_reservation")
 	}
 
-	// TODO: We should be letting docker set the default here -- see note on default shared
-	// memory size?
+	// One or both of memory and memoryReservation is required to register a task definition with ECS
+	// NOTE: Docker does not set a memory limit for containers
 	if mem == 0 && memoryReservation == 0 {
 		mem = defaultMemLimit
 	}
 
 	// convert shared memory size
-	shmSize := ConvertToSharedMemorySize(inputCfg)
+	shmSize := ConvertToMemoryInMB(int64(inputCfg.ShmSize))
 
 	// convert environment variables
 	environment := convertToKeyValuePairs(context, inputCfg.Environment, *outputContDef.Name)
@@ -336,7 +332,7 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 		return err
 	}
 
-	// populating container definition, offloading the validation to aws-sdk
+	// Populate ECS container definition, offloading the validation to aws-sdk
 	outputContDef.Cpu = aws.Int64(int64(inputCfg.CPUShares))
 	outputContDef.Command = aws.StringSlice(inputCfg.Command)
 	outputContDef.DnsSearchDomains = aws.StringSlice(inputCfg.DNSSearch)
@@ -784,12 +780,11 @@ func ConvertToLogConfiguration(inputCfg *config.ServiceConfig) (*ecs.LogConfigur
 	return logConfig, nil
 }
 
-// ConvertToSharedMemorySize converts libcompose-parsed bytes
-// to MiB, expected by ECS
-func ConvertToSharedMemorySize(inputCfg *config.ServiceConfig) int64 {
-	var shmSize int64
-	if inputCfg.ShmSize != 0 {
-		shmSize = int64(inputCfg.ShmSize) / miB
+// ConvertToMemoryInMB converts libcompose-parsed bytes to MiB, expected by ECS
+func ConvertToMemoryInMB(bytes int64) int64 {
+	var memory int64
+	if bytes != 0 {
+		memory = int64(bytes) / miB
 	}
-	return shmSize
+	return memory
 }

@@ -208,7 +208,8 @@ func TestParseComposeForVersion2Files(t *testing.T) {
 	wordpressImage := "wordpress"
 	mysqlImage := "mysql"
 	ports := []string{"80:80"}
-	memoryReservation := int64(500000000)
+	memoryReservation := yaml.MemStringorInt(500000000)
+	memory:= yaml.MemStringorInt(536870912) // 512 * 1024 * 1024
 	shmSize := yaml.MemStringorInt(1073741824) // 1 gb = 1024 * 1024 * 1024 bytes
         tmpfs := yaml.Stringorslice{"/run:size=1gb", "/tmp:size=65536k"}
 
@@ -218,6 +219,7 @@ services:
     image: wordpress
     ports: ["80:80"]
     mem_reservation: 500000000
+    mem_limit: 512M
     shm_size: 1gb
     tmpfs:
       - /run:size=1gb
@@ -246,7 +248,8 @@ services:
 		t.Errorf("Expected ports to be [%v] but got [%v]", ports, wordpress.Ports)
 	}
 
-	assert.Equal(t, memoryReservation, int64(wordpress.MemReservation), "Expected memoryReservation to match")
+	assert.Equal(t, memoryReservation, wordpress.MemReservation, "Expected memoryReservation to match")
+	assert.Equal(t, memory, wordpress.MemLimit, "Expected memoryReservation to match")
 	assert.Equal(t, shmSize, wordpress.ShmSize, "Expected shmSize to match")
 	assert.Equal(t, tmpfs, wordpress.Tmpfs, "Expected tmpfs to match")
 

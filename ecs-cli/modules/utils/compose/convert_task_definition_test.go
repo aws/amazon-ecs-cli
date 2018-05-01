@@ -1246,7 +1246,7 @@ func TestMemReservationHigherThanMemLimit(t *testing.T) {
 		ResourceLookup:    resourceLookup,
 	}
 	_, err = ConvertToTaskDefinition(context, volumeConfigs, serviceConfigs, "", "", nil)
-	assert.EqualError(t, err, "mem_limit should not be less than mem_reservation")
+	assert.EqualError(t, err, "mem_limit must be greater than mem_reservation")
 }
 
 func TestSortedGoString(t *testing.T) {
