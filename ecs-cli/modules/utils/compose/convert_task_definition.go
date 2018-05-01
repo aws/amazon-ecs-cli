@@ -72,14 +72,14 @@ var supportedComposeYamlOptions = []string{
 	"tmpfs",
 	"ulimits",
 	"user",
-	"volumes",
+	"volumes", // v2
 	"volumes_from",
 	"working_dir",
 }
 
 var supportedComposeYamlOptionsMap = getSupportedComposeYamlOptionsMap()
 
-type volumes struct {
+type Volumes struct {
 	volumeWithHost  map[string]string
 	volumeEmptyHost []string
 }
@@ -266,7 +266,7 @@ func isZero(v reflect.Value) bool {
 // convertToContainerDef transforms each service in docker-compose.yml and
 // ecs-params.yml to an equivalent ECS container definition
 func convertToContainerDef(context *project.Context, inputCfg *config.ServiceConfig,
-	volumes *volumes, outputContDef *ecs.ContainerDefinition, ecsContainerDef *ContainerDef) error {
+	volumes *Volumes, outputContDef *ecs.ContainerDefinition, ecsContainerDef *ContainerDef) error {
 
 	// setting memory limit
 	// MemLimit and MemReservation on libcompose ServiceConfig are parsed
@@ -288,7 +288,7 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 	shmSize := ConvertToMemoryInMB(int64(inputCfg.ShmSize))
 
 	// convert environment variables
-	environment := convertToKeyValuePairs(context, inputCfg.Environment, *outputContDef.Name)
+	environment := ConvertToKeyValuePairs(context, inputCfg.Environment, *outputContDef.Name)
 
 	// convert port mappings
 	portMappings, err := ConvertToPortMappings(*outputContDef.Name, inputCfg.Ports)
@@ -397,7 +397,7 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 // convertToKeyValuePairs transforms the map of environment variables into list of ecs.KeyValuePair.
 // Environment variables with only a key are resolved by reading the variable from the shell where ecscli is executed from.
 // TODO: use this logic to generate RunTask overrides for ecscli compose commands (instead of always creating a new task def)
-func convertToKeyValuePairs(context *project.Context, envVars yaml.MaporEqualSlice, serviceName string) []*ecs.KeyValuePair {
+func ConvertToKeyValuePairs(context *project.Context, envVars yaml.MaporEqualSlice, serviceName string) []*ecs.KeyValuePair {
 	environment := []*ecs.KeyValuePair{}
 	for _, env := range envVars {
 		parts := strings.SplitN(env, "=", 2)
@@ -440,7 +440,7 @@ func createKeyValuePair(key, value string) *ecs.KeyValuePair {
 }
 
 // convertToECSVolumes transforms the map of hostPaths to the format of ecs.Volume
-func convertToECSVolumes(hostPaths *volumes) []*ecs.Volume {
+func convertToECSVolumes(hostPaths *Volumes) []*ecs.Volume {
 	output := []*ecs.Volume{}
 	// volumes with a host path
 	for hostPath, volName := range hostPaths.volumeWithHost {
@@ -579,7 +579,7 @@ func ConvertToVolumesFrom(cfgVolumesFrom []string) ([]*ecs.VolumeFrom, error) {
 
 // ConvertToMountPoints transforms the yml volumes slice to ecs compatible MountPoints slice
 // It also uses the hostPath from volumes if present, else adds one to it
-func ConvertToMountPoints(cfgVolumes *yaml.Volumes, volumes *volumes) ([]*ecs.MountPoint, error) {
+func ConvertToMountPoints(cfgVolumes *yaml.Volumes, volumes *Volumes) ([]*ecs.MountPoint, error) {
 	mountPoints := []*ecs.MountPoint{}
 	if cfgVolumes == nil {
 		return mountPoints, nil
@@ -797,8 +797,8 @@ func ConvertToMemoryInMB(bytes int64) int64 {
 
 // ConvertToVolumes converts the VolumeConfigs map on a libcompose project into
 // a Volumes struct and populates the volumeEmptyHost field with any named volumes
-func ConvertToVolumes(volumeConfigs map[string]*config.VolumeConfig) (*volumes, error) {
-	volumes := &volumes{
+func ConvertToVolumes(volumeConfigs map[string]*config.VolumeConfig) (*Volumes, error) {
+	volumes := &Volumes{
 		volumeWithHost: make(map[string]string), // map with key:=hostSourcePath value:=VolumeName
 	}
 
