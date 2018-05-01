@@ -16,10 +16,10 @@ package factory
 import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project"
-
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
-	libcomposecommand "github.com/docker/libcompose/cli/command"
+
+	"github.com/docker/libcompose/cli/command"
 	"github.com/urfave/cli"
 )
 
@@ -65,7 +65,7 @@ func (projectFactory projectFactory) populateContext(ecsContext *context.ECSCont
 		 specified.
 		 - ProjectName: reads from `--project-name` or `-p` flags.
 	*/
-	libcomposecommand.Populate(&ecsContext.Context, cliContext)
+	command.Populate(&ecsContext.Context, cliContext)
 	ecsContext.CLIContext = cliContext
 
 	// reads and sets the parameters (required to create ECS Service
