@@ -164,14 +164,6 @@ func (p *ecsProject) parseCompose() error {
 		return fmt.Errorf("Unsupported Docker Compose version found: %s", version)
 	}
 
-	// libcompose.Project#Parse populates project information based on its
-	// context. It sets up the name, the composefile and the composebytes
-	// (the composefile content). This is where p.ServiceConfigs gets loaded.
-	// TODO: remove this after parseV1V2 & parseV3 are implemented.
-	if err := p.Project.Parse(); err != nil {
-		return err
-	}
-
 	// libcompose sanitizes the project name and removes any non alpha-numeric character.
 	// The following undoes that and sets the project name as user defined it.
 	return p.ecsContext.SetProjectName()

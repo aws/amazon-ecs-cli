@@ -913,7 +913,7 @@ func TestConvertToMountPoints(t *testing.T) {
 	hostAndContainerPathWithRW := yaml.Volume{Source: hostPath, Destination: containerPath, AccessMode: "rw"}
 	namedVolumeAndContainerPath := yaml.Volume{Source: namedVolume, Destination: containerPath}
 
-	volumes := &volumes{
+	volumes := &Volumes{
 		volumeWithHost:  make(map[string]string), // map with key:=hostSourcePath value:=VolumeName
 		volumeEmptyHost: []string{namedVolume},   // Declare one volume with an empty host
 	}
@@ -957,7 +957,7 @@ func TestConvertToMountPoints(t *testing.T) {
 }
 
 func TestConvertToMountPointsWithInvalidAccessMode(t *testing.T) {
-	volumes := &volumes{
+	volumes := &Volumes{
 		volumeWithHost:  make(map[string]string),
 		volumeEmptyHost: []string{namedVolume},
 	}
@@ -980,7 +980,7 @@ func TestConvertToMountPointsWithInvalidAccessMode(t *testing.T) {
 }
 
 func TestConvertToMountPointsNullContainerVolumes(t *testing.T) {
-	volumes := &volumes{
+	volumes := &Volumes{
 		volumeWithHost:  make(map[string]string),
 		volumeEmptyHost: []string{namedVolume},
 	}
@@ -993,7 +993,7 @@ func TestConvertToMountPointsNullContainerVolumes(t *testing.T) {
 	}
 }
 
-func verifyMountPoint(t *testing.T, output *ecs.MountPoint, volumes *volumes,
+func verifyMountPoint(t *testing.T, output *ecs.MountPoint, volumes *Volumes,
 	source, containerPath string, readonly bool, EmptyHostCtr int) {
 	sourceVolume := ""
 	if containerPath != *output.ContainerPath {
@@ -1100,7 +1100,7 @@ func TestConvertToVolumes(t *testing.T) {
 		namedVolume: nil,
 	}
 
-	expected := &volumes{
+	expected := &Volumes{
 		volumeWithHost:  make(map[string]string), // map with key:=hostSourcePath value:=VolumeName
 		volumeEmptyHost: []string{namedVolume},   // Declare one volume with an empty host
 	}
