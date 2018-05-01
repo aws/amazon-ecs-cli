@@ -271,11 +271,11 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 	var mem int64
 	var memoryReservation int64
 	if inputCfg.MemReservation != 0 {
-		memoryReservation = int64(inputCfg.MemReservation) / kiB / kiB // convert bytes to MiB
+		memoryReservation = int64(inputCfg.MemReservation) / miB // convert bytes to MiB
 	}
 
 	if inputCfg.MemLimit != 0 {
-		mem = int64(inputCfg.MemLimit) / kiB / kiB // convert bytes to MiB
+		mem = int64(inputCfg.MemLimit) / miB // convert bytes to MiB
 	}
 	// mem_limit should be > mem_reservation, if it is specified
 	if mem != 0 && memoryReservation != 0 && mem < memoryReservation {
