@@ -108,6 +108,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	assert.Equal(t, memoryReservation, aws.Int64Value(containerDef.MemoryReservation), "Expected memoryReservation to match")
 
 	assert.Nil(t, containerDef.LinuxParameters.SharedMemorySize, "Expected sharedMemorySize to be null")
+	assert.Nil(t, containerDef.LinuxParameters.Tmpfs, "Expected Tmpfs to be null")
 
 	if privileged != aws.BoolValue(containerDef.Privileged) {
 		t.Errorf("Expected privileged [%t] But was [%t]", privileged, aws.BoolValue(containerDef.Privileged))

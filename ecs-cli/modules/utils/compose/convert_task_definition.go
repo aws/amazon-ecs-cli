@@ -382,7 +382,8 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 		outputContDef.LinuxParameters.SetSharedMemorySize(shmSize)
 	}
 
-	if inputCfg.Tmpfs != nil {
+        // Only set tmpfs if tmpfs mounts are specified.
+	if tmpfs != nil {
 		outputContDef.LinuxParameters.SetTmpfs(tmpfs)
 	}
 
@@ -667,6 +668,11 @@ func ConvertToULimits(cfgUlimits yaml.Ulimits) ([]*ecs.Ulimit, error) {
 
 // ConvertToTmpfs transforms the yml Tmpfs slice of strings to slice of pointers to Tmpfs structs
 func ConvertToTmpfs(tmpfsPaths yaml.Stringorslice) ([]*ecs.Tmpfs, error) {
+
+	if len(tmpfsPaths) == 0 {
+                return nil, nil
+        }
+
 	mounts := []*ecs.Tmpfs{}
 	for _, mount := range tmpfsPaths {
 
