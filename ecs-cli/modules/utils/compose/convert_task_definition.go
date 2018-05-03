@@ -99,39 +99,10 @@ func ConvertToTaskDefinition(context *project.Context, volumeConfigs map[string]
 		taskRoleArn = taskDefParams.taskRoleArn
 	}
 
+	volumes := ConvertToVolumes(volumeConfigs)
+
 	// Create containerDefinitions
 	containerDefinitions := []*ecs.ContainerDefinition{}
-	volumes := &volumes{
-		volumeWithHost: make(map[string]string), // map with key:=hostSourcePath value:=VolumeName
-	}
-
-	// Add named volume configs:
-	if volumeConfigs != nil {
-		for name, config := range volumeConfigs {
-			if config != nil {
-				if config.Driver != "" {
-					log.WithFields(log.Fields{
-						"volume name": name,
-						"option name": "driver",
-					}).Warn("Skipping unsupported YAML option...")
-				}
-				if len(config.DriverOpts) != 0 {
-					log.WithFields(log.Fields{
-						"volume name": name,
-						"option name": "driver_opts",
-					}).Warn("Skipping unsupported YAML option...")
-				}
-				if config.External.External {
-					log.WithFields(log.Fields{
-						"volume name": name,
-						"option name": "external",
-					}).Warn("Skipping unsupported YAML option...")
-				}
-			}
-			volumes.volumeEmptyHost = append(volumes.volumeEmptyHost, name)
-		}
-	}
-
 	for _, name := range serviceConfigs.Keys() {
 		serviceConfig, ok := serviceConfigs.Get(name)
 		if !ok {
@@ -382,7 +353,7 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 		outputContDef.LinuxParameters.SetSharedMemorySize(shmSize)
 	}
 
-        // Only set tmpfs if tmpfs mounts are specified.
+	// Only set tmpfs if tmpfs mounts are specified.
 	if tmpfs != nil {
 		outputContDef.LinuxParameters.SetTmpfs(tmpfs)
 	}
@@ -670,8 +641,8 @@ func ConvertToULimits(cfgUlimits yaml.Ulimits) ([]*ecs.Ulimit, error) {
 func ConvertToTmpfs(tmpfsPaths yaml.Stringorslice) ([]*ecs.Tmpfs, error) {
 
 	if len(tmpfsPaths) == 0 {
-                return nil, nil
-        }
+		return nil, nil
+	}
 
 	mounts := []*ecs.Tmpfs{}
 	for _, mount := range tmpfsPaths {
@@ -793,4 +764,39 @@ func ConvertToMemoryInMB(bytes int64) int64 {
 		memory = int64(bytes) / miB
 	}
 	return memory
+}
+
+func ConvertToVolumes(volumeConfigs map[string]*config.VolumeConfig) *volumes {
+	volumes := &volumes{
+		volumeWithHost: make(map[string]string), // map with key:=hostSourcePath value:=VolumeName
+	}
+
+	// Add named volume configs:
+	if volumeConfigs != nil {
+		for name, config := range volumeConfigs {
+			if config != nil {
+				if config.Driver != "" {
+					log.WithFields(log.Fields{
+						"volume name": name,
+						"option name": "driver",
+					}).Warn("Skipping unsupported YAML option...")
+				}
+				if len(config.DriverOpts) != 0 {
+					log.WithFields(log.Fields{
+						"volume name": name,
+						"option name": "driver_opts",
+					}).Warn("Skipping unsupported YAML option...")
+				}
+				if config.External.External {
+					log.WithFields(log.Fields{
+						"volume name": name,
+						"option name": "external",
+					}).Warn("Skipping unsupported YAML option...")
+				}
+			}
+			volumes.volumeEmptyHost = append(volumes.volumeEmptyHost, name)
+		}
+	}
+
+	return volumes
 }
