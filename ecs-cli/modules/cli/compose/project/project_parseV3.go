@@ -5,19 +5,42 @@ import (
 	"path/filepath"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/containerconfig"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
+	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/docker/cli/cli/compose/loader"
 	"github.com/docker/cli/cli/compose/types"
+	"github.com/docker/libcompose/yaml"
 )
 
 func (p *ecsProject) parseV3() (*[]containerconfig.ContainerConfig, error) {
-	logrus.Debug("Parsing v3 project...")
+	log.Debug("Parsing v3 project...")
 
-	// load and parse each compose file into a configFile
+	v3Config, err := getV3Config(p.ecsContext.ComposeFiles)
+	if err != nil {
+		return nil, err
+	}
+
+	// convert ServiceConfigs to ContainerConfigs
+	conConfigs := []containerconfig.ContainerConfig{}
+	for _, service := range v3Config.Services {
+		cCon, err := convertToContainerConfig(service)
+		if err != nil {
+			return nil, err
+		}
+		conConfigs = append(conConfigs, *cCon)
+	}
+
+	// TODO: process v3Config.Volumes as well
+	return &conConfigs, nil
+}
+
+// parses compose files into a docker/cli Config, which contains v3 ServiceConfigs
+func getV3Config(composeFiles []string) (*types.Config, error) {
 	configFiles := []types.ConfigFile{}
-	for _, file := range p.ecsContext.ComposeFiles {
+	for _, file := range composeFiles {
 
 		loadedFile, err := ioutil.ReadFile(file)
 		if err != nil {
@@ -34,7 +57,7 @@ func (p *ecsProject) parseV3() (*[]containerconfig.ContainerConfig, error) {
 		configFiles = append(configFiles, configFile)
 	}
 
-	wrkDir, err := getWorkingDir(p.ecsContext.ComposeFiles[0])
+	wrkDir, err := getWorkingDir(composeFiles[0])
 	if err != nil {
 		return nil, err
 	}
@@ -51,24 +74,89 @@ func (p *ecsProject) parseV3() (*[]containerconfig.ContainerConfig, error) {
 		return nil, err
 	}
 
-	// convert ServiceConfigs to ContainerConfigs
-	conConfigs := []containerconfig.ContainerConfig{}
-	for _, service := range config.Services {
-		cCon, err := convertToContainerConfig(service)
-		if err != nil {
-			return nil, err
-		}
-		conConfigs = append(conConfigs, *cCon)
-	}
-
-	return &conConfigs, nil
+	return config, nil
 }
 
 func convertToContainerConfig(serviceConfig types.ServiceConfig) (*containerconfig.ContainerConfig, error) {
-	//TODO: fully convert ServiceConfig to ContainerConfig
+	//TODO: Add Healthcheck, Devices to ContainerConfig
 	c := &containerconfig.ContainerConfig{
-		Name: serviceConfig.Name,
+		CapAdd:                serviceConfig.CapAdd,
+		CapDrop:               serviceConfig.CapDrop,
+		DockerSecurityOptions: serviceConfig.SecurityOpt,
+		Entrypoint:            serviceConfig.Entrypoint,
+		Name:                  serviceConfig.Name,
+		Image:                 serviceConfig.Image,
+		Hostname:              serviceConfig.Hostname,
+		Links:                 serviceConfig.Links,
+		Privileged:            serviceConfig.Privileged,
+		ReadOnly:              serviceConfig.ReadOnly,
+		Command:               serviceConfig.Command,
+		User:                  serviceConfig.User,
+		WorkingDirectory:      serviceConfig.WorkingDir,
 	}
+
+	extraHosts, err := utils.ConvertToExtraHosts(serviceConfig.ExtraHosts)
+	if err != nil {
+		return nil, err
+	}
+	c.ExtraHosts = extraHosts
+
+	if serviceConfig.DNS != nil {
+		c.DNSServers = serviceConfig.DNS
+	}
+	if serviceConfig.DNSSearch != nil {
+		c.DNSSearchDomains = serviceConfig.DNSSearch
+	}
+
+	if serviceConfig.Tmpfs != nil {
+		tmpfs := yaml.Stringorslice(serviceConfig.Tmpfs)
+		ecsTmpfs, err := utils.ConvertToTmpfs(tmpfs) // TODO: change ConvertToTmpfs to take in []string
+		if err != nil {
+			return nil, err
+		}
+		c.Tmpfs = ecsTmpfs
+	}
+	if serviceConfig.Logging != nil {
+		logConfig := ecs.LogConfiguration{}
+		logConfig.SetLogDriver(serviceConfig.Logging.Driver)
+
+		optionsMap := makePointerMapForStringMap(serviceConfig.Logging.Options)
+		logConfig.SetOptions(optionsMap)
+		c.LogConfiguration = &logConfig
+	}
+	if serviceConfig.Labels != nil {
+		labelsMap := makePointerMapForStringMap(serviceConfig.Labels)
+		c.DockerLabels = labelsMap
+	}
+	if len(serviceConfig.Ports) > 0 {
+		var portMappings []*ecs.PortMapping
+		for _, portConfig := range serviceConfig.Ports {
+			mapping := convertPortConfigToECSMapping(portConfig)
+			portMappings = append(portMappings, mapping)
+		}
+		c.PortMappings = portMappings
+	}
+	// TODO: reconcile with top-level Volumes key
+	if len(serviceConfig.Volumes) > 0 {
+		mountPoints := []*ecs.MountPoint{}
+
+		for _, volConfig := range serviceConfig.Volumes {
+			if volConfig.Type == "volume" {
+				mp := &ecs.MountPoint{
+					ContainerPath: &volConfig.Target,
+					SourceVolume:  &volConfig.Source,
+					ReadOnly:      &volConfig.ReadOnly,
+				}
+				mountPoints = append(mountPoints, mp)
+			} else {
+				log.Warnf("Unsupported mount type found: %s", volConfig.Type)
+			}
+		}
+		c.MountPoints = mountPoints
+	}
+
+	// TODO: add Environtment, EnvFile to ContainerConfig
+	// TODO: log out unsupported fields
 	return c, nil
 }
 
@@ -78,4 +166,26 @@ func getWorkingDir(fileName string) (string, error) {
 		return "", errors.Wrap(err, "Unable to retrieve compose file directory")
 	}
 	return filepath.Dir(pwd), nil
+}
+
+func convertPortConfigToECSMapping(portConfig types.ServicePortConfig) *ecs.PortMapping {
+	containerPort := int64(portConfig.Target)
+	hostPort := int64(portConfig.Published)
+
+	var ecsMapping = ecs.PortMapping{
+		ContainerPort: &containerPort,
+		HostPort:      &hostPort,
+		Protocol:      &portConfig.Protocol,
+	}
+	return &ecsMapping
+}
+
+func makePointerMapForStringMap(m map[string]string) map[string]*string {
+	pointerMap := make(map[string]*string)
+	for k, v := range m {
+		val := new(string)
+		*val = v
+		pointerMap[k] = val
+	}
+	return pointerMap
 }
