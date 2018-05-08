@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/containerconfig"
-	"github.com/sirupsen/logrus"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/stretchr/testify/assert"
 
@@ -61,7 +61,6 @@ services:
     privileged: true
     extra_hosts:
       - "mysqlexhost:10.0.0.0"`
-	logrus.Info("compose string: %s", composeFileString)
 
 	tmpfile, err := ioutil.TempFile("", "test")
 	if err != nil {
@@ -99,7 +98,7 @@ func TestParseV3WithMultipleFiles(t *testing.T) {
 services:
   wordpress:
     image: wordpress
-    ports: 
+    ports:
       - "80:80"
       - "777"
   mysql:
@@ -152,91 +151,124 @@ services:
 	}
 }
 
-func verifyConvertToContainerConfigOutput(t *testing.T, observed types.ServiceConfig, expected containerconfig.ContainerConfig) {
+func TestThrowErrorOnBadYaml(t *testing.T) {
+	badPortsYaml := `version: '2'
+services:
+  wordpress:
+    image: wordpress
+    ports:
+      - "80:80", "77:77"
+  mysql:
+	image: mysql`
+
+	tmpfile, err := ioutil.TempFile("", "test")
+	if err != nil {
+		t.Fatal("Unexpected error in creating test file: ", err)
+	}
+	defer os.Remove(tmpfile.Name())
+	_, err = tmpfile.Write([]byte(badPortsYaml))
+	assert.NoError(t, err, "Unexpected error parsing file")
+
+	// add files to projects
+	project := setupTestProject(t)
+	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, tmpfile.Name())
+
+	_, err = project.parseV3()
+	assert.Error(t, err)
+}
+
+func TestThrowErrorIfFileDoesNotExist(t *testing.T) {
+	var fakeFileName = "/missingFile"
+	project := setupTestProject(t)
+	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, fakeFileName)
+	_, err := project.parseV3()
+	assert.Error(t, err)
+}
+
+func verifyConvertToContainerConfigOutput(t *testing.T, expected types.ServiceConfig, actual containerconfig.ContainerConfig) {
 
 	// verify equivalent fields
-	assert.Equal(t, expected.CapAdd, observed.CapAdd)
-	assert.Equal(t, expected.CapDrop, observed.CapDrop)
-	assert.Equal(t, expected.DockerSecurityOptions, observed.SecurityOpt)
-	assert.Equal(t, expected.Entrypoint, []string(observed.Entrypoint))
-	assert.Equal(t, expected.Name, observed.Name)
-	assert.Equal(t, expected.Image, observed.Image)
-	assert.Equal(t, expected.Hostname, observed.Hostname)
-	assert.Equal(t, expected.Links, observed.Links)
-	assert.Equal(t, expected.Privileged, observed.Privileged)
-	assert.Equal(t, expected.ReadOnly, observed.ReadOnly)
-	assert.Equal(t, expected.Command, []string(observed.Command))
-	assert.Equal(t, expected.User, observed.User)
-	assert.Equal(t, expected.WorkingDirectory, observed.WorkingDir)
+	assert.Equal(t, expected.CapAdd, actual.CapAdd, "Expected CapAdd to match")
+	assert.Equal(t, expected.CapDrop, actual.CapDrop, "Expected CapDrop to match")
+	assert.Equal(t, expected.SecurityOpt, actual.DockerSecurityOptions, "Expected SecurityOpt and DockerSecuirtyOptions to match")
+	assert.Equal(t, []string(expected.Entrypoint), actual.Entrypoint, "Expected EntryPoint to match")
+	assert.Equal(t, expected.Name, actual.Name, "Expected Name to match")
+	assert.Equal(t, expected.Image, actual.Image, "Expected Image to match")
+	assert.Equal(t, expected.Hostname, actual.Hostname, "Expected HostName to match")
+	assert.Equal(t, expected.Links, actual.Links, "Expected Links to match")
+	assert.Equal(t, expected.Privileged, actual.Privileged, "Expected Privileged to match")
+	assert.Equal(t, expected.ReadOnly, actual.ReadOnly, "Expected ReadOnly to match")
+	assert.Equal(t, []string(expected.Command), actual.Command, "Expected Command to match")
+	assert.Equal(t, expected.User, actual.User, "Expected User to match")
+	assert.Equal(t, expected.WorkingDir, actual.WorkingDirectory, "Expected WorkingDirectory to match")
 
 	// verify nil-able lists
-	if observed.DNSSearch != nil {
-		assert.Equal(t, expected.DNSSearchDomains, []string(observed.DNSSearch))
+	if expected.DNSSearch != nil {
+		assert.Equal(t, []string(expected.DNSSearch), actual.DNSSearchDomains, "Expected DNSSearch and DNSSearchDomains to match")
 	} else {
-		assert.Empty(t, expected.DNSSearchDomains)
+		assert.Empty(t, actual.DNSSearchDomains)
 	}
-	if observed.DNS != nil {
-		assert.Equal(t, expected.DNSServers, []string(observed.DNS))
+	if expected.DNS != nil {
+		assert.Equal(t, []string(expected.DNS), actual.DNSServers, "Expected DNS and DNSServers to match")
 	} else {
-		assert.Empty(t, expected.DNSServers)
+		assert.Empty(t, actual.DNSServers)
 	}
 
 	// verify custom conversions
-	observedExHosts, err := utils.ConvertToExtraHosts(observed.ExtraHosts)
+	expectedHosts, err := utils.ConvertToExtraHosts(expected.ExtraHosts)
 	assert.NoError(t, err, "Unexpected error converting extra hosts")
-	assert.Equal(t, expected.ExtraHosts, observedExHosts)
+	assert.Equal(t, expectedHosts, actual.ExtraHosts, "Expected ExtraHosts to match")
 
-	if observed.Tmpfs != nil {
-		observedTmpfs, err := utils.ConvertToTmpfs(yaml.Stringorslice(observed.Tmpfs))
+	if expected.Tmpfs != nil {
+		expectedTmpfs, err := utils.ConvertToTmpfs(yaml.Stringorslice(expected.Tmpfs))
 		assert.NoError(t, err, "Unexpected error converting Tmpfs")
-		assert.Equal(t, expected.Tmpfs, observedTmpfs)
+		assert.Equal(t, expectedTmpfs, actual.Tmpfs, "Expected Tmpfs to match")
 	} else {
-		assert.Empty(t, expected.Tmpfs)
+		assert.Empty(t, actual.Tmpfs)
 	}
 
-	if observed.Logging != nil {
-		assert.Equal(t, *expected.LogConfiguration.LogDriver, observed.Logging.Driver)
-		logOptsMap := makePointerMapForStringMap(observed.Logging.Options)
-		assert.Equal(t, expected.LogConfiguration.Options, logOptsMap)
+	if expected.Logging != nil {
+		assert.Equal(t, expected.Logging.Driver, *actual.LogConfiguration.LogDriver, "Expected LogDriver to match")
+		logOptsMap := aws.StringMap(expected.Logging.Options)
+		assert.Equal(t, logOptsMap, actual.LogConfiguration.Options, "Expected Log Options to match")
 	} else {
-		assert.Empty(t, expected.LogConfiguration)
+		assert.Empty(t, actual.LogConfiguration)
 	}
 
-	if observed.Labels != nil {
-		labelsMap := makePointerMapForStringMap(observed.Labels)
-		assert.Equal(t, expected.DockerLabels, labelsMap)
+	if expected.Labels != nil {
+		labelsMap := aws.StringMap(expected.Labels)
+		assert.Equal(t, labelsMap, actual.DockerLabels, "Expected Labels and DockerLabels to match")
 	} else {
-		assert.Empty(t, expected.DockerLabels)
+		assert.Empty(t, actual.DockerLabels)
 	}
 
-	if len(observed.Ports) > 0 {
-		var obsPorts []*ecs.PortMapping
-		for _, portConfig := range observed.Ports {
+	if len(expected.Ports) > 0 {
+		var exPorts []*ecs.PortMapping
+		for _, portConfig := range expected.Ports {
 			mapping := convertPortConfigToECSMapping(portConfig)
-			obsPorts = append(obsPorts, mapping)
+			exPorts = append(exPorts, mapping)
 		}
-		assert.Equal(t, expected.PortMappings, obsPorts)
+		assert.Equal(t, exPorts, actual.PortMappings, "Expected PortMappings to match")
 	} else {
-		assert.Empty(t, expected.PortMappings)
+		assert.Empty(t, actual.PortMappings)
 	}
 
-	if len(observed.Volumes) > 0 {
-		for i, vol := range observed.Volumes {
+	if len(expected.Volumes) > 0 {
+		for i, vol := range expected.Volumes {
 			if vol.Type == "volume" {
-
-				verifyMountPoint(t, vol, *expected.MountPoints[i])
+				verifyMountPoint(t, vol, *actual.MountPoints[i])
 			}
 		}
 	} else {
-		assert.Empty(t, expected.MountPoints)
+		assert.Empty(t, actual.MountPoints)
 	}
 	// TODO: verify expected.Environment
 }
 
 func verifyMountPoint(t *testing.T, servVolume types.ServiceVolumeConfig, mountPoint ecs.MountPoint) {
-	assert.Equal(t, servVolume.Target, mountPoint.ContainerPath)
-	assert.Equal(t, servVolume.Source, mountPoint.SourceVolume)
-	assert.Equal(t, servVolume.ReadOnly, mountPoint.ReadOnly)
+	assert.Equal(t, servVolume.Target, mountPoint.ContainerPath, "Expected volume Target and mount point ContainerPath to match")
+	assert.Equal(t, servVolume.Source, mountPoint.SourceVolume, "Expected volume Source and mount point SourceVolume to match")
+	assert.Equal(t, servVolume.ReadOnly, mountPoint.ReadOnly, "Expected volume and mount point readOnly to match")
 }
 
 func getServiceConfigMap(t *testing.T, composeFiles []string) map[string]types.ServiceConfig {
