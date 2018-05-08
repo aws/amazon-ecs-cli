@@ -6,6 +6,7 @@ import (
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/containerconfig"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -82,17 +83,28 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig) (*containerconf
 	c := &containerconfig.ContainerConfig{
 		CapAdd:                serviceConfig.CapAdd,
 		CapDrop:               serviceConfig.CapDrop,
+		Command:               serviceConfig.Command,
 		DockerSecurityOptions: serviceConfig.SecurityOpt,
 		Entrypoint:            serviceConfig.Entrypoint,
-		Name:                  serviceConfig.Name,
-		Image:                 serviceConfig.Image,
 		Hostname:              serviceConfig.Hostname,
+		Image:                 serviceConfig.Image,
 		Links:                 serviceConfig.Links,
+		Name:                  serviceConfig.Name,
 		Privileged:            serviceConfig.Privileged,
 		ReadOnly:              serviceConfig.ReadOnly,
-		Command:               serviceConfig.Command,
 		User:                  serviceConfig.User,
 		WorkingDirectory:      serviceConfig.WorkingDir,
+	}
+
+	if serviceConfig.DNS != nil {
+		c.DNSServers = serviceConfig.DNS
+	}
+	if serviceConfig.DNSSearch != nil {
+		c.DNSSearchDomains = serviceConfig.DNSSearch
+	}
+	if serviceConfig.Labels != nil {
+		labelsMap := aws.StringMap(serviceConfig.Labels)
+		c.DockerLabels = labelsMap
 	}
 
 	extraHosts, err := utils.ConvertToExtraHosts(serviceConfig.ExtraHosts)
@@ -101,33 +113,16 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig) (*containerconf
 	}
 	c.ExtraHosts = extraHosts
 
-	if serviceConfig.DNS != nil {
-		c.DNSServers = serviceConfig.DNS
-	}
-	if serviceConfig.DNSSearch != nil {
-		c.DNSSearchDomains = serviceConfig.DNSSearch
-	}
-
-	if serviceConfig.Tmpfs != nil {
-		tmpfs := yaml.Stringorslice(serviceConfig.Tmpfs)
-		ecsTmpfs, err := utils.ConvertToTmpfs(tmpfs) // TODO: change ConvertToTmpfs to take in []string
-		if err != nil {
-			return nil, err
-		}
-		c.Tmpfs = ecsTmpfs
-	}
+	// TODO: refactor utils.ConvertToLogConfiguration to take in driver (string) and Options (map[string]string)
 	if serviceConfig.Logging != nil {
 		logConfig := ecs.LogConfiguration{}
 		logConfig.SetLogDriver(serviceConfig.Logging.Driver)
 
-		optionsMap := makePointerMapForStringMap(serviceConfig.Logging.Options)
+		optionsMap := aws.StringMap(serviceConfig.Logging.Options)
 		logConfig.SetOptions(optionsMap)
 		c.LogConfiguration = &logConfig
 	}
-	if serviceConfig.Labels != nil {
-		labelsMap := makePointerMapForStringMap(serviceConfig.Labels)
-		c.DockerLabels = labelsMap
-	}
+
 	if len(serviceConfig.Ports) > 0 {
 		var portMappings []*ecs.PortMapping
 		for _, portConfig := range serviceConfig.Ports {
@@ -135,6 +130,15 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig) (*containerconf
 			portMappings = append(portMappings, mapping)
 		}
 		c.PortMappings = portMappings
+	}
+	// TODO: change ConvertToTmpfs to take in []string
+	if serviceConfig.Tmpfs != nil {
+		tmpfs := yaml.Stringorslice(serviceConfig.Tmpfs)
+		ecsTmpfs, err := utils.ConvertToTmpfs(tmpfs)
+		if err != nil {
+			return nil, err
+		}
+		c.Tmpfs = ecsTmpfs
 	}
 	// TODO: reconcile with top-level Volumes key
 	if len(serviceConfig.Volumes) > 0 {
@@ -178,14 +182,4 @@ func convertPortConfigToECSMapping(portConfig types.ServicePortConfig) *ecs.Port
 		Protocol:      &portConfig.Protocol,
 	}
 	return &ecsMapping
-}
-
-func makePointerMapForStringMap(m map[string]string) map[string]*string {
-	pointerMap := make(map[string]*string)
-	for k, v := range m {
-		val := new(string)
-		*val = v
-		pointerMap[k] = val
-	}
-	return pointerMap
 }
