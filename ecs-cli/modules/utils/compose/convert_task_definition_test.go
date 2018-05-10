@@ -767,6 +767,7 @@ func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
 	}
 	volumeDef := *taskDefinition.Volumes[0]
 	mountPoint := *containerDef.MountPoints[0]
+
 	if hostPath != aws.StringValue(volumeDef.Host.SourcePath) {
 		t.Errorf("Expected HostSourcePath [%s] But was [%s]", hostPath, aws.StringValue(volumeDef.Host.SourcePath))
 	}
@@ -788,7 +789,7 @@ func TestConvertToTaskDefinitionWithNamedVolume(t *testing.T) {
 		Networks: &yaml.Networks{Networks: []*yaml.Network{defaultNetwork}},
 	}
 
-	taskDefinition := convertToTaskDefinitionInTest(t, "name", &config.VolumeConfig{}, serviceConfig, "", "")
+	taskDefinition := convertToTaskDefinitionInTest(t, "name", nil, serviceConfig, "", "")
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 
 	volumeDef := *taskDefinition.Volumes[0]
@@ -918,8 +919,17 @@ func TestConvertToMountPoints(t *testing.T) {
 	}
 
 	// Valid inputs with host and container paths set
-	mountPointsIn := yaml.Volumes{Volumes: []*yaml.Volume{&onlyContainerPath, &onlyContainerPath2, &hostAndContainerPath,
-		&onlyContainerPathWithRO, &hostAndContainerPathWithRO, &hostAndContainerPathWithRW, &namedVolumeAndContainerPath}}
+	mountPointsIn := yaml.Volumes{
+		Volumes: []*yaml.Volume{
+			&onlyContainerPath,
+			&onlyContainerPath2,
+			&hostAndContainerPath,
+			&onlyContainerPathWithRO,
+			&hostAndContainerPathWithRO,
+			&hostAndContainerPathWithRW,
+			&namedVolumeAndContainerPath,
+		},
+	}
 
 	mountPointsOut, err := ConvertToMountPoints(&mountPointsIn, volumes)
 	if err != nil {
@@ -944,16 +954,37 @@ func TestConvertToMountPoints(t *testing.T) {
 	if mountPointsOut[1].SourceVolume == mountPointsOut[3].SourceVolume {
 		t.Errorf("Expected volume %v (onlyContainerPath2) and %v (onlyContainerPathWithRO) to be different", mountPointsOut[0].SourceVolume, mountPointsOut[1].SourceVolume)
 	}
+}
 
-	// Invalid access mode input
-	hostAndContainerPathWithIncorrectAccess := yaml.Volume{Source: hostPath, Destination: containerPath, AccessMode: "readonly"}
-	mountPointsIn = yaml.Volumes{Volumes: []*yaml.Volume{&hostAndContainerPathWithIncorrectAccess}}
-	mountPointsOut, err = ConvertToMountPoints(&mountPointsIn, volumes)
+func TestConvertToMountPointsWithInvalidAccessMode(t *testing.T) {
+	volumes := &volumes{
+		volumeWithHost:  make(map[string]string),
+		volumeEmptyHost: []string{namedVolume},
+	}
+
+	hostAndContainerPathWithIncorrectAccess := yaml.Volume{
+		Source:      hostPath,
+		Destination: containerPath,
+		AccessMode:  "readonly",
+	}
+
+	mountPointsIn := yaml.Volumes{
+		Volumes: []*yaml.Volume{&hostAndContainerPathWithIncorrectAccess},
+	}
+
+	_, err := ConvertToMountPoints(&mountPointsIn, volumes)
+
 	if err == nil {
 		t.Errorf("Expected to get error for mountPoint[%s] but didn't.", hostAndContainerPathWithIncorrectAccess)
 	}
+}
 
-	mountPointsOut, err = ConvertToMountPoints(nil, volumes)
+func TestConvertToMountPointsNullContainerVolumes(t *testing.T) {
+	volumes := &volumes{
+		volumeWithHost:  make(map[string]string),
+		volumeEmptyHost: []string{namedVolume},
+	}
+	mountPointsOut, err := ConvertToMountPoints(nil, volumes)
 	if err != nil {
 		t.Fatalf("Expected to convert nil mountPoints without errors. But got [%v]", err)
 	}
@@ -1064,11 +1095,76 @@ func verifyUlimit(t *testing.T, output *ecs.Ulimit, name string, softLimit, hard
 	}
 }
 
+func TestConvertToVolumes(t *testing.T) {
+	libcomposeVolumeConfigs := map[string]*config.VolumeConfig{
+		namedVolume: nil,
+	}
+
+	expected := &volumes{
+		volumeWithHost:  make(map[string]string), // map with key:=hostSourcePath value:=VolumeName
+		volumeEmptyHost: []string{namedVolume},   // Declare one volume with an empty host
+	}
+
+	actual, err := ConvertToVolumes(libcomposeVolumeConfigs)
+
+	assert.NoError(t, err, "Unexpected error converting libcompose volume configs")
+	assert.Equal(t, expected, actual, "Named volumes should match")
+}
+
+func TestConvertToVolumes_ErrorsWithDriverSubfield(t *testing.T) {
+	libcomposeVolumeConfigs := map[string]*config.VolumeConfig{
+		namedVolume: &config.VolumeConfig{
+			Driver: "noodles",
+		},
+	}
+
+	_, err := ConvertToVolumes(libcomposeVolumeConfigs)
+
+	assert.Error(t, err, "Expected error converting libcompose volume configs when driver is specified")
+}
+
+func TestConvertToVolumes_ErrorsWithDriverOptsSubfield(t *testing.T) {
+	driverOpts := map[string]string{"foo": "bar"}
+
+	libcomposeVolumeConfigs := map[string]*config.VolumeConfig{
+		namedVolume: &config.VolumeConfig{
+			DriverOpts: driverOpts,
+		},
+	}
+
+	_, err := ConvertToVolumes(libcomposeVolumeConfigs)
+
+	assert.Error(t, err, "Expected error converting libcompose volume configs when driver options are specified")
+}
+
+func TestConvertToVolumes_ErrorsWithExternalSubfield(t *testing.T) {
+	external := yaml.External{External: false}
+
+	libcomposeVolumeConfigs := map[string]*config.VolumeConfig{
+		namedVolume: &config.VolumeConfig{
+			External: external,
+		},
+	}
+
+	_, err := ConvertToVolumes(libcomposeVolumeConfigs)
+
+	assert.Error(t, err, "Expected error converting libcompose volume configs when external is specified")
+
+	external = yaml.External{External: true}
+	libcomposeVolumeConfigs = map[string]*config.VolumeConfig{
+		namedVolume: &config.VolumeConfig{
+			External: external,
+		},
+	}
+
+	_, err = ConvertToVolumes(libcomposeVolumeConfigs)
+
+	assert.Error(t, err, "Expected error converting libcompose volume configs when external is specified")
+}
+
 func convertToTaskDefinitionInTest(t *testing.T, name string, volumeConfig *config.VolumeConfig, serviceConfig *config.ServiceConfig, taskRoleArn string, launchType string) *ecs.TaskDefinition {
 	volumeConfigs := make(map[string]*config.VolumeConfig)
-	if volumeConfig != nil {
-		volumeConfigs[namedVolume] = volumeConfig
-	}
+	volumeConfigs[namedVolume] = volumeConfig
 
 	serviceConfigs := config.NewServiceConfigs()
 	serviceConfigs.Add(name, serviceConfig)

@@ -209,9 +209,9 @@ func TestParseComposeForVersion2Files(t *testing.T) {
 	mysqlImage := "mysql"
 	ports := []string{"80:80"}
 	memoryReservation := yaml.MemStringorInt(500000000)
-	memory:= yaml.MemStringorInt(536870912) // 512 * 1024 * 1024
+	memory := yaml.MemStringorInt(536870912)   // 512 * 1024 * 1024
 	shmSize := yaml.MemStringorInt(1073741824) // 1 gb = 1024 * 1024 * 1024 bytes
-        tmpfs := yaml.Stringorslice{"/run:size=1gb", "/tmp:size=65536k"}
+	tmpfs := yaml.Stringorslice{"/run:size=1gb", "/tmp:size=65536k"}
 
 	composeFileString := `version: '2'
 services:
@@ -225,7 +225,13 @@ services:
       - /run:size=1gb
       - /tmp:size=65536k
   mysql:
-    image: mysql`
+    image: mysql
+    volumes:
+      - banana:/tmp/cache
+      - :/tmp/cache
+      - ./cache:/tmp/cache:ro
+volumes:
+  banana:`
 
 	// setup project and parse
 	composeBytes := [][]byte{}
