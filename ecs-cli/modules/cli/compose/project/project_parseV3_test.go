@@ -63,16 +63,15 @@ services:
       - "mysqlexhost:10.0.0.0"`
 
 	tmpfile, err := ioutil.TempFile("", "test")
-	if err != nil {
-		t.Fatal("Unexpected error in creating test file: ", err)
-	}
+        assert.NoError(t, err, "Unexpected error in creating test file")
+
 	defer os.Remove(tmpfile.Name())
 
 	_, err = tmpfile.Write([]byte(composeFileString))
-	assert.NoError(t, err, "Unexpected error parsing file")
+	assert.NoError(t, err, "Unexpected error writing file")
 
 	err = tmpfile.Close()
-	assert.NoError(t, err, "Unexpected error parsing file")
+	assert.NoError(t, err, "Unexpected error closing file")
 
 	// add files to projects
 	project := setupTestProject(t)
@@ -83,9 +82,8 @@ services:
 
 	// assert # and content of container configs matches expected services
 	actualConfigs, err := project.parseV3()
-	if err != nil {
-		t.Fatal("Unexpected error parsing file: ", err)
-	}
+	assert.NoError(t, err, "Unexpected error parsing file")
+
 	assert.Equal(t, len(expectedConfigs), len(*actualConfigs))
 	for _, containerConfig := range *actualConfigs {
 		verifyConvertToContainerConfigOutput(t, expectedConfigs[containerConfig.Name], containerConfig)
