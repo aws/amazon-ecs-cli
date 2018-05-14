@@ -267,7 +267,8 @@
 [[projects]]
   name = "github.com/stretchr/testify"
   packages = ["assert"]
-  revision = "2402e8e7a02fc811447d11f881aa9746cdc57983"
+  revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
+  version = "v1.2.1"
 
 [[projects]]
   name = "github.com/urfave/cli"
@@ -318,6 +319,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "91c34294bfbb781ae44f3c98e6b07f28a36be8f8b558fe53a6b19f9e98972f90"
+  inputs-digest = "bd82f6f125188fa0e514267655428cb6365fd57127fb9c00460893bbcdaadac4"
   solver-name = "gps-cdcl"
   solver-version = 1

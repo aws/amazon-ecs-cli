@@ -69,7 +69,7 @@
 
 [[constraint]]
   name = "github.com/stretchr/testify"
-  revision = "2402e8e7a02fc811447d11f881aa9746cdc57983"
+  version = "1.2.1"
 
 [[constraint]]
   name = "github.com/urfave/cli"
