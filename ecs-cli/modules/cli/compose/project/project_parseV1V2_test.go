@@ -74,6 +74,12 @@ func TestParseV1V2_Version1_HappyPath(t *testing.T) {
 	securityOpts := []string{"label:type:test_virt"}
 	shmSize := int64(128)
 	user := "user"
+	volumesFrom := []*ecs.VolumeFrom{
+		{
+			ReadOnly:        aws.Bool(true),
+			SourceContainer: aws.String("web"),
+		},
+	}
 	workingDir := "/var"
 
 	composeV1FileString := `web:
@@ -115,7 +121,9 @@ func TestParseV1V2_Version1_HappyPath(t *testing.T) {
    - ./code
   working_dir: /var
 redis:
-  image: redis`
+  image: redis
+  volumes_from:
+    - web:ro`
 
 	// Setup docker-compose file
 	tmpfile, err := ioutil.TempFile("", "test")
@@ -142,6 +150,7 @@ redis:
 	assert.NoError(t, err, "Unexpected error retrieving redis config")
 
 	assert.Equal(t, redisImage, redis.Image, "Expected image to match")
+	assert.Equal(t, volumesFrom, redis.VolumesFrom, "Expected VolumesFrom to match")
 
 	// verify web ContainerConfig
 	web, err := getContainerConfigByName("web", actualConfigs)
@@ -223,6 +232,12 @@ func TestParseV1V2_Version2Files(t *testing.T) {
 			Size:          aws.Int64(64),
 		},
 	}
+	volumesFrom := []*ecs.VolumeFrom{
+		{
+			ReadOnly:        aws.Bool(false),
+			SourceContainer: aws.String("mysql"),
+		},
+	}
 
 	composeV2FileString := `version: '2'
 services:
@@ -244,6 +259,8 @@ services:
       driver: syslog
       options:
         syslog-address: "tcp://192.168.0.42:123"
+    volumes_from:
+      - mysql:rw
   mysql:
     image: mysql
     volumes:
@@ -287,6 +304,7 @@ volumes:
 	assert.Equal(t, ports, wordpress.PortMappings, "Expected ports to match")
 	assert.Equal(t, shmSize, wordpress.ShmSize, "Expected shmSize to match")
 	assert.ElementsMatch(t, tmpfs, wordpress.Tmpfs, "Expected tmpfs to match")
+	assert.Equal(t, volumesFrom, wordpress.VolumesFrom, "Expected VolumesFrom to match")
 
 	// verify mysql ContainerConfig
 	mysql, err := getContainerConfigByName("mysql", actualConfigs)
