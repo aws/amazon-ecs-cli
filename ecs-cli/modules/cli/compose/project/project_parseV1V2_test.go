@@ -45,6 +45,10 @@ func TestParseV1V2_Version1_HappyPath(t *testing.T) {
 		"max-file": aws.String("50"),
 		"max-size": aws.String("50k"),
 	}
+	logging := &ecs.LogConfiguration{
+		LogDriver: logDriver,
+		Options:   logOpts,
+	}
 	memory := int64(953) // 1000000000 in Mib
 	mountPoints := []*ecs.MountPoint{
 		{
@@ -155,8 +159,7 @@ redis:
 	assert.Equal(t, hostname, web.Hostname, "Expected Hostname to match")
 	assert.Equal(t, webImage, web.Image, "Expected Image to match")
 	assert.Equal(t, links, web.Links, "Expected Links to match")
-	assert.Equal(t, logDriver, web.LogConfiguration.LogDriver, "Expected LogDriver to match")
-	assert.Equal(t, logOpts, web.LogConfiguration.Options, "Expected LogConfiguration options to match")
+	assert.Equal(t, logging, web.LogConfiguration, "Expected LogConfiguration to match")
 	assert.Equal(t, memory, web.Memory, "Expected memory to match")
 	assert.Equal(t, mountPoints, web.MountPoints, "Expected MountPoints to match")
 	assert.Equal(t, ports, web.PortMappings, "Expected PortMappings to match")
@@ -174,12 +177,12 @@ func TestParseV1V2_Version2Files(t *testing.T) {
 
 	capAdd := []string{"ALL"}
 	capDrop := []string{"NET_ADMIN", "SYS_ADMIN"}
-	ports := []*ecs.PortMapping{
-		{
-			ContainerPort: aws.Int64(80),
-			HostPort:      aws.Int64(80),
-			Protocol:      aws.String("tcp"),
-		},
+	logOpts := map[string]*string{
+		"syslog-address": aws.String("tcp://192.168.0.42:123"),
+	}
+	logging := &ecs.LogConfiguration{
+		LogDriver: aws.String("syslog"),
+		Options:   logOpts,
 	}
 	memoryReservation := int64(476) // 500000000 / miB
 	memory := int64(512)
@@ -198,6 +201,13 @@ func TestParseV1V2_Version2Files(t *testing.T) {
 			ContainerPath: aws.String("/tmp/cache"),
 			ReadOnly:      aws.Bool(true),
 			SourceVolume:  aws.String("volume-2"),
+		},
+	}
+	ports := []*ecs.PortMapping{
+		{
+			ContainerPort: aws.Int64(80),
+			HostPort:      aws.Int64(80),
+			Protocol:      aws.String("tcp"),
 		},
 	}
 	shmSize := int64(1024) // 1 gb = 1024 miB
@@ -230,6 +240,10 @@ services:
     tmpfs:
       - /run:size=1gb
       - /tmp:size=65536k,ro,rw
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "tcp://192.168.0.42:123"
   mysql:
     image: mysql
     volumes:
@@ -266,6 +280,7 @@ volumes:
 	assert.Equal(t, wordpressImage, wordpress.Image, "Expected wordpress Image to match")
 	assert.Equal(t, capAdd, wordpress.CapAdd, "Expected CapAdd to match")
 	assert.Equal(t, capDrop, wordpress.CapDrop, "Expected CapDrop to match")
+	assert.Equal(t, logging, wordpress.LogConfiguration, "Expected Log Configuration to match")
 
 	assert.Equal(t, memoryReservation, wordpress.MemoryReservation, "Expected memoryReservation to match")
 	assert.Equal(t, memory, wordpress.Memory, "Expected Memory to match")
