@@ -394,7 +394,7 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 	return nil
 }
 
-// convertToKeyValuePairs transforms the map of environment variables into list of ecs.KeyValuePair.
+// ConvertToKeyValuePairs transforms the map of environment variables into list of ecs.KeyValuePair.
 // Environment variables with only a key are resolved by reading the variable from the shell where ecscli is executed from.
 // TODO: use this logic to generate RunTask overrides for ecscli compose commands (instead of always creating a new task def)
 func ConvertToKeyValuePairs(context *project.Context, envVars yaml.MaporEqualSlice, serviceName string) []*ecs.KeyValuePair {
