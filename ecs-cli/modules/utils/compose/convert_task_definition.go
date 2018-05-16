@@ -21,6 +21,7 @@ import (
 	"strconv"
 	"strings"
 
+	containers "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/containerconfig"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -104,13 +105,14 @@ type TaskDefParams struct {
 }
 
 // ConvertToTaskDefinition transforms the yaml configs to its ecs equivalent (task definition)
+// TODO container config a pointer to slice?
 func ConvertToTaskDefinition(context *project.Context, volumeConfigs map[string]*config.VolumeConfig,
-	serviceConfigs *config.ServiceConfigs, taskRoleArn string, requiredCompatibilites string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
-	if serviceConfigs.Len() == 0 {
+	containerConfigs []containers.ContainerConfig, taskRoleArn string, requiredCompatibilites string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
+	if len(containerConfigs) == 0 {
 		return nil, errors.New("cannot create a task definition with no containers; invalid service config")
 	}
 
-	logUnsupportedConfigFields(context.Project)
+	logUnsupportedConfigFields(context.Project) // TODO refactor? networks only thing not supproted
 
 	taskDefinitionName := context.ProjectName
 
@@ -125,6 +127,7 @@ func ConvertToTaskDefinition(context *project.Context, volumeConfigs map[string]
 		taskRoleArn = taskDefParams.taskRoleArn
 	}
 
+	// TODO: Refactor when Volumes added to top level project
 	volumes, err := ConvertToVolumes(volumeConfigs)
 	if err != nil {
 		return nil, err
@@ -132,30 +135,24 @@ func ConvertToTaskDefinition(context *project.Context, volumeConfigs map[string]
 
 	// Create containerDefinitions
 	containerDefinitions := []*ecs.ContainerDefinition{}
-	for _, name := range serviceConfigs.Keys() {
-		serviceConfig, ok := serviceConfigs.Get(name)
-		if !ok {
-			return nil, fmt.Errorf("Couldn't get service with name=[%s]", name)
-		}
-		logUnsupportedServiceConfigFields(name, serviceConfig)
-		containerDef := &ecs.ContainerDefinition{
-			Name: aws.String(name),
-		}
 
+	for _, containerConfig := range containerConfigs {
+		// logUnsupportedServiceConfigFields(name, serviceConfig) // TODO switch this to use ContainerConfig
+		name := containerConfig.Name
 		// Check if there are ecs-params specified for the container
 		ecsContainerDef := &ContainerDef{Essential: true}
-
 		if cd, ok := taskDefParams.containerDefs[name]; ok {
 			ecsContainerDef = &cd
 		}
 
-		count := len(serviceConfigs.Keys())
-
+		// Validate essential containers TODO: merge other ecs params fields
+		count := len(containerConfigs)
 		if !hasEssential(taskDefParams.containerDefs, count) {
 			return nil, errors.New("Task definition does not have any essential containers")
 		}
 
-		if err := convertToContainerDef(context, serviceConfig, volumes, containerDef, ecsContainerDef); err != nil {
+		containerDef, err := convertToContainerDef(&containerConfig, ecsContainerDef)
+		if err != nil {
 			return nil, err
 		}
 
@@ -173,6 +170,7 @@ func ConvertToTaskDefinition(context *project.Context, volumeConfigs map[string]
 		ExecutionRoleArn:     aws.String(taskDefParams.executionRoleArn),
 	}
 
+	// Set launch type
 	if requiredCompatibilites != "" {
 		taskDefinition.RequiresCompatibilities = []*string{aws.String(requiredCompatibilites)}
 	}
@@ -190,7 +188,7 @@ func logUnsupportedConfigFields(project *project.Project) {
 	}
 }
 
-// logUnsupportedServiceConfigFields
+// logUnsupportedServiceConfigFields TODO move into parser logic?
 func logUnsupportedServiceConfigFields(serviceName string, config *config.ServiceConfig) {
 	configValue := reflect.ValueOf(config).Elem()
 	configType := configValue.Type()
@@ -265,17 +263,14 @@ func isZero(v reflect.Value) bool {
 
 // convertToContainerDef transforms each service in docker-compose.yml and
 // ecs-params.yml to an equivalent ECS container definition
-func convertToContainerDef(context *project.Context, inputCfg *config.ServiceConfig,
-	volumes *Volumes, outputContDef *ecs.ContainerDefinition, ecsContainerDef *ContainerDef) error {
+func convertToContainerDef(inputCfg *containers.ContainerConfig, ecsContainerDef *ContainerDef) (*ecs.ContainerDefinition, error) {
+	outputContDef := &ecs.ContainerDefinition{}
 
-	// setting memory limit
-	// MemLimit and MemReservation on libcompose ServiceConfig are parsed
-	// as yaml.MemStringorInt value representing the memory in bytes
-	mem := ConvertToMemoryInMB(int64(inputCfg.MemLimit))
-	memoryReservation := ConvertToMemoryInMB(int64(inputCfg.MemReservation))
+	mem := inputCfg.Memory
+	memoryReservation := inputCfg.MemoryReservation
 
 	if mem != 0 && memoryReservation != 0 && mem < memoryReservation {
-		return errors.New("mem_limit must be greater than mem_reservation")
+		return nil, errors.New("mem_limit must be greater than mem_reservation")
 	}
 
 	// One or both of memory and memoryReservation is required to register a task definition with ECS
@@ -284,89 +279,44 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 		mem = defaultMemLimit
 	}
 
-	// convert shared memory size
-	shmSize := ConvertToMemoryInMB(int64(inputCfg.ShmSize))
-
-	// convert environment variables
-	environment := ConvertToKeyValuePairs(context, inputCfg.Environment, *outputContDef.Name)
-
-	// convert port mappings
-	portMappings, err := ConvertToPortMappings(*outputContDef.Name, inputCfg.Ports)
-	if err != nil {
-		return err
-	}
-
-	// convert volumes from
-	volumesFrom, err := ConvertToVolumesFrom(inputCfg.VolumesFrom)
-	if err != nil {
-		return err
-	}
-
-	// convert mount points
-	mountPoints, err := ConvertToMountPoints(inputCfg.Volumes, volumes)
-	if err != nil {
-		return err
-	}
-
-	// convert extra hosts
-	extraHosts, err := ConvertToExtraHosts(inputCfg.ExtraHosts)
-	if err != nil {
-		return err
-	}
-
-	// convert log configuration
-	logConfig, err := ConvertToLogConfiguration(inputCfg)
-	if err != nil {
-		return err
-	}
-
-	// convert ulimits
-	ulimits, err := ConvertToULimits(inputCfg.Ulimits)
-	if err != nil {
-		return err
-	}
-
-	// convert Tmpfs
-	tmpfs, err := ConvertToTmpfs(inputCfg.Tmpfs)
-	if err != nil {
-		return err
-	}
-
 	// Populate ECS container definition, offloading the validation to aws-sdk
-	outputContDef.Cpu = aws.Int64(int64(inputCfg.CPUShares))
-	outputContDef.Command = aws.StringSlice(inputCfg.Command)
-	outputContDef.DnsSearchDomains = aws.StringSlice(inputCfg.DNSSearch)
-	outputContDef.DnsServers = aws.StringSlice(inputCfg.DNS)
-	outputContDef.DockerLabels = aws.StringMap(inputCfg.Labels)
-	outputContDef.DockerSecurityOptions = aws.StringSlice(inputCfg.SecurityOpt)
-	outputContDef.EntryPoint = aws.StringSlice(inputCfg.Entrypoint)
-	outputContDef.Environment = environment
-	outputContDef.ExtraHosts = extraHosts
-	if inputCfg.Hostname != "" {
-		outputContDef.Hostname = aws.String(inputCfg.Hostname)
-	}
-	outputContDef.Image = aws.String(inputCfg.Image)
-	outputContDef.Links = aws.StringSlice(inputCfg.Links) //TODO, read from external links
-	outputContDef.LogConfiguration = logConfig
+	outputContDef.SetCpu(inputCfg.CPU)
+	outputContDef.SetCommand(aws.StringSlice(inputCfg.Command))
+	outputContDef.SetDnsSearchDomains(aws.StringSlice(inputCfg.DNSSearchDomains))
+	outputContDef.SetDnsServers(aws.StringSlice(inputCfg.DNSServers))
+	outputContDef.SetDockerLabels(inputCfg.DockerLabels)
+	outputContDef.SetDockerSecurityOptions(aws.StringSlice(inputCfg.DockerSecurityOptions))
+	outputContDef.SetEntryPoint(aws.StringSlice(inputCfg.Entrypoint))
+	outputContDef.SetEnvironment(inputCfg.Environment)
+	outputContDef.SetExtraHosts(inputCfg.ExtraHosts)
+	outputContDef.SetHostname(inputCfg.Hostname)
+	outputContDef.SetImage(inputCfg.Image)
+	outputContDef.SetLinks(aws.StringSlice(inputCfg.Links)) // TODO, read from external links
+	outputContDef.SetLogConfiguration(inputCfg.LogConfiguration)
+
 	if mem != 0 {
-		outputContDef.Memory = aws.Int64(mem)
+		outputContDef.SetMemory(mem)
 	}
 	if memoryReservation != 0 {
-		outputContDef.MemoryReservation = aws.Int64(memoryReservation)
-	}
-	outputContDef.MountPoints = mountPoints
-	outputContDef.Privileged = aws.Bool(inputCfg.Privileged)
-	outputContDef.PortMappings = portMappings
-	outputContDef.ReadonlyRootFilesystem = aws.Bool(inputCfg.ReadOnly)
-	outputContDef.Ulimits = ulimits // TODO: use SetUlimit API?
-	if inputCfg.User != "" {
-		outputContDef.User = aws.String(inputCfg.User)
-	}
-	outputContDef.VolumesFrom = volumesFrom
-	if inputCfg.WorkingDir != "" {
-		outputContDef.WorkingDirectory = aws.String(inputCfg.WorkingDir)
+		outputContDef.SetMemoryReservation(memoryReservation)
 	}
 
+	outputContDef.SetMountPoints(inputCfg.MountPoints)
+	outputContDef.SetName(inputCfg.Name)
+	outputContDef.SetPrivileged(inputCfg.Privileged)
+	outputContDef.SetPortMappings(inputCfg.PortMappings)
+	outputContDef.SetReadonlyRootFilesystem(inputCfg.ReadOnly)
+	outputContDef.SetUlimits(inputCfg.Ulimits)
+
+	if inputCfg.User != "" {
+		outputContDef.SetUser(inputCfg.User)
+	}
+	outputContDef.SetVolumesFrom(inputCfg.VolumesFrom)
+	if inputCfg.WorkingDirectory != "" {
+		outputContDef.SetWorkingDirectory(inputCfg.WorkingDirectory)
+	}
+
+	// Set Linux Parameters
 	outputContDef.LinuxParameters = &ecs.LinuxParameters{Capabilities: &ecs.KernelCapabilities{}}
 	if inputCfg.CapAdd != nil {
 		outputContDef.LinuxParameters.Capabilities.SetAdd(aws.StringSlice(inputCfg.CapAdd))
@@ -378,20 +328,21 @@ func convertToContainerDef(context *project.Context, inputCfg *config.ServiceCon
 	// Only set shmSize if specified. Otherwise we expect this sharedMemorySize for the
 	// containerDefinition to be null; Docker will by default allocate 64M for shared memory if
 	// shmSize is null.
-	if shmSize != 0 {
-		outputContDef.LinuxParameters.SetSharedMemorySize(shmSize)
+	if inputCfg.ShmSize != 0 {
+		outputContDef.LinuxParameters.SetSharedMemorySize(inputCfg.ShmSize)
 	}
 
 	// Only set tmpfs if tmpfs mounts are specified.
-	if tmpfs != nil {
-		outputContDef.LinuxParameters.SetTmpfs(tmpfs)
+	if inputCfg.Tmpfs != nil { // will never be nil?
+		outputContDef.LinuxParameters.SetTmpfs(inputCfg.Tmpfs)
 	}
 
+	// Set fields from ecs-params file
 	if ecsContainerDef != nil {
 		outputContDef.Essential = aws.Bool(ecsContainerDef.Essential)
 	}
 
-	return nil
+	return outputContDef, nil
 }
 
 // ConvertToKeyValuePairs transforms the map of environment variables into list of ecs.KeyValuePair.

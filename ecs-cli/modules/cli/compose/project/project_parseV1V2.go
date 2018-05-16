@@ -105,7 +105,7 @@ func convertV1V2ToContainerConfig(context *project.Context, serviceName string, 
 		Entrypoint:            service.Entrypoint,
 		Environment:           environment,
 		ExtraHosts:            extraHosts,
-		Hostname:              service.Hostname,
+		Hostname:              service.Hostname, // only set if not blank?
 		Image:                 service.Image,
 		Links:                 service.Links,
 		LogConfiguration:      logConfiguration,
