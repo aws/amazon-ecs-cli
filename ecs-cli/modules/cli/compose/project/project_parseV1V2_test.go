@@ -74,6 +74,18 @@ func TestParseV1V2_Version1_HappyPath(t *testing.T) {
 	securityOpts := []string{"label:type:test_virt"}
 	shmSize := int64(128)
 	user := "user"
+	ulimits := []*ecs.Ulimit{
+		{
+			Name:      aws.String("nproc"),
+			HardLimit: aws.Int64(65535),
+			SoftLimit: aws.Int64(65535),
+		},
+		{
+			Name:      aws.String("nofile"),
+			HardLimit: aws.Int64(40000),
+			SoftLimit: aws.Int64(20000),
+		},
+	}
 	volumesFrom := []*ecs.VolumeFrom{
 		{
 			ReadOnly:        aws.Bool(true),
@@ -115,7 +127,10 @@ func TestParseV1V2_Version1_HappyPath(t *testing.T) {
    - label:type:test_virt
   shm_size: 128M
   ulimits:
-    nofile: 1024
+    nproc: 65535
+    nofile:
+      soft: 20000
+      hard: 40000
   user: user
   volumes:
    - ./code
@@ -160,7 +175,7 @@ redis:
 	assert.Equal(t, cpuShares, web.CPU, "Expected CPU to match")
 	assert.Equal(t, dnsSearchDomains, web.DNSSearchDomains, "Expected DNSSearchDomains to match")
 	assert.Equal(t, dnsServers, web.DNSServers, "Expected DNSServers to match")
-	assert.Equal(t, labels, web.DockerLabels, "Expected docker labels to match")
+	assert.Equal(t, labels, web.DockerLabels, "Expected DockerLabels to match")
 	assert.Equal(t, securityOpts, web.DockerSecurityOptions, "Expected DockerSecurityOptions to match")
 	assert.Equal(t, entryPoint, web.Entrypoint, "Expected EntryPoint to be match")
 	assert.Equal(t, env, web.Environment, "Expected Environment to match")
@@ -169,13 +184,14 @@ redis:
 	assert.Equal(t, webImage, web.Image, "Expected Image to match")
 	assert.Equal(t, links, web.Links, "Expected Links to match")
 	assert.Equal(t, logging, web.LogConfiguration, "Expected LogConfiguration to match")
-	assert.Equal(t, memory, web.Memory, "Expected memory to match")
+	assert.Equal(t, memory, web.Memory, "Expected Memory to match")
 	assert.Equal(t, mountPoints, web.MountPoints, "Expected MountPoints to match")
-	assert.Equal(t, ports, web.PortMappings, "Expected PortMappings to match")
+	assert.ElementsMatch(t, ports, web.PortMappings, "Expected PortMappings to match")
 	assert.Equal(t, privileged, web.Privileged, "Expected Privileged to match")
 	assert.Equal(t, readonly, web.ReadOnly, "Expected ReadOnly to match")
 	assert.Equal(t, shmSize, web.ShmSize, "Expected ShmSize to match")
-	assert.Equal(t, user, web.User, "Expected user to match")
+	assert.Equal(t, user, web.User, "Expected User to match")
+	assert.ElementsMatch(t, ulimits, web.Ulimits, "Expected Ulimits to match")
 	assert.Equal(t, workingDir, web.WorkingDirectory, "Expected WorkingDirectory to match")
 }
 
@@ -232,8 +248,7 @@ func TestParseV1V2_Version2Files(t *testing.T) {
 			Size:          aws.Int64(64),
 		},
 	}
-	volumesFrom := []*ecs.VolumeFrom{
-		{
+	volumesFrom := []*ecs.VolumeFrom{ {
 			ReadOnly:        aws.Bool(false),
 			SourceContainer: aws.String("mysql"),
 		},
@@ -341,6 +356,79 @@ func TestParseV1V2_Version1_WithEnvFile(t *testing.T) {
   image: webapp
   env_file:
   - ` + envFile.Name()
+
+	tmpfile, err := ioutil.TempFile("", "test")
+	assert.NoError(t, err, "Unexpected error in creating test file")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write([]byte(composeFileString))
+	assert.NoError(t, err, "Unexpected error in writing to test file")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Unexpected error closing file")
+
+	// Set up project
+	project := setupTestProject(t)
+	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, tmpfile.Name())
+
+	actualConfigs, err := project.parseV1V2()
+	assert.NoError(t, err, "Unexpected error parsing file")
+
+	// verify wordpress ServiceConfig
+	web, err := getContainerConfigByName("web", actualConfigs)
+	assert.NoError(t, err, "Unexpected error retrieving container config")
+	assert.Equal(t, webImage, web.Image, "Expected Image to match")
+	assert.Equal(t, expectedEnv, web.Environment, "Expected Environment to match")
+}
+
+func TestParseV1V2_WithEnvFromShell(t *testing.T) {
+	// If the value for a key in the environment field is blank, it
+	// resolves to the shell value (good for specifying secrets).
+	// If a value is specified for a key in the environment field, it
+	// overrides the shell value for that key.
+
+	envKey1 := "RACK_ENV"
+	envValue1 := "staging"
+
+	envKey2 := "SHOW"
+	envValue2 := "true"
+	envKey3 := "SESSION_SECRET"
+	envValue3 := "clydeIsTheGoodestDog"
+
+	os.Setenv(envKey1, envValue1)
+	os.Setenv(envKey2, envValue2)
+	os.Setenv(envKey3, envValue3)
+	defer func() {
+		os.Unsetenv(envKey1)
+		os.Unsetenv(envKey2)
+		os.Unsetenv(envKey3)
+	}()
+
+	expectedEnv := []*ecs.KeyValuePair{
+		{
+			Name:  aws.String(envKey1),
+			Value: aws.String("development"),
+		},
+		{
+			Name:  aws.String(envKey2),
+			Value: aws.String(envValue2),
+		},
+		{
+			Name:  aws.String(envKey3),
+			Value: aws.String(envValue3),
+		},
+	}
+	// Setup docker-compose file
+	webImage := "webapp"
+	composeFileString := `version: '2'
+services:
+  web:
+    image: webapp
+    environment:
+     - RACK_ENV=development
+     - SHOW=
+     - SESSION_SECRET`
 
 	tmpfile, err := ioutil.TempFile("", "test")
 	assert.NoError(t, err, "Unexpected error in creating test file")

@@ -37,7 +37,7 @@ type Project interface {
 
 	Context() *context.ECSContext
 	ServiceConfigs() *config.ServiceConfigs
-	ContainerConfigs() []containerconfig.ContainerConfig
+	ContainerConfigs() []containerconfig.ContainerConfig // TODO change this to a pointer to slice?
 	Entity() entity.ProjectEntity
 
 	// commands
@@ -184,7 +184,8 @@ func (p *ecsProject) parseECSParams() error {
 	return nil
 }
 
-// transformTaskDefinition converts the compose yml and ecs-params yml into an ECS task definition
+// transformTaskDefinition converts the compose yml and ecs-params yml into an
+// ECS task definition and loads it onto the project entity
 func (p *ecsProject) transformTaskDefinition() error {
 	ecsContext := p.ecsContext
 
@@ -197,7 +198,7 @@ func (p *ecsProject) transformTaskDefinition() error {
 	taskDefinition, err := utils.ConvertToTaskDefinition(
 		&ecsContext.Context,
 		p.VolumeConfigs(),
-		p.ServiceConfigs(),
+		p.ContainerConfigs(), // TODO Change to pointer on project?
 		taskRoleArn,
 		requiredCompatibilities,
 		ecsContext.ECSParams,

@@ -45,7 +45,7 @@ type EcsTaskDef struct {
 // ContainerDefs is a map of ContainerDefs within a task definition
 type ContainerDefs map[string]ContainerDef
 
-// ContainerDef specifies settings for a specific container
+// ContainerDef holds fields for an ECS Container Definition that are not supplied by docker-compose
 type ContainerDef struct {
 	Essential bool `yaml:"essential"`
 	// resource field yaml names correspond to equivalent docker-compose field
