@@ -34,6 +34,8 @@ services:
     dns_search:
       - wrd.search.com
       - wrd.search2.com
+    environment:
+      wordpress_env: val1
     labels:
       com.example.wordpress: "wordpress label"
     links:
@@ -63,7 +65,7 @@ services:
       - "mysqlexhost:10.0.0.0"`
 
 	tmpfile, err := ioutil.TempFile("", "test")
-        assert.NoError(t, err, "Unexpected error in creating test file")
+	assert.NoError(t, err, "Unexpected error in creating test file")
 
 	defer os.Remove(tmpfile.Name())
 
@@ -99,6 +101,9 @@ services:
     ports:
       - "80:80"
       - "777"
+    environment:
+      - WRDPRS1=val1
+      - WRDPRS2=val2
   mysql:
     image: mysql`
 
@@ -183,6 +188,64 @@ func TestThrowErrorIfFileDoesNotExist(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestParseV3WithEnvFile(t *testing.T) {
+	// Set up env file
+	envKey := "testEnv"
+	envValue := "testValue"
+	envContents := []byte(envKey + "=" + envValue)
+
+	envFile, err := ioutil.TempFile("", "envTest")
+	assert.NoError(t, err, "Unexpected error in creating test env file")
+
+	defer os.Remove(envFile.Name())
+
+	_, err = envFile.Write(envContents)
+	assert.NoError(t, err, "Unexpected error in writing to test env file")
+
+	expectedEnv := []*ecs.KeyValuePair{
+		{
+			Name:  aws.String(envKey),
+			Value: aws.String(envValue),
+		},
+	}
+
+	serviceName := "web"
+	composeFileString := `version: '3'
+services:
+  web:
+    image: httpd
+    env_file: ` + envFile.Name()
+
+	tmpfile, err := ioutil.TempFile("", "test")
+	assert.NoError(t, err, "Unexpected error in creating test file")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write([]byte(composeFileString))
+	assert.NoError(t, err, "Unexpected error in writing to test file")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Unexpected error closing file")
+
+	// Set up project
+	project := setupTestProject(t)
+	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, tmpfile.Name())
+
+	// get map of docker-parsed ServiceConfigs
+	expectedConfigs := getServiceConfigMap(t, project.ecsContext.ComposeFiles)
+	expectedConfig := expectedConfigs[serviceName]
+
+	// assert # and content of container configs matches expected services
+	actualConfigs, err := project.parseV3()
+	assert.NoError(t, err, "Unexpected error parsing file")
+	actualConfig, err := getContainerConfigByName(serviceName, actualConfigs)
+	assert.NoError(t, err, "Unexpected error retrieving container config")
+
+	assert.Equal(t, 1, len(*actualConfigs))
+	assert.Equal(t, expectedEnv, actualConfig.Environment)
+	verifyConvertToContainerConfigOutput(t, expectedConfig, *actualConfig)
+}
+
 func verifyConvertToContainerConfigOutput(t *testing.T, expected types.ServiceConfig, actual containerconfig.ContainerConfig) {
 
 	// verify equivalent fields
@@ -260,7 +323,14 @@ func verifyConvertToContainerConfigOutput(t *testing.T, expected types.ServiceCo
 	} else {
 		assert.Empty(t, actual.MountPoints)
 	}
-	// TODO: verify expected.Environment
+
+	if len(expected.Environment) > 0 {
+		for _, env := range actual.Environment {
+			assert.Equal(t, *expected.Environment[*env.Name], *env.Value)
+		}
+	} else {
+		assert.Empty(t, actual.Environment)
+	}
 }
 
 func verifyMountPoint(t *testing.T, servVolume types.ServiceVolumeConfig, mountPoint ecs.MountPoint) {

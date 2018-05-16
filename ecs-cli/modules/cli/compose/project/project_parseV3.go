@@ -107,6 +107,15 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig) (*containerconf
 		c.DockerLabels = labelsMap
 	}
 
+	envVars := []*ecs.KeyValuePair{}
+	for k, v := range serviceConfig.Environment {
+		env := ecs.KeyValuePair{}
+		env.SetName(k)
+		env.SetValue(*v)
+		envVars = append(envVars, &env)
+	}
+	c.Environment = envVars
+
 	extraHosts, err := utils.ConvertToExtraHosts(serviceConfig.ExtraHosts)
 	if err != nil {
 		return nil, err
