@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/docker/libcompose/yaml"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -77,6 +78,9 @@ task_definition:
   services:
     mysql:
       essential: false
+      cpu_shares: 100
+      mem_limit: 524288000
+      mem_reservation: 500mb
     wordpress:
       essential: true`
 
@@ -108,6 +112,9 @@ task_definition:
 		wordpress := containerDefs["wordpress"]
 
 		assert.False(t, mysql.Essential, "Expected container to not be essential")
+		assert.Equal(t, int64(100), mysql.Cpu)
+		assert.Equal(t, yaml.MemStringorInt(524288000), mysql.Memory)
+		assert.Equal(t, yaml.MemStringorInt(524288000), mysql.MemoryReservation)
 		assert.True(t, wordpress.Essential, "Expected container to be essential")
 	}
 }
