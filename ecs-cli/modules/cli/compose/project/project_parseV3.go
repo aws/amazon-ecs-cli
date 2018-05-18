@@ -3,6 +3,7 @@ package project
 import (
 	"io/ioutil"
 	"path/filepath"
+	"reflect"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/containerconfig"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
@@ -168,7 +169,8 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig) (*containerconf
 		c.MountPoints = mountPoints
 	}
 
-	// TODO: add Environtment, EnvFile to ContainerConfig
+	logWarningForDeployFields(serviceConfig.Deploy, serviceConfig.Name)
+
 	// TODO: log out unsupported fields
 	return c, nil
 }
@@ -191,4 +193,18 @@ func convertPortConfigToECSMapping(portConfig types.ServicePortConfig) *ecs.Port
 		Protocol:      &portConfig.Protocol,
 	}
 	return &ecsMapping
+}
+
+func logWarningForDeployFields(d types.DeployConfig, serviceName string) {
+	if d.Resources.Limits != nil || d.Resources.Reservations != nil {
+		log.WithFields(log.Fields{
+			"option name":  "deploy",
+			"service name": serviceName,
+		}).Warn("Skipping unsupported YAML option for service... service-level resources should be configured in the ecs-param.yml file.")
+	} else if !reflect.DeepEqual(d, types.DeployConfig{}) {
+		log.WithFields(log.Fields{
+			"option name":  "deploy",
+			"service name": serviceName,
+		}).Warn("Skipping unsupported YAML option for service...")
+	}
 }
