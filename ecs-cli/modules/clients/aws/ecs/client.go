@@ -18,6 +18,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
@@ -309,7 +310,7 @@ func (c *ecsClient) constructTaskDefinitionCacheHash(taskDefinition *ecs.TaskDef
 	// Get the region from the ecsClient configuration
 	region := aws.StringValue(c.config.Session.Config.Region)
 	awsUserAccountId := utils.GetAwsAccountIdFromArn(aws.StringValue(taskDefinition.TaskDefinitionArn))
-	sortedRequestString, err := utils.SortedGoString(request)
+	sortedRequestString, err := adapter.SortedGoString(request)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,

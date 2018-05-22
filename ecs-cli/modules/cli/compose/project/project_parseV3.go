@@ -6,7 +6,6 @@ import (
 	"reflect"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/pkg/errors"
@@ -117,13 +116,13 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig) (*adapter.Conta
 	}
 	c.Environment = envVars
 
-	extraHosts, err := utils.ConvertToExtraHosts(serviceConfig.ExtraHosts)
+	extraHosts, err := adapter.ConvertToExtraHosts(serviceConfig.ExtraHosts)
 	if err != nil {
 		return nil, err
 	}
 	c.ExtraHosts = extraHosts
 
-	// TODO: refactor utils.ConvertToLogConfiguration to take in driver (string) and Options (map[string]string)
+	// TODO: refactor adapter.ConvertToLogConfiguration to take in driver (string) and Options (map[string]string)
 	if serviceConfig.Logging != nil {
 		logConfig := ecs.LogConfiguration{}
 		logConfig.SetLogDriver(serviceConfig.Logging.Driver)
@@ -144,7 +143,7 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig) (*adapter.Conta
 	// TODO: change ConvertToTmpfs to take in []string
 	if serviceConfig.Tmpfs != nil {
 		tmpfs := yaml.Stringorslice(serviceConfig.Tmpfs)
-		ecsTmpfs, err := utils.ConvertToTmpfs(tmpfs)
+		ecsTmpfs, err := adapter.ConvertToTmpfs(tmpfs)
 		if err != nil {
 			return nil, err
 		}
