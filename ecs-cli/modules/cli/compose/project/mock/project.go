@@ -17,7 +17,7 @@
 package mock_project
 
 import (
-	containerconfig "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/containerconfig"
+	adapter "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	context "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	entity "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	config "github.com/docker/libcompose/config"
@@ -46,9 +46,9 @@ func (_m *MockProject) EXPECT() *_MockProjectRecorder {
 	return _m.recorder
 }
 
-func (_m *MockProject) ContainerConfigs() []containerconfig.ContainerConfig {
+func (_m *MockProject) ContainerConfigs() []adapter.ContainerConfig {
 	ret := _m.ctrl.Call(_m, "ContainerConfigs")
-	ret0, _ := ret[0].([]containerconfig.ContainerConfig)
+	ret0, _ := ret[0].([]adapter.ContainerConfig)
 	return ret0
 }
 

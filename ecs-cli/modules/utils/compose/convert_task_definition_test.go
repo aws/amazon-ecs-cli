@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"testing"
 
-	containers "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/containerconfig"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/docker/libcompose/config"
@@ -45,7 +45,7 @@ var defaultNetwork = &yaml.Network{
 }
 
 // TODO Extract test docker file and use in test (to avoid gaps between parse and conversion unit tests)
-var testContainerConfig = &containers.ContainerConfig{
+var testContainerConfig = &adapter.ContainerConfig{
 	Name:             "mysql",
 	Command:          []string{"cmd"},
 	CPU:              int64(131072),
@@ -252,7 +252,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 
 // ConvertToContainerDefinition tests
 func TestConvertToTaskDefinitionWithNoSharedMemorySize(t *testing.T) {
-	containerConfig := &containers.ContainerConfig{
+	containerConfig := &adapter.ContainerConfig{
 		ShmSize: int64(0),
 	}
 
@@ -263,7 +263,7 @@ func TestConvertToTaskDefinitionWithNoSharedMemorySize(t *testing.T) {
 }
 
 func TestConvertToTaskDefinitionWithNoTmpfs(t *testing.T) {
-	containerConfig := &containers.ContainerConfig{
+	containerConfig := &adapter.ContainerConfig{
 		Tmpfs: nil,
 	}
 
@@ -277,7 +277,7 @@ func TestConvertToTaskDefinitionWithNoTmpfs(t *testing.T) {
 
 // Test Launch Types
 func TestConvertToTaskDefinitionLaunchTypeEmpty(t *testing.T) {
-	containerConfig := &containers.ContainerConfig{}
+	containerConfig := &adapter.ContainerConfig{}
 
 	taskDefinition := convertToTaskDefinitionInTest(t, nil, containerConfig, "", "")
 	if len(taskDefinition.RequiresCompatibilities) > 0 {
@@ -286,7 +286,7 @@ func TestConvertToTaskDefinitionLaunchTypeEmpty(t *testing.T) {
 }
 
 func TestConvertToTaskDefinitionLaunchTypeEC2(t *testing.T) {
-	containerConfig := &containers.ContainerConfig{}
+	containerConfig := &adapter.ContainerConfig{}
 
 	taskDefinition := convertToTaskDefinitionInTest(t, nil, containerConfig, "", "EC2")
 	if len(taskDefinition.RequiresCompatibilities) != 1 {
@@ -296,7 +296,7 @@ func TestConvertToTaskDefinitionLaunchTypeEC2(t *testing.T) {
 }
 
 func TestConvertToTaskDefinitionLaunchTypeFargate(t *testing.T) {
-	containerConfig := &containers.ContainerConfig{}
+	containerConfig := &adapter.ContainerConfig{}
 
 	taskDefinition := convertToTaskDefinitionInTest(t, nil, containerConfig, "", "FARGATE")
 	if len(taskDefinition.RequiresCompatibilities) != 1 {
@@ -306,10 +306,10 @@ func TestConvertToTaskDefinitionLaunchTypeFargate(t *testing.T) {
 }
 
 // Test Conversion with ECS Params
-func testContainerConfigs(names []string) []containers.ContainerConfig {
-	containerConfigs := []containers.ContainerConfig{}
+func testContainerConfigs(names []string) []adapter.ContainerConfig {
+	containerConfigs := []adapter.ContainerConfig{}
 	for _, name := range names {
-		config := containers.ContainerConfig{Name: name}
+		config := adapter.ContainerConfig{Name: name}
 		containerConfigs = append(containerConfigs, config)
 	}
 
@@ -775,7 +775,7 @@ func TestMemReservationHigherThanMemLimit(t *testing.T) {
 	user := "user"
 	workingDir := "/var"
 
-	containerConfig := containers.ContainerConfig{
+	containerConfig := adapter.ContainerConfig{
 		CPU:               cpu,
 		Command:           []string{command},
 		Hostname:          hostname,
@@ -790,7 +790,7 @@ func TestMemReservationHigherThanMemLimit(t *testing.T) {
 
 	volumeConfigs := make(map[string]*config.VolumeConfig)
 
-	containerConfigs := []containers.ContainerConfig{containerConfig}
+	containerConfigs := []adapter.ContainerConfig{containerConfig}
 
 	envLookup, err := GetDefaultEnvironmentLookup()
 	assert.NoError(t, err, "Unexpected error setting up environment lookup")
@@ -1209,11 +1209,11 @@ func TestConvertToVolumes_ErrorsWithExternalSubfield(t *testing.T) {
 	assert.Error(t, err, "Expected error converting libcompose volume configs when external is specified")
 }
 
-func convertToTaskDefinitionInTest(t *testing.T, volumeConfig *config.VolumeConfig, containerConfig *containers.ContainerConfig, taskRoleArn string, launchType string) *ecs.TaskDefinition {
+func convertToTaskDefinitionInTest(t *testing.T, volumeConfig *config.VolumeConfig, containerConfig *adapter.ContainerConfig, taskRoleArn string, launchType string) *ecs.TaskDefinition {
 	volumeConfigs := make(map[string]*config.VolumeConfig)
 	volumeConfigs[namedVolume] = volumeConfig
 
-	containerConfigs := []containers.ContainerConfig{}
+	containerConfigs := []adapter.ContainerConfig{}
 	containerConfigs = append(containerConfigs, *containerConfig)
 
 	envLookup, err := GetDefaultEnvironmentLookup()
@@ -1237,7 +1237,7 @@ func convertToTaskDefinitionInTest(t *testing.T, volumeConfig *config.VolumeConf
 	return taskDefinition
 }
 
-func convertToTaskDefWithEcsParamsInTest(t *testing.T, volumeConfig *config.VolumeConfig, containerConfigs []containers.ContainerConfig, taskRoleArn string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
+func convertToTaskDefWithEcsParamsInTest(t *testing.T, volumeConfig *config.VolumeConfig, containerConfigs []adapter.ContainerConfig, taskRoleArn string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
 	volumeConfigs := make(map[string]*config.VolumeConfig)
 	if volumeConfig != nil {
 		volumeConfigs[namedVolume] = volumeConfig
@@ -1273,7 +1273,7 @@ func findContainerByName(name string, containerDefs []*ecs.ContainerDefinition) 
 }
 
 func TestIsZeroForEmptyConfig(t *testing.T) {
-	containerConfig := &containers.ContainerConfig{}
+	containerConfig := &adapter.ContainerConfig{}
 
 	configValue := reflect.ValueOf(containerConfig).Elem()
 	configType := configValue.Type()
@@ -1303,7 +1303,7 @@ func TestIsZeroWhenConfigHasValues(t *testing.T) {
 		"WorkingDirectory":  true,
 	}
 
-	containerConfig := &containers.ContainerConfig{
+	containerConfig := &adapter.ContainerConfig{
 		CPU:               int64(10),
 		Command:           []string{"cmd"},
 		Hostname:          "foobarbaz",

@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"reflect"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/containerconfig"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -17,7 +17,7 @@ import (
 	"github.com/docker/libcompose/yaml"
 )
 
-func (p *ecsProject) parseV3() (*[]containerconfig.ContainerConfig, error) {
+func (p *ecsProject) parseV3() (*[]adapter.ContainerConfig, error) {
 	log.Debug("Parsing v3 project...")
 
 	v3Config, err := getV3Config(p.ecsContext.ComposeFiles)
@@ -26,7 +26,7 @@ func (p *ecsProject) parseV3() (*[]containerconfig.ContainerConfig, error) {
 	}
 
 	// convert ServiceConfigs to ContainerConfigs
-	conConfigs := []containerconfig.ContainerConfig{}
+	conConfigs := []adapter.ContainerConfig{}
 	for _, service := range v3Config.Services {
 		cCon, err := convertToContainerConfig(service)
 		if err != nil {
@@ -79,9 +79,9 @@ func getV3Config(composeFiles []string) (*types.Config, error) {
 	return config, nil
 }
 
-func convertToContainerConfig(serviceConfig types.ServiceConfig) (*containerconfig.ContainerConfig, error) {
+func convertToContainerConfig(serviceConfig types.ServiceConfig) (*adapter.ContainerConfig, error) {
 	//TODO: Add Healthcheck, Devices to ContainerConfig
-	c := &containerconfig.ContainerConfig{
+	c := &adapter.ContainerConfig{
 		CapAdd:                serviceConfig.CapAdd,
 		CapDrop:               serviceConfig.CapDrop,
 		Command:               serviceConfig.Command,
