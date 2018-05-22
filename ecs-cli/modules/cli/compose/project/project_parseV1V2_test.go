@@ -248,10 +248,10 @@ func TestParseV1V2_Version2Files(t *testing.T) {
 			Size:          aws.Int64(64),
 		},
 	}
-	volumesFrom := []*ecs.VolumeFrom{ {
-			ReadOnly:        aws.Bool(false),
-			SourceContainer: aws.String("mysql"),
-		},
+	volumesFrom := []*ecs.VolumeFrom{{
+		ReadOnly:        aws.Bool(false),
+		SourceContainer: aws.String("mysql"),
+	},
 	}
 
 	composeV2FileString := `version: '2'
