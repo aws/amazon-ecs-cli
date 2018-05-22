@@ -1,4 +1,4 @@
-package containerconfig
+package adapter
 
 import "github.com/aws/aws-sdk-go/service/ecs"
 

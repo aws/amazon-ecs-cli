@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/containerconfig"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
@@ -246,7 +246,7 @@ services:
 	verifyConvertToContainerConfigOutput(t, expectedConfig, *actualConfig)
 }
 
-func verifyConvertToContainerConfigOutput(t *testing.T, expected types.ServiceConfig, actual containerconfig.ContainerConfig) {
+func verifyConvertToContainerConfigOutput(t *testing.T, expected types.ServiceConfig, actual adapter.ContainerConfig) {
 
 	// verify equivalent fields
 	assert.Equal(t, expected.CapAdd, actual.CapAdd, "Expected CapAdd to match")

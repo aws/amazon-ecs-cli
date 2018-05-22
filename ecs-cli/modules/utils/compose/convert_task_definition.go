@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"strings"
 
-	containers "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/containerconfig"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -107,7 +107,7 @@ type TaskDefParams struct {
 // ConvertToTaskDefinition transforms the yaml configs to its ecs equivalent (task definition)
 // TODO container config a pointer to slice?
 func ConvertToTaskDefinition(context *project.Context, volumeConfigs map[string]*config.VolumeConfig,
-	containerConfigs []containers.ContainerConfig, taskRoleArn string, requiredCompatibilites string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
+	containerConfigs []adapter.ContainerConfig, taskRoleArn string, requiredCompatibilites string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
 	if len(containerConfigs) == 0 {
 		return nil, errors.New("cannot create a task definition with no containers; invalid service config")
 	}
@@ -263,7 +263,7 @@ func isZero(v reflect.Value) bool {
 
 // convertToContainerDef transforms each service in docker-compose.yml and
 // ecs-params.yml to an equivalent ECS container definition
-func convertToContainerDef(inputCfg *containers.ContainerConfig, ecsContainerDef *ContainerDef) (*ecs.ContainerDefinition, error) {
+func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *ContainerDef) (*ecs.ContainerDefinition, error) {
 	outputContDef := &ecs.ContainerDefinition{}
 
 	mem := inputCfg.Memory
