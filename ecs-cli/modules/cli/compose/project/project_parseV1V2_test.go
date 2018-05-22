@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/containerconfig"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 
@@ -455,7 +455,7 @@ services:
 	assert.Equal(t, expectedEnv, web.Environment, "Expected Environment to match")
 }
 
-func getContainerConfigByName(name string, configs *[]containerconfig.ContainerConfig) (*containerconfig.ContainerConfig, error) {
+func getContainerConfigByName(name string, configs *[]adapter.ContainerConfig) (*adapter.ContainerConfig, error) {
 	for _, config := range *configs {
 		if config.Name == name {
 			return &config, nil

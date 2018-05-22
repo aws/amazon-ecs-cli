@@ -2,7 +2,7 @@ package project
 
 import (
 	"fmt"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/containerconfig"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/docker/libcompose/config"
@@ -10,7 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (p *ecsProject) parseV1V2() (*[]containerconfig.ContainerConfig, error) {
+func (p *ecsProject) parseV1V2() (*[]adapter.ContainerConfig, error) {
 	logrus.Debug("Parsing v1/2 project...")
 
 	// libcompose.Project#Parse populates project information based on its
@@ -31,7 +31,7 @@ func (p *ecsProject) parseV1V2() (*[]containerconfig.ContainerConfig, error) {
 	serviceConfigs := p.Project.ServiceConfigs
 
 	// convert ServiceConfigs to ContainerConfigs
-	containerConfigs := []containerconfig.ContainerConfig{}
+	containerConfigs := []adapter.ContainerConfig{}
 	for _, serviceName := range serviceConfigs.Keys() {
 		serviceConfig, ok := serviceConfigs.Get(serviceName)
 		if !ok {
@@ -48,7 +48,7 @@ func (p *ecsProject) parseV1V2() (*[]containerconfig.ContainerConfig, error) {
 	return &containerConfigs, nil
 }
 
-func convertV1V2ToContainerConfig(context *project.Context, serviceName string, volumes *utils.Volumes, service *config.ServiceConfig) (*containerconfig.ContainerConfig, error) {
+func convertV1V2ToContainerConfig(context *project.Context, serviceName string, volumes *utils.Volumes, service *config.ServiceConfig) (*adapter.ContainerConfig, error) {
 
 	environment := utils.ConvertToKeyValuePairs(context, service.Environment, serviceName)
 
@@ -92,7 +92,7 @@ func convertV1V2ToContainerConfig(context *project.Context, serviceName string, 
 		return nil, err
 	}
 
-	outputConfig := &containerconfig.ContainerConfig{
+	outputConfig := &adapter.ContainerConfig{
 		Name:                  serviceName,
 		CapAdd:                service.CapAdd,
 		CapDrop:               service.CapDrop,

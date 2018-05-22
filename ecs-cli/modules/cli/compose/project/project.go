@@ -16,7 +16,7 @@ package project
 import (
 	"fmt"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/containerconfig"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/service"
@@ -37,7 +37,7 @@ type Project interface {
 
 	Context() *context.ECSContext
 	ServiceConfigs() *config.ServiceConfigs
-	ContainerConfigs() []containerconfig.ContainerConfig // TODO change this to a pointer to slice?
+	ContainerConfigs() []adapter.ContainerConfig // TODO change this to a pointer to slice?
 	Entity() entity.ProjectEntity
 
 	// commands
@@ -56,7 +56,7 @@ type ecsProject struct {
 	project.Project
 
 	// TODO: use this instead of project.Project
-	containerConfigs []containerconfig.ContainerConfig
+	containerConfigs []adapter.ContainerConfig
 
 	ecsContext *context.ECSContext
 
@@ -72,7 +72,7 @@ func NewProject(ecsContext *context.ECSContext) Project {
 	p := &ecsProject{
 		ecsContext:       ecsContext,
 		Project:          *libcomposeProject,
-		containerConfigs: []containerconfig.ContainerConfig{},
+		containerConfigs: []adapter.ContainerConfig{},
 	}
 
 	if ecsContext.IsService {
@@ -104,7 +104,7 @@ func (p *ecsProject) VolumeConfigs() map[string]*config.VolumeConfig {
 	return p.Project.VolumeConfigs
 }
 
-func (p *ecsProject) ContainerConfigs() []containerconfig.ContainerConfig {
+func (p *ecsProject) ContainerConfigs() []adapter.ContainerConfig {
 	return p.containerConfigs
 }
 
