@@ -3,7 +3,6 @@ package project
 import (
 	"fmt"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
@@ -22,7 +21,7 @@ func (p *ecsProject) parseV1V2() (*[]adapter.ContainerConfig, error) {
 	}
 
 	volumeConfigs := p.Project.VolumeConfigs
-	volumes, err := utils.ConvertToVolumes(volumeConfigs)
+	volumes, err := adapter.ConvertToVolumes(volumeConfigs)
 	if err != nil {
 		return nil, err
 	}
@@ -48,46 +47,46 @@ func (p *ecsProject) parseV1V2() (*[]adapter.ContainerConfig, error) {
 	return &containerConfigs, nil
 }
 
-func convertV1V2ToContainerConfig(context *project.Context, serviceName string, volumes *utils.Volumes, service *config.ServiceConfig) (*adapter.ContainerConfig, error) {
+func convertV1V2ToContainerConfig(context *project.Context, serviceName string, volumes *adapter.Volumes, service *config.ServiceConfig) (*adapter.ContainerConfig, error) {
 
-	environment := utils.ConvertToKeyValuePairs(context, service.Environment, serviceName)
+	environment := adapter.ConvertToKeyValuePairs(context, service.Environment, serviceName)
 
-	extraHosts, err := utils.ConvertToExtraHosts(service.ExtraHosts)
+	extraHosts, err := adapter.ConvertToExtraHosts(service.ExtraHosts)
 	if err != nil {
 		return nil, err
 	}
 
-	logConfiguration, err := utils.ConvertToLogConfiguration(service)
+	logConfiguration, err := adapter.ConvertToLogConfiguration(service)
 	if err != nil {
 		return nil, err
 	}
 
-	memory := utils.ConvertToMemoryInMB(int64(service.MemLimit))
-	memoryReservation := utils.ConvertToMemoryInMB(int64(service.MemReservation))
+	memory := adapter.ConvertToMemoryInMB(int64(service.MemLimit))
+	memoryReservation := adapter.ConvertToMemoryInMB(int64(service.MemReservation))
 
-	mountPoints, err := utils.ConvertToMountPoints(service.Volumes, volumes)
+	mountPoints, err := adapter.ConvertToMountPoints(service.Volumes, volumes)
 	if err != nil {
 		return nil, err
 	}
 
-	portMappings, err := utils.ConvertToPortMappings(serviceName, service.Ports)
+	portMappings, err := adapter.ConvertToPortMappings(serviceName, service.Ports)
 	if err != nil {
 		return nil, err
 	}
 
-	shmSize := utils.ConvertToMemoryInMB(int64(service.ShmSize))
+	shmSize := adapter.ConvertToMemoryInMB(int64(service.ShmSize))
 
-	tmpfs, err := utils.ConvertToTmpfs(service.Tmpfs)
+	tmpfs, err := adapter.ConvertToTmpfs(service.Tmpfs)
 	if err != nil {
 		return nil, err
 	}
 
-	ulimits, err := utils.ConvertToULimits(service.Ulimits)
+	ulimits, err := adapter.ConvertToULimits(service.Ulimits)
 	if err != nil {
 		return nil, err
 	}
 
-	volumesFrom, err := utils.ConvertToVolumesFrom(service.VolumesFrom)
+	volumesFrom, err := adapter.ConvertToVolumesFrom(service.VolumesFrom)
 	if err != nil {
 		return nil, err
 	}

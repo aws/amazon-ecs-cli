@@ -7,7 +7,6 @@ import (
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/stretchr/testify/assert"
@@ -276,12 +275,12 @@ func verifyConvertToContainerConfigOutput(t *testing.T, expected types.ServiceCo
 	}
 
 	// verify custom conversions
-	expectedHosts, err := utils.ConvertToExtraHosts(expected.ExtraHosts)
+	expectedHosts, err := adapter.ConvertToExtraHosts(expected.ExtraHosts)
 	assert.NoError(t, err, "Unexpected error converting extra hosts")
 	assert.Equal(t, expectedHosts, actual.ExtraHosts, "Expected ExtraHosts to match")
 
 	if expected.Tmpfs != nil {
-		expectedTmpfs, err := utils.ConvertToTmpfs(yaml.Stringorslice(expected.Tmpfs))
+		expectedTmpfs, err := adapter.ConvertToTmpfs(yaml.Stringorslice(expected.Tmpfs))
 		assert.NoError(t, err, "Unexpected error converting Tmpfs")
 		assert.Equal(t, expectedTmpfs, actual.Tmpfs, "Expected Tmpfs to match")
 	} else {
