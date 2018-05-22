@@ -107,7 +107,7 @@ type cloudformationClient struct {
 }
 
 // NewCloudformationClient creates an instance of cloudFormationClient object.
-func NewCloudformationClient(config *config.CommandConfig) CloudformationClient  {
+func NewCloudformationClient(config *config.CommandConfig) CloudformationClient {
 	cfnClient := cloudformation.New(config.Session)
 	cfnClient.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
 
@@ -260,7 +260,7 @@ func (c *cloudformationClient) waitUntilComplete(stackName string, hasFailed fai
 		c.sleeper.Sleep(delayWait)
 	}
 
-	return fmt.Errorf("Timeout waiting for stack creation to complete")
+	return fmt.Errorf("Timeout waiting for stack operation to complete")
 }
 
 // latestStackEvent describes stack events and gets the latest event.
