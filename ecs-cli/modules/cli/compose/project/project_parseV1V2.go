@@ -16,6 +16,8 @@ func (p *ecsProject) parseV1V2() (*[]adapter.ContainerConfig, error) {
 	// context. It sets up the name, the composefile and the composebytes
 	// (the composefile content). This is where libcompose ServiceConfigs
 	// and VolumeConfigs gets loaded.
+
+	// TODO instantiate the libcompose project here instead of in the factory
 	if err := p.Project.Parse(); err != nil {
 		return nil, err
 	}
@@ -25,6 +27,7 @@ func (p *ecsProject) parseV1V2() (*[]adapter.ContainerConfig, error) {
 	if err != nil {
 		return nil, err
 	}
+	p.volumes = volumes
 
 	context := &p.Context().Context
 	serviceConfigs := p.Project.ServiceConfigs

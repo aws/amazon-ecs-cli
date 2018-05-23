@@ -186,3 +186,13 @@ func (_m *MockProject) Up() error {
 func (_mr *_MockProjectRecorder) Up() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Up")
 }
+
+func (_m *MockProject) VolumeConfigs() *adapter.Volumes {
+	ret := _m.ctrl.Call(_m, "VolumeConfigs")
+	ret0, _ := ret[0].(*adapter.Volumes)
+	return ret0
+}
+
+func (_mr *_MockProjectRecorder) VolumeConfigs() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "VolumeConfigs")
+}

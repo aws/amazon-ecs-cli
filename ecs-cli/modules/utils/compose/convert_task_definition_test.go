@@ -22,7 +22,6 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
-	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
 	"github.com/stretchr/testify/assert"
@@ -203,7 +202,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	// TODO add top-level volumes
 
 	// convert
-	taskDefinition := convertToTaskDefinitionInTest(t, nil, testContainerConfig, taskRoleArn, "")
+	taskDefinition := convertToTaskDefinitionInTest(t, testContainerConfig, taskRoleArn, "")
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 
 	// verify task def fields
@@ -253,7 +252,7 @@ func TestConvertToTaskDefinitionWithNoSharedMemorySize(t *testing.T) {
 		ShmSize: int64(0),
 	}
 
-	taskDefinition := convertToTaskDefinitionInTest(t, nil, containerConfig, "", "")
+	taskDefinition := convertToTaskDefinitionInTest(t, containerConfig, "", "")
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 
 	assert.Nil(t, containerDef.LinuxParameters.SharedMemorySize, "Expected sharedMemorySize to be null")
@@ -264,7 +263,7 @@ func TestConvertToTaskDefinitionWithNoTmpfs(t *testing.T) {
 		Tmpfs: nil,
 	}
 
-	taskDefinition := convertToTaskDefinitionInTest(t, nil, containerConfig, "", "")
+	taskDefinition := convertToTaskDefinitionInTest(t, containerConfig, "", "")
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 
 	assert.Nil(t, containerDef.LinuxParameters.Tmpfs, "Expected Tmpfs to be null")
@@ -275,7 +274,7 @@ func TestConvertToTaskDefinitionWithBlankHostname(t *testing.T) {
 		Hostname: "",
 	}
 
-	taskDefinition := convertToTaskDefinitionInTest(t, nil, containerConfig, "", "")
+	taskDefinition := convertToTaskDefinitionInTest(t, containerConfig, "", "")
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 
 	assert.Nil(t, containerDef.Hostname, "Expected Hostname to be nil")
@@ -287,7 +286,7 @@ func TestConvertToTaskDefinitionWithBlankHostname(t *testing.T) {
 func TestConvertToTaskDefinitionLaunchTypeEmpty(t *testing.T) {
 	containerConfig := &adapter.ContainerConfig{}
 
-	taskDefinition := convertToTaskDefinitionInTest(t, nil, containerConfig, "", "")
+	taskDefinition := convertToTaskDefinitionInTest(t, containerConfig, "", "")
 	if len(taskDefinition.RequiresCompatibilities) > 0 {
 		t.Error("Did not expect RequiresCompatibilities to be set")
 	}
@@ -296,7 +295,7 @@ func TestConvertToTaskDefinitionLaunchTypeEmpty(t *testing.T) {
 func TestConvertToTaskDefinitionLaunchTypeEC2(t *testing.T) {
 	containerConfig := &adapter.ContainerConfig{}
 
-	taskDefinition := convertToTaskDefinitionInTest(t, nil, containerConfig, "", "EC2")
+	taskDefinition := convertToTaskDefinitionInTest(t, containerConfig, "", "EC2")
 	if len(taskDefinition.RequiresCompatibilities) != 1 {
 		t.Error("Expected exactly one required compatibility to be set.")
 	}
@@ -306,7 +305,7 @@ func TestConvertToTaskDefinitionLaunchTypeEC2(t *testing.T) {
 func TestConvertToTaskDefinitionLaunchTypeFargate(t *testing.T) {
 	containerConfig := &adapter.ContainerConfig{}
 
-	taskDefinition := convertToTaskDefinitionInTest(t, nil, containerConfig, "", "FARGATE")
+	taskDefinition := convertToTaskDefinitionInTest(t, containerConfig, "", "FARGATE")
 	if len(taskDefinition.RequiresCompatibilities) != 1 {
 		t.Error("Expected exactly one required compatibility to be set.")
 	}
@@ -348,7 +347,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, nil, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, "host", aws.StringValue(taskDefinition.NetworkMode), "Expected network mode to match")
@@ -392,7 +391,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, nil, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
 
 	containerDefs := taskDefinition.ContainerDefinitions
 	mysql := findContainerByName("mysql", containerDefs)
@@ -435,7 +434,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, nil, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
 
 	containerDefs := taskDefinition.ContainerDefinitions
 	mysql := findContainerByName("mysql", containerDefs)
@@ -474,7 +473,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, nil, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
 
 	containerDefs := taskDefinition.ContainerDefinitions
 	mysql := findContainerByName("mysql", containerDefs)
@@ -513,7 +512,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, nil, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
 
 	containerDefs := taskDefinition.ContainerDefinitions
 	mysql := findContainerByName("mysql", containerDefs)
@@ -551,7 +550,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, nil, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
 
 	containerDefs := taskDefinition.ContainerDefinitions
 	mysql := findContainerByName("mysql", containerDefs)
@@ -590,7 +589,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	_, err = convertToTaskDefWithEcsParamsInTest(t, nil, containerConfigs, "", ecsParams)
+	_, err = convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
 
 	assert.Error(t, err, "Expected error if no containers are marked essential")
 }
@@ -622,7 +621,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	_, err = convertToTaskDefWithEcsParamsInTest(t, nil, containerConfigs, "", ecsParams)
+	_, err = convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
 
 	assert.Error(t, err, "Expected error if no containers are marked essential")
 }
@@ -651,7 +650,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, nil, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
 	assert.NoError(t, err, "Unexpected error when no containers are marked essential")
 
 	mysql := findContainerByName("mysql", taskDefinition.ContainerDefinitions)
@@ -689,7 +688,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, nil, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
 
 	assert.NoError(t, err, "Unexpected error when no containers are marked essential")
 	mysql := findContainerByName("mysql", taskDefinition.ContainerDefinitions)
@@ -724,7 +723,7 @@ task_definition:
 
 	taskRoleArn := "arn:aws:iam::123456789012:role/tweedledum"
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, nil, containerConfigs, taskRoleArn, ecsParams)
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, taskRoleArn, ecsParams)
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, "host", aws.StringValue(taskDefinition.NetworkMode), "Expected network mode to match")
@@ -757,7 +756,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, nil, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, "200", aws.StringValue(taskDefinition.Cpu), "Expected CPU to match")
@@ -789,149 +788,74 @@ func TestMemReservationHigherThanMemLimit(t *testing.T) {
 		WorkingDirectory:  workingDir,
 	}
 
-	volumeConfigs := make(map[string]*config.VolumeConfig)
-
+	volumeConfigs := &adapter.Volumes{}
 	containerConfigs := []adapter.ContainerConfig{containerConfig}
 
-	envLookup, err := GetDefaultEnvironmentLookup()
-	assert.NoError(t, err, "Unexpected error setting up environment lookup")
-	resourceLookup, err := GetDefaultResourceLookup()
-	assert.NoError(t, err, "Unexpected error setting up resource lookup")
-	context := &project.Context{
-		ProjectName:       "ProjectName",
-		Project:           &project.Project{},
-		EnvironmentLookup: envLookup,
-		ResourceLookup:    resourceLookup,
-	}
-	_, err = ConvertToTaskDefinition(context, volumeConfigs, containerConfigs, "", "", nil)
+	context := testContext(t)
+	_, err := ConvertToTaskDefinition(context, volumeConfigs, containerConfigs, "", "", nil)
 	assert.EqualError(t, err, "mem_limit must be greater than mem_reservation")
 }
 
-// TODO Modify test when top-level Volumes added
-// func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
-// 	volume := yaml.Volume{Source: hostPath, Destination: containerPath}
-// 	volumesFrom := []string{"container1"}
+func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
+	volumeConfigs := &adapter.Volumes{
+		VolumeWithHost: map[string]string{
+			hostPath: containerPath,
+		},
+		VolumeEmptyHost: []string{namedVolume},
+	}
 
-// 	containerConfig := &config.ServiceConfig{
-// 		Volumes:     &yaml.Volumes{Volumes: []*yaml.Volume{&volume}},
-// 		VolumesFrom: volumesFrom,
-// 	}
+	mountPoints := []*ecs.MountPoint{
+		{
+			ContainerPath: aws.String("/tmp/cache"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("volume-3"),
+		},
+		{
+			ContainerPath: aws.String("/tmp/cache"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("named_volume"),
+		},
+	}
+	containerConfig := adapter.ContainerConfig{
+		MountPoints: mountPoints,
+	}
 
-// 	taskDefinition := convertToTaskDefinitionInTest(t, nil, containerConfig, "", "")
-// 	containerDef := *taskDefinition.ContainerDefinitions[0]
+	containerConfigs := []adapter.ContainerConfig{containerConfig}
 
-// 	if len(volumesFrom) != len(containerDef.VolumesFrom) ||
-// 		volumesFrom[0] != aws.StringValue(containerDef.VolumesFrom[0].SourceContainer) {
-// 		t.Errorf("Expected volumesFrom [%v] But was [%v]", volumesFrom, containerDef.VolumesFrom)
-// 	}
-// 	volumeDef := *taskDefinition.Volumes[0]
-// 	mountPoint := *containerDef.MountPoints[0]
+	host := &ecs.HostVolumeProperties{SourcePath: aws.String(hostPath)}
+	expectedVolumes := []*ecs.Volume{
+		{
+			Host: host,
+			Name: aws.String(containerPath),
+		},
+		{
+			Name: aws.String(namedVolume),
+		},
+	}
 
-// 	if hostPath != aws.StringValue(volumeDef.Host.SourcePath) {
-// 		t.Errorf("Expected HostSourcePath [%s] But was [%s]", hostPath, aws.StringValue(volumeDef.Host.SourcePath))
-// 	}
-// 	if containerPath != aws.StringValue(mountPoint.ContainerPath) {
-// 		t.Errorf("Expected containerPath [%s] But was [%s]", containerPath, aws.StringValue(mountPoint.ContainerPath))
-// 	}
-// 	if aws.StringValue(volumeDef.Name) != aws.StringValue(mountPoint.SourceVolume) {
-// 		t.Errorf("Expected volume name to match. "+
-// 			"Got Volume.Name=[%s] And MountPoint.SourceVolume=[%s]",
-// 			aws.StringValue(volumeDef.Name), aws.StringValue(mountPoint.SourceVolume))
-// 	}
-// }
+	context := testContext(t)
+	taskDefinition, err := ConvertToTaskDefinition(context, volumeConfigs, containerConfigs, "", "", nil)
+	assert.NoError(t, err, "Unexpected error converting Task Definition")
 
-// TODO Modify test when top-level Volumes added
-// func TestConvertToTaskDefinitionWithNamedVolume(t *testing.T) {
-// 	volume := yaml.Volume{Source: namedVolume, Destination: containerPath}
+	actualVolumes := taskDefinition.Volumes
+	assert.ElementsMatch(t, expectedVolumes, actualVolumes, "Expected volumes to match")
+}
 
-// 	containerConfig := &config.ServiceConfig{
-// 		Volumes:  &yaml.Volumes{Volumes: []*yaml.Volume{&volume}},
-// 		Networks: &yaml.Networks{Networks: []*yaml.Network{defaultNetwork}},
-// 	}
-
-// 	taskDefinition := convertToTaskDefinitionInTest(t, "name", nil, containerConfig, "", "")
-// 	containerDef := *taskDefinition.ContainerDefinitions[0]
-
-// 	volumeDef := *taskDefinition.Volumes[0]
-// 	mountPoint := *containerDef.MountPoints[0]
-// 	if volumeDef.Host != nil {
-// 		t.Errorf("Expected volume host to be nil But was [%s]", volumeDef.Host)
-// 	}
-// 	if containerPath != aws.StringValue(mountPoint.ContainerPath) {
-// 		t.Errorf("Expected containerPath [%s] But was [%s]", containerPath, aws.StringValue(mountPoint.ContainerPath))
-// 	}
-// 	if aws.StringValue(volumeDef.Name) != aws.StringValue(mountPoint.SourceVolume) {
-// 		t.Errorf("Expected volume name to match. "+
-// 			"Got Volume.Name=[%s] And MountPoint.SourceVolume=[%s]",
-// 			aws.StringValue(volumeDef.Name), aws.StringValue(mountPoint.SourceVolume))
-// 	}
-// }
-
-////////////////////////////////
-// Convert individual fields //
-//////////////////////////////
-
-func convertToTaskDefinitionInTest(t *testing.T, volumeConfig *config.VolumeConfig, containerConfig *adapter.ContainerConfig, taskRoleArn string, launchType string) *ecs.TaskDefinition {
-	volumeConfigs := make(map[string]*config.VolumeConfig)
-	volumeConfigs[namedVolume] = volumeConfig
+func convertToTaskDefinitionInTest(t *testing.T, containerConfig *adapter.ContainerConfig, taskRoleArn string, launchType string) *ecs.TaskDefinition {
+	volumeConfigs := &adapter.Volumes{
+		VolumeEmptyHost: []string{namedVolume},
+	}
 
 	containerConfigs := []adapter.ContainerConfig{}
 	containerConfigs = append(containerConfigs, *containerConfig)
 
-	envLookup, err := GetDefaultEnvironmentLookup()
-	if err != nil {
-		t.Fatal("Unexpected error setting up environment lookup")
-	}
-	resourceLookup, err := GetDefaultResourceLookup()
-	if err != nil {
-		t.Fatal("Unexpected error setting up resource lookup")
-	}
-	context := &project.Context{
-		ProjectName:       "ProjectName",
-		Project:           &project.Project{},
-		EnvironmentLookup: envLookup,
-		ResourceLookup:    resourceLookup,
-	}
+	context := testContext(t)
+
 	taskDefinition, err := ConvertToTaskDefinition(context, volumeConfigs, containerConfigs, taskRoleArn, launchType, nil)
 	if err != nil {
 		t.Errorf("Expected to convert [%v] containerConfigs without errors. But got [%v]", containerConfig, err)
 	}
 	return taskDefinition
-}
-
-func convertToTaskDefWithEcsParamsInTest(t *testing.T, volumeConfig *config.VolumeConfig, containerConfigs []adapter.ContainerConfig, taskRoleArn string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
-	volumeConfigs := make(map[string]*config.VolumeConfig)
-	if volumeConfig != nil {
-		volumeConfigs[namedVolume] = volumeConfig
-	}
-
-	envLookup, err := GetDefaultEnvironmentLookup()
-	assert.NoError(t, err, "Unexpected error setting up environment lookup")
-
-	resourceLookup, err := GetDefaultResourceLookup()
-	assert.NoError(t, err, "Unexpected error setting up resource lookup")
-
-	context := &project.Context{
-		ProjectName:       "ProjectName",
-		Project:           &project.Project{},
-		EnvironmentLookup: envLookup,
-		ResourceLookup:    resourceLookup,
-	}
-	taskDefinition, err := ConvertToTaskDefinition(context, volumeConfigs, containerConfigs, taskRoleArn, "", ecsParams)
-	if err != nil {
-		return nil, err
-	}
-
-	return taskDefinition, nil
-}
-
-func findContainerByName(name string, containerDefs []*ecs.ContainerDefinition) *ecs.ContainerDefinition {
-	for _, cd := range containerDefs {
-		if aws.StringValue(cd.Name) == name {
-			return cd
-		}
-	}
-	return nil
 }
 
 func TestIsZeroForEmptyConfig(t *testing.T) {
@@ -991,4 +915,46 @@ func TestIsZeroWhenConfigHasValues(t *testing.T) {
 		_, hasValue := hasValues[fieldName]
 		assert.NotEqual(t, zeroValue, hasValue)
 	}
+}
+
+// helper functions
+func convertToTaskDefWithEcsParamsInTest(t *testing.T, containerConfigs []adapter.ContainerConfig, taskRoleArn string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
+	volumeConfigs := &adapter.Volumes{
+		VolumeEmptyHost: []string{namedVolume},
+	}
+
+	context := testContext(t)
+
+	taskDefinition, err := ConvertToTaskDefinition(context, volumeConfigs, containerConfigs, taskRoleArn, "", ecsParams)
+	if err != nil {
+		return nil, err
+	}
+
+	return taskDefinition, nil
+}
+
+func findContainerByName(name string, containerDefs []*ecs.ContainerDefinition) *ecs.ContainerDefinition {
+	for _, cd := range containerDefs {
+		if aws.StringValue(cd.Name) == name {
+			return cd
+		}
+	}
+	return nil
+}
+
+func testContext(t *testing.T) *project.Context {
+	envLookup, err := GetDefaultEnvironmentLookup()
+	assert.NoError(t, err, "Unexpected error setting up environment lookup")
+
+	resourceLookup, err := GetDefaultResourceLookup()
+	assert.NoError(t, err, "Unexpected error setting up resource lookup")
+
+	context := &project.Context{
+		ProjectName:       "ProjectName",
+		Project:           &project.Project{},
+		EnvironmentLookup: envLookup,
+		ResourceLookup:    resourceLookup,
+	}
+
+	return context
 }

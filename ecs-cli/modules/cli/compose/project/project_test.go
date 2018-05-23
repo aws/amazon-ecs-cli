@@ -63,6 +63,42 @@ services:
 	assert.Equal(t, testProjectName, project.ecsContext.ProjectName, "Expected ProjectName to be overridden.")
 }
 
+func TestParseCompose_V2_WithVolumeConfigs(t *testing.T) {
+	// Setup docker-compose file
+	composeFileString := `version: '2'
+services:
+  wordpress:
+    image: wordpress
+  mysql:
+    image: mysql
+    volumes:
+      - banana:/tmp/cache
+      - :/tmp/cache
+      - ./cache:/tmp/cache:ro
+volumes:
+  banana:`
+
+	tmpfile, err := ioutil.TempFile("", "test")
+	assert.NoError(t, err, "Unexpected error in creating test file")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write([]byte(composeFileString))
+	assert.NoError(t, err, "Unexpected error in writing to test file")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Unexpected error closing file")
+
+	// Set up project
+	project := setupTestProject(t)
+	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, tmpfile.Name())
+
+	err = project.parseCompose()
+
+	// verify VolumeConfigs are populated
+	assert.NotEmpty(t, project.VolumeConfigs(), "Expected volume configs to not be empty")
+}
+
 func TestParseECSParams(t *testing.T) {
 	ecsParamsString := `version: 1
 task_definition:

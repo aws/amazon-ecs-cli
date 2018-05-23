@@ -213,19 +213,29 @@ func TestParseV1V2_Version2Files(t *testing.T) {
 	memory := int64(512)
 	mountPoints := []*ecs.MountPoint{
 		{
-			ContainerPath: aws.String("/tmp/cache"),
-			ReadOnly:      aws.Bool(false),
-			SourceVolume:  aws.String("banana"),
-		},
-		{
-			ContainerPath: aws.String("/tmp/cache"),
+			ContainerPath: aws.String("/var/lib/mysql"),
 			ReadOnly:      aws.Bool(false),
 			SourceVolume:  aws.String("volume-1"),
 		},
 		{
-			ContainerPath: aws.String("/tmp/cache"),
-			ReadOnly:      aws.Bool(true),
+			ContainerPath: aws.String("/var/lib/mysql"),
+			ReadOnly:      aws.Bool(false),
 			SourceVolume:  aws.String("volume-2"),
+		},
+		{
+			ContainerPath: aws.String("/tmp/cache"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("volume-3"),
+		},
+		{
+			ContainerPath: aws.String("/etc/configs/"),
+			ReadOnly:      aws.Bool(true),
+			SourceVolume:  aws.String("volume-4"),
+		},
+		{
+			ContainerPath: aws.String("/var/lib/mysql"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("datavolume"),
 		},
 	}
 	ports := []*ecs.PortMapping{
@@ -279,11 +289,13 @@ services:
   mysql:
     image: mysql
     volumes:
-      - banana:/tmp/cache
-      - :/tmp/cache
-      - ./cache:/tmp/cache:ro
+      - /var/lib/mysql
+      - /opt/data:/var/lib/mysql
+      - ./cache:/tmp/cache:rw
+      - ~/configs:/etc/configs/:ro
+      - datavolume:/var/lib/mysql
 volumes:
-  banana:`
+  datavolume:`
 
 	// Setup docker-compose file
 	tmpfile, err := ioutil.TempFile("", "test")
@@ -326,7 +338,7 @@ volumes:
 	assert.NoError(t, err, "Unexpected error retrieving wordpress config")
 
 	assert.Equal(t, mysqlImage, mysql.Image, "Expected mysql Image to match")
-	assert.Equal(t, mountPoints, mysql.MountPoints, "Expected MountPoints to match")
+	assert.ElementsMatch(t, mountPoints, mysql.MountPoints, "Expected MountPoints to match")
 }
 
 func TestParseV1V2_Version1_WithEnvFile(t *testing.T) {
