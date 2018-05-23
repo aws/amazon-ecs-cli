@@ -272,6 +272,17 @@ func TestConvertToTaskDefinitionWithNoTmpfs(t *testing.T) {
 	assert.Nil(t, containerDef.LinuxParameters.Tmpfs, "Expected Tmpfs to be null")
 }
 
+func TestConvertToTaskDefinitionWithBlankHostname(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Hostname: "",
+	}
+
+	taskDefinition := convertToTaskDefinitionInTest(t, nil, containerConfig, "", "")
+	containerDef := *taskDefinition.ContainerDefinitions[0]
+
+	assert.Nil(t, containerDef.Hostname, "Expected Hostname to be nil")
+}
+
 // TODO add test for nil cap add/cap drop
 
 // Test Launch Types
