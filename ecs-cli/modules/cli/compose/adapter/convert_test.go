@@ -21,7 +21,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/docker/libcompose/config"
-	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
 	"github.com/stretchr/testify/assert"
 )
@@ -205,20 +204,22 @@ func verifyPortMapping(t *testing.T, output *ecs.PortMapping, hostPort, containe
 }
 
 func TestConvertToMountPoints(t *testing.T) {
+	// Valid inputs with host and container paths set:
+	// /tmp/cache
+	// /tmp/cache2
+	// ./cache:/tmp/cache
+	// /tmp/cache:ro
+	// ./cache:/tmp/cache:ro
+	// ./cache:/tmp/cache:rw
+	// named_volume:/tmp/cache
 	onlyContainerPath := yaml.Volume{Destination: containerPath}
 	onlyContainerPath2 := yaml.Volume{Destination: containerPath2}
-	hostAndContainerPath := yaml.Volume{Source: hostPath, Destination: containerPath} // "./cache:/tmp/cache"
+	hostAndContainerPath := yaml.Volume{Source: hostPath, Destination: containerPath}
 	onlyContainerPathWithRO := yaml.Volume{Destination: containerPath, AccessMode: "ro"}
-	hostAndContainerPathWithRO := yaml.Volume{Source: hostPath, Destination: containerPath, AccessMode: "ro"} // "./cache:/tmp/cache:ro"
+	hostAndContainerPathWithRO := yaml.Volume{Source: hostPath, Destination: containerPath, AccessMode: "ro"}
 	hostAndContainerPathWithRW := yaml.Volume{Source: hostPath, Destination: containerPath, AccessMode: "rw"}
 	namedVolumeAndContainerPath := yaml.Volume{Source: namedVolume, Destination: containerPath}
 
-	volumes := &Volumes{
-		VolumeWithHost:  make(map[string]string), // map with key:=hostSourcePath value:=VolumeName
-		VolumeEmptyHost: []string{namedVolume},   // Declare one volume with an empty host
-	}
-
-	// Valid inputs with host and container paths set
 	mountPointsIn := yaml.Volumes{
 		Volumes: []*yaml.Volume{
 			&onlyContainerPath,
@@ -231,21 +232,59 @@ func TestConvertToMountPoints(t *testing.T) {
 		},
 	}
 
-	mountPointsOut, err := ConvertToMountPoints(&mountPointsIn, volumes)
-	if err != nil {
-		t.Fatalf("Expected to convert [%v] mountPoints without errors. But got [%v]", mountPointsIn, err)
-	}
-	if len(mountPointsIn.Volumes) != len(mountPointsOut) {
-		t.Errorf("Incorrect conversion. Input [%v] Output [%v]", mountPointsIn, mountPointsOut)
+	expectedVolumeWithHost := map[string]string{hostPath: "volume-3"}
+	expectedVolumeEmptyHost := []string{namedVolume, "volume-1", "volume-2", "volume-4"}
+	expectedMountPoints := []*ecs.MountPoint{
+		{
+			ContainerPath: aws.String("/tmp/cache"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("volume-1"),
+		},
+		{
+			ContainerPath: aws.String("/tmp/cache2"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("volume-2"),
+		},
+		{
+			ContainerPath: aws.String("/tmp/cache"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("volume-3"),
+		},
+		{
+			ContainerPath: aws.String("/tmp/cache"),
+			ReadOnly:      aws.Bool(true),
+			SourceVolume:  aws.String("volume-4"),
+		},
+		{
+			ContainerPath: aws.String("/tmp/cache"),
+			ReadOnly:      aws.Bool(true),
+			SourceVolume:  aws.String("volume-3"),
+		},
+		{
+			ContainerPath: aws.String("/tmp/cache"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("volume-3"),
+		},
+		{
+			ContainerPath: aws.String("/tmp/cache"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("named_volume"),
+		},
 	}
 
-	verifyMountPoint(t, mountPointsOut[0], volumes, "", containerPath, false, 1)  // 1 is the counter for the first volume with an empty host path
-	verifyMountPoint(t, mountPointsOut[1], volumes, "", containerPath2, false, 2) // 2 is the counter for the second volume with an empty host path
-	verifyMountPoint(t, mountPointsOut[2], volumes, hostPath, containerPath, false, 2)
-	verifyMountPoint(t, mountPointsOut[3], volumes, "", containerPath, true, 3) // 3 is the counter for the third volume with an empty host path
-	verifyMountPoint(t, mountPointsOut[4], volumes, hostPath, containerPath, true, 3)
-	verifyMountPoint(t, mountPointsOut[5], volumes, hostPath, containerPath, false, 3)
-	verifyMountPoint(t, mountPointsOut[6], volumes, namedVolume, containerPath, false, 3)
+	volumes := &Volumes{
+		VolumeWithHost:  make(map[string]string), // This field should be empty before ConvertToMountPoints is called
+		VolumeEmptyHost: []string{namedVolume},   // We expect ConvertToVolumes to already have been called, so any named volumes should have been added to VolumeEmptyHost
+	}
+
+	mountPointsOut, err := ConvertToMountPoints(&mountPointsIn, volumes)
+	assert.NoError(t, err, "Unexpected error converting MountPoints")
+
+	// Expect top-level volumes fields to be populated
+	assert.Equal(t, expectedVolumeWithHost, volumes.VolumeWithHost, "Expected volumeWithHost to match")
+	assert.Equal(t, expectedVolumeEmptyHost, volumes.VolumeEmptyHost, "Expected volumeEmptyHost to match")
+
+	assert.ElementsMatch(t, expectedMountPoints, mountPointsOut, "Expected Mount Points to match")
 
 	if mountPointsOut[0].SourceVolume == mountPointsOut[1].SourceVolume {
 		t.Errorf("Expected volume %v (onlyContainerPath) and %v (onlyContainerPath2) to be different", mountPointsOut[0].SourceVolume, mountPointsOut[1].SourceVolume)
@@ -273,10 +312,7 @@ func TestConvertToMountPointsWithInvalidAccessMode(t *testing.T) {
 	}
 
 	_, err := ConvertToMountPoints(&mountPointsIn, volumes)
-
-	if err == nil {
-		t.Errorf("Expected to get error for mountPoint[%s] but didn't.", hostAndContainerPathWithIncorrectAccess)
-	}
+	assert.Error(t, err, "Expected error converting MountPoints")
 }
 
 func TestConvertToMountPointsNullContainerVolumes(t *testing.T) {
@@ -285,33 +321,27 @@ func TestConvertToMountPointsNullContainerVolumes(t *testing.T) {
 		VolumeEmptyHost: []string{namedVolume},
 	}
 	mountPointsOut, err := ConvertToMountPoints(nil, volumes)
-	if err != nil {
-		t.Fatalf("Expected to convert nil mountPoints without errors. But got [%v]", err)
-	}
-	if len(mountPointsOut) != 0 {
-		t.Errorf("Incorrect conversion. Input nil Output [%v]", mountPointsOut)
-	}
+	assert.NoError(t, err, "Unexpected error converting MountPoints")
+	assert.Empty(t, mountPointsOut, "Expected mount points to be empty")
 }
 
-func verifyMountPoint(t *testing.T, output *ecs.MountPoint, volumes *Volumes,
-	source, containerPath string, readonly bool, EmptyHostCtr int) {
-	sourceVolume := ""
-	if containerPath != *output.ContainerPath {
-		t.Errorf("Expected containerPath [%s] But was [%s]", containerPath, *output.ContainerPath)
+func TestConvertToMountPointsWithNoCorrespondingNamedVolume(t *testing.T) {
+	volumes := &Volumes{
+		VolumeWithHost:  make(map[string]string),
+		VolumeEmptyHost: []string{}, // Top-level named volumes is empty
 	}
-	if source == "" {
-		sourceVolume = volumes.VolumeEmptyHost[EmptyHostCtr]
-	} else if project.IsNamedVolume(source) {
-		sourceVolume = source
-	} else {
-		sourceVolume = volumes.VolumeWithHost[source]
+
+	namedVolume := yaml.Volume{
+		Source:      namedVolume,
+		Destination: containerPath,
 	}
-	if sourceVolume != *output.SourceVolume {
-		t.Errorf("Expected sourceVolume [%s] But was [%s]", sourceVolume, *output.SourceVolume)
+
+	mountPointsIn := yaml.Volumes{
+		Volumes: []*yaml.Volume{&namedVolume},
 	}
-	if readonly != *output.ReadOnly {
-		t.Errorf("Expected readonly [%v] But was [%v]", readonly, *output.ReadOnly)
-	}
+
+	_, err := ConvertToMountPoints(&mountPointsIn, volumes)
+	assert.Error(t, err, "Expected error converting MountPoints")
 }
 
 func TestConvertToExtraHosts(t *testing.T) {

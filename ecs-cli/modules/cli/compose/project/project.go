@@ -38,6 +38,7 @@ type Project interface {
 	Context() *context.ECSContext
 	ServiceConfigs() *config.ServiceConfigs
 	ContainerConfigs() []adapter.ContainerConfig // TODO change this to a pointer to slice?
+	VolumeConfigs() *adapter.Volumes
 	Entity() entity.ProjectEntity
 
 	// commands
@@ -57,6 +58,7 @@ type ecsProject struct {
 
 	// TODO: use this instead of project.Project
 	containerConfigs []adapter.ContainerConfig
+	volumes          *adapter.Volumes
 
 	ecsContext *context.ECSContext
 
@@ -100,8 +102,8 @@ func (p *ecsProject) ServiceConfigs() *config.ServiceConfigs {
 }
 
 // VolumeConfigs returns a map of Volume Configuration loaded from compose yaml file
-func (p *ecsProject) VolumeConfigs() map[string]*config.VolumeConfig {
-	return p.Project.VolumeConfigs
+func (p *ecsProject) VolumeConfigs() *adapter.Volumes {
+	return p.volumes
 }
 
 func (p *ecsProject) ContainerConfigs() []adapter.ContainerConfig {
@@ -138,7 +140,7 @@ func (p *ecsProject) Parse() error {
 	return p.transformTaskDefinition()
 }
 
-// parseCompose sets data from the compose files on the ecsProject
+// parseCompose sets data from the compose files on the ecsProject, including ContainerConfigs and VolumeConfigs
 func (p *ecsProject) parseCompose() error {
 	logrus.Debug("Parsing the compose yaml...")
 
@@ -153,6 +155,7 @@ func (p *ecsProject) parseCompose() error {
 		if err != nil {
 			return err
 		}
+		// TODO: set this in parseV1V2 itself?
 		p.containerConfigs = *configs
 	case "3", "3.0":
 		configs, err := p.parseV3()
@@ -197,7 +200,7 @@ func (p *ecsProject) transformTaskDefinition() error {
 
 	taskDefinition, err := utils.ConvertToTaskDefinition(
 		&ecsContext.Context,
-		p.VolumeConfigs(),
+		p.VolumeConfigs(),    // will have already been transformed to adapter.Volumes in parseCompose
 		p.ContainerConfigs(), // TODO Change to pointer on project?
 		taskRoleArn,
 		requiredCompatibilities,

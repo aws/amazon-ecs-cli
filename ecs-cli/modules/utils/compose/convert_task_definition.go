@@ -87,7 +87,7 @@ type TaskDefParams struct {
 
 // ConvertToTaskDefinition transforms the yaml configs to its ecs equivalent (task definition)
 // TODO container config a pointer to slice?
-func ConvertToTaskDefinition(context *project.Context, volumeConfigs map[string]*config.VolumeConfig,
+func ConvertToTaskDefinition(context *project.Context, volumes *adapter.Volumes,
 	containerConfigs []adapter.ContainerConfig, taskRoleArn string, requiredCompatibilites string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
 	if len(containerConfigs) == 0 {
 		return nil, errors.New("cannot create a task definition with no containers; invalid service config")
@@ -106,12 +106,6 @@ func ConvertToTaskDefinition(context *project.Context, volumeConfigs map[string]
 	// The task-role-arn flag takes precedence over a taskRoleArn value specified in ecs-params file.
 	if taskRoleArn == "" {
 		taskRoleArn = taskDefParams.taskRoleArn
-	}
-
-	// TODO: Refactor when Volumes added to top level project
-	volumes, err := adapter.ConvertToVolumes(volumeConfigs)
-	if err != nil {
-		return nil, err
 	}
 
 	// Create containerDefinitions
