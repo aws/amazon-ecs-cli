@@ -59,6 +59,10 @@ func TestCreateWithDeploymentConfig(t *testing.T) {
 		func(networkConfig *ecs.NetworkConfiguration) {
 			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
 		},
+		func(strategy []*ecs.PlacementStrategy) {
+			assert.Equal(t, 1, len(strategy), "PlacementStrategy should have size 1")
+			assert.Equal(t, ecs.PlacementStrategyTypeRandom, *strategy[0].Type, "PlacementStrategy should be random")
+		},
 	)
 }
 
@@ -84,6 +88,10 @@ func TestCreateWithoutDeploymentConfig(t *testing.T) {
 		},
 		func(networkConfig *ecs.NetworkConfiguration) {
 			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
+		},
+		func(strategy []*ecs.PlacementStrategy) {
+			assert.Equal(t, 1, len(strategy), "PlacementStrategy should have size 1")
+			assert.Equal(t, ecs.PlacementStrategyTypeRandom, *strategy[0].Type, "PlacementStrategy should be random")
 		},
 	)
 }
@@ -127,6 +135,10 @@ func TestCreateWithNetworkConfig(t *testing.T) {
 			assert.NotNil(t, networkConfig, "NetworkConfiguration should not be nil")
 			assert.Equal(t, 2, len(networkConfig.AwsvpcConfiguration.Subnets))
 			assert.Nil(t, networkConfig.AwsvpcConfiguration.AssignPublicIp)
+		},
+		func(strategy []*ecs.PlacementStrategy) {
+			assert.Equal(t, 1, len(strategy), "PlacementStrategy should have size 1")
+			assert.Equal(t, ecs.PlacementStrategyTypeRandom, *strategy[0].Type, "PlacementStrategy should be random")
 		},
 	)
 }
@@ -176,6 +188,10 @@ func TestCreateFargate(t *testing.T) {
 			assert.NotNil(t, networkConfig, "NetworkConfiguration should not be nil")
 			assert.Equal(t, 2, len(networkConfig.AwsvpcConfiguration.Subnets))
 			assert.Equal(t, string(utils.Enabled), aws.StringValue(networkConfig.AwsvpcConfiguration.AssignPublicIp))
+		},
+		func(strategy []*ecs.PlacementStrategy) {
+			assert.Equal(t, 1, len(strategy), "PlacementStrategy should have size 1")
+			assert.Equal(t, ecs.PlacementStrategyTypeRandom, *strategy[0].Type, "PlacementStrategy should be random")
 		},
 	)
 }
@@ -246,6 +262,10 @@ func TestCreateEC2Explicitly(t *testing.T) {
 		func(networkConfig *ecs.NetworkConfiguration) {
 			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
 		},
+		func(strategy []*ecs.PlacementStrategy) {
+			assert.Equal(t, 1, len(strategy), "PlacementStrategy should have size 1")
+			assert.Equal(t, ecs.PlacementStrategyTypeRandom, *strategy[0].Type, "PlacementStrategy should be random")
+		},
 	)
 }
 
@@ -286,6 +306,10 @@ func TestCreateWithALB(t *testing.T) {
 		},
 		func(networkConfig *ecs.NetworkConfiguration) {
 			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
+		},
+		func(strategy []*ecs.PlacementStrategy) {
+			assert.Equal(t, 1, len(strategy), "PlacementStrategy should have size 1")
+			assert.Equal(t, ecs.PlacementStrategyTypeRandom, *strategy[0].Type, "PlacementStrategy should be random")
 		},
 	)
 }
@@ -332,6 +356,10 @@ func TestCreateWithHealthCheckGracePeriodAndALB(t *testing.T) {
 		func(healthCheckGracePeriod *int64) {
 			assert.Equal(t, int64(healthCheckGP), *healthCheckGracePeriod, "HealthCheckGracePeriod should match")
 		},
+		func(strategy []*ecs.PlacementStrategy) {
+			assert.Equal(t, 1, len(strategy), "PlacementStrategy should have size 1")
+			assert.Equal(t, ecs.PlacementStrategyTypeRandom, *strategy[0].Type, "PlacementStrategy should be random")
+		},
 	)
 }
 
@@ -372,6 +400,10 @@ func TestCreateWithELB(t *testing.T) {
 		},
 		func(networkConfig *ecs.NetworkConfiguration) {
 			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
+		},
+		func(strategy []*ecs.PlacementStrategy) {
+			assert.Equal(t, 1, len(strategy), "PlacementStrategy should have size 1")
+			assert.Equal(t, ecs.PlacementStrategyTypeRandom, *strategy[0].Type, "PlacementStrategy should be random")
 		},
 	)
 }
@@ -418,6 +450,42 @@ func TestCreateWithHealthCheckGracePeriodAndELB(t *testing.T) {
 		func(healthCheckGracePeriod *int64) {
 			assert.Equal(t, int64(healthCheckGP), *healthCheckGracePeriod, "HealthCheckGracePeriod should match")
 		},
+		func(strategy []*ecs.PlacementStrategy) {
+			assert.Equal(t, 1, len(strategy), "PlacementStrategy should have size 1")
+			assert.Equal(t, ecs.PlacementStrategyTypeRandom, *strategy[0].Type, "PlacementStrategy should be random")
+		},
+	)
+}
+
+func TestCreateWithRandomPlacementStrategy(t *testing.T) {
+	placementStrategyFlag := ecs.PlacementStrategyTypeRandom
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.PlacementStrategy, placementStrategyFlag, "")
+	cliContext := cli.NewContext(nil, flagSet, nil)
+
+	createServiceTest(
+		t,
+		cliContext,
+		&config.CommandConfig{},
+		&utils.ECSParams{},
+		func(deploymentConfig *ecs.DeploymentConfiguration) {
+			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
+			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
+		},
+		func(loadBalancer *ecs.LoadBalancer, role string) {
+			assert.Nil(t, loadBalancer, "LoadBalancer should be nil")
+			assert.Empty(t, role, "Role should be empty")
+		},
+		func(launchType string) {
+			assert.NotEqual(t, "FARGATE", launchType)
+		},
+		func(networkConfig *ecs.NetworkConfiguration) {
+			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
+		},
+		func(strategy []*ecs.PlacementStrategy) {
+			assert.Equal(t, 1, len(strategy), "PlacementStrategy should have size 1")
+			assert.Equal(t, ecs.PlacementStrategyTypeRandom, *strategy[0].Type, "PlacementStrategy should be random")
+		},
 	)
 }
 
@@ -426,6 +494,7 @@ type validateLoadBalancer func(*ecs.LoadBalancer, string)
 type validateLaunchType func(string)
 type validateNetworkConfig func(*ecs.NetworkConfiguration)
 type validateHealthCheckGracePeriod func(*int64)
+type validatePlacementStrategy func([]*ecs.PlacementStrategy)
 
 func createServiceTest(t *testing.T,
 	cliContext *cli.Context,
@@ -434,7 +503,8 @@ func createServiceTest(t *testing.T,
 	validateDeploymentConfig validateDeploymentConfiguration,
 	validateLB validateLoadBalancer,
 	validateLT validateLaunchType,
-	validateNC validateNetworkConfig) {
+	validateNC validateNetworkConfig,
+	validatePS validatePlacementStrategy) {
 
 	createServiceWithHealthCheckGPTest(
 		t,
@@ -448,6 +518,7 @@ func createServiceTest(t *testing.T,
 		func(healthCheckGP *int64) {
 			assert.Nil(t, healthCheckGP, "HealthCheckGracePeriod should be nil")
 		},
+		validatePS,
 	)
 }
 
@@ -459,7 +530,8 @@ func createServiceWithHealthCheckGPTest(t *testing.T,
 	validateLB validateLoadBalancer,
 	validateLT validateLaunchType,
 	validateNC validateNetworkConfig,
-	validateHCGP validateHealthCheckGracePeriod) {
+	validateHCGP validateHealthCheckGracePeriod,
+	validatePS validatePlacementStrategy) {
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -479,29 +551,32 @@ func createServiceWithHealthCheckGPTest(t *testing.T,
 			gomock.Any(), // serviceName
 			gomock.Any(), // taskDefName
 			gomock.Any(), // loadBalancer
+			gomock.Any(), // placementStrategy
 			gomock.Any(), // role
 			gomock.Any(), // deploymentConfig
 			gomock.Any(), // networkConfig
 			gomock.Any(), // launchType
 			gomock.Any(), // healthCheckGracePeriod
-		).Do(func(a, b, c, d, e, f, g, h interface{}) {
+		).Do(func(a, b, c, d, e, f, g, h, i interface{}) {
 			observedTaskDefID := b.(string)
 			assert.Equal(t, taskDefID, observedTaskDefID, "Task Definition name should match")
 
 			observedLB := c.(*ecs.LoadBalancer)
-			observedRole := d.(string)
+			observedPS := d.([]*ecs.PlacementStrategy)
+			validatePS(observedPS)
+			observedRole := e.(string)
 			validateLB(observedLB, observedRole)
 
-			observedDeploymentConfig := e.(*ecs.DeploymentConfiguration)
+			observedDeploymentConfig := f.(*ecs.DeploymentConfiguration)
 			validateDeploymentConfig(observedDeploymentConfig)
 
-			observedLaunchType := g.(string)
+			observedLaunchType := h.(string)
 			validateLT(observedLaunchType)
 
-			observedNetworkConfig := f.(*ecs.NetworkConfiguration)
+			observedNetworkConfig := g.(*ecs.NetworkConfiguration)
 			validateNC(observedNetworkConfig)
 
-			observedHealthCheckGracePeriod := h.(*int64)
+			observedHealthCheckGracePeriod := i.(*int64)
 			validateHCGP(observedHealthCheckGracePeriod)
 
 		}).Return(nil),
