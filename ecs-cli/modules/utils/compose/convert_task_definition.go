@@ -270,7 +270,9 @@ func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *C
 	outputContDef.SetEntryPoint(aws.StringSlice(inputCfg.Entrypoint))
 	outputContDef.SetEnvironment(inputCfg.Environment)
 	outputContDef.SetExtraHosts(inputCfg.ExtraHosts)
-	outputContDef.SetHostname(inputCfg.Hostname)
+	if inputCfg.Hostname != "" {
+		outputContDef.SetHostname(inputCfg.Hostname)
+	}
 	outputContDef.SetImage(inputCfg.Image)
 	outputContDef.SetLinks(aws.StringSlice(inputCfg.Links)) // TODO, read from external links
 	outputContDef.SetLogConfiguration(inputCfg.LogConfiguration)
