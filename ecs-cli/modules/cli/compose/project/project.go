@@ -54,13 +54,9 @@ type Project interface {
 
 // ecsProject struct is an implementation of Project.
 type ecsProject struct {
-	project.Project
-
-	// TODO: use this instead of project.Project
 	containerConfigs []adapter.ContainerConfig
 	volumes          *adapter.Volumes
-
-	ecsContext *context.ECSContext
+	ecsContext       *context.ECSContext
 
 	// TODO: track a map of entities [taskDefinition -> Entity]
 	// 1 task definition for every disjoint set of containers in the compose file
@@ -69,12 +65,10 @@ type ecsProject struct {
 
 // NewProject creates a new instance of the ECS Compose Project
 func NewProject(ecsContext *context.ECSContext) Project {
-	libcomposeProject := project.NewProject(&ecsContext.Context, nil, nil)
-
 	p := &ecsProject{
 		ecsContext:       ecsContext,
-		Project:          *libcomposeProject,
 		containerConfigs: []adapter.ContainerConfig{},
+		volumes:          adapter.NewVolumes(),
 	}
 
 	if ecsContext.IsService {

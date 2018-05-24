@@ -1063,7 +1063,7 @@ func TestMemReservationHigherThanMemLimit(t *testing.T) {
 		WorkingDirectory:  workingDir,
 	}
 
-	volumeConfigs := &adapter.Volumes{}
+	volumeConfigs := adapter.NewVolumes()
 	containerConfigs := []adapter.ContainerConfig{containerConfig}
 
 	context := testContext(t)
