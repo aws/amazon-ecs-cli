@@ -133,14 +133,8 @@ func (c *ecsClient) DeleteService(serviceName string) error {
 
 func (c *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, launchType string, healthCheckGracePeriod *int64, placementStrategy []*ecs.PlacementStrategy) error {
 
-	//var f = "attribute:ecs.availability-zone"
-	//var t = ecs.PlacementStrategyTypeSpread
-	////var t = "spread"
-	//var ps = ecs.PlacementStrategy{Field: &f, Type: &t}
-
 	createServiceInput := &ecs.CreateServiceInput{
 		DesiredCount: aws.Int64(0), // Required
-		//PlacementStrategy:		 []*ecs.PlacementStrategy{&ps},
 		PlacementStrategy:       placementStrategy,
 		ServiceName:             aws.String(serviceName), // Required
 		TaskDefinition:          aws.String(taskDefName), // Required
