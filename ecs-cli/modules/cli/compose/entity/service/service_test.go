@@ -489,6 +489,44 @@ func TestCreateWithRandomPlacementStrategy(t *testing.T) {
 	)
 }
 
+func TestCreateWithMultiplePlacementStrategies(t *testing.T) {
+	psString := "spread/attribute:ecs.availability-zone,binpack/memory"
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.PlacementStrategy, psString, "")
+	cliContext := cli.NewContext(nil, flagSet, nil)
+
+	createServiceTest(
+		t,
+		cliContext,
+		&config.CommandConfig{},
+		&utils.ECSParams{},
+		func(deploymentConfig *ecs.DeploymentConfiguration) {
+			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
+			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
+		},
+		func(loadBalancer *ecs.LoadBalancer, role string) {
+			assert.Nil(t, loadBalancer, "LoadBalancer should be nil")
+			assert.Empty(t, role, "Role should be empty")
+		},
+		func(launchType string) {
+			assert.NotEqual(t, "FARGATE", launchType)
+		},
+		func(networkConfig *ecs.NetworkConfiguration) {
+			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
+		},
+		func(strategy []*ecs.PlacementStrategy) {
+			assert.Equal(t, 2, len(strategy), "PlacementStrategy should have size 2")
+
+			assert.Equal(t, ecs.PlacementStrategyTypeSpread, *strategy[0].Type, "First PlacementStrategy type should be spread")
+			assert.Equal(t, "attribute:ecs.availability-zone", *strategy[0].Field, "First PlacementStrategy field should be the AZ")
+
+			assert.Equal(t, ecs.PlacementStrategyTypeBinpack, *strategy[1].Type, "Second PlacementStrategy type should be binpack")
+			assert.Equal(t, "memory", *strategy[1].Field, "Second PlacementStrategy field should be the memory")
+		},
+	)
+}
+
 type validateDeploymentConfiguration func(*ecs.DeploymentConfiguration)
 type validateLoadBalancer func(*ecs.LoadBalancer, string)
 type validateLaunchType func(string)
@@ -562,22 +600,23 @@ func createServiceWithHealthCheckGPTest(t *testing.T,
 			assert.Equal(t, taskDefID, observedTaskDefID, "Task Definition name should match")
 
 			observedLB := c.(*ecs.LoadBalancer)
-			observedPS := d.([]*ecs.PlacementStrategy)
-			validatePS(observedPS)
-			observedRole := e.(string)
+			observedRole := d.(string)
 			validateLB(observedLB, observedRole)
 
-			observedDeploymentConfig := f.(*ecs.DeploymentConfiguration)
+			observedDeploymentConfig := e.(*ecs.DeploymentConfiguration)
 			validateDeploymentConfig(observedDeploymentConfig)
 
-			observedLaunchType := h.(string)
-			validateLT(observedLaunchType)
-
-			observedNetworkConfig := g.(*ecs.NetworkConfiguration)
+			observedNetworkConfig := f.(*ecs.NetworkConfiguration)
 			validateNC(observedNetworkConfig)
 
-			observedHealthCheckGracePeriod := i.(*int64)
+			observedLaunchType := g.(string)
+			validateLT(observedLaunchType)
+
+			observedHealthCheckGracePeriod := h.(*int64)
 			validateHCGP(observedHealthCheckGracePeriod)
+
+			observedPS := i.([]*ecs.PlacementStrategy)
+			validatePS(observedPS)
 
 		}).Return(nil),
 	)
