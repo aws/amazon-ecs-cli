@@ -731,6 +731,160 @@ task_definition:
 	}
 }
 
+func TestConvertToTaskDefinitionWithECSParams_ContainerResourcesPresent(t *testing.T) {
+	containerConfigs := testContainerConfigs([]string{"mysql", "wordpress"})
+
+	mysqlCPU := int64(100)
+	mysqlMem := int64(15)
+	mysqlMemRes := int64(10)
+
+	wordpressCPU := int64(4)
+	wordpressMem := int64(8)
+	wordpressMemRes := int64(5)
+
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    mysql:  
+      cpu_shares: 100
+      mem_limit: 15m
+      mem_reservation: 10m
+    wordpress:
+      cpu_shares: 4
+      mem_limit: 8m
+      mem_reservation: 5m`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs fields tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	mysql := findContainerByName("mysql", containerDefs)
+	wordpress := findContainerByName("wordpress", containerDefs)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, mysqlCPU, aws.Int64Value(mysql.Cpu), "Expected CPU to match")
+		assert.Equal(t, mysqlMem, aws.Int64Value(mysql.Memory), "Expected Memory to match")
+		assert.Equal(t, mysqlMemRes, aws.Int64Value(mysql.MemoryReservation), "Expected MemoryReservation to match")
+
+		assert.Equal(t, wordpressCPU, aws.Int64Value(wordpress.Cpu), "Expected CPU to match")
+		assert.Equal(t, wordpressMem, aws.Int64Value(wordpress.Memory), "Expected Memory to match")
+		assert.Equal(t, wordpressMemRes, aws.Int64Value(wordpress.MemoryReservation), "Expected MemoryReservation to match")
+	}
+}
+
+func TestConvertToTaskDefinitionWithECSParams_ContainerResourcesOverrideProvidedVals(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name:              "web",
+		Image:             "httpd",
+		CPU:               int64(2),
+		Memory:            int64(3),
+		MemoryReservation: int64(3),
+	}
+
+	// define ecs-params values we expect to override containerConfig vals
+	webCPU := int64(5)
+	webMem := int64(15)
+	webMemRes := int64(10)
+
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    web:
+      cpu_shares: 5
+      mem_limit: 15m
+      mem_reservation: 10m`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs fields tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, webCPU, aws.Int64Value(web.Cpu), "Expected CPU to match")
+		assert.Equal(t, webMem, aws.Int64Value(web.Memory), "Expected Memory to match")
+		assert.Equal(t, webMemRes, aws.Int64Value(web.MemoryReservation), "Expected MemoryReservation to match")
+	}
+}
+
+func TestConvertToTaskDefinitionWithECSParams_NoMemoryProvided(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "httpd",
+	}
+
+	// define ecs-params values we expect to override containerConfig vals
+	webCPU := int64(5)
+
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    web:
+      cpu_shares: 5`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs fields tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, webCPU, aws.Int64Value(web.Cpu), "Expected CPU to match")
+		assert.Equal(t, int64(defaultMemLimit), aws.Int64Value(web.Memory), "Expected Memory to match default")
+		assert.Empty(t, aws.Int64Value(web.MemoryReservation), "Expected MemoryReservation to be empty")
+	}
+}
+
 func TestConvertToTaskDefinition_WithTaskSize(t *testing.T) {
 	containerConfigs := testContainerConfigs([]string{"mysql", "wordpress"})
 	ecsParamsString := `version: 1
