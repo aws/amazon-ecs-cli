@@ -304,9 +304,7 @@ func ConvertToULimits(cfgUlimits yaml.Ulimits) ([]*ecs.Ulimit, error) {
 // ConvertToVolumes converts the VolumeConfigs map on a libcompose project into
 // a Volumes struct and populates the VolumeEmptyHost field with any named volumes
 func ConvertToVolumes(volumeConfigs map[string]*config.VolumeConfig) (*Volumes, error) {
-	volumes := &Volumes{
-		VolumeWithHost: make(map[string]string), // map with key:=hostSourcePath value:=VolumeName
-	}
+	volumes := NewVolumes()
 
 	// Add named volume configs:
 	if volumeConfigs != nil {

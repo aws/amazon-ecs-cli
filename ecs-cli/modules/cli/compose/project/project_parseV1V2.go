@@ -12,17 +12,16 @@ import (
 func (p *ecsProject) parseV1V2() (*[]adapter.ContainerConfig, error) {
 	logrus.Debug("Parsing v1/2 project...")
 
+	libcomposeProject := project.NewProject(&p.ecsContext.Context, nil, nil)
 	// libcompose.Project#Parse populates project information based on its
 	// context. It sets up the name, the composefile and the composebytes
 	// (the composefile content). This is where libcompose ServiceConfigs
 	// and VolumeConfigs gets loaded.
-
-	// TODO instantiate the libcompose project here instead of in the factory
-	if err := p.Project.Parse(); err != nil {
+	if err := libcomposeProject.Parse(); err != nil {
 		return nil, err
 	}
 
-	volumeConfigs := p.Project.VolumeConfigs
+	volumeConfigs := libcomposeProject.VolumeConfigs
 	volumes, err := adapter.ConvertToVolumes(volumeConfigs)
 	if err != nil {
 		return nil, err
@@ -30,7 +29,7 @@ func (p *ecsProject) parseV1V2() (*[]adapter.ContainerConfig, error) {
 	p.volumes = volumes
 
 	context := &p.Context().Context
-	serviceConfigs := p.Project.ServiceConfigs
+	serviceConfigs := libcomposeProject.ServiceConfigs
 
 	// convert ServiceConfigs to ContainerConfigs
 	containerConfigs := []adapter.ContainerConfig{}
