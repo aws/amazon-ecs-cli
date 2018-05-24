@@ -139,7 +139,7 @@ func (c *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer 
 	//var ps = ecs.PlacementStrategy{Field: &f, Type: &t}
 
 	createServiceInput := &ecs.CreateServiceInput{
-		DesiredCount:            aws.Int64(0),            // Required
+		DesiredCount: aws.Int64(0), // Required
 		//PlacementStrategy:		 []*ecs.PlacementStrategy{&ps},
 		PlacementStrategy:       placementStrategy,
 		ServiceName:             aws.String(serviceName), // Required
@@ -537,4 +537,3 @@ func (c *ecsClient) IsActiveCluster(clusterName string) (bool, error) {
 	log.WithFields(log.Fields{"cluster": clusterName, "status": status}).Debug("cluster status")
 	return false, nil
 }
-

@@ -100,16 +100,16 @@ const (
 	DeploymentMaxPercentDefaultValue        = 200
 	DeploymentMaxPercentFlag                = "deployment-max-percent"
 	DeploymentMinHealthyPercentDefaultValue = 100
-	DeploymentMinHealthyPercentFlag = "deployment-min-healthy-percent"
-	TargetGroupArnFlag              = "target-group-arn"
-	ContainerNameFlag               = "container-name"
-	ContainerPortFlag               = "container-port"
-	LoadBalancerNameFlag            = "load-balancer-name"
-	HealthCheckGracePeriodFlag      = "health-check-grace-period"
-	RoleFlag                        = "role"
-	ComposeServiceTimeOutFlag       = "timeout"
-	ForceDeploymentFlag             = "force-deployment"
-	PlacementStrategy               = "placement-strategy"
+	DeploymentMinHealthyPercentFlag         = "deployment-min-healthy-percent"
+	TargetGroupArnFlag                      = "target-group-arn"
+	ContainerNameFlag                       = "container-name"
+	ContainerPortFlag                       = "container-port"
+	LoadBalancerNameFlag                    = "load-balancer-name"
+	HealthCheckGracePeriodFlag              = "health-check-grace-period"
+	RoleFlag                                = "role"
+	ComposeServiceTimeOutFlag               = "timeout"
+	ForceDeploymentFlag                     = "force-deployment"
+	PlacementStrategy                       = "placement-strategy"
 )
 
 // OptionalRegionAndProfileFlags provides these flags:

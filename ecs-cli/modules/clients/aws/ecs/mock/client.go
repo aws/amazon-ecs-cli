@@ -56,7 +56,7 @@ func (_mr *_MockECSClientRecorder) CreateCluster(arg0 interface{}) *gomock.Call 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateCluster", arg0)
 }
 
-func (_m *MockECSClient) CreateService(_param0 string, _param1 string, _param2 *ecs.LoadBalancer, _param3 string, _param4 *ecs.DeploymentConfiguration, _param5 *ecs.NetworkConfiguration, _param6 string, _param7 *int64,  _param8 []*ecs.PlacementStrategy) error {
+func (_m *MockECSClient) CreateService(_param0 string, _param1 string, _param2 *ecs.LoadBalancer, _param3 string, _param4 *ecs.DeploymentConfiguration, _param5 *ecs.NetworkConfiguration, _param6 string, _param7 *int64, _param8 []*ecs.PlacementStrategy) error {
 	ret := _m.ctrl.Call(_m, "CreateService", _param0, _param1, _param2, _param3, _param4, _param5, _param6, _param7, _param8)
 	ret0, _ := ret[0].(error)
 	return ret0

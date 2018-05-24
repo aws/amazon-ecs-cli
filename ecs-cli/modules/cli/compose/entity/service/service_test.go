@@ -224,10 +224,10 @@ func TestCreateFargateNetworkModeNotAWSVPC(t *testing.T) {
 	cliContext := cli.NewContext(nil, flagSet, nil)
 
 	context := &context.ECSContext{
-		ECSClient:  mockEcs,
-		CommandConfig:  &config.CommandConfig{LaunchType: "FARGATE"},
-		CLIContext: cliContext,
-		ECSParams:  &utils.ECSParams{},
+		ECSClient:     mockEcs,
+		CommandConfig: &config.CommandConfig{LaunchType: "FARGATE"},
+		CLIContext:    cliContext,
+		ECSParams:     &utils.ECSParams{},
 	}
 
 	service := NewService(context)
@@ -622,10 +622,10 @@ func createServiceWithHealthCheckGPTest(t *testing.T,
 	)
 
 	context := &context.ECSContext{
-		ECSClient:  mockEcs,
-		CommandConfig:  commandConfig,
-		CLIContext: cliContext,
-		ECSParams:  ecsParams,
+		ECSClient:     mockEcs,
+		CommandConfig: commandConfig,
+		CLIContext:    cliContext,
+		ECSParams:     ecsParams,
 	}
 
 	service := NewService(context)
@@ -905,10 +905,10 @@ func upServiceWithCurrentTaskDefTest(t *testing.T,
 	mockEcs := getUpdateServiceMockClient(t, ctrl, describeServiceResponse, taskDefinition, registerTaskDefResponse, expectedInput)
 
 	ecsContext := &context.ECSContext{
-		ECSClient:  mockEcs,
-		CommandConfig:  commandConfig,
-		CLIContext: cliContext,
-		ECSParams:  ecsParams,
+		ECSClient:     mockEcs,
+		CommandConfig: commandConfig,
+		CLIContext:    cliContext,
+		ECSParams:     ecsParams,
 	}
 	// if taskDef is unchanged, serviceName is taken from current context
 	if existingService != nil {
@@ -949,10 +949,10 @@ func upServiceWithNewTaskDefTest(t *testing.T,
 	mockEcs := getUpdateServiceMockClient(t, ctrl, describeServiceResponse, taskDefinition, registerTaskDefResponse, expectedInput)
 
 	ecsContext := &context.ECSContext{
-		ECSClient:  mockEcs,
-		CommandConfig:  commandConfig,
-		CLIContext: cliContext,
-		ECSParams:  ecsParams,
+		ECSClient:     mockEcs,
+		CommandConfig: commandConfig,
+		CLIContext:    cliContext,
+		ECSParams:     ecsParams,
 	}
 	service := NewService(ecsContext)
 	err := service.LoadContext()
