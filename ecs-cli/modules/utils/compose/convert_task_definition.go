@@ -248,12 +248,6 @@ func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *C
 		return nil, errors.New("mem_limit must be greater than mem_reservation")
 	}
 
-	// One or both of memory and memoryReservation is required to register a task definition with ECS
-	// NOTE: Docker does not set a memory limit for containers
-	if mem == 0 && memoryReservation == 0 {
-		mem = defaultMemLimit
-	}
-
 	// Populate ECS container definition, offloading the validation to aws-sdk
 	outputContDef.SetCpu(inputCfg.CPU)
 	outputContDef.SetCommand(aws.StringSlice(inputCfg.Command))
@@ -317,6 +311,44 @@ func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *C
 	// Set fields from ecs-params file
 	if ecsContainerDef != nil {
 		outputContDef.Essential = aws.Bool(ecsContainerDef.Essential)
+
+		overrideMsg := "Using ecs-params value as override (was %v but is now %v)"
+		if ecsContainerDef.Cpu > 0 {
+			if outputContDef.Cpu != nil && *outputContDef.Cpu > 0 {
+				log.WithFields(log.Fields{
+					"option name":  "Cpu",
+					"service name": inputCfg.Name,
+				}).Infof(overrideMsg, *outputContDef.Cpu, ecsContainerDef.Cpu)
+			}
+			outputContDef.Cpu = aws.Int64(ecsContainerDef.Cpu)
+		}
+		memInMB := adapter.ConvertToMemoryInMB(int64(ecsContainerDef.Memory))
+		if memInMB > 0 {
+			if outputContDef.Memory != nil {
+				log.WithFields(log.Fields{
+					"option name":  "Memory",
+					"service name": inputCfg.Name,
+				}).Infof(overrideMsg, *outputContDef.Memory, memInMB)
+			}
+			outputContDef.Memory = aws.Int64(memInMB)
+		}
+		memResInMB := adapter.ConvertToMemoryInMB(int64(ecsContainerDef.MemoryReservation))
+		if memResInMB > 0 {
+			if outputContDef.MemoryReservation != nil {
+				log.WithFields(log.Fields{
+					"option name":  "MemoryReservation",
+					"service name": inputCfg.Name,
+				}).Infof(overrideMsg, *outputContDef.MemoryReservation, memResInMB)
+			}
+			outputContDef.MemoryReservation = aws.Int64(memResInMB)
+		}
+	}
+
+	// One or both of memory and memoryReservation is required to register a task definition with ECS
+	// If neither is provided by 1) compose file or 2) ecs-params, set default
+	// NOTE: Docker does not set a memory limit for containers
+	if outputContDef.Memory == nil && outputContDef.MemoryReservation == nil {
+		outputContDef.SetMemory(defaultMemLimit)
 	}
 
 	return outputContDef, nil
