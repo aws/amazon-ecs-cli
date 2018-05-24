@@ -14,7 +14,6 @@
 package utils
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -205,7 +204,6 @@ func TestConvertToTaskDefinition(t *testing.T) {
 
 	// convert
 	taskDefinition := convertToTaskDefinitionInTest(t, nil, testContainerConfig, taskRoleArn, "")
-	fmt.Printf("TASK DEF: %+v\n\n", taskDefinition)
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 
 	// verify task def fields
@@ -627,6 +625,77 @@ task_definition:
 	_, err = convertToTaskDefWithEcsParamsInTest(t, nil, containerConfigs, "", ecsParams)
 
 	assert.Error(t, err, "Expected error if no containers are marked essential")
+}
+
+func TestConvertToTaskDefinitionWithECSParams_EssentialDefaultsToTrueWhenNoServicesSpecified(t *testing.T) {
+	// We expect essential to be set to be true in the converter
+	containerConfigs := testContainerConfigs([]string{"mysql", "wordpress"})
+	ecsParamsString := `version: 1
+task_definition:
+  ecs_network_mode: host`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs fields tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, nil, containerConfigs, "", ecsParams)
+	assert.NoError(t, err, "Unexpected error when no containers are marked essential")
+
+	mysql := findContainerByName("mysql", taskDefinition.ContainerDefinitions)
+	assert.True(t, *mysql.Essential, "Expected mysql to be essential")
+	wordpress := findContainerByName("wordpress", taskDefinition.ContainerDefinitions)
+	assert.True(t, *wordpress.Essential, "Expected wordpressto be essential")
+}
+
+func TestConvertToTaskDefinitionWithECSParams_EssentialDefaultsToTrueWhenNotSpecified(t *testing.T) {
+	// We expect essential to be set to be true in the unmarshaller
+	containerConfigs := testContainerConfigs([]string{"mysql", "wordpress"})
+	ecsParamsString := `version: 1
+task_definition:
+  ecs_network_mode: host
+  services:
+    wordpress:
+      mem_limit: 1000000
+    mysql:
+      mem_limit: 1000000`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs fields tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, nil, containerConfigs, "", ecsParams)
+
+	assert.NoError(t, err, "Unexpected error when no containers are marked essential")
+	mysql := findContainerByName("mysql", taskDefinition.ContainerDefinitions)
+	assert.True(t, *mysql.Essential, "Expected mysql to be essential")
+	wordpress := findContainerByName("wordpress", taskDefinition.ContainerDefinitions)
+	assert.True(t, *wordpress.Essential, "Expected wordpressto be essential")
 }
 
 func TestConvertToTaskDefinitionWithECSParamsAndTaskRoleArnFlag(t *testing.T) {
