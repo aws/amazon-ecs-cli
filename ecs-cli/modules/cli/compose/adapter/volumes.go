@@ -31,3 +31,10 @@ type Volumes struct {
 func getVolumeName(suffixNum int) string {
 	return fmt.Sprintf("%s-%d", ecsVolumeNamePrefix, suffixNum)
 }
+
+func NewVolumes() *Volumes {
+	return &Volumes{
+		VolumeWithHost:  make(map[string]string), // map with key:=hostSourcePath value:=VolumeName
+		VolumeEmptyHost: []string{},
+	}
+}

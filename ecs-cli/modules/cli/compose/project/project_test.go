@@ -22,7 +22,6 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
-	"github.com/docker/libcompose/project"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
 )
@@ -61,6 +60,10 @@ services:
 
 	// verify project name is set
 	assert.Equal(t, testProjectName, project.ecsContext.ProjectName, "Expected ProjectName to be overridden.")
+
+	// verify top-level volumes are empty
+	assert.Empty(t, project.VolumeConfigs().VolumeWithHost, "Expected volume configs to be empty")
+	assert.Empty(t, project.VolumeConfigs().VolumeEmptyHost, "Expected volume configs to be empty")
 }
 
 func TestParseCompose_V2_WithVolumeConfigs(t *testing.T) {
@@ -94,9 +97,12 @@ volumes:
 	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, tmpfile.Name())
 
 	err = project.parseCompose()
+	expectedNamedVolumes := []string{"banana", "volume-1"}
+	expectedHosts := map[string]string{"./cache": "volume-2"}
 
 	// verify VolumeConfigs are populated
-	assert.NotEmpty(t, project.VolumeConfigs(), "Expected volume configs to not be empty")
+	assert.Equal(t, expectedHosts, project.VolumeConfigs().VolumeWithHost, "Expected volume configs to match")
+	assert.Equal(t, expectedNamedVolumes, project.VolumeConfigs().VolumeEmptyHost, "Expected volume configs to match")
 }
 
 func TestParseECSParams(t *testing.T) {
@@ -276,10 +282,8 @@ func setupTestProjectWithEcsParams(t *testing.T, ecsParamsFileName string) *ecsP
 	}
 	ecsContext.EnvironmentLookup = envLookup
 	ecsContext.ResourceLookup = resourceLookup
-	libcomposeProject := project.NewProject(&ecsContext.Context, nil, nil)
 
 	return &ecsProject{
 		ecsContext: ecsContext,
-		Project:    *libcomposeProject,
 	}
 }
