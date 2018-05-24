@@ -25,7 +25,6 @@ import (
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
-	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
 )
 
@@ -36,7 +35,6 @@ type Project interface {
 	Parse() error
 
 	Context() *context.ECSContext
-	ServiceConfigs() *config.ServiceConfigs
 	ContainerConfigs() []adapter.ContainerConfig // TODO change this to a pointer to slice?
 	VolumeConfigs() *adapter.Volumes
 	Entity() entity.ProjectEntity
@@ -88,11 +86,6 @@ func (p *ecsProject) Name() string {
 // Context returns the ecsContext of the project, which encompasses the cli configurations required to setup this project
 func (p *ecsProject) Context() *context.ECSContext {
 	return p.ecsContext
-}
-
-// ServiceConfigs returns a map of Service Configuration loaded from compose yaml file
-func (p *ecsProject) ServiceConfigs() *config.ServiceConfigs {
-	return p.Project.ServiceConfigs
 }
 
 // VolumeConfigs returns a map of Volume Configuration loaded from compose yaml file
