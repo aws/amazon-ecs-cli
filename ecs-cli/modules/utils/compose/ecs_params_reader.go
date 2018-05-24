@@ -87,6 +87,17 @@ const (
 	Disabled AssignPublicIp = "DISABLED"
 )
 
+func (cd *ContainerDef) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type rawContainerDef ContainerDef
+	raw := rawContainerDef{Essential: true} //  If essential is not specified, we want it to be true
+	if err := unmarshal(&raw); err != nil {
+		return err
+	}
+
+	*cd = ContainerDef(raw)
+	return nil
+}
+
 // ReadECSParams parses the ecs-params.yml file and puts it into an ECSParams struct.
 func ReadECSParams(filename string) (*ECSParams, error) {
 	if filename == "" {
