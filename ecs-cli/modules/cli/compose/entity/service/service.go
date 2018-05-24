@@ -413,7 +413,7 @@ func (s *Service) createService() error {
 		return fmt.Errorf("--%v is only valid for services configured to use load balancers", flags.HealthCheckGracePeriodFlag)
 	}
 
-	err = s.Context().ECSClient.CreateService(serviceName, taskDefinitionID, s.loadBalancer, placementStrategy, s.role, s.DeploymentConfig(), networkConfig, launchType, s.healthCheckGP)
+	err = s.Context().ECSClient.CreateService(serviceName, taskDefinitionID, s.loadBalancer, s.role, s.DeploymentConfig(), networkConfig, launchType, s.healthCheckGP, placementStrategy)
 	if err != nil {
 		return err
 	}
