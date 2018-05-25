@@ -3,6 +3,7 @@ package project
 import (
 	"fmt"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/logger"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
@@ -20,6 +21,7 @@ func (p *ecsProject) parseV1V2() (*[]adapter.ContainerConfig, error) {
 	if err := libcomposeProject.Parse(); err != nil {
 		return nil, err
 	}
+	logger.LogUnsupportedProjectFields(libcomposeProject)
 
 	volumeConfigs := libcomposeProject.VolumeConfigs
 	volumes, err := adapter.ConvertToVolumes(volumeConfigs)
@@ -50,6 +52,7 @@ func (p *ecsProject) parseV1V2() (*[]adapter.ContainerConfig, error) {
 }
 
 func convertV1V2ToContainerConfig(context *project.Context, serviceName string, volumes *adapter.Volumes, service *config.ServiceConfig) (*adapter.ContainerConfig, error) {
+	logger.LogUnsupportedServiceConfigFields(serviceName, service)
 
 	environment := adapter.ConvertToKeyValuePairs(context, service.Environment, serviceName)
 
