@@ -262,13 +262,10 @@ func setupTestProject(t *testing.T) *ecsProject {
 
 func setupTestProjectWithEcsParams(t *testing.T, ecsParamsFileName string) *ecsProject {
 	envLookup, err := utils.GetDefaultEnvironmentLookup()
-	if err != nil {
-		t.Fatal("Unexpected error in setting up a project", err)
-	}
+	assert.NoError(t, err, "Unexpected error setting up environment lookup")
+
 	resourceLookup, err := utils.GetDefaultResourceLookup()
-	if err != nil {
-		t.Fatal("Unexpected error in setting up a project", err)
-	}
+	assert.NoError(t, err, "Unexpected error setting up resource lookup")
 
 	flagSet := flag.NewFlagSet("ecs-cli", 0)
 	flagSet.String(flags.ProjectNameFlag, testProjectName, "")

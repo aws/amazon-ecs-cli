@@ -14,14 +14,9 @@
 package utils
 
 import (
-	"reflect"
-	"strings"
-
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
-	"github.com/docker/libcompose/config"
-	"github.com/docker/libcompose/project"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -29,50 +24,6 @@ import (
 const (
 	defaultMemLimit = 512
 )
-
-// supported fields/options from compose YAML file
-var supportedComposeYamlOptions = []string{
-	"cap_add",
-	"cap_drop",
-	"command",
-	"cpu_shares",
-	"dns",
-	"dns_search",
-	"entrypoint",
-	"env_file",
-	"environment",
-	"extra_hosts",
-	"hostname",
-	"image",
-	"labels",
-	"links",
-	"logging",
-	"log_driver", // v1 only
-	"log_opt",    // v1 only
-	"mem_limit",
-	"mem_reservation",
-	"ports",
-	"privileged",
-	"read_only",
-	"security_opt",
-	"shm_size",
-	"tmpfs",
-	"ulimits",
-	"user",
-	"volumes", // v2
-	"volumes_from",
-	"working_dir",
-}
-
-var supportedComposeYamlOptionsMap = getSupportedComposeYamlOptionsMap()
-
-func getSupportedComposeYamlOptionsMap() map[string]bool {
-	optionsMap := make(map[string]bool)
-	for _, value := range supportedComposeYamlOptions {
-		optionsMap[value] = true
-	}
-	return optionsMap
-}
 
 // TaskDefParams contains basic fields to build an
 // ECS task definition
@@ -86,16 +37,11 @@ type TaskDefParams struct {
 }
 
 // ConvertToTaskDefinition transforms the yaml configs to its ecs equivalent (task definition)
-// TODO container config a pointer to slice?
-func ConvertToTaskDefinition(context *project.Context, volumes *adapter.Volumes,
+func ConvertToTaskDefinition(taskDefinitionName string, volumes *adapter.Volumes,
 	containerConfigs []adapter.ContainerConfig, taskRoleArn string, requiredCompatibilites string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
 	if len(containerConfigs) == 0 {
 		return nil, errors.New("cannot create a task definition with no containers; invalid service config")
 	}
-
-	logUnsupportedConfigFields(context.Project) // TODO refactor? networks only thing not supproted
-
-	taskDefinitionName := context.ProjectName
 
 	// Instantiates zero values for fields on task def specified by ecs-params
 	taskDefParams, err := convertTaskDefParams(ecsParams)
@@ -151,89 +97,6 @@ func ConvertToTaskDefinition(context *project.Context, volumes *adapter.Volumes,
 	}
 
 	return taskDefinition, nil
-}
-
-// logUnsupportedConfigFields adds a WARNING to the customer about the fields that are unused.
-func logUnsupportedConfigFields(project *project.Project) {
-	// ecsProject#parseCompose, which calls the underlying libcompose.Project#Parse(),
-	// always populates the project.NetworkConfig with one entry ("default").
-	// See: https://github.com/docker/libcompose/blob/master/project/project.go#L277
-	if project.NetworkConfigs != nil && len(project.NetworkConfigs) > 1 {
-		log.WithFields(log.Fields{"option name": "networks"}).Warn("Skipping unsupported YAML option...")
-	}
-}
-
-// logUnsupportedServiceConfigFields TODO move into parser logic?
-func logUnsupportedServiceConfigFields(serviceName string, config *config.ServiceConfig) {
-	configValue := reflect.ValueOf(config).Elem()
-	configType := configValue.Type()
-
-	for i := 0; i < configValue.NumField(); i++ {
-		field := configValue.Field(i)
-		fieldType := configType.Field(i)
-		// get the tag name (if any), defaults to fieldName
-		tagName := fieldType.Name
-		yamlTag := fieldType.Tag.Get("yaml") // Expected format `yaml:"tagName,omitempty"` // TODO, handle omitempty
-		if yamlTag != "" {
-			tags := strings.Split(yamlTag, ",")
-			if len(tags) > 0 {
-				tagName = tags[0]
-			}
-		}
-
-		if tagName == "networks" && !validNetworksForService(config) {
-			log.WithFields(log.Fields{
-				"option name":  tagName,
-				"service name": serviceName,
-			}).Warn("Skipping unsupported YAML option for service...")
-		}
-
-		zeroValue := isZero(field)
-		// if value is present for the field that is not in supportedYamlTags map, log a warning
-		if tagName != "networks" && !zeroValue && !supportedComposeYamlOptionsMap[tagName] {
-			log.WithFields(log.Fields{
-				"option name":  tagName,
-				"service name": serviceName,
-			}).Warn("Skipping unsupported YAML option for service...")
-		}
-	}
-}
-
-func validNetworksForService(config *config.ServiceConfig) bool {
-	if config.Networks == nil {
-		return false
-	}
-	if config.Networks.Networks == nil {
-		return false
-	}
-	if len(config.Networks.Networks) != 1 {
-		return false
-	}
-
-	return true
-}
-
-// isZero checks if the value is nil or empty or zero
-func isZero(v reflect.Value) bool {
-	switch v.Kind() {
-	case reflect.Func, reflect.Map, reflect.Slice:
-		return v.IsNil()
-	case reflect.Array:
-		zero := true
-		for i := 0; i < v.Len(); i++ {
-			zero = zero && isZero(v.Index(i))
-		}
-		return zero
-	case reflect.Struct:
-		zero := true
-		for i := 0; i < v.NumField(); i++ {
-			zero = zero && isZero(v.Field(i))
-		}
-		return zero
-	}
-	// Compare other types directly:
-	zero := reflect.Zero(v.Type())
-	return v.Interface() == zero.Interface()
 }
 
 // convertToContainerDef transforms each service in docker-compose.yml and
