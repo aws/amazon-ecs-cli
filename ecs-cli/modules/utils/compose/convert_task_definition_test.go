@@ -247,6 +247,44 @@ func TestConvertToTaskDefinition(t *testing.T) {
 }
 
 // ConvertToContainerDefinition tests
+
+func TestConvertToTaskDefinitionWithECSParams_DefaultMemoryLessThanMemoryRes(t *testing.T) {
+	// set up containerConfig w/o value for Memory
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "httpd",
+		CPU:   int64(5),
+	}
+
+	// define ecs-params value we expect to be present in final containerDefinition
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    web:
+      mem_reservation: 1g`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	_, err = convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+
+	assert.Error(t, err, "Expected error because memory reservation is greater than memory limit")
+}
 func TestConvertToTaskDefinitionWithNoSharedMemorySize(t *testing.T) {
 	containerConfig := &adapter.ContainerConfig{
 		ShmSize: int64(0),
@@ -757,12 +795,12 @@ task_definition:
 	content := []byte(ecsParamsString)
 
 	tmpfile, err := ioutil.TempFile("", "ecs-params")
-	assert.NoError(t, err, "Could not create ecs fields tempfile")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
 
 	defer os.Remove(tmpfile.Name())
 
 	_, err = tmpfile.Write(content)
-	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
 
 	err = tmpfile.Close()
 	assert.NoError(t, err, "Could not close tempfile")
@@ -813,12 +851,12 @@ task_definition:
 	content := []byte(ecsParamsString)
 
 	tmpfile, err := ioutil.TempFile("", "ecs-params")
-	assert.NoError(t, err, "Could not create ecs fields tempfile")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
 
 	defer os.Remove(tmpfile.Name())
 
 	_, err = tmpfile.Write(content)
-	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
 
 	err = tmpfile.Close()
 	assert.NoError(t, err, "Could not close tempfile")
@@ -858,12 +896,12 @@ task_definition:
 	content := []byte(ecsParamsString)
 
 	tmpfile, err := ioutil.TempFile("", "ecs-params")
-	assert.NoError(t, err, "Could not create ecs fields tempfile")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
 
 	defer os.Remove(tmpfile.Name())
 
 	_, err = tmpfile.Write(content)
-	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
 
 	err = tmpfile.Close()
 	assert.NoError(t, err, "Could not close tempfile")
@@ -883,6 +921,89 @@ task_definition:
 		assert.Equal(t, int64(defaultMemLimit), aws.Int64Value(web.Memory), "Expected Memory to match default")
 		assert.Empty(t, aws.Int64Value(web.MemoryReservation), "Expected MemoryReservation to be empty")
 	}
+}
+
+func TestConvertToTaskDefinitionWithECSParams_SomeContainerResourcesProvided(t *testing.T) {
+	// set up containerConfig w/o value for Memory
+	containerConfig := &adapter.ContainerConfig{
+		Name:              "web",
+		Image:             "httpd",
+		CPU:               int64(5),
+		Memory:            int64(15),
+		MemoryReservation: int64(10),
+	}
+
+	// define ecs-params value we expect to be present in final containerDefinition
+	webMem := int64(20)
+
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    web:
+      mem_limit: 20m`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	if assert.NoError(t, err) {
+		// check ecs-params override value is present
+		assert.Equal(t, webMem, aws.Int64Value(web.Memory), "Expected Memory to match")
+		// check config values not present in ecs-params are present
+		assert.Equal(t, containerConfig.CPU, aws.Int64Value(web.Cpu), "Expected CPU to match")
+		assert.Equal(t, containerConfig.MemoryReservation, aws.Int64Value(web.MemoryReservation), "Expected MemoryReservation to match")
+	}
+}
+
+func TestConvertToTaskDefinitionWithECSParams_MemResGreaterThanMemLimit(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{Name: "web"}
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    web:
+      mem_limit: 10m
+      mem_reservation: 15m`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	_, err = convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+
+	assert.Error(t, err, "Expected error if mem_reservation was more than mem_limit")
 }
 
 func TestConvertToTaskDefinition_WithTaskSize(t *testing.T) {
