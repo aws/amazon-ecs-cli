@@ -241,15 +241,7 @@ func isZero(v reflect.Value) bool {
 func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *ContainerDef) (*ecs.ContainerDefinition, error) {
 	outputContDef := &ecs.ContainerDefinition{}
 
-	mem := inputCfg.Memory
-	memoryReservation := inputCfg.MemoryReservation
-
-	if mem != 0 && memoryReservation != 0 && mem < memoryReservation {
-		return nil, errors.New("mem_limit must be greater than mem_reservation")
-	}
-
 	// Populate ECS container definition, offloading the validation to aws-sdk
-	outputContDef.SetCpu(inputCfg.CPU)
 	outputContDef.SetCommand(aws.StringSlice(inputCfg.Command))
 	outputContDef.SetDnsSearchDomains(aws.StringSlice(inputCfg.DNSSearchDomains))
 	outputContDef.SetDnsServers(aws.StringSlice(inputCfg.DNSServers))
@@ -264,14 +256,6 @@ func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *C
 	outputContDef.SetImage(inputCfg.Image)
 	outputContDef.SetLinks(aws.StringSlice(inputCfg.Links)) // TODO, read from external links
 	outputContDef.SetLogConfiguration(inputCfg.LogConfiguration)
-
-	if mem != 0 {
-		outputContDef.SetMemory(mem)
-	}
-	if memoryReservation != 0 {
-		outputContDef.SetMemoryReservation(memoryReservation)
-	}
-
 	outputContDef.SetMountPoints(inputCfg.MountPoints)
 	outputContDef.SetName(inputCfg.Name)
 	outputContDef.SetPrivileged(inputCfg.Privileged)
@@ -308,50 +292,63 @@ func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *C
 		outputContDef.LinuxParameters.SetTmpfs(inputCfg.Tmpfs)
 	}
 
-	// Set fields from ecs-params file
+	// initialize container resources from inputCfg
+	cpu := inputCfg.CPU
+	mem := inputCfg.Memory
+	memRes := inputCfg.MemoryReservation
+
+	// Set essential & resource fields from ecs-params file, if present
 	if ecsContainerDef != nil {
 		outputContDef.Essential = aws.Bool(ecsContainerDef.Essential)
 
-		overrideMsg := "Using ecs-params value as override (was %v but is now %v)"
-		if ecsContainerDef.Cpu > 0 {
-			if outputContDef.Cpu != nil && *outputContDef.Cpu > 0 {
-				log.WithFields(log.Fields{
-					"option name":  "Cpu",
-					"service name": inputCfg.Name,
-				}).Infof(overrideMsg, *outputContDef.Cpu, ecsContainerDef.Cpu)
-			}
-			outputContDef.Cpu = aws.Int64(ecsContainerDef.Cpu)
-		}
-		memInMB := adapter.ConvertToMemoryInMB(int64(ecsContainerDef.Memory))
-		if memInMB > 0 {
-			if outputContDef.Memory != nil {
-				log.WithFields(log.Fields{
-					"option name":  "Memory",
-					"service name": inputCfg.Name,
-				}).Infof(overrideMsg, *outputContDef.Memory, memInMB)
-			}
-			outputContDef.Memory = aws.Int64(memInMB)
-		}
-		memResInMB := adapter.ConvertToMemoryInMB(int64(ecsContainerDef.MemoryReservation))
-		if memResInMB > 0 {
-			if outputContDef.MemoryReservation != nil {
-				log.WithFields(log.Fields{
-					"option name":  "MemoryReservation",
-					"service name": inputCfg.Name,
-				}).Infof(overrideMsg, *outputContDef.MemoryReservation, memResInMB)
-			}
-			outputContDef.MemoryReservation = aws.Int64(memResInMB)
-		}
+		cpu = getResourceValue(inputCfg.Name, cpu, ecsContainerDef.Cpu)
+
+		ecsMemInMB := adapter.ConvertToMemoryInMB(int64(ecsContainerDef.Memory))
+		mem = getResourceValue(inputCfg.Name, mem, ecsMemInMB)
+
+		ecsMemResInMB := adapter.ConvertToMemoryInMB(int64(ecsContainerDef.MemoryReservation))
+		memRes = getResourceValue(inputCfg.Name, memRes, ecsMemResInMB)
+	}
+
+	if mem < memRes {
+		return nil, errors.New("mem_limit must be greater than mem_reservation")
 	}
 
 	// One or both of memory and memoryReservation is required to register a task definition with ECS
 	// If neither is provided by 1) compose file or 2) ecs-params, set default
 	// NOTE: Docker does not set a memory limit for containers
-	if outputContDef.Memory == nil && outputContDef.MemoryReservation == nil {
-		outputContDef.SetMemory(defaultMemLimit)
+	if mem == 0 && memRes == 0 {
+		mem = defaultMemLimit
+	}
+
+	outputContDef.SetCpu(cpu)
+	if mem != 0 {
+		outputContDef.SetMemory(mem)
+	}
+	if memRes != 0 {
+		outputContDef.SetMemoryReservation(memRes)
 	}
 
 	return outputContDef, nil
+}
+
+func getResourceValue(serviceName string, inputVal, ecsVal int64) int64 {
+	if ecsVal == 0 {
+		return inputVal
+	}
+	if inputVal > 0 {
+		showResourceOverrideMsg(serviceName, inputVal, ecsVal)
+	}
+	return ecsVal
+}
+
+func showResourceOverrideMsg(serviceName string, oldValue int64, newValue int64) {
+	overrideMsg := "Using ecs-params value as override (was %v but is now %v)"
+
+	log.WithFields(log.Fields{
+		"option name":  "MemoryReservation",
+		"service name": serviceName,
+	}).Infof(overrideMsg, oldValue, newValue)
 }
 
 // convertToECSVolumes transforms the map of hostPaths to the format of ecs.Volume
