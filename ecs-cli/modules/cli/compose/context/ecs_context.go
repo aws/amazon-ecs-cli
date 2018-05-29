@@ -30,6 +30,7 @@ import (
 )
 
 // ECSContext is a wrapper around libcompose.project.Context
+// TODO remove project.Context -- add ProjectName, EnvironmentLookup, ResourceLookup
 type ECSContext struct {
 	project.Context
 

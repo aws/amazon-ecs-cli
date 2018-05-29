@@ -184,10 +184,11 @@ func (p *ecsProject) transformTaskDefinition() error {
 
 	taskRoleArn := ecsContext.CLIContext.GlobalString(flags.TaskRoleArnFlag)
 	requiredCompatibilities := ecsContext.CommandConfig.LaunchType
+	taskDefinitionName := ecsContext.ProjectName
 
 	taskDefinition, err := utils.ConvertToTaskDefinition(
-		&ecsContext.Context,
-		p.VolumeConfigs(),    // will have already been transformed to adapter.Volumes in parseCompose
+		taskDefinitionName,
+		p.VolumeConfigs(),
 		p.ContainerConfigs(), // TODO Change to pointer on project?
 		taskRoleArn,
 		requiredCompatibilities,

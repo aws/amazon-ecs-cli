@@ -20,20 +20,19 @@ import (
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/value"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
-	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
 	"github.com/stretchr/testify/assert"
 )
 
 const (
-	// TODO move when volumes tests added?
+	projectName    = "ProjectName"
 	containerPath  = "/tmp/cache"
 	containerPath2 = "/tmp/cache2"
 	hostPath       = "./cache"
-
-	namedVolume = "named_volume"
+	namedVolume    = "named_volume"
 )
 
 var defaultNetwork = &yaml.Network{
@@ -1066,8 +1065,7 @@ func TestMemReservationHigherThanMemLimit(t *testing.T) {
 	volumeConfigs := adapter.NewVolumes()
 	containerConfigs := []adapter.ContainerConfig{containerConfig}
 
-	context := testContext(t)
-	_, err := ConvertToTaskDefinition(context, volumeConfigs, containerConfigs, "", "", nil)
+	_, err := ConvertToTaskDefinition(projectName, volumeConfigs, containerConfigs, "", "", nil)
 	assert.EqualError(t, err, "mem_limit must be greater than mem_reservation")
 }
 
@@ -1108,29 +1106,11 @@ func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
 		},
 	}
 
-	context := testContext(t)
-	taskDefinition, err := ConvertToTaskDefinition(context, volumeConfigs, containerConfigs, "", "", nil)
+	taskDefinition, err := ConvertToTaskDefinition(projectName, volumeConfigs, containerConfigs, "", "", nil)
 	assert.NoError(t, err, "Unexpected error converting Task Definition")
 
 	actualVolumes := taskDefinition.Volumes
 	assert.ElementsMatch(t, expectedVolumes, actualVolumes, "Expected volumes to match")
-}
-
-func convertToTaskDefinitionInTest(t *testing.T, containerConfig *adapter.ContainerConfig, taskRoleArn string, launchType string) *ecs.TaskDefinition {
-	volumeConfigs := &adapter.Volumes{
-		VolumeEmptyHost: []string{namedVolume},
-	}
-
-	containerConfigs := []adapter.ContainerConfig{}
-	containerConfigs = append(containerConfigs, *containerConfig)
-
-	context := testContext(t)
-
-	taskDefinition, err := ConvertToTaskDefinition(context, volumeConfigs, containerConfigs, taskRoleArn, launchType, nil)
-	if err != nil {
-		t.Errorf("Expected to convert [%v] containerConfigs without errors. But got [%v]", containerConfig, err)
-	}
-	return taskDefinition
 }
 
 func TestIsZeroForEmptyConfig(t *testing.T) {
@@ -1142,7 +1122,7 @@ func TestIsZeroForEmptyConfig(t *testing.T) {
 	for i := 0; i < configValue.NumField(); i++ {
 		f := configValue.Field(i)
 		ft := configType.Field(i)
-		isZero := isZero(f)
+		isZero := value.IsZero(f)
 		if !isZero {
 			t.Errorf("Expected field [%s] to be zero but was not", ft.Name)
 		}
@@ -1186,21 +1166,36 @@ func TestIsZeroWhenConfigHasValues(t *testing.T) {
 		ft := configType.Field(i)
 		fieldName := ft.Name
 
-		zeroValue := isZero(f)
+		zeroValue := value.IsZero(f)
 		_, hasValue := hasValues[fieldName]
 		assert.NotEqual(t, zeroValue, hasValue)
 	}
 }
 
-// helper functions
+///////////////////////
+// helper functions //
+//////////////////////
+func convertToTaskDefinitionInTest(t *testing.T, containerConfig *adapter.ContainerConfig, taskRoleArn string, launchType string) *ecs.TaskDefinition {
+	volumeConfigs := &adapter.Volumes{
+		VolumeEmptyHost: []string{namedVolume},
+	}
+
+	containerConfigs := []adapter.ContainerConfig{}
+	containerConfigs = append(containerConfigs, *containerConfig)
+
+	taskDefinition, err := ConvertToTaskDefinition(projectName, volumeConfigs, containerConfigs, taskRoleArn, launchType, nil)
+	if err != nil {
+		t.Errorf("Expected to convert [%v] containerConfigs without errors. But got [%v]", containerConfig, err)
+	}
+	return taskDefinition
+}
+
 func convertToTaskDefWithEcsParamsInTest(t *testing.T, containerConfigs []adapter.ContainerConfig, taskRoleArn string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
 	volumeConfigs := &adapter.Volumes{
 		VolumeEmptyHost: []string{namedVolume},
 	}
 
-	context := testContext(t)
-
-	taskDefinition, err := ConvertToTaskDefinition(context, volumeConfigs, containerConfigs, taskRoleArn, "", ecsParams)
+	taskDefinition, err := ConvertToTaskDefinition(projectName, volumeConfigs, containerConfigs, taskRoleArn, "", ecsParams)
 	if err != nil {
 		return nil, err
 	}
@@ -1215,21 +1210,4 @@ func findContainerByName(name string, containerDefs []*ecs.ContainerDefinition) 
 		}
 	}
 	return nil
-}
-
-func testContext(t *testing.T) *project.Context {
-	envLookup, err := GetDefaultEnvironmentLookup()
-	assert.NoError(t, err, "Unexpected error setting up environment lookup")
-
-	resourceLookup, err := GetDefaultResourceLookup()
-	assert.NoError(t, err, "Unexpected error setting up resource lookup")
-
-	context := &project.Context{
-		ProjectName:       "ProjectName",
-		Project:           &project.Project{},
-		EnvironmentLookup: envLookup,
-		ResourceLookup:    resourceLookup,
-	}
-
-	return context
 }
