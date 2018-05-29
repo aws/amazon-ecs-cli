@@ -78,10 +78,10 @@ func LogUnsupportedServiceConfigFields(serviceName string, serviceConfig *config
 		fieldType := configType.Field(i)
 		// get the tag name (if any), defaults to fieldName
 		tagName := fieldType.Name
-		yamlTag := fieldType.Tag.Get("yaml") // Expected format `yaml:"tagName,omitempty"` // TODO, handle omitempty
+		yamlTag := fieldType.Tag.Get("yaml") // Expected format `yaml:"tagName,omitempty"`
 		if yamlTag != "" {
 			tags := strings.Split(yamlTag, ",")
-			if len(tags) > 0 {
+			if tags[0] != "" {
 				tagName = tags[0]
 			}
 		}
