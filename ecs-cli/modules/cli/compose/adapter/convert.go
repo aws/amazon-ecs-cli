@@ -16,6 +16,7 @@ package adapter
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -23,6 +24,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/docker/cli/cli/compose/types"
 	"github.com/docker/go-units"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
@@ -151,26 +153,9 @@ func ConvertToMountPoints(cfgVolumes *yaml.Volumes, volumes *Volumes) ([]*ecs.Mo
 			}
 		}
 
-		var volumeName string
-		numVol := len(volumes.VolumeWithHost) + len(volumes.VolumeEmptyHost)
-		if source == "" {
-			// add mount point for volumes with an empty host path
-			volumeName = getVolumeName(numVol)
-			volumes.VolumeEmptyHost = append(volumes.VolumeEmptyHost, volumeName)
-		} else if project.IsNamedVolume(source) {
-			if !utils.InSlice(source, volumes.VolumeEmptyHost) {
-				return nil, fmt.Errorf(
-					"named volume [%s] is used but no declaration was found in the volumes section", cfgVolume)
-			}
-			volumeName = source
-		} else {
-			// add mount point for volumes with a host path
-			volumeName = volumes.VolumeWithHost[source]
-
-			if volumeName == "" {
-				volumeName = getVolumeName(numVol)
-				volumes.VolumeWithHost[source] = volumeName
-			}
+		volumeName, err := GetSourcePathAndUpdateVolumes(source, volumes)
+		if err != nil {
+			return nil, err
 		}
 
 		mountPoints = append(mountPoints, &ecs.MountPoint{
@@ -180,6 +165,34 @@ func ConvertToMountPoints(cfgVolumes *yaml.Volumes, volumes *Volumes) ([]*ecs.Mo
 		})
 	}
 	return mountPoints, nil
+}
+
+// GetSourcePathAndUpdateVolumes checks for & creates an ECS Volume for a mount point without
+// a source volume and returns the appropriate source volume name
+func GetSourcePathAndUpdateVolumes(source string, volumes *Volumes) (string, error) {
+	var volumeName string
+	numVol := len(volumes.VolumeWithHost) + len(volumes.VolumeEmptyHost)
+	if source == "" {
+		// add mount point for volumes with an empty source path
+		volumeName = getVolumeName(numVol)
+		volumes.VolumeEmptyHost = append(volumes.VolumeEmptyHost, volumeName)
+	} else if project.IsNamedVolume(source) {
+		if !utils.InSlice(source, volumes.VolumeEmptyHost) {
+			return "", fmt.Errorf(
+				"named volume [%s] is used but no declaration was found in the volumes section", source)
+		}
+		volumeName = source
+	} else {
+		// add mount point for volumes with a source path
+		volumeName = volumes.VolumeWithHost[source]
+
+		if volumeName == "" {
+			volumeName = getVolumeName(numVol)
+			volumes.VolumeWithHost[source] = volumeName
+		}
+	}
+
+	return volumeName, nil
 }
 
 // ConvertToPortMappings transforms the yml ports string slice to ecs compatible PortMappings slice
@@ -310,22 +323,45 @@ func ConvertToVolumes(volumeConfigs map[string]*config.VolumeConfig) (*Volumes, 
 	if volumeConfigs != nil {
 		for name, config := range volumeConfigs {
 			if config != nil {
-				// NOTE: If Driver field is not empty, this
-				// will add a prefix to the named volume on the container
-				if config.Driver != "" {
-					return nil, errors.New("Volume driver is not supported")
-				}
-				// Driver Options must relate to a specific volume driver
-				if len(config.DriverOpts) != 0 {
-					return nil, errors.New("Volume driver options is not supported")
-				}
-				return nil, errors.New("External option is not supported")
+				return nil, logOutUnsupportedVolumeFields(config.Driver, config.DriverOpts, nil)
 			}
 			volumes.VolumeEmptyHost = append(volumes.VolumeEmptyHost, name)
 		}
 	}
-
 	return volumes, nil
+}
+
+// ConvertToV3Volumes converts the VolumesConfig map in a docker/cli config into a
+// Volumes struct and populates the VolumesEmptyHost field with any names volumes
+func ConvertToV3Volumes(volConfig map[string]types.VolumeConfig) (*Volumes, error) {
+	volumes := NewVolumes()
+
+	// Add named volume configs:
+	if len(volConfig) != 0 {
+		for name, config := range volConfig {
+			if !reflect.DeepEqual(config, types.VolumeConfig{}) {
+				return nil, logOutUnsupportedVolumeFields(config.Driver, config.DriverOpts, config.Labels)
+			}
+			volumes.VolumeEmptyHost = append(volumes.VolumeEmptyHost, name)
+		}
+	}
+	return volumes, nil
+}
+
+func logOutUnsupportedVolumeFields(driver string, driverOpts map[string]string, labels map[string]string) error {
+	// NOTE: If Driver field is not empty, this
+	// will add a prefix to the named volume on the container
+	if driver != "" {
+		return errors.New("Volume driver is not supported")
+	}
+	// Driver Options must relate to a specific volume driver
+	if len(driverOpts) != 0 {
+		return errors.New("Volume driver options is not supported")
+	}
+	if labels != nil && len(labels) != 0 {
+		return errors.New("Volume labels are not supported")
+	}
+	return errors.New("External option is not supported")
 }
 
 // ConvertToVolumesFrom transforms the yml volumes from to ecs compatible VolumesFrom slice

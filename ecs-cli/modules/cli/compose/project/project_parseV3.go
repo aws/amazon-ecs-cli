@@ -24,17 +24,22 @@ func (p *ecsProject) parseV3() (*[]adapter.ContainerConfig, error) {
 		return nil, err
 	}
 
+	servVols, err := adapter.ConvertToV3Volumes(v3Config.Volumes)
+	if err != nil {
+		return nil, err
+	}
+	p.volumes = servVols
+
 	// convert ServiceConfigs to ContainerConfigs
 	conConfigs := []adapter.ContainerConfig{}
 	for _, service := range v3Config.Services {
-		cCon, err := convertToContainerConfig(service)
+		cCon, err := convertToContainerConfig(service, p.volumes)
 		if err != nil {
 			return nil, err
 		}
 		conConfigs = append(conConfigs, *cCon)
 	}
 
-	// TODO: process v3Config.Volumes as well
 	return &conConfigs, nil
 }
 
@@ -78,7 +83,7 @@ func getV3Config(composeFiles []string) (*types.Config, error) {
 	return config, nil
 }
 
-func convertToContainerConfig(serviceConfig types.ServiceConfig) (*adapter.ContainerConfig, error) {
+func convertToContainerConfig(serviceConfig types.ServiceConfig, serviceVols *adapter.Volumes) (*adapter.ContainerConfig, error) {
 	//TODO: Add Healthcheck, Devices to ContainerConfig
 	c := &adapter.ContainerConfig{
 		CapAdd:                serviceConfig.CapAdd,
@@ -154,11 +159,19 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig) (*adapter.Conta
 		mountPoints := []*ecs.MountPoint{}
 
 		for _, volConfig := range serviceConfig.Volumes {
-			if volConfig.Type == "volume" {
+			if volConfig.Type == "volume" || volConfig.Type == "bind" {
+
+				sourceVolName, err := adapter.GetSourcePathAndUpdateVolumes(volConfig.Source, serviceVols)
+				if err != nil {
+					return nil, err
+				}
+				containerPath := volConfig.Target
+				readOnly := volConfig.ReadOnly
+
 				mp := &ecs.MountPoint{
-					ContainerPath: &volConfig.Target,
-					SourceVolume:  &volConfig.Source,
-					ReadOnly:      &volConfig.ReadOnly,
+					ContainerPath: &containerPath,
+					SourceVolume:  &sourceVolName,
+					ReadOnly:      &readOnly,
 				}
 				mountPoints = append(mountPoints, mp)
 			} else {

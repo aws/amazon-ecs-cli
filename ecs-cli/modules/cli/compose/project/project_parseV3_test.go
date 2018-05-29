@@ -3,6 +3,7 @@ package project
 import (
 	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
@@ -151,6 +152,110 @@ services:
 	for _, containerConfig := range *actualConfigs {
 		verifyConvertToContainerConfigOutput(t, expectedConfigs[containerConfig.Name], containerConfig)
 	}
+}
+
+func TestParseV3WithTopLevelVolume(t *testing.T) {
+	// set up file
+	composeFileString := `version: '3'
+services:
+  wordpress:
+    cap_add:
+      - ALL
+    cap_drop:
+      - NET_ADMIN
+    command: echo "hello world"
+    image: wordpress
+    entrypoint: /wordpress/entry
+    ports: ["80:80"]
+    links:
+      - mysql
+    tmpfs:
+      - "/run:rw,size=1gb"
+    read_only: true
+  mysql:
+    image: mysql
+    labels:
+      - "com.example.mysql=mysqllabel"
+      - "com.example.mysql2=anothermysql label"
+    user: mysqluser
+    working_dir: /mysqltestdir
+    privileged: true
+    volumes:
+     - /opt/data:/var/lib/mysql
+     - logging:/test/place:ro
+     - /var/lib/mysql
+    extra_hosts:
+      - "mysqlexhost:10.0.0.0"
+volumes:
+  logging:`
+
+	tmpfile, err := ioutil.TempFile("", "test")
+	assert.NoError(t, err, "Unexpected error in creating test file")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write([]byte(composeFileString))
+	assert.NoError(t, err, "Unexpected error writing file")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Unexpected error closing file")
+
+	// add files to projects
+	project := setupTestProject(t)
+	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, tmpfile.Name())
+
+	// get map of docker-parsed ServiceConfigs
+	expectedConfigs := getServiceConfigMap(t, project.ecsContext.ComposeFiles)
+
+	// assert # and content of container configs matches expected services
+	actualConfigs, err := project.parseV3()
+	assert.NoError(t, err, "Unexpected error parsing file")
+
+	assert.Equal(t, len(expectedConfigs), len(*actualConfigs))
+	for _, containerConfig := range *actualConfigs {
+		verifyConvertToContainerConfigOutput(t, expectedConfigs[containerConfig.Name], containerConfig)
+	}
+}
+
+func TestParseV3_ErrorWithExternalVolume(t *testing.T) {
+	// set up file with invalid Volume config ("external")
+	composeFileString := `version: '3'
+services:
+  httpd:
+    cap_add:
+      - ALL
+    cap_drop:
+      - NET_ADMIN
+    command: echo "hello world"
+    image: httpd
+    entrypoint: /web/entry
+    ports: ["80:80"]
+    volumes:
+     - /opt/data:/var/lib/mysql
+     - logging:/test/place:ro
+     - /var/lib/test
+volumes:
+  logging:
+    external:true`
+
+	tmpfile, err := ioutil.TempFile("", "test")
+	assert.NoError(t, err, "Unexpected error in creating test file")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write([]byte(composeFileString))
+	assert.NoError(t, err, "Unexpected error writing file")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Unexpected error closing file")
+
+	// add files to projects
+	project := setupTestProject(t)
+	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, tmpfile.Name())
+
+	// assert error when parsing v3 project
+	_, err = project.parseV3()
+	assert.Error(t, err, "Expected error when parsing project with invalid Volume configuration")
 }
 
 func TestThrowErrorOnBadYaml(t *testing.T) {
@@ -333,9 +438,13 @@ func verifyConvertToContainerConfigOutput(t *testing.T, expected types.ServiceCo
 }
 
 func verifyMountPoint(t *testing.T, servVolume types.ServiceVolumeConfig, mountPoint ecs.MountPoint) {
-	assert.Equal(t, servVolume.Target, mountPoint.ContainerPath, "Expected volume Target and mount point ContainerPath to match")
-	assert.Equal(t, servVolume.Source, mountPoint.SourceVolume, "Expected volume Source and mount point SourceVolume to match")
-	assert.Equal(t, servVolume.ReadOnly, mountPoint.ReadOnly, "Expected volume and mount point readOnly to match")
+	if servVolume.Source == "" {
+		assert.True(t, strings.HasPrefix(*mountPoint.SourceVolume, "volume-"), "Expected volume Source to being with 'volume-'")
+	} else {
+		assert.Equal(t, servVolume.Source, *mountPoint.SourceVolume, "Expected volume Source and mount point SourceVolume to match")
+	}
+	assert.Equal(t, servVolume.Target, *mountPoint.ContainerPath, "Expected volume Target and mount point ContainerPath to match")
+	assert.Equal(t, servVolume.ReadOnly, *mountPoint.ReadOnly, "Expected volume and mount point readOnly to match")
 }
 
 func getServiceConfigMap(t *testing.T, composeFiles []string) map[string]types.ServiceConfig {
