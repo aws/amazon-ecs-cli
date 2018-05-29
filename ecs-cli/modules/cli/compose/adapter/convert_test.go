@@ -344,6 +344,34 @@ func TestConvertToMountPointsWithNoCorrespondingNamedVolume(t *testing.T) {
 	assert.Error(t, err, "Expected error converting MountPoints")
 }
 
+func TestGetSourcePathAndUpdateVolumesWithEmptySourcePath(t *testing.T) {
+	expectedSourcePath := "volume-0"
+	volumes := &Volumes{
+		VolumeWithHost:  make(map[string]string),
+		VolumeEmptyHost: []string{}, // Top-level named volumes is empty
+	}
+
+	observedSourcePath, err := GetSourcePathAndUpdateVolumes("", volumes)
+
+	assert.NoError(t, err, "Unexpected error getting Mount Point source path")
+	assert.Equal(t, expectedSourcePath, observedSourcePath)
+	assert.Equal(t, expectedSourcePath, volumes.VolumeEmptyHost[0])
+}
+
+func TestGetSourcePathAndUpdateVolumesWithNamedVol(t *testing.T) {
+	namedSourcePath := "logging"
+	volumes := &Volumes{
+		VolumeWithHost:  make(map[string]string),
+		VolumeEmptyHost: []string{namedSourcePath},
+	}
+
+	observedSourcePath, err := GetSourcePathAndUpdateVolumes(namedSourcePath, volumes)
+
+	assert.NoError(t, err, "Unexpected error getting Mount Point source path")
+	assert.Equal(t, namedSourcePath, observedSourcePath)
+	assert.Equal(t, namedSourcePath, volumes.VolumeEmptyHost[0])
+}
+
 func TestConvertToExtraHosts(t *testing.T) {
 	hostname := "test.local"
 	ipAddress := "127.10.10.10"

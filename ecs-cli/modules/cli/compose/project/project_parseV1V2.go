@@ -2,6 +2,7 @@ package project
 
 import (
 	"fmt"
+
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/logger"
 	"github.com/aws/aws-sdk-go/aws"
