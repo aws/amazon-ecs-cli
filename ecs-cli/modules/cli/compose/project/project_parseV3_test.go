@@ -49,6 +49,14 @@ services:
     tmpfs:
       - "/run:rw,size=1gb"
     read_only: true
+    ulimits:
+      rss: 65535
+      nofile:
+        soft: 2000
+        hard: 4000
+      nice:
+        soft: 300
+        hard: 500
   mysql:
     image: mysql
     labels:
@@ -418,6 +426,19 @@ func verifyConvertToContainerConfigOutput(t *testing.T, expected types.ServiceCo
 		assert.Empty(t, actual.PortMappings)
 	}
 
+	if len(expected.Ulimits) > 0 {
+		assert.Equal(t, len(expected.Ulimits), len(actual.Ulimits), "Expected number of Ulimits to match")
+
+		for _, lim := range actual.Ulimits {
+			matchingServUlimit := expected.Ulimits[*lim.Name]
+
+			assert.NotNil(t, matchingServUlimit, "Expected ContainerConfig ulimit to have corresponding serviceConfig ulimit")
+			verifyUlimit(t, *matchingServUlimit, *lim)
+		}
+	} else {
+		assert.Empty(t, actual.Ulimits)
+	}
+
 	if len(expected.Volumes) > 0 {
 		for i, vol := range expected.Volumes {
 			if vol.Type == "volume" {
@@ -435,6 +456,20 @@ func verifyConvertToContainerConfigOutput(t *testing.T, expected types.ServiceCo
 	} else {
 		assert.Empty(t, actual.Environment)
 	}
+}
+
+func verifyUlimit(t *testing.T, servUlimit types.UlimitsConfig, containerUlimit ecs.Ulimit) {
+	var soft int64
+	var hard int64
+	if servUlimit.Single > 0 {
+		soft = int64(servUlimit.Single)
+		hard = int64(servUlimit.Single)
+	} else {
+		soft = int64(servUlimit.Soft)
+		hard = int64(servUlimit.Hard)
+	}
+	assert.Equal(t, soft, *containerUlimit.SoftLimit, "Expected soft limit to match")
+	assert.Equal(t, hard, *containerUlimit.HardLimit, "Expected hard limit to match")
 }
 
 func verifyMountPoint(t *testing.T, servVolume types.ServiceVolumeConfig, mountPoint ecs.MountPoint) {
