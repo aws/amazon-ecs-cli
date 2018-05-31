@@ -548,3 +548,22 @@ func TestSortedGoString(t *testing.T) {
 
 	assert.Equal(t, strA, strB, "Sorted inputs should match")
 }
+
+func TestConvertCamelCaseToUnderScore(t *testing.T) {
+	testCases := []struct {
+		input    string
+		expected string
+	}{
+		{"CamelCaseString", "camel_case_string"},
+		{"lowercase", "lowercase"},
+		{"UPPERCASE", "uppercase"},
+		{"CamelWithACRONYM", "camel_with_acronym"},
+		{"Uppercase", "uppercase"},
+	}
+	for _, test := range testCases {
+		t.Run(fmt.Sprintf("%s should be %s", test.input, test.expected), func(t *testing.T) {
+			output := ConvertCamelCaseToUnderScore(test.input)
+			assert.Equal(t, test.expected, output, "Expected output to match")
+		})
+	}
+}

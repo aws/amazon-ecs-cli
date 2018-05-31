@@ -440,3 +440,20 @@ func SortedGoString(v interface{}) (string, error) {
 	}
 	return string(b), nil
 }
+
+// ConvertCamelCaseToUnderScore returns an underscore-separated name for a given camelcased string
+// e.g., "NetworkMode" -> "network_mode"
+func ConvertCamelCaseToUnderScore(s string) string {
+	camelRegex := regexp.MustCompile("(^[^A-Z]*|[A-Z]*)([A-Z][^A-Z]+|$)")
+
+	var chars []string
+	for _, sub := range camelRegex.FindAllStringSubmatch(s, -1) {
+		if sub[1] != "" {
+			chars = append(chars, sub[1])
+		}
+		if sub[2] != "" {
+			chars = append(chars, sub[2])
+		}
+	}
+	return strings.ToLower(strings.Join(chars, "_"))
+}

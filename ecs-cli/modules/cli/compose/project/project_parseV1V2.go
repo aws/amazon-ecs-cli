@@ -53,7 +53,7 @@ func (p *ecsProject) parseV1V2() (*[]adapter.ContainerConfig, error) {
 }
 
 func convertV1V2ToContainerConfig(context *project.Context, serviceName string, volumes *adapter.Volumes, service *config.ServiceConfig) (*adapter.ContainerConfig, error) {
-	logger.LogUnsupportedServiceConfigFields(serviceName, service)
+	logger.LogUnsupportedV1V2ServiceConfigFields(serviceName, service)
 
 	environment := adapter.ConvertToKeyValuePairs(context, service.Environment, serviceName)
 
