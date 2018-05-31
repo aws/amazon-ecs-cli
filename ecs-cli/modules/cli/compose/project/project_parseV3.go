@@ -154,7 +154,11 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig, serviceVols *ad
 		}
 		c.Tmpfs = ecsTmpfs
 	}
-	// TODO: reconcile with top-level Volumes key
+
+	if len(serviceConfig.Ulimits) > 0 {
+		c.Ulimits = convertToECSUlimits(serviceConfig.Ulimits)
+	}
+
 	if len(serviceConfig.Volumes) > 0 {
 		mountPoints := []*ecs.MountPoint{}
 
@@ -205,6 +209,25 @@ func convertPortConfigToECSMapping(portConfig types.ServicePortConfig) *ecs.Port
 		Protocol:      &portConfig.Protocol,
 	}
 	return &ecsMapping
+}
+
+func convertToECSUlimits(ulimits map[string]*types.UlimitsConfig) []*ecs.Ulimit {
+	ecsUlimits := []*ecs.Ulimit{}
+
+	for name, ulimit := range ulimits {
+		ecsULimit := ecs.Ulimit{}
+		ecsULimit.SetName(name)
+
+		if ulimit.Single > 0 {
+			ecsULimit.SetSoftLimit(int64(ulimit.Single))
+			ecsULimit.SetHardLimit(int64(ulimit.Single))
+		} else {
+			ecsULimit.SetSoftLimit(int64(ulimit.Soft))
+			ecsULimit.SetHardLimit(int64(ulimit.Hard))
+		}
+		ecsUlimits = append(ecsUlimits, &ecsULimit)
+	}
+	return ecsUlimits
 }
 
 func logWarningForDeployFields(d types.DeployConfig, serviceName string) {
