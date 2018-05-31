@@ -6,6 +6,7 @@ import (
 	"reflect"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/logger"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/pkg/errors"
@@ -84,6 +85,9 @@ func getV3Config(composeFiles []string) (*types.Config, error) {
 }
 
 func convertToContainerConfig(serviceConfig types.ServiceConfig, serviceVols *adapter.Volumes) (*adapter.ContainerConfig, error) {
+	logger.LogUnsupportedV3ServiceConfigFields(serviceConfig)
+	logWarningForDeployFields(serviceConfig.Deploy, serviceConfig.Name)
+
 	//TODO: Add Healthcheck, Devices to ContainerConfig
 	c := &adapter.ContainerConfig{
 		CapAdd:                serviceConfig.CapAdd,
@@ -185,9 +189,6 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig, serviceVols *ad
 		c.MountPoints = mountPoints
 	}
 
-	logWarningForDeployFields(serviceConfig.Deploy, serviceConfig.Name)
-
-	// TODO: log out unsupported fields
 	return c, nil
 }
 

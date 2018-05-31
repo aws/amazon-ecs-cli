@@ -17,14 +17,16 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/value"
+	"github.com/docker/cli/cli/compose/types"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
 	log "github.com/sirupsen/logrus"
 )
 
-// supported fields/options from compose YAML file
-var supportedComposeYamlOptions = []string{
+// supported fields/options from compose 1/2 YAML file
+var supportedComposeV1V2YamlOptions = []string{
 	"cap_add",
 	"cap_drop",
 	"command",
@@ -57,19 +59,47 @@ var supportedComposeYamlOptions = []string{
 	"working_dir",
 }
 
-var supportedComposeYamlOptionsMap = getSupportedComposeYamlOptionsMap()
+// supported fields/options from compose 3 YAML file
+var supportedFieldsInV3 = map[string]bool{
+	"CapAdd":      true,
+	"CapDrop":     true,
+	"Command":     true,
+	"DNS":         true,
+	"DNSSearch":   true,
+	"Entrypoint":  true,
+	"Environment": true,
+	"EnvFile":     true,
+	"ExtraHosts":  true,
+	"Hostname":    true,
+	"Image":       true,
+	"Labels":      true,
+	"Links":       true,
+	"Logging":     true,
+	"Name":        true,
+	"Ports":       true,
+	"Privileged":  true,
+	"ReadOnly":    true,
+	"SecurityOpt": true,
+	"Tmpfs":       true,
+	"Ulimits":     true,
+	"User":        true,
+	"Volumes":     true,
+	"WorkingDir":  true,
+}
+
+var supportedComposeV1V2YamlOptionsMap = getSupportedComposeV1V2YamlOptionsMap()
 
 // Create set of supported YAML fields in docker compose v2 ServiceConfigs
-func getSupportedComposeYamlOptionsMap() map[string]bool {
+func getSupportedComposeV1V2YamlOptionsMap() map[string]bool {
 	optionsMap := make(map[string]bool)
-	for _, value := range supportedComposeYamlOptions {
+	for _, value := range supportedComposeV1V2YamlOptions {
 		optionsMap[value] = true
 	}
 	return optionsMap
 }
 
-// LogUnsupportedServiceConfigFields logs a warning if there is an unsupported field specified in the docker-compose file
-func LogUnsupportedServiceConfigFields(serviceName string, serviceConfig *config.ServiceConfig) {
+// LogUnsupportedV1V2ServiceConfigFields logs a warning if there is an unsupported field specified in the docker-compose file
+func LogUnsupportedV1V2ServiceConfigFields(serviceName string, serviceConfig *config.ServiceConfig) {
 	configValue := reflect.ValueOf(serviceConfig).Elem()
 	configType := configValue.Type()
 
@@ -87,19 +117,30 @@ func LogUnsupportedServiceConfigFields(serviceName string, serviceConfig *config
 		}
 
 		if tagName == "networks" && !validNetworksForService(serviceConfig) {
-			log.WithFields(log.Fields{
-				"option name":  tagName,
-				"service name": serviceName,
-			}).Warn("Skipping unsupported YAML option for service...")
+			logWarningForUnsupportedServiceOption(tagName, serviceName)
 		}
 
 		zeroValue := value.IsZero(field)
 		// if value is present for the field that is not in supportedYamlTags map, log a warning
-		if tagName != "networks" && !zeroValue && !supportedComposeYamlOptionsMap[tagName] {
-			log.WithFields(log.Fields{
-				"option name":  tagName,
-				"service name": serviceName,
-			}).Warn("Skipping unsupported YAML option for service...")
+		if tagName != "networks" && !zeroValue && !supportedComposeV1V2YamlOptionsMap[tagName] {
+			logWarningForUnsupportedServiceOption(tagName, serviceName)
+		}
+	}
+}
+
+// LogUnsupportedV3ServiceConfigFields logs a warning if there is an unsupported field specified in the docker-compose file
+func LogUnsupportedV3ServiceConfigFields(servConfig types.ServiceConfig) {
+	configValue := reflect.ValueOf(servConfig)
+	configType := configValue.Type()
+
+	for i := 0; i < configValue.NumField(); i++ {
+		field := configValue.Field(i)
+		fieldType := configType.Field(i)
+
+		if supportedFieldsInV3[fieldType.Name] == false && !value.IsZero(field) {
+			// convert field name so it more closely resembles option in yaml file
+			optionName := adapter.ConvertCamelCaseToUnderScore(fieldType.Name)
+			logWarningForUnsupportedServiceOption(optionName, servConfig.Name)
 		}
 	}
 }
@@ -112,6 +153,13 @@ func LogUnsupportedProjectFields(project *project.Project) {
 	if project.NetworkConfigs != nil && len(project.NetworkConfigs) > 1 {
 		log.WithFields(log.Fields{"option name": "networks"}).Warn("Skipping unsupported YAML option...")
 	}
+}
+
+func logWarningForUnsupportedServiceOption(tagName, serviceName string) {
+	log.WithFields(log.Fields{
+		"option name":  tagName,
+		"service name": serviceName,
+	}).Warn("Skipping unsupported YAML option for service...")
 }
 
 func validNetworksForService(config *config.ServiceConfig) bool {
