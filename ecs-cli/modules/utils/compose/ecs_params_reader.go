@@ -115,7 +115,7 @@ func ReadECSParams(filename string) (*ECSParams, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "Error reading file '%v'", filename)
 	}
-
+	ecsParamsData = []byte(os.ExpandEnv(string(ecsParamsData)))
 	ecsParams := &ECSParams{}
 
 	if err = yaml.Unmarshal([]byte(ecsParamsData), &ecsParams); err != nil {

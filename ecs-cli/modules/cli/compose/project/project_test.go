@@ -155,6 +155,40 @@ run_params:
 	err = tmpfile.Close()
 	assert.NoError(t, err, "Could not close tempfile")
 }
+func TestParseECSParamsWithEnvironment(t *testing.T) {
+	ecsParamsString := `version: 1
+task_definition:
+  task_size:
+    mem_limit: ${MEM_LIMIT}
+    cpu_limit: $CPU_LIMIT`
+
+	os.Setenv("MEM_LIMIT", "1000")
+	os.Setenv("CPU_LIMIT", "200")
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs fields tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	defer os.Remove(ecsParamsFileName)
+
+	project := setupTestProjectWithEcsParams(t, ecsParamsFileName)
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+
+	err = project.parseECSParams()
+	if assert.NoError(t, err) {
+		ecsParams := project.ecsContext.ECSParams
+		ts := ecsParams.TaskDefinition.TaskSize
+		assert.Equal(t, "200", ts.Cpu, "Expected CPU to match")
+		assert.Equal(t, "1000", ts.Memory, "Expected CPU to match")
+	}
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+}
 
 func TestParseECSParams_NoFile(t *testing.T) {
 	project := setupTestProject(t)
