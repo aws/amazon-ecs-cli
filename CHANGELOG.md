@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.6.0
+* Feature - Add support for docker Compose file version 3 (#218)
+* Feature - Add support for environmental variables in ecs-params.yml (#530)
+* Feature - Add support for named volumes (#481)
+* Bug - Fix support for slashes in image names (#361)
+* Bug - Fix stack timeout message for CFN stack deletion
+* Bug - Fix exit code to be 1 for all CLI usage errors (#490)
+* Enhancement - Add Pull Request template (#492)
+
 ## 1.5.0
 * Feature - Add support for tmpfs
 * Feature - Add support for shm_size
