@@ -17,9 +17,9 @@
 package mock_project
 
 import (
+	adapter "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	context "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	entity "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
-	config "github.com/docker/libcompose/config"
 	project "github.com/docker/libcompose/project"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -43,6 +43,16 @@ func NewMockProject(ctrl *gomock.Controller) *MockProject {
 
 func (_m *MockProject) EXPECT() *_MockProjectRecorder {
 	return _m.recorder
+}
+
+func (_m *MockProject) ContainerConfigs() []adapter.ContainerConfig {
+	ret := _m.ctrl.Call(_m, "ContainerConfigs")
+	ret0, _ := ret[0].([]adapter.ContainerConfig)
+	return ret0
+}
+
+func (_mr *_MockProjectRecorder) ContainerConfigs() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ContainerConfigs")
 }
 
 func (_m *MockProject) Context() *context.ECSContext {
@@ -136,16 +146,6 @@ func (_mr *_MockProjectRecorder) Scale(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Scale", arg0)
 }
 
-func (_m *MockProject) ServiceConfigs() *config.ServiceConfigs {
-	ret := _m.ctrl.Call(_m, "ServiceConfigs")
-	ret0, _ := ret[0].(*config.ServiceConfigs)
-	return ret0
-}
-
-func (_mr *_MockProjectRecorder) ServiceConfigs() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "ServiceConfigs")
-}
-
 func (_m *MockProject) Start() error {
 	ret := _m.ctrl.Call(_m, "Start")
 	ret0, _ := ret[0].(error)
@@ -174,4 +174,14 @@ func (_m *MockProject) Up() error {
 
 func (_mr *_MockProjectRecorder) Up() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Up")
+}
+
+func (_m *MockProject) VolumeConfigs() *adapter.Volumes {
+	ret := _m.ctrl.Call(_m, "VolumeConfigs")
+	ret0, _ := ret[0].(*adapter.Volumes)
+	return ret0
+}
+
+func (_mr *_MockProjectRecorder) VolumeConfigs() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "VolumeConfigs")
 }

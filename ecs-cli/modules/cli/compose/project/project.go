@@ -14,6 +14,9 @@
 package project
 
 import (
+	"fmt"
+
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/service"
@@ -22,7 +25,6 @@ import (
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
-	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
 )
 
@@ -33,7 +35,8 @@ type Project interface {
 	Parse() error
 
 	Context() *context.ECSContext
-	ServiceConfigs() *config.ServiceConfigs
+	ContainerConfigs() []adapter.ContainerConfig // TODO change this to a pointer to slice?
+	VolumeConfigs() *adapter.Volumes
 	Entity() entity.ProjectEntity
 
 	// commands
@@ -49,9 +52,9 @@ type Project interface {
 
 // ecsProject struct is an implementation of Project.
 type ecsProject struct {
-	project.Project
-
-	ecsContext *context.ECSContext
+	containerConfigs []adapter.ContainerConfig
+	volumes          *adapter.Volumes
+	ecsContext       *context.ECSContext
 
 	// TODO: track a map of entities [taskDefinition -> Entity]
 	// 1 task definition for every disjoint set of containers in the compose file
@@ -60,11 +63,10 @@ type ecsProject struct {
 
 // NewProject creates a new instance of the ECS Compose Project
 func NewProject(ecsContext *context.ECSContext) Project {
-	libcomposeProject := project.NewProject(&ecsContext.Context, nil, nil)
-
 	p := &ecsProject{
-		ecsContext: ecsContext,
-		Project:    *libcomposeProject,
+		ecsContext:       ecsContext,
+		containerConfigs: []adapter.ContainerConfig{},
+		volumes:          adapter.NewVolumes(),
 	}
 
 	if ecsContext.IsService {
@@ -86,14 +88,13 @@ func (p *ecsProject) Context() *context.ECSContext {
 	return p.ecsContext
 }
 
-// ServiceConfigs returns a map of Service Configuration loaded from compose yaml file
-func (p *ecsProject) ServiceConfigs() *config.ServiceConfigs {
-	return p.Project.ServiceConfigs
+// VolumeConfigs returns a map of Volume Configuration loaded from compose yaml file
+func (p *ecsProject) VolumeConfigs() *adapter.Volumes {
+	return p.volumes
 }
 
-// VolumeConfigs returns a map of Volume Configuration loaded from compose yaml file
-func (p *ecsProject) VolumeConfigs() map[string]*config.VolumeConfig {
-	return p.Project.VolumeConfigs
+func (p *ecsProject) ContainerConfigs() []adapter.ContainerConfig {
+	return p.containerConfigs
 }
 
 // Entity returns the project entity that operates on the compose file and integrates with ecs
@@ -126,15 +127,31 @@ func (p *ecsProject) Parse() error {
 	return p.transformTaskDefinition()
 }
 
-// parseCompose sets data from the compose files on the ecsProject
+// parseCompose sets data from the compose files on the ecsProject, including ContainerConfigs and VolumeConfigs
 func (p *ecsProject) parseCompose() error {
 	logrus.Debug("Parsing the compose yaml...")
-	// libcompose.Project#Parse populates project information based on its
-	// context. It sets up the name, the composefile and the composebytes
-	// (the composefile content). This is where p.ServiceConfigs gets loaded.
 
-	if err := p.Project.Parse(); err != nil {
+	// check for Compose version and call appropriate parsing function
+	version, err := p.checkComposeVersion()
+	if err != nil {
 		return err
+	}
+	switch version {
+	case "", "1", "1.0", "2", "2.0":
+		configs, err := p.parseV1V2()
+		if err != nil {
+			return err
+		}
+		// TODO: set this in parseV1V2 itself?
+		p.containerConfigs = *configs
+	case "3", "3.0":
+		configs, err := p.parseV3()
+		if err != nil {
+			return err
+		}
+		p.containerConfigs = *configs
+	default:
+		return fmt.Errorf("Unsupported Docker Compose version found: %s", version)
 	}
 
 	// libcompose sanitizes the project name and removes any non alpha-numeric character.
@@ -157,7 +174,8 @@ func (p *ecsProject) parseECSParams() error {
 	return nil
 }
 
-// transformTaskDefinition converts the compose yml and ecs-params yml into an ECS task definition
+// transformTaskDefinition converts the compose yml and ecs-params yml into an
+// ECS task definition and loads it onto the project entity
 func (p *ecsProject) transformTaskDefinition() error {
 	ecsContext := p.ecsContext
 
@@ -166,11 +184,12 @@ func (p *ecsProject) transformTaskDefinition() error {
 
 	taskRoleArn := ecsContext.CLIContext.GlobalString(flags.TaskRoleArnFlag)
 	requiredCompatibilities := ecsContext.CommandConfig.LaunchType
+	taskDefinitionName := ecsContext.ProjectName
 
 	taskDefinition, err := utils.ConvertToTaskDefinition(
-		&ecsContext.Context,
+		taskDefinitionName,
 		p.VolumeConfigs(),
-		p.ServiceConfigs(),
+		p.ContainerConfigs(), // TODO Change to pointer on project?
 		taskRoleArn,
 		requiredCompatibilities,
 		ecsContext.ECSParams,
