@@ -30,7 +30,7 @@ func CustomUserAgentHandler() request.NamedHandler {
 		Fn: func(r *request.Request) {
 			currentAgent := r.HTTPRequest.Header.Get(UserAgentHeader)
 			r.HTTPRequest.Header.Set(UserAgentHeader,
-				fmt.Sprintf("%s/%s (%s) %s", version.AppName, version.Version, runtime.GOOS, currentAgent))
+				fmt.Sprintf("aws-%s/%s (%s) %s", version.AppName, version.Version, runtime.GOOS, currentAgent))
 		},
 	}
 }
