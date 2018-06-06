@@ -102,9 +102,10 @@ func ecsTaskWithOptions(launchType string, attachmentStatus string, taskStatus s
 	}
 }
 
-func taskDefinition() *ecs.TaskDefinition {
+func taskDefinition(networkMode string) *ecs.TaskDefinition {
 	return &ecs.TaskDefinition{
 		TaskDefinitionArn: aws.String(taskDefArn),
+		NetworkMode:       aws.String(networkMode),
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			&ecs.ContainerDefinition{
 				Name: aws.String("containerName"),
@@ -118,6 +119,43 @@ func taskDefinition() *ecs.TaskDefinition {
 			},
 		},
 	}
+}
+
+// Test case ensures that GetContainersForTasksWithTaskNetworking() can be given
+// a list of tasks with task networking but without ENIs attached (i.e. task is provisioning) and return correctly.
+func TestGetContainersForTasksWithTaskNetworkingENIProvisioning(t *testing.T) {
+	ecsTasks := []*ecs.Task{
+		&ecs.Task{
+			TaskDefinitionArn: aws.String(taskDefArn),
+			TaskArn:           aws.String(taskArn),
+			Containers: []*ecs.Container{
+				&ecs.Container{
+					Name: aws.String("containerName"),
+				},
+			},
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	mockEc2 := mock_ec2.NewMockEC2Client(ctrl)
+	mockProjectEntity := mock_entity.NewMockProjectEntity(ctrl)
+	mockContext := &context.ECSContext{
+		ECSClient: mockEcs,
+		EC2Client: mockEc2,
+	}
+	taskDef := taskDefinition(ecs.NetworkModeAwsvpc)
+
+	gomock.InOrder(
+		mockProjectEntity.EXPECT().Context().Return(mockContext),
+		mockEcs.EXPECT().DescribeTaskDefinition(taskDefArn).Return(taskDef, nil),
+	)
+
+	containers, tasks, err := getContainersForTasksWithTaskNetworking(mockProjectEntity, ecsTasks)
+	assert.NoError(t, err, "Unexpected error when calling getContainersForTasksWithTaskNetworking")
+	assert.Len(t, containers, 1, "Expected to have 1 containers")
+	assert.Len(t, tasks, 0, "Expected to have 0 tasks without task networking")
 }
 
 // Test case ensures that GetContainersForTasksWithTaskNetworking() can be given
@@ -137,7 +175,19 @@ func TestGetContainersForTasksWithTaskNetworkingNoNetworkInterfaces(t *testing.T
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	mockEc2 := mock_ec2.NewMockEC2Client(ctrl)
 	mockProjectEntity := mock_entity.NewMockProjectEntity(ctrl)
+	mockContext := &context.ECSContext{
+		ECSClient: mockEcs,
+		EC2Client: mockEc2,
+	}
+	taskDef := taskDefinition(ecs.NetworkModeHost)
+
+	gomock.InOrder(
+		mockProjectEntity.EXPECT().Context().Return(mockContext),
+		mockEcs.EXPECT().DescribeTaskDefinition(taskDefArn).Return(taskDef, nil),
+	)
 
 	containers, tasks, err := getContainersForTasksWithTaskNetworking(mockProjectEntity, ecsTasks)
 	assert.NoError(t, err, "Unexpected error when calling getContainersForTasksWithTaskNetworking")
@@ -159,7 +209,7 @@ func TestGetContainersForTasksWithTaskNetworkingFargateENIDeleted(t *testing.T) 
 		ECSClient: mockEcs,
 		EC2Client: mockEc2,
 	}
-	taskDef := taskDefinition()
+	taskDef := taskDefinition(ecs.NetworkModeAwsvpc)
 
 	gomock.InOrder(
 		mockProjectEntity.EXPECT().Context().Return(mockContext),
@@ -188,7 +238,7 @@ func TestGetContainersForTasksWithTaskNetworkingFargateTaskStopped(t *testing.T)
 		ECSClient: mockEcs,
 		EC2Client: mockEc2,
 	}
-	taskDef := taskDefinition()
+	taskDef := taskDefinition(ecs.NetworkModeAwsvpc)
 
 	gomock.InOrder(
 		mockProjectEntity.EXPECT().Context().Return(mockContext),
@@ -199,8 +249,8 @@ func TestGetContainersForTasksWithTaskNetworkingFargateTaskStopped(t *testing.T)
 	assert.NoError(t, err, "Unexpected error when calling getContainersForTasksWithTaskNetworking")
 	assert.Len(t, containers, 1, "Expected to have 1 container")
 	assert.Len(t, tasks, 0, "Expected to have 0 tasks without task networking")
-	assert.Equal(t, privateIPAddress, containers[0].EC2IPAddress)
-	assert.Equal(t, privateIPAddress+":80->80/tcp", containers[0].PortString())
+	assert.Empty(t, containers[0].EC2IPAddress)
+	assert.Equal(t, "80->80/tcp", containers[0].PortString())
 }
 
 func TestGetContainersForTasksWithTaskNetworkingEC2TaskStopped(t *testing.T) {
@@ -217,7 +267,7 @@ func TestGetContainersForTasksWithTaskNetworkingEC2TaskStopped(t *testing.T) {
 		ECSClient: mockEcs,
 		EC2Client: mockEc2,
 	}
-	taskDef := taskDefinition()
+	taskDef := taskDefinition(ecs.NetworkModeAwsvpc)
 
 	gomock.InOrder(
 		mockProjectEntity.EXPECT().Context().Return(mockContext),
@@ -228,8 +278,8 @@ func TestGetContainersForTasksWithTaskNetworkingEC2TaskStopped(t *testing.T) {
 	assert.NoError(t, err, "Unexpected error when calling getContainersForTasksWithTaskNetworking")
 	assert.Len(t, containers, 1, "Expected to have 1 container")
 	assert.Len(t, tasks, 0, "Expected to have 0 tasks without task networking")
-	assert.Equal(t, privateIPAddress, containers[0].EC2IPAddress)
-	assert.Equal(t, privateIPAddress+":80->80/tcp", containers[0].PortString())
+	assert.Empty(t, containers[0].EC2IPAddress)
+	assert.Equal(t, "80->80/tcp", containers[0].PortString())
 }
 
 func TestGetContainersForTasksWithTaskNetworkingEC2(t *testing.T) {
@@ -237,7 +287,7 @@ func TestGetContainersForTasksWithTaskNetworkingEC2(t *testing.T) {
 		ecsTask("EC2"),
 	}
 
-	taskDef := taskDefinition()
+	taskDef := taskDefinition(ecs.NetworkModeAwsvpc)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -267,7 +317,7 @@ func TestGetContainersForTasksWithTaskNetworkingFargate(t *testing.T) {
 		ecsTask("FARGATE"),
 	}
 
-	taskDef := taskDefinition()
+	taskDef := taskDefinition(ecs.NetworkModeAwsvpc)
 
 	eni := &ec2.NetworkInterface{
 		NetworkInterfaceId: aws.String(eniIdentifier),
@@ -309,7 +359,7 @@ func TestGetContainersForTasksWithTaskNetworkingFargateENIDescribeFails(t *testi
 		ecsTask("FARGATE"),
 	}
 
-	taskDef := taskDefinition()
+	taskDef := taskDefinition(ecs.NetworkModeAwsvpc)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -344,7 +394,7 @@ func TestGetContainersForTasksWithTaskNetworkingFargateENIWithoutPublicIP(t *tes
 		ecsTask("FARGATE"),
 	}
 
-	taskDef := taskDefinition()
+	taskDef := taskDefinition(ecs.NetworkModeAwsvpc)
 
 	eni := &ec2.NetworkInterface{
 		NetworkInterfaceId: aws.String(eniIdentifier),

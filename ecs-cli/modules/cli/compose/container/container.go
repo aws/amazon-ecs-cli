@@ -99,11 +99,15 @@ func (c *Container) PortString() string {
 		if c.EC2IPAddress != "" {
 			ipAddr = c.EC2IPAddress
 		}
-		result = append(result, fmt.Sprintf("%s:%d->%d/%s",
-			ipAddr,
+		portMapping := fmt.Sprintf("%d->%d/%s",
 			aws.Int64Value(port.HostPort),
 			aws.Int64Value(port.ContainerPort),
-			protocol))
+			protocol)
+		portString := portMapping
+		if ipAddr != "" {
+			portString = ipAddr + ":" + portMapping
+		}
+		result = append(result, portString)
 	}
 	return strings.Join(result, ", ")
 }
