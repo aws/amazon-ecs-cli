@@ -42,9 +42,19 @@ var defaultNetwork = &yaml.Network{
 
 // TODO Extract test docker file and use in test (to avoid gaps between parse and conversion unit tests)
 var testContainerConfig = &adapter.ContainerConfig{
-	Name:             "mysql",
-	Command:          []string{"cmd"},
-	CPU:              int64(131072),
+	Name:    "mysql",
+	Command: []string{"cmd"},
+	CPU:     int64(131072),
+	Devices: []*ecs.Device{
+		{
+			HostPath:      aws.String("/dev/sda"),
+			ContainerPath: aws.String("/dev/sdd"),
+			Permissions:   aws.StringSlice([]string{"read"}),
+		},
+		{
+			HostPath: aws.String("/dev/sda"),
+		},
+	},
 	DNSSearchDomains: []string{"search.example.com"},
 	DNSServers:       []string{"1.2.3.4"},
 	DockerLabels: map[string]*string{
@@ -123,6 +133,16 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	name := "mysql"
 	cpu := int64(131072) // 128 * 1024
 	command := []string{"cmd"}
+	devices := []*ecs.Device{
+		{
+			HostPath:      aws.String("/dev/sda"),
+			ContainerPath: aws.String("/dev/sdd"),
+			Permissions:   aws.StringSlice([]string{"read"}),
+		},
+		{
+			HostPath: aws.String("/dev/sda"),
+		},
+	}
 	entryPoint := []string{"/code/entrypoint.sh"}
 	env := []*ecs.KeyValuePair{
 		{
@@ -212,6 +232,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	assert.Equal(t, aws.String(name), containerDef.Name, "Expected container def name to match")
 	assert.Equal(t, aws.StringSlice(command), containerDef.Command, "Expected container def command to match")
 	assert.Equal(t, aws.Int64(cpu), containerDef.Cpu, "Expected container def cpu to match")
+	assert.ElementsMatch(t, devices, containerDef.LinuxParameters.Devices, "Expected container def devices to match")
 	assert.Equal(t, aws.StringSlice(dnsSearchDomains), containerDef.DnsSearchDomains, "Expected container def DNS Search Domains to match")
 	assert.Equal(t, aws.StringSlice(dnsServers), containerDef.DnsServers, "Expected container def DNS Servers to match")
 	assert.Equal(t, aws.StringMap(dockerLabels), containerDef.DockerLabels, "Expected container def Docker labels to match")

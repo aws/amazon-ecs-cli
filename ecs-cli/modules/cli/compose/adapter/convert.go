@@ -52,27 +52,21 @@ func ConvertToDevices(cfgDevices []string) ([]*ecs.Device, error) {
 		parts := strings.Split(devString, ":")
 		numOfParts := len(parts)
 
-		switch numOfParts {
-		case 1:
-			device = ecs.Device{
-				HostPath: aws.String(parts[0]),
-			}
-		case 2:
-			device = ecs.Device{
-				HostPath:      aws.String(parts[0]),
-				ContainerPath: aws.String(parts[1]),
-			}
-		case 3:
+		hostPath := parts[0]
+		device.SetHostPath(hostPath)
+
+		if numOfParts > 1 {
+			containerPath := parts[1]
+			device.SetContainerPath(containerPath)
+		}
+		if numOfParts > 2 {
 			permissions, err := getDevicePermissions(parts[2])
 			if err != nil {
 				return nil, err
 			}
-			device = ecs.Device{
-				HostPath:      aws.String(parts[0]),
-				ContainerPath: aws.String(parts[1]),
-				Permissions:   aws.StringSlice(permissions),
-			}
-		default:
+			device.SetPermissions(aws.StringSlice(permissions))
+		}
+		if numOfParts > 3 {
 			return nil, fmt.Errorf(
 				"Invalid number of arguments in device %s", devString)
 		}

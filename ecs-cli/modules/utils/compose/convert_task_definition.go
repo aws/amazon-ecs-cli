@@ -142,6 +142,9 @@ func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *C
 	if inputCfg.CapDrop != nil {
 		outputContDef.LinuxParameters.Capabilities.SetDrop(aws.StringSlice(inputCfg.CapDrop))
 	}
+	if inputCfg.Devices != nil {
+		outputContDef.LinuxParameters.SetDevices(inputCfg.Devices)
+	}
 
 	// Only set shmSize if specified. Otherwise we expect this sharedMemorySize for the
 	// containerDefinition to be null; Docker will by default allocate 64M for shared memory if

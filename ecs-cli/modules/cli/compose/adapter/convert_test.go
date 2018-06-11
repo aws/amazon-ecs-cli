@@ -394,15 +394,11 @@ func TestConvertToDevices(t *testing.T) {
 			var expectedContainer *string
 			var expectedPerms []*string
 
-			if test.expectedContainerPath == "" {
-				expectedContainer = nil
-			} else {
+			if test.expectedContainerPath != "" {
 				expectedContainer = aws.String(test.expectedContainerPath)
 			}
 
-			if len(test.expectedPermissions) == 0 {
-				expectedPerms = []*string{}
-			} else {
+			if len(test.expectedPermissions) != 0 {
 				expectedPerms = aws.StringSlice(test.expectedPermissions)
 			}
 
@@ -411,13 +407,12 @@ func TestConvertToDevices(t *testing.T) {
 			assert.Equal(t, expectedContainer, outputDev.ContainerPath, "Expected ContainerPath to match")
 			assert.ElementsMatch(t, expectedPerms, outputDev.Permissions, "Expected Permissions to match")
 		})
-
 	}
 }
 
 func TestConvertToDevices_ErrorOnInvalidOptions(t *testing.T) {
 	testCases := []string{
-		"/dev/xf:/dex/gru:rw:m", // to many args
+		"/dev/xf:/dex/gru:rw:m", // too many args
 		"/dev/xx:/dex/gru:ytr",  // invalid option flags (y, t)
 		"/dev/xx:/dex/sda:rrmw", // too many options (max is 3)
 	}
