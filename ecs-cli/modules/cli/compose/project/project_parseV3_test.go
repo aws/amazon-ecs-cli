@@ -29,6 +29,20 @@ func TestParseV3WithOneFile(t *testing.T) {
 			Protocol:      aws.String("tcp"),
 		},
 	}
+	wordpressCon.Devices = []*ecs.Device{
+		{
+			HostPath:      aws.String("/dev/sda"),
+			ContainerPath: aws.String("/dev/sdd"),
+			Permissions:   aws.StringSlice([]string{"read"}),
+		},
+		{
+			HostPath:      aws.String("/dev/sdd"),
+			ContainerPath: aws.String("/dev/xdr"),
+		},
+		{
+			HostPath: aws.String("/dev/sda"),
+		},
+	}
 	wordpressCon.DNSServers = []string{"2.2.2.2"}
 	wordpressCon.DNSSearchDomains = []string{"wrd.search.com", "wrd.search2.com"}
 	wordpressCon.Environment = []*ecs.KeyValuePair{
@@ -110,6 +124,10 @@ services:
     image: wordpress
     entrypoint: /wordpress/entry
     ports: ["80:80"]
+    devices:
+      - "/dev/sda:/dev/sdd:r"
+      - "/dev/sdd:/dev/xdr"
+      - "/dev/sda"
     dns:
       - 2.2.2.2
     dns_search:
@@ -521,6 +539,7 @@ func verifyContainerConfig(t *testing.T, expected, actual adapter.ContainerConfi
 	assert.ElementsMatch(t, expected.CapAdd, actual.CapAdd, "Expected CapAdd to match")
 	assert.ElementsMatch(t, expected.CapDrop, actual.CapDrop, "Expected CapDrop to match")
 	assert.ElementsMatch(t, expected.Command, actual.Command, "Expected Command to match")
+	assert.ElementsMatch(t, expected.Devices, actual.Devices, "Expected Devices to match")
 	assert.ElementsMatch(t, expected.DNSSearchDomains, actual.DNSSearchDomains, "Expected DNSSearchDomains to match")
 	assert.ElementsMatch(t, expected.DNSServers, actual.DNSServers, "Expected DNSServers to match")
 	dockerLabelsEqual := reflect.DeepEqual(expected.DockerLabels, actual.DockerLabels)

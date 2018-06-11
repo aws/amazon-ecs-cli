@@ -105,6 +105,12 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig, serviceVols *ad
 		WorkingDirectory:      serviceConfig.WorkingDir,
 	}
 
+	devices, err := adapter.ConvertToDevices(serviceConfig.Devices)
+	if err != nil {
+		return nil, err
+	}
+	c.Devices = devices
+
 	if serviceConfig.DNS != nil {
 		c.DNSServers = serviceConfig.DNS
 	}
