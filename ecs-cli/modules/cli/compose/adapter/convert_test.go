@@ -170,13 +170,13 @@ func TestConvertToTmpfs_WithMalformedSize(t *testing.T) {
 }
 
 func TestConvertToPortMappings(t *testing.T) {
-	implicitTcp := portMapping                      // 8000:8000
-	explicitTcp := portMapping + "/tcp"             // "8000:8000/tcp"
+	implicitTCP := portMapping                      // 8000:8000
+	explicitTCP := portMapping + "/tcp"             // "8000:8000/tcp"
 	udpPort := portMapping + "/udp"                 // "8000:8000/udp"
 	containerPortOnly := strconv.Itoa(portNumber)   // "8000"
-	portWithIpAddress := "127.0.0.1:" + portMapping // "127.0.0.1:8000:8000"
+	portWithIPAddress := "127.0.0.1:" + portMapping // "127.0.0.1:8000:8000"
 
-	portMappingsIn := []string{implicitTcp, explicitTcp, udpPort, containerPortOnly, portWithIpAddress}
+	portMappingsIn := []string{implicitTCP, explicitTCP, udpPort, containerPortOnly, portWithIPAddress}
 	portMappingsOut, err := ConvertToPortMappings("test", portMappingsIn)
 
 	assert.NoError(t, err, "Unexpected error converting port mapping")
@@ -370,6 +370,63 @@ func TestGetSourcePathAndUpdateVolumesWithNamedVol(t *testing.T) {
 	assert.NoError(t, err, "Unexpected error getting Mount Point source path")
 	assert.Equal(t, namedSourcePath, observedSourcePath)
 	assert.Equal(t, namedSourcePath, volumes.VolumeEmptyHost[0])
+}
+
+func TestConvertToDevices(t *testing.T) {
+	testCases := []struct {
+		input                 string
+		expectedHostPath      string
+		expectedContainerPath string
+		expectedPermissions   []string
+	}{
+		{"/dev/sda", "/dev/sda", "", []string{}},
+		{"/dev/sda:/dev/xvdc", "/dev/sda", "/dev/xvdc", []string{}},
+		{"/dev/sda:/dev/xvdc:w", "/dev/sda", "/dev/xvdc", []string{"write"}},
+		{"/dev/nvid:/dev/xvdc:rw", "/dev/nvid", "/dev/xvdc", []string{"read", "write"}},
+	}
+	for _, test := range testCases {
+		t.Run(fmt.Sprintf("Convert %s", test.input), func(t *testing.T) {
+			inputSlice := []string{test.input}
+			outputDevices, err := ConvertToDevices(inputSlice)
+			assert.NoError(t, err, "Unexpected error converting Devices")
+			assert.Equal(t, 1, len(outputDevices), "Expected Devices length to be 1")
+
+			var expectedContainer *string
+			var expectedPerms []*string
+
+			if test.expectedContainerPath == "" {
+				expectedContainer = nil
+			} else {
+				expectedContainer = aws.String(test.expectedContainerPath)
+			}
+
+			if len(test.expectedPermissions) == 0 {
+				expectedPerms = []*string{}
+			} else {
+				expectedPerms = aws.StringSlice(test.expectedPermissions)
+			}
+
+			outputDev := *outputDevices[0]
+			assert.Equal(t, test.expectedHostPath, *outputDev.HostPath, "Expected HostPath to match")
+			assert.Equal(t, expectedContainer, outputDev.ContainerPath, "Expected ContainerPath to match")
+			assert.ElementsMatch(t, expectedPerms, outputDev.Permissions, "Expected Permissions to match")
+		})
+
+	}
+}
+
+func TestConvertToDevices_ErrorOnInvalidOptions(t *testing.T) {
+	testCases := []string{
+		"/dev/xf:/dex/gru:rw:m", // to many args
+		"/dev/xx:/dex/gru:ytr",  // invalid option flags (y, t)
+		"/dev/xx:/dex/sda:rrmw", // too many options (max is 3)
+	}
+	for _, test := range testCases {
+		t.Run(fmt.Sprintf("Expect error for %s", test), func(t *testing.T) {
+			_, err := ConvertToDevices([]string{test})
+			assert.Error(t, err, "Expected error for invalid device option")
+		})
+	}
 }
 
 func TestConvertToExtraHosts(t *testing.T) {

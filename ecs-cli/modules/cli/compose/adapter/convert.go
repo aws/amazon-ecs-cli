@@ -43,6 +43,75 @@ const (
 	volumeFromContainerKey    = "container"
 )
 
+// ConvertToDevices transforms a slice of device strings into a slice of ECS Device structs
+func ConvertToDevices(cfgDevices []string) ([]*ecs.Device, error) {
+	devices := []*ecs.Device{}
+	for _, devString := range cfgDevices {
+		var device ecs.Device
+
+		parts := strings.Split(devString, ":")
+		numOfParts := len(parts)
+
+		switch numOfParts {
+		case 1:
+			device = ecs.Device{
+				HostPath: aws.String(parts[0]),
+			}
+		case 2:
+			device = ecs.Device{
+				HostPath:      aws.String(parts[0]),
+				ContainerPath: aws.String(parts[1]),
+			}
+		case 3:
+			permissions, err := getDevicePermissions(parts[2])
+			if err != nil {
+				return nil, err
+			}
+			device = ecs.Device{
+				HostPath:      aws.String(parts[0]),
+				ContainerPath: aws.String(parts[1]),
+				Permissions:   aws.StringSlice(permissions),
+			}
+		default:
+			return nil, fmt.Errorf(
+				"Invalid number of arguments in device %s", devString)
+		}
+
+		devices = append(devices, &device)
+	}
+	return devices, nil
+}
+
+func getDevicePermissions(perms string) ([]string, error) {
+	// store in map to prevent duplicates, which will fail on RegisterTaskDefinition
+	seenPerms := map[string]bool{}
+
+	if len(perms) > 3 {
+		return nil, fmt.Errorf(
+			"Invalid number of device options: found %d, max is 3", len(perms))
+	}
+	for _, char := range perms {
+		switch char {
+		case 'r':
+			seenPerms["read"] = true
+		case 'w':
+			seenPerms["write"] = true
+		case 'm':
+			seenPerms["mknod"] = true
+		default:
+			return nil, fmt.Errorf(
+				"Invalid device option: found '%s', but only 'r', 'w' or 'm' are valid", string(char))
+		}
+	}
+
+	permissions := []string{}
+	for key := range seenPerms {
+		permissions = append(permissions, key)
+	}
+
+	return permissions, nil
+}
+
 // ConvertToExtraHosts transforms the yml extra hosts slice to ecs compatible HostEntry slice
 func ConvertToExtraHosts(cfgExtraHosts []string) ([]*ecs.HostEntry, error) {
 	extraHosts := []*ecs.HostEntry{}

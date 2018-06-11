@@ -10,6 +10,7 @@ type ContainerConfig struct {
 	CapDrop               []string
 	Command               []string
 	CPU                   int64
+	Devices               []*ecs.Device
 	DNSSearchDomains      []string
 	DNSServers            []string
 	DockerLabels          map[string]*string
