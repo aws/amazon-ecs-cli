@@ -2,8 +2,10 @@ package project
 
 import (
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/logger"
@@ -69,10 +71,12 @@ func getV3Config(composeFiles []string) (*types.Config, error) {
 		return nil, err
 	}
 
+	localEnv := getEnvironment()
+
 	configDetails := types.ConfigDetails{
 		WorkingDir:  wrkDir,
 		ConfigFiles: configFiles,
-		Environment: nil,
+		Environment: localEnv,
 	}
 
 	// load config from config details
@@ -249,4 +253,14 @@ func logWarningForDeployFields(d types.DeployConfig, serviceName string) {
 			"service name": serviceName,
 		}).Warn("Skipping unsupported YAML option for service...")
 	}
+}
+
+func getEnvironment() map[string]string {
+	env := os.Environ()
+	envMap := make(map[string]string, len(env))
+	for _, s := range env {
+		varParts := strings.SplitN(s, "=", 2)
+		envMap[varParts[0]] = varParts[1]
+	}
+	return envMap
 }

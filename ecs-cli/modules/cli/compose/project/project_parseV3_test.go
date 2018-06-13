@@ -534,6 +534,80 @@ services:
 	assert.Equal(t, expectedEnv, actualConfig.Environment)
 }
 
+func TestParseV3_WithEnvFromShell(t *testing.T) {
+	// Setup shell env vars for image, environment fields
+	webImageKey := "TEST_IMAGE"
+	webImageValue := "httpd"
+
+	envKey1 := "HOST_ENV"
+	envValue1 := "dev"
+	envKey2 := "SHOW"
+	envValue2 := "true"
+	envKey3 := "SESSION_SECRET"
+	envValue3 := "clydeIsTheGoodestDog"
+
+	os.Setenv(webImageKey, webImageValue)
+	os.Setenv(envKey1, envValue1)
+	os.Setenv(envKey2, envValue2)
+	os.Setenv(envKey3, envValue3)
+	defer func() {
+		os.Unsetenv(webImageKey)
+		os.Unsetenv(envKey1)
+		os.Unsetenv(envKey2)
+		os.Unsetenv(envKey3)
+	}()
+
+	// Setup expected environment
+	expectedEnv := []*ecs.KeyValuePair{
+		{
+			Name:  aws.String(envKey1),
+			Value: aws.String("staging"), // file value overrides shell value
+		},
+		{
+			Name:  aws.String(envKey2),
+			Value: aws.String(envValue2),
+		},
+		{
+			Name:  aws.String(envKey3),
+			Value: aws.String(envValue3),
+		},
+	}
+
+	// Setup docker-compose file
+	composeFileString := `version: '3'
+services:
+  web:
+    image: $TEST_IMAGE
+    environment:
+     - HOST_ENV=staging
+     - SHOW=
+     - SESSION_SECRET`
+
+	tmpfile, err := ioutil.TempFile("", "test")
+	assert.NoError(t, err, "Unexpected error in creating test file")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write([]byte(composeFileString))
+	assert.NoError(t, err, "Unexpected error in writing to test file")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Unexpected error closing file")
+
+	// Set up project
+	project := setupTestProject(t)
+	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, tmpfile.Name())
+
+	actualConfigs, err := project.parseV3()
+	assert.NoError(t, err, "Unexpected error parsing file")
+
+	// Verify web ServiceConfig
+	web, err := getContainerConfigByName("web", actualConfigs)
+	assert.NoError(t, err, "Unexpected error retrieving container config")
+	assert.Equal(t, webImageValue, web.Image, "Expected Image to match")
+	assert.ElementsMatch(t, expectedEnv, web.Environment, "Expected Environment to match")
+}
+
 // TODO: add check for fields not used by V3, use to also check V1V2 ContainerConfigs?
 func verifyContainerConfig(t *testing.T, expected, actual adapter.ContainerConfig) {
 	assert.ElementsMatch(t, expected.CapAdd, actual.CapAdd, "Expected CapAdd to match")
