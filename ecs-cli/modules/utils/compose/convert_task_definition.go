@@ -25,8 +25,7 @@ const (
 	defaultMemLimit = 512
 )
 
-// TaskDefParams contains basic fields to build an
-// ECS task definition
+// TaskDefParams contains basic fields to build an ECS task definition
 type TaskDefParams struct {
 	networkMode      string
 	taskRoleArn      string
@@ -58,7 +57,6 @@ func ConvertToTaskDefinition(taskDefinitionName string, volumes *adapter.Volumes
 	containerDefinitions := []*ecs.ContainerDefinition{}
 
 	for _, containerConfig := range containerConfigs {
-		// logUnsupportedServiceConfigFields(name, serviceConfig) // TODO switch this to use ContainerConfig
 		name := containerConfig.Name
 		// Check if there are ecs-params specified for the container
 		ecsContainerDef := &ContainerDef{Essential: true}
@@ -66,7 +64,7 @@ func ConvertToTaskDefinition(taskDefinitionName string, volumes *adapter.Volumes
 			ecsContainerDef = &cd
 		}
 
-		// Validate essential containers TODO: merge other ecs params fields
+		// Validate essential containers
 		count := len(containerConfigs)
 		if !hasEssential(taskDefParams.containerDefs, count) {
 			return nil, errors.New("Task definition does not have any essential containers")
@@ -168,13 +166,13 @@ func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *C
 	if ecsContainerDef != nil {
 		outputContDef.Essential = aws.Bool(ecsContainerDef.Essential)
 
-		cpu = getResourceValue(inputCfg.Name, cpu, ecsContainerDef.Cpu)
+		cpu = getResourceValue(inputCfg.Name, cpu, ecsContainerDef.Cpu, "CPU")
 
 		ecsMemInMB := adapter.ConvertToMemoryInMB(int64(ecsContainerDef.Memory))
-		mem = getResourceValue(inputCfg.Name, mem, ecsMemInMB)
+		mem = getResourceValue(inputCfg.Name, mem, ecsMemInMB, "MemoryLimit")
 
 		ecsMemResInMB := adapter.ConvertToMemoryInMB(int64(ecsContainerDef.MemoryReservation))
-		memRes = getResourceValue(inputCfg.Name, memRes, ecsMemResInMB)
+		memRes = getResourceValue(inputCfg.Name, memRes, ecsMemResInMB, "MemoryReservation")
 	}
 
 	if mem < memRes {
@@ -199,21 +197,21 @@ func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *C
 	return outputContDef, nil
 }
 
-func getResourceValue(serviceName string, inputVal, ecsVal int64) int64 {
+func getResourceValue(serviceName string, inputVal, ecsVal int64, option string) int64 {
 	if ecsVal == 0 {
 		return inputVal
 	}
 	if inputVal > 0 {
-		showResourceOverrideMsg(serviceName, inputVal, ecsVal)
+		showResourceOverrideMsg(serviceName, inputVal, ecsVal, option)
 	}
 	return ecsVal
 }
 
-func showResourceOverrideMsg(serviceName string, oldValue int64, newValue int64) {
+func showResourceOverrideMsg(serviceName string, oldValue int64, newValue int64, option string) {
 	overrideMsg := "Using ecs-params value as override (was %v but is now %v)"
 
 	log.WithFields(log.Fields{
-		"option name":  "MemoryReservation",
+		"option name": option,
 		"service name": serviceName,
 	}).Infof(overrideMsg, oldValue, newValue)
 }

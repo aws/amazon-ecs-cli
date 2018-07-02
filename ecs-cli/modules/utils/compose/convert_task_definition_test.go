@@ -266,45 +266,6 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	}
 }
 
-// ConvertToContainerDefinition tests
-
-func TestConvertToTaskDefinitionWithECSParams_DefaultMemoryLessThanMemoryRes(t *testing.T) {
-	// set up containerConfig w/o value for Memory
-	containerConfig := &adapter.ContainerConfig{
-		Name:  "web",
-		Image: "httpd",
-		CPU:   int64(5),
-	}
-
-	// define ecs-params value we expect to be present in final containerDefinition
-	ecsParamsString := `version: 1
-task_definition:
-  services:
-    web:
-      mem_reservation: 1g`
-
-	content := []byte(ecsParamsString)
-
-	tmpfile, err := ioutil.TempFile("", "ecs-params")
-	assert.NoError(t, err, "Could not create ecs params tempfile")
-
-	defer os.Remove(tmpfile.Name())
-
-	_, err = tmpfile.Write(content)
-	assert.NoError(t, err, "Could not write data to ecs params tempfile")
-
-	err = tmpfile.Close()
-	assert.NoError(t, err, "Could not close tempfile")
-
-	ecsParamsFileName := tmpfile.Name()
-	ecsParams, err := ReadECSParams(ecsParamsFileName)
-	assert.NoError(t, err, "Could not read ECS Params file")
-
-	containerConfigs := []adapter.ContainerConfig{*containerConfig}
-	_, err = convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
-
-	assert.Error(t, err, "Expected error because memory reservation is greater than memory limit")
-}
 func TestConvertToTaskDefinitionWithNoSharedMemorySize(t *testing.T) {
 	containerConfig := &adapter.ContainerConfig{
 		ShmSize: int64(0),
@@ -370,7 +331,45 @@ func TestConvertToTaskDefinitionLaunchTypeFargate(t *testing.T) {
 	assert.Equal(t, "FARGATE", aws.StringValue(taskDefinition.RequiresCompatibilities[0]))
 }
 
-// Test Conversion with ECS Params
+// Tests for ConvertToContainerDefinition with ECS Params
+func TestConvertToTaskDefinitionWithECSParams_DefaultMemoryLessThanMemoryRes(t *testing.T) {
+	// set up containerConfig w/o value for Memory
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "httpd",
+		CPU:   int64(5),
+	}
+
+	// define ecs-params value we expect to be present in final containerDefinition
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    web:
+      mem_reservation: 1g`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	_, err = convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+
+	assert.Error(t, err, "Expected error because memory reservation is greater than memory limit")
+}
+
 func testContainerConfigs(names []string) []adapter.ContainerConfig {
 	containerConfigs := []adapter.ContainerConfig{}
 	for _, name := range names {
@@ -419,7 +418,7 @@ task_definition:
 	}
 }
 
-func TestConvertToTaskDefinition_WithECSParamsAllFields(t *testing.T) {
+func TestConvertToTaskDefinitionWithECSParams_AllFields(t *testing.T) {
 	containerConfigs := testContainerConfigs([]string{"mysql", "wordpress"})
 	ecsParamsString := `version: 1
 task_definition:
@@ -803,7 +802,7 @@ func TestConvertToTaskDefinitionWithECSParams_ContainerResourcesPresent(t *testi
 	ecsParamsString := `version: 1
 task_definition:
   services:
-    mysql:  
+    mysql:
       cpu_shares: 100
       mem_limit: 15m
       mem_reservation: 10m
@@ -1026,7 +1025,7 @@ task_definition:
 	assert.Error(t, err, "Expected error if mem_reservation was more than mem_limit")
 }
 
-func TestConvertToTaskDefinition_WithTaskSize(t *testing.T) {
+func TestConvertToTaskDefinitionWithECSParams_WithTaskSize(t *testing.T) {
 	containerConfigs := testContainerConfigs([]string{"mysql", "wordpress"})
 	ecsParamsString := `version: 1
 task_definition:
