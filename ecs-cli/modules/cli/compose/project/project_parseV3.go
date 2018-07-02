@@ -92,7 +92,6 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig, serviceVols *ad
 	logger.LogUnsupportedV3ServiceConfigFields(serviceConfig)
 	logWarningForDeployFields(serviceConfig.Deploy, serviceConfig.Name)
 
-	//TODO: Add Healthcheck, Devices to ContainerConfig
 	c := &adapter.ContainerConfig{
 		CapAdd:                serviceConfig.CapAdd,
 		CapDrop:               serviceConfig.CapDrop,
@@ -114,6 +113,10 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig, serviceVols *ad
 		return nil, err
 	}
 	c.Devices = devices
+
+	if serviceConfig.HealthCheck != nil && !serviceConfig.HealthCheck.Disable {
+		c.HealthCheck = adapter.ConvertToHealthCheck(serviceConfig.HealthCheck)
+	}
 
 	if serviceConfig.DNS != nil {
 		c.DNSServers = serviceConfig.DNS

@@ -19,9 +19,11 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/docker/cli/cli/compose/types"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/yaml"
 	"github.com/stretchr/testify/assert"
@@ -662,4 +664,24 @@ func TestConvertCamelCaseToUnderScore(t *testing.T) {
 			assert.Equal(t, test.expected, output, "Expected output to match")
 		})
 	}
+}
+
+func TestConvertToHealthCheck(t *testing.T) {
+	timeout := 10 * time.Second
+	interval := time.Minute
+	retries := uint64(3)
+	startPeriod := 2 * time.Minute
+	input := &types.HealthCheckConfig{
+		Test:        []string{"CMD", "echo 'echo is not a good health check test command'"},
+		Timeout:     &timeout,
+		Interval:    &interval,
+		Retries:     &retries,
+		StartPeriod: &startPeriod,
+	}
+	output := ConvertToHealthCheck(input)
+	assert.ElementsMatch(t, input.Test, aws.StringValueSlice(output.Command))
+	assert.Equal(t, aws.Int64(10), output.Timeout)
+	assert.Equal(t, aws.Int64(60), output.Interval)
+	assert.Equal(t, aws.Int64(3), output.Retries)
+	assert.Equal(t, aws.Int64(120), output.StartPeriod)
 }

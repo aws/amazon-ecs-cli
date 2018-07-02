@@ -21,6 +21,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/aws-sdk-go/aws"
@@ -126,6 +127,28 @@ func ConvertToExtraHosts(cfgExtraHosts []string) ([]*ecs.HostEntry, error) {
 	return extraHosts, nil
 }
 
+// ConvertToHealthCheck converts a compose healthcheck to ECS healthcheck
+func ConvertToHealthCheck(healthCheckConfig *types.HealthCheckConfig) *ecs.HealthCheck {
+	ecsHealthcheck := &ecs.HealthCheck{
+		Command: aws.StringSlice(healthCheckConfig.Test),
+	}
+	// optional fields with defaults provided by ECS
+	if healthCheckConfig.Interval != nil {
+		ecsHealthcheck.Interval = ConvertToTimeInSeconds(healthCheckConfig.Interval)
+	}
+	if healthCheckConfig.Retries != nil {
+		ecsHealthcheck.Retries = aws.Int64(int64(*healthCheckConfig.Retries))
+	}
+	if healthCheckConfig.Timeout != nil {
+		ecsHealthcheck.Timeout = ConvertToTimeInSeconds(healthCheckConfig.Timeout)
+	}
+	if healthCheckConfig.StartPeriod != nil {
+		ecsHealthcheck.StartPeriod = ConvertToTimeInSeconds(healthCheckConfig.StartPeriod)
+	}
+
+	return ecsHealthcheck
+}
+
 // ConvertToKeyValuePairs transforms the map of environment variables into list of ecs.KeyValuePair.
 // Environment variables with only a key are resolved by reading the variable from the shell where ecscli is executed from.
 // TODO: use this logic to generate RunTask overrides for ecscli compose commands (instead of always creating a new task def)
@@ -191,6 +214,12 @@ func ConvertToMemoryInMB(bytes int64) int64 {
 		memory = int64(bytes) / miB
 	}
 	return memory
+}
+
+// ConvertToTimeInSeconds converts a duration to an int64 number of seconds
+func ConvertToTimeInSeconds(d *time.Duration) *int64 {
+	val := d.Nanoseconds() / 1E9
+	return &val
 }
 
 // ConvertToMountPoints transforms the yml volumes slice to ecs compatible MountPoints slice

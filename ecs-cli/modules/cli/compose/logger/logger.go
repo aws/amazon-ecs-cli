@@ -73,6 +73,7 @@ var supportedFieldsInV3 = map[string]bool{
 	"EnvFile":     true,
 	"ExtraHosts":  true,
 	"Hostname":    true,
+	"HealthCheck": true,
 	"Image":       true,
 	"Labels":      true,
 	"Links":       true,

@@ -43,6 +43,12 @@ func TestParseV3WithOneFile(t *testing.T) {
 			HostPath: aws.String("/dev/sda"),
 		},
 	}
+	wordpressCon.HealthCheck = &ecs.HealthCheck{
+		Command:  aws.StringSlice([]string{"CMD-SHELL", "curl -f http://localhost || exit 1"}),
+		Interval: aws.Int64(int64(90)),
+		Timeout:  aws.Int64(int64(10)),
+		Retries:  aws.Int64(int64(3)),
+	}
 	wordpressCon.DNSServers = []string{"2.2.2.2"}
 	wordpressCon.DNSSearchDomains = []string{"wrd.search.com", "wrd.search2.com"}
 	wordpressCon.Environment = []*ecs.KeyValuePair{
@@ -110,6 +116,13 @@ func TestParseV3WithOneFile(t *testing.T) {
 			IpAddress: aws.String("10.0.0.0"),
 		},
 	}
+	mysqlCon.HealthCheck = &ecs.HealthCheck{
+		// when test command is specified as a string, compose wraps it in CMD-SHELL
+		Command:  aws.StringSlice([]string{"CMD-SHELL", "curl -f http://example.com || exit 1"}),
+		Interval: aws.Int64(int64(105)),
+		Timeout:  aws.Int64(int64(15)),
+		Retries:  aws.Int64(int64(5)),
+	}
 
 	// set up file
 	composeFileString := `version: '3'
@@ -119,7 +132,7 @@ services:
       - ALL
     cap_drop:
       - NET_ADMIN
-    command: 
+    command:
       - echo "hello world"
     image: wordpress
     entrypoint: /wordpress/entry
@@ -162,6 +175,11 @@ services:
       nice:
         soft: 300
         hard: 500
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost || exit 1"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
   mysql:
     image: mysql
     labels:
@@ -169,7 +187,12 @@ services:
       - "com.example.mysql2=anothermysql label"
     user: mysqluser
     extra_hosts:
-      - "mysqlexhost:10.0.0.0"`
+      - "mysqlexhost:10.0.0.0"
+    healthcheck:
+        test: curl -f http://example.com || exit 1
+        interval: 1m45s
+        timeout: 15s
+        retries: 5`
 
 	tmpfile, err := ioutil.TempFile("", "test")
 	assert.NoError(t, err, "Unexpected error in creating test file")
@@ -608,6 +631,53 @@ services:
 	assert.ElementsMatch(t, expectedEnv, web.Environment, "Expected Environment to match")
 }
 
+func TestParseV3HealthCheckDisabled(t *testing.T) {
+	// set up expected ContainerConfig values
+	wordpressCon := adapter.ContainerConfig{}
+	wordpressCon.Name = "wordpress"
+	wordpressCon.Command = []string{"echo \"hello world\""}
+	wordpressCon.Image = "wordpress"
+
+	// set up file
+	composeFileString := `version: '3'
+services:
+  wordpress:
+    command:
+      - echo "hello world"
+    image: wordpress
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost || exit 1"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      disable: true`
+
+	tmpfile, err := ioutil.TempFile("", "test")
+	assert.NoError(t, err, "Unexpected error in creating test file")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write([]byte(composeFileString))
+	assert.NoError(t, err, "Unexpected error writing file")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Unexpected error closing file")
+
+	// add files to projects
+	project := setupTestProject(t)
+	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, tmpfile.Name())
+
+	// assert # and content of container configs matches expected
+	actualConfigs, err := project.parseV3()
+	assert.NoError(t, err, "Unexpected error parsing file")
+
+	assert.Equal(t, 1, len(*actualConfigs))
+
+	wp, err := getContainerConfigByName(wordpressCon.Name, actualConfigs)
+	assert.NoError(t, err, "Unexpected error retrieving wordpress config")
+	verifyContainerConfig(t, wordpressCon, *wp)
+}
+
 // TODO: add check for fields not used by V3, use to also check V1V2 ContainerConfigs?
 func verifyContainerConfig(t *testing.T, expected, actual adapter.ContainerConfig) {
 	assert.ElementsMatch(t, expected.CapAdd, actual.CapAdd, "Expected CapAdd to match")
@@ -634,4 +704,13 @@ func verifyContainerConfig(t *testing.T, expected, actual adapter.ContainerConfi
 	assert.ElementsMatch(t, expected.Ulimits, actual.Ulimits, "Expected Ulimits to match")
 	assert.Equal(t, expected.User, actual.User, "Expected User to match")
 	assert.Equal(t, expected.WorkingDirectory, actual.WorkingDirectory, "Expected WorkingDirectory to match")
+	if expected.HealthCheck != nil && actual.HealthCheck != nil {
+		assert.ElementsMatch(t, aws.StringValueSlice(expected.HealthCheck.Command), aws.StringValueSlice(actual.HealthCheck.Command), "Expected healthcheck command to match")
+		assert.Equal(t, expected.HealthCheck.Interval, actual.HealthCheck.Interval, "Expected healthcheck interval to match")
+		assert.Equal(t, expected.HealthCheck.Retries, actual.HealthCheck.Retries, "Expected healthcheck retries to match")
+		assert.Equal(t, expected.HealthCheck.StartPeriod, actual.HealthCheck.StartPeriod, "Expected healthcheck start_period  to match")
+		assert.Equal(t, expected.HealthCheck.Timeout, actual.HealthCheck.Timeout, "Expected healthcheck timeout to match")
+	} else {
+		assert.Nil(t, actual.HealthCheck, "Expected healthcheck to be nil in output ContainerConfig")
+	}
 }
