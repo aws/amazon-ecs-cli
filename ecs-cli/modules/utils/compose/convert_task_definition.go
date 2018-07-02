@@ -116,6 +116,7 @@ func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *C
 	if inputCfg.Hostname != "" {
 		outputContDef.SetHostname(inputCfg.Hostname)
 	}
+	outputContDef.SetHealthCheck(inputCfg.HealthCheck)
 	outputContDef.SetImage(inputCfg.Image)
 	outputContDef.SetLinks(aws.StringSlice(inputCfg.Links)) // TODO, read from external links
 	outputContDef.SetLogConfiguration(inputCfg.LogConfiguration)

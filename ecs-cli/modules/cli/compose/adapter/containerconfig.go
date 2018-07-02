@@ -18,6 +18,7 @@ type ContainerConfig struct {
 	Entrypoint            []string
 	Environment           []*ecs.KeyValuePair
 	ExtraHosts            []*ecs.HostEntry
+	HealthCheck           *ecs.HealthCheck
 	Hostname              string
 	Image                 string
 	Links                 []string
