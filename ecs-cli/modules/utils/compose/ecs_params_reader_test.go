@@ -83,7 +83,9 @@ task_definition:
       mem_limit: 524288000
       mem_reservation: 500mb
     wordpress:
-      essential: true`
+      essential: true
+      repository_credentials:
+        credentials_param: arn:aws:secretsmanager:1234567890:secret:test-RT4iv`
 
 	content := []byte(ecsParamsString)
 
@@ -117,6 +119,7 @@ task_definition:
 		assert.Equal(t, yaml.MemStringorInt(524288000), mysql.Memory)
 		assert.Equal(t, yaml.MemStringorInt(524288000), mysql.MemoryReservation)
 		assert.True(t, wordpress.Essential, "Expected container to be essential")
+		assert.Equal(t, wordpress.RepositoryCredentials.CredentialsParameter, "arn:aws:secretsmanager:1234567890:secret:test-RT4iv")
 	}
 }
 

@@ -27,6 +27,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 	libYaml "github.com/docker/libcompose/yaml"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
 
@@ -51,7 +52,8 @@ type ContainerDefs map[string]ContainerDef
 
 // ContainerDef holds fields for an ECS Container Definition that are not supplied by docker-compose
 type ContainerDef struct {
-	Essential bool `yaml:"essential"`
+	Essential             bool                  `yaml:"essential"`
+	RepositoryCredentials RepositoryCredentials `yaml:"repository_credentials"`
 	// resource field yaml names correspond to equivalent docker-compose field
 	Cpu               int64                  `yaml:"cpu_shares"`
 	Memory            libYaml.MemStringorInt `yaml:"mem_limit"`
@@ -68,6 +70,11 @@ type HealthCheck struct {
 	Interval    string `yaml:"interval,omitempty"`
 	Retries     int64  `yaml:"retries,omitempty"`
 	StartPeriod string `yaml:"start_period,omitempty"`
+}
+
+// RepositoryCredentials holds CredentialParameters for a ContainerDef
+type RepositoryCredentials struct {
+	CredentialsParameter string `yaml:"credentials_param"`
 }
 
 // TaskSize holds Cpu and Memory values needed for Fargate tasks
@@ -201,6 +208,8 @@ func ReadECSParams(filename string) (*ECSParams, error) {
 	if err = yaml.Unmarshal([]byte(ecsParamsData), &ecsParams); err != nil {
 		return nil, errors.Wrapf(err, "Error unmarshalling yaml data from ECS params file: %v", filename)
 	}
+
+	log.Infof("ECS params: %+v", ecsParams) // remove me!
 
 	return ecsParams, nil
 }
