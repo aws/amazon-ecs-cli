@@ -75,6 +75,11 @@ func convertV1V2ToContainerConfig(context *project.Context, serviceName string, 
 	memory := adapter.ConvertToMemoryInMB(int64(service.MemLimit))
 	memoryReservation := adapter.ConvertToMemoryInMB(int64(service.MemReservation))
 
+	// Validate memory and memory reservation
+	if memory == 0 && memoryReservation != 0 {
+		memory = memoryReservation
+	}
+
 	mountPoints, err := adapter.ConvertToMountPoints(service.Volumes, volumes)
 	if err != nil {
 		return nil, err

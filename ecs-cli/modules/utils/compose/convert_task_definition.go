@@ -166,6 +166,7 @@ func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *C
 	if ecsContainerDef != nil {
 		outputContDef.Essential = aws.Bool(ecsContainerDef.Essential)
 
+		// CPU and Memory are expected to be set here if compose v3 was used
 		cpu = getResourceValue(inputCfg.Name, cpu, ecsContainerDef.Cpu, "CPU")
 
 		ecsMemInMB := adapter.ConvertToMemoryInMB(int64(ecsContainerDef.Memory))
@@ -175,15 +176,21 @@ func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *C
 		memRes = getResourceValue(inputCfg.Name, memRes, ecsMemResInMB, "MemoryReservation")
 	}
 
-	if mem < memRes {
-		return nil, errors.New("mem_limit must be greater than mem_reservation")
-	}
-
 	// One or both of memory and memoryReservation is required to register a task definition with ECS
 	// If neither is provided by 1) compose file or 2) ecs-params, set default
 	// NOTE: Docker does not set a memory limit for containers
 	if mem == 0 && memRes == 0 {
 		mem = defaultMemLimit
+	}
+
+	// Docker compose allows specifying memory reservation with memory, so
+	// we should default to minimum allowable value for memory hard limit
+	if mem == 0 && memRes != 0 {
+		mem = memRes
+	}
+
+	if mem < memRes {
+		return nil, errors.New("mem_limit must be greater than mem_reservation")
 	}
 
 	outputContDef.SetCpu(cpu)
@@ -211,7 +218,7 @@ func showResourceOverrideMsg(serviceName string, oldValue int64, newValue int64,
 	overrideMsg := "Using ecs-params value as override (was %v but is now %v)"
 
 	log.WithFields(log.Fields{
-		"option name": option,
+		"option name":  option,
 		"service name": serviceName,
 	}).Infof(overrideMsg, oldValue, newValue)
 }

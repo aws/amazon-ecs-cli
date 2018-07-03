@@ -115,7 +115,7 @@ func TestParseV1V2_Version1_HappyPath(t *testing.T) {
   devices:
    - "/dev/sda:/dev/sdd:r"
    - "/dev/sdd:/dev/xdr"
-   - "/dev/sda" 
+   - "/dev/sda"
   dns:
    - 1.2.3.4
   dns_search: search.example.com
@@ -503,6 +503,41 @@ services:
 	assert.NoError(t, err, "Unexpected error retrieving container config")
 	assert.Equal(t, webImage, web.Image, "Expected Image to match")
 	assert.Equal(t, expectedEnv, web.Environment, "Expected Environment to match")
+}
+
+func TestParseV1V2_MemoryValidation(t *testing.T) {
+	// Setup docker-compose file
+	memory := int64(128)
+	composeFileString := `version: '2'
+services:
+  web:
+    image: webapp
+    mem_reservation: 128m`
+
+	tmpfile, err := ioutil.TempFile("", "test")
+	assert.NoError(t, err, "Unexpected error in creating test file")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write([]byte(composeFileString))
+	assert.NoError(t, err, "Unexpected error in writing to test file")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Unexpected error closing file")
+
+	// Set up project
+	project := setupTestProject(t)
+	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, tmpfile.Name())
+
+	actualConfigs, err := project.parseV1V2()
+	assert.NoError(t, err, "Unexpected error parsing file")
+
+	// verify wordpress ServiceConfig
+	web, err := getContainerConfigByName("web", actualConfigs)
+	if assert.NoError(t, err) {
+		assert.Equal(t, memory, web.Memory, "Expected Memory to match")
+		assert.Equal(t, memory, web.MemoryReservation, "Expected MemoryReservation to match")
+	}
 }
 
 func getContainerConfigByName(name string, configs *[]adapter.ContainerConfig) (*adapter.ContainerConfig, error) {

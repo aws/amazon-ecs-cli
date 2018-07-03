@@ -332,12 +332,13 @@ func TestConvertToTaskDefinitionLaunchTypeFargate(t *testing.T) {
 }
 
 // Tests for ConvertToContainerDefinition with ECS Params
-func TestConvertToTaskDefinitionWithECSParams_DefaultMemoryLessThanMemoryRes(t *testing.T) {
+func TestConvertToTaskDefinitionWithECSParams_ComposeMemoryLessThanMemoryRes(t *testing.T) {
 	// set up containerConfig w/o value for Memory
 	containerConfig := &adapter.ContainerConfig{
-		Name:  "web",
-		Image: "httpd",
-		CPU:   int64(5),
+		Name:   "web",
+		Image:  "httpd",
+		CPU:    int64(5),
+		Memory: int64(512),
 	}
 
 	// define ecs-params value we expect to be present in final containerDefinition
@@ -942,7 +943,7 @@ task_definition:
 	}
 }
 
-func TestConvertToTaskDefinitionWithECSParams_SomeContainerResourcesProvided(t *testing.T) {
+func TestConvertToTaskDefinitionWithECSParams_MemLimitOnlyProvided(t *testing.T) {
 	// set up containerConfig w/o value for Memory
 	containerConfig := &adapter.ContainerConfig{
 		Name:              "web",
@@ -990,6 +991,48 @@ task_definition:
 		// check config values not present in ecs-params are present
 		assert.Equal(t, containerConfig.CPU, aws.Int64Value(web.Cpu), "Expected CPU to match")
 		assert.Equal(t, containerConfig.MemoryReservation, aws.Int64Value(web.MemoryReservation), "Expected MemoryReservation to match")
+	}
+}
+
+func TestConvertToTaskDefinitionWithECSParams_MemReservationOnlyProvided(t *testing.T) {
+	containerConfigs := testContainerConfigs([]string{"web"})
+
+	// define ecs-params value we expect to be present in final containerDefinition
+	webMem := int64(20)
+
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    web:
+      mem_reservation: 20m`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, webMem, aws.Int64Value(web.Memory), "Expected Memory to match")
+		assert.Equal(t, webMem, aws.Int64Value(web.MemoryReservation), "Expected MemoryReservation to match")
+		// check config values not present in ecs-params are present
+		assert.Empty(t, web.Cpu, "Expected CPU to be empty")
 	}
 }
 
@@ -1058,28 +1101,56 @@ task_definition:
 	}
 }
 
-func TestMemReservationHigherThanMemLimit(t *testing.T) {
-	cpu := int64(131072) // 128 * 1024
-	command := "cmd"
-	hostname := "local360"
-	image := "testimage"
-	memory := int64(65536) // 64mb
-	privileged := true
-	readOnly := true
-	user := "user"
-	workingDir := "/var"
+func TestConvertToTaskDefinition_MemLimitOnlyProvided(t *testing.T) {
+	webMem := int64(1048576)
+	containerConfig := &adapter.ContainerConfig{
+		Name:   "web",
+		Memory: webMem,
+	}
 
+	taskDefinition := convertToTaskDefinitionInTest(t, containerConfig, "", "")
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	assert.Equal(t, webMem, aws.Int64Value(web.Memory), "Expected Memory to match")
+	assert.Empty(t, web.MemoryReservation, "Expected MemoryReservation to be empty")
+	assert.Empty(t, web.Cpu, "Expected CPU to be empty")
+}
+
+func TestConvertToTaskDefinition_MemReservationOnlyProvided(t *testing.T) {
+	webMem := int64(1048576)
+	containerConfig := &adapter.ContainerConfig{
+		Name:              "web",
+		MemoryReservation: webMem,
+	}
+
+	taskDefinition := convertToTaskDefinitionInTest(t, containerConfig, "", "")
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	assert.Equal(t, webMem, aws.Int64Value(web.Memory), "Expected Memory to match")
+	assert.Equal(t, webMem, aws.Int64Value(web.MemoryReservation), "Expected MemoryReservation to match")
+	assert.Empty(t, web.Cpu, "Expected CPU to be empty")
+}
+
+func TestConvertToTaskDefinition_NoMemoryProvided(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name: "web",
+	}
+
+	taskDefinition := convertToTaskDefinitionInTest(t, containerConfig, "", "")
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	assert.Equal(t, aws.Int64(defaultMemLimit), web.Memory, "Expected Memory to match default")
+	assert.Empty(t, web.MemoryReservation, "Expected MemoryReservation to be empty")
+	assert.Empty(t, web.Cpu, "Expected CPU to be empty")
+}
+
+func TestMemReservationHigherThanMemLimit(t *testing.T) {
 	containerConfig := adapter.ContainerConfig{
-		CPU:               cpu,
-		Command:           []string{command},
-		Hostname:          hostname,
-		Image:             image,
-		Memory:            int64(524288) * memory,
-		MemoryReservation: int64(1048576) * memory,
-		Privileged:        privileged,
-		ReadOnly:          readOnly,
-		User:              user,
-		WorkingDirectory:  workingDir,
+		Memory:            int64(524288),
+		MemoryReservation: int64(1048576),
 	}
 
 	volumeConfigs := adapter.NewVolumes()
