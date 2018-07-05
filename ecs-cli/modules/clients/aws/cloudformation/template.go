@@ -211,7 +211,10 @@ var template = `
   },
   "Conditions": {
     "IsCNRegion": {
-      "Fn::Equals": [ { "Ref": "AWS::Region" }, "cn-north-1" ]
+      "Fn::Or" : [
+        {"Fn::Equals": [ { "Ref": "AWS::Region" }, "cn-north-1" ]},
+        {"Fn::Equals": [ { "Ref": "AWS::Region" }, "cn-northwest-1" ]},
+      ]
     },
     "LaunchInstances": {
       "Fn::Equals": [ { "Ref": "IsFargate" }, "false" ]
