@@ -27,7 +27,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 	libYaml "github.com/docker/libcompose/yaml"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
 
@@ -74,7 +73,7 @@ type HealthCheck struct {
 
 // RepositoryCredentials holds CredentialParameters for a ContainerDef
 type RepositoryCredentials struct {
-	CredentialsParameter string `yaml:"credentials_param"`
+	CredentialsParameter string `yaml:"credentials_parameter"`
 }
 
 // TaskSize holds Cpu and Memory values needed for Fargate tasks
@@ -208,8 +207,6 @@ func ReadECSParams(filename string) (*ECSParams, error) {
 	if err = yaml.Unmarshal([]byte(ecsParamsData), &ecsParams); err != nil {
 		return nil, errors.Wrapf(err, "Error unmarshalling yaml data from ECS params file: %v", filename)
 	}
-
-	log.Infof("ECS params: %+v", ecsParams) // remove me!
 
 	return ecsParams, nil
 }

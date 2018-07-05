@@ -175,7 +175,15 @@ func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *C
 		mem = resolveIntResourceOverride(inputCfg.Name, mem, ecsMemInMB, "MemoryLimit")
 
 		ecsMemResInMB := adapter.ConvertToMemoryInMB(int64(ecsContainerDef.MemoryReservation))
+
 		memRes = resolveIntResourceOverride(inputCfg.Name, memRes, ecsMemResInMB, "MemoryReservation")
+
+		credParam := ecsContainerDef.RepositoryCredentials.CredentialsParameter
+
+		if credParam != "" {
+			outputContDef.RepositoryCredentials = &ecs.RepositoryCredentials{}
+			outputContDef.RepositoryCredentials.SetCredentialsParameter(credParam)
+		}
 
 		var err error
 		healthCheck, err = resolveHealthCheck(inputCfg.Name, healthCheck, ecsContainerDef.HealthCheck)

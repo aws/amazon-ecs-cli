@@ -436,6 +436,8 @@ task_definition:
   services:
     mysql:
       essential: false
+      repository_credentials:
+        credentials_parameter: arn:aws:secretsmanager:1234567890:secret:test-secret
   task_size:
     mem_limit: 5Gb
     cpu_limit: 256`
@@ -471,7 +473,7 @@ task_definition:
 		assert.Equal(t, "256", aws.StringValue(taskDefinition.Cpu), "Expected CPU to match")
 		assert.Equal(t, "5Gb", aws.StringValue(taskDefinition.Memory), "Expected CPU to match")
 		assert.True(t, aws.BoolValue(wordpress.Essential), "Expected container with name: '%v' to be true", *wordpress.Name)
-
+		assert.Equal(t, "arn:aws:secretsmanager:1234567890:secret:test-secret", aws.StringValue(mysql.RepositoryCredentials.CredentialsParameter), "Expected CredentialsParameter to match")
 	}
 }
 
