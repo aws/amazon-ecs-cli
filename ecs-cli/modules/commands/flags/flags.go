@@ -109,6 +109,7 @@ const (
 	RoleFlag                                = "role"
 	ComposeServiceTimeOutFlag               = "timeout"
 	ForceDeploymentFlag                     = "force-deployment"
+	PlacementStrategy                       = "placement-strategy"
 )
 
 // OptionalRegionAndProfileFlags provides these flags:
@@ -178,6 +179,16 @@ func OptionalCreateLogsFlag() cli.Flag {
 		Name: CreateLogsFlag,
 		Usage: fmt.Sprintf(
 			"[Optional] Create the CloudWatch log groups specified in your compose file(s).",
+		),
+	}
+}
+
+// OptionalPlacementStrategy allows users to specify how containers will be distributed
+func OptionalPlacementStrategy() cli.Flag {
+	return cli.StringFlag{
+		Name: PlacementStrategy,
+		Usage: fmt.Sprintf(
+			"[Optional] Specify an optional placement strategy(s).",
 		),
 	}
 }

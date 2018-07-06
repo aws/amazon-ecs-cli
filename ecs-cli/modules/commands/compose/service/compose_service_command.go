@@ -86,7 +86,7 @@ func upServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "up",
 		Usage:        "Creates a new ECS service or updates an existing one according to your compose file. For new services or existing services with a current desired count of 0, the desired count for the service is set to 1. For existing services with non-zero desired counts, a new task definition is created to reflect any changes to the compose file and the service is updated to use that task definition. In this case, the desired count does not change.",
 		Action:       compose.WithProject(factory, compose.ProjectUp, true),
-		Flags:        append(append(append(append(deploymentConfigFlags(true), append(loadBalancerFlags(), flags.OptionalConfigFlags()...)...), ComposeServiceTimeoutFlag()), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag()), ForceNewDeploymentFlag()),
+		Flags:        append(append(append(append(deploymentConfigFlags(true), append(loadBalancerFlags(), flags.OptionalConfigFlags()...)...), ComposeServiceTimeoutFlag()), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag()), ForceNewDeploymentFlag(), flags.OptionalPlacementStrategy()),
 		OnUsageError: flags.UsageErrorFactory("up"),
 	}
 }

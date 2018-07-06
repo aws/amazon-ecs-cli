@@ -42,7 +42,7 @@ type ECSClient interface {
 	IsActiveCluster(clusterName string) (bool, error)
 
 	// Service related
-	CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, launchType string, healthCheckGracePeriod *int64) error
+	CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, launchType string, healthCheckGracePeriod *int64, placementStrategy []*ecs.PlacementStrategy) error
 	UpdateService(serviceName, taskDefinitionName string, count int64, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, healthCheckGracePeriod *int64, force bool) error
 	DescribeService(serviceName string) (*ecs.DescribeServicesOutput, error)
 	DeleteService(serviceName string) error
@@ -132,9 +132,11 @@ func (c *ecsClient) DeleteService(serviceName string) error {
 	return nil
 }
 
-func (c *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, launchType string, healthCheckGracePeriod *int64) error {
+func (c *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, launchType string, healthCheckGracePeriod *int64, placementStrategy []*ecs.PlacementStrategy) error {
+
 	createServiceInput := &ecs.CreateServiceInput{
-		DesiredCount:            aws.Int64(0),            // Required
+		DesiredCount: aws.Int64(0), // Required
+		PlacementStrategy:       placementStrategy,
 		ServiceName:             aws.String(serviceName), // Required
 		TaskDefinition:          aws.String(taskDefName), // Required
 		Cluster:                 aws.String(c.config.Cluster),

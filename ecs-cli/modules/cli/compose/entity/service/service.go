@@ -35,15 +35,18 @@ import (
 // Service type is placeholder for a single task definition and its cache
 // and it performs operations on ECS Service level
 type Service struct {
-	taskDef          *ecs.TaskDefinition
-	cache            cache.Cache
-	ecsContext       *context.ECSContext
-	timeSleeper      *utils.TimeSleeper
-	deploymentConfig *ecs.DeploymentConfiguration
-	loadBalancer     *ecs.LoadBalancer
-	role             string
-	healthCheckGP    *int64
+	taskDef           *ecs.TaskDefinition
+	cache             cache.Cache
+	ecsContext        *context.ECSContext
+	timeSleeper       *utils.TimeSleeper
+	deploymentConfig  *ecs.DeploymentConfiguration
+	loadBalancer      *ecs.LoadBalancer
+	placementStrategy []ecs.PlacementStrategy
+	role              string
+	healthCheckGP     *int64
 }
+
+//var placementStrategy []ecs.PlacementStrategy
 
 const (
 	ecsActiveResourceCode  = "ACTIVE"
@@ -57,6 +60,36 @@ func NewService(ecsContext *context.ECSContext) entity.ProjectEntity {
 		ecsContext:  ecsContext,
 		timeSleeper: &utils.TimeSleeper{},
 	}
+}
+
+// createPlacementStrategy returns a placement strategy
+//func (placementStrategy []ecs.PlacementStrategy) createPlacementStrategy(ps String) {
+func createPlacementStrategy(config string) []*ecs.PlacementStrategy {
+	psDefaultType := ecs.PlacementStrategyTypeRandom
+	psDefaultField := ""
+	defaultPlacementStrategy := ecs.PlacementStrategy{Field: &psDefaultField, Type: &psDefaultType}
+
+	var placementStrategy []*ecs.PlacementStrategy
+
+	if len(config) > 0 {
+		args := strings.Split(config, ",")
+
+		for _, element := range args {
+			kv := strings.Split(element, "/")
+			if element == psDefaultType {
+				placementStrategy = append(placementStrategy, &defaultPlacementStrategy)
+			} else {
+
+				t, f := kv[0], kv[1]
+				newPair := ecs.PlacementStrategy{Field: &f, Type: &t}
+				placementStrategy = append(placementStrategy, &newPair)
+			}
+		}
+
+	} else {
+		placementStrategy = append(placementStrategy, &defaultPlacementStrategy)
+	}
+	return placementStrategy
 }
 
 // LoadContext reads the ECS context set in NewService and loads DeploymentConfiguration and LoadBalancer
@@ -368,6 +401,12 @@ func (s *Service) createService() error {
 	launchType := s.Context().CommandConfig.LaunchType
 
 	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(s.ecsContext.ECSParams)
+
+	var placementStrategy []*ecs.PlacementStrategy
+	ps := s.Context().CLIContext.String(flags.PlacementStrategy)
+
+	placementStrategy = createPlacementStrategy(ps)
+
 	if err != nil {
 		return err
 	}
@@ -378,7 +417,7 @@ func (s *Service) createService() error {
 		return fmt.Errorf("--%v is only valid for services configured to use load balancers", flags.HealthCheckGracePeriodFlag)
 	}
 
-	err = s.Context().ECSClient.CreateService(serviceName, taskDefinitionID, s.loadBalancer, s.role, s.DeploymentConfig(), networkConfig, launchType, s.healthCheckGP)
+	err = s.Context().ECSClient.CreateService(serviceName, taskDefinitionID, s.loadBalancer, s.role, s.DeploymentConfig(), networkConfig, launchType, s.healthCheckGP, placementStrategy)
 	if err != nil {
 		return err
 	}
