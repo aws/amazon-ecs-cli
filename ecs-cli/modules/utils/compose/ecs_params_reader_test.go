@@ -214,6 +214,68 @@ run_params:
 	}
 }
 
+func TestReadECSParams_WithTaskPlacement(t *testing.T) {
+	ecsParamsString := `version: 1
+run_params:
+  task_placement:
+    strategy:
+      - field: memory
+        type: binpack
+      - field: attribute:ecs.availability-zone
+        type: spread
+    constraints:
+      - expression: attribute:ecs.instance-type =~ t2.*
+        type: memberOf
+      - type: distinctInstance`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs fields tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	defer os.Remove(ecsParamsFileName)
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	expectedStrategies := []Strategy{
+		{
+			Field: "memory",
+			Type:  ecs.PlacementStrategyTypeBinpack,
+		},
+		{
+			Field: "attribute:ecs.availability-zone",
+			Type:  ecs.PlacementStrategyTypeSpread,
+		},
+	}
+
+	expectedConstraints := []Constraint{
+		{
+			Expression: "attribute:ecs.instance-type =~ t2.*",
+			Type:       ecs.PlacementConstraintTypeMemberOf,
+		},
+		{
+			Type: ecs.PlacementConstraintTypeDistinctInstance,
+		},
+	}
+
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+
+	if assert.NoError(t, err) {
+		taskPlacement := ecsParams.RunParams.TaskPlacement
+		strategies := taskPlacement.Strategies
+		constraints := taskPlacement.Constraints
+		assert.Len(t, strategies, 2)
+		assert.Len(t, constraints, 2)
+		assert.ElementsMatch(t, expectedStrategies, strategies)
+		assert.ElementsMatch(t, expectedConstraints, constraints)
+	}
+}
+
 func TestReadECSParams_MemoryWithUnits(t *testing.T) {
 	ecsParamsString := `version: 1
 task_definition:

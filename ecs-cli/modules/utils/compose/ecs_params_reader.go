@@ -90,6 +90,7 @@ type TaskSize struct {
 // RunParams specifies non-TaskDefinition specific parameters
 type RunParams struct {
 	NetworkConfiguration NetworkConfiguration `yaml:"network_configuration"`
+	TaskPlacement        TaskPlacement        `yaml:"task_placement"`
 }
 
 // NetworkConfiguration specifies the network config for the task definition.
@@ -108,10 +109,26 @@ type AwsVpcConfiguration struct {
 
 type AssignPublicIp string
 
+// TODO: Remove; use enum in aws-sdk-go instead (AssignPublicIpEnabled, AssignPublicIpDisabled)
 const (
 	Enabled  AssignPublicIp = "ENABLED"
 	Disabled AssignPublicIp = "DISABLED"
 )
+
+type TaskPlacement struct {
+	Strategies  []Strategy   `yaml:"strategy"`
+	Constraints []Constraint `yaml:"constraints"`
+}
+
+type Strategy struct {
+	Field string `yaml:"field"`
+	Type  string `yaml:"type"`
+}
+
+type Constraint struct {
+	Expression string `yaml:"expression"`
+	Type       string `yaml:"type"`
+}
 
 /////////////////////////////
 ///// Parsing Functions /////
