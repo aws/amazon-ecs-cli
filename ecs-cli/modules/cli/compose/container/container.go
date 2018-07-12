@@ -28,9 +28,11 @@ const (
 	containerStateKey = "State"
 	containerPortsKey = "Ports"
 	taskDefinitionKey = "TaskDefinition"
+	healthKey         = "Health"
 )
 
-var ContainerInfoColumns = []string{containerNameKey, containerStateKey, containerPortsKey, taskDefinitionKey}
+// ContainerInfoColumns is the ordered list of info columns for the ps commands
+var ContainerInfoColumns = []string{containerNameKey, containerStateKey, containerPortsKey, taskDefinitionKey, healthKey}
 
 // Container is a wrapper around ecsContainer
 type Container struct {
@@ -59,8 +61,8 @@ func (c *Container) Id() string {
 // ECS doesn't have a describe container API so providing the task's UUID in the name enables users
 // to easily look up this container in the ecs world by invoking DescribeTask
 func (c *Container) Name() string {
-	taskId := utils.GetIdFromArn(aws.StringValue(c.task.TaskArn))
-	return utils.GetFormattedContainerName(taskId, aws.StringValue(c.ecsContainer.Name))
+	taskID := utils.GetIdFromArn(aws.StringValue(c.task.TaskArn))
+	return utils.GetFormattedContainerName(taskID, aws.StringValue(c.ecsContainer.Name))
 }
 
 // TaskDefinition returns the ECS task definition id which encompasses the container definition, with
@@ -112,6 +114,11 @@ func (c *Container) PortString() string {
 	return strings.Join(result, ", ")
 }
 
+// HealthStatus returns the container healthcheck status for the given container
+func (c *Container) HealthStatus() string {
+	return aws.StringValue(c.ecsContainer.HealthStatus)
+}
+
 // ConvertContainersToInfoSet transforms the list of containers into a formatted set of fields
 func ConvertContainersToInfoSet(containers []Container) project.InfoSet {
 	result := project.InfoSet{}
@@ -122,6 +129,7 @@ func ConvertContainersToInfoSet(containers []Container) project.InfoSet {
 			containerStateKey: cont.State(),
 			containerPortsKey: cont.PortString(),
 			taskDefinitionKey: cont.TaskDefinition(),
+			healthKey:         cont.HealthStatus(),
 		}
 		result = append(result, info)
 	}
