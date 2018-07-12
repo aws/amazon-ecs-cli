@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/docker/libcompose/yaml"
 	"github.com/stretchr/testify/assert"
 )
@@ -32,13 +33,13 @@ task_definition:
 	content := []byte(ecsParamsString)
 
 	tmpfile, err := ioutil.TempFile("", "ecs-params")
-	assert.NoError(t, err, "Could not create ecs fields tempfile")
+	assert.NoError(t, err, "Could not create ecs-params tempfile")
 
 	ecsParamsFileName := tmpfile.Name()
 	defer os.Remove(ecsParamsFileName)
 
 	_, err = tmpfile.Write(content)
-	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+	assert.NoError(t, err, "Could not write data to ecs-params tempfile")
 
 	err = tmpfile.Close()
 	assert.NoError(t, err, "Could not close tempfile")
@@ -87,13 +88,13 @@ task_definition:
 	content := []byte(ecsParamsString)
 
 	tmpfile, err := ioutil.TempFile("", "ecs-params")
-	assert.NoError(t, err, "Could not create ecs fields tempfile")
+	assert.NoError(t, err, "Could not create ecs-params tempfile")
 
 	ecsParamsFileName := tmpfile.Name()
 	defer os.Remove(ecsParamsFileName)
 
 	_, err = tmpfile.Write(content)
-	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+	assert.NoError(t, err, "Could not write data to ecs-params tempfile")
 
 	err = tmpfile.Close()
 	assert.NoError(t, err, "Could not close tempfile")
@@ -134,13 +135,13 @@ run_params:
 	content := []byte(ecsParamsString)
 
 	tmpfile, err := ioutil.TempFile("", "ecs-params")
-	assert.NoError(t, err, "Could not create ecs fields tempfile")
+	assert.NoError(t, err, "Could not create ecs-params tempfile")
 
 	ecsParamsFileName := tmpfile.Name()
 	defer os.Remove(ecsParamsFileName)
 
 	_, err = tmpfile.Write(content)
-	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+	assert.NoError(t, err, "Could not write data to ecs-params tempfile")
 
 	err = tmpfile.Close()
 	assert.NoError(t, err, "Could not close tempfile")
@@ -181,13 +182,13 @@ run_params:
 	content := []byte(ecsParamsString)
 
 	tmpfile, err := ioutil.TempFile("", "ecs-params")
-	assert.NoError(t, err, "Could not create ecs fields tempfile")
+	assert.NoError(t, err, "Could not create ecs-params tempfile")
 
 	ecsParamsFileName := tmpfile.Name()
 	defer os.Remove(ecsParamsFileName)
 
 	_, err = tmpfile.Write(content)
-	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+	assert.NoError(t, err, "Could not write data to ecs-params tempfile")
 
 	err = tmpfile.Close()
 	assert.NoError(t, err, "Could not close tempfile")
@@ -221,13 +222,13 @@ task_definition:
 	content := []byte(ecsParamsString)
 
 	tmpfile, err := ioutil.TempFile("", "ecs-params")
-	assert.NoError(t, err, "Could not create ecs fields tempfile")
+	assert.NoError(t, err, "Could not create ecs-params tempfile")
 
 	ecsParamsFileName := tmpfile.Name()
 	defer os.Remove(ecsParamsFileName)
 
 	_, err = tmpfile.Write(content)
-	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+	assert.NoError(t, err, "Could not write data to ecs-params tempfile")
 
 	err = tmpfile.Close()
 	assert.NoError(t, err, "Could not close tempfile")
@@ -252,13 +253,13 @@ task_definition:
 	content := []byte(ecsParamsString)
 
 	tmpfile, err := ioutil.TempFile("", "ecs-params")
-	assert.NoError(t, err, "Could not create ecs fields tempfile")
+	assert.NoError(t, err, "Could not create ecs-params tempfile")
 
 	ecsParamsFileName := tmpfile.Name()
 	defer os.Remove(ecsParamsFileName)
 
 	_, err = tmpfile.Write(content)
-	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+	assert.NoError(t, err, "Could not write data to ecs-params tempfile")
 
 	err = tmpfile.Close()
 	assert.NoError(t, err, "Could not close tempfile")
@@ -402,5 +403,253 @@ func TestConvertToECSNetworkConfiguration_NoNetworkConfig(t *testing.T) {
 
 	if assert.NoError(t, err) {
 		assert.Nil(t, ecsNetworkConfig, "Expected AssignPublicIp to be nil")
+	}
+}
+
+func TestReadECSParams_WithHealthCheck(t *testing.T) {
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    mysql:
+      healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost"]
+        interval: 1m30s
+        timeout: 10s
+        retries: 3
+        start_period: 40s
+    wordpress:
+      healthcheck:
+        command: ["CMD-SHELL", "curl -f http://localhost"]
+        interval: 70
+        timeout: 15
+        retries: 5
+        start_period: 40
+    logstash:
+      healthcheck:
+        test: curl -f http://localhost
+        interval: 10m
+        timeout: 15s
+        retries: 5
+        start_period: 50
+    elasticsearch:
+      healthcheck:
+        command: curl http://example.com
+        interval: 10
+        timeout: 15
+        retries: 5
+        start_period: 50s`
+
+	mysqlExpectedHealthCheck := &HealthCheck{
+		Test:        []string{"CMD", "curl", "-f", "http://localhost"},
+		Command:     nil,
+		Interval:    "1m30s",
+		Timeout:     "10s",
+		Retries:     3,
+		StartPeriod: "40s",
+	}
+
+	wordpressExpectedHealthCheck := &HealthCheck{
+		Command:     []string{"CMD-SHELL", "curl -f http://localhost"},
+		Test:        nil,
+		Interval:    "70",
+		Timeout:     "15",
+		Retries:     int64(5),
+		StartPeriod: "40",
+	}
+
+	logstashExpectedHealthCheck := &HealthCheck{
+		Test:        []string{"curl -f http://localhost"},
+		Command:     nil,
+		Interval:    "10m",
+		Timeout:     "15s",
+		Retries:     5,
+		StartPeriod: "50",
+	}
+
+	elasticsearchExpectedHealthCheck := &HealthCheck{
+		Command:     []string{"curl http://example.com"},
+		Test:        nil,
+		Interval:    "10",
+		Timeout:     "15",
+		Retries:     5,
+		StartPeriod: "50s",
+	}
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs-params tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	defer os.Remove(ecsParamsFileName)
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs-params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+
+	if assert.NoError(t, err) {
+		taskDef := ecsParams.TaskDefinition
+
+		containerDefs := taskDef.ContainerDefinitions
+		assert.Equal(t, 4, len(containerDefs), "Expected 4 containers")
+
+		mysql := containerDefs["mysql"]
+		wordpress := containerDefs["wordpress"]
+		logstash := containerDefs["logstash"]
+		elasticsearch := containerDefs["elasticsearch"]
+
+		assert.Equal(t, mysqlExpectedHealthCheck, mysql.HealthCheck)
+		assert.Equal(t, wordpressExpectedHealthCheck, wordpress.HealthCheck)
+		assert.Equal(t, logstashExpectedHealthCheck, logstash.HealthCheck)
+		assert.Equal(t, elasticsearchExpectedHealthCheck, elasticsearch.HealthCheck)
+	}
+}
+
+func TestConvertToECSHealthCheck(t *testing.T) {
+	testHealthCheck := &HealthCheck{
+		Test:        []string{"CMD-SHELL", "curl -f http://localhost"},
+		Command:     nil,
+		Interval:    "10m",
+		Timeout:     "15s",
+		Retries:     5,
+		StartPeriod: "50s",
+	}
+
+	expected := &ecs.HealthCheck{
+		Command:     aws.StringSlice([]string{"CMD-SHELL", "curl -f http://localhost"}),
+		Interval:    aws.Int64(600),
+		Timeout:     aws.Int64(15),
+		Retries:     aws.Int64(5),
+		StartPeriod: aws.Int64(50),
+	}
+
+	actual, err := testHealthCheck.ConvertToECSHealthCheck()
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, expected, actual, "Expected healthcheck to match")
+	}
+}
+
+func TestConvertToECSHealthCheck_AltFormat(t *testing.T) {
+	testHealthCheck := &HealthCheck{
+		Command:     []string{"CMD-SHELL", "curl -f http://localhost"},
+		Test:        nil,
+		Interval:    "600",
+		Timeout:     "15",
+		Retries:     5,
+		StartPeriod: "50",
+	}
+
+	expected := &ecs.HealthCheck{
+		Command:     aws.StringSlice([]string{"CMD-SHELL", "curl -f http://localhost"}),
+		Interval:    aws.Int64(600),
+		Timeout:     aws.Int64(15),
+		Retries:     aws.Int64(5),
+		StartPeriod: aws.Int64(50),
+	}
+
+	actual, err := testHealthCheck.ConvertToECSHealthCheck()
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, expected, actual, "Expected healthcheck to match")
+	}
+}
+
+func TestConvertToECSHealthCheck_PrependForStringCommand(t *testing.T) {
+	testHealthCheck := &HealthCheck{
+		Command: []string{"curl -f http://localhost"},
+	}
+
+	expected := []string{"CMD-SHELL", "curl -f http://localhost"}
+
+	actual, err := testHealthCheck.ConvertToECSHealthCheck()
+	if assert.NoError(t, err) {
+		assert.Equal(t, aws.StringSlice(expected), actual.Command, "Expected healthcheck command to match")
+	}
+
+	// With Test key
+	testHealthCheck = &HealthCheck{
+		Test: []string{"curl -f http://localhost"},
+	}
+
+	actual, err = testHealthCheck.ConvertToECSHealthCheck()
+	if assert.NoError(t, err) {
+		assert.Equal(t, aws.StringSlice(expected), actual.Command, "Expected healthcheck command to match")
+	}
+}
+
+func TestConvertToECSHealthCheck_ErrorCase_InvalidInterval(t *testing.T) {
+	testHealthCheck := &HealthCheck{
+		Test:        []string{"CMD", "curl", "-f", "http://localhost"},
+		Command:     nil,
+		Interval:    "cat",
+		Timeout:     "10s",
+		Retries:     3,
+		StartPeriod: "40s",
+	}
+	_, err := testHealthCheck.ConvertToECSHealthCheck()
+
+	assert.Error(t, err, "Expected error parsing interval field in healthcheck")
+}
+
+func TestConvertToECSHealthCheck_ErrorCase_TestAndCommand(t *testing.T) {
+	testHealthCheck := &HealthCheck{
+		Test:        []string{"CMD", "curl", "-f", "http://localhost"},
+		Command:     []string{"CMD", "curl", "-f", "http://localhost"},
+		Interval:    "5s",
+		Timeout:     "10s",
+		Retries:     3,
+		StartPeriod: "40s",
+	}
+	_, err := testHealthCheck.ConvertToECSHealthCheck()
+
+	assert.Error(t, err, "Expected error reading ecs-params: healthcheck test and command can not both be specified")
+}
+
+func TestConvertToECSHealthCheck_IntFieldsBlank(t *testing.T) {
+	testHealthCheck := &HealthCheck{
+		Command: []string{"CMD", "curl", "-f", "http://localhost"},
+	}
+
+	expected := &ecs.HealthCheck{
+		Command:     aws.StringSlice([]string{"CMD", "curl", "-f", "http://localhost"}),
+		Interval:    nil,
+		Timeout:     nil,
+		Retries:     nil,
+		StartPeriod: nil,
+	}
+
+	actual, err := testHealthCheck.ConvertToECSHealthCheck()
+	if assert.NoError(t, err) {
+		assert.Equal(t, expected, actual)
+	}
+}
+
+func TestConvertToECSHealthCheck_TestFieldBlank(t *testing.T) {
+	testHealthCheck := &HealthCheck{
+		Command:     nil,
+		Test:        nil,
+		Interval:    "",
+		Timeout:     "",
+		Retries:     0,
+		StartPeriod: "10",
+	}
+
+	expected := &ecs.HealthCheck{
+		Command:     nil,
+		Interval:    nil,
+		Timeout:     nil,
+		Retries:     nil,
+		StartPeriod: aws.Int64(10),
+	}
+
+	actual, err := testHealthCheck.ConvertToECSHealthCheck()
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, expected, actual)
 	}
 }

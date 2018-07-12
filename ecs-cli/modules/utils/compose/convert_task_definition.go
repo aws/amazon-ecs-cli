@@ -14,6 +14,8 @@
 package utils
 
 import (
+	"fmt"
+
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -114,7 +116,6 @@ func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *C
 	if inputCfg.Hostname != "" {
 		outputContDef.SetHostname(inputCfg.Hostname)
 	}
-	outputContDef.SetHealthCheck(inputCfg.HealthCheck)
 	outputContDef.SetImage(inputCfg.Image)
 	outputContDef.SetLinks(aws.StringSlice(inputCfg.Links)) // TODO, read from external links
 	outputContDef.SetLogConfiguration(inputCfg.LogConfiguration)
@@ -161,19 +162,26 @@ func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *C
 	cpu := inputCfg.CPU
 	mem := inputCfg.Memory
 	memRes := inputCfg.MemoryReservation
+	healthCheck := inputCfg.HealthCheck
 
 	// Set essential & resource fields from ecs-params file, if present
 	if ecsContainerDef != nil {
 		outputContDef.Essential = aws.Bool(ecsContainerDef.Essential)
 
 		// CPU and Memory are expected to be set here if compose v3 was used
-		cpu = getResourceValue(inputCfg.Name, cpu, ecsContainerDef.Cpu, "CPU")
+		cpu = resolveIntResourceOverride(inputCfg.Name, cpu, ecsContainerDef.Cpu, "CPU")
 
 		ecsMemInMB := adapter.ConvertToMemoryInMB(int64(ecsContainerDef.Memory))
-		mem = getResourceValue(inputCfg.Name, mem, ecsMemInMB, "MemoryLimit")
+		mem = resolveIntResourceOverride(inputCfg.Name, mem, ecsMemInMB, "MemoryLimit")
 
 		ecsMemResInMB := adapter.ConvertToMemoryInMB(int64(ecsContainerDef.MemoryReservation))
-		memRes = getResourceValue(inputCfg.Name, memRes, ecsMemResInMB, "MemoryReservation")
+		memRes = resolveIntResourceOverride(inputCfg.Name, memRes, ecsMemResInMB, "MemoryReservation")
+
+		var err error
+		healthCheck, err = resolveHealthCheck(inputCfg.Name, healthCheck, ecsContainerDef.HealthCheck)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// One or both of memory and memoryReservation is required to register a task definition with ECS
@@ -201,26 +209,77 @@ func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *C
 		outputContDef.SetMemoryReservation(memRes)
 	}
 
+	if healthCheck != nil {
+		outputContDef.SetHealthCheck(healthCheck)
+	}
+
 	return outputContDef, nil
 }
 
-func getResourceValue(serviceName string, inputVal, ecsVal int64, option string) int64 {
-	if ecsVal == 0 {
-		return inputVal
+func resolveHealthCheck(serviceName string, healthCheck *ecs.HealthCheck, ecsParamsHealthCheck *HealthCheck) (*ecs.HealthCheck, error) {
+	if ecsParamsHealthCheck != nil {
+		healthCheckOverride, err := ecsParamsHealthCheck.ConvertToECSHealthCheck()
+		if err != nil {
+			return nil, err
+		}
+
+		if healthCheck != nil {
+			healthCheck.Command = resolveStringSliceResourceOverride(serviceName, healthCheck.Command, healthCheckOverride.Command, "healthcheck command")
+			healthCheck.Interval = resolveIntPointerResourceOverride(serviceName, healthCheck.Interval, healthCheckOverride.Interval, "healthcheck interval")
+			healthCheck.Retries = resolveIntPointerResourceOverride(serviceName, healthCheck.Retries, healthCheckOverride.Retries, "healthcheck retries")
+			healthCheck.Timeout = resolveIntPointerResourceOverride(serviceName, healthCheck.Timeout, healthCheckOverride.Timeout, "healthcheck timeout")
+			healthCheck.StartPeriod = resolveIntPointerResourceOverride(serviceName, healthCheck.StartPeriod, healthCheckOverride.StartPeriod, "healthcheck start_period")
+		} else {
+			healthCheck = healthCheckOverride
+		}
 	}
-	if inputVal > 0 {
-		showResourceOverrideMsg(serviceName, inputVal, ecsVal, option)
+	// validate healthcheck
+	if healthCheck != nil && healthCheck.Validate() != nil {
+		return healthCheck, fmt.Errorf("%s: test/command is a required field for container healthcheck", serviceName)
 	}
-	return ecsVal
+	return healthCheck, nil
 }
 
-func showResourceOverrideMsg(serviceName string, oldValue int64, newValue int64, option string) {
+func resolveIntResourceOverride(serviceName string, composeVal, ecsParamsVal int64, option string) int64 {
+	if composeVal > 0 && ecsParamsVal > 0 {
+		showResourceOverrideMsg(serviceName, composeVal, ecsParamsVal, option)
+	}
+	if ecsParamsVal > 0 {
+		return ecsParamsVal
+	}
+	return composeVal
+}
+
+func resolveIntPointerResourceOverride(serviceName string, composeVal, ecsParamsVal *int64, option string) *int64 {
+	if composeVal != nil && ecsParamsVal != nil {
+		showResourceOverrideMsg(serviceName, aws.Int64Value(composeVal), aws.Int64Value(ecsParamsVal), option)
+	}
+	if ecsParamsVal != nil {
+		return ecsParamsVal
+	}
+	return composeVal
+}
+
+func resolveStringSliceResourceOverride(serviceName string, composeVal, ecsParamsVal []*string, option string) []*string {
+	if len(composeVal) > 0 && len(ecsParamsVal) > 0 {
+		log.WithFields(log.Fields{
+			"option name":  option,
+			"service name": serviceName,
+		}).Infof("Using ecs-params value as override")
+	}
+	if len(ecsParamsVal) > 0 {
+		return ecsParamsVal
+	}
+	return composeVal
+}
+
+func showResourceOverrideMsg(serviceName string, val int64, override int64, option string) {
 	overrideMsg := "Using ecs-params value as override (was %v but is now %v)"
 
 	log.WithFields(log.Fields{
 		"option name":  option,
 		"service name": serviceName,
-	}).Infof(overrideMsg, oldValue, newValue)
+	}).Infof(overrideMsg, val, override)
 }
 
 // convertToECSVolumes transforms the map of hostPaths to the format of ecs.Volume

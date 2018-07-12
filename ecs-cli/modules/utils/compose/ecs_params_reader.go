@@ -16,9 +16,13 @@ package utils
 // ECS Params Reader is used to parse the ecs-params.yml file and marshal the data into the ECSParams struct
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
+	"time"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	libYaml "github.com/docker/libcompose/yaml"
@@ -52,6 +56,18 @@ type ContainerDef struct {
 	Cpu               int64                  `yaml:"cpu_shares"`
 	Memory            libYaml.MemStringorInt `yaml:"mem_limit"`
 	MemoryReservation libYaml.MemStringorInt `yaml:"mem_reservation"`
+	HealthCheck       *HealthCheck           `yaml:"healthcheck"`
+}
+
+// HealthCheck holds all possible fields for HealthCheck, including fields
+// supported by docker compose vs ECS
+type HealthCheck struct {
+	Test        libYaml.Stringorslice
+	Command     libYaml.Stringorslice
+	Timeout     string `yaml:"timeout,omitempty"`
+	Interval    string `yaml:"interval,omitempty"`
+	Retries     int64  `yaml:"retries,omitempty"`
+	StartPeriod string `yaml:"start_period,omitempty"`
 }
 
 // TaskSize holds Cpu and Memory values needed for Fargate tasks
@@ -96,6 +112,70 @@ func (cd *ContainerDef) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	*cd = ContainerDef(raw)
 	return nil
+}
+
+func (h *HealthCheck) ConvertToECSHealthCheck() (*ecs.HealthCheck, error) {
+	ecsHealthCheck := &ecs.HealthCheck{}
+	if len(h.Command) > 0 && len(h.Test) > 0 {
+		return nil, fmt.Errorf("healthcheck.test and healthcheck.command can not both be specified")
+	}
+
+	if len(h.Command) > 0 {
+		ecsHealthCheck.Command = aws.StringSlice(getHealthCheckCommand(h.Command))
+	}
+
+	if len(h.Test) > 0 {
+		ecsHealthCheck.Command = aws.StringSlice(getHealthCheckCommand(h.Test))
+	}
+
+	if h.Retries != 0 {
+		ecsHealthCheck.Retries = &h.Retries
+	}
+
+	timeout, err := parseHealthCheckTime(h.Timeout)
+	if err != nil {
+		return ecsHealthCheck, err
+	}
+	ecsHealthCheck.Timeout = timeout
+
+	startPeriod, err := parseHealthCheckTime(h.StartPeriod)
+	if err != nil {
+		return ecsHealthCheck, err
+	}
+	ecsHealthCheck.StartPeriod = startPeriod
+
+	interval, err := parseHealthCheckTime(h.Interval)
+	if err != nil {
+		return ecsHealthCheck, err
+	}
+	ecsHealthCheck.Interval = interval
+
+	return ecsHealthCheck, nil
+}
+
+// parses the command/test field for healthcheck
+func getHealthCheckCommand(command []string) []string {
+	if len(command) == 1 {
+		// command/test was specified as a single string which wraps it in /bin/sh (CMD-SHELL)
+		command = append([]string{"CMD-SHELL"}, command...)
+	}
+	return command
+}
+
+// parses a health check time string which could be a duration or an integer
+func parseHealthCheckTime(field string) (*int64, error) {
+	if field != "" {
+		duration, err := time.ParseDuration(field)
+		if err == nil {
+			return adapter.ConvertToTimeInSeconds(&duration), nil
+		} else if val, err := strconv.ParseInt(field, 10, 64); err == nil {
+			return &val, nil
+		} else {
+			return nil, fmt.Errorf("Could not parse %s either as an integer or a duration (ex: 1m30s)", field)
+		}
+	}
+
+	return nil, nil
 }
 
 // ReadECSParams parses the ecs-params.yml file and puts it into an ECSParams struct.

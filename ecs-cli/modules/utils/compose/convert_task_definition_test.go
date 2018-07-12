@@ -75,6 +75,13 @@ var testContainerConfig = &adapter.ContainerConfig{
 			IpAddress: aws.String("127.10.10.10"),
 		},
 	},
+	HealthCheck: &ecs.HealthCheck{
+		Command:     aws.StringSlice([]string{"CMD-SHELL", "curl -f http://localhost"}),
+		Interval:    aws.Int64(int64(70)),
+		Timeout:     aws.Int64(int64(15)),
+		Retries:     aws.Int64(int64(5)),
+		StartPeriod: aws.Int64(int64(40)),
+	},
 	Hostname: "foobarbaz",
 	Image:    "testimage",
 	Links:    []string{"container1"},
@@ -258,6 +265,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	assert.ElementsMatch(t, ulimits, containerDef.Ulimits, "Expected Ulimits to match")
 	assert.Equal(t, volumesFrom, containerDef.VolumesFrom, "Expected VolumesFrom to match")
 	assert.Equal(t, aws.String(workingDir), containerDef.WorkingDirectory, "Expected container def WorkingDirectory to match")
+	assert.Equal(t, testContainerConfig.HealthCheck, containerDef.HealthCheck)
 
 	// If no containers are specified as being essential, all containers
 	// are marked "essential"
@@ -1260,6 +1268,111 @@ func TestIsZeroWhenConfigHasValues(t *testing.T) {
 		zeroValue := value.IsZero(f)
 		_, hasValue := hasValues[fieldName]
 		assert.NotEqual(t, zeroValue, hasValue)
+	}
+}
+
+func TestConvertToTaskDefinitionWithECSParams_HealthCheck(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "httpd",
+	}
+
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    web:
+      healthcheck:
+        test: curl -f http://localhost
+        interval: 10m
+        timeout: 15s
+        retries: 5
+        start_period: 50`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, []string{"CMD-SHELL", "curl -f http://localhost"}, aws.StringValueSlice(web.HealthCheck.Command))
+		assert.Equal(t, aws.Int64(600), web.HealthCheck.Interval)
+		assert.Equal(t, aws.Int64(15), web.HealthCheck.Timeout)
+		assert.Equal(t, aws.Int64(5), web.HealthCheck.Retries)
+		assert.Equal(t, aws.Int64(50), web.HealthCheck.StartPeriod)
+	}
+}
+
+func TestConvertToTaskDefinitionWithECSParams_HealthCheckOverrideCompose(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "httpd",
+		HealthCheck: &ecs.HealthCheck{
+			Command:     aws.StringSlice([]string{"CMD", "curl", "-f", "http://example.com"}),
+			Interval:    aws.Int64(int64(91)),
+			Timeout:     aws.Int64(int64(17)),
+			Retries:     aws.Int64(int64(7)),
+			StartPeriod: aws.Int64(int64(73)),
+		},
+	}
+
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    web:
+      healthcheck:
+        test: curl -f http://localhost
+        interval: 10m
+        timeout: 15s
+        retries: 5
+        start_period: 50`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, []string{"CMD-SHELL", "curl -f http://localhost"}, aws.StringValueSlice(web.HealthCheck.Command))
+		assert.Equal(t, aws.Int64(600), web.HealthCheck.Interval)
+		assert.Equal(t, aws.Int64(15), web.HealthCheck.Timeout)
+		assert.Equal(t, aws.Int64(5), web.HealthCheck.Retries)
+		assert.Equal(t, aws.Int64(50), web.HealthCheck.StartPeriod)
 	}
 }
 
