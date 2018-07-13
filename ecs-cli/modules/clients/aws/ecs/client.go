@@ -42,7 +42,7 @@ type ECSClient interface {
 	IsActiveCluster(clusterName string) (bool, error)
 
 	// Service related
-	CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, launchType string, healthCheckGracePeriod *int64) error
+	CreateService(serviceName string, createServiceInput *ecs.CreateServiceInput) error
 	UpdateService(serviceName, taskDefinitionName string, count int64, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, healthCheckGracePeriod *int64, force bool) error
 	DescribeService(serviceName string) (*ecs.DescribeServicesOutput, error)
 	DeleteService(serviceName string) error
@@ -132,29 +132,7 @@ func (c *ecsClient) DeleteService(serviceName string) error {
 	return nil
 }
 
-func (c *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, launchType string, healthCheckGracePeriod *int64) error {
-	createServiceInput := &ecs.CreateServiceInput{
-		DesiredCount:            aws.Int64(0),            // Required
-		ServiceName:             aws.String(serviceName), // Required
-		TaskDefinition:          aws.String(taskDefName), // Required
-		Cluster:                 aws.String(c.config.Cluster),
-		DeploymentConfiguration: deploymentConfig,
-		LoadBalancers:           []*ecs.LoadBalancer{loadBalancer},
-		Role:                    aws.String(role),
-	}
-
-	if healthCheckGracePeriod != nil {
-		createServiceInput.HealthCheckGracePeriodSeconds = aws.Int64(*healthCheckGracePeriod)
-	}
-
-	if networkConfig != nil {
-		createServiceInput.NetworkConfiguration = networkConfig
-	}
-
-	if launchType != "" {
-		createServiceInput.LaunchType = aws.String(launchType)
-	}
-
+func (c *ecsClient) CreateService(serviceName string, createServiceInput *ecs.CreateServiceInput) error {
 	if _, err := c.client.CreateService(createServiceInput); err != nil {
 		log.WithFields(log.Fields{
 			"service": serviceName,
@@ -163,21 +141,6 @@ func (c *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer 
 		return err
 	}
 
-	fields := log.Fields{
-		"service":        serviceName,
-		"taskDefinition": taskDefName,
-	}
-	if deploymentConfig != nil && deploymentConfig.MaximumPercent != nil {
-		fields["deployment-max-percent"] = aws.Int64Value(deploymentConfig.MaximumPercent)
-	}
-	if deploymentConfig != nil && deploymentConfig.MinimumHealthyPercent != nil {
-		fields["deployment-min-healthy-percent"] = aws.Int64Value(deploymentConfig.MinimumHealthyPercent)
-	}
-	if healthCheckGracePeriod != nil {
-		fields["health-check-grace-period"] = *healthCheckGracePeriod
-	}
-
-	log.WithFields(fields).Info("Created an ECS service")
 	return nil
 }
 

@@ -38,52 +38,32 @@ func TestCreateWithDeploymentConfig(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.String(flags.DeploymentMaxPercentFlag, strconv.Itoa(deploymentMaxPercent), "")
 	flagSet.String(flags.DeploymentMinHealthyPercentFlag, strconv.Itoa(deploymentMinPercent), "")
-	cliContext := cli.NewContext(nil, flagSet, nil)
 
 	createServiceTest(
 		t,
-		cliContext,
+		flagSet,
 		&config.CommandConfig{},
 		&utils.ECSParams{},
-		func(deploymentConfig *ecs.DeploymentConfiguration) {
-			assert.Equal(t, int64(deploymentMaxPercent), aws.Int64Value(deploymentConfig.MaximumPercent), "DeploymentConfig.MaxPercent should match")
-			assert.Equal(t, int64(deploymentMinPercent), aws.Int64Value(deploymentConfig.MinimumHealthyPercent), "DeploymentConfig.MinimumHealthyPercent should match")
-		},
-		func(loadBalancer *ecs.LoadBalancer, role string) {
-			assert.Nil(t, loadBalancer, "LoadBalancer should be nil")
-			assert.Empty(t, role, "Role should be empty")
-		},
-		func(launchType string) {
-			assert.Empty(t, launchType)
-		},
-		func(networkConfig *ecs.NetworkConfiguration) {
-			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
+		func(input *ecs.CreateServiceInput) {
+			actual := input.DeploymentConfiguration
+			assert.Equal(t, int64(deploymentMaxPercent), aws.Int64Value(actual.MaximumPercent), "DeploymentConfig.MaxPercent should match")
+			assert.Equal(t, int64(deploymentMinPercent), aws.Int64Value(actual.MinimumHealthyPercent), "DeploymentConfig.MinimumHealthyPercent should match")
 		},
 	)
 }
 
 func TestCreateWithoutDeploymentConfig(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	cliContext := cli.NewContext(nil, flagSet, nil)
 
 	createServiceTest(
 		t,
-		cliContext,
+		flagSet,
 		&config.CommandConfig{},
 		&utils.ECSParams{},
-		func(deploymentConfig *ecs.DeploymentConfiguration) {
-			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
-			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
-		},
-		func(loadBalancer *ecs.LoadBalancer, role string) {
-			assert.Nil(t, loadBalancer, "LoadBalancer should be nil")
-			assert.Empty(t, role, "Role should be empty")
-		},
-		func(launchType string) {
-			assert.Empty(t, launchType)
-		},
-		func(networkConfig *ecs.NetworkConfiguration) {
-			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
+		func(input *ecs.CreateServiceInput) {
+			actual := input.DeploymentConfiguration
+			assert.Nil(t, actual.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
+			assert.Nil(t, actual.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
 		},
 	)
 }
@@ -105,25 +85,17 @@ func ecsParamsWithNetworkConfig() *utils.ECSParams {
 
 func TestCreateWithNetworkConfig(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	cliContext := cli.NewContext(nil, flagSet, nil)
 
 	createServiceTest(
 		t,
-		cliContext,
+		flagSet,
 		&config.CommandConfig{},
 		ecsParamsWithNetworkConfig(),
-		func(deploymentConfig *ecs.DeploymentConfiguration) {
-			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
-			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
-		},
-		func(loadBalancer *ecs.LoadBalancer, role string) {
-			assert.Nil(t, loadBalancer, "LoadBalancer should be nil")
-			assert.Empty(t, role, "Role should be empty")
-		},
-		func(launchType string) {
+		func(input *ecs.CreateServiceInput) {
+			launchType := input.LaunchType
 			assert.NotEqual(t, "FARGATE", launchType)
-		},
-		func(networkConfig *ecs.NetworkConfiguration) {
+
+			networkConfig := input.NetworkConfiguration
 			assert.NotNil(t, networkConfig, "NetworkConfiguration should not be nil")
 			assert.Equal(t, 2, len(networkConfig.AwsvpcConfiguration.Subnets))
 			assert.Nil(t, networkConfig.AwsvpcConfiguration.AssignPublicIp)
@@ -154,25 +126,17 @@ func ecsParamsWithFargateNetworkConfig() *utils.ECSParams {
 
 func TestCreateFargate(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	cliContext := cli.NewContext(nil, flagSet, nil)
 
 	createServiceTest(
 		t,
-		cliContext,
+		flagSet,
 		&config.CommandConfig{LaunchType: "FARGATE"},
 		ecsParamsWithFargateNetworkConfig(),
-		func(deploymentConfig *ecs.DeploymentConfiguration) {
-			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
-			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
-		},
-		func(loadBalancer *ecs.LoadBalancer, role string) {
-			assert.Nil(t, loadBalancer, "LoadBalancer should be nil")
-			assert.Empty(t, role, "Role should be empty")
-		},
-		func(launchType string) {
-			assert.Equal(t, "FARGATE", launchType)
-		},
-		func(networkConfig *ecs.NetworkConfiguration) {
+		func(input *ecs.CreateServiceInput) {
+			launchType := input.LaunchType
+			assert.Equal(t, "FARGATE", aws.StringValue(launchType))
+
+			networkConfig := input.NetworkConfiguration
 			assert.NotNil(t, networkConfig, "NetworkConfiguration should not be nil")
 			assert.Equal(t, 2, len(networkConfig.AwsvpcConfiguration.Subnets))
 			assert.Equal(t, string(utils.Enabled), aws.StringValue(networkConfig.AwsvpcConfiguration.AssignPublicIp))
@@ -225,25 +189,17 @@ func TestCreateFargateNetworkModeNotAWSVPC(t *testing.T) {
 
 func TestCreateEC2Explicitly(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	cliContext := cli.NewContext(nil, flagSet, nil)
 
 	createServiceTest(
 		t,
-		cliContext,
+		flagSet,
 		&config.CommandConfig{LaunchType: "EC2"},
 		&utils.ECSParams{},
-		func(deploymentConfig *ecs.DeploymentConfiguration) {
-			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
-			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
-		},
-		func(loadBalancer *ecs.LoadBalancer, role string) {
-			assert.Nil(t, loadBalancer, "LoadBalancer should be nil")
-			assert.Empty(t, role, "Role should be empty")
-		},
-		func(launchType string) {
-			assert.Equal(t, "EC2", launchType)
-		},
-		func(networkConfig *ecs.NetworkConfiguration) {
+		func(input *ecs.CreateServiceInput) {
+			launchType := input.LaunchType
+			assert.Equal(t, "EC2", aws.StringValue(launchType))
+
+			networkConfig := input.NetworkConfiguration
 			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
 		},
 	)
@@ -262,30 +218,21 @@ func TestCreateWithALB(t *testing.T) {
 	flagSet.String(flags.ContainerPortFlag, strconv.Itoa(containerPort), "")
 	flagSet.String(flags.RoleFlag, role, "")
 
-	cliContext := cli.NewContext(nil, flagSet, nil)
-
 	createServiceTest(
 		t,
-		cliContext,
+		flagSet,
 		&config.CommandConfig{},
 		&utils.ECSParams{},
-		func(deploymentConfig *ecs.DeploymentConfiguration) {
-			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
-			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
-		},
-		func(loadBalancer *ecs.LoadBalancer, observedRole string) {
+		func(input *ecs.CreateServiceInput) {
+			loadBalancer := input.LoadBalancers[0]
+			observedRole := input.Role
+
 			assert.NotNil(t, loadBalancer, "LoadBalancer should not be nil")
 			assert.Nil(t, loadBalancer.LoadBalancerName, "LoadBalancer.LoadBalancerName should be nil")
 			assert.Equal(t, targetGroupArn, aws.StringValue(loadBalancer.TargetGroupArn), "LoadBalancer.TargetGroupArn should match")
 			assert.Equal(t, containerName, aws.StringValue(loadBalancer.ContainerName), "LoadBalancer.ContainerName should match")
 			assert.Equal(t, int64(containerPort), aws.Int64Value(loadBalancer.ContainerPort), "LoadBalancer.ContainerPort should match")
-			assert.Equal(t, role, observedRole, "Role should match")
-		},
-		func(launchType string) {
-			assert.Empty(t, launchType)
-		},
-		func(networkConfig *ecs.NetworkConfiguration) {
-			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
+			assert.Equal(t, role, aws.StringValue(observedRole), "Role should match")
 		},
 	)
 }
@@ -304,32 +251,22 @@ func TestCreateWithHealthCheckGracePeriodAndALB(t *testing.T) {
 	flagSet.String(flags.RoleFlag, role, "")
 	flagSet.String(flags.HealthCheckGracePeriodFlag, strconv.Itoa(healthCheckGP), "")
 
-	cliContext := cli.NewContext(nil, flagSet, nil)
-
-	createServiceWithHealthCheckGPTest(
+	createServiceTest(
 		t,
-		cliContext,
+		flagSet,
 		&config.CommandConfig{},
 		&utils.ECSParams{},
-		func(deploymentConfig *ecs.DeploymentConfiguration) {
-			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
-			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
-		},
-		func(loadBalancer *ecs.LoadBalancer, observedRole string) {
+		func(input *ecs.CreateServiceInput) {
+			loadBalancer := input.LoadBalancers[0]
+			observedRole := input.Role
+			healthCheckGracePeriod := input.HealthCheckGracePeriodSeconds
+
 			assert.NotNil(t, loadBalancer, "LoadBalancer should not be nil")
 			assert.Nil(t, loadBalancer.LoadBalancerName, "LoadBalancer.LoadBalancerName should be nil")
 			assert.Equal(t, targetGroupArn, aws.StringValue(loadBalancer.TargetGroupArn), "LoadBalancer.TargetGroupArn should match")
 			assert.Equal(t, containerName, aws.StringValue(loadBalancer.ContainerName), "LoadBalancer.ContainerName should match")
 			assert.Equal(t, int64(containerPort), aws.Int64Value(loadBalancer.ContainerPort), "LoadBalancer.ContainerPort should match")
-			assert.Equal(t, role, observedRole, "Role should match")
-		},
-		func(launchType string) {
-			assert.Empty(t, launchType)
-		},
-		func(networkConfig *ecs.NetworkConfiguration) {
-			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
-		},
-		func(healthCheckGracePeriod *int64) {
+			assert.Equal(t, role, aws.StringValue(observedRole), "Role should match")
 			assert.Equal(t, int64(healthCheckGP), *healthCheckGracePeriod, "HealthCheckGracePeriod should match")
 		},
 	)
@@ -348,30 +285,21 @@ func TestCreateWithELB(t *testing.T) {
 	flagSet.String(flags.ContainerPortFlag, strconv.Itoa(containerPort), "")
 	flagSet.String(flags.RoleFlag, role, "")
 
-	cliContext := cli.NewContext(nil, flagSet, nil)
-
 	createServiceTest(
 		t,
-		cliContext,
+		flagSet,
 		&config.CommandConfig{},
 		&utils.ECSParams{},
-		func(deploymentConfig *ecs.DeploymentConfiguration) {
-			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
-			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
-		},
-		func(loadBalancer *ecs.LoadBalancer, observedRole string) {
+		func(input *ecs.CreateServiceInput) {
+			loadBalancer := input.LoadBalancers[0]
+			observedRole := input.Role
+
 			assert.NotNil(t, loadBalancer, "LoadBalancer should not be nil")
 			assert.Nil(t, loadBalancer.TargetGroupArn, "LoadBalancer.TargetGroupArn should be nil")
 			assert.Equal(t, loadbalancerName, aws.StringValue(loadBalancer.LoadBalancerName), "LoadBalancer.LoadBalancerName should match")
 			assert.Equal(t, containerName, aws.StringValue(loadBalancer.ContainerName), "LoadBalancer.ContainerName should match")
 			assert.Equal(t, int64(containerPort), aws.Int64Value(loadBalancer.ContainerPort), "LoadBalancer.ContainerPort should match")
-			assert.Equal(t, role, observedRole, "Role should match")
-		},
-		func(launchType string) {
-			assert.Empty(t, launchType)
-		},
-		func(networkConfig *ecs.NetworkConfiguration) {
-			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
+			assert.Equal(t, role, aws.StringValue(observedRole), "Role should match")
 		},
 	)
 }
@@ -390,76 +318,34 @@ func TestCreateWithHealthCheckGracePeriodAndELB(t *testing.T) {
 	flagSet.String(flags.RoleFlag, role, "")
 	flagSet.String(flags.HealthCheckGracePeriodFlag, strconv.Itoa(healthCheckGP), "")
 
-	cliContext := cli.NewContext(nil, flagSet, nil)
-
-	createServiceWithHealthCheckGPTest(
+	createServiceTest(
 		t,
-		cliContext,
+		flagSet,
 		&config.CommandConfig{},
 		&utils.ECSParams{},
-		func(deploymentConfig *ecs.DeploymentConfiguration) {
-			assert.Nil(t, deploymentConfig.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
-			assert.Nil(t, deploymentConfig.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
-		},
-		func(loadBalancer *ecs.LoadBalancer, observedRole string) {
+		func(input *ecs.CreateServiceInput) {
+			loadBalancer := input.LoadBalancers[0]
+			observedRole := input.Role
+			healthCheckGracePeriod := input.HealthCheckGracePeriodSeconds
+
 			assert.NotNil(t, loadBalancer, "LoadBalancer should not be nil")
 			assert.Nil(t, loadBalancer.TargetGroupArn, "LoadBalancer.TargetGroupArn should be nil")
 			assert.Equal(t, loadbalancerName, aws.StringValue(loadBalancer.LoadBalancerName), "LoadBalancer.LoadBalancerName should match")
 			assert.Equal(t, containerName, aws.StringValue(loadBalancer.ContainerName), "LoadBalancer.ContainerName should match")
 			assert.Equal(t, int64(containerPort), aws.Int64Value(loadBalancer.ContainerPort), "LoadBalancer.ContainerPort should match")
-			assert.Equal(t, role, observedRole, "Role should match")
-		},
-		func(launchType string) {
-			assert.Empty(t, launchType)
-		},
-		func(networkConfig *ecs.NetworkConfiguration) {
-			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
-		},
-		func(healthCheckGracePeriod *int64) {
+			assert.Equal(t, role, aws.StringValue(observedRole), "Role should match")
 			assert.Equal(t, int64(healthCheckGP), *healthCheckGracePeriod, "HealthCheckGracePeriod should match")
 		},
 	)
 }
 
-type validateDeploymentConfiguration func(*ecs.DeploymentConfiguration)
-type validateLoadBalancer func(*ecs.LoadBalancer, string)
-type validateLaunchType func(string)
-type validateNetworkConfig func(*ecs.NetworkConfiguration)
-type validateHealthCheckGracePeriod func(*int64)
+type validateCreateServiceInputField func(*ecs.CreateServiceInput)
 
 func createServiceTest(t *testing.T,
-	cliContext *cli.Context,
+	flagSet *flag.FlagSet,
 	commandConfig *config.CommandConfig,
 	ecsParams *utils.ECSParams,
-	validateDeploymentConfig validateDeploymentConfiguration,
-	validateLB validateLoadBalancer,
-	validateLT validateLaunchType,
-	validateNC validateNetworkConfig) {
-
-	createServiceWithHealthCheckGPTest(
-		t,
-		cliContext,
-		commandConfig,
-		ecsParams,
-		validateDeploymentConfig,
-		validateLB,
-		validateLT,
-		validateNC,
-		func(healthCheckGP *int64) {
-			assert.Nil(t, healthCheckGP, "HealthCheckGracePeriod should be nil")
-		},
-	)
-}
-
-func createServiceWithHealthCheckGPTest(t *testing.T,
-	cliContext *cli.Context,
-	commandConfig *config.CommandConfig,
-	ecsParams *utils.ECSParams,
-	validateDeploymentConfig validateDeploymentConfiguration,
-	validateLB validateLoadBalancer,
-	validateLT validateLaunchType,
-	validateNC validateNetworkConfig,
-	validateHCGP validateHealthCheckGracePeriod) {
+	validateInput validateCreateServiceInputField) {
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -476,36 +362,15 @@ func createServiceWithHealthCheckGPTest(t *testing.T,
 		}).Return(&registerTaskDefResponse, nil),
 
 		mockEcs.EXPECT().CreateService(
-			gomock.Any(), // serviceName
-			gomock.Any(), // taskDefName
-			gomock.Any(), // loadBalancer
-			gomock.Any(), // role
-			gomock.Any(), // deploymentConfig
-			gomock.Any(), // networkConfig
-			gomock.Any(), // launchType
-			gomock.Any(), // healthCheckGracePeriod
-		).Do(func(a, b, c, d, e, f, g, h interface{}) {
-			observedTaskDefID := b.(string)
-			assert.Equal(t, taskDefID, observedTaskDefID, "Task Definition name should match")
-
-			observedLB := c.(*ecs.LoadBalancer)
-			observedRole := d.(string)
-			validateLB(observedLB, observedRole)
-
-			observedDeploymentConfig := e.(*ecs.DeploymentConfiguration)
-			validateDeploymentConfig(observedDeploymentConfig)
-
-			observedLaunchType := g.(string)
-			validateLT(observedLaunchType)
-
-			observedNetworkConfig := f.(*ecs.NetworkConfiguration)
-			validateNC(observedNetworkConfig)
-
-			observedHealthCheckGracePeriod := h.(*int64)
-			validateHCGP(observedHealthCheckGracePeriod)
-
+			gomock.Any(),
+			gomock.Any(),
+		).Do(func(serviceName, input interface{}) {
+			req := input.(*ecs.CreateServiceInput)
+			validateInput(req)
 		}).Return(nil),
 	)
+
+	cliContext := cli.NewContext(nil, flagSet, nil)
 
 	context := &context.ECSContext{
 		ECSClient:     mockEcs,
@@ -806,15 +671,10 @@ func getCreateServiceWithDelayMockClient(t *testing.T,
 		mockEcs.EXPECT().CreateService(
 			gomock.Any(), // serviceName
 			gomock.Any(), // taskDefName
-			gomock.Any(), // loadBalancer
-			gomock.Any(), // role
-			gomock.Any(), // deploymentConfig
-			gomock.Any(), // networkConfig
-			gomock.Any(), // launchType
-			gomock.Any(), // healthCheckGracePeriod
-		).Do(func(a, b, c, d, e, f, g, h interface{}) {
-			observedTaskDefID := b.(string)
-			assert.Equal(t, taskDefID, observedTaskDefID, "Task Definition name should match")
+		).Do(func(serviceName, input interface{}) {
+			req := input.(*ecs.CreateServiceInput)
+			observedTaskDefID := req.TaskDefinition
+			assert.Equal(t, taskDefID, aws.StringValue(observedTaskDefID), "Task Definition name should match")
 		}).Return(nil),
 
 		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(getDescribeServiceTestResponse(nil), nil),
