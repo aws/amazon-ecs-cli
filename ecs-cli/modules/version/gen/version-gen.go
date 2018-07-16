@@ -72,7 +72,7 @@ func gitDirty() bool {
 }
 
 func gitHash() string {
-	cmd := exec.Command("git", "rev-parse", "--short", "HEAD")
+	cmd := exec.Command("git", "rev-parse", "--short=7", "HEAD")
 	hash, err := cmd.Output()
 	if err != nil {
 		return "UNKNOWN"
