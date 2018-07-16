@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.7.0
+* Feature - Add support for container health check (#472)
+* Feature - Add support for devices (#508)
+* Bug - Fix error in ps command (#522)
+* Bug - Fix error using ENV variables with docker compose v3 (#537)
+* Bug - Fix memory validation in containers (#546)
+* Bug - Fix log message for container resource overrides
+* Bug - Add missing cn-northwest-1 region in Cloudformation template (#552)
+* Enhancement - Add waiter for service creation (#79)
+
 ## 1.6.0
 * Feature - Add support for docker Compose file version 3 (#218)
 * Feature - Add support for environmental variables in ecs-params.yml (#530)
