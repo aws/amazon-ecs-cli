@@ -15,19 +15,18 @@
 ### Environment
 * Make sure you are using Go 1.10 (`go version`).
 * Copy the source code (`go get github.com/aws/amazon-ecs-cli`).
-* We use [dep](https://github.com/golang/dep) to manage dependencies. Make sure you have version 0.3.2 of [dep](https://github.com/golang/dep/releases/tag/v0.3.2) (installation instructions [here](https://golang.github.io/dep/docs/installation.html)).
+* We use [dep](https://github.com/golang/dep) to manage dependencies. Make sure you have version 0.4.1 of [dep](https://github.com/golang/dep/releases/tag/v0.4.1) (installation instructions [here](https://golang.github.io/dep/docs/installation.html)). You can also run `make generate-deps` to install the latest version of dep as well as other tools.
 
 ### Building
 From `$GOPATH/src/github.com/aws/amazon-ecs-cli`:
 * Run `make` (This creates a standalone executable in the `bin/local` directory).
 
 From `$GOPATH/src/github.com/aws/amazon-ecs-cli/ecs-cli`:
-* run `dep ensure && dep prune`. This will download dependencies specified in the `Gopkg.lock` by default in `$GOPATH/pkg/dep/sources`.
-* **NOTE:** `dep ensure` puts the dependencies in a detached HEAD state.
-* **NOTE:** `dep prune` deletes any unused vendor files.
+* run `dep ensure`. This will download dependencies specified in the `Gopkg.lock` by default in `$GOPATH/pkg/dep/sources`.
+* **NOTE:** `dep ensure` puts the dependencies in a detached HEAD state. It also deletes any unused vendor files (includes running `dep prune`, as of dep 0.4.0)
 
 ### Adding/updating new dependencies
-* We use [dep](https://github.com/golang/dep) to manage dependencies. Make sure you have version 0.3.2 of [dep](https://github.com/golang/dep/releases/tag/v0.3.2) (installation instructions [here](https://golang.github.io/dep/docs/installation.html)).
+* We use [dep](https://github.com/golang/dep) to manage dependencies. Make sure you have version 0.4.1 of [dep](https://github.com/golang/dep/releases/tag/v0.4.1) (installation instructions [here](https://golang.github.io/dep/docs/installation.html)).
 * To [add a dependency](https://golang.github.io/dep/docs/daily-dep.html#adding-a-new-dependency), run `dep ensure -add <your_package>`.
 * To [update a dependency](https://golang.github.io/dep/docs/daily-dep.html#updating-dependencies), run `dep ensure -update<your_package>`.
 
