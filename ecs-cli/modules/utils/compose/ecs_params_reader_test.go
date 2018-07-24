@@ -471,6 +471,86 @@ func TestConvertToECSNetworkConfiguration_NoNetworkConfig(t *testing.T) {
 	}
 }
 
+func TestConvertToECSPlacementConstraints(t *testing.T) {
+	constraint1 := Constraint{
+		Expression: "attribute:ecs.instance-type =~ t2.*",
+		Type:       ecs.PlacementConstraintTypeMemberOf,
+	}
+	constraint2 := Constraint{
+		Type: ecs.PlacementConstraintTypeDistinctInstance,
+	}
+	constraints := []Constraint{constraint1, constraint2}
+	taskPlacement := TaskPlacement{
+		Constraints: constraints,
+	}
+
+	ecsParams := &ECSParams{
+		RunParams: RunParams{
+			TaskPlacement: taskPlacement,
+		},
+	}
+
+	expectedConstraints := []*ecs.PlacementConstraint{
+		&ecs.PlacementConstraint{
+			Expression: aws.String("attribute:ecs.instance-type =~ t2.*"),
+			Type:       aws.String(ecs.PlacementConstraintTypeMemberOf),
+		},
+		&ecs.PlacementConstraint{
+			Type: aws.String(ecs.PlacementConstraintTypeDistinctInstance),
+		},
+	}
+
+	ecsPlacementConstraints, err := ConvertToECSPlacementConstraints(ecsParams)
+
+	if assert.NoError(t, err) {
+		assert.ElementsMatch(t, expectedConstraints, ecsPlacementConstraints, "Expected placement constraints to match")
+	}
+}
+
+func TestConvertToECSPlacementStrategy(t *testing.T) {
+	strategy1 := Strategy{
+		Field: "instanceId",
+		Type:  ecs.PlacementStrategyTypeBinpack,
+	}
+	strategy2 := Strategy{
+		Field: "attribute:ecs.availability-zone",
+		Type:  ecs.PlacementStrategyTypeSpread,
+	}
+	strategy3 := Strategy{
+		Type: ecs.PlacementStrategyTypeRandom,
+	}
+	strategy := []Strategy{strategy1, strategy2, strategy3}
+	taskPlacement := TaskPlacement{
+		Strategies: strategy,
+	}
+
+	ecsParams := &ECSParams{
+		RunParams: RunParams{
+			TaskPlacement: taskPlacement,
+		},
+	}
+
+	expectedStrategy := []*ecs.PlacementStrategy{
+		&ecs.PlacementStrategy{
+			Field: aws.String("instanceId"),
+			Type:  aws.String(ecs.PlacementStrategyTypeBinpack),
+		},
+		&ecs.PlacementStrategy{
+			Field: aws.String("attribute:ecs.availability-zone"),
+			Type:  aws.String(ecs.PlacementStrategyTypeSpread),
+		},
+		&ecs.PlacementStrategy{
+			Type: aws.String(ecs.PlacementStrategyTypeRandom),
+		},
+	}
+
+	ecsPlacementStrategy, err := ConvertToECSPlacementStrategy(ecsParams)
+
+	if assert.NoError(t, err) {
+		assert.ElementsMatch(t, expectedStrategy, ecsPlacementStrategy, "Expected placement strategy to match")
+	}
+}
+
 func TestReadECSParams_WithHealthCheck(t *testing.T) {
 	ecsParamsString := `version: 1
 task_definition:
