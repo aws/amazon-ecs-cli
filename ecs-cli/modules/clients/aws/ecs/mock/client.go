@@ -203,16 +203,16 @@ func (mr *MockECSClientMockRecorder) RegisterTaskDefinitionIfNeeded(arg0, arg1 i
 }
 
 // RunTask mocks base method
-func (m *MockECSClient) RunTask(arg0, arg1 string, arg2 int, arg3 *ecs0.NetworkConfiguration, arg4 string) (*ecs0.RunTaskOutput, error) {
-	ret := m.ctrl.Call(m, "RunTask", arg0, arg1, arg2, arg3, arg4)
+func (m *MockECSClient) RunTask(arg0 *ecs0.RunTaskInput) (*ecs0.RunTaskOutput, error) {
+	ret := m.ctrl.Call(m, "RunTask", arg0)
 	ret0, _ := ret[0].(*ecs0.RunTaskOutput)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // RunTask indicates an expected call of RunTask
-func (mr *MockECSClientMockRecorder) RunTask(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunTask", reflect.TypeOf((*MockECSClient)(nil).RunTask), arg0, arg1, arg2, arg3, arg4)
+func (mr *MockECSClientMockRecorder) RunTask(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunTask", reflect.TypeOf((*MockECSClient)(nil).RunTask), arg0)
 }
 
 // RunTaskWithOverrides mocks base method

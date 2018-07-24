@@ -54,7 +54,7 @@ type ECSClient interface {
 
 	// Tasks related
 	GetTasksPages(listTasksInput *ecs.ListTasksInput, fn ProcessTasksAction) error
-	RunTask(taskDefinition, taskGroup string, count int, networkConfig *ecs.NetworkConfiguration, launchType string) (*ecs.RunTaskOutput, error)
+	RunTask(runTaskInput *ecs.RunTaskInput) (*ecs.RunTaskOutput, error)
 	RunTaskWithOverrides(taskDefinition, taskGroup string, count int, overrides map[string][]string) (*ecs.RunTaskOutput, error)
 	StopTask(taskID string) error
 	DescribeTasks(taskIds []*string) ([]*ecs.Task, error)
@@ -368,27 +368,12 @@ func (c *ecsClient) DescribeTasks(taskArns []*string) ([]*ecs.Task, error) {
 }
 
 // RunTask issues a run task request for the input task definition
-func (c *ecsClient) RunTask(taskDefinition, group string, count int, networkConfig *ecs.NetworkConfiguration, launchType string) (*ecs.RunTaskOutput, error) {
-	runTaskInput := &ecs.RunTaskInput{
-		Cluster:        aws.String(c.config.Cluster),
-		TaskDefinition: aws.String(taskDefinition),
-		Group:          aws.String(group),
-		Count:          aws.Int64(int64(count)),
-	}
-
-	if networkConfig != nil {
-		runTaskInput.NetworkConfiguration = networkConfig
-	}
-
-	if launchType != "" {
-		runTaskInput.LaunchType = aws.String(launchType)
-	}
-
-	resp, err := c.client.RunTask(runTaskInput)
+func (c *ecsClient) RunTask(input *ecs.RunTaskInput) (*ecs.RunTaskOutput, error) {
+	resp, err := c.client.RunTask(input)
 
 	if err != nil {
 		log.WithFields(log.Fields{
-			"task definition": taskDefinition,
+			"task definition": input.TaskDefinition,
 			"error":           err,
 		}).Error("Error running tasks")
 	}

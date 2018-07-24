@@ -448,7 +448,14 @@ func TestRunTask(t *testing.T) {
 		assert.Nil(t, req.LaunchType, "Expected Launch Type to be nil.")
 	}).Return(&ecs.RunTaskOutput{}, nil)
 
-	_, err := client.RunTask(td, group, count, nil, "")
+	runTaskInput := &ecs.RunTaskInput{
+		Cluster:        aws.String(clusterName),
+		TaskDefinition: aws.String(td),
+		Group:          aws.String(group),
+		Count:          aws.Int64(int64(count)),
+	}
+
+	_, err := client.RunTask(runTaskInput)
 	assert.NoError(t, err, "Unexpected error when calling RunTask")
 }
 
@@ -470,7 +477,14 @@ func TestRunTaskWithLaunchTypeEC2(t *testing.T) {
 		assert.Nil(t, req.NetworkConfiguration, "Expected Network Config to be nil.")
 	}).Return(&ecs.RunTaskOutput{}, nil)
 
-	_, err := client.RunTask(td, group, count, nil, "EC2")
+	runTaskInput := &ecs.RunTaskInput{
+		Cluster:        aws.String(clusterName),
+		TaskDefinition: aws.String(td),
+		Group:          aws.String(group),
+		Count:          aws.Int64(int64(count)),
+		LaunchType:     aws.String("EC2"),
+	}
+	_, err := client.RunTask(runTaskInput)
 	assert.NoError(t, err, "Unexpected error when calling RunTask")
 }
 
@@ -503,7 +517,16 @@ func TestRunTaskWithLaunchTypeFargate(t *testing.T) {
 		assert.NotNil(t, req.NetworkConfiguration, "Expected Network Config to not be nil.")
 	}).Return(&ecs.RunTaskOutput{}, nil)
 
-	_, err := client.RunTask(td, group, count, networkConfig, "FARGATE")
+	runTaskInput := &ecs.RunTaskInput{
+		Cluster:              aws.String(clusterName),
+		TaskDefinition:       aws.String(td),
+		Group:                aws.String(group),
+		Count:                aws.Int64(int64(count)),
+		LaunchType:           aws.String("FARGATE"),
+		NetworkConfiguration: networkConfig,
+	}
+
+	_, err := client.RunTask(runTaskInput)
 	assert.NoError(t, err, "Unexpected error when calling RunTask")
 }
 
@@ -534,7 +557,15 @@ func TestRunTask_WithTaskNetworking(t *testing.T) {
 		assert.Equal(t, networkConfig, req.NetworkConfiguration, "Expected networkConfiguration to match")
 	}).Return(&ecs.RunTaskOutput{}, nil)
 
-	_, err := client.RunTask(td, group, count, networkConfig, "")
+	runTaskInput := &ecs.RunTaskInput{
+		Cluster:              aws.String(clusterName),
+		TaskDefinition:       aws.String(td),
+		Group:                aws.String(group),
+		Count:                aws.Int64(int64(count)),
+		LaunchType:           aws.String("EC2"),
+		NetworkConfiguration: networkConfig,
+	}
+	_, err := client.RunTask(runTaskInput)
 	assert.NoError(t, err, "Unexpected error when calling RunTask")
 }
 

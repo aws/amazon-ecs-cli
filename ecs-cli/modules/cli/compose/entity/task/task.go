@@ -240,19 +240,9 @@ func (t *Task) stopTasks(ecsTasks []*ecs.Task) error {
 }
 
 // runTasks issues run task request to ECS Service in chunks of count=10
-func (t *Task) runTasks(taskDefinitionId string, totalCount int) ([]*ecs.Task, error) {
-	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(t.ecsContext.ECSParams)
-	if err != nil {
-		return nil, err
-	}
-
+func (t *Task) runTasks(taskDefinition string, totalCount int) ([]*ecs.Task, error) {
 	result := []*ecs.Task{}
 	chunkSize := 10 // can issue only upto 10 tasks in a RunTask Call
-	launchType := t.Context().CommandConfig.LaunchType
-
-	if err := entity.ValidateFargateParams(t.Context().ECSParams, launchType); err != nil {
-		return nil, err
-	}
 
 	for i := 0; i < totalCount; i += chunkSize {
 		count := chunkSize
@@ -260,10 +250,16 @@ func (t *Task) runTasks(taskDefinitionId string, totalCount int) ([]*ecs.Task, e
 			count = totalCount - i
 		}
 
-		ecsTasks, err := t.Context().ECSClient.RunTask(taskDefinitionId, entity.GetTaskGroup(t), count, networkConfig, launchType)
+		runTaskInput, err := t.buildRunTaskInput(taskDefinition, count)
 		if err != nil {
 			return nil, err
 		}
+
+		ecsTasks, err := t.Context().ECSClient.RunTask(runTaskInput)
+		if err != nil {
+			return nil, err
+		}
+
 		for _, failure := range ecsTasks.Failures {
 			log.WithFields(log.Fields{
 				"reason": aws.StringValue(failure.Reason),
@@ -273,6 +269,39 @@ func (t *Task) runTasks(taskDefinitionId string, totalCount int) ([]*ecs.Task, e
 	}
 
 	return result, nil
+}
+
+func (t *Task) buildRunTaskInput(taskDefinition string, count int) (*ecs.RunTaskInput, error) {
+	cluster := t.Context().CommandConfig.Cluster
+	launchType := t.Context().CommandConfig.LaunchType
+	group := entity.GetTaskGroup(t)
+
+	ecsParams := t.ecsContext.ECSParams
+	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(ecsParams)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := entity.ValidateFargateParams(ecsParams, launchType); err != nil {
+		return nil, err
+	}
+
+	runTaskInput := &ecs.RunTaskInput{
+		Cluster:        aws.String(cluster),
+		TaskDefinition: aws.String(taskDefinition),
+		Group:          aws.String(group),
+		Count:          aws.Int64(int64(count)),
+	}
+
+	if networkConfig != nil {
+		runTaskInput.NetworkConfiguration = networkConfig
+	}
+
+	if launchType != "" {
+		runTaskInput.LaunchType = aws.String(launchType)
+	}
+
+	return runTaskInput, nil
 }
 
 // createOne issues run task with count=1 and waits for it to get to running state
