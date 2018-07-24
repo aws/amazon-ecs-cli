@@ -13,8 +13,8 @@
 
 package cloudformation
 
-func GetTemplate() string {
-	return template
+func GetClusterTemplate() string {
+	return cluster_template
 }
 
 // TODO: Improvements:
@@ -32,7 +32,7 @@ const (
 	SecurityGroupLogicalResourceId = "EcsSecurityGroup"
 )
 
-var template = `
+var cluster_template = `
 {
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "AWS CloudFormation template to create resources required to run tasks on an ECS cluster.",
