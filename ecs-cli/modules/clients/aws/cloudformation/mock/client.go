@@ -43,15 +43,15 @@ func (_m *MockCloudformationClient) EXPECT() *_MockCloudformationClientRecorder 
 	return _m.recorder
 }
 
-func (_m *MockCloudformationClient) CreateStack(_param0 string, _param1 string, _param2 *cloudformation.CfnStackParams) (string, error) {
-	ret := _m.ctrl.Call(_m, "CreateStack", _param0, _param1, _param2)
+func (_m *MockCloudformationClient) CreateStack(_param0 string, _param1 string, _param2 bool, _param3 *cloudformation.CfnStackParams) (string, error) {
+	ret := _m.ctrl.Call(_m, "CreateStack", _param0, _param1, _param2, _param3)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockCloudformationClientRecorder) CreateStack(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateStack", arg0, arg1, arg2)
+func (_mr *_MockCloudformationClientRecorder) CreateStack(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateStack", arg0, arg1, arg2, arg3)
 }
 
 func (_m *MockCloudformationClient) DeleteStack(_param0 string) error {

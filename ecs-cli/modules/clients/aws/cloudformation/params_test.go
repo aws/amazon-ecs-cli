@@ -21,8 +21,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	parameterKeyAsgMaxSize = "AsgMaxSize"
+	parameterKeyCluster    = "EcsCluster"
+	parameterKeyAmiId      = "EcsAmiId"
+)
+
 func TestAddAndValidate(t *testing.T) {
-	cfnParams := NewCfnStackParams()
+	cfnParams := NewCfnStackParams([]string{parameterKeyCluster})
 
 	err := cfnParams.Validate()
 	if err == nil {
@@ -30,26 +36,26 @@ func TestAddAndValidate(t *testing.T) {
 	}
 
 	// Add AMI ID
-	err = cfnParams.Add(ParameterKeyAmiId, "ami-12345")
+	err = cfnParams.Add(parameterKeyAmiId, "ami-12345")
 	if err != nil {
 		t.Error("Error adding parameter: ", err)
 	}
 	err = cfnParams.Validate()
 	if err == nil {
-		t.Errorf("Expected validation error when %s is not specified", ParameterKeyCluster)
+		t.Errorf("Expected validation error when %s is not specified", parameterKeyCluster)
 	}
 
 	// Add Cluster
-	err = cfnParams.Add(ParameterKeyCluster, "")
+	err = cfnParams.Add(parameterKeyCluster, "")
 	if err != nil {
 		t.Error("Error adding parameter: ", err)
 	}
 	err = cfnParams.Validate()
 	if err == nil {
-		t.Errorf("Expected validation error when %s is empty", ParameterKeyCluster)
+		t.Errorf("Expected validation error when %s is empty", parameterKeyCluster)
 	}
 
-	err = cfnParams.Add(ParameterKeyCluster, "default")
+	err = cfnParams.Add(parameterKeyCluster, "default")
 	if err != nil {
 		t.Error("Error adding parameter: ", err)
 	}
@@ -63,9 +69,9 @@ func TestAddAndValidate(t *testing.T) {
 		t.Errorf("Mismatch in number of keys in params map. Expected 2, found: %d", len(paramsMap))
 	}
 
-	clusterValue, exists := cfnParams.nameToKeys[ParameterKeyCluster]
+	clusterValue, exists := cfnParams.nameToKeys[parameterKeyCluster]
 	if !exists {
-		t.Errorf("Expected key %s does not exist", ParameterKeyCluster)
+		t.Errorf("Expected key %s does not exist", parameterKeyCluster)
 	}
 
 	if "default" != clusterValue {
@@ -82,7 +88,7 @@ func TestAddWithUsePreviousValue(t *testing.T) {
 			ParameterKey: aws.String("SomeParam2"),
 		},
 	}
-	cfnParams, err := NewCfnStackParamsForUpdate(existingParameters)
+	cfnParams, err := NewCfnStackParamsForUpdate([]string{parameterKeyCluster}, existingParameters)
 	assert.NoError(t, err, "Unexpected error getting New CFN Stack Params")
 
 	params := cfnParams.Get()
@@ -102,28 +108,28 @@ func TestAddWithUsePreviousValue(t *testing.T) {
 		}
 	}
 
-	err = cfnParams.AddWithUsePreviousValue(ParameterKeyAsgMaxSize, false)
+	err = cfnParams.AddWithUsePreviousValue(parameterKeyAsgMaxSize, false)
 	if err != nil {
-		t.Errorf("Error adding parameter with use previous value '%s': '%v'", ParameterKeyAsgMaxSize, err)
+		t.Errorf("Error adding parameter with use previous value '%s': '%v'", parameterKeyAsgMaxSize, err)
 	}
 
 	size := "3"
-	err = cfnParams.Add(ParameterKeyAsgMaxSize, size)
+	err = cfnParams.Add(parameterKeyAsgMaxSize, size)
 	if err != nil {
-		t.Errorf("Error adding parameter '%s': %v", ParameterKeyAsgMaxSize, err)
+		t.Errorf("Error adding parameter '%s': %v", parameterKeyAsgMaxSize, err)
 	}
 
-	param, err := cfnParams.GetParameter(ParameterKeyAsgMaxSize)
+	param, err := cfnParams.GetParameter(parameterKeyAsgMaxSize)
 	if err != nil {
-		t.Errorf("Error getting parameter '%s': %v", ParameterKeyAsgMaxSize, err)
+		t.Errorf("Error getting parameter '%s': %v", parameterKeyAsgMaxSize, err)
 	}
 	usePrevious := param.UsePreviousValue
 	if usePrevious == nil {
-		t.Fatalf("usePrevious is not set for '%s' in params map", ParameterKeyAsgMaxSize)
+		t.Fatalf("usePrevious is not set for '%s' in params map", parameterKeyAsgMaxSize)
 	}
 
 	if aws.BoolValue(usePrevious) {
-		t.Errorf("usePrevious value is true for '%s', expected false", ParameterKeyAsgMaxSize)
+		t.Errorf("usePrevious value is true for '%s', expected false", parameterKeyAsgMaxSize)
 	}
 
 }

@@ -21,76 +21,31 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 )
 
-// Parameter Key Names used by the template.
-const (
-	ParameterKeyAsgMaxSize               = "AsgMaxSize"
-	ParameterKeyVPCAzs                   = "VpcAvailabilityZones"
-	ParameterKeySecurityGroup            = "SecurityGroupIds"
-	ParameterKeySourceCidr               = "SourceCidr"
-	ParameterKeyEcsPort                  = "EcsPort"
-	ParameterKeySubnetIds                = "SubnetIds"
-	ParameterKeyVpcId                    = "VpcId"
-	ParameterKeyInstanceType             = "EcsInstanceType"
-	ParameterKeyKeyPairName              = "KeyName"
-	ParameterKeyCluster                  = "EcsCluster"
-	ParameterKeyAmiId                    = "EcsAmiId"
-	ParameterKeyAssociatePublicIPAddress = "AssociatePublicIpAddress"
-	ParameterKeyInstanceRole             = "InstanceRole"
-	ParameterKeyIsFargate                = "IsFargate"
-)
-
 var ParameterNotFoundError = errors.New("Parameter not found")
-
-// requiredParameterNames is a list of required Cloudformation Stack Parameter Key names in the template.
-var requiredParameterNames []string
-
-// requiredParameters is a map of required Cloudformation Stack Parameter Key names to bool for easy
-// lookup of names.
-var requiredParameters map[string]bool
-
-// parameterKeyNames is a list of all the parameter key names used in the template.
-var parameterKeyNames []string
-
-func init() {
-	requiredParameterNames = []string{ParameterKeyCluster}
-	requiredParameters = make(map[string]bool)
-	for _, s := range requiredParameterNames {
-		requiredParameters[s] = true
-	}
-
-	parameterKeyNames = []string{
-		ParameterKeyAsgMaxSize,
-		ParameterKeyVPCAzs,
-		ParameterKeySecurityGroup,
-		ParameterKeySourceCidr,
-		ParameterKeyEcsPort,
-		ParameterKeySubnetIds,
-		ParameterKeyVpcId,
-		ParameterKeyInstanceType,
-		ParameterKeyKeyPairName,
-		ParameterKeyCluster,
-		ParameterKeyAmiId,
-		ParameterKeyAssociatePublicIPAddress,
-	}
-}
 
 // CfnStackParams is used to create cloudformation parameters used to create the stack.
 type CfnStackParams struct {
-	nameToKeys map[string]string
-	params     []*cloudformation.Parameter
+	nameToKeys         map[string]string
+	params             []*cloudformation.Parameter
+	requiredParameters map[string]bool
 }
 
 // NewCfnStackParams creates an object of CfnStackParams struct,
-func NewCfnStackParams() *CfnStackParams {
-	return &CfnStackParams{
-		params:     make([]*cloudformation.Parameter, 0),
-		nameToKeys: make(map[string]string),
+func NewCfnStackParams(requiredParameterNames []string) *CfnStackParams {
+	params := &CfnStackParams{
+		params:             make([]*cloudformation.Parameter, 0),
+		nameToKeys:         make(map[string]string),
+		requiredParameters: make(map[string]bool),
 	}
+	for _, s := range requiredParameterNames {
+		params.requiredParameters[s] = true
+	}
+	return params
 }
 
 // NewCfnStackParamsForUpdate creates a new object of CfnStackParams struct and populates it for updating the stack.
-func NewCfnStackParamsForUpdate(existingParams []*cloudformation.Parameter) (*CfnStackParams, error) {
-	params := NewCfnStackParams()
+func NewCfnStackParamsForUpdate(requiredParameterNames []string, existingParams []*cloudformation.Parameter) (*CfnStackParams, error) {
+	params := NewCfnStackParams(requiredParameterNames)
 	for _, param := range existingParams {
 		// Set UsePreviousValue = true for all the stack parameters.
 		err := params.AddWithUsePreviousValue(aws.StringValue(param.ParameterKey), true)
@@ -158,7 +113,7 @@ func (s *CfnStackParams) Get() []*cloudformation.Parameter {
 	return s.params
 }
 
-// Gets the cloudformation parameter for a given key name. Returns an error if not found.
+// GetParameter gets the cloudformation parameter for a given key name. Returns an error if not found.
 func (s *CfnStackParams) GetParameter(key string) (*cloudformation.Parameter, error) {
 	_, exists := s.nameToKeys[key]
 	if !exists {
@@ -181,7 +136,7 @@ func (s *CfnStackParams) Validate() error {
 
 	// Validate if all the required parameters are present.
 	validatedParams := make(map[string]bool)
-	for key, _ := range requiredParameters {
+	for key := range s.requiredParameters {
 		param, err := s.GetParameter(key)
 		if err != nil {
 			return err
