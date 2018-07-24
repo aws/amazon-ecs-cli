@@ -148,7 +148,7 @@ func TestClusterUpWithForce(t *testing.T) {
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(nil),
 		mockCloudformation.EXPECT().DeleteStack(stackName).Return(nil),
 		mockCloudformation.EXPECT().WaitUntilDeleteComplete(stackName).Return(nil),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Return("", nil),
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
 
@@ -181,11 +181,13 @@ func TestClusterUpWithoutPublicIP(t *testing.T) {
 
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Do(func(x, y, z interface{}) {
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(x, y, w, z interface{}) {
+			capabilityIAM := w.(bool)
 			cfnParams := z.(*cloudformation.CfnStackParams)
-			associateIPAddress, err := cfnParams.GetParameter(cloudformation.ParameterKeyAssociatePublicIPAddress)
+			associateIPAddress, err := cfnParams.GetParameter(ParameterKeyAssociatePublicIPAddress)
 			assert.NoError(t, err, "Unexpected error getting cfn parameter")
 			assert.Equal(t, "false", aws.StringValue(associateIPAddress.ParameterValue), "Should not associate public IP address")
+			assert.True(t, capabilityIAM, "Expected capability capabilityIAM to be true")
 		}).Return("", nil),
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
@@ -231,9 +233,9 @@ func TestClusterUpWithUserData(t *testing.T) {
 
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Do(func(x, y, z interface{}) {
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(x, y, w, z interface{}) {
 			cfnParams := z.(*cloudformation.CfnStackParams)
-			param, err := cfnParams.GetParameter(cloudformation.ParameterKeyUserData)
+			param, err := cfnParams.GetParameter(ParameterKeyUserData)
 			assert.NoError(t, err, "Expected User Data parameter to be set")
 			assert.Equal(t, mockedUserData, aws.StringValue(param.ParameterValue), "Expected user data to match")
 		}).Return("", nil),
@@ -279,9 +281,9 @@ func TestClusterUpWithSpotPrice(t *testing.T) {
 
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Do(func(x, y, z interface{}) {
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(x, y, w, z interface{}) {
 			cfnParams := z.(*cloudformation.CfnStackParams)
-			param, err := cfnParams.GetParameter(cloudformation.ParameterKeySpotPrice)
+			param, err := cfnParams.GetParameter(ParameterKeySpotPrice)
 			assert.NoError(t, err, "Expected Spot Price parameter to be set")
 			assert.Equal(t, spotPrice, aws.StringValue(param.ParameterValue), "Expected spot price to match")
 		}).Return("", nil),
@@ -625,7 +627,7 @@ func TestCliFlagsToCfnStackParams(t *testing.T) {
 	params, err := cliFlagsToCfnStackParams(context, clusterName, config.LaunchTypeEC2)
 	assert.NoError(t, err, "Unexpected error from call to cliFlagsToCfnStackParams")
 
-	_, err = params.GetParameter(cloudformation.ParameterKeyAsgMaxSize)
+	_, err = params.GetParameter(ParameterKeyAsgMaxSize)
 	assert.Error(t, err, "Expected error for parameter ParameterKeyAsgMaxSize")
 	assert.Equal(t, cloudformation.ParameterNotFoundError, err, "Expect error to be ParameterNotFoundError")
 
@@ -633,7 +635,7 @@ func TestCliFlagsToCfnStackParams(t *testing.T) {
 	context = cli.NewContext(nil, flagSet, nil)
 	params, err = cliFlagsToCfnStackParams(context, clusterName, config.LaunchTypeEC2)
 	assert.NoError(t, err, "Unexpected error from call to cliFlagsToCfnStackParams")
-	_, err = params.GetParameter(cloudformation.ParameterKeyAsgMaxSize)
+	_, err = params.GetParameter(ParameterKeyAsgMaxSize)
 	assert.NoError(t, err, "Unexpected error getting parameter ParameterKeyAsgMaxSize")
 }
 
@@ -654,11 +656,13 @@ func TestClusterUpForImageIdInput(t *testing.T) {
 
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Do(func(x, y, z interface{}) {
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(x, y, w, z interface{}) {
+			capabilityIAM := w.(bool)
 			cfnStackParams := z.(*cloudformation.CfnStackParams)
-			param, err := cfnStackParams.GetParameter(cloudformation.ParameterKeyAmiId)
+			param, err := cfnStackParams.GetParameter(ParameterKeyAmiId)
 			assert.NoError(t, err, "Expected image id params to be present")
 			assert.Equal(t, imageID, aws.StringValue(param.ParameterValue), "Expected image id to match")
+			assert.True(t, capabilityIAM, "Expected capability capabilityIAM to be true")
 		}).Return("", nil),
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
@@ -723,9 +727,9 @@ func TestClusterUpWithFargateLaunchTypeFlag(t *testing.T) {
 	)
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Do(func(x, y, z interface{}) {
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(x, y, w, z interface{}) {
 			cfnParams := z.(*cloudformation.CfnStackParams)
-			isFargate, err := cfnParams.GetParameter(cloudformation.ParameterKeyIsFargate)
+			isFargate, err := cfnParams.GetParameter(ParameterKeyIsFargate)
 			assert.NoError(t, err, "Unexpected error getting cfn parameter")
 			assert.Equal(t, "true", aws.StringValue(isFargate.ParameterValue), "Should have Fargate launch type.")
 		}).Return("", nil),
@@ -764,11 +768,13 @@ func TestClusterUpWithFargateDefaultLaunchTypeConfig(t *testing.T) {
 	)
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Do(func(x, y, z interface{}) {
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(x, y, w, z interface{}) {
+			capabilityIAM := w.(bool)
 			cfnParams := z.(*cloudformation.CfnStackParams)
-			isFargate, err := cfnParams.GetParameter(cloudformation.ParameterKeyIsFargate)
+			isFargate, err := cfnParams.GetParameter(ParameterKeyIsFargate)
 			assert.NoError(t, err, "Unexpected error getting cfn parameter")
 			assert.Equal(t, "true", aws.StringValue(isFargate.ParameterValue), "Should have Fargate launch type.")
+			assert.True(t, capabilityIAM, "Expected capability capabilityIAM to be true")
 		}).Return("", nil),
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 		mockCloudformation.EXPECT().DescribeNetworkResources(stackName).Return(nil),
@@ -807,11 +813,13 @@ func TestClusterUpWithFargateLaunchTypeFlagOverride(t *testing.T) {
 	)
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Do(func(x, y, z interface{}) {
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(x, y, w, z interface{}) {
+			capabilityIAM := w.(bool)
 			cfnParams := z.(*cloudformation.CfnStackParams)
-			isFargate, err := cfnParams.GetParameter(cloudformation.ParameterKeyIsFargate)
+			isFargate, err := cfnParams.GetParameter(ParameterKeyIsFargate)
 			assert.NoError(t, err, "Unexpected error getting cfn parameter")
 			assert.Equal(t, "true", aws.StringValue(isFargate.ParameterValue), "Should have Fargate launch type.")
+			assert.True(t, capabilityIAM, "Expected capability capabilityIAM to be true")
 		}).Return("", nil),
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 		mockCloudformation.EXPECT().DescribeNetworkResources(stackName).Return(nil),
@@ -850,7 +858,7 @@ func TestClusterUpWithEC2LaunchTypeFlagOverride(t *testing.T) {
 	)
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Return("", nil),
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
@@ -884,7 +892,7 @@ func TestClusterUpWithBlankDefaultLaunchTypeConfig(t *testing.T) {
 	)
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Return("", nil),
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
@@ -1059,7 +1067,7 @@ func TestClusterScale(t *testing.T) {
 		assert.NoError(t, err, "Unexpected error on scale.")
 		_, err = cfnParams.GetParameter("SomeParam2")
 		assert.NoError(t, err, "Unexpected error on scale.")
-		param, err := cfnParams.GetParameter(cloudformation.ParameterKeyAsgMaxSize)
+		param, err := cfnParams.GetParameter(ParameterKeyAsgMaxSize)
 		assert.NoError(t, err, "Unexpected error on scale.")
 		assert.Equal(t, "1", aws.StringValue(param.ParameterValue))
 	}).Return("", nil)
@@ -1162,7 +1170,7 @@ func mocksForSuccessfulClusterUp(mockECS *mock_ecs.MockECSClient, mockCloudforma
 	)
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Return("", nil),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Return("", nil),
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
 }
