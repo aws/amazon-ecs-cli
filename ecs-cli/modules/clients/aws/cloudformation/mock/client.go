@@ -48,17 +48,27 @@ func (m *MockCloudformationClient) EXPECT() *MockCloudformationClientMockRecorde
 	return m.recorder
 }
 
+<<<<<<< HEAD
 // CreateStack mocks base method
 func (m *MockCloudformationClient) CreateStack(arg0, arg1 string, arg2 *cloudformation.CfnStackParams) (string, error) {
 	ret := m.ctrl.Call(m, "CreateStack", arg0, arg1, arg2)
+=======
+func (_m *MockCloudformationClient) CreateStack(_param0 string, _param1 string, _param2 bool, _param3 *cloudformation.CfnStackParams) (string, error) {
+	ret := _m.ctrl.Call(_m, "CreateStack", _param0, _param1, _param2, _param3)
+>>>>>>> Refactored cloudformation client and params to be more generic so that they can be re-used.
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
+<<<<<<< HEAD
 // CreateStack indicates an expected call of CreateStack
 func (mr *MockCloudformationClientMockRecorder) CreateStack(arg0, arg1, arg2 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateStack", reflect.TypeOf((*MockCloudformationClient)(nil).CreateStack), arg0, arg1, arg2)
+=======
+func (_mr *_MockCloudformationClientRecorder) CreateStack(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateStack", arg0, arg1, arg2, arg3)
+>>>>>>> Refactored cloudformation client and params to be more generic so that they can be re-used.
 }
 
 // DeleteStack mocks base method
