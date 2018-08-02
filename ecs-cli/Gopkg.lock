@@ -35,6 +35,7 @@
     "aws/credentials/ec2rolecreds",
     "aws/credentials/endpointcreds",
     "aws/credentials/stscreds",
+    "aws/csm",
     "aws/defaults",
     "aws/ec2metadata",
     "aws/endpoints",
@@ -43,6 +44,7 @@
     "aws/signer/v4",
     "internal/sdkio",
     "internal/sdkrand",
+    "internal/sdkuri",
     "internal/shareddefaults",
     "private/protocol",
     "private/protocol/ec2query",
@@ -67,8 +69,8 @@
     "service/sts",
     "service/sts/stsiface"
   ]
-  revision = "7f68df2a5baf19398d17def23a514a6e617e5937"
-  version = "v1.13.28"
+  revision = "cc03a15b82ef2c52a4fd94c92655aecb70160a48"
+  version = "v1.15.3"
 
 [[projects]]
   name = "github.com/awslabs/amazon-ecr-credential-helper"
@@ -319,6 +321,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "bd82f6f125188fa0e514267655428cb6365fd57127fb9c00460893bbcdaadac4"
+  inputs-digest = "0dc867a7ef5bebef0acf17995c1078f9a2e36ea0f5627fd101cbd729736ab4b7"
   solver-name = "gps-cdcl"
   solver-version = 1
