@@ -314,6 +314,16 @@ func (t *Task) buildRunTaskInput(taskDefinition string, count int, overrides map
 		return nil, err
 	}
 
+	placementConstraints, err := composeutils.ConvertToECSPlacementConstraints(ecsParams)
+	if err != nil {
+		return nil, err
+	}
+
+	placementStrategy, err := composeutils.ConvertToECSPlacementStrategy(ecsParams)
+	if err != nil {
+		return nil, err
+	}
+
 	if err := entity.ValidateFargateParams(ecsParams, launchType); err != nil {
 		return nil, err
 	}
@@ -337,6 +347,15 @@ func (t *Task) buildRunTaskInput(taskDefinition string, count int, overrides map
 	if taskOverride != nil {
 		runTaskInput.Overrides = taskOverride
 	}
+
+	if placementConstraints != nil {
+		runTaskInput.PlacementConstraints = placementConstraints
+	}
+
+	if placementStrategy != nil {
+		runTaskInput.PlacementStrategy = placementStrategy
+	}
+
 
 	if launchType != "" {
 		runTaskInput.LaunchType = aws.String(launchType)

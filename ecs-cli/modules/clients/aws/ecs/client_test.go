@@ -607,6 +607,54 @@ func TestRunTask_WithTaskNetworking(t *testing.T) {
 	assert.NoError(t, err, "Unexpected error when calling RunTask")
 }
 
+func TestRunTask_WithTaskPlacement(t *testing.T) {
+	mockEcs, _, client, ctrl := setupTestController(t, getDefaultCLIConfigParams(t))
+	defer ctrl.Finish()
+
+	td := "taskDef"
+	group := "taskGroup"
+	count := 5
+
+	placementConstraints := []*ecs.PlacementConstraint{
+		{
+			Type: aws.String("distinctInstance"),
+		}, {
+			Expression: aws.String("attribute:ecs.instance-type =~ t2.*"),
+			Type:       aws.String("memberOf"),
+		},
+	}
+	placementStrategy := []*ecs.PlacementStrategy{
+		{
+			Type: aws.String("random"),
+		}, {
+			Field: aws.String("instanceId"),
+			Type:  aws.String("binpack"),
+		},
+	}
+
+	mockEcs.EXPECT().RunTask(gomock.Any()).Do(func(input interface{}) {
+		req := input.(*ecs.RunTaskInput)
+		assert.Equal(t, clusterName, aws.StringValue(req.Cluster), "Expected clusterName to match")
+		assert.Equal(t, td, aws.StringValue(req.TaskDefinition), "Expected taskDefinition to match")
+		assert.Equal(t, group, aws.StringValue(req.Group), "Expected group to match")
+		assert.Equal(t, int64(count), aws.Int64Value(req.Count), "Expected count to match")
+		assert.Equal(t, placementConstraints, req.PlacementConstraints, "Expected placement constraints to match")
+		assert.Equal(t, placementStrategy, req.PlacementStrategy, "Expected placement strategy to match")
+	}).Return(&ecs.RunTaskOutput{}, nil)
+
+	runTaskInput := &ecs.RunTaskInput{
+		Cluster:              aws.String(clusterName),
+		TaskDefinition:       aws.String(td),
+		Group:                aws.String(group),
+		Count:                aws.Int64(int64(count)),
+		LaunchType:           aws.String("EC2"),
+		PlacementConstraints: placementConstraints,
+		PlacementStrategy:    placementStrategy,
+	}
+	_, err := client.RunTask(runTaskInput)
+	assert.NoError(t, err, "Unexpected error when calling RunTask")
+}
+
 func TestIsActiveCluster(t *testing.T) {
 	mockEcs, _, client, ctrl := setupTestController(t, getDefaultCLIConfigParams(t))
 	defer ctrl.Finish()
