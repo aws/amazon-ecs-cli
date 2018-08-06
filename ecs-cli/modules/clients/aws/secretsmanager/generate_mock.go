@@ -1,4 +1,4 @@
-// Copyright 2015-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -12,3 +12,6 @@
 // permissions and limitations under the License.
 
 package secretsmanager
+
+//go:generate mockgen.sh github.com/aws/aws-sdk-go/service/secretsmanager/secretsmanageriface SecretsManagerAPI mock/sdk/secretsmanageriface_mock.go
+//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/secretsmanager SMClient mock/client.go
