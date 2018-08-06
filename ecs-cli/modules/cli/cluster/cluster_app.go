@@ -308,7 +308,7 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 		}
 	}
 	// Create cfn stack
-	template := cloudformation.GetTemplate()
+	template := cloudformation.GetClusterTemplate()
 
 	if _, err := cfnClient.CreateStack(template, stackName, true, cfnParams); err != nil {
 		return err
