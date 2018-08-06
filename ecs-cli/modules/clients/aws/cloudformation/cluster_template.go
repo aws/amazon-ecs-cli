@@ -309,6 +309,8 @@ var cluster_template = `
       "Condition": "CreateVpcResources",
       "Type": "AWS::EC2::VPC",
       "Properties": {
+        "EnableDnsSupport" : true,
+        "EnableDnsHostnames" : true,
         "CidrBlock": {
           "Fn::FindInMap": ["VpcCidrs", "vpc", "cidr"]
         }
