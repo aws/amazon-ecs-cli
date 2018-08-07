@@ -74,6 +74,17 @@ func (_mr *_MockCloudformationClientRecorder) DescribeNetworkResources(arg0 inte
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeNetworkResources", arg0)
 }
 
+func (_m *MockCloudformationClient) DescribeStacks(_param0 string) (*cloudformation0.DescribeStacksOutput, error) {
+	ret := _m.ctrl.Call(_m, "DescribeStacks", _param0)
+	ret0, _ := ret[0].(*cloudformation0.DescribeStacksOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockCloudformationClientRecorder) DescribeStacks(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeStacks", arg0)
+}
+
 func (_m *MockCloudformationClient) GetStackParameters(_param0 string) ([]*cloudformation0.Parameter, error) {
 	ret := _m.ctrl.Call(_m, "GetStackParameters", _param0)
 	ret0, _ := ret[0].([]*cloudformation0.Parameter)

@@ -26,7 +26,7 @@ func LogCommand() cli.Command {
 	return cli.Command{
 		Name:         "logs",
 		Usage:        "Retrieves container logs from CloudWatch logs. Assumes your Task Definition uses the awslogs driver and has a log stream prefix specified.",
-		Flags:        append(flags.OptionalConfigFlags(), logFlags()...),
+		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), logFlags()),
 		Action:       logs.Logs,
 		OnUsageError: flags.UsageErrorFactory("logs"),
 	}
