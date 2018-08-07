@@ -28,6 +28,7 @@ type SMClient interface {
 
 type secretsManagerClient struct {
 	client secretsmanageriface.SecretsManagerAPI
+	config *config.CommandConfig
 }
 
 // NewSecretsManagerClient creates an instance of an secretsManagerClient
@@ -35,12 +36,13 @@ func NewSecretsManagerClient(config *config.CommandConfig) SMClient {
 	client := secretsmanager.New(config.Session)
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
 
-	return newClient(client)
+	return newClient(config, client)
 }
 
-func newClient(client secretsmanageriface.SecretsManagerAPI) SMClient {
+func newClient(config *config.CommandConfig, client secretsmanageriface.SecretsManagerAPI) SMClient {
 	return &secretsManagerClient{
 		client: client,
+		config: config,
 	}
 }
 

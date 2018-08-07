@@ -12,3 +12,95 @@
 // permissions and limitations under the License.
 
 package secretsmanager
+
+import (
+	"errors"
+	"testing"
+
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/secretsmanager/mock/sdk"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/secretsmanager"
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestCreateSecret(t *testing.T) {
+	mockSM, client := setupTestController(t)
+
+	expectedInput := secretsmanager.CreateSecretInput{
+		Name:         aws.String("some-secret"),
+		SecretString: aws.String("{\"username\":\"bob\"},{\"password\":\"abc123xyz456\"}"),
+	}
+	expectedOutput := secretsmanager.CreateSecretOutput{
+		ARN:  aws.String("arn:aws:secretsmanager:some-secret-123"),
+		Name: aws.String("some-secret"),
+	}
+	mockSM.EXPECT().CreateSecret(&expectedInput).Return(&expectedOutput, nil)
+
+	output, err := client.CreateSecret(expectedInput)
+	assert.NoError(t, err, "Expected no error when Creating Secret")
+	assert.Equal(t, &expectedOutput, output, "Expected CreateSecret output to match")
+}
+
+func TestCreateSecretErrorCase(t *testing.T) {
+	mockSM, client := setupTestController(t)
+
+	mockSM.EXPECT().CreateSecret(gomock.Any()).Return(nil, errors.New("something went wrong"))
+
+	_, err := client.CreateSecret(secretsmanager.CreateSecretInput{})
+	assert.Error(t, err, "Expected error when Creating Secret")
+}
+
+func TestListSecrets(t *testing.T) {
+	mockSM, client := setupTestController(t)
+
+	secretList := []*secretsmanager.SecretListEntry{&secretsmanager.SecretListEntry{Name: aws.String("my-secret")}}
+	mockListResponse := &secretsmanager.ListSecretsOutput{
+		SecretList: secretList,
+	}
+	mockSM.EXPECT().ListSecrets(gomock.Any()).Return(mockListResponse, nil)
+
+	output, err := client.ListSecrets(nil)
+	assert.NoError(t, err, "Expected no error when listing secrets")
+	assert.NotEmpty(t, output, "Expected ListSecrets output to be non-empty")
+}
+
+func TestListSecretsWithNextToken(t *testing.T) {
+	mockSM, client := setupTestController(t)
+	tokenString := "someNextToken"
+	nextToken := &tokenString
+
+	secretList := []*secretsmanager.SecretListEntry{&secretsmanager.SecretListEntry{Name: aws.String("my-secret")}}
+	mockListResponse := &secretsmanager.ListSecretsOutput{
+		SecretList: secretList,
+	}
+	expectedInput := secretsmanager.ListSecretsInput{NextToken: nextToken}
+
+	mockSM.EXPECT().ListSecrets(&expectedInput).Return(mockListResponse, nil)
+
+	output, err := client.ListSecrets(nextToken)
+	assert.NoError(t, err, "Expected no error when listing secrets")
+	assert.NotEmpty(t, output, "Expected ListSecrets output to be non-empty")
+}
+
+func TestListSecretsErrorCase(t *testing.T) {
+	mockSM, client := setupTestController(t)
+
+	mockSM.EXPECT().ListSecrets(gomock.Any()).Return(nil, errors.New("something went wrong"))
+	_, err := client.ListSecrets(nil)
+
+	assert.Error(t, err, "Expected error when Listing Secrets")
+}
+
+func setupTestController(t *testing.T) (*mock_secretsmanageriface.MockSecretsManagerAPI, SMClient) {
+	ctrl := gomock.NewController(t)
+	mockSM := mock_secretsmanageriface.NewMockSecretsManagerAPI(ctrl)
+	mockSession, err := session.NewSession()
+	assert.NoError(t, err, "Unexpected error in creating session")
+
+	client := newClient(&config.CommandConfig{Session: mockSession}, mockSM)
+
+	return mockSM, client
+}
