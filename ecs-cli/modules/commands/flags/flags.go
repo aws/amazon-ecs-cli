@@ -57,6 +57,14 @@ const (
 	TimeStampsFlag     = "timestamps"
 	CreateLogsFlag     = "create-log-groups"
 
+	// Service Discovery
+	PrivateDNSNamespaceNameFlag       = "private-dns-namespace"
+	PrivateDNSNamespaceIDFlag         = "private-dns-namespace-id"
+	PublicDNSNamespaceIDFlag          = "public-dns-namespace-id"
+	EnableServiceDiscoveryFlag        = "with-service-discovery"
+	ServiceDiscoveryContainerNameFlag = "sd-container-name"
+	ServiceDiscoveryContainerPortFlag = "sd-container-port"
+
 	ComposeProjectNamePrefixFlag         = "compose-project-name-prefix"
 	ComposeProjectNamePrefixDefaultValue = "ecscompose-"
 	ComposeServiceNamePrefixFlag         = "compose-service-name-prefix"
@@ -163,22 +171,26 @@ func OptionalConfigFlags() []cli.Flag {
 }
 
 // OptionalLaunchTypeFlag allows users to specify the launch type for their task/service/cluster
-func OptionalLaunchTypeFlag() cli.Flag {
-	return cli.StringFlag{
-		Name: LaunchTypeFlag,
-		Usage: fmt.Sprintf(
-			"[Optional] Specifies the launch type. Options: EC2 or FARGATE. Overrides the default launch type stored in your cluster configuration. Defaults to EC2 if a cluster configuration is not used.",
-		),
+func OptionalLaunchTypeFlag() []cli.Flag {
+	return []cli.Flag{
+		cli.StringFlag{
+			Name: LaunchTypeFlag,
+			Usage: fmt.Sprintf(
+				"[Optional] Specifies the launch type. Options: EC2 or FARGATE. Overrides the default launch type stored in your cluster configuration. Defaults to EC2 if a cluster configuration is not used.",
+			),
+		},
 	}
 }
 
 // OptionalCreateLogsFlag allows users to specify the launch type for their task/service/cluster
-func OptionalCreateLogsFlag() cli.Flag {
-	return cli.BoolFlag{
-		Name: CreateLogsFlag,
-		Usage: fmt.Sprintf(
-			"[Optional] Create the CloudWatch log groups specified in your compose file(s).",
-		),
+func OptionalCreateLogsFlag() []cli.Flag {
+	return []cli.Flag{
+		cli.BoolFlag{
+			Name: CreateLogsFlag,
+			Usage: fmt.Sprintf(
+				"[Optional] Create the CloudWatch log groups specified in your compose file(s).",
+			),
+		},
 	}
 }
 
@@ -211,4 +223,13 @@ func CFNResourceFlags() []string {
 		ImageIdFlag,
 		KeypairNameFlag,
 	}
+}
+
+// AppendFlags appends a series of lists of flags
+func AppendFlags(flags ...[]cli.Flag) []cli.Flag {
+	var allFlags []cli.Flag
+	for _, set := range flags {
+		allFlags = append(allFlags, set...)
+	}
+	return allFlags
 }

@@ -48,10 +48,10 @@ var sds_template = `
       "Default": "60"
     },
     "FailureThreshold": {
-      "Type": "Double",
+      "Type": "Number",
       "Description": "The number of 30-second intervals that you want service discovery to wait after receiving an UpdateInstanceCustomHealthStatus request before it changes the health status of a service instance.",
       "Default": 1
-    },
+    }
   },
   "Resources": {
     "ServiceDiscoveryService": {
@@ -71,11 +71,11 @@ var sds_template = `
         "Name" : { "Ref" : "SDSName" }
       }
     }
-  }
+  },
   "Outputs" : {
-    "ServiceDiscoveryServiceID" : {
-      "Description": "The ID of the Service Discovery Service which can be used when launching an ECS Service.",
-      "Value" : { "Fn::GetAtt" : [ "ServiceDiscoveryService", "Id" ]}
+    "ServiceDiscoveryServiceARN" : {
+      "Description": "The ARN of the Service Discovery Service which can be used when launching an ECS Service.",
+      "Value" : { "Fn::GetAtt" : [ "ServiceDiscoveryService", "Arn" ]}
     }
   }
 }

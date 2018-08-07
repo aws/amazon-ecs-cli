@@ -36,7 +36,7 @@ var private_namespace_template = `
       "Type": "String",
       "Description": "The name of the namespace",
       "Default": ""
-    },
+    }
   },
   "Resources": {
     "PrivateDNSNamespace": {
@@ -47,7 +47,7 @@ var private_namespace_template = `
         "Name" : { "Ref" : "NamespaceName" }
       }
     }
-  }
+  },
   "Outputs" : {
     "PrivateDNSNamespaceID" : {
       "Description": "The ID of the private DNS namespace.",
