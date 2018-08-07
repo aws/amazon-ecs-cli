@@ -26,7 +26,7 @@ func UpCommand() cli.Command {
 		Usage:        "Creates the ECS cluster (if it does not already exist) and the AWS resources required to set up the cluster.",
 		Before:       ecscli.BeforeApp,
 		Action:       cluster.ClusterUp,
-		Flags:        append(clusterUpFlags(), flags.OptionalConfigFlags()...),
+		Flags:        flags.AppendFlags(clusterUpFlags(), flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag()),
 		OnUsageError: flags.UsageErrorFactory("up"),
 	}
 }
@@ -36,7 +36,7 @@ func DownCommand() cli.Command {
 		Name:         "down",
 		Usage:        "Deletes the CloudFormation stack that was created by ecs-cli up and the associated resources.",
 		Action:       cluster.ClusterDown,
-		Flags:        append(clusterDownFlags(), flags.OptionalConfigFlags()...),
+		Flags:        flags.AppendFlags(clusterDownFlags(), flags.OptionalConfigFlags()),
 		OnUsageError: flags.UsageErrorFactory("down"),
 	}
 }
@@ -46,7 +46,7 @@ func ScaleCommand() cli.Command {
 		Name:         "scale",
 		Usage:        "Modifies the number of container instances in your cluster. This command changes the desired and maximum instance count in the Auto Scaling group created by the ecs-cli up command. You can use this command to scale up (increase the number of instances) or scale down (decrease the number of instances) your cluster.",
 		Action:       cluster.ClusterScale,
-		Flags:        append(clusterScaleFlags(), flags.OptionalConfigFlags()...),
+		Flags:        flags.AppendFlags(clusterScaleFlags(), flags.OptionalConfigFlags()),
 		OnUsageError: flags.UsageErrorFactory("scale"),
 	}
 }
@@ -135,7 +135,6 @@ func clusterUpFlags() []cli.Flag {
 			Name:  flags.ForceFlag + ", f",
 			Usage: "[Optional] Forces the recreation of any existing resources that match your current configuration. This option is useful for cleaning up stale resources from previous failed attempts.",
 		},
-		flags.OptionalLaunchTypeFlag(),
 	}
 }
 

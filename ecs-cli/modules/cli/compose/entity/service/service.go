@@ -21,6 +21,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/servicediscovery"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
@@ -35,20 +36,24 @@ import (
 // Service type is placeholder for a single task definition and its cache
 // and it performs operations on ECS Service level
 type Service struct {
-	taskDef          *ecs.TaskDefinition
-	cache            cache.Cache
-	ecsContext       *context.ECSContext
-	timeSleeper      *utils.TimeSleeper
-	deploymentConfig *ecs.DeploymentConfiguration
-	loadBalancer     *ecs.LoadBalancer
-	role             string
-	healthCheckGP    *int64
+	taskDef           *ecs.TaskDefinition
+	cache             cache.Cache
+	ecsContext        *context.ECSContext
+	timeSleeper       *utils.TimeSleeper
+	deploymentConfig  *ecs.DeploymentConfiguration
+	loadBalancer      *ecs.LoadBalancer
+	role              string
+	healthCheckGP     *int64
+	serviceRegistries []*ecs.ServiceRegistry
 }
 
 const (
 	ecsActiveResourceCode  = "ACTIVE"
 	ecsMissingResourceCode = "MISSING"
 )
+
+// make servicediscovery.Create easily mockable in tests
+var servicediscoveryCreate = servicediscovery.Create
 
 // NewService creates an instance of a Service and also sets up a cache for task definition
 func NewService(ecsContext *context.ECSContext) entity.ProjectEntity {
@@ -402,6 +407,10 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string) (*ecs
 		createServiceInput.HealthCheckGracePeriodSeconds = aws.Int64(*s.healthCheckGP)
 	}
 
+	if len(s.serviceRegistries) > 0 {
+		createServiceInput.ServiceRegistries = s.serviceRegistries
+	}
+
 	if networkConfig != nil {
 		createServiceInput.NetworkConfiguration = networkConfig
 	}
@@ -447,6 +456,30 @@ func (s *Service) logCreateService(serviceName, taskDefName string) {
 func (s *Service) createService() error {
 	serviceName := entity.GetServiceName(s)
 	taskDefName := entity.GetIdFromArn(s.TaskDefinition().TaskDefinitionArn)
+
+	cliContext := s.Context().CLIContext
+
+	if cliContext.Bool(flags.EnableServiceDiscoveryFlag) {
+		networkMode := aws.StringValue(s.TaskDefinition().NetworkMode)
+		containerName := aws.String(cliContext.String(flags.ServiceDiscoveryContainerNameFlag))
+		containerPort, err := getInt64FromCLIContext(s.Context(), flags.ServiceDiscoveryContainerPortFlag)
+		if err != nil {
+			return err
+		}
+
+		serviceRegistryARN, err := servicediscoveryCreate(s.Context().CLIContext, networkMode, serviceName, s.Context().CommandConfig.Cluster)
+		if err != nil {
+			return err
+		}
+
+		s.serviceRegistries = []*ecs.ServiceRegistry{
+			&ecs.ServiceRegistry{
+				RegistryArn:   serviceRegistryARN,
+				ContainerName: containerName,
+				ContainerPort: containerPort,
+			},
+		}
+	}
 
 	// Create request input
 	createServiceInput, err := s.buildCreateServiceInput(serviceName, taskDefName)
