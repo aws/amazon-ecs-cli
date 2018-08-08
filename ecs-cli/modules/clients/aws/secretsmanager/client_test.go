@@ -18,9 +18,7 @@ import (
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/secretsmanager/mock/sdk"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -97,10 +95,7 @@ func TestListSecretsErrorCase(t *testing.T) {
 func setupTestController(t *testing.T) (*mock_secretsmanageriface.MockSecretsManagerAPI, SMClient) {
 	ctrl := gomock.NewController(t)
 	mockSM := mock_secretsmanageriface.NewMockSecretsManagerAPI(ctrl)
-	mockSession, err := session.NewSession()
-	assert.NoError(t, err, "Unexpected error in creating session")
-
-	client := newClient(&config.CommandConfig{Session: mockSession}, mockSM)
+	client := newClient(mockSM)
 
 	return mockSM, client
 }
