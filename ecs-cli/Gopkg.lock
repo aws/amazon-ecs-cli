@@ -53,6 +53,7 @@
     "private/protocol/query",
     "private/protocol/query/queryutil",
     "private/protocol/rest",
+    "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
     "service/cloudformation",
     "service/cloudformation/cloudformationiface",
@@ -64,6 +65,8 @@
     "service/ecr/ecriface",
     "service/ecs",
     "service/ecs/ecsiface",
+    "service/route53",
+    "service/servicediscovery",
     "service/ssm",
     "service/ssm/ssmiface",
     "service/sts",
@@ -321,6 +324,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0dc867a7ef5bebef0acf17995c1078f9a2e36ea0f5627fd101cbd729736ab4b7"
+  inputs-digest = "c1d068d3c8737eba9f400dbe7a00d5cfce3f2fdc63730c6802403c8f5325651c"
   solver-name = "gps-cdcl"
   solver-version = 1
