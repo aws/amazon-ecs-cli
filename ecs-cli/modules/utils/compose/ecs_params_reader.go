@@ -101,6 +101,7 @@ type TaskSize struct {
 type RunParams struct {
 	NetworkConfiguration NetworkConfiguration `yaml:"network_configuration"`
 	TaskPlacement        TaskPlacement        `yaml:"task_placement"`
+	ServiceDiscovery     ServiceDiscovery     `yaml:"service_discovery"`
 }
 
 // NetworkConfiguration specifies the network config for the task definition.
@@ -117,9 +118,52 @@ type AwsVpcConfiguration struct {
 	AssignPublicIp AssignPublicIp `yaml:"assign_public_ip"` // Needed to run FARGATE tasks
 }
 
+// TODO: Remove; use enum in aws-sdk-go instead (AssignPublicIpEnabled, AssignPublicIpDisabled)
 type AssignPublicIp string
 
-// TODO: Remove; use enum in aws-sdk-go instead (AssignPublicIpEnabled, AssignPublicIpDisabled)
+// ServiceDiscovery holds information related to ECS/Route53 Service Discovery
+type ServiceDiscovery struct {
+	ContainerName           string                  `yaml:"container_name"`
+	ContainerPort           *int64                  `yaml:"container_port"`
+	PrivateDNSNamespace     PrivateDNSNamespace     `yaml:"private_dns_namespace"`
+	PublicDNSNamespace      PublicDNSNamespace      `yaml:"public_dns_namespace"`
+	ServiceDiscoveryService ServiceDiscoveryService `yaml:"service_discovery_service"`
+}
+
+// PrivateDNSNamespace holds information related to Route53 private DNS namespaces
+type PrivateDNSNamespace struct {
+	VPC         string `yaml:"vpc"`
+	ID          string `yaml:"id"`
+	Name        string `yaml:"name"`
+	Description string `yaml:"description"`
+}
+
+// PublicDNSNamespace holds information related to Route53 public DNS namespaces
+type PublicDNSNamespace struct {
+	ID   string `yaml:"id"`
+	Name string `yaml:"name"`
+}
+
+// ServiceDiscoveryService holds information related to Route53 Service Discovery Services
+type ServiceDiscoveryService struct {
+	Name                    string                  `yaml:"name"`
+	Description             string                  `yaml:"description"`
+	DNSConfig               DNSConfig               `yaml:"dns_config"`
+	RoutingPolicy           string                  `yaml:"routing_policy"`
+	HealthCheckCustomConfig HealthCheckCustomConfig `yaml:"healthcheck_custom_config"`
+}
+
+// DNSConfig holds the dns configuration for Service Discovery Services
+type DNSConfig struct {
+	Type string `yaml:"type"`
+	TTL  *int64 `yaml:"ttl"`
+}
+
+// HealthCheckCustomConfig
+type HealthCheckCustomConfig struct {
+	FailureThreshold *int64 `yaml:"failure_threshold"`
+}
+
 const (
 	Enabled  AssignPublicIp = "ENABLED"
 	Disabled AssignPublicIp = "DISABLED"
