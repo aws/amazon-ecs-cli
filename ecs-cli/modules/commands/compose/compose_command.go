@@ -132,7 +132,7 @@ func upCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "up",
 		Usage:        "Creates an ECS task definition from your compose file (if it does not already exist) and runs one instance of that task on your cluster (a combination of create and start).",
 		Action:       compose.WithProject(factory, compose.ProjectUp, false),
-		Flags:        append(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag()),
+		Flags:        append(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), flags.OptionalForceUpdateFlag()),
 		OnUsageError: flags.UsageErrorFactory("up"),
 	}
 }

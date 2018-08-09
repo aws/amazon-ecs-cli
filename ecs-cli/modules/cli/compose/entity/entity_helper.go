@@ -85,6 +85,7 @@ func SetupTaskDefinitionCache() cache.Cache {
 // GetOrCreateTaskDefinition gets the task definition from cache if present, else
 // creates it in ECS and persists in a local cache. It also sets the latest
 // taskDefinition to the current instance of task
+// TODO: convert to method on entity, since it changes state of entity?
 func GetOrCreateTaskDefinition(entity ProjectEntity) (*ecs.TaskDefinition, error) {
 	taskDefinition := entity.TaskDefinition()
 	log.WithFields(log.Fields{
