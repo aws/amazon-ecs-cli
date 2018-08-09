@@ -713,6 +713,66 @@ task_definition:
 	}
 }
 
+func TestReadECSParams_WithServiceDiscoveryAllFields(t *testing.T) {
+	ecsParamsString := `version: 1
+run_params:
+  service_discovery:
+    container_name: nginx
+    container_port: 80
+    private_dns_namespace:
+      vpc: vpc-8BAADF00D
+      id: ns-CA15CA15CA15CA15
+      name: corp
+      description: This is a private namespace
+    public_dns_namespace:
+      id: ns-C0VF3F3
+      name: amazon.com
+    service_discovery_service:
+      name: mysds
+      description: This is an SDS
+      dns_config:
+        type: A
+        ttl: 60
+      routing_policy: MULTIVALUE
+      healthcheck_custom_config:
+        failure_threshold: 1`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs-params tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	defer os.Remove(ecsParamsFileName)
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs-params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+
+	if assert.NoError(t, err) {
+		serviceDiscovery := ecsParams.RunParams.ServiceDiscovery
+		assert.Equal(t, "nginx", serviceDiscovery.ContainerName, "Expected ContainerName to match")
+		assert.Equal(t, aws.Int64(80), serviceDiscovery.ContainerPort, "Expected ContainerPort to match")
+		assert.Equal(t, "vpc-8BAADF00D", serviceDiscovery.PrivateDNSNamespace.VPC, "Expected VPC to match")
+		assert.Equal(t, "ns-CA15CA15CA15CA15", serviceDiscovery.PrivateDNSNamespace.ID, "Expected private namespace ID to match")
+		assert.Equal(t, "corp", serviceDiscovery.PrivateDNSNamespace.Name, "Expected private namespace Name to match")
+		assert.Equal(t, "This is a private namespace", serviceDiscovery.PrivateDNSNamespace.Description, "Expected private namespace description to match")
+		assert.Equal(t, "ns-C0VF3F3", serviceDiscovery.PublicDNSNamespace.ID, "Expected public namespace ID to match")
+		assert.Equal(t, "amazon.com", serviceDiscovery.PublicDNSNamespace.Name, "Expected public namespace name to match")
+		sds := serviceDiscovery.ServiceDiscoveryService
+		assert.Equal(t, "mysds", sds.Name, "Expected SDS Name to match")
+		assert.Equal(t, "This is an SDS", sds.Description, "Expected SDS Description to match")
+		assert.Equal(t, "A", sds.DNSConfig.Type, "Expected SDS DNSConfig Type to match")
+		assert.Equal(t, aws.Int64(60), sds.DNSConfig.TTL, "Expected SDS DNSConfig TTL to match")
+		assert.Equal(t, "MULTIVALUE", sds.RoutingPolicy, "Expected SDS RoutingPolicy to match")
+		assert.Equal(t, aws.Int64(1), sds.HealthCheckCustomConfig.FailureThreshold, "Expected SDS HealthCheckCustomConfig FailureThreshold to match")
+	}
+}
+
 func TestConvertToECSHealthCheck(t *testing.T) {
 	testHealthCheck := &HealthCheck{
 		Test:        []string{"CMD-SHELL", "curl -f http://localhost"},
