@@ -164,21 +164,31 @@ func (t *Task) Scale(expectedCount int) error {
 
 // Run starts all containers defined in the task definition once regardless of if they were started before
 // It also overrides the commands for the specified containers
+// TODO Account for other ContainerOverrides
 func (t *Task) Run(commandOverrides map[string][]string) error {
 	taskDef, err := entity.GetOrCreateTaskDefinition(t)
 	if err != nil {
 		return err
 	}
 	taskDefinitionId := aws.StringValue(taskDef.TaskDefinitionArn)
-	ecsTasks, err := t.Context().ECSClient.RunTaskWithOverrides(taskDefinitionId, entity.GetTaskGroup(t), 1, commandOverrides)
+	count := 1
+
+	runTaskInput, err := t.buildRunTaskInput(taskDefinitionId, count, commandOverrides)
 	if err != nil {
-		return nil
+		return err
 	}
+
+	ecsTasks, err := t.Context().ECSClient.RunTask(runTaskInput)
+	if err != nil {
+		return err
+	}
+
 	for _, failure := range ecsTasks.Failures {
 		log.WithFields(log.Fields{
 			"reason": aws.StringValue(failure.Reason),
 		}).Info("Couldn't run containers")
 	}
+
 	return t.waitForRunTasks(ecsTasks.Tasks)
 }
 
@@ -242,7 +252,7 @@ func (t *Task) stopTasks(ecsTasks []*ecs.Task) error {
 // runTasks issues run task request to ECS Service in chunks of count=10
 func (t *Task) runTasks(taskDefinition string, totalCount int) ([]*ecs.Task, error) {
 	result := []*ecs.Task{}
-	chunkSize := 10 // can issue only upto 10 tasks in a RunTask Call
+	chunkSize := 10 // can issue only up to 10 tasks in a RunTask Call
 
 	for i := 0; i < totalCount; i += chunkSize {
 		count := chunkSize
@@ -250,7 +260,7 @@ func (t *Task) runTasks(taskDefinition string, totalCount int) ([]*ecs.Task, err
 			count = totalCount - i
 		}
 
-		runTaskInput, err := t.buildRunTaskInput(taskDefinition, count)
+		runTaskInput, err := t.buildRunTaskInput(taskDefinition, count, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -271,18 +281,45 @@ func (t *Task) runTasks(taskDefinition string, totalCount int) ([]*ecs.Task, err
 	return result, nil
 }
 
-func (t *Task) buildRunTaskInput(taskDefinition string, count int) (*ecs.RunTaskInput, error) {
+func convertToECSTaskOverride(overrides map[string][]string) (*ecs.TaskOverride, error) {
+	if overrides == nil {
+		return nil, nil
+	}
+
+	commandOverrides := []*ecs.ContainerOverride{}
+	for cont, command := range overrides {
+		contOverride := &ecs.ContainerOverride{
+			Name:    aws.String(cont),
+			Command: aws.StringSlice(command),
+		}
+		commandOverrides = append(commandOverrides, contOverride)
+	}
+
+	ecsOverrides := &ecs.TaskOverride{
+		ContainerOverrides: commandOverrides,
+	}
+
+	return ecsOverrides, nil
+}
+
+func (t *Task) buildRunTaskInput(taskDefinition string, count int, overrides map[string][]string) (*ecs.RunTaskInput, error) {
 	cluster := t.Context().CommandConfig.Cluster
 	launchType := t.Context().CommandConfig.LaunchType
 	group := entity.GetTaskGroup(t)
 
 	ecsParams := t.ecsContext.ECSParams
 	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(ecsParams)
+
 	if err != nil {
 		return nil, err
 	}
 
 	if err := entity.ValidateFargateParams(ecsParams, launchType); err != nil {
+		return nil, err
+	}
+
+	taskOverride, err := convertToECSTaskOverride(overrides)
+	if err != nil {
 		return nil, err
 	}
 
@@ -295,6 +332,10 @@ func (t *Task) buildRunTaskInput(taskDefinition string, count int) (*ecs.RunTask
 
 	if networkConfig != nil {
 		runTaskInput.NetworkConfiguration = networkConfig
+	}
+
+	if taskOverride != nil {
+		runTaskInput.Overrides = taskOverride
 	}
 
 	if launchType != "" {

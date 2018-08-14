@@ -215,19 +215,6 @@ func (mr *MockECSClientMockRecorder) RunTask(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunTask", reflect.TypeOf((*MockECSClient)(nil).RunTask), arg0)
 }
 
-// RunTaskWithOverrides mocks base method
-func (m *MockECSClient) RunTaskWithOverrides(arg0, arg1 string, arg2 int, arg3 map[string][]string) (*ecs0.RunTaskOutput, error) {
-	ret := m.ctrl.Call(m, "RunTaskWithOverrides", arg0, arg1, arg2, arg3)
-	ret0, _ := ret[0].(*ecs0.RunTaskOutput)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// RunTaskWithOverrides indicates an expected call of RunTaskWithOverrides
-func (mr *MockECSClientMockRecorder) RunTaskWithOverrides(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunTaskWithOverrides", reflect.TypeOf((*MockECSClient)(nil).RunTaskWithOverrides), arg0, arg1, arg2, arg3)
-}
-
 // StopTask mocks base method
 func (m *MockECSClient) StopTask(arg0 string) error {
 	ret := m.ctrl.Call(m, "StopTask", arg0)

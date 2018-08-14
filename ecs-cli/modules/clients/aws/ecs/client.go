@@ -55,7 +55,6 @@ type ECSClient interface {
 	// Tasks related
 	GetTasksPages(listTasksInput *ecs.ListTasksInput, fn ProcessTasksAction) error
 	RunTask(runTaskInput *ecs.RunTaskInput) (*ecs.RunTaskOutput, error)
-	RunTaskWithOverrides(taskDefinition, taskGroup string, count int, overrides map[string][]string) (*ecs.RunTaskOutput, error)
 	StopTask(taskID string) error
 	DescribeTasks(taskIds []*string) ([]*ecs.Task, error)
 
@@ -374,36 +373,6 @@ func (c *ecsClient) RunTask(input *ecs.RunTaskInput) (*ecs.RunTaskOutput, error)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"task definition": input.TaskDefinition,
-			"error":           err,
-		}).Error("Error running tasks")
-	}
-	return resp, err
-}
-
-// RunTask issues a run task request for the input task definition
-func (c *ecsClient) RunTaskWithOverrides(taskDefinition, group string, count int, overrides map[string][]string) (*ecs.RunTaskOutput, error) {
-	commandOverrides := []*ecs.ContainerOverride{}
-	for cont, command := range overrides {
-		contOverride := &ecs.ContainerOverride{
-			Name:    aws.String(cont),
-			Command: aws.StringSlice(command),
-		}
-		commandOverrides = append(commandOverrides, contOverride)
-	}
-	ecsOverrides := &ecs.TaskOverride{
-		ContainerOverrides: commandOverrides,
-	}
-
-	resp, err := c.client.RunTask(&ecs.RunTaskInput{
-		Cluster:        aws.String(c.config.Cluster),
-		TaskDefinition: aws.String(taskDefinition),
-		Group:          aws.String(group),
-		Count:          aws.Int64(int64(count)),
-		Overrides:      ecsOverrides,
-	})
-	if err != nil {
-		log.WithFields(log.Fields{
-			"task definition": taskDefinition,
 			"error":           err,
 		}).Error("Error running tasks")
 	}

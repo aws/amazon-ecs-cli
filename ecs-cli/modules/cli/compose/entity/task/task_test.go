@@ -82,3 +82,120 @@ func TestTaskInfoAll(t *testing.T) {
 }
 
 // TODO: Test UP
+
+// tests for helpers
+func TestConvertToECSTaskOverride(t *testing.T) {
+	container := "railsapp"
+	command := []string{"bundle exec puma -C config/puma.rb"}
+
+	input := map[string][]string{
+		container: command,
+	}
+
+	expected := &ecs.TaskOverride{
+		ContainerOverrides: []*ecs.ContainerOverride{
+			{
+				Name: aws.String(container),
+				Command: aws.StringSlice(command),
+			},
+		},
+	}
+
+	actual, err := convertToECSTaskOverride(input)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, expected, actual)
+	}
+}
+
+func TestConvertToECSTaskOverride_WithNil(t *testing.T) {
+	var input map[string][]string
+
+	actual, err := convertToECSTaskOverride(input)
+
+	if assert.NoError(t, err) {
+		assert.Nil(t, actual)
+	}
+}
+
+func TestBuildRuntaskInput(t *testing.T) {
+	taskDef := "clydeApp"
+	count := 1
+	cluster := "myCluster"
+	launchType := "EC2"
+
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	cliContext := cli.NewContext(nil, flagSet, nil)
+	ctrl := gomock.NewController(t)
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	context := &context.ECSContext{
+		ECSClient:  mockEcs,
+		CLIContext: cliContext,
+		CommandConfig:  &config.CommandConfig{
+			Cluster: cluster,
+			LaunchType: launchType,
+		},
+	}
+
+	task := &Task{
+		ecsContext: context,
+	}
+
+	req, err := task.buildRunTaskInput(taskDef, count, nil)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, aws.String(cluster), req.Cluster)
+		assert.Equal(t, aws.String(taskDef), req.TaskDefinition)
+		assert.Equal(t, aws.String(launchType), req.LaunchType)
+		assert.Equal(t, int64(count), aws.Int64Value(req.Count))
+		assert.Nil(t, req.Overrides)
+	}
+}
+
+func TestBuildRuntaskInput_WithOverride(t *testing.T) {
+	taskDef := "clydeApp"
+	count := 1
+	cluster := "myCluster"
+	container := "railsapp"
+	launchType := "EC2"
+	command := []string{"bundle exec puma -C config/puma.rb"}
+	override := map[string][]string{
+		container: command,
+	}
+
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	cliContext := cli.NewContext(nil, flagSet, nil)
+	ctrl := gomock.NewController(t)
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	context := &context.ECSContext{
+		ECSClient:  mockEcs,
+		CLIContext: cliContext,
+		CommandConfig:  &config.CommandConfig{
+			Cluster: cluster,
+			LaunchType: launchType,
+		},
+	}
+
+	task := &Task{
+		ecsContext: context,
+	}
+
+	expectedOverride := &ecs.TaskOverride{
+		ContainerOverrides: []*ecs.ContainerOverride{
+			{
+				Name: aws.String("railsapp"),
+				Command: aws.StringSlice(command),
+			},
+		},
+	}
+
+	req, err := task.buildRunTaskInput(taskDef, count, override)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, aws.String(cluster), req.Cluster)
+		assert.Equal(t, aws.String(taskDef), req.TaskDefinition)
+		assert.Equal(t, aws.String(launchType), req.LaunchType)
+		assert.Equal(t, int64(count), aws.Int64Value(req.Count))
+		assert.Equal(t, expectedOverride, req.Overrides)
+	}
+}
