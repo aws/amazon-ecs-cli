@@ -24,6 +24,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/image"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/license"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/log"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/regcreds"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/logger"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/version"
 	"github.com/cihub/seelog"
@@ -56,6 +57,7 @@ func main() {
 		licenseCommand.LicenseCommand(),
 		composeCommand.ComposeCommand(composeFactory),
 		logsCommand.LogCommand(),
+		regcredsCommand.RegistryCredsCommand(),
 	}
 
 	app.Flags = []cli.Flag{
