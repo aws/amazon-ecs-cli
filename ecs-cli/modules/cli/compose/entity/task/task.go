@@ -329,6 +329,7 @@ func (t *Task) buildRunTaskInput(taskDefinition string, count int, overrides map
 		return nil, err
 	}
 
+	// NOTE: this validation is not useful if called after RegisterTaskDefinition
 	if err := entity.ValidateFargateParams(ecsParams, launchType); err != nil {
 		return nil, err
 	}

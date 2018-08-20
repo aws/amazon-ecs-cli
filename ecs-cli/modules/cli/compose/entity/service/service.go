@@ -379,6 +379,7 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string) (*ecs
 		return nil, err
 	}
 
+	// NOTE: this validation is not useful if called after GetOrCreateTaskDefinition()
 	if err = entity.ValidateFargateParams(s.Context().ECSParams, launchType); err != nil {
 		return nil, err
 	}
