@@ -434,6 +434,13 @@ run_params:
       subnets: array of strings          // These should be in the same VPC and Availability Zone as your instance
       security_groups: array of strings  // These should be in the same VPC as your instance
       assign_public_ip: string           // supported values: ENABLED or DISABLED
+  task_placement:
+    strategy:
+      - type: string                     // Valid values: "spread"|"binpack"|"random"
+        field: string                    // Not valid if type is "random"
+    constraints:
+      - type: string                     // Valid values: "memberOf"|"distinctInstance"
+        expression: string               // Not valid if type is "distinctInstance"
 ```
 
 **Version**
@@ -478,6 +485,17 @@ Currently, the only parameter supported under `run_params` is `network_configura
   * `subnets`: list of subnet ids used to launch tasks. ***NOTE*** These should be in the same VPC and availability zone as the instances on which you wish to launch your tasks.
   * `security_groups`: list of securtiy-group ids used to launch tasks. ***NOTE*** These should be in the same VPC as the instances on which you wish to launch your tasks.
   * `assign_public_ip`: supported values for this field are either "ENABLED" or "DISABLED". This field is *only* used for tasks launched with Fargate launch type. If this field is present in tasks with network configuration launched with EC2 launch type, the request will fail.
+* `task_placement` is an optional field with `EC2` launch-type only (it is *not* valid for `FARGATE`). It has two subfields:
+  * `strategy`: A list of objects, with two keys. Valid keys are `type` and `field`.
+    * `type`: Valid values are `random`, `binpack`, or `spread`. If `random` is specified, the `field` key is not necessary.
+    * `field`: Valid values depend on the strategy type.
+      * For `spread`, valid values are `instanceId`, `host`, or attribute key/value pairs, e.g. `attribute:ecs.instance-type =~ t2.*`
+      * For "binpack", valid values are "cpu" or "memory".
+  * `constraint`: A list of objects, with two keys. Valid keys are `type` and `expression`.
+    * `type`: Valid values are `distinctInstance` and `memberOf`. If `distinctInstance` is specified, the `expression key is not necessary.
+    * `expression`: When `type` is `memberOf`, valid values are key/value pairs for attributes or task groups, e.g. `task:group == databases` or `attribute:color =~ green`.
+
+For more information on task placement, see [Amazon ECS TaskPlacement] (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-placement.html).
 
 Example `ecs-params.yml` file:
 
@@ -535,6 +553,24 @@ run_params:
         - sg-bafff1ed
         - sg-c0ffeefe
       assign_public_ip: ENABLED
+```
+
+Example `ecs-params.yml` with task placement:
+
+```
+version: 1
+run_params:
+  task_placement:
+    strategy:
+      - field: memory
+        type: binpack
+      - field: attribute:ecs.availability-zone
+        type: spread
+      - type: random
+    constraints:
+      - expression: attribute:ecs.instance-type =~ t2.*
+        type: memberOf
+      - type: distinctInstance`
 ```
 
 You can then start a task by calling:
