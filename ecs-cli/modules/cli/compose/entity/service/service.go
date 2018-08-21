@@ -364,12 +364,22 @@ func (s *Service) EntityType() types.Type {
 func (s *Service) buildCreateServiceInput(serviceName, taskDefName string) (*ecs.CreateServiceInput, error) {
 	launchType := s.Context().CommandConfig.LaunchType
 	cluster := s.Context().CommandConfig.Cluster
+	ecsParams := s.ecsContext.ECSParams
 
-	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(s.ecsContext.ECSParams)
+	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(ecsParams)
+	if err != nil {
+		return nil, err
+	}
+	placementConstraints, err := composeutils.ConvertToECSPlacementConstraints(ecsParams)
+	if err != nil {
+		return nil, err
+	}
+	placementStrategy, err := composeutils.ConvertToECSPlacementStrategy(ecsParams)
 	if err != nil {
 		return nil, err
 	}
 
+	// NOTE: this validation is not useful if called after GetOrCreateTaskDefinition()
 	if err = entity.ValidateFargateParams(s.Context().ECSParams, launchType); err != nil {
 		return nil, err
 	}
@@ -394,6 +404,14 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string) (*ecs
 
 	if networkConfig != nil {
 		createServiceInput.NetworkConfiguration = networkConfig
+	}
+
+	if placementConstraints != nil {
+		createServiceInput.PlacementConstraints = placementConstraints
+	}
+
+	if placementStrategy != nil {
+		createServiceInput.PlacementStrategy = placementStrategy
 	}
 
 	if launchType != "" {

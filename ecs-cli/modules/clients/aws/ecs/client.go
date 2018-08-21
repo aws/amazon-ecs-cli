@@ -224,8 +224,9 @@ func (c *ecsClient) RegisterTaskDefinition(request *ecs.RegisterTaskDefinitionIn
 func (c *ecsClient) RegisterTaskDefinitionIfNeeded(
 	request *ecs.RegisterTaskDefinitionInput,
 	taskDefinitionCache cache.Cache) (*ecs.TaskDefinition, error) {
+
 	if request.Family == nil {
-		return nil, errors.New("invalid task definitions: family is required")
+		return nil, errors.New("invalid task definition: family is required")
 	}
 
 	taskDefResp, err := c.DescribeTaskDefinition(aws.StringValue(request.Family))

@@ -94,6 +94,7 @@ const (
 	ComposeFileNameFlag   = "file"
 	TaskRoleArnFlag       = "task-role-arn"
 	ECSParamsFileNameFlag = "ecs-params"
+	ForceUpdateFlag       = "force-update"
 
 	// Compose Service
 	CreateServiceCommandName                = "create"
@@ -179,6 +180,14 @@ func OptionalCreateLogsFlag() cli.Flag {
 		Usage: fmt.Sprintf(
 			"[Optional] Create the CloudWatch log groups specified in your compose file(s).",
 		),
+	}
+}
+
+// OptionalForceUpdateFlag allows users to force an update of running tasks on compose up.
+func OptionalForceUpdateFlag() cli.Flag {
+	return cli.BoolFlag{
+		Name:  ForceUpdateFlag + ",u",
+		Usage: "[Optional] Forces update of task or service with current run parameters",
 	}
 }
 

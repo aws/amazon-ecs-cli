@@ -90,6 +90,7 @@ type TaskSize struct {
 // RunParams specifies non-TaskDefinition specific parameters
 type RunParams struct {
 	NetworkConfiguration NetworkConfiguration `yaml:"network_configuration"`
+	TaskPlacement        TaskPlacement        `yaml:"task_placement"`
 }
 
 // NetworkConfiguration specifies the network config for the task definition.
@@ -108,10 +109,26 @@ type AwsVpcConfiguration struct {
 
 type AssignPublicIp string
 
+// TODO: Remove; use enum in aws-sdk-go instead (AssignPublicIpEnabled, AssignPublicIpDisabled)
 const (
 	Enabled  AssignPublicIp = "ENABLED"
 	Disabled AssignPublicIp = "DISABLED"
 )
+
+type TaskPlacement struct {
+	Strategies  []Strategy   `yaml:"strategy"`
+	Constraints []Constraint `yaml:"constraints"`
+}
+
+type Strategy struct {
+	Field string `yaml:"field"`
+	Type  string `yaml:"type"`
+}
+
+type Constraint struct {
+	Expression string `yaml:"expression"`
+	Type       string `yaml:"type"`
+}
 
 /////////////////////////////
 ///// Parsing Functions /////
@@ -275,4 +292,49 @@ func parseHealthCheckTime(field string) (*int64, error) {
 	}
 
 	return nil, nil
+}
+
+// ConvertToECSPlacementConstraint converts a list of Constraints specified in the
+// ecs-params into a format that is compatible with ECSClient calls.
+func ConvertToECSPlacementConstraints(ecsParams *ECSParams) ([]*ecs.PlacementConstraint, error) {
+	if ecsParams == nil {
+		return nil, nil
+	}
+
+	constraints := ecsParams.RunParams.TaskPlacement.Constraints
+
+	output := []*ecs.PlacementConstraint{}
+	for _, constraint := range constraints {
+		ecsConstraint := &ecs.PlacementConstraint{
+			Type: aws.String(constraint.Type),
+		}
+		if constraint.Expression != "" {
+			ecsConstraint.Expression = aws.String(constraint.Expression)
+		}
+		output = append(output, ecsConstraint)
+	}
+
+	return output, nil
+}
+
+// ConvertToECSPlacementStrategy converts a list of Strategies specified in the
+// ecs-params into a format that is compatible with ECSClient calls.
+func ConvertToECSPlacementStrategy(ecsParams *ECSParams) ([]*ecs.PlacementStrategy, error) {
+	if ecsParams == nil {
+		return nil, nil
+	}
+	strategies := ecsParams.RunParams.TaskPlacement.Strategies
+
+	output := []*ecs.PlacementStrategy{}
+	for _, strategy := range strategies {
+		ecsStrategy := &ecs.PlacementStrategy{
+			Type: aws.String(strategy.Type),
+		}
+		if strategy.Field != "" {
+			ecsStrategy.Field = aws.String(strategy.Field)
+		}
+		output = append(output, ecsStrategy)
+	}
+
+	return output, nil
 }

@@ -205,6 +205,69 @@ func TestCreateEC2Explicitly(t *testing.T) {
 	)
 }
 
+func TestCreateWithTaskPlacement(t *testing.T) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+
+	createServiceTest(
+		t,
+		flagSet,
+		&config.CommandConfig{},
+		ecsParamsWithTaskPlacement(),
+		func(input *ecs.CreateServiceInput) {
+			placementConstraints := input.PlacementConstraints
+			placementStrategy := input.PlacementStrategy
+			expectedConstraints := []*ecs.PlacementConstraint{
+				{
+					Type: aws.String("distinctInstance"),
+				}, {
+					Expression: aws.String("attribute:ecs.instance-type =~ t2.*"),
+					Type:       aws.String("memberOf"),
+				},
+			}
+			expectedStrategy := []*ecs.PlacementStrategy{
+				{
+					Type: aws.String("random"),
+				}, {
+					Field: aws.String("instanceId"),
+					Type:  aws.String("binpack"),
+				},
+			}
+
+			assert.Len(t, placementConstraints, 2)
+			assert.Equal(t, expectedConstraints, placementConstraints, "Expected Placement Constraints to match")
+			assert.Len(t, placementStrategy, 2)
+			assert.Equal(t, expectedStrategy, placementStrategy, "Expected Placement Strategy to match")
+		},
+	)
+}
+
+func ecsParamsWithTaskPlacement() *utils.ECSParams {
+	return &utils.ECSParams{
+		RunParams: utils.RunParams{
+			TaskPlacement: utils.TaskPlacement{
+				Constraints: []utils.Constraint{
+					utils.Constraint{
+						Type: ecs.PlacementConstraintTypeDistinctInstance,
+					},
+					utils.Constraint{
+						Expression: "attribute:ecs.instance-type =~ t2.*",
+						Type:       ecs.PlacementConstraintTypeMemberOf,
+					},
+				},
+				Strategies: []utils.Strategy{
+					utils.Strategy{
+						Type: ecs.PlacementStrategyTypeRandom,
+					},
+					utils.Strategy{
+						Field: "instanceId",
+						Type:  ecs.PlacementStrategyTypeBinpack,
+					},
+				},
+			},
+		},
+	}
+}
+
 // Specifies TargeGroupArn to test ALB
 func TestCreateWithALB(t *testing.T) {
 	targetGroupArn := "targetGroupArn"
