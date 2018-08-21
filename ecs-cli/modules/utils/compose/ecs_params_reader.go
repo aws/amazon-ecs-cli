@@ -30,6 +30,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+///////////////////////////////////
+///// ECS Params Schema types /////
+///////////////////////////////////
+
 // ECSParams contains the information parsed from the ecs-params.yml file
 type ECSParams struct {
 	Version        string
@@ -109,6 +113,11 @@ const (
 	Disabled AssignPublicIp = "DISABLED"
 )
 
+/////////////////////////////
+///// Parsing Functions /////
+/////////////////////////////
+
+// Having a custom Unmarshaller on ContainerDef allows us to set custom defaults on the Container Definition
 func (cd *ContainerDef) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	type rawContainerDef ContainerDef
 	raw := rawContainerDef{Essential: true} //  If essential is not specified, we want it to be true
@@ -120,6 +129,90 @@ func (cd *ContainerDef) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return nil
 }
 
+// ReadECSParams parses the ecs-params.yml file and puts it into an ECSParams struct.
+func ReadECSParams(filename string) (*ECSParams, error) {
+	if filename == "" {
+		defaultFilename := "ecs-params.yml"
+		if _, err := os.Stat(defaultFilename); err == nil {
+			filename = defaultFilename
+		} else {
+			return nil, nil
+		}
+	}
+
+	// NOTE: Readfile reads all data into memory and closes file. Could
+	// eventually refactor this to read different sections separately.
+	ecsParamsData, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Error reading file '%v'", filename)
+	}
+	ecsParamsData = []byte(os.ExpandEnv(string(ecsParamsData)))
+	ecsParams := &ECSParams{}
+
+	if err = yaml.Unmarshal([]byte(ecsParamsData), &ecsParams); err != nil {
+		return nil, errors.Wrapf(err, "Error unmarshalling yaml data from ECS params file: %v", filename)
+	}
+
+	return ecsParams, nil
+}
+
+/////////////////////
+//// Converters ////
+////////////////////
+
+// ConvertToECSNetworkConfiguration extracts out the NetworkConfiguration from
+// the ECSParams into a format that is compatible with ECSClient calls.
+func ConvertToECSNetworkConfiguration(ecsParams *ECSParams) (*ecs.NetworkConfiguration, error) {
+	if ecsParams == nil {
+		return nil, nil
+	}
+
+	networkMode := ecsParams.TaskDefinition.NetworkMode
+
+	if networkMode != "awsvpc" {
+		return nil, nil
+	}
+
+	awsvpcConfig := ecsParams.RunParams.NetworkConfiguration.AwsVpcConfiguration
+
+	subnets := awsvpcConfig.Subnets
+
+	if len(subnets) < 1 {
+		return nil, errors.New("at least one subnet is required in the network configuration")
+	}
+
+	securityGroups := awsvpcConfig.SecurityGroups
+	assignPublicIp := string(awsvpcConfig.AssignPublicIp)
+
+	ecsSubnets := make([]*string, len(subnets))
+	for i, subnet := range subnets {
+		ecsSubnets[i] = aws.String(subnet)
+	}
+
+	ecsSecurityGroups := make([]*string, len(securityGroups))
+	for i, sg := range securityGroups {
+		ecsSecurityGroups[i] = aws.String(sg)
+	}
+
+	ecsAwsVpcConfig := &ecs.AwsVpcConfiguration{
+		Subnets:        ecsSubnets,
+		SecurityGroups: ecsSecurityGroups,
+	}
+
+	// For tasks launched with network config in EC2 mode, assign_pubic_ip field is not accepted
+	if assignPublicIp != "" {
+		ecsAwsVpcConfig.AssignPublicIp = aws.String(assignPublicIp)
+	}
+
+	ecsNetworkConfig := &ecs.NetworkConfiguration{
+		AwsvpcConfiguration: ecsAwsVpcConfig,
+	}
+
+	return ecsNetworkConfig, nil
+}
+
+// ConvertToECSHealthCheck extracts out the HealthCheck from the ECSParams into
+// a format that is compatible with ECSClient calls.
 func (h *HealthCheck) ConvertToECSHealthCheck() (*ecs.HealthCheck, error) {
 	ecsHealthCheck := &ecs.HealthCheck{}
 	if len(h.Command) > 0 && len(h.Test) > 0 {
@@ -182,82 +275,4 @@ func parseHealthCheckTime(field string) (*int64, error) {
 	}
 
 	return nil, nil
-}
-
-// ReadECSParams parses the ecs-params.yml file and puts it into an ECSParams struct.
-func ReadECSParams(filename string) (*ECSParams, error) {
-	if filename == "" {
-		defaultFilename := "ecs-params.yml"
-		if _, err := os.Stat(defaultFilename); err == nil {
-			filename = defaultFilename
-		} else {
-			return nil, nil
-		}
-	}
-
-	// NOTE: Readfile reads all data into memory and closes file. Could
-	// eventually refactor this to read different sections separately.
-	ecsParamsData, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return nil, errors.Wrapf(err, "Error reading file '%v'", filename)
-	}
-	ecsParamsData = []byte(os.ExpandEnv(string(ecsParamsData)))
-	ecsParams := &ECSParams{}
-
-	if err = yaml.Unmarshal([]byte(ecsParamsData), &ecsParams); err != nil {
-		return nil, errors.Wrapf(err, "Error unmarshalling yaml data from ECS params file: %v", filename)
-	}
-
-	return ecsParams, nil
-}
-
-// ConvertToECSNetworkConfiguration extracts out the NetworkConfiguration from
-// the ECSParams into a format that is compatible with ECSClient calls.
-func ConvertToECSNetworkConfiguration(ecsParams *ECSParams) (*ecs.NetworkConfiguration, error) {
-	if ecsParams == nil {
-		return nil, nil
-	}
-
-	networkMode := ecsParams.TaskDefinition.NetworkMode
-
-	if networkMode != "awsvpc" {
-		return nil, nil
-	}
-
-	awsvpcConfig := ecsParams.RunParams.NetworkConfiguration.AwsVpcConfiguration
-
-	subnets := awsvpcConfig.Subnets
-
-	if len(subnets) < 1 {
-		return nil, errors.New("at least one subnet is required in the network configuration")
-	}
-
-	securityGroups := awsvpcConfig.SecurityGroups
-	assignPublicIp := string(awsvpcConfig.AssignPublicIp)
-
-	ecsSubnets := make([]*string, len(subnets))
-	for i, subnet := range subnets {
-		ecsSubnets[i] = aws.String(subnet)
-	}
-
-	ecsSecurityGroups := make([]*string, len(securityGroups))
-	for i, sg := range securityGroups {
-		ecsSecurityGroups[i] = aws.String(sg)
-	}
-
-	ecsAwsVpcConfig := &ecs.AwsVpcConfiguration{
-		Subnets:        ecsSubnets,
-		SecurityGroups: ecsSecurityGroups,
-	}
-
-	// For tasks launched with network config in EC2 mode, assign_pubic_ip field is not accepted
-	if assignPublicIp != "" {
-		ecsAwsVpcConfig.AssignPublicIp = aws.String(assignPublicIp)
-	}
-
-	ecsNetworkConfig := &ecs.NetworkConfiguration{
-		AwsvpcConfiguration: ecsAwsVpcConfig,
-	}
-
-	return ecsNetworkConfig, nil
 }
