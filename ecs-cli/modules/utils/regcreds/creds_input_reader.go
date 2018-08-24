@@ -42,9 +42,6 @@ type RegistryCredEntry struct {
 
 // ReadCredsInput parses 'registry-creds up' input into an ECSRegCredsInput struct
 func ReadCredsInput(filename string) (*ECSRegCredsInput, error) {
-	if filename == "" {
-		return nil, errors.New("file is required")
-	}
 
 	rawCredsInput, err := ioutil.ReadFile(filename)
 	if err != nil {

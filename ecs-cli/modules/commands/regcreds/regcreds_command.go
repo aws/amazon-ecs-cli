@@ -38,17 +38,7 @@ func upCommand() cli.Command {
 		Name:         "up",
 		Usage:        "Generates AWS Secrets Manager secrets and an IAM Task Execution Role for use in an ECS Task Definition.",
 		Action:       regcreds.Up,
-		Flags:        regcredsUpFlags(),
+		Flags:        nil, //TODO: add flags as funtionality is implemented
 		OnUsageError: flags.UsageErrorFactory("up"),
-	}
-}
-
-// TODO: add rest of flags as functionality implemented
-func regcredsUpFlags() []cli.Flag {
-	return []cli.Flag{
-		cli.StringFlag{
-			Name:  flags.InputFileFlag,
-			Usage: "Specifies the name of the file containing registry credentials.",
-		},
 	}
 }
