@@ -113,9 +113,6 @@ const (
 	RoleFlag                                = "role"
 	ComposeServiceTimeOutFlag               = "timeout"
 	ForceDeploymentFlag                     = "force-deployment"
-
-	// RegCreds
-	InputFileFlag = "file"
 )
 
 // OptionalRegionAndProfileFlags provides these flags:
