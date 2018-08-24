@@ -14,7 +14,6 @@
 package regcreds
 
 import (
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcreds"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -22,10 +21,13 @@ import (
 
 // Up creates or updates registry credential secrets and an ECS task execution role needed to use them in a task def
 func Up(c *cli.Context) {
+	args := c.Args()
 
-	ecsCredsInputFile := c.String(flags.ComposeFileNameFlag)
+	if len(args) != 1 {
+		log.Fatal("Exactly 1 credential file is required. Found: ", len(args))
+	}
 
-	credsInput, err := readers.ReadCredsInput(ecsCredsInputFile)
+	credsInput, err := readers.ReadCredsInput(args[0])
 	if err != nil {
 		log.Fatal("Error executing 'up': ", err)
 	}
