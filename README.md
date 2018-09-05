@@ -427,6 +427,12 @@ task_definition:
       cpu_shares: integer
       mem_limit: string
       mem_reservation: string
+      healthcheck:
+        test: string or list of strings
+        interval: string
+        timeout: string
+        retries: integer
+        start_period: string
   docker_volumes:
     - name: string
       scope: string                      // Valid values: "shared" | "task"
@@ -441,7 +447,7 @@ run_params:
   network_configuration:
     awsvpc_configuration:
       subnets: array of strings          // These should be in the same VPC and Availability Zone as your instance
-      security_groups: array of strings  // These should be in the same VPC as your instance
+      security_groups: list of strings   // These should be in the same VPC as your instance
       assign_public_ip: string           // supported values: ENABLED or DISABLED
   task_placement:
     strategy:
@@ -467,6 +473,9 @@ Fields listed under `task_definition` correspond to fields that will be included
   * If you are using Docker compose version 3, the `cpu_shares`, `mem_limit`, and `mem_reservation` fields are optional and must be specified in the ECS params file rather than the compose file.
   * In Docker compose version 2, the `cpu_shares`, `mem_limit`, and `mem_reservation` fields can be specified in either the compose or ECS params file. If they are specified in the ECS params file, the values will override values present in the compose file.
   * If you are using a private repository for pulling images, `repository_credentials` allows you to specify an AWS Secrets Manager secret ARN for the name of the secret containing your private repository credentials as a `credential_parameter`.
+  * `healthcheck` This parameter maps to `healthcheck` in the [Docker compose file reference](https://docs.docker.com/compose/compose-file/#healthcheck). This field can either be used here in the ECS Params file, or it can be used in Compose File version 3 with the ECS CLI.
+    * `test` can also be specified as `command` and must be either a string or a list or strings. If `test` is specified as a list of strings, the first item must be either NONE, CMD, or CMD-SHELL. If test or command is specified as a string, CMD-SHELL will be prepended and ECS will run the command in the container's default shell.
+    * `interval`, `timeout`, and `start_period` are specified as durations in a string format. For example: 2.5s, 10s, 1m30s, 2h23m, or 5h34m56s.
 
 * `docker_volumes` allows you to create docker volumes. The name key is required, and `scope`, `autoprovision`, `driver`, `driver_opts` and `labels` correspond with the fields under [dockerVolumeConfiguration](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-volumes.html) in an ECS Task Definition. Volumes defined with the `docker_volumes` key can be referenced in your compose file by name, even if they were not also specified in the compose file.
 
