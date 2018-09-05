@@ -33,6 +33,8 @@ const (
 	containerPath2 = "/tmp/cache2"
 	hostPath       = "./cache"
 	namedVolume    = "named_volume"
+	namedVolume2   = "named_volume2"
+	namedVolume3   = "named_volume3"
 )
 
 var defaultNetwork = &yaml.Network{
@@ -1182,7 +1184,7 @@ func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
 		{
 			ContainerPath: aws.String("/tmp/cache"),
 			ReadOnly:      aws.Bool(false),
-			SourceVolume:  aws.String("volume-3"),
+			SourceVolume:  aws.String("volume-0"),
 		},
 		{
 			ContainerPath: aws.String("/tmp/cache"),
@@ -1212,6 +1214,89 @@ func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
 
 	actualVolumes := taskDefinition.Volumes
 	assert.ElementsMatch(t, expectedVolumes, actualVolumes, "Expected volumes to match")
+}
+
+func TestConvertToTaskDefinitionWithVolumesWithHostOnly(t *testing.T) {
+	volumeConfigs := &adapter.Volumes{
+		VolumeWithHost: map[string]string{
+			hostPath: containerPath,
+		},
+	}
+
+	mountPoints := []*ecs.MountPoint{
+		{
+			ContainerPath: aws.String("/tmp/cache"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("volume-0"),
+		},
+	}
+	containerConfig := adapter.ContainerConfig{
+		MountPoints: mountPoints,
+	}
+
+	containerConfigs := []adapter.ContainerConfig{containerConfig}
+
+	host := &ecs.HostVolumeProperties{SourcePath: aws.String(hostPath)}
+	expectedVolumes := []*ecs.Volume{
+		{
+			Host: host,
+			Name: aws.String(containerPath),
+		},
+	}
+
+	taskDefinition, err := ConvertToTaskDefinition(projectName, volumeConfigs, containerConfigs, "", "", nil)
+	assert.NoError(t, err, "Unexpected error converting Task Definition")
+
+	actualVolumes := taskDefinition.Volumes
+	assert.ElementsMatch(t, expectedVolumes, actualVolumes, "Expected volumes to match")
+}
+
+func TestConvertToTaskDefinitionWithECSParamsVolumeWithoutNameError(t *testing.T) {
+	volumeConfigs := &adapter.Volumes{
+		VolumeEmptyHost: []string{namedVolume, namedVolume2},
+	}
+
+	mountPoints := []*ecs.MountPoint{
+		{
+			ContainerPath: aws.String("/var/log"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("named_volume"),
+		},
+		{
+			ContainerPath: aws.String("/tmp/cache"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("named_volume2"),
+		},
+	}
+	containerConfig := adapter.ContainerConfig{
+		MountPoints: mountPoints,
+	}
+
+	containerConfigs := []adapter.ContainerConfig{containerConfig}
+	labels := map[string]string{
+		"testing.thisdoesntactuallyreallyadvancetheplot": "true",
+	}
+	options := map[string]string{
+		"Clyde": "says Goodbye Stranger, decides to Take The Long Way Home, and enjoys some Breakfast in America",
+		"He":    "is a big fan of 70s music",
+	}
+
+	ecsParams := &ECSParams{
+		TaskDefinition: EcsTaskDef{
+			DockerVolumes: []DockerVolume{
+				DockerVolume{
+					Autoprovision: aws.Bool(true),
+					Scope:         "shared",
+					Driver:        "local",
+					DriverOptions: options,
+					Labels:        labels,
+				},
+			},
+		},
+	}
+
+	_, err := ConvertToTaskDefinition(projectName, volumeConfigs, containerConfigs, "", "", ecsParams)
+	assert.Error(t, err, "Expected error converting Task Definition with ECS Params volume without name")
 }
 
 func TestIsZeroForEmptyConfig(t *testing.T) {

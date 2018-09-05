@@ -43,11 +43,12 @@ type ECSParams struct {
 
 // EcsTaskDef corresponds to fields in an ECS TaskDefinition
 type EcsTaskDef struct {
-	NetworkMode          string        `yaml:"ecs_network_mode"`
-	TaskRoleArn          string        `yaml:"task_role_arn"`
-	ContainerDefinitions ContainerDefs `yaml:"services"`
-	ExecutionRole        string        `yaml:"task_execution_role"`
-	TaskSize             TaskSize      `yaml:"task_size"` // Needed to run FARGATE tasks
+	NetworkMode          string         `yaml:"ecs_network_mode"`
+	TaskRoleArn          string         `yaml:"task_role_arn"`
+	ContainerDefinitions ContainerDefs  `yaml:"services"`
+	ExecutionRole        string         `yaml:"task_execution_role"`
+	TaskSize             TaskSize       `yaml:"task_size"` // Needed to run FARGATE tasks
+	DockerVolumes        []DockerVolume `yaml:"docker_volumes"`
 }
 
 // ContainerDefs is a map of ContainerDefs within a task definition
@@ -62,6 +63,15 @@ type ContainerDef struct {
 	Memory            libYaml.MemStringorInt `yaml:"mem_limit"`
 	MemoryReservation libYaml.MemStringorInt `yaml:"mem_reservation"`
 	HealthCheck       *HealthCheck           `yaml:"healthcheck"`
+}
+
+type DockerVolume struct {
+	Name          string            `yaml:"name"`
+	Scope         string            `yaml:"scope"`
+	Autoprovision *bool             `yaml:"autoprovision"`
+	Driver        string            `yaml:"driver"`
+	DriverOptions map[string]string `yaml:"driver_opts"`
+	Labels        map[string]string `yaml:"labels"`
 }
 
 // HealthCheck holds all possible fields for HealthCheck, including fields

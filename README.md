@@ -427,6 +427,15 @@ task_definition:
       cpu_shares: integer
       mem_limit: string
       mem_reservation: string
+  docker_volumes:
+    - name: string
+      scope: string                      // Valid values: "shared" | "task"
+      autoprovision: boolean             // only valid if scope = "shared"
+      driver: string
+      driver_opts:
+        string: string
+      labels:
+        string: string
 
 run_params:
   network_configuration:
@@ -459,19 +468,7 @@ Fields listed under `task_definition` correspond to fields that will be included
   * In Docker compose version 2, the `cpu_shares`, `mem_limit`, and `mem_reservation` fields can be specified in either the compose or ECS params file. If they are specified in the ECS params file, the values will override values present in the compose file.
   * If you are using a private repository for pulling images, `repository_credentials` allows you to specify an AWS Secrets Manager secret ARN for the name of the secret containing your private repository credentials as a `credential_parameter`.
 
-Example `ecs-params.yml` with service resources specified:
-```
-version: 1
-task_definition:
-  services:
-    wordpress:
-      cpu_shares: 100
-      mem_limit: 500m
-    mysql:
-      cpu_shares: 105
-      mem_limit: 500m
-      mem_reservation: 450m
-```
+* `docker_volumes` allows you to create docker volumes. The name key is required, and `scope`, `autoprovision`, `driver`, `driver_opts` and `labels` correspond with the fields under [dockerVolumeConfiguration](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-volumes.html) in an ECS Task Definition. Volumes defined with the `docker_volumes` key can be referenced in your compose file by name, even if they were not also specified in the compose file.
 
 * `task_execution_role` should be the ARN of an IAM role. **NOTE**: This field is required to enable ECS Tasks to be configured with Cloudwatch Logs, or to pull images from ECR for your tasks.
 
@@ -505,8 +502,20 @@ task_definition:
   ecs_network_mode: host
   task_role_arn: myCustomRole
   services:
-    my_service:
+    logging:
       essential: false
+    wordpress:
+      cpu_shares: 100
+      mem_limit: 500m
+    mysql:
+      cpu_shares: 105
+      mem_limit: 500m
+      mem_reservation: 450m
+  docker_volumes:
+    - name: database_volume
+      scope: shared
+      autoprovision: true
+      driver: local
 ```
 
 Example `ecs-params.yml` with network configuration with **EC2** launch type:

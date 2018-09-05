@@ -550,6 +550,65 @@ func TestConvertToECSPlacementStrategy(t *testing.T) {
 		assert.ElementsMatch(t, expectedStrategy, ecsPlacementStrategy, "Expected placement strategy to match")
 	}
 }
+func TestReadECSParams_WithDockerVolumes(t *testing.T) {
+	ecsParamsString := `version: 1
+task_definition:
+  docker_volumes:
+    - name: my_volume
+      scope: shared
+      autoprovision: true
+      driver: doggyromcom
+      driver_opts:
+        pudding: is-engaged-to-marry-Tum-Tum
+        clyde: professes-his-love-at-the-ceremony
+        it: does-not-go-well
+        this: is-not-a-movie
+      labels:
+        pudding: mad
+        clyde: sad
+        life: sucks`
+
+	expectedVolumes := []DockerVolume{
+		DockerVolume{
+			Name:          "my_volume",
+			Scope:         "shared",
+			Autoprovision: aws.Bool(true),
+			Driver:        "doggyromcom",
+			DriverOptions: map[string]string{
+				"pudding": "is-engaged-to-marry-Tum-Tum",
+				"clyde":   "professes-his-love-at-the-ceremony",
+				"it":      "does-not-go-well",
+				"this":    "is-not-a-movie",
+			},
+			Labels: map[string]string{
+				"pudding": "mad",
+				"clyde":   "sad",
+				"life":    "sucks",
+			},
+		},
+	}
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs-params tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	defer os.Remove(ecsParamsFileName)
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs-params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+
+	if assert.NoError(t, err) {
+		volumes := ecsParams.TaskDefinition.DockerVolumes
+		assert.ElementsMatch(t, expectedVolumes, volumes, "Expected volumes to match")
+	}
+}
 
 func TestReadECSParams_WithHealthCheck(t *testing.T) {
 	ecsParamsString := `version: 1

@@ -80,10 +80,15 @@ func ConvertToTaskDefinition(taskDefinitionName string, volumes *adapter.Volumes
 		containerDefinitions = append(containerDefinitions, containerDef)
 	}
 
+	ecsVolumes, err := convertToECSVolumes(volumes, ecsParams)
+	if err != nil {
+		return nil, err
+	}
+
 	taskDefinition := &ecs.TaskDefinition{
 		Family:               aws.String(taskDefinitionName),
 		ContainerDefinitions: containerDefinitions,
-		Volumes:              convertToECSVolumes(volumes),
+		Volumes:              ecsVolumes,
 		TaskRoleArn:          aws.String(taskRoleArn),
 		NetworkMode:          aws.String(taskDefParams.networkMode),
 		Cpu:                  aws.String(taskDefParams.cpu),
@@ -291,7 +296,7 @@ func showResourceOverrideMsg(serviceName string, val int64, override int64, opti
 }
 
 // convertToECSVolumes transforms the map of hostPaths to the format of ecs.Volume
-func convertToECSVolumes(hostPaths *adapter.Volumes) []*ecs.Volume {
+func convertToECSVolumes(hostPaths *adapter.Volumes, ecsParams *ECSParams) ([]*ecs.Volume, error) {
 	output := []*ecs.Volume{}
 	// volumes with a host path
 	for hostPath, volName := range hostPaths.VolumeWithHost {
@@ -302,14 +307,54 @@ func convertToECSVolumes(hostPaths *adapter.Volumes) []*ecs.Volume {
 			}}
 		output = append(output, ecsVolume)
 	}
-	// volumes with an empty host path
-	for _, volName := range hostPaths.VolumeEmptyHost {
+
+	// volumes without host path (allowed to have Docker Volume Configuration)
+	volumesWithoutHost, err := mergeVolumesWithoutHost(hostPaths.VolumeEmptyHost, ecsParams)
+	if err != nil {
+		return nil, err
+	}
+	output = append(output, volumesWithoutHost...)
+	return output, nil
+}
+
+func mergeVolumesWithoutHost(composeVolumes []string, ecsParams *ECSParams) ([]*ecs.Volume, error) {
+	volumesWithoutHost := make(map[string]DockerVolume)
+	output := []*ecs.Volume{}
+
+	for _, volName := range composeVolumes {
+		volumesWithoutHost[volName] = DockerVolume{}
+	}
+
+	if ecsParams != nil {
+		for _, dockerVol := range ecsParams.TaskDefinition.DockerVolumes {
+			if dockerVol.Name != "" {
+				volumesWithoutHost[dockerVol.Name] = dockerVol
+			} else {
+				return nil, fmt.Errorf("Name is required when specifying a docker volume")
+			}
+		}
+	}
+
+	for volName, dVol := range volumesWithoutHost {
 		ecsVolume := &ecs.Volume{
 			Name: aws.String(volName),
 		}
+		if dVol.Name != "" {
+			ecsVolume.DockerVolumeConfiguration = &ecs.DockerVolumeConfiguration{
+				Autoprovision: dVol.Autoprovision,
+				Driver:        aws.String(dVol.Driver),
+				Scope:         aws.String(dVol.Scope),
+			}
+			if dVol.DriverOptions != nil {
+				ecsVolume.DockerVolumeConfiguration.DriverOpts = aws.StringMap(dVol.DriverOptions)
+			}
+			if dVol.Labels != nil {
+				ecsVolume.DockerVolumeConfiguration.Labels = aws.StringMap(dVol.Labels)
+			}
+		}
 		output = append(output, ecsVolume)
 	}
-	return output
+	return output, nil
 }
 
 func hasEssential(ecsParamsContainerDefs ContainerDefs, count int) bool {
