@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.8.0
+* Feature - Add support for volumes with docker volume configuration in ECS Params #587
+* Feature - Add support for task placement constraints and strategies in ECS Params (#515, #212)
+* Feature - Add `--force-update` on `compose up` to force re-creation of tasks
+* Feature - Add support for specifying Private Registry Authentication credentials in ECS Params #573
+
 ## 1.7.0
 * Feature - Add support for container health check (#472)
 * Feature - Add support for devices (#508)
