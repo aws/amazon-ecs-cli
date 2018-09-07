@@ -60,6 +60,19 @@ func (mr *MockSMClientMockRecorder) CreateSecret(arg0 interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSecret", reflect.TypeOf((*MockSMClient)(nil).CreateSecret), arg0)
 }
 
+// DescribeSecret mocks base method
+func (m *MockSMClient) DescribeSecret(arg0 string) (*secretsmanager.DescribeSecretOutput, error) {
+	ret := m.ctrl.Call(m, "DescribeSecret", arg0)
+	ret0, _ := ret[0].(*secretsmanager.DescribeSecretOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeSecret indicates an expected call of DescribeSecret
+func (mr *MockSMClientMockRecorder) DescribeSecret(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSecret", reflect.TypeOf((*MockSMClient)(nil).DescribeSecret), arg0)
+}
+
 // ListSecrets mocks base method
 func (m *MockSMClient) ListSecrets(arg0 *string) (*secretsmanager.ListSecretsOutput, error) {
 	ret := m.ctrl.Call(m, "ListSecrets", arg0)
@@ -71,4 +84,17 @@ func (m *MockSMClient) ListSecrets(arg0 *string) (*secretsmanager.ListSecretsOut
 // ListSecrets indicates an expected call of ListSecrets
 func (mr *MockSMClientMockRecorder) ListSecrets(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSecrets", reflect.TypeOf((*MockSMClient)(nil).ListSecrets), arg0)
+}
+
+// PutSecretValue mocks base method
+func (m *MockSMClient) PutSecretValue(arg0 secretsmanager.PutSecretValueInput) (*secretsmanager.PutSecretValueOutput, error) {
+	ret := m.ctrl.Call(m, "PutSecretValue", arg0)
+	ret0, _ := ret[0].(*secretsmanager.PutSecretValueOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutSecretValue indicates an expected call of PutSecretValue
+func (mr *MockSMClientMockRecorder) PutSecretValue(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutSecretValue", reflect.TypeOf((*MockSMClient)(nil).PutSecretValue), arg0)
 }
