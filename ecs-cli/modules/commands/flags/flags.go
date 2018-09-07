@@ -113,6 +113,9 @@ const (
 	RoleFlag                                = "role"
 	ComposeServiceTimeOutFlag               = "timeout"
 	ForceDeploymentFlag                     = "force-deployment"
+
+	// Registry Creds
+	UpdateExistingSecretsFlag = "update-existing-secrets"
 )
 
 // OptionalRegionAndProfileFlags provides these flags:

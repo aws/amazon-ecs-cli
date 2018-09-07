@@ -36,7 +36,7 @@ type RegistryCredEntry struct {
 	SecretManagerARN string   `yaml:"secret_manager_arn"`
 	Username         string   `yaml:"username"`
 	Password         string   `yaml:"password"`
-	KmdKeyID         string   `yaml:"kms_key_id"`
+	KmsKeyID         string   `yaml:"kms_key_id"`
 	ContainerNames   []string `yaml:"container_names"`
 }
 
@@ -69,14 +69,14 @@ func expandCredEntry(credEntry RegistryCredEntry) RegistryCredEntry {
 	expandedSecretARN := getValueOrEnvVar(credEntry.SecretManagerARN)
 	expandedUsername := getValueOrEnvVar(credEntry.Username)
 	expandedPassword := getValueOrEnvVar(credEntry.Password)
-	expandedKmsKeyID := getValueOrEnvVar(credEntry.KmdKeyID)
+	expandedKmsKeyID := getValueOrEnvVar(credEntry.KmsKeyID)
 	//TODO: look for env vars in container names?
 
 	expandedCredEntry := RegistryCredEntry{
 		SecretManagerARN: expandedSecretARN,
 		Username:         expandedUsername,
 		Password:         expandedPassword,
-		KmdKeyID:         expandedKmsKeyID,
+		KmsKeyID:         expandedKmsKeyID,
 		ContainerNames:   credEntry.ContainerNames,
 	}
 	return expandedCredEntry
