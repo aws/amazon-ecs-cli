@@ -23,7 +23,9 @@ import (
 // SMClient defines methods for interacting with the SecretsManagerAPI interface
 type SMClient interface {
 	CreateSecret(secretsmanager.CreateSecretInput) (*secretsmanager.CreateSecretOutput, error)
+	DescribeSecret(secretID string) (*secretsmanager.DescribeSecretOutput, error)
 	ListSecrets(*string) (*secretsmanager.ListSecretsOutput, error)
+	PutSecretValue(input secretsmanager.PutSecretValueInput) (*secretsmanager.PutSecretValueOutput, error)
 }
 
 type secretsManagerClient struct {
@@ -54,11 +56,33 @@ func (c *secretsManagerClient) CreateSecret(input secretsmanager.CreateSecretInp
 	return output, nil
 }
 
+func (c *secretsManagerClient) DescribeSecret(secretID string) (*secretsmanager.DescribeSecretOutput, error) {
+	request := secretsmanager.DescribeSecretInput{}
+	request.SetSecretId(secretID)
+
+	output, err := c.client.DescribeSecret(&request)
+	if err != nil {
+		return nil, err
+	}
+
+	return output, nil
+}
+
 func (c *secretsManagerClient) ListSecrets(nextToken *string) (*secretsmanager.ListSecretsOutput, error) {
 	request := secretsmanager.ListSecretsInput{
 		NextToken: nextToken,
 	}
 	output, err := c.client.ListSecrets(&request)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return output, nil
+}
+
+func (c *secretsManagerClient) PutSecretValue(input secretsmanager.PutSecretValueInput) (*secretsmanager.PutSecretValueOutput, error) {
+	output, err := c.client.PutSecretValue(&input)
 
 	if err != nil {
 		return nil, err

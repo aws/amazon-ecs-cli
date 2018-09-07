@@ -56,7 +56,7 @@ registry_credentials:
 	assert.NotEmpty(t, firstRegResult)
 	assert.Equal(t, "some_user_name", firstRegResult.Username)
 	assert.Equal(t, "myl337p4$$w0rd!<bz*", firstRegResult.Password)
-	assert.Equal(t, "aws:arn:kms:key/iuytre-jhgfd", firstRegResult.KmdKeyID)
+	assert.Equal(t, "aws:arn:kms:key/iuytre-jhgfd", firstRegResult.KmsKeyID)
 	assert.Equal(t, 2, len(firstRegResult.ContainerNames))
 
 	otherRegResult := credsResult.RegistryCredentials["other-registry.net"]
@@ -120,7 +120,7 @@ registry_credentials:
 	assert.NotEmpty(t, credEntry)
 	assert.Equal(t, usrnameEnvVal, credEntry.Username)
 	assert.Equal(t, passwrdEnvVal, credEntry.Password)
-	assert.Equal(t, kmsEnvVal, credEntry.KmdKeyID)
+	assert.Equal(t, kmsEnvVal, credEntry.KmsKeyID)
 	assert.Equal(t, secretEnvVal, credEntry.SecretManagerARN)
 	assert.Equal(t, 1, len(credEntry.ContainerNames))
 }
