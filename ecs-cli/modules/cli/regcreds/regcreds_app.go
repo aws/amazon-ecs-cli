@@ -27,6 +27,12 @@ import (
 	"github.com/urfave/cli"
 )
 
+const (
+	// EcsCliResourcePrefix is prepended to the names of resources created through the ecs-cli
+	// TODO: move to more generic package for use in other parts of the ecs-cli
+	EcsCliResourcePrefix = "amazon-ecs-cli-setup-"
+)
+
 // CredsOutputEntry contains the credential ARN and associated container names
 // TODO: use & move to output_reader once implemented?
 type CredsOutputEntry struct {
@@ -53,60 +59,49 @@ func Up(c *cli.Context) {
 	}
 
 	commandConfig := getNewCommandConfig(c)
+	updateAllowed := c.Bool(flags.UpdateExistingSecretsFlag)
 
-	_, err = getOrCreateRegistryCredentials(credsInput.RegistryCredentials, commandConfig, c)
+	smClient := secretsClient.NewSecretsManagerClient(commandConfig)
+
+	_, err = getOrCreateRegistryCredentials(credsInput.RegistryCredentials, smClient, updateAllowed)
 	if err != nil {
 		log.Fatal("Error executing 'up': ", err)
 	}
 
-	//TODO: create role, produce output
+	//TODO: use getOrCreate...() result to create role, produce output
 }
 
-func getOrCreateRegistryCredentials(entryMap readers.RegistryCreds, cmdConfig *config.CommandConfig, c *cli.Context) (*map[string]CredsOutputEntry, error) {
+func getOrCreateRegistryCredentials(entryMap readers.RegistryCreds, smClient secretsClient.SMClient, updateAllowed bool) (map[string]CredsOutputEntry, error) {
 	registryResults := make(map[string]CredsOutputEntry)
-	updateAllowed := c.Bool(flags.UpdateExistingSecretsFlag)
-
-	smClient := secretsClient.NewSecretsManagerClient(cmdConfig)
 
 	for registryName, credentialEntry := range entryMap {
-		hasCredPair := hasCredPair(credentialEntry)
-		hasSecretARN := false
-		if credentialEntry.SecretManagerARN != "" {
-			hasSecretARN = true
-		}
-
 		log.Infof("Processing credentials for registry %s...", registryName)
 
-		if hasCredPair && hasSecretARN {
-			arn, err := updateOrWarnForExistingSecret(credentialEntry, updateAllowed, smClient)
+		arn := credentialEntry.SecretManagerARN
+		if arn == "" {
+			newSecretArn, err := findOrCreateRegistrySecret(registryName, credentialEntry, smClient)
 			if err != nil {
 				return nil, err
 			}
-			registryResults[registryName] = buildOutputEntry(arn, credentialEntry.ContainerNames)
-
-		} else if hasSecretARN {
-			registryResults[registryName] = buildOutputEntry(credentialEntry.SecretManagerARN, credentialEntry.ContainerNames)
-			log.Infof("Using existing secret %s.", registryName)
-
+			arn = newSecretArn
+		} else if credentialEntry.HasCredPair() {
+			if err := updateOrWarnForExistingSecret(credentialEntry, updateAllowed, smClient); err != nil {
+				return nil, err
+			}
 		} else {
-			arn, err := createNewRegistrySecret(registryName, credentialEntry, smClient)
-			if err != nil {
-				return nil, err
-			}
-			registryResults[registryName] = buildOutputEntry(arn, credentialEntry.ContainerNames)
+			log.Infof("Using existing secret %s.", arn)
 		}
+		registryResults[registryName] = buildOutputEntry(arn, credentialEntry.ContainerNames)
 	}
 
-	log.Infof("\n up results: %v", registryResults)
-
-	return &registryResults, nil
+	return registryResults, nil
 }
 
-func createNewRegistrySecret(registryName string, credEntry readers.RegistryCredEntry, smClient secretsClient.SMClient) (string, error) {
+func findOrCreateRegistrySecret(registryName string, credEntry readers.RegistryCredEntry, smClient secretsClient.SMClient) (string, error) {
 
 	secretName := generateSecretName(registryName)
 
-	existingSecret, _ := smClient.DescribeSecret(secretName)
+	existingSecret, _ := smClient.DescribeSecret(*secretName)
 	if existingSecret != nil {
 		log.Infof("Existing credential secret found, using %s", *existingSecret.ARN)
 
@@ -116,9 +111,9 @@ func createNewRegistrySecret(registryName string, credEntry readers.RegistryCred
 	secretString := generateSecretString(credEntry.Username, credEntry.Password)
 
 	createSecretRequest := secretsmanager.CreateSecretInput{
-		Name:         aws.String(secretName),
-		SecretString: aws.String(secretString),
-		Description:  aws.String(fmt.Sprintf("Created with the ECS CLI for use with registry %s", registryName)),
+		Name:         secretName,
+		SecretString: secretString,
+		Description:  generateSecretDescription(registryName),
 	}
 	if credEntry.KmsKeyID != "" {
 		createSecretRequest.SetKmsKeyId(credEntry.KmsKeyID)
@@ -133,19 +128,19 @@ func createNewRegistrySecret(registryName string, credEntry readers.RegistryCred
 	return *output.ARN, nil
 }
 
-func updateOrWarnForExistingSecret(credEntry readers.RegistryCredEntry, updateAllowed bool, smClient secretsClient.SMClient) (string, error) {
+func updateOrWarnForExistingSecret(credEntry readers.RegistryCredEntry, updateAllowed bool, smClient secretsClient.SMClient) error {
 	secretArn := credEntry.SecretManagerARN
 
 	if updateAllowed {
 		updatedSecretString := generateSecretString(credEntry.Username, credEntry.Password)
 		putSecretValueRequest := secretsmanager.PutSecretValueInput{
 			SecretId:     aws.String(secretArn),
-			SecretString: aws.String(updatedSecretString),
+			SecretString: updatedSecretString,
 		}
 
 		_, err := smClient.PutSecretValue(putSecretValueRequest)
 		if err != nil {
-			return "", err
+			return err
 		}
 
 		log.Infof("Updated existing secret %s with new value", secretArn)
@@ -153,8 +148,7 @@ func updateOrWarnForExistingSecret(credEntry readers.RegistryCredEntry, updateAl
 	} else {
 		log.Warnf("'username' and 'password' found but ignored for existing secret %s. To update existing secrets with new values, use '--update-existing-secrets' flag.", secretArn)
 	}
-
-	return secretArn, nil
+	return nil
 }
 
 func validateCredsInput(input readers.ECSRegCredsInput) error {
@@ -166,26 +160,22 @@ func validateCredsInput(input readers.ECSRegCredsInput) error {
 		return errors.New("provided credentials must contain at least one registry")
 	}
 
+	namedContainers := make(map[string]bool)
+
 	for registryName, credentialEntry := range inputRegCreds {
-		if !hasRequiredFields(credentialEntry) {
+		if !credentialEntry.HasRequiredFields() {
 			return fmt.Errorf("missing required field(s) for registry %s; registry credentials should contain existing secret ARN or username + password", registryName)
+		}
+		if len(credentialEntry.ContainerNames) > 0 {
+			for _, container := range credentialEntry.ContainerNames {
+				if namedContainers[container] {
+					return fmt.Errorf("container '%s' appears in more than one registry; container names must be unique across a set of registry credentials", container)
+				}
+				namedContainers[container] = true
+			}
 		}
 	}
 	return nil
-}
-
-func hasRequiredFields(entry readers.RegistryCredEntry) bool {
-	if (entry.SecretManagerARN != "") || hasCredPair(entry) {
-		return true
-	}
-	return false
-}
-
-func hasCredPair(entry readers.RegistryCredEntry) bool {
-	if entry.Username != "" && entry.Password != "" {
-		return true
-	}
-	return false
 }
 
 func getNewCommandConfig(c *cli.Context) *config.CommandConfig {
@@ -201,12 +191,16 @@ func getNewCommandConfig(c *cli.Context) *config.CommandConfig {
 	return commandConfig
 }
 
-func generateSecretName(regName string) string {
-	return "amazon-ecs-cli-setup-" + regName
+func generateSecretName(regName string) *string {
+	return aws.String(EcsCliResourcePrefix + regName)
 }
 
-func generateSecretString(username, password string) string {
-	return `{"username":"` + username + `"},{"password":"` + password + `"}`
+func generateSecretString(username, password string) *string {
+	return aws.String(`{"username":"` + username + `"},{"password":"` + password + `"}`)
+}
+
+func generateSecretDescription(regName string) *string {
+	return aws.String(fmt.Sprintf("Created with the ECS CLI for use with registry %s", regName))
 }
 
 func buildOutputEntry(arn string, containers []string) CredsOutputEntry {
