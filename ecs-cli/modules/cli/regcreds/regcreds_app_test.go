@@ -14,33 +14,190 @@
 package regcreds
 
 import (
-	"io/ioutil"
-	"os"
 	"testing"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/secretsmanager/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcreds"
+	"github.com/aws/aws-sdk-go/aws"
+	secretsmanager "github.com/aws/aws-sdk-go/service/secretsmanager"
+	"github.com/golang/mock/gomock"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRegCregsUp(t *testing.T) {
-	testFileString := `version: 1
-registry_credentials:
-  myrepo.someregistry.io:
-    username: some_user_name
-    password: myl337p4$$w0rd!<bz*
-    container_names:
-      - test`
+func TestGetOrCreateRegistryCredentials_WithCredPair(t *testing.T) {
+	testUsername := "someUser1"
+	testPassword := "someP4$$w0rd"
+	testRegistryName := "examplereg.net"
+	testContainers := []string{"logging", "web"}
 
-	tmpfile, err := ioutil.TempFile("", "test")
-	assert.NoError(t, err, "Unexpected error in creating test file")
-	defer os.Remove(tmpfile.Name())
+	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
+	testRegistryCreds[testRegistryName] = getTestCredsEntry("", testUsername, testPassword, "", testContainers)
 
-	_, err = tmpfile.Write([]byte(testFileString))
-	assert.NoError(t, err, "Unexpected error writing file")
-	err = tmpfile.Close()
-	assert.NoError(t, err, "Unexpected error closing file")
+	expectedCreateInput := secretsmanager.CreateSecretInput{
+		Name:         generateSecretName(testRegistryName),
+		SecretString: generateSecretString(testUsername, testPassword),
+		Description:  generateSecretDescription(testRegistryName),
+	}
+	responseARN := "arn:aws:secretsmanager:examplereg.net-123"
 
-	//todo: add client and call mocks when added
+	mockSM := setupTestController(t)
+	gomock.InOrder(
+		mockSM.EXPECT().DescribeSecret(gomock.Any()).Return(nil, nil),
+		mockSM.EXPECT().CreateSecret(expectedCreateInput).Return(&secretsmanager.CreateSecretOutput{ARN: aws.String(responseARN)}, nil),
+	)
+
+	credsOutput, err := getOrCreateRegistryCredentials(testRegistryCreds, mockSM, false)
+	assert.NoError(t, err, "Expected no error when creating secret with cred pair")
+
+	actualCredEntry := credsOutput[testRegistryName]
+	assert.NotEmpty(t, actualCredEntry)
+	assert.Equal(t, responseARN, actualCredEntry.CredentialARN)
+	assert.ElementsMatch(t, testContainers, actualCredEntry.ContainerNames)
+}
+
+func TestGetOrCreateRegistryCredentials_WithCredPairAndKmsKey(t *testing.T) {
+	testUsername := "someUser1"
+	testPassword := "someP4$$w0rd"
+	testKmsKeyID := "my-fav-key"
+	testRegistryName := "examplereg.net"
+	testContainers := []string{"logging", "web"}
+
+	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
+	testRegistryCreds[testRegistryName] = getTestCredsEntry("", testUsername, testPassword, testKmsKeyID, testContainers)
+
+	expectedCreateInput := secretsmanager.CreateSecretInput{
+		Name:         generateSecretName(testRegistryName),
+		SecretString: generateSecretString(testUsername, testPassword),
+		KmsKeyId:     aws.String(testKmsKeyID),
+		Description:  generateSecretDescription(testRegistryName),
+	}
+	responseARN := "arn:aws:secretsmanager:examplereg.net-123"
+
+	mockSM := setupTestController(t)
+	gomock.InOrder(
+		mockSM.EXPECT().DescribeSecret(gomock.Any()).Return(nil, nil),
+		mockSM.EXPECT().CreateSecret(expectedCreateInput).Return(&secretsmanager.CreateSecretOutput{ARN: aws.String(responseARN)}, nil),
+	)
+
+	credsOutput, err := getOrCreateRegistryCredentials(testRegistryCreds, mockSM, false)
+	assert.NoError(t, err, "Expected no error when creating secret with cred pair")
+
+	actualCredEntry := credsOutput[testRegistryName]
+	assert.NotEmpty(t, actualCredEntry)
+	assert.Equal(t, responseARN, actualCredEntry.CredentialARN)
+	assert.ElementsMatch(t, testContainers, actualCredEntry.ContainerNames)
+}
+
+func TestGetOrCreateRegistryCredentials_WithCredPairAndExistingFound(t *testing.T) {
+	testUsername := "someUser1"
+	testPassword := "someP4$$w0rd"
+	testRegistryName := "examplereg.net"
+	testContainers := []string{"logging", "web"}
+
+	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
+	testRegistryCreds[testRegistryName] = getTestCredsEntry("", testUsername, testPassword, "", testContainers)
+
+	responseARN := "arn:aws:secretsmanager:examplereg.net-123"
+
+	mockSM := setupTestController(t)
+	mockSM.EXPECT().DescribeSecret(gomock.Any()).Return(&secretsmanager.DescribeSecretOutput{ARN: aws.String(responseARN)}, nil)
+
+	credsOutput, err := getOrCreateRegistryCredentials(testRegistryCreds, mockSM, false)
+	assert.NoError(t, err, "Expected no error when creating secret with cred pair")
+
+	actualCredEntry := credsOutput[testRegistryName]
+	assert.NotEmpty(t, actualCredEntry)
+	assert.Equal(t, responseARN, actualCredEntry.CredentialARN)
+	assert.ElementsMatch(t, testContainers, actualCredEntry.ContainerNames)
+}
+
+func TestGetOrCreateRegistryCredentials_WithSecretArnOnly(t *testing.T) {
+	testSecretARN := "arn:aws:secretsmanager:examplereg.net-123"
+	testRegistryName := "examplereg.net"
+	testContainers := []string{"logging", "web"}
+
+	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
+	testRegistryCreds[testRegistryName] = getTestCredsEntry(testSecretARN, "", "", "", testContainers)
+
+	credsOutput, err := getOrCreateRegistryCredentials(testRegistryCreds, setupTestController(t), false)
+	assert.NoError(t, err, "Expected no error when using existing secren ARN")
+
+	actualCredEntry := credsOutput[testRegistryName]
+	assert.NotEmpty(t, actualCredEntry)
+	assert.Equal(t, testSecretARN, actualCredEntry.CredentialARN)
+	assert.ElementsMatch(t, testContainers, actualCredEntry.ContainerNames)
+}
+
+func TestGetOrCreateRegistryCredentials_WithExistingAndCredsUpdateOk(t *testing.T) {
+	testSecretARN := "arn:aws:secretsmanager:examplereg.net-123"
+	testUsername := "someUser1"
+	testPassword := "someP4$$w0rd"
+	testRegistryName := "examplereg.net"
+	testContainers := []string{"logging", "web"}
+
+	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
+	testRegistryCreds[testRegistryName] = getTestCredsEntry(testSecretARN, testUsername, testPassword, "", testContainers)
+
+	expectedPutSecretValueInput := secretsmanager.PutSecretValueInput{
+		SecretId:     aws.String(testSecretARN),
+		SecretString: generateSecretString(testUsername, testPassword),
+	}
+
+	mockSM := setupTestController(t)
+	mockSM.EXPECT().PutSecretValue(expectedPutSecretValueInput).Return(&secretsmanager.PutSecretValueOutput{}, nil)
+
+	// call with updateAllowed = true
+	credsOutput, err := getOrCreateRegistryCredentials(testRegistryCreds, mockSM, true)
+	assert.NoError(t, err, "Expected no error when updating existing secren ARN")
+
+	actualCredEntry := credsOutput[testRegistryName]
+	assert.NotEmpty(t, actualCredEntry)
+	assert.ElementsMatch(t, testContainers, actualCredEntry.ContainerNames)
+}
+
+func TestGetOrCreateRegistryCredentials_WithExistingAndCredsNoUpdate(t *testing.T) {
+	testSecretARN := "arn:aws:secretsmanager:examplereg.net-123"
+	testUsername := "someUser1"
+	testPassword := "someP4$$w0rd"
+	testRegistryName := "examplereg.net"
+	testContainers := []string{"logging", "web"}
+
+	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
+	testRegistryCreds[testRegistryName] = getTestCredsEntry(testSecretARN, testUsername, testPassword, "", testContainers)
+
+	// call with updateAllowed = false
+	credsOutput, err := getOrCreateRegistryCredentials(testRegistryCreds, setupTestController(t), false)
+	assert.NoError(t, err, "Expected no error when using existing secren ARN")
+
+	actualCredEntry := credsOutput[testRegistryName]
+	assert.NotEmpty(t, actualCredEntry)
+	assert.ElementsMatch(t, testContainers, actualCredEntry.ContainerNames)
+}
+
+func TestGetOrCreateRegistryCredentials_ErrorOnCreate(t *testing.T) {
+	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
+	testRegistryCreds["testRegistry"] = getTestCredsEntry("", "testUsername", "testPassword", "", []string{"test"})
+
+	mockSM := setupTestController(t)
+	gomock.InOrder(
+		mockSM.EXPECT().DescribeSecret(gomock.Any()).Return(nil, nil),
+		mockSM.EXPECT().CreateSecret(gomock.Any()).Return(nil, errors.New("something went wrong")),
+	)
+
+	_, err := getOrCreateRegistryCredentials(testRegistryCreds, mockSM, false)
+	assert.Error(t, err)
+}
+
+func TestGetOrCreateRegistryCredentials_ErrorOnUpdate(t *testing.T) {
+	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
+	testRegistryCreds["testRegistry"] = getTestCredsEntry("arn:aws:secretsmanager:secret:test", "testUsername", "testPassword", "", []string{"test"})
+
+	mockSM := setupTestController(t)
+	mockSM.EXPECT().PutSecretValue(gomock.Any()).Return(nil, errors.New("something went wrong"))
+
+	_, err := getOrCreateRegistryCredentials(testRegistryCreds, mockSM, true)
+	assert.Error(t, err)
 }
 
 func TestValidateCredsInput_ErrorEmptyCreds(t *testing.T) {
@@ -65,4 +222,42 @@ func TestValidateCredsInput_ErrorOnMissingReqFields(t *testing.T) {
 
 	err := validateCredsInput(testCredsInput)
 	assert.Error(t, err, "Expected creds with empty entry to return error")
+}
+
+func TestValidateCredsInput_ErrorOnDuplicateContainers(t *testing.T) {
+	duplicateContainer := "http"
+	regCreds := make(map[string]readers.RegistryCredEntry)
+	regCreds["registry-1.net"] = readers.RegistryCredEntry{
+		SecretManagerARN: "arn:aws:secretsmanager:some-secret",
+		ContainerNames:   []string{duplicateContainer, "logging"},
+	}
+	regCreds["registry-2.net"] = readers.RegistryCredEntry{
+		SecretManagerARN: "arn:aws:secretsmanager:some-other-secret",
+		ContainerNames:   []string{"metrics", duplicateContainer},
+	}
+
+	testCredsInput := readers.ECSRegCredsInput{
+		Version:             "1",
+		RegistryCredentials: regCreds,
+	}
+
+	err := validateCredsInput(testCredsInput)
+	assert.Error(t, err, "Expected creds with duplicate containers to return error")
+}
+
+func getTestCredsEntry(secretARN, username, password, kmsKey string, containers []string) readers.RegistryCredEntry {
+	return readers.RegistryCredEntry{
+		SecretManagerARN: secretARN,
+		Username:         username,
+		Password:         password,
+		KmsKeyID:         kmsKey,
+		ContainerNames:   containers,
+	}
+}
+
+func setupTestController(t *testing.T) *mock_secretsmanager.MockSMClient {
+	ctrl := gomock.NewController(t)
+	client := mock_secretsmanager.NewMockSMClient(ctrl)
+
+	return client
 }
