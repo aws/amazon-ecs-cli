@@ -40,6 +40,16 @@ type RegistryCredEntry struct {
 	ContainerNames   []string `yaml:"container_names"`
 }
 
+// HasRequiredFields indicates whether the entry has the fields required to create or use registry credentials
+func (e RegistryCredEntry) HasRequiredFields() bool {
+	return e.SecretManagerARN != "" || e.HasCredPair()
+}
+
+// HasCredPair indicates whether the entry contains a username + password
+func (e RegistryCredEntry) HasCredPair() bool {
+	return e.Username != "" && e.Password != ""
+}
+
 // ReadCredsInput parses 'registry-creds up' input into an ECSRegCredsInput struct
 func ReadCredsInput(filename string) (*ECSRegCredsInput, error) {
 
