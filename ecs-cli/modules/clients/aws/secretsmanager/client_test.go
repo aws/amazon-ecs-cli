@@ -51,6 +51,31 @@ func TestCreateSecretErrorCase(t *testing.T) {
 	assert.Error(t, err, "Expected error when Creating Secret")
 }
 
+func TestDescribeSecret(t *testing.T) {
+	mockSM, client := setupTestController(t)
+
+	testSecretName := "some-secret-1"
+	expectedOutput := secretsmanager.DescribeSecretOutput{
+		ARN:  aws.String("arn:aws:secretsmanager:secret:" + testSecretName),
+		Name: aws.String(testSecretName),
+	}
+
+	mockSM.EXPECT().DescribeSecret(gomock.Any()).Return(&expectedOutput, nil)
+
+	output, err := client.DescribeSecret(testSecretName)
+	assert.NoError(t, err, "Expected no error when Describing Secret")
+	assert.Equal(t, &expectedOutput, output, "Expected DescribeSecret output to match")
+}
+
+func TestDescribeSecretErrorCase(t *testing.T) {
+	mockSM, client := setupTestController(t)
+
+	mockSM.EXPECT().DescribeSecret(gomock.Any()).Return(nil, errors.New("something went wrong"))
+
+	_, err := client.DescribeSecret("fake-secret-name")
+	assert.Error(t, err, "Expected error when Describing Secret")
+}
+
 func TestListSecrets(t *testing.T) {
 	mockSM, client := setupTestController(t)
 
@@ -90,6 +115,33 @@ func TestListSecretsErrorCase(t *testing.T) {
 	_, err := client.ListSecrets(nil)
 
 	assert.Error(t, err, "Expected error when Listing Secrets")
+}
+
+func TestPutSecretValue(t *testing.T) {
+	mockSM, client := setupTestController(t)
+
+	expectedInput := secretsmanager.PutSecretValueInput{
+		SecretId:     aws.String("my-test-secret"),
+		SecretString: aws.String("{\"username\":\"testUser1\"},{\"password\":\"p4$$w0rd\"}"),
+	}
+	expectedOutput := secretsmanager.PutSecretValueOutput{
+		ARN: aws.String("arn:aws:secretsmanager:my-test-secret"),
+	}
+
+	mockSM.EXPECT().PutSecretValue(&expectedInput).Return(&expectedOutput, nil)
+
+	output, err := client.PutSecretValue(expectedInput)
+	assert.NoError(t, err, "Expected no error when Putting Secret value")
+	assert.Equal(t, &expectedOutput, output, "Expected PutSecretValue to match")
+}
+
+func TestPutSecretValueErrorCase(t *testing.T) {
+	mockSM, client := setupTestController(t)
+
+	mockSM.EXPECT().PutSecretValue(gomock.Any()).Return(nil, errors.New("something went wrong"))
+	_, err := client.PutSecretValue(secretsmanager.PutSecretValueInput{})
+
+	assert.Error(t, err, "Expected error when Putting Secret value")
 }
 
 func setupTestController(t *testing.T) (*mock_secretsmanageriface.MockSecretsManagerAPI, SMClient) {
