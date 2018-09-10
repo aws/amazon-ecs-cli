@@ -733,7 +733,6 @@ run_params:
       dns_config:
         type: A
         ttl: 60
-      routing_policy: MULTIVALUE
       healthcheck_custom_config:
         failure_threshold: 1`
 
@@ -768,7 +767,6 @@ run_params:
 		assert.Equal(t, "This is an SDS", sds.Description, "Expected SDS Description to match")
 		assert.Equal(t, "A", sds.DNSConfig.Type, "Expected SDS DNSConfig Type to match")
 		assert.Equal(t, aws.Int64(60), sds.DNSConfig.TTL, "Expected SDS DNSConfig TTL to match")
-		assert.Equal(t, "MULTIVALUE", sds.RoutingPolicy, "Expected SDS RoutingPolicy to match")
 		assert.Equal(t, aws.Int64(1), sds.HealthCheckCustomConfig.FailureThreshold, "Expected SDS HealthCheckCustomConfig FailureThreshold to match")
 	}
 }

@@ -669,7 +669,7 @@ func TestCreateWithServiceDiscovery(t *testing.T) {
 	nonMockedServicediscoveryCreate := servicediscoveryCreate
 	defer func() { servicediscoveryCreate = nonMockedServicediscoveryCreate }()
 
-	servicediscoveryCreate = func(c *cli.Context, networkMode, serviceName, clusterName string) (*string, error) {
+	servicediscoveryCreate = func(networkMode, serviceName string, c *context.ECSContext) (*string, error) {
 		return aws.String(sdsARN), nil
 	}
 
@@ -699,7 +699,7 @@ func TestCreateWithServiceDiscoveryWithContainerNameAndPort(t *testing.T) {
 	nonMockedServicediscoveryCreate := servicediscoveryCreate
 	defer func() { servicediscoveryCreate = nonMockedServicediscoveryCreate }()
 
-	servicediscoveryCreate = func(c *cli.Context, networkMode, serviceName, clusterName string) (*string, error) {
+	servicediscoveryCreate = func(networkMode, serviceName string, c *context.ECSContext) (*string, error) {
 		return aws.String(sdsARN), nil
 	}
 
