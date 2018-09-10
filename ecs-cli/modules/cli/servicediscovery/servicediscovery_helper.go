@@ -1,0 +1,277 @@
+// Copyright 2015-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License"). You may
+// not use this file except in compliance with the License. A copy of the
+// License is located at
+//
+//	http://aws.amazon.com/apache2.0/
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+
+package servicediscovery
+
+import (
+	"fmt"
+	"strconv"
+
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudformation"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/route53"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
+	utils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/aws/aws-sdk-go/service/servicediscovery"
+	"github.com/sirupsen/logrus"
+	"github.com/urfave/cli"
+)
+
+// CloudFormation template parameters
+const (
+	parameterKeyNamespaceDescription = "NamespaceDescription"
+	parameterKeyVPCID                = "VPCID"
+	parameterKeyNamespaceName        = "NamespaceName"
+)
+
+const (
+	parameterKeySDSDescription                          = "SDSDescription"
+	parameterKeySDSName                                 = "SDSName"
+	parameterKeyNamespaceID                             = "NamespaceID"
+	parameterKeyDNSType                                 = "DNSType"
+	parameterKeyDNSTTL                                  = "DNSTTL"
+	parameterKeyHealthCheckCustomConfigFailureThreshold = "FailureThreshold"
+)
+
+var requiredParamsSDS = []string{parameterKeyNamespaceID, parameterKeySDSName, parameterKeyDNSType}
+var requiredParamsNamespace = []string{parameterKeyVPCID, parameterKeyNamespaceName}
+
+// Imported Route53 Utility functions that can be mocked in tests
+// Adding the type signature allows code editor autocompletion and checking to work normally
+var findPrivateNamespace route53.FindPrivateNamespaceFunc = route53.FindPrivateNamespace
+var findPublicNamespace route53.FindPublicNamespaceFunc = route53.FindPublicNamespace
+
+// CreateFunc is the interface/signature for Create
+// This helps when writing code in other packages that need to mock Create (specifically it's a nicety that helps IDE features work)
+type CreateFunc func(networkMode, serviceName string, c *context.ECSContext) (*string, error)
+
+func resolveIntPointerFieldOverride(c *cli.Context, flagName string, ecsParamsVal *int64, field string) (*int64, error) {
+	flagVal, err := getInt64FromCLIContext(c, flagName)
+	if err != nil {
+		return nil, err
+	}
+
+	if flagVal != nil && ecsParamsVal != nil {
+		paramsVal := string(*ecsParamsVal)
+		override := string(*flagVal)
+		showFieldOverrideMsg(paramsVal, override, field)
+	}
+	if flagVal != nil {
+		return flagVal, nil
+	}
+	return ecsParamsVal, nil
+}
+
+// getInt64FromCLIContext reads the flag from the cli context and typecasts into *int64
+func getInt64FromCLIContext(c *cli.Context, flag string) (*int64, error) {
+	value := c.String(flag)
+	if value == "" {
+		return nil, nil
+	}
+	intValue, err := strconv.ParseInt(value, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("Please pass integer value for the flag %s", flag)
+	}
+	return aws.Int64(intValue), nil
+}
+
+func resolveStringFieldOverride(c *cli.Context, flagName, ecsParamsVal string, field string) string {
+	flagVal := c.String(flagName)
+	if flagVal != "" && ecsParamsVal != "" {
+		showFieldOverrideMsg(ecsParamsVal, flagVal, field)
+	}
+	if flagVal != "" {
+		return flagVal
+	}
+	return ecsParamsVal
+}
+
+func showFieldOverrideMsg(val string, override string, field string) {
+	overrideMsg := "Using flag value as override (was %v but is now %v)"
+
+	logrus.WithFields(logrus.Fields{
+		"Service Discovery field": field,
+	}).Infof(overrideMsg, val, override)
+}
+
+// Validates that SD input does not contain conflicting values
+// validateMergedSDInputFields should be called after the inputs from flags and ECS Params have been merged
+func validateMergedSDInputFields(input *utils.ServiceDiscovery, networkMode string) error {
+	dnsType := getDNSType(input, networkMode)
+	if dnsType == servicediscovery.RecordTypeSrv && input.ContainerName == "" {
+		return fmt.Errorf("container_name is a required field when using SRV DNS records")
+	}
+	if dnsType == servicediscovery.RecordTypeSrv && input.ContainerPort == nil {
+		return fmt.Errorf("container_port is a required field when using SRV DNS records")
+	}
+
+	hasPublic := hasNamespace(input.PublicDNSNamespace.Namespace)
+	hasPrivate := hasNamespace(input.PrivateDNSNamespace.Namespace)
+
+	if hasPublic && hasPrivate {
+		return fmt.Errorf("Both a public and private namespace can not be used with Service Discovery; please use only 1 namespace")
+	}
+
+	if !hasPublic && !hasPrivate {
+		return fmt.Errorf("To use Service Discovery, please specify a DNS namespace")
+	}
+
+	if input.PrivateDNSNamespace.Name != "" && input.PrivateDNSNamespace.ID == "" {
+		if input.PrivateDNSNamespace.VPC == "" {
+			return fmt.Errorf("VPC is required when specifying private namespace by name")
+		}
+	}
+
+	return nil
+}
+
+func resolveNamespaceOverride(namespaceNameFromFlag, namespaceIDFromFlag, namespaceType string, ecsParamsNamespace utils.Namespace) utils.Namespace {
+	flagNamespace := utils.Namespace{
+		ID:   namespaceIDFromFlag,
+		Name: namespaceNameFromFlag,
+	}
+	if hasNamespace(flagNamespace) && hasNamespace(ecsParamsNamespace) {
+		showFieldOverrideMsg(getNamespace(ecsParamsNamespace), getNamespace(ecsParamsNamespace), fmt.Sprintf("dns %s namespace", namespaceType))
+	}
+	if hasNamespace(flagNamespace) {
+		return flagNamespace
+	}
+	return ecsParamsNamespace
+}
+
+// Validates that namespace name and ID fields were not both specified
+// This function runs before flags and ECS Params are merged
+func validateNameAndIdExclusive(c *cli.Context, ecsParamsSD *utils.ServiceDiscovery) error {
+	if c.String(flags.PrivateDNSNamespaceIDFlag) != "" && c.String(flags.PrivateDNSNamespaceNameFlag) != "" {
+		return fmt.Errorf("Validation Error: %s and %s both specified", flags.PrivateDNSNamespaceIDFlag, flags.PrivateDNSNamespaceNameFlag)
+	}
+
+	if c.String(flags.PublicDNSNamespaceIDFlag) != "" && c.String(flags.PublicDNSNamespaceNameFlag) != "" {
+		return fmt.Errorf("Validation Error: %s and %s both specified", flags.PublicDNSNamespaceIDFlag, flags.PublicDNSNamespaceNameFlag)
+	}
+
+	if ecsParamsSD.PrivateDNSNamespace.Name != "" && ecsParamsSD.PrivateDNSNamespace.ID != "" {
+		return fmt.Errorf("Validation Error: private_dns_namespace.name and private_dns_namespace.id both specified")
+	}
+
+	if ecsParamsSD.PublicDNSNamespace.Name != "" && ecsParamsSD.PublicDNSNamespace.ID != "" {
+		return fmt.Errorf("Validation Error: public_dns_namespace.name and public_dns_namespace.id both specified")
+	}
+
+	return nil
+}
+
+// Logs warnings for fields which are ignored when a namespace ID is specified
+func namespaceWarningsWhenIDSpecified(input *utils.ServiceDiscovery) {
+	msg := "Ignoring %s because the ID of an existing private namespace was specified"
+
+	privNamespace := input.PrivateDNSNamespace
+	if privNamespace.ID != "" {
+		if privNamespace.Description != "" {
+			logrus.Warnf(msg, "description")
+		}
+		if privNamespace.VPC != "" {
+			logrus.Warnf(msg, "vpc")
+		}
+	}
+}
+
+func hasNamespace(n utils.Namespace) bool {
+	return n.ID != "" || n.Name != ""
+}
+
+func getNamespace(n utils.Namespace) string {
+	if n.ID != "" {
+		return n.ID
+	}
+	return n.Name
+}
+
+func getOutputIDFromStack(cfnClient cloudformation.CloudformationClient, stackName, outputKey string) (*string, error) {
+	response, err := cfnClient.DescribeStacks(stackName)
+	if err != nil {
+		return nil, err
+	}
+	if len(response.Stacks) == 0 {
+		return nil, fmt.Errorf("Could not find CloudFormation stack: %s", stackName)
+	}
+
+	for _, output := range response.Stacks[0].Outputs {
+		if aws.StringValue(output.OutputKey) == outputKey {
+			return output.OutputValue, nil
+		}
+	}
+	return nil, fmt.Errorf("Failed to find output %s in stack %s", outputKey, stackName)
+}
+
+func cfnStackName(stackName, cluster, service string) string {
+	return fmt.Sprintf(stackName, cluster, service)
+}
+
+func getSDSCFNParams(namespaceID, sdsName, networkMode string, input *utils.ServiceDiscovery) *cloudformation.CfnStackParams {
+	cfnParams := cloudformation.NewCfnStackParams(requiredParamsSDS)
+
+	cfnParams.Add(parameterKeyNamespaceID, namespaceID)
+	cfnParams.Add(parameterKeySDSName, sdsName)
+
+	dnsType := getDNSType(input, networkMode)
+	cfnParams.Add(parameterKeyDNSType, dnsType)
+
+	sds := input.ServiceDiscoveryService
+
+	if dnsTTL := sds.DNSConfig.TTL; dnsTTL != nil {
+		cfnParams.Add(parameterKeyDNSTTL, strconv.Itoa(int(*dnsTTL)))
+	}
+
+	if threshold := sds.HealthCheckCustomConfig.FailureThreshold; threshold != nil {
+		cfnParams.Add(parameterKeyHealthCheckCustomConfigFailureThreshold, strconv.Itoa(int(*threshold)))
+	}
+
+	if description := sds.Description; description != "" {
+		cfnParams.Add(parameterKeySDSDescription, description)
+	}
+
+	return cfnParams
+}
+
+func getDNSType(input *utils.ServiceDiscovery, networkMode string) string {
+	dnsType := input.ServiceDiscoveryService.DNSConfig.Type
+	if dnsType == "" {
+		// set default
+		if networkMode == ecs.NetworkModeAwsvpc {
+			dnsType = servicediscovery.RecordTypeA
+			logrus.Warnf("Defaulting DNS Type to %s because network mode was %s", servicediscovery.RecordTypeA, ecs.NetworkModeAwsvpc)
+		} else {
+			dnsType = servicediscovery.RecordTypeSrv
+			logrus.Warnf("Defaulting DNS Type to %s because network mode was %s", servicediscovery.RecordTypeSrv, networkMode)
+		}
+	}
+	return dnsType
+}
+
+func getNamespaceCFNParams(input *utils.ServiceDiscovery) *cloudformation.CfnStackParams {
+	cfnParams := cloudformation.NewCfnStackParams(requiredParamsNamespace)
+
+	privNamespace := input.PrivateDNSNamespace
+	cfnParams.Add(parameterKeyNamespaceName, privNamespace.Name)
+
+	cfnParams.Add(parameterKeyVPCID, privNamespace.VPC)
+
+	if privNamespace.Description != "" {
+		cfnParams.Add(parameterKeyNamespaceDescription, privNamespace.Description)
+	}
+
+	return cfnParams
+}

@@ -53,7 +53,7 @@ const (
 )
 
 // make servicediscovery.Create easily mockable in tests
-var servicediscoveryCreate = servicediscovery.Create
+var servicediscoveryCreate servicediscovery.CreateFunc = servicediscovery.Create
 
 // NewService creates an instance of a Service and also sets up a cache for task definition
 func NewService(ecsContext *context.ECSContext) entity.ProjectEntity {
@@ -188,21 +188,11 @@ func (s *Service) Create() error {
 // TODO: Instead of always setting count=1, if the containers were Stopped before,
 //       Start should fetch the previously set desired-count from the cache and start x count of containers
 func (s *Service) Start() error {
-	ecsService, err := s.describeService()
-	if err != nil {
-		// Describe API returns the failures for resources in the response (instead of returning an error)
-		// Read the custom error returned from describeService to see if the resource was missing
-		if strings.Contains(err.Error(), ecsMissingResourceCode) {
-			return fmt.Errorf("Please use '%s' command to create the service '%s' first",
-				flags.CreateServiceCommandName, entity.GetServiceName(s))
-		}
-		return err
-	}
-	err = entity.OptionallyCreateLogs(s)
+	err := entity.OptionallyCreateLogs(s)
 	if err != nil {
 		return err
 	}
-	return s.startService(ecsService)
+	return s.startService()
 }
 
 // Up creates the task definition and service and starts the containers if necessary.
@@ -244,7 +234,11 @@ func (s *Service) Up() error {
 		if err != nil {
 			return err
 		}
-		return s.Start()
+		return s.startService()
+	}
+
+	if s.Context().CLIContext.Bool(flags.EnableServiceDiscoveryFlag) {
+		return fmt.Errorf("Service Discovery can not be enabled on an existing ECS Service")
 	}
 
 	ecsServiceName := aws.StringValue(ecsService.ServiceName)
@@ -449,7 +443,7 @@ func (s *Service) createService() error {
 			return err
 		}
 
-		serviceRegistryARN, err := servicediscoveryCreate(s.Context().CLIContext, networkMode, serviceName, s.Context().CommandConfig.Cluster)
+		serviceRegistryARN, err := servicediscoveryCreate(networkMode, serviceName, s.Context())
 		if err != nil {
 			return err
 		}
@@ -498,7 +492,17 @@ func (s *Service) describeService() (*ecs.Service, error) {
 }
 
 // startService checks if the service has a zero desired count and updates the count to 1 (of each container)
-func (s *Service) startService(ecsService *ecs.Service) error {
+func (s *Service) startService() error {
+	ecsService, err := s.describeService()
+	if err != nil {
+		// Describe API returns the failures for resources in the response (instead of returning an error)
+		// Read the custom error returned from describeService to see if the resource was missing
+		if strings.Contains(err.Error(), ecsMissingResourceCode) {
+			return fmt.Errorf("Please use '%s' command to create the service '%s' first",
+				flags.CreateServiceCommandName, entity.GetServiceName(s))
+		}
+		return err
+	}
 	desiredCount := aws.Int64Value(ecsService.DesiredCount)
 	forceDeployment := s.Context().CLIContext.Bool(flags.ForceDeploymentFlag)
 	if desiredCount != 0 {
