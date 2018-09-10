@@ -59,12 +59,16 @@ const (
 	CreateLogsFlag     = "create-log-groups"
 
 	// Service Discovery
-	PrivateDNSNamespaceNameFlag       = "private-dns-namespace"
-	PrivateDNSNamespaceIDFlag         = "private-dns-namespace-id"
-	PublicDNSNamespaceIDFlag          = "public-dns-namespace-id"
-	EnableServiceDiscoveryFlag        = "with-service-discovery"
-	ServiceDiscoveryContainerNameFlag = "sd-container-name"
-	ServiceDiscoveryContainerPortFlag = "sd-container-port"
+	PrivateDNSNamespaceNameFlag                 = "private-dns-namespace"
+	PrivateDNSNamespaceIDFlag                   = "private-dns-namespace-id"
+	PublicDNSNamespaceIDFlag                    = "public-dns-namespace-id"
+	PublicDNSNamespaceNameFlag                  = "public-dns-namespace"
+	EnableServiceDiscoveryFlag                  = "enable-service-discovery"
+	DNSTypeFlag                                 = "dns-type"
+	DNSTTLFlag                                  = "dns-ttl"
+	ServiceDiscoveryContainerNameFlag           = "sd-container-name"
+	ServiceDiscoveryContainerPortFlag           = "sd-container-port"
+	HealthcheckCustomConfigFailureThresholdFlag = "healthcheck-custom-config-failure-threshold"
 
 	ComposeProjectNamePrefixFlag         = "compose-project-name-prefix"
 	ComposeProjectNamePrefixDefaultValue = "ecscompose-"

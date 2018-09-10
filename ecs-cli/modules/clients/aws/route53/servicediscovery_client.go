@@ -23,6 +23,14 @@ import (
 	"github.com/aws/aws-sdk-go/service/servicediscovery"
 )
 
+// FindPrivateNamespaceFunc is the interface/signature for FindPrivateNamespace
+// This helps when writing code in other packages that need to mock this function
+type FindPrivateNamespaceFunc func(name, vpc string, config *config.CommandConfig) (*string, error)
+
+// FindPublicNamespaceFunc is the interface/signature for FindPublicNamespace
+// This allows other packages to mock it
+type FindPublicNamespaceFunc func(name string, config *config.CommandConfig) (*string, error)
+
 // FindPrivateNamespace returns the ID(s) of the private namespace with the given name and vpc
 func FindPrivateNamespace(name, vpc string, config *config.CommandConfig) (*string, error) {
 	r53Client := newRoute53Client(config)

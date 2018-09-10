@@ -130,18 +130,22 @@ type ServiceDiscovery struct {
 	ServiceDiscoveryService ServiceDiscoveryService `yaml:"service_discovery_service"`
 }
 
+// Namespace holds the basic information for any type of namespace
+type Namespace struct {
+	ID   string `yaml:"id"`
+	Name string `yaml:"name"`
+}
+
 // PrivateDNSNamespace holds information related to Route53 private DNS namespaces
 type PrivateDNSNamespace struct {
+	Namespace   `yaml:",inline"`
 	VPC         string `yaml:"vpc"`
-	ID          string `yaml:"id"`
-	Name        string `yaml:"name"`
 	Description string `yaml:"description"`
 }
 
 // PublicDNSNamespace holds information related to Route53 public DNS namespaces
 type PublicDNSNamespace struct {
-	ID   string `yaml:"id"`
-	Name string `yaml:"name"`
+	Namespace `yaml:",inline"`
 }
 
 // ServiceDiscoveryService holds information related to Route53 Service Discovery Services
@@ -149,7 +153,6 @@ type ServiceDiscoveryService struct {
 	Name                    string                  `yaml:"name"`
 	Description             string                  `yaml:"description"`
 	DNSConfig               DNSConfig               `yaml:"dns_config"`
-	RoutingPolicy           string                  `yaml:"routing_policy"`
 	HealthCheckCustomConfig HealthCheckCustomConfig `yaml:"healthcheck_custom_config"`
 }
 
