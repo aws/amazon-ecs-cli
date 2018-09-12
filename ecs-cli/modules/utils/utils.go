@@ -19,6 +19,11 @@ import (
 	"os"
 )
 
+const (
+	// ECSCLIResourcePrefix is prepended to the names of resources created through the ecs-cli
+	ECSCLIResourcePrefix = "amazon-ecs-cli-setup-"
+)
+
 // InSlice checks if the given string exists in the given slice:
 func InSlice(str string, list []string) bool {
 	for _, s := range list {

@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -62,7 +63,7 @@ const (
 	ComposeServiceNamePrefixFlag         = "compose-service-name-prefix"
 	ComposeServiceNamePrefixDefaultValue = ComposeProjectNamePrefixDefaultValue + "service-"
 	CFNStackNameFlag                     = "cfn-stack-name"
-	CFNStackNamePrefixDefaultValue       = "amazon-ecs-cli-setup-"
+	CFNStackNamePrefixDefaultValue       = utils.ECSCLIResourcePrefix
 
 	LaunchTypeFlag        = "launch-type"
 	DefaultLaunchTypeFlag = "default-launch-type"
