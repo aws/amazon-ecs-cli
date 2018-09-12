@@ -65,6 +65,8 @@
     "service/ecr/ecriface",
     "service/ecs",
     "service/ecs/ecsiface",
+    "service/iam",
+    "service/iam/iamiface",
     "service/kms",
     "service/kms/kmsiface",
     "service/route53",
@@ -328,6 +330,10 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
+<<<<<<< 4ca931e5d77684323d869a7c0058b0b106334280
   inputs-digest = "1ef44fc9637e56bf437af53d16a1daa5e5b5e99052a6e38e1b5a3ac4dc1096c4"
+=======
+  inputs-digest = "66cd201a7dddf983c81a9c4c06a2d3eac5ffb5f6c58bf199048a0334a9ee1f6a"
+>>>>>>> Add IAM client
   solver-name = "gps-cdcl"
   solver-version = 1
