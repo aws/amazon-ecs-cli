@@ -14,6 +14,8 @@
 package regcreds
 
 import (
+	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/secretsmanager/mock"
@@ -243,6 +245,36 @@ func TestValidateCredsInput_ErrorOnDuplicateContainers(t *testing.T) {
 
 	err := validateCredsInput(testCredsInput)
 	assert.Error(t, err, "Expected creds with duplicate containers to return error")
+}
+
+func TestGenerateSecretString(t *testing.T) {
+	type ECSRegistrySecret struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+
+	testCases := []struct {
+		inputUsername  string
+		inputPassword  string
+		expectedSecret ECSRegistrySecret
+	}{
+		{"user1", "l33tp4$$w0rd", ECSRegistrySecret{"user1", "l33tp4$$w0rd"}},
+		{"someUserNameThatIsVeryLong0987654321", "*3G7nMl6W*Pi#*erjm", ECSRegistrySecret{"someUserNameThatIsVeryLong0987654321", "*3G7nMl6W*Pi#*erjm"}},
+		{"myemail@example.com", "some-dashed-psswrd-64", ECSRegistrySecret{"myemail@example.com", "some-dashed-psswrd-64"}},
+	}
+	for _, test := range testCases {
+		t.Run(fmt.Sprintf("Parse registry secret %s", test.inputUsername), func(t *testing.T) {
+
+			actualSecretString := generateSecretString(test.inputUsername, test.inputPassword)
+			assert.NotEmpty(t, *actualSecretString)
+
+			regSecret := &ECSRegistrySecret{}
+			err := json.Unmarshal([]byte(*actualSecretString), regSecret)
+			assert.NoError(t, err, "Unexpected error when unmarshalling registry secret")
+			assert.Equal(t, test.expectedSecret.Username, regSecret.Username, "Expected username to match")
+			assert.Equal(t, test.expectedSecret.Password, regSecret.Password, "Expected password to match")
+		})
+	}
 }
 
 func getTestCredsEntry(secretARN, username, password, kmsKey string, containers []string) readers.RegistryCredEntry {
