@@ -19,18 +19,13 @@ import (
 	secretsClient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/secretsmanager"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcreds"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
-)
-
-const (
-	// EcsCliResourcePrefix is prepended to the names of resources created through the ecs-cli
-	// TODO: move to more generic package for use in other parts of the ecs-cli
-	EcsCliResourcePrefix = "amazon-ecs-cli-setup-"
 )
 
 // CredsOutputEntry contains the credential ARN and associated container names
@@ -192,11 +187,11 @@ func getNewCommandConfig(c *cli.Context) *config.CommandConfig {
 }
 
 func generateSecretName(regName string) *string {
-	return aws.String(EcsCliResourcePrefix + regName)
+	return aws.String(utils.ECSCLIResourcePrefix + regName)
 }
 
 func generateSecretString(username, password string) *string {
-	return aws.String(`{"username":"` + username + `"},{"password":"` + password + `"}`)
+	return aws.String(`{"username":"` + username + `","password":"` + password + `"}`)
 }
 
 func generateSecretDescription(regName string) *string {
