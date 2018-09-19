@@ -18,9 +18,12 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/iam/mock"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/kms/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/secretsmanager/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcreds"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/kms"
 	secretsmanager "github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/golang/mock/gomock"
 	"github.com/pkg/errors"
@@ -37,19 +40,19 @@ func TestGetOrCreateRegistryCredentials_WithCredPair(t *testing.T) {
 	testRegistryCreds[testRegistryName] = getTestCredsEntry("", testUsername, testPassword, "", testContainers)
 
 	expectedCreateInput := secretsmanager.CreateSecretInput{
-		Name:         generateSecretName(testRegistryName),
+		Name:         generateECSResourceName(testRegistryName),
 		SecretString: generateSecretString(testUsername, testPassword),
 		Description:  generateSecretDescription(testRegistryName),
 	}
 	responseARN := "arn:aws:secretsmanager:examplereg.net-123"
 
-	mockSM := setupTestController(t)
+	mocks := setupTestController(t)
 	gomock.InOrder(
-		mockSM.EXPECT().DescribeSecret(gomock.Any()).Return(nil, nil),
-		mockSM.EXPECT().CreateSecret(expectedCreateInput).Return(&secretsmanager.CreateSecretOutput{ARN: aws.String(responseARN)}, nil),
+		mocks.MockSM.EXPECT().DescribeSecret(gomock.Any()).Return(nil, nil),
+		mocks.MockSM.EXPECT().CreateSecret(expectedCreateInput).Return(&secretsmanager.CreateSecretOutput{ARN: aws.String(responseARN)}, nil),
 	)
 
-	credsOutput, err := getOrCreateRegistryCredentials(testRegistryCreds, mockSM, false)
+	credsOutput, err := getOrCreateRegistryCredentials(testRegistryCreds, mocks.MockSM, false)
 	assert.NoError(t, err, "Expected no error when creating secret with cred pair")
 
 	actualCredEntry := credsOutput[testRegistryName]
@@ -69,20 +72,20 @@ func TestGetOrCreateRegistryCredentials_WithCredPairAndKmsKey(t *testing.T) {
 	testRegistryCreds[testRegistryName] = getTestCredsEntry("", testUsername, testPassword, testKmsKeyID, testContainers)
 
 	expectedCreateInput := secretsmanager.CreateSecretInput{
-		Name:         generateSecretName(testRegistryName),
+		Name:         generateECSResourceName(testRegistryName),
 		SecretString: generateSecretString(testUsername, testPassword),
 		KmsKeyId:     aws.String(testKmsKeyID),
 		Description:  generateSecretDescription(testRegistryName),
 	}
 	responseARN := "arn:aws:secretsmanager:examplereg.net-123"
 
-	mockSM := setupTestController(t)
+	mocks := setupTestController(t)
 	gomock.InOrder(
-		mockSM.EXPECT().DescribeSecret(gomock.Any()).Return(nil, nil),
-		mockSM.EXPECT().CreateSecret(expectedCreateInput).Return(&secretsmanager.CreateSecretOutput{ARN: aws.String(responseARN)}, nil),
+		mocks.MockSM.EXPECT().DescribeSecret(gomock.Any()).Return(nil, nil),
+		mocks.MockSM.EXPECT().CreateSecret(expectedCreateInput).Return(&secretsmanager.CreateSecretOutput{ARN: aws.String(responseARN)}, nil),
 	)
 
-	credsOutput, err := getOrCreateRegistryCredentials(testRegistryCreds, mockSM, false)
+	credsOutput, err := getOrCreateRegistryCredentials(testRegistryCreds, mocks.MockSM, false)
 	assert.NoError(t, err, "Expected no error when creating secret with cred pair")
 
 	actualCredEntry := credsOutput[testRegistryName]
@@ -102,10 +105,10 @@ func TestGetOrCreateRegistryCredentials_WithCredPairAndExistingFound(t *testing.
 
 	responseARN := "arn:aws:secretsmanager:examplereg.net-123"
 
-	mockSM := setupTestController(t)
-	mockSM.EXPECT().DescribeSecret(gomock.Any()).Return(&secretsmanager.DescribeSecretOutput{ARN: aws.String(responseARN)}, nil)
+	mocks := setupTestController(t)
+	mocks.MockSM.EXPECT().DescribeSecret(gomock.Any()).Return(&secretsmanager.DescribeSecretOutput{ARN: aws.String(responseARN)}, nil)
 
-	credsOutput, err := getOrCreateRegistryCredentials(testRegistryCreds, mockSM, false)
+	credsOutput, err := getOrCreateRegistryCredentials(testRegistryCreds, mocks.MockSM, false)
 	assert.NoError(t, err, "Expected no error when creating secret with cred pair")
 
 	actualCredEntry := credsOutput[testRegistryName]
@@ -122,7 +125,10 @@ func TestGetOrCreateRegistryCredentials_WithSecretArnOnly(t *testing.T) {
 	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
 	testRegistryCreds[testRegistryName] = getTestCredsEntry(testSecretARN, "", "", "", testContainers)
 
-	credsOutput, err := getOrCreateRegistryCredentials(testRegistryCreds, setupTestController(t), false)
+	mocks := setupTestController(t)
+	mocks.MockSM.EXPECT().DescribeSecret(gomock.Any()).Return(&secretsmanager.DescribeSecretOutput{}, nil)
+
+	credsOutput, err := getOrCreateRegistryCredentials(testRegistryCreds, mocks.MockSM, false)
 	assert.NoError(t, err, "Expected no error when using existing secren ARN")
 
 	actualCredEntry := credsOutput[testRegistryName]
@@ -146,11 +152,14 @@ func TestGetOrCreateRegistryCredentials_WithExistingAndCredsUpdateOk(t *testing.
 		SecretString: generateSecretString(testUsername, testPassword),
 	}
 
-	mockSM := setupTestController(t)
-	mockSM.EXPECT().PutSecretValue(expectedPutSecretValueInput).Return(&secretsmanager.PutSecretValueOutput{}, nil)
+	mocks := setupTestController(t)
+	gomock.InOrder(
+		mocks.MockSM.EXPECT().PutSecretValue(expectedPutSecretValueInput).Return(&secretsmanager.PutSecretValueOutput{}, nil),
+		mocks.MockSM.EXPECT().DescribeSecret(gomock.Any()).Return(&secretsmanager.DescribeSecretOutput{}, nil),
+	)
 
 	// call with updateAllowed = true
-	credsOutput, err := getOrCreateRegistryCredentials(testRegistryCreds, mockSM, true)
+	credsOutput, err := getOrCreateRegistryCredentials(testRegistryCreds, mocks.MockSM, true)
 	assert.NoError(t, err, "Expected no error when updating existing secren ARN")
 
 	actualCredEntry := credsOutput[testRegistryName]
@@ -169,7 +178,10 @@ func TestGetOrCreateRegistryCredentials_WithExistingAndCredsNoUpdate(t *testing.
 	testRegistryCreds[testRegistryName] = getTestCredsEntry(testSecretARN, testUsername, testPassword, "", testContainers)
 
 	// call with updateAllowed = false
-	credsOutput, err := getOrCreateRegistryCredentials(testRegistryCreds, setupTestController(t), false)
+	mocks := setupTestController(t)
+	mocks.MockSM.EXPECT().DescribeSecret(gomock.Any()).Return(&secretsmanager.DescribeSecretOutput{}, nil)
+
+	credsOutput, err := getOrCreateRegistryCredentials(testRegistryCreds, mocks.MockSM, false)
 	assert.NoError(t, err, "Expected no error when using existing secren ARN")
 
 	actualCredEntry := credsOutput[testRegistryName]
@@ -181,13 +193,13 @@ func TestGetOrCreateRegistryCredentials_ErrorOnCreate(t *testing.T) {
 	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
 	testRegistryCreds["testRegistry"] = getTestCredsEntry("", "testUsername", "testPassword", "", []string{"test"})
 
-	mockSM := setupTestController(t)
+	mocks := setupTestController(t)
 	gomock.InOrder(
-		mockSM.EXPECT().DescribeSecret(gomock.Any()).Return(nil, nil),
-		mockSM.EXPECT().CreateSecret(gomock.Any()).Return(nil, errors.New("something went wrong")),
+		mocks.MockSM.EXPECT().DescribeSecret(gomock.Any()).Return(nil, nil),
+		mocks.MockSM.EXPECT().CreateSecret(gomock.Any()).Return(nil, errors.New("something went wrong")),
 	)
 
-	_, err := getOrCreateRegistryCredentials(testRegistryCreds, mockSM, false)
+	_, err := getOrCreateRegistryCredentials(testRegistryCreds, mocks.MockSM, false)
 	assert.Error(t, err)
 }
 
@@ -195,10 +207,10 @@ func TestGetOrCreateRegistryCredentials_ErrorOnUpdate(t *testing.T) {
 	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
 	testRegistryCreds["testRegistry"] = getTestCredsEntry("arn:aws:secretsmanager:secret:test", "testUsername", "testPassword", "", []string{"test"})
 
-	mockSM := setupTestController(t)
-	mockSM.EXPECT().PutSecretValue(gomock.Any()).Return(nil, errors.New("something went wrong"))
+	mocks := setupTestController(t)
+	mocks.MockSM.EXPECT().PutSecretValue(gomock.Any()).Return(nil, errors.New("something went wrong"))
 
-	_, err := getOrCreateRegistryCredentials(testRegistryCreds, mockSM, true)
+	_, err := getOrCreateRegistryCredentials(testRegistryCreds, mocks.MockSM, true)
 	assert.Error(t, err)
 }
 
@@ -209,7 +221,7 @@ func TestValidateCredsInput_ErrorEmptyCreds(t *testing.T) {
 		RegistryCredentials: emptyCredMap,
 	}
 
-	err := validateCredsInput(emptyCredsInput)
+	_, err := validateCredsInput(emptyCredsInput, nil)
 	assert.Error(t, err, "Expected empty creds to return error")
 }
 
@@ -222,7 +234,7 @@ func TestValidateCredsInput_ErrorOnMissingReqFields(t *testing.T) {
 		RegistryCredentials: mapWithEmptyCredEntry,
 	}
 
-	err := validateCredsInput(testCredsInput)
+	_, err := validateCredsInput(testCredsInput, nil)
 	assert.Error(t, err, "Expected creds with empty entry to return error")
 }
 
@@ -243,8 +255,87 @@ func TestValidateCredsInput_ErrorOnDuplicateContainers(t *testing.T) {
 		RegistryCredentials: regCreds,
 	}
 
-	err := validateCredsInput(testCredsInput)
+	_, err := validateCredsInput(testCredsInput, nil)
 	assert.Error(t, err, "Expected creds with duplicate containers to return error")
+}
+
+func TestValidateCredsInput_KeyAliasDescribed(t *testing.T) {
+	mocks := setupTestController(t)
+
+	regCreds := make(map[string]readers.RegistryCredEntry)
+	testRegName := "testRegistry"
+	regCreds[testRegName] = getTestCredsEntry("", "testuser", "testPassword", "alias/someKey", []string{"test"})
+	testCredsInput := readers.ECSRegCredsInput{
+		Version:             "1",
+		RegistryCredentials: regCreds,
+	}
+
+	expectedKeyARN := "arn:aws:kms:key/56yrtgf-4etrfgd-34erfd"
+	expectKeyMetadata := kms.KeyMetadata{
+		Arn: aws.String(expectedKeyARN),
+	}
+
+	gomock.InOrder(
+		mocks.MockKMS.EXPECT().GetValidKeyARN("alias/someKey").Return(expectedKeyARN, nil),
+		mocks.MockKMS.EXPECT().DescribeKey("alias/someKey").Return(&kms.DescribeKeyOutput{KeyMetadata: &expectKeyMetadata}, nil),
+	)
+
+	validatedOutput, err := validateCredsInput(testCredsInput, mocks.MockKMS)
+	assert.NoError(t, err, "Unexpected error on Describe Key")
+	assert.Equal(t, expectedKeyARN, validatedOutput[testRegName].KmsKeyID)
+}
+
+func TestValidateCredsInput_NoDescribeOnKeyARN(t *testing.T) {
+	mocks := setupTestController(t)
+
+	regCreds := make(map[string]readers.RegistryCredEntry)
+	testKeyARN := "arn:aws:kms:key/7457r6ythfg-5rythgf"
+	regCreds["testRegistry"] = getTestCredsEntry("", "testuser", "testPassword", testKeyARN, []string{"test"})
+	testCredsInput := readers.ECSRegCredsInput{
+		Version:             "1",
+		RegistryCredentials: regCreds,
+	}
+
+	mocks.MockKMS.EXPECT().GetValidKeyARN(testKeyARN).Return(testKeyARN, nil)
+
+	validatedOutput, err := validateCredsInput(testCredsInput, mocks.MockKMS)
+	assert.NoError(t, err, "Unexpected error when validating reg creds")
+	assert.Equal(t, testKeyARN, validatedOutput["testRegistry"].KmsKeyID)
+}
+
+func TestValidateCredsInput_ErrorOnDescribeFail(t *testing.T) {
+	mocks := setupTestController(t)
+
+	regCreds := make(map[string]readers.RegistryCredEntry)
+	regCreds["testRegistry"] = getTestCredsEntry("", "testuser", "testPassword", "alias/someKey", []string{"test"})
+	testCredsInput := readers.ECSRegCredsInput{
+		Version:             "1",
+		RegistryCredentials: regCreds,
+	}
+
+	gomock.InOrder(
+		mocks.MockKMS.EXPECT().GetValidKeyARN(gomock.Any()).Return("", errors.New("something went wrong")),
+		mocks.MockKMS.EXPECT().DescribeKey(gomock.Any()).Return(nil, errors.New("something went wrong")),
+	)
+
+	_, err := validateCredsInput(testCredsInput, mocks.MockKMS)
+	assert.Error(t, err, "Expected error when Describe Key fails")
+}
+
+func TestValidateCredsInput_ErrorOnRegionMismatch(t *testing.T) {
+	testKeyARN := "arn:aws:kms:us-east-1:1234567:key/765ythgf-45erfd"
+	regCreds := make(map[string]readers.RegistryCredEntry)
+	regCreds["testRegistry"] = getTestCredsEntry("arn:aws:secretsmanager:us-west-2:1234567:secret/some-secret", "testuser", "testPassword", testKeyARN, []string{"test"})
+	testCredsInput := readers.ECSRegCredsInput{
+		Version:             "1",
+		RegistryCredentials: regCreds,
+	}
+
+	mocks := setupTestController(t)
+	mocks.MockKMS.EXPECT().GetValidKeyARN(testKeyARN).Return(testKeyARN, nil)
+
+	_, err := validateCredsInput(testCredsInput, mocks.MockKMS)
+	assert.Error(t, err, "Expected error when secret and key regions don't match")
 }
 
 func TestGenerateSecretString(t *testing.T) {
@@ -287,9 +378,20 @@ func getTestCredsEntry(secretARN, username, password, kmsKey string, containers 
 	}
 }
 
-func setupTestController(t *testing.T) *mock_secretsmanager.MockSMClient {
-	ctrl := gomock.NewController(t)
-	client := mock_secretsmanager.NewMockSMClient(ctrl)
+type testClients struct {
+	MockIAM *mock_iam.MockClient
+	MockKMS *mock_kms.MockClient
+	MockSM  *mock_secretsmanager.MockSMClient
+}
 
-	return client
+func setupTestController(t *testing.T) testClients {
+	ctrl := gomock.NewController(t)
+
+	clients := testClients{
+		MockIAM: mock_iam.NewMockClient(ctrl),
+		MockKMS: mock_kms.NewMockClient(ctrl),
+		MockSM:  mock_secretsmanager.NewMockSMClient(ctrl),
+	}
+
+	return clients
 }

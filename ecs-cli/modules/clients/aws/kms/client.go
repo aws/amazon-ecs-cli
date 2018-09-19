@@ -17,6 +17,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/aws/aws-sdk-go/service/kms"
 	"github.com/aws/aws-sdk-go/service/kms/kmsiface"
 )
@@ -24,6 +25,7 @@ import (
 // Client defines methods for interacting with KMS
 type Client interface {
 	DescribeKey(keyID string) (*kms.DescribeKeyOutput, error)
+	GetValidKeyARN(keyID string) (string, error)
 }
 
 type kmsClient struct {
@@ -55,4 +57,22 @@ func (c *kmsClient) DescribeKey(keyID string) (*kms.DescribeKeyOutput, error) {
 	}
 
 	return output, nil
+}
+
+func (c *kmsClient) GetValidKeyARN(keyID string) (string, error) {
+	ARNString := ""
+
+	ARNobj, err := arn.Parse(keyID)
+
+	if err == nil {
+		ARNString = ARNobj.String()
+	} else {
+		keyResult, err := c.DescribeKey(keyID)
+		if err != nil {
+			return "", err
+		}
+		keyMetadata := *keyResult.KeyMetadata
+		ARNString = *keyMetadata.Arn
+	}
+	return ARNString, nil
 }

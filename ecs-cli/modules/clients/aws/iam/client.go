@@ -16,6 +16,7 @@ package iam
 import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/iam/iamiface"
@@ -26,6 +27,7 @@ type Client interface {
 	AttachRolePolicy(policyArn, roleName string) (*iam.AttachRolePolicyOutput, error)
 	CreateRole(iam.CreateRoleInput) (*iam.CreateRoleOutput, error)
 	CreatePolicy(iam.CreatePolicyInput) (*iam.CreatePolicyOutput, error)
+	CreateOrFindRole(string, string, string) (string, error)
 }
 
 type iamClient struct {
@@ -76,4 +78,28 @@ func (c *iamClient) CreatePolicy(input iam.CreatePolicyInput) (*iam.CreatePolicy
 	}
 
 	return output, nil
+}
+
+// CreateOrFindRole returns a new role ARN or an empty string if role already exists
+func (c *iamClient) CreateOrFindRole(roleName, roleDescription, assumeRolePolicyDoc string) (string, error) {
+	createRoleRequest := iam.CreateRoleInput{
+		AssumeRolePolicyDocument: aws.String(assumeRolePolicyDoc),
+		Description:              aws.String(roleDescription),
+		RoleName:                 aws.String(roleName),
+	}
+	roleResult, err := c.CreateRole(createRoleRequest)
+	// if err is b/c role already exists, OK to continue
+	if err != nil && !utils.EntityAlreadyExists(err) {
+		return "", err
+	}
+	// TODO: validate AssumeRolePolicyDocument of existing role?
+
+	newRoleString := ""
+	if roleResult != nil {
+		newRole := *roleResult.Role
+		newRoleString = *newRole.Arn
+	}
+	// TODO, maybe: find & return existing role ARN, plus bool to indicate whether new or not?
+
+	return newRoleString, nil
 }
