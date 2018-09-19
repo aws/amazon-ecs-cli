@@ -114,6 +114,8 @@ const (
 
 	// Registry Creds
 	UpdateExistingSecretsFlag = "update-existing-secrets"
+	RoleNameFlag              = "role-name"
+	NoRoleFlag                = "no-role"
 )
 
 // OptionalRegionAndProfileFlags provides these flags:
