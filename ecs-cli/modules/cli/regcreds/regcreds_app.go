@@ -15,11 +15,13 @@ package regcreds
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/iam"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/kms"
 	secretsClient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/secretsmanager"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcreds"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
@@ -32,6 +34,7 @@ import (
 // TODO: use & move to output_reader once implemented?
 type CredsOutputEntry struct {
 	CredentialARN  string
+	KMSKeyID       string
 	ContainerNames []string
 }
 
@@ -43,27 +46,56 @@ func Up(c *cli.Context) {
 		log.Fatal("Exactly 1 credential file is required. Found: ", len(args))
 	}
 
+	// create clients
+	commandConfig := getNewCommandConfig(c)
+
+	smClient := secretsClient.NewSecretsManagerClient(commandConfig)
+	kmsClient := kms.NewKMSClient(commandConfig)
+	iamClient := iam.NewIAMClient(commandConfig)
+
+	// validate provided values before creating any resources
 	credsInput, err := readers.ReadCredsInput(args[0])
 	if err != nil {
 		log.Fatal("Error executing 'up': ", err)
 	}
 
-	err = validateCredsInput(*credsInput)
+	validatedRegCreds, err := validateCredsInput(*credsInput, kmsClient)
 	if err != nil {
 		log.Fatal("Error executing 'up': ", err)
 	}
 
-	commandConfig := getNewCommandConfig(c)
+	roleName := c.String(flags.RoleNameFlag)
+	skipRole := c.Bool(flags.NoRoleFlag)
+
+	err = validateRoleDetails(roleName, skipRole)
+	if err != nil {
+		log.Fatal("Error executing 'up': ", err)
+	}
+
+	// find or create secrets, role
 	updateAllowed := c.Bool(flags.UpdateExistingSecretsFlag)
 
-	smClient := secretsClient.NewSecretsManagerClient(commandConfig)
-
-	_, err = getOrCreateRegistryCredentials(credsInput.RegistryCredentials, smClient, updateAllowed)
+	credentialOutput, err := getOrCreateRegistryCredentials(validatedRegCreds, smClient, updateAllowed)
 	if err != nil {
 		log.Fatal("Error executing 'up': ", err)
 	}
 
-	//TODO: use getOrCreate...() result to create role, produce output
+	if !skipRole {
+		region := commandConfig.Session.Config.Region
+
+		roleParams := executionRoleParams{
+			CredEntries: credentialOutput,
+			RoleName:    roleName,
+			Region:      *region,
+		}
+
+		err = createTaskExecutionRole(roleParams, iamClient, kmsClient)
+		if err != nil {
+			log.Fatal("Error executing 'up': ", err)
+		}
+	}
+
+	//TODO: produce output file
 }
 
 func getOrCreateRegistryCredentials(entryMap readers.RegistryCreds, smClient secretsClient.SMClient, updateAllowed bool) (map[string]CredsOutputEntry, error) {
@@ -73,12 +105,14 @@ func getOrCreateRegistryCredentials(entryMap readers.RegistryCreds, smClient sec
 		log.Infof("Processing credentials for registry %s...", registryName)
 
 		arn := credentialEntry.SecretManagerARN
+		var keyForSecret *string
 		if arn == "" {
-			newSecretArn, err := findOrCreateRegistrySecret(registryName, credentialEntry, smClient)
+			newSecretARN, key, err := findOrCreateRegistrySecret(registryName, credentialEntry, smClient)
 			if err != nil {
 				return nil, err
 			}
-			arn = newSecretArn
+			arn = newSecretARN
+			keyForSecret = &key
 		} else if credentialEntry.HasCredPair() {
 			if err := updateOrWarnForExistingSecret(credentialEntry, updateAllowed, smClient); err != nil {
 				return nil, err
@@ -86,21 +120,30 @@ func getOrCreateRegistryCredentials(entryMap readers.RegistryCreds, smClient sec
 		} else {
 			log.Infof("Using existing secret %s.", arn)
 		}
-		registryResults[registryName] = buildOutputEntry(arn, credentialEntry.ContainerNames)
+
+		if keyForSecret == nil {
+			keyForSecret = &credentialEntry.KmsKeyID
+		}
+		registryResults[registryName] = buildOutputEntry(arn, *keyForSecret, credentialEntry.ContainerNames)
 	}
 
 	return registryResults, nil
 }
 
-func findOrCreateRegistrySecret(registryName string, credEntry readers.RegistryCredEntry, smClient secretsClient.SMClient) (string, error) {
+// returns the ARN of a new or existing registry secret (and, if applicable, the KMS key associated with that secret)
+func findOrCreateRegistrySecret(registryName string, credEntry readers.RegistryCredEntry, smClient secretsClient.SMClient) (string, string, error) {
 
-	secretName := generateSecretName(registryName)
+	secretName := generateECSResourceName(registryName)
 
 	existingSecret, _ := smClient.DescribeSecret(*secretName)
 	if existingSecret != nil {
 		log.Infof("Existing credential secret found, using %s", *existingSecret.ARN)
 
-		return *existingSecret.ARN, nil
+		if existingSecret.KmsKeyId != nil {
+			return *existingSecret.ARN, *existingSecret.KmsKeyId, nil
+		}
+
+		return *existingSecret.ARN, "", nil
 	}
 
 	secretString := generateSecretString(credEntry.Username, credEntry.Password)
@@ -110,26 +153,28 @@ func findOrCreateRegistrySecret(registryName string, credEntry readers.RegistryC
 		SecretString: secretString,
 		Description:  generateSecretDescription(registryName),
 	}
-	if credEntry.KmsKeyID != "" {
-		createSecretRequest.SetKmsKeyId(credEntry.KmsKeyID)
+
+	kmsKey := credEntry.KmsKeyID
+	if kmsKey != "" {
+		createSecretRequest.SetKmsKeyId(kmsKey)
 	}
 
 	output, err := smClient.CreateSecret(createSecretRequest)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	log.Infof("New credential secret created: %s", *output.ARN)
 
-	return *output.ARN, nil
+	return *output.ARN, kmsKey, nil
 }
 
 func updateOrWarnForExistingSecret(credEntry readers.RegistryCredEntry, updateAllowed bool, smClient secretsClient.SMClient) error {
-	secretArn := credEntry.SecretManagerARN
+	secretARN := credEntry.SecretManagerARN
 
 	if updateAllowed {
 		updatedSecretString := generateSecretString(credEntry.Username, credEntry.Password)
 		putSecretValueRequest := secretsmanager.PutSecretValueInput{
-			SecretId:     aws.String(secretArn),
+			SecretId:     aws.String(secretARN),
 			SecretString: updatedSecretString,
 		}
 
@@ -138,37 +183,85 @@ func updateOrWarnForExistingSecret(credEntry readers.RegistryCredEntry, updateAl
 			return err
 		}
 
-		log.Infof("Updated existing secret %s with new value", secretArn)
+		log.Infof("Updated existing secret %s with new value", secretARN)
 
 	} else {
-		log.Warnf("'username' and 'password' found but ignored for existing secret %s. To update existing secrets with new values, use '--update-existing-secrets' flag.", secretArn)
+		log.Warnf("'username' and 'password' found but ignored for existing secret %s. To update existing secrets with new values, use '--update-existing-secrets' flag.", secretARN)
 	}
 	return nil
 }
 
-func validateCredsInput(input readers.ECSRegCredsInput) error {
+func validateCredsInput(input readers.ECSRegCredsInput, kmsClient kms.Client) (map[string]readers.RegistryCredEntry, error) {
 	// TODO: validate version?
 
 	inputRegCreds := input.RegistryCredentials
 
 	if len(inputRegCreds) == 0 {
-		return errors.New("provided credentials must contain at least one registry")
+		return nil, errors.New("provided credentials must contain at least one registry")
 	}
 
 	namedContainers := make(map[string]bool)
+	outputRegCreds := make(map[string]readers.RegistryCredEntry)
 
 	for registryName, credentialEntry := range inputRegCreds {
 		if !credentialEntry.HasRequiredFields() {
-			return fmt.Errorf("missing required field(s) for registry %s; registry credentials should contain existing secret ARN or username + password", registryName)
+			return nil, fmt.Errorf("missing required field(s) for registry %s; registry credentials should contain an existing secret ARN or username + password", registryName)
 		}
 		if len(credentialEntry.ContainerNames) > 0 {
 			for _, container := range credentialEntry.ContainerNames {
 				if namedContainers[container] {
-					return fmt.Errorf("container '%s' appears in more than one registry; container names must be unique across a set of registry credentials", container)
+					return nil, fmt.Errorf("container '%s' appears in more than one registry; container names must be unique across a set of registry credentials", container)
 				}
 				namedContainers[container] = true
 			}
 		}
+		if credentialEntry.SecretManagerARN != "" && !isARN(credentialEntry.SecretManagerARN) {
+			return nil, fmt.Errorf("invalid secret_manager_arn for registry %s", registryName)
+		}
+		// if key specified as ID or alias, validate & get ARN
+		if credentialEntry.KmsKeyID != "" {
+			keyARN, err := kmsClient.GetValidKeyARN(credentialEntry.KmsKeyID)
+			if err != nil {
+				return nil, err
+			}
+			credentialEntry.KmsKeyID = keyARN
+		}
+		// if both present, validate secret ARN & key are in same region
+		if credentialEntry.SecretManagerARN != "" && credentialEntry.KmsKeyID != "" {
+			secretRegion := strings.Split(credentialEntry.SecretManagerARN, ":")[3]
+			keyRegion := strings.Split(credentialEntry.KmsKeyID, ":")[3]
+
+			if secretRegion != keyRegion {
+				return nil, fmt.Errorf("region of 'secret_manager_arn'(%s) and 'kms_key_id'(%s) for registry %s do not match; secret and encryption key must be in same region", secretRegion, keyRegion, registryName)
+			}
+		}
+		outputRegCreds[registryName] = credentialEntry
+	}
+	return outputRegCreds, nil
+}
+
+func getValidKeyARN(keyID string, kmsClient kms.Client) (string, error) {
+	arn := ""
+
+	if isARN(keyID) {
+		arn = keyID
+	} else {
+		keyResult, err := kmsClient.DescribeKey(keyID)
+		if err != nil {
+			return "", err
+		}
+		keyMetadata := *keyResult.KeyMetadata
+		arn = *keyMetadata.Arn
+	}
+	return arn, nil
+}
+
+func validateRoleDetails(roleName string, noRole bool) error {
+	if noRole && roleName != "" {
+		return fmt.Errorf("both role name ('%s') and '--no-role' specified; please specify either a role name or the '--no-role' flag", roleName)
+	}
+	if !noRole && roleName == "" {
+		return errors.New("no value specified for '--role-name'; please specify either a role name or the '--no-role' flag")
 	}
 	return nil
 }
@@ -184,23 +277,4 @@ func getNewCommandConfig(c *cli.Context) *config.CommandConfig {
 	}
 
 	return commandConfig
-}
-
-func generateSecretName(regName string) *string {
-	return aws.String(utils.ECSCLIResourcePrefix + regName)
-}
-
-func generateSecretString(username, password string) *string {
-	return aws.String(`{"username":"` + username + `","password":"` + password + `"}`)
-}
-
-func generateSecretDescription(regName string) *string {
-	return aws.String(fmt.Sprintf("Created with the ECS CLI for use with registry %s", regName))
-}
-
-func buildOutputEntry(arn string, containers []string) CredsOutputEntry {
-	return CredsOutputEntry{
-		CredentialARN:  arn,
-		ContainerNames: containers,
-	}
 }

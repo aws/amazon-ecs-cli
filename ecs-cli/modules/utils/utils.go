@@ -17,6 +17,8 @@ package utils
 import (
 	"fmt"
 	"os"
+
+	"github.com/aws/aws-sdk-go/aws/awserr"
 )
 
 const (
@@ -47,4 +49,12 @@ func GetHomeDir() (string, error) {
 	}
 
 	return homeDir, nil
+}
+
+// EntityAlreadyExists returns true if an error indicates that the AWS resource already exists
+func EntityAlreadyExists(err error) bool {
+	if awsErr, ok := err.(awserr.Error); ok {
+		return awsErr.Code() == "EntityAlreadyExists"
+	}
+	return false
 }

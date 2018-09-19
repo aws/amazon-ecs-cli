@@ -47,7 +47,15 @@ func regcredsUpFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.BoolFlag{
 			Name:  flags.UpdateExistingSecretsFlag,
-			Usage: "[Optional] Specifies whether existing secrets should be updated with new credential input.",
+			Usage: "[Optional] Specifies whether existing secrets should be updated with new credential values.",
+		},
+		cli.StringFlag{
+			Name:  flags.RoleNameFlag,
+			Usage: "The name to use for the new task execution role. If the role already exists, new policies will be attached to the existing role.",
+		},
+		cli.BoolFlag{
+			Name:  flags.NoRoleFlag,
+			Usage: "[Optional] If specified, no task execution role will be created.",
 		},
 	}
 }
