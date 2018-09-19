@@ -1,4 +1,4 @@
-// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -58,6 +58,19 @@ func (m *MockClient) AttachRolePolicy(arg0, arg1 string) (*iam.AttachRolePolicyO
 // AttachRolePolicy indicates an expected call of AttachRolePolicy
 func (mr *MockClientMockRecorder) AttachRolePolicy(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AttachRolePolicy", reflect.TypeOf((*MockClient)(nil).AttachRolePolicy), arg0, arg1)
+}
+
+// CreateOrFindRole mocks base method
+func (m *MockClient) CreateOrFindRole(arg0, arg1, arg2 string) (string, error) {
+	ret := m.ctrl.Call(m, "CreateOrFindRole", arg0, arg1, arg2)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateOrFindRole indicates an expected call of CreateOrFindRole
+func (mr *MockClientMockRecorder) CreateOrFindRole(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrFindRole", reflect.TypeOf((*MockClient)(nil).CreateOrFindRole), arg0, arg1, arg2)
 }
 
 // CreatePolicy mocks base method
