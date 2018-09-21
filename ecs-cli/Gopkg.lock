@@ -64,6 +64,8 @@
     "service/ecr/ecriface",
     "service/ecs",
     "service/ecs/ecsiface",
+    "service/kms",
+    "service/kms/kmsiface",
     "service/secretsmanager",
     "service/secretsmanager/secretsmanageriface",
     "service/ssm",
@@ -323,6 +325,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "138f0ed1556712a6611b850a7eb0e57bda91994c05d02634ae6cd88fb6a575ce"
+  inputs-digest = "ab070b07ffeb3bcaee333d49252e68daff25a4c1c82adea668a056c61da94757"
   solver-name = "gps-cdcl"
   solver-version = 1
