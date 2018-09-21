@@ -30,6 +30,7 @@ type kmsClient struct {
 	client kmsiface.KMSAPI
 }
 
+// NewKMSClient creates an instance of a kmsClient
 func NewKMSClient(config *config.CommandConfig) Client {
 	client := kms.New(config.Session)
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
