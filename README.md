@@ -327,6 +327,29 @@ ecs-cli up --cluster myCluster --empty
 
 This is equivalent to the [create-cluster command](https://docs.aws.amazon.com/cli/latest/reference/ecs/create-cluster.html), and will not create a CloudFormation stack associated with your cluster.
 
+#### User Data
+
+For the EC2 launch type, the ECS CLI always creates EC2 instances that include the following User Data:
+
+```
+#!/bin/bash
+echo ECS_CLUSTER={ clusterName } >> /etc/ecs/ecs.config
+```
+
+This user data directs the EC2 instance to join your ECS Cluster. You can optionally include extra user data with `--extra-user-data`; this flag takes a file name as its argument.  
+The flag can be used multiple times to specify multiple files. Extra user data can be shell scripts or cloud-init directives- see the [EC2 documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html) for more information.
+The ECS CLI takes all the User Data, and packs it into a MIME Multipart archive which can be used by cloud-init on the EC2 instance. The ECS CLI even allows existing MIME Multipart archives to be passed in with `--extra-user-data`.
+The CLI will unpack the existing archive, and then repack it into the final archive (preserving all header and content type information). Here is an example of specifying extra user data:
+
+```
+ecs-cli up \  
+  --capability-iam \  
+  --extra-user-data my-shellscript \  
+  --extra-user-data my-cloud-boot-hook \  
+  --extra-user-data my-mime-multipart-archive \  
+  --launch-type EC2
+```
+
 #### Creating a Fargate cluster
 
 ```

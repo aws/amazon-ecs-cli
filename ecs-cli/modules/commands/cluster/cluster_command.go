@@ -122,6 +122,11 @@ func clusterUpFlags() []cli.Flag {
 			Name:  flags.VpcIdFlag,
 			Usage: "[Optional] Specifies the ID of an existing VPC in which to launch your container instances. If you specify a VPC ID, you must specify a list of existing subnets in that VPC with the --subnets option. If you do not specify a VPC ID, a new VPC is created with two subnets.",
 		},
+		cli.StringSliceFlag{
+			Name:  flags.UserDataFlag,
+			Usage: "[Optional] Specifies additional User Data for your EC2 instances. Files can be shell scripts or cloud-init directives and are packaged into a MIME Multipart Archive along with ECS CLI provided User Data which directs instances to join your cluster.",
+			Value: &cli.StringSlice{},
+		},
 		cli.BoolFlag{
 			Name:  flags.ForceFlag + ", f",
 			Usage: "[Optional] Forces the recreation of any existing resources that match your current configuration. This option is useful for cleaning up stale resources from previous failed attempts.",

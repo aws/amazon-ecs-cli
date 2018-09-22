@@ -84,6 +84,7 @@ const (
 	NoAutoAssignPublicIPAddressFlag = "no-associate-public-ip-address"
 	ForceFlag                       = "force"
 	EmptyFlag                       = "empty"
+	UserDataFlag                    = "extra-user-data"
 
 	// Image
 	RegistryIdFlag = "registry-id"

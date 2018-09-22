@@ -37,6 +37,7 @@ const (
 	ParameterKeyAssociatePublicIPAddress = "AssociatePublicIpAddress"
 	ParameterKeyInstanceRole             = "InstanceRole"
 	ParameterKeyIsFargate                = "IsFargate"
+	ParameterKeyUserData                 = "UserData"
 )
 
 var ParameterNotFoundError = errors.New("Parameter not found")

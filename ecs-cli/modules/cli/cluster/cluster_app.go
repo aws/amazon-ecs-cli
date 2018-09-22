@@ -20,6 +20,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/cluster/userdata"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/container"
 	ecscontext "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/task"
@@ -34,9 +35,14 @@ import (
 	"github.com/urfave/cli"
 )
 
+// user data builder can be easily mocked in tests
+var newUserDataBuilder func(string) userdata.UserDataBuilder = userdata.NewBuilder
+
 // displayTitle flag is used to print the title for the fields
 const displayTitle = true
 
+// contains mapping for all string flags to their cloudformation parameter key names
+// does not contain UserdataFlag because that is a string slice
 var flagNamesToStackParameterKeys map[string]string
 
 func init() {
@@ -150,7 +156,6 @@ func ClusterPS(c *cli.Context) {
 	os.Stdout.WriteString(infoSet.String(container.ContainerInfoColumns, displayTitle))
 }
 
-
 ///////////////////////
 // Helper functions //
 //////////////////////
@@ -204,7 +209,10 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 	}
 
 	// Populate cfn params
-	cfnParams := cliFlagsToCfnStackParams(context)
+	cfnParams, err := cliFlagsToCfnStackParams(context, commandConfig.Cluster, launchType)
+	if err != nil {
+		return err
+	}
 	cfnParams.Add(cloudformation.ParameterKeyCluster, commandConfig.Cluster)
 	if context.Bool(flags.NoAutoAssignPublicIPAddressFlag) {
 		cfnParams.Add(cloudformation.ParameterKeyAssociatePublicIPAddress, "false")
@@ -217,6 +225,11 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 	// Check if vpc and AZs are not both specified.
 	if validateMutuallyExclusiveParams(cfnParams, cloudformation.ParameterKeyVPCAzs, cloudformation.ParameterKeyVpcId) {
 		return fmt.Errorf("You can only specify '--%s' or '--%s'", flags.VpcIdFlag, flags.VpcAzFlag)
+	}
+
+	// Check that user data is not specified with Fargate
+	if validateMutuallyExclusiveParams(cfnParams, cloudformation.ParameterKeyIsFargate, cloudformation.ParameterKeyUserData) {
+		return fmt.Errorf("You can only specify '--%s' with the EC2 launch type", flags.UserDataFlag)
 	}
 
 	// Check if 2 AZs are specified
@@ -415,7 +428,6 @@ func scaleCluster(context *cli.Context, awsClients *AWSClients, commandConfig *c
 	return cfnClient.WaitUntilUpdateComplete(stackName)
 }
 
-
 // createPS executes the 'ps' command.
 func clusterPS(context *cli.Context, rdwr config.ReadWriter) (project.InfoSet, error) {
 	commandConfig, err := newCommandConfig(context, rdwr)
@@ -466,7 +478,7 @@ func deleteClusterPrompt(reader *bufio.Reader) error {
 }
 
 // cliFlagsToCfnStackParams converts values set for CLI flags to cloudformation stack parameters.
-func cliFlagsToCfnStackParams(context *cli.Context) *cloudformation.CfnStackParams {
+func cliFlagsToCfnStackParams(context *cli.Context, cluster, launchType string) (*cloudformation.CfnStackParams, error) {
 	cfnParams := cloudformation.NewCfnStackParams()
 	for cliFlag, cfnParamKeyName := range flagNamesToStackParameterKeys {
 		cfnParamKeyValue := context.String(cliFlag)
@@ -475,7 +487,21 @@ func cliFlagsToCfnStackParams(context *cli.Context) *cloudformation.CfnStackPara
 		}
 	}
 
-	return cfnParams
+	if launchType == config.LaunchTypeEC2 {
+		builder := newUserDataBuilder(cluster)
+		// handle extra user data, which is a string slice flag
+		if userDataFiles := context.StringSlice(flags.UserDataFlag); len(userDataFiles) > 0 {
+			for _, file := range userDataFiles {
+				builder.AddFile(file)
+			}
+		}
+		userData, err := builder.Build()
+		if err != nil {
+			return nil, err
+		}
+		cfnParams.Add(cloudformation.ParameterKeyUserData, userData)
+	}
+	return cfnParams, nil
 }
 
 // isIAMAcknowledged returns true if the 'capability-iam' flag is set from CLI.

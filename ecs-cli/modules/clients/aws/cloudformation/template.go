@@ -207,13 +207,18 @@ var template = `
       "Type": "String",
       "Description": "Optional - Whether to create resources only for running Fargate tasks.",
       "Default": "false"
+    },
+    "UserData" : {
+      "Type" : "String",
+      "Description" : "User data for EC2 instances. Required for EC2 launch type, ignored with Fargate",
+      "Default" : ""
     }
   },
   "Conditions": {
     "IsCNRegion": {
       "Fn::Or" : [
         {"Fn::Equals": [ { "Ref": "AWS::Region" }, "cn-north-1" ]},
-        {"Fn::Equals": [ { "Ref": "AWS::Region" }, "cn-northwest-1" ]},
+        {"Fn::Equals": [ { "Ref": "AWS::Region" }, "cn-northwest-1" ]}
       ]
     },
     "LaunchInstances": {
@@ -552,17 +557,7 @@ var template = `
         },
         "UserData": {
           "Fn::Base64": {
-            "Fn::Join": [
-              "",
-              [
-                "#!/bin/bash\n",
-                "echo ECS_CLUSTER=",
-                {
-                  "Ref": "EcsCluster"
-                },
-                " >> /etc/ecs/ecs.config\n"
-              ]
-            ]
+            "Ref": "UserData"
           }
         }
       }
