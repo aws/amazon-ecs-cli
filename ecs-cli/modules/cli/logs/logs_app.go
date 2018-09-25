@@ -32,7 +32,7 @@ import (
 
 const (
 	// followLogsWaitTime is the time in seconds to sleep between API calls to get logs
-	followLogsWaitTime = 30
+	followLogsWaitTime = 10
 )
 
 type logConfiguration struct {
@@ -70,7 +70,10 @@ func Logs(c *cli.Context) {
 
 	cwLogsClient := cwlogsclient.NewCloudWatchLogsClient(commandConfig, logRegion)
 
-	printLogEvents(c, request, cwLogsClient)
+	err = logs(c, request, cwLogsClient)
+	if err != nil {
+		logrus.Fatal("Error executing 'logs': ", err)
+	}
 }
 
 func logsRequest(context *cli.Context, ecsClient ecsclient.ECSClient, config *config.CommandConfig) (*cloudwatchlogs.FilterLogEventsInput, string, error) {
@@ -124,9 +127,28 @@ func getTaskDefArn(context *cli.Context, ecsClient ecsclient.ECSClient, config *
 	return aws.StringValue(tasks[0].TaskDefinitionArn), nil
 }
 
-func printLogEvents(context *cli.Context, input *cloudwatchlogs.FilterLogEventsInput, cwLogsClient cwlogsclient.Client) {
-	var lastEvent *cloudwatchlogs.FilteredLogEvent
-	cwLogsClient.FilterAllLogEvents(input, func(events []*cloudwatchlogs.FilteredLogEvent) {
+func logs(context *cli.Context, input *cloudwatchlogs.FilterLogEventsInput, cwLogsClient cwlogsclient.Client) error {
+	lastEvent, err := printLogEvents(context, input, cwLogsClient)
+	if err != nil {
+		return err
+	}
+
+	for context.Bool(flags.FollowLogsFlag) {
+		time.Sleep(followLogsWaitTime * time.Second)
+		if lastEvent != nil {
+			input.SetStartTime(aws.Int64Value(lastEvent.Timestamp) + 1)
+		}
+		lastEvent, err = printLogEvents(context, input, cwLogsClient)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func printLogEvents(context *cli.Context, input *cloudwatchlogs.FilterLogEventsInput, cwLogsClient cwlogsclient.Client) (lastEvent *cloudwatchlogs.FilteredLogEvent, err error) {
+	err = cwLogsClient.FilterAllLogEvents(input, func(events []*cloudwatchlogs.FilteredLogEvent) {
 		for _, event := range events {
 			lastEvent = event
 			if context.Bool(flags.TimeStampsFlag) {
@@ -138,14 +160,7 @@ func printLogEvents(context *cli.Context, input *cloudwatchlogs.FilterLogEventsI
 			fmt.Println()
 		}
 	})
-
-	for context.Bool(flags.FollowLogsFlag) {
-		time.Sleep(followLogsWaitTime * time.Second)
-		if lastEvent != nil {
-			input.SetStartTime(aws.Int64Value(lastEvent.Timestamp) + 1)
-		}
-		printLogEvents(context, input, cwLogsClient)
-	}
+	return lastEvent, err
 }
 
 // validateLogFlags ensures that conflicting flags are not used
