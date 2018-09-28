@@ -17,12 +17,12 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudformation"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/route53"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	utils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
+	cfnsdk "github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/servicediscovery"
 	"github.com/sirupsen/logrus"
@@ -52,10 +52,6 @@ var requiredParamsNamespace = []string{parameterKeyVPCID, parameterKeyNamespaceN
 // Adding the type signature allows code editor autocompletion and checking to work normally
 var findPrivateNamespace route53.FindPrivateNamespaceFunc = route53.FindPrivateNamespace
 var findPublicNamespace route53.FindPublicNamespaceFunc = route53.FindPublicNamespace
-
-// CreateFunc is the interface/signature for Create
-// This helps when writing code in other packages that need to mock Create (specifically it's a nicety that helps IDE features work)
-type CreateFunc func(networkMode, serviceName string, c *context.ECSContext) (*string, error)
 
 func resolveIntPointerFieldOverride(c *cli.Context, flagName string, ecsParamsVal *int64, field string) (*int64, error) {
 	flagVal, err := getInt64FromCLIContext(c, flagName)
@@ -109,7 +105,7 @@ func showFieldOverrideMsg(val string, override string, field string) {
 // Validates that SD input does not contain conflicting values
 // validateMergedSDInputFields should be called after the inputs from flags and ECS Params have been merged
 func validateMergedSDInputFields(input *utils.ServiceDiscovery, networkMode string) error {
-	dnsType := getDNSType(input, networkMode)
+	dnsType := getDNSType(input.ServiceDiscoveryService, networkMode, false)
 	if dnsType == servicediscovery.RecordTypeSrv && input.ContainerName == "" {
 		return fmt.Errorf("container_name is a required field when using SRV DNS records")
 	}
@@ -226,11 +222,19 @@ func getSDSCFNParams(namespaceID, sdsName, networkMode string, input *utils.Serv
 	cfnParams.Add(parameterKeyNamespaceID, namespaceID)
 	cfnParams.Add(parameterKeySDSName, sdsName)
 
-	dnsType := getDNSType(input, networkMode)
+	if description := input.ServiceDiscoveryService.Description; description != "" {
+		cfnParams.Add(parameterKeySDSDescription, description)
+	}
+
+	dnsType := getDNSType(input.ServiceDiscoveryService, networkMode, true)
 	cfnParams.Add(parameterKeyDNSType, dnsType)
 
-	sds := input.ServiceDiscoveryService
+	populateSDSCFNParamsForCreateOrUpdate(cfnParams, networkMode, input.ServiceDiscoveryService)
 
+	return cfnParams
+}
+
+func populateSDSCFNParamsForCreateOrUpdate(cfnParams *cloudformation.CfnStackParams, networkMode string, sds utils.ServiceDiscoveryService) {
 	if dnsTTL := sds.DNSConfig.TTL; dnsTTL != nil {
 		cfnParams.Add(parameterKeyDNSTTL, strconv.Itoa(int(*dnsTTL)))
 	}
@@ -238,24 +242,33 @@ func getSDSCFNParams(namespaceID, sdsName, networkMode string, input *utils.Serv
 	if threshold := sds.HealthCheckCustomConfig.FailureThreshold; threshold != nil {
 		cfnParams.Add(parameterKeyHealthCheckCustomConfigFailureThreshold, strconv.Itoa(int(*threshold)))
 	}
-
-	if description := sds.Description; description != "" {
-		cfnParams.Add(parameterKeySDSDescription, description)
-	}
-
-	return cfnParams
 }
 
-func getDNSType(input *utils.ServiceDiscovery, networkMode string) string {
-	dnsType := input.ServiceDiscoveryService.DNSConfig.Type
+func getSDSCFNParamsForUpdate(networkMode string, sds utils.ServiceDiscoveryService, existingParams []*cfnsdk.Parameter) (*cloudformation.CfnStackParams, error) {
+	cfnParams, err := cloudformation.NewCfnStackParamsForUpdate(requiredParamsSDS, existingParams)
+	if err != nil {
+		return nil, err
+	}
+
+	populateSDSCFNParamsForCreateOrUpdate(cfnParams, networkMode, sds)
+
+	return cfnParams, nil
+}
+
+func getDNSType(sds utils.ServiceDiscoveryService, networkMode string, warn bool) string {
+	dnsType := sds.DNSConfig.Type
 	if dnsType == "" {
 		// set default
 		if networkMode == ecs.NetworkModeAwsvpc {
 			dnsType = servicediscovery.RecordTypeA
-			logrus.Warnf("Defaulting DNS Type to %s because network mode was %s", servicediscovery.RecordTypeA, ecs.NetworkModeAwsvpc)
+			if warn {
+				logrus.Warnf("Defaulting DNS Type to %s because network mode was %s", servicediscovery.RecordTypeA, ecs.NetworkModeAwsvpc)
+			}
 		} else {
 			dnsType = servicediscovery.RecordTypeSrv
-			logrus.Warnf("Defaulting DNS Type to %s because network mode was %s", servicediscovery.RecordTypeSrv, networkMode)
+			if warn {
+				logrus.Warnf("Defaulting DNS Type to %s because network mode was %s", servicediscovery.RecordTypeSrv, networkMode)
+			}
 		}
 	}
 	return dnsType
@@ -274,4 +287,24 @@ func getNamespaceCFNParams(input *utils.ServiceDiscovery) *cloudformation.CfnSta
 	}
 
 	return cfnParams
+}
+
+func warnOnFlagsNotValidForUpdate(context *cli.Context) {
+	flagsOnlyValidOnCreate := []string{
+		flags.PrivateDNSNamespaceNameFlag,
+		flags.VpcIdFlag,
+		flags.PrivateDNSNamespaceIDFlag,
+		flags.PublicDNSNamespaceIDFlag,
+		flags.PublicDNSNamespaceNameFlag,
+		flags.ServiceDiscoveryContainerNameFlag,
+		flags.ServiceDiscoveryContainerPortFlag,
+		flags.DNSTypeFlag,
+	}
+
+	for _, flag := range flagsOnlyValidOnCreate {
+		if context.String(flag) != "" {
+			logrus.Warnf("--%s is not valid when updating Service Discovery, its value can only be set during Service creation", flag)
+		}
+	}
+
 }

@@ -22,6 +22,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/servicediscovery"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/route53"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
@@ -54,6 +55,15 @@ const (
 
 // make servicediscovery.Create easily mockable in tests
 var servicediscoveryCreate servicediscovery.CreateFunc = servicediscovery.Create
+
+// make servicediscovery.Update easily mockable in tests
+var servicediscoveryUpdate servicediscovery.UpdateFunc = servicediscovery.Update
+
+// make servicediscovery.Delete easily mockable in tests
+var servicediscoveryDelete servicediscovery.DeleteFunc = servicediscovery.Delete
+
+// make servicediscovery.Delete easily mockable in tests
+var waitUntilSDSDeletable route53.WaitUntilSDSDeletableFunc = route53.WaitUntilSDSDeletable
 
 // NewService creates an instance of a Service and also sets up a cache for task definition
 func NewService(ecsContext *context.ECSContext) entity.ProjectEntity {
@@ -237,6 +247,20 @@ func (s *Service) Up() error {
 		return s.startService()
 	}
 
+	// Update Service
+	if err = s.updateExistingService(ecsService, newTaskDefinition); err != nil {
+		return err
+	}
+
+	// Update Service Discovery
+	if s.Context().CLIContext.Bool(flags.UpdateServiceDiscoveryFlag) {
+		return servicediscoveryUpdate(aws.StringValue(newTaskDefinition.NetworkMode), entity.GetServiceName(s), s.Context())
+	}
+
+	return nil
+}
+
+func (s *Service) updateExistingService(ecsService *ecs.Service, newTaskDefinition *ecs.TaskDefinition) error {
 	if s.Context().CLIContext.Bool(flags.EnableServiceDiscoveryFlag) {
 		return fmt.Errorf("Service Discovery can not be enabled on an existing ECS Service")
 	}
@@ -345,7 +369,30 @@ func (s *Service) Down() error {
 	if err = s.Context().ECSClient.DeleteService(ecsServiceName); err != nil {
 		return err
 	}
-	return waitForServiceTasks(s, ecsServiceName)
+	if err = waitForServiceTasks(s, ecsServiceName); err != nil {
+		return err
+	}
+
+	// delete Service Discovery resources if they exist
+	if len(ecsService.ServiceRegistries) > 0 {
+		log.Info("Trying to delete any Service Discovery Resources that were created by the ECS CLI...")
+		registryArn := aws.StringValue(ecsService.ServiceRegistries[0].RegistryArn)
+		if err = s.deleteServiceDiscoveryResources(registryArn, ecsServiceName); err != nil {
+			// SD deletion errors are logged but aren't fatal.
+			log.Errorf("Problem deleting Service Discovery resources: %v", err)
+		}
+	}
+
+	return nil
+}
+
+func (s *Service) deleteServiceDiscoveryResources(registryArn, ecsServiceName string) error {
+	sdsID := getSDSIDFromArn(registryArn)
+	if err := waitUntilSDSDeletable(sdsID, s.Context().CommandConfig); err != nil {
+		return err
+	}
+	return servicediscoveryDelete(ecsServiceName, s.Context())
+
 }
 
 // Run expects to issue a command override and start containers. But that doesnt apply to the context of ECS Services
@@ -455,23 +502,14 @@ func (s *Service) createService() error {
 
 	if cliContext.Bool(flags.EnableServiceDiscoveryFlag) {
 		networkMode := aws.StringValue(s.TaskDefinition().NetworkMode)
-		containerName := aws.String(cliContext.String(flags.ServiceDiscoveryContainerNameFlag))
-		containerPort, err := getInt64FromCLIContext(s.Context(), flags.ServiceDiscoveryContainerPortFlag)
-		if err != nil {
-			return err
-		}
 
-		serviceRegistryARN, err := servicediscoveryCreate(networkMode, serviceName, s.Context())
+		serviceRegistry, err := servicediscoveryCreate(networkMode, serviceName, s.Context())
 		if err != nil {
 			return err
 		}
 
 		s.serviceRegistries = []*ecs.ServiceRegistry{
-			&ecs.ServiceRegistry{
-				RegistryArn:   serviceRegistryARN,
-				ContainerName: containerName,
-				ContainerPort: containerPort,
-			},
+			serviceRegistry,
 		}
 	}
 
@@ -578,4 +616,8 @@ func (s *Service) updateService(count int64) error {
 
 	log.WithFields(fields).Info("Updated ECS service successfully")
 	return waitForServiceTasks(s, serviceName)
+}
+
+func getSDSIDFromArn(sdsARN string) string {
+	return strings.Split(sdsARN, "/")[1]
 }

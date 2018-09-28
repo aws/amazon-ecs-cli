@@ -25,8 +25,10 @@ import (
 	utils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
 	sdk "github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/servicediscovery"
 	"github.com/golang/mock/gomock"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
 )
@@ -71,7 +73,9 @@ func TestCreateServiceDiscoveryAWSVPC(t *testing.T) {
 		return nil, nil
 	}
 
-	testCreateServiceDiscovery(t, "awsvpc", &utils.ServiceDiscovery{}, simpleWorkflowContext(), validateNamespace, validateSDS, true)
+	registry, err := testCreateServiceDiscovery(t, "awsvpc", &utils.ServiceDiscovery{}, simpleWorkflowContext(), validateNamespace, validateSDS, true)
+	assert.NoError(t, err, "Unexpected Error calling create")
+	assert.Equal(t, testSDSARN, aws.StringValue(registry.RegistryArn), "Expected SDS ARN to match")
 }
 
 func TestCreateServiceDiscoveryBridge(t *testing.T) {
@@ -96,7 +100,11 @@ func TestCreateServiceDiscoveryBridge(t *testing.T) {
 		return nil, nil
 	}
 
-	testCreateServiceDiscovery(t, "bridge", input, simpleWorkflowContext(), validateNamespace, validateSDS, true)
+	registry, err := testCreateServiceDiscovery(t, "bridge", input, simpleWorkflowContext(), validateNamespace, validateSDS, true)
+	assert.NoError(t, err, "Unexpected Error calling create")
+	assert.Equal(t, testSDSARN, aws.StringValue(registry.RegistryArn), "Expected SDS ARN to match")
+	assert.Equal(t, testContainerName, aws.StringValue(registry.ContainerName), "Expected container name to match")
+	assert.Equal(t, int64(80), aws.Int64Value(registry.ContainerPort), "Expected container port to match")
 }
 
 func TestCreateServiceDiscoveryHost(t *testing.T) {
@@ -121,7 +129,11 @@ func TestCreateServiceDiscoveryHost(t *testing.T) {
 		return nil, nil
 	}
 
-	testCreateServiceDiscovery(t, "host", input, simpleWorkflowContext(), validateNamespace, validateSDS, true)
+	registry, err := testCreateServiceDiscovery(t, "host", input, simpleWorkflowContext(), validateNamespace, validateSDS, true)
+	assert.NoError(t, err, "Unexpected Error calling create")
+	assert.Equal(t, testSDSARN, aws.StringValue(registry.RegistryArn), "Expected SDS ARN to match")
+	assert.Equal(t, testContainerName, aws.StringValue(registry.ContainerName), "Expected container name to match")
+	assert.Equal(t, int64(80), aws.Int64Value(registry.ContainerPort), "Expected container port to match")
 }
 
 func TestCreateServiceDiscoveryWithECSParams(t *testing.T) {
@@ -169,7 +181,11 @@ func TestCreateServiceDiscoveryWithECSParams(t *testing.T) {
 		return nil, nil
 	}
 
-	testCreateServiceDiscovery(t, "awsvpc", input, emptyContext(), validateNamespace, validateSDS, true)
+	registry, err := testCreateServiceDiscovery(t, "awsvpc", input, emptyContext(), validateNamespace, validateSDS, true)
+	assert.NoError(t, err, "Unexpected Error calling create")
+	assert.Equal(t, testSDSARN, aws.StringValue(registry.RegistryArn), "Expected SDS ARN to match")
+	assert.Equal(t, testContainerName, aws.StringValue(registry.ContainerName), "Expected container name to match")
+	assert.Equal(t, int64(80), aws.Int64Value(registry.ContainerPort), "Expected container port to match")
 }
 
 func TestCreateServiceDiscoveryWithECSParamsOverriddenByFlags(t *testing.T) {
@@ -231,7 +247,11 @@ func TestCreateServiceDiscoveryWithECSParamsOverriddenByFlags(t *testing.T) {
 		return nil, nil
 	}
 
-	testCreateServiceDiscovery(t, "awsvpc", input, overrides, validateNamespace, validateSDS, true)
+	registry, err := testCreateServiceDiscovery(t, "awsvpc", input, overrides, validateNamespace, validateSDS, true)
+	assert.NoError(t, err, "Unexpected Error calling create")
+	assert.Equal(t, testSDSARN, aws.StringValue(registry.RegistryArn), "Expected SDS ARN to match")
+	assert.Equal(t, otherTestContainerName, aws.StringValue(registry.ContainerName), "Expected container name to match")
+	assert.Equal(t, int64(22), aws.Int64Value(registry.ContainerPort), "Expected container port to match")
 }
 
 func TestCreateServiceDiscoveryWithECSParamsExistingPrivateNamespaceByID(t *testing.T) {
@@ -266,7 +286,11 @@ func TestCreateServiceDiscoveryWithECSParamsExistingPrivateNamespaceByID(t *test
 		validateCFNParam("2", parameterKeyHealthCheckCustomConfigFailureThreshold, cfnParams, t)
 	}
 
-	testCreateServiceDiscovery(t, "awsvpc", input, emptyContext(), validateNamespace, validateSDS, false)
+	registry, err := testCreateServiceDiscovery(t, "awsvpc", input, emptyContext(), validateNamespace, validateSDS, false)
+	assert.NoError(t, err, "Unexpected Error calling create")
+	assert.Equal(t, testSDSARN, aws.StringValue(registry.RegistryArn), "Expected SDS ARN to match")
+	assert.Equal(t, testContainerName, aws.StringValue(registry.ContainerName), "Expected container name to match")
+	assert.Equal(t, int64(80), aws.Int64Value(registry.ContainerPort), "Expected container port to match")
 }
 
 func TestCreateServiceDiscoveryWithECSParamsExistingPrivateNamespaceByName(t *testing.T) {
@@ -309,7 +333,11 @@ func TestCreateServiceDiscoveryWithECSParamsExistingPrivateNamespaceByName(t *te
 		return aws.String(otherTestNamespaceID), nil
 	}
 
-	testCreateServiceDiscovery(t, "awsvpc", input, emptyContext(), validateNamespace, validateSDS, false)
+	registry, err := testCreateServiceDiscovery(t, "awsvpc", input, emptyContext(), validateNamespace, validateSDS, false)
+	assert.NoError(t, err, "Unexpected Error calling create")
+	assert.Equal(t, testSDSARN, aws.StringValue(registry.RegistryArn), "Expected SDS ARN to match")
+	assert.Equal(t, testContainerName, aws.StringValue(registry.ContainerName), "Expected container name to match")
+	assert.Equal(t, int64(80), aws.Int64Value(registry.ContainerPort), "Expected container port to match")
 }
 
 func TestCreateServiceDiscoveryWithECSParamsExistingPublicNamespaceByID(t *testing.T) {
@@ -344,13 +372,15 @@ func TestCreateServiceDiscoveryWithECSParamsExistingPublicNamespaceByID(t *testi
 		validateCFNParam("2", parameterKeyHealthCheckCustomConfigFailureThreshold, cfnParams, t)
 	}
 
-	testCreateServiceDiscovery(t, "awsvpc", input, emptyContext(), validateNamespace, validateSDS, false)
+	registry, err := testCreateServiceDiscovery(t, "awsvpc", input, emptyContext(), validateNamespace, validateSDS, false)
+	assert.NoError(t, err, "Unexpected Error calling create")
+	assert.Equal(t, testSDSARN, aws.StringValue(registry.RegistryArn), "Expected SDS ARN to match")
+	assert.Equal(t, testContainerName, aws.StringValue(registry.ContainerName), "Expected container name to match")
+	assert.Equal(t, int64(80), aws.Int64Value(registry.ContainerPort), "Expected container port to match")
 }
 
 func TestCreateServiceDiscoveryWithECSParamsExistingPublicNamespaceByName(t *testing.T) {
 	input := &utils.ServiceDiscovery{
-		ContainerName: testContainerName,
-		ContainerPort: aws.Int64(80),
 		PublicDNSNamespace: utils.PublicDNSNamespace{
 			Namespace: utils.Namespace{
 				Name: otherTestNamespaceName,
@@ -361,7 +391,7 @@ func TestCreateServiceDiscoveryWithECSParamsExistingPublicNamespaceByName(t *tes
 			Description: testDescription,
 			DNSConfig: utils.DNSConfig{
 				TTL:  aws.Int64(60),
-				Type: servicediscovery.RecordTypeSrv,
+				Type: servicediscovery.RecordTypeA,
 			},
 			HealthCheckCustomConfig: utils.HealthCheckCustomConfig{
 				FailureThreshold: aws.Int64(2),
@@ -373,7 +403,7 @@ func TestCreateServiceDiscoveryWithECSParamsExistingPublicNamespaceByName(t *tes
 	var validateSDS validateSDSParamsFunc = func(t *testing.T, cfnParams *cloudformation.CfnStackParams) {
 		validateCFNParam(otherTestNamespaceID, parameterKeyNamespaceID, cfnParams, t)
 		validateCFNParam(testServiceName, parameterKeySDSName, cfnParams, t)
-		validateCFNParam(servicediscovery.RecordTypeSrv, parameterKeyDNSType, cfnParams, t)
+		validateCFNParam(servicediscovery.RecordTypeA, parameterKeyDNSType, cfnParams, t)
 		validateCFNParam(testDescription, parameterKeySDSDescription, cfnParams, t)
 		validateCFNParam("60", parameterKeyDNSTTL, cfnParams, t)
 		validateCFNParam("2", parameterKeyHealthCheckCustomConfigFailureThreshold, cfnParams, t)
@@ -386,10 +416,206 @@ func TestCreateServiceDiscoveryWithECSParamsExistingPublicNamespaceByName(t *tes
 		return aws.String(otherTestNamespaceID), nil
 	}
 
-	testCreateServiceDiscovery(t, "awsvpc", input, emptyContext(), validateNamespace, validateSDS, false)
+	registry, err := testCreateServiceDiscovery(t, "awsvpc", input, emptyContext(), validateNamespace, validateSDS, false)
+	assert.NoError(t, err, "Unexpected Error calling create")
+	assert.Equal(t, testSDSARN, aws.StringValue(registry.RegistryArn), "Expected SDS ARN to match")
+	logrus.Info(aws.StringValue(registry.ContainerName))
+	logrus.Info(aws.StringValue(registry.ContainerName) == "")
+	assert.Nil(t, registry.ContainerName, "Expected container name to be nil")
+	assert.Nil(t, registry.ContainerPort, "Expected container port to be nil")
 }
 
-func testCreateServiceDiscovery(t *testing.T, networkMode string, ecsParamsSD *utils.ServiceDiscovery, c *cli.Context, validateNamespace validateNamespaceParamsFunc, validateSDS validateSDSParamsFunc, createNamespace bool) {
+func TestUpdateServiceDiscovery(t *testing.T) {
+	input := &utils.ServiceDiscovery{
+		ServiceDiscoveryService: utils.ServiceDiscoveryService{
+			DNSConfig: utils.DNSConfig{
+				TTL: aws.Int64(120),
+			},
+			HealthCheckCustomConfig: utils.HealthCheckCustomConfig{
+				FailureThreshold: aws.Int64(2),
+			},
+		},
+	}
+
+	existingParameters := []*sdk.Parameter{
+		&sdk.Parameter{
+			ParameterKey:   aws.String(parameterKeySDSDescription),
+			ParameterValue: aws.String(testDescription),
+		},
+		&sdk.Parameter{
+			ParameterKey:   aws.String(parameterKeySDSName),
+			ParameterValue: aws.String(testServiceName),
+		},
+		&sdk.Parameter{
+			ParameterKey:   aws.String(parameterKeyNamespaceID),
+			ParameterValue: aws.String(testNamespaceID),
+		},
+		&sdk.Parameter{
+			ParameterKey:   aws.String(parameterKeyDNSType),
+			ParameterValue: aws.String(servicediscovery.RecordTypeA),
+		},
+		&sdk.Parameter{
+			ParameterKey:   aws.String(parameterKeyDNSTTL),
+			ParameterValue: aws.String("60"),
+		},
+		&sdk.Parameter{
+			ParameterKey:   aws.String(parameterKeyHealthCheckCustomConfigFailureThreshold),
+			ParameterValue: aws.String("1"),
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	gomock.InOrder(
+		mockCloudformation.EXPECT().GetStackParameters(testSDSStackName).Return(existingParameters, nil),
+		mockCloudformation.EXPECT().UpdateStack(testSDSStackName, gomock.Any()).Do(func(x, y interface{}) {
+			cfnParams := y.(*cloudformation.CfnStackParams)
+			validateCFNParam("120", parameterKeyDNSTTL, cfnParams, t)
+			validateCFNParam("2", parameterKeyHealthCheckCustomConfigFailureThreshold, cfnParams, t)
+			validateUsePreviousValueSet(parameterKeyDNSType, cfnParams, t)
+			validateUsePreviousValueSet(parameterKeySDSDescription, cfnParams, t)
+			validateUsePreviousValueSet(parameterKeySDSName, cfnParams, t)
+			validateUsePreviousValueSet(parameterKeyNamespaceID, cfnParams, t)
+		}).Return("", nil),
+		mockCloudformation.EXPECT().WaitUntilUpdateComplete(testSDSStackName).Return(nil),
+	)
+
+	err := update(emptyContext(), "awsvpc", testServiceName, testClusterName, mockCloudformation, input)
+	assert.NoError(t, err, "Unexpected error calling update")
+}
+
+func TestUpdateServiceDiscoveryGetStackParametersError(t *testing.T) {
+	input := &utils.ServiceDiscovery{
+		ServiceDiscoveryService: utils.ServiceDiscoveryService{
+			DNSConfig: utils.DNSConfig{
+				TTL: aws.Int64(120),
+			},
+			HealthCheckCustomConfig: utils.HealthCheckCustomConfig{
+				FailureThreshold: aws.Int64(2),
+			},
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	gomock.InOrder(
+		mockCloudformation.EXPECT().GetStackParameters(testSDSStackName).Return(nil, fmt.Errorf("Stack not found")),
+	)
+
+	err := update(emptyContext(), "awsvpc", testServiceName, testClusterName, mockCloudformation, input)
+	assert.Error(t, err, "Expected error calling update")
+}
+
+func TestUpdateServiceDiscoveryUpdateStackError(t *testing.T) {
+	input := &utils.ServiceDiscovery{
+		ServiceDiscoveryService: utils.ServiceDiscoveryService{
+			DNSConfig: utils.DNSConfig{
+				TTL: aws.Int64(120),
+			},
+			HealthCheckCustomConfig: utils.HealthCheckCustomConfig{
+				FailureThreshold: aws.Int64(2),
+			},
+		},
+	}
+
+	existingParameters := []*sdk.Parameter{
+		&sdk.Parameter{
+			ParameterKey:   aws.String(parameterKeySDSDescription),
+			ParameterValue: aws.String(testDescription),
+		},
+		&sdk.Parameter{
+			ParameterKey:   aws.String(parameterKeySDSName),
+			ParameterValue: aws.String(testServiceName),
+		},
+		&sdk.Parameter{
+			ParameterKey:   aws.String(parameterKeyNamespaceID),
+			ParameterValue: aws.String(testNamespaceID),
+		},
+		&sdk.Parameter{
+			ParameterKey:   aws.String(parameterKeyDNSType),
+			ParameterValue: aws.String(servicediscovery.RecordTypeSrv),
+		},
+		&sdk.Parameter{
+			ParameterKey:   aws.String(parameterKeyDNSTTL),
+			ParameterValue: aws.String("60"),
+		},
+		&sdk.Parameter{
+			ParameterKey:   aws.String(parameterKeyHealthCheckCustomConfigFailureThreshold),
+			ParameterValue: aws.String("1"),
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	gomock.InOrder(
+		mockCloudformation.EXPECT().GetStackParameters(testSDSStackName).Return(existingParameters, nil),
+		mockCloudformation.EXPECT().UpdateStack(testSDSStackName, gomock.Any()).Do(func(x, y interface{}) {
+			cfnParams := y.(*cloudformation.CfnStackParams)
+			validateCFNParam("120", parameterKeyDNSTTL, cfnParams, t)
+			validateCFNParam("2", parameterKeyHealthCheckCustomConfigFailureThreshold, cfnParams, t)
+			validateUsePreviousValueSet(parameterKeyDNSType, cfnParams, t)
+			validateUsePreviousValueSet(parameterKeySDSDescription, cfnParams, t)
+			validateUsePreviousValueSet(parameterKeySDSName, cfnParams, t)
+			validateUsePreviousValueSet(parameterKeyNamespaceID, cfnParams, t)
+		}).Return("", fmt.Errorf("Some error")),
+	)
+
+	err := update(emptyContext(), "host", testServiceName, testClusterName, mockCloudformation, input)
+	assert.Error(t, err, "Expected error calling update")
+}
+
+func TestDeleteServiceDiscovery(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	gomock.InOrder(
+		mockCloudformation.EXPECT().ValidateStackExists(testSDSStackName).Return(nil),
+		mockCloudformation.EXPECT().DeleteStack(testSDSStackName).Return(nil),
+		mockCloudformation.EXPECT().WaitUntilDeleteComplete(testSDSStackName).Return(nil),
+	)
+
+	err := delete(emptyContext(), mockCloudformation, testServiceName, testServiceName, testClusterName)
+	assert.NoError(t, err, "Unexpected error calling delete")
+}
+
+func TestDeleteServiceDiscoveryDeleteNamespace(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	gomock.InOrder(
+		mockCloudformation.EXPECT().ValidateStackExists(testSDSStackName).Return(nil),
+		mockCloudformation.EXPECT().DeleteStack(testSDSStackName).Return(nil),
+		mockCloudformation.EXPECT().WaitUntilDeleteComplete(testSDSStackName).Return(nil),
+		mockCloudformation.EXPECT().ValidateStackExists(testNamespaceStackName).Return(nil),
+		mockCloudformation.EXPECT().DeleteStack(testNamespaceStackName).Return(nil),
+		mockCloudformation.EXPECT().WaitUntilDeleteComplete(testNamespaceStackName).Return(nil),
+	)
+
+	flagSet := flag.NewFlagSet("create-sd", 0)
+	flagSet.Bool(flags.DeletePrivateNamespaceFlag, true, "")
+
+	context := cli.NewContext(nil, flagSet, nil)
+
+	err := delete(context, mockCloudformation, testServiceName, testServiceName, testClusterName)
+	assert.NoError(t, err, "Unexpected error calling delete")
+}
+
+func TestDeleteServiceDiscoveryStackNotFoundError(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
+	gomock.InOrder(
+		mockCloudformation.EXPECT().ValidateStackExists(testSDSStackName).Return(fmt.Errorf("Stack not found")),
+	)
+
+	err := delete(emptyContext(), mockCloudformation, testServiceName, testServiceName, testClusterName)
+	assert.Error(t, err, "Expected error calling delete")
+}
+
+func testCreateServiceDiscovery(t *testing.T, networkMode string, ecsParamsSD *utils.ServiceDiscovery, c *cli.Context, validateNamespace validateNamespaceParamsFunc, validateSDS validateSDSParamsFunc, createNamespace bool) (*ecs.ServiceRegistry, error) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -457,10 +683,7 @@ func testCreateServiceDiscovery(t *testing.T, networkMode string, ecsParamsSD *u
 		Cluster: testClusterName,
 	}
 
-	sdsARN, err := create(c, networkMode, testServiceName, mockCloudformation, ecsParamsSD, config)
-
-	assert.NoError(t, err, "Unexpected Error calling create")
-	assert.Equal(t, testSDSARN, aws.StringValue(sdsARN), "Expected SDS ARN to match")
+	return create(c, networkMode, testServiceName, mockCloudformation, ecsParamsSD, config)
 
 }
 
@@ -481,4 +704,10 @@ func validateCFNParam(expectedValue, paramKey string, cfnParams *cloudformation.
 	observedValue, err := cfnParams.GetParameter(paramKey)
 	assert.NoError(t, err, "Unexpected error getting cfn parameter")
 	assert.Equal(t, expectedValue, aws.StringValue(observedValue.ParameterValue), fmt.Sprintf("Expected %s to be %s", paramKey, expectedValue))
+}
+
+func validateUsePreviousValueSet(paramKey string, cfnParams *cloudformation.CfnStackParams, t *testing.T) {
+	observedValue, err := cfnParams.GetParameter(paramKey)
+	assert.NoError(t, err, "Unexpected error getting cfn parameter")
+	assert.True(t, aws.BoolValue(observedValue.UsePreviousValue), "Expected UsePreviousValue to be true")
 }

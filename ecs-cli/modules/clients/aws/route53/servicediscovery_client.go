@@ -16,6 +16,9 @@
 package route53
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
@@ -23,13 +26,22 @@ import (
 	"github.com/aws/aws-sdk-go/service/servicediscovery"
 )
 
+const (
+	waitUntilSDSDeletableWaitTime = 2 * time.Second
+	waitUntilSDSDeletableRetries  = 5
+)
+
 // FindPrivateNamespaceFunc is the interface/signature for FindPrivateNamespace
 // This helps when writing code in other packages that need to mock this function
 type FindPrivateNamespaceFunc func(name, vpc string, config *config.CommandConfig) (*string, error)
 
 // FindPublicNamespaceFunc is the interface/signature for FindPublicNamespace
-// This allows other packages to mock it
+// This helps when writing code in other packages that need to mock this function
 type FindPublicNamespaceFunc func(name string, config *config.CommandConfig) (*string, error)
+
+// WaitUntilSDSDeletableFunc is the interface/signature for WaitUntilSDSDeletable
+// This helps when writing code in other packages that need to mock this function
+type WaitUntilSDSDeletableFunc func(id string, config *config.CommandConfig) error
 
 // FindPrivateNamespace returns the ID(s) of the private namespace with the given name and vpc
 func FindPrivateNamespace(name, vpc string, config *config.CommandConfig) (*string, error) {
@@ -85,6 +97,32 @@ func findPublicNamespace(name string, sdClient serviceDiscoveryClient) (*string,
 	return namespace, err
 }
 
+// WaitUntilSDSDeletable waits at most 10 seconds to see if the SDS no longer
+// has any instances (ECS Tasks) using it
+func WaitUntilSDSDeletable(id string, config *config.CommandConfig) error {
+	sdClient := newSDClient(config)
+	return waitUntilSDSDeletable(id, sdClient, waitUntilSDSDeletableRetries)
+}
+
+func waitUntilSDSDeletable(id string, sdClient serviceDiscoveryClient, maxRetries int) error {
+	input := &servicediscovery.GetServiceInput{
+		Id: aws.String(id),
+	}
+	var sdsInstanceCount int64 = 0
+	for retryCount := 0; retryCount < maxRetries; retryCount++ {
+		sds, err := sdClient.GetService(input)
+		if err != nil {
+			return err
+		}
+		sdsInstanceCount = aws.Int64Value(sds.Service.InstanceCount)
+		if sdsInstanceCount == 0 {
+			return nil // SDS is no longer in use, it can be deleted
+		}
+		time.Sleep(waitUntilSDSDeletableWaitTime)
+	}
+	return fmt.Errorf("Service Discovery Service can not be deleted. It is still in use. InstanceCount=%d", sdsInstanceCount)
+}
+
 func checkNamespaceVPC(namespaceID *string, vpc string, region string, r53Client route53Client, sdClient serviceDiscoveryClient) (bool, error) {
 	namespaceInfo, err := sdClient.GetNamespace(&servicediscovery.GetNamespaceInput{
 		Id: namespaceID,
@@ -114,6 +152,7 @@ func checkNamespaceVPC(namespaceID *string, vpc string, region string, r53Client
 type serviceDiscoveryClient interface {
 	ListNamespacesPages(input *servicediscovery.ListNamespacesInput, fn func(*servicediscovery.ListNamespacesOutput, bool) bool) error
 	GetNamespace(input *servicediscovery.GetNamespaceInput) (*servicediscovery.GetNamespaceOutput, error)
+	GetService(input *servicediscovery.GetServiceInput) (*servicediscovery.GetServiceOutput, error)
 }
 
 // factory function to create clients
