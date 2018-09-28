@@ -120,12 +120,36 @@ func TestFindPublicNamespace(t *testing.T) {
 	}
 }
 
+func TestWaitUntilSDSDeletable(t *testing.T) {
+	mockSD := &mockSDClient{
+		sdsInstanceCount: 3,
+	}
+
+	err := waitUntilSDSDeletable("someid", mockSD, 5)
+	assert.NoError(t, err, "Unexpected error calling waitUntilSDSDeletable")
+	assert.Equal(t, 4, mockSD.getServiceCallCount, "Expected GetService() to be called 4 times")
+}
+
+func TestWaitUntilSDSDeletableErrorCase(t *testing.T) {
+	mockSD := &mockSDClient{
+		sdsInstanceCount: 6,
+	}
+
+	err := waitUntilSDSDeletable("someid", mockSD, 5)
+	assert.Error(t, err, "Expected error calling waitUntilSDSDeletable")
+	assert.Equal(t, 5, mockSD.getServiceCallCount, "Expected GetService() to be called 5 times")
+}
+
 // Implements serviceDiscoveryClient interface
 type mockSDClient struct {
 	usingFilter      bool
 	publicNamespaces bool
 	namespaceData    map[string]servicediscovery.Namespace
 	t                *testing.T
+	// value is decremented for each call to GetService, this is used when testing waitUntilSDSDeletable
+	sdsInstanceCount int64
+	// count of calls to GetService
+	getServiceCallCount int
 }
 
 func (mock *mockSDClient) ListNamespacesPages(input *servicediscovery.ListNamespacesInput, fn func(*servicediscovery.ListNamespacesOutput, bool) bool) error {
@@ -158,6 +182,17 @@ func (mock *mockSDClient) GetNamespace(input *servicediscovery.GetNamespaceInput
 	namespace := mock.namespaceData[aws.StringValue(input.Id)]
 	return &servicediscovery.GetNamespaceOutput{
 		Namespace: &namespace,
+	}, nil
+}
+
+func (mock *mockSDClient) GetService(input *servicediscovery.GetServiceInput) (*servicediscovery.GetServiceOutput, error) {
+	currentCount := mock.sdsInstanceCount
+	mock.sdsInstanceCount--
+	mock.getServiceCallCount++
+	return &servicediscovery.GetServiceOutput{
+		Service: &servicediscovery.Service{
+			InstanceCount: aws.Int64(currentCount),
+		},
 	}, nil
 }
 

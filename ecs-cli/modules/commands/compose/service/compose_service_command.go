@@ -86,7 +86,7 @@ func upServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "up",
 		Usage:        "Creates a new ECS service or updates an existing one according to your compose file. For new services or existing services with a current desired count of 0, the desired count for the service is set to 1. For existing services with non-zero desired counts, a new task definition is created to reflect any changes to the compose file and the service is updated to use that task definition. In this case, the desired count does not change.",
 		Action:       compose.WithProject(factory, compose.ProjectUp, true),
-		Flags:        flags.AppendFlags(deploymentConfigFlags(true), loadBalancerFlags(), flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), ForceNewDeploymentFlag(), serviceDiscoveryFlags()),
+		Flags:        flags.AppendFlags(deploymentConfigFlags(true), loadBalancerFlags(), flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), ForceNewDeploymentFlag(), serviceDiscoveryFlags(), updateServiceDiscoveryFlags()),
 		OnUsageError: flags.UsageErrorFactory("up"),
 	}
 }
@@ -128,7 +128,7 @@ func rmServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Aliases:      []string{"delete", "down"},
 		Usage:        "Updates the desired count of the service to 0 and then deletes the service.",
 		Action:       compose.WithProject(factory, compose.ProjectDown, true),
-		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag()),
+		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag(), deleteServiceDiscoveryFlags()),
 		OnUsageError: flags.UsageErrorFactory("rm"),
 	}
 }
@@ -137,7 +137,7 @@ func serviceDiscoveryFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.BoolFlag{
 			Name:  flags.EnableServiceDiscoveryFlag,
-			Usage: "Enable or modify service discovery configuration",
+			Usage: "Enable Service Discovery for your ECS Service",
 		},
 		cli.StringFlag{
 			Name:  flags.VpcIdFlag,
@@ -178,6 +178,24 @@ func serviceDiscoveryFlags() []cli.Flag {
 		cli.StringFlag{
 			Name:  flags.HealthcheckCustomConfigFailureThresholdFlag,
 			Usage: "Service Discovery - The number of 30-second intervals that you want service discovery service to wait after receiving an UpdateInstanceCustomHealthStatus request before it changes the health status of a service instance",
+		},
+	}
+}
+
+func updateServiceDiscoveryFlags() []cli.Flag {
+	return []cli.Flag{
+		cli.BoolFlag{
+			Name:  flags.UpdateServiceDiscoveryFlag,
+			Usage: "[Optional] Service Discovery - Allows update of Service Discovery Service settings DNS TTL and Failure Threshold.",
+		},
+	}
+}
+
+func deleteServiceDiscoveryFlags() []cli.Flag {
+	return []cli.Flag{
+		cli.BoolFlag{
+			Name:  flags.DeletePrivateNamespaceFlag,
+			Usage: "[Optional] Service Discovery - Deletes the private namespace created by the ECS CLI",
 		},
 	}
 }
