@@ -69,6 +69,8 @@ const (
 	ServiceDiscoveryContainerNameFlag           = "sd-container-name"
 	ServiceDiscoveryContainerPortFlag           = "sd-container-port"
 	HealthcheckCustomConfigFailureThresholdFlag = "healthcheck-custom-config-failure-threshold"
+	DeletePrivateNamespaceFlag                  = "delete-namespace"
+	UpdateServiceDiscoveryFlag                  = "update-service-discovery"
 
 	ComposeProjectNamePrefixFlag         = "compose-project-name-prefix"
 	ComposeProjectNamePrefixDefaultValue = "ecscompose-"

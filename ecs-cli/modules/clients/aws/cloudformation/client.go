@@ -419,7 +419,7 @@ func failureInDeleteEvent(event *cloudformation.StackEvent) bool {
 			"eventStatus": status,
 			"resource":    aws.StringValue(event.PhysicalResourceId),
 			"reason":      aws.StringValue(event.ResourceStatusReason),
-		}).Error("Error deleting cloudformation stack for cluster")
+		}).Error("Error deleting cloudformation stack")
 		return true
 	}
 

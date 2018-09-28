@@ -669,8 +669,10 @@ func TestCreateWithServiceDiscovery(t *testing.T) {
 	nonMockedServicediscoveryCreate := servicediscoveryCreate
 	defer func() { servicediscoveryCreate = nonMockedServicediscoveryCreate }()
 
-	servicediscoveryCreate = func(networkMode, serviceName string, c *context.ECSContext) (*string, error) {
-		return aws.String(sdsARN), nil
+	servicediscoveryCreate = func(networkMode, serviceName string, c *context.ECSContext) (*ecs.ServiceRegistry, error) {
+		return &ecs.ServiceRegistry{
+			RegistryArn: aws.String(sdsARN),
+		}, nil
 	}
 
 	createServiceTest(
@@ -692,15 +694,17 @@ func TestCreateWithServiceDiscoveryWithContainerNameAndPort(t *testing.T) {
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(flags.EnableServiceDiscoveryFlag, true, "")
-	flagSet.String(flags.ServiceDiscoveryContainerNameFlag, containerName, "")
-	flagSet.String(flags.ServiceDiscoveryContainerPortFlag, "80", "")
 
 	// Reset mockable function after test
 	nonMockedServicediscoveryCreate := servicediscoveryCreate
 	defer func() { servicediscoveryCreate = nonMockedServicediscoveryCreate }()
 
-	servicediscoveryCreate = func(networkMode, serviceName string, c *context.ECSContext) (*string, error) {
-		return aws.String(sdsARN), nil
+	servicediscoveryCreate = func(networkMode, serviceName string, c *context.ECSContext) (*ecs.ServiceRegistry, error) {
+		return &ecs.ServiceRegistry{
+			RegistryArn:   aws.String(sdsARN),
+			ContainerName: aws.String(containerName),
+			ContainerPort: aws.Int64(80),
+		}, nil
 	}
 
 	createServiceTest(
