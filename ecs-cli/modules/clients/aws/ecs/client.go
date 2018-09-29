@@ -132,6 +132,14 @@ func (c *ecsClient) DeleteService(serviceName string) error {
 }
 
 func (c *ecsClient) CreateService(serviceName string, createServiceInput *ecs.CreateServiceInput) error {
+  if createServiceInput.DeploymentConfiguration == nil || createServiceInput.DeploymentConfiguration.MaximumPercent == nil {
+    input.DeploymentConfiguration.MaximumPercent = aws.Int64(200)
+  }
+
+  if createServiceInput.DeploymentConfiguration != nil && createServiceInput.DeploymentConfiguration.MinimumHealthyPercent != nil {
+    input.DeploymentConfiguration.MinimumHealthyPercent = aws.Int64(100)
+  }
+
 	if _, err := c.client.CreateService(createServiceInput); err != nil {
 		log.WithFields(log.Fields{
 			"service": serviceName,
@@ -163,6 +171,15 @@ func (c *ecsClient) UpdateService(serviceName, taskDefinition string, count int6
 	if taskDefinition != "" {
 		input.TaskDefinition = aws.String(taskDefinition)
 	}
+
+  if deploymentConfig == nil || deploymentConfig.MaximumPercent == nil {
+    input.DeploymentConfiguration.MaximumPercent = aws.Int64(200)
+	}
+
+  if deploymentConfig != nil && deploymentConfig.MinimumHealthyPercent != nil {
+    input.DeploymentConfiguration.MinimumHealthyPercent = aws.Int64(100)
+  }
+
 	_, err := c.client.UpdateService(input)
 	if err != nil {
 		log.WithFields(log.Fields{
