@@ -133,11 +133,11 @@ func (c *ecsClient) DeleteService(serviceName string) error {
 
 func (c *ecsClient) CreateService(serviceName string, createServiceInput *ecs.CreateServiceInput) error {
   if createServiceInput.DeploymentConfiguration == nil || createServiceInput.DeploymentConfiguration.MaximumPercent == nil {
-    input.DeploymentConfiguration.MaximumPercent = aws.Int64(200)
+    createServiceInput.DeploymentConfiguration.MaximumPercent = aws.Int64(200)
   }
 
   if createServiceInput.DeploymentConfiguration != nil && createServiceInput.DeploymentConfiguration.MinimumHealthyPercent != nil {
-    input.DeploymentConfiguration.MinimumHealthyPercent = aws.Int64(100)
+    createServiceInput.DeploymentConfiguration.MinimumHealthyPercent = aws.Int64(100)
   }
 
 	if _, err := c.client.CreateService(createServiceInput); err != nil {
