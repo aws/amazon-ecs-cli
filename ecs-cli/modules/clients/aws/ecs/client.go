@@ -136,7 +136,7 @@ func (c *ecsClient) CreateService(serviceName string, createServiceInput *ecs.Cr
     createServiceInput.DeploymentConfiguration.MaximumPercent = aws.Int64(200)
   }
 
-  if createServiceInput.DeploymentConfiguration != nil && createServiceInput.DeploymentConfiguration.MinimumHealthyPercent != nil {
+  if createServiceInput.DeploymentConfiguration == nil || createServiceInput.DeploymentConfiguration.MinimumHealthyPercent == nil {
     createServiceInput.DeploymentConfiguration.MinimumHealthyPercent = aws.Int64(100)
   }
 
