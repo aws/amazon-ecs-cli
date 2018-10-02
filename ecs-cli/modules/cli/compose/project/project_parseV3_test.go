@@ -631,6 +631,51 @@ services:
 	assert.ElementsMatch(t, expectedEnv, web.Environment, "Expected Environment to match")
 }
 
+func TestParseV3_WithKeyOnlyEnvVars(t *testing.T) {
+	// Setup expected environment
+	expectedEnv := []*ecs.KeyValuePair{
+		{
+			Name:  aws.String("MY_CUSTOM_VAR"),
+			Value: aws.String(""),
+		},
+		{
+			Name:  aws.String("SOME_KEY"),
+			Value: aws.String(""),
+		},
+	}
+
+	composeFileString := `version: '3'
+services:
+  web:
+    image: httpd
+    environment:
+     - MY_CUSTOM_VAR
+     - SOME_KEY`
+
+	tmpfile, err := ioutil.TempFile("", "test")
+	assert.NoError(t, err, "Unexpected error in creating test file")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write([]byte(composeFileString))
+	assert.NoError(t, err, "Unexpected error in writing to test file")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Unexpected error closing file")
+
+	// Set up project
+	project := setupTestProject(t)
+	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, tmpfile.Name())
+
+	actualConfigs, err := project.parseV3()
+	assert.NoError(t, err, "Unexpected error parsing file")
+
+	//Verify
+	web, err := getContainerConfigByName("web", actualConfigs)
+	assert.NoError(t, err, "Unexpected error retrieving container config")
+	assert.ElementsMatch(t, expectedEnv, web.Environment, "Expected Environment to match")
+}
+
 func TestParseV3HealthCheckDisabled(t *testing.T) {
 	// set up expected ContainerConfig values
 	wordpressCon := adapter.ContainerConfig{}

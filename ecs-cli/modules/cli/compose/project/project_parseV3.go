@@ -133,7 +133,11 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig, serviceVols *ad
 	for k, v := range serviceConfig.Environment {
 		env := ecs.KeyValuePair{}
 		env.SetName(k)
-		env.SetValue(*v)
+		if v != nil {
+			env.SetValue(*v)
+		} else {
+			env.SetValue("")
+		}
 		envVars = append(envVars, &env)
 	}
 	c.Environment = envVars
