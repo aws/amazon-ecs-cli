@@ -16,6 +16,7 @@ package regcreds
 import (
 	"testing"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcreds"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/iam"
@@ -28,8 +29,8 @@ func TestCreateTaskExecutionRole(t *testing.T) {
 	testRegistry := "myreg.test.io"
 	testRegCredARN := "arn:aws:secret/some-test-arn"
 	testRegKMSKey := "arn:aws:kms:key/67yt-756yth"
-	testCreds := make(map[string]CredsOutputEntry)
-	testCreds[testRegistry] = CredsOutputEntry{
+	testCreds := make(map[string]readers.CredsOutputEntry)
+	testCreds[testRegistry] = readers.CredsOutputEntry{
 		CredentialARN: testRegCredARN,
 		KMSKeyID:      testRegKMSKey,
 	}
@@ -57,15 +58,16 @@ func TestCreateTaskExecutionRole(t *testing.T) {
 		Region:      "us-west-2",
 	}
 
-	err := createTaskExecutionRole(testParams, mocks.MockIAM, mocks.MockKMS)
+	policyCreateTime, err := createTaskExecutionRole(testParams, mocks.MockIAM, mocks.MockKMS)
 	assert.NoError(t, err, "Unexpected error when creating task execution role")
+	assert.NotNil(t, policyCreateTime, "Expected policy create time to be non-nil")
 }
 
 func TestCreateTaskExecutionRole_NoKMSKey(t *testing.T) {
 	testRegistry := "myreg.test.io"
 	testRegCredARN := "arn:aws:secret/some-test-arn"
-	testCreds := make(map[string]CredsOutputEntry)
-	testCreds[testRegistry] = CredsOutputEntry{CredentialARN: testRegCredARN}
+	testCreds := make(map[string]readers.CredsOutputEntry)
+	testCreds[testRegistry] = readers.CredsOutputEntry{CredentialARN: testRegCredARN}
 	testRoleName := "myNginxProjectRole"
 
 	testPolicyArn := aws.String("arn:aws:iam::policy/" + testRoleName + "-policy")
@@ -88,15 +90,16 @@ func TestCreateTaskExecutionRole_NoKMSKey(t *testing.T) {
 		Region:      "us-west-2",
 	}
 
-	err := createTaskExecutionRole(testParams, mocks.MockIAM, mocks.MockKMS)
+	policyCreateTime, err := createTaskExecutionRole(testParams, mocks.MockIAM, mocks.MockKMS)
 	assert.NoError(t, err, "Unexpected error when creating task execution role")
+	assert.NotNil(t, policyCreateTime, "Expected policy create time to be non-nil")
 }
 
 func TestCreateTaskExecutionRole_RoleExists(t *testing.T) {
 	testRegistry := "myreg.test.io"
 	testRegCredARN := "arn:aws:secret/some-test-arn"
-	testCreds := make(map[string]CredsOutputEntry)
-	testCreds[testRegistry] = CredsOutputEntry{CredentialARN: testRegCredARN}
+	testCreds := make(map[string]readers.CredsOutputEntry)
+	testCreds[testRegistry] = readers.CredsOutputEntry{CredentialARN: testRegCredARN}
 	testRoleName := "myNginxProjectRole"
 
 	testPolicyArn := aws.String("arn:aws:iam::policy/" + testRoleName + "-policy")
@@ -120,49 +123,16 @@ func TestCreateTaskExecutionRole_RoleExists(t *testing.T) {
 		Region:      "us-west-2",
 	}
 
-	err := createTaskExecutionRole(testParams, mocks.MockIAM, mocks.MockKMS)
+	policyCreateTime, err := createTaskExecutionRole(testParams, mocks.MockIAM, mocks.MockKMS)
 	assert.NoError(t, err, "Unexpected error when creating task execution role")
-}
-
-func TestCreateTaskExecutionRole_RoleAndPolicyAlreadyExists(t *testing.T) {
-	testRegistry := "myreg.test.io"
-	testRegCredARN := "arn:aws:secret/some-test-arn"
-	testCreds := make(map[string]CredsOutputEntry)
-	testCreds[testRegistry] = CredsOutputEntry{CredentialARN: testRegCredARN}
-	testRoleName := "myNginxProjectRole"
-
-	testPolicySecondArn := aws.String("arn:aws:iam::policy/" + testRoleName + "-policy-20181010222222")
-	entityExistsError := awserr.New("EntityAlreadyExists", "Didn't you see the error code? This resource already exists.", errors.New("something went wrong"))
-
-	mocks := setupTestController(t)
-	gomock.InOrder(
-		// CreateOrFindRole should return nil if given role already exists
-		mocks.MockIAM.EXPECT().CreateOrFindRole(testRoleName, roleDescriptionString, assumeRolePolicyDocString).Return("", nil),
-		mocks.MockIAM.EXPECT().CreateRole(gomock.Any()).Return(nil, entityExistsError),
-	)
-	gomock.InOrder(
-		// CreatePolicy should be called again if the generated policy name already exists
-		mocks.MockIAM.EXPECT().CreatePolicy(gomock.Any()).Return(nil, entityExistsError),
-		mocks.MockIAM.EXPECT().CreatePolicy(gomock.Any()).Return(&iam.CreatePolicyOutput{Policy: &iam.Policy{Arn: testPolicySecondArn}}, nil),
-		mocks.MockIAM.EXPECT().AttachRolePolicy(getExecutionRolePolicyARN("us-west-2"), testRoleName).Return(nil, nil),
-		mocks.MockIAM.EXPECT().AttachRolePolicy(*testPolicySecondArn, testRoleName).Return(nil, nil),
-	)
-
-	testParams := executionRoleParams{
-		CredEntries: testCreds,
-		RoleName:    testRoleName,
-		Region:      "us-west-2",
-	}
-
-	err := createTaskExecutionRole(testParams, mocks.MockIAM, mocks.MockKMS)
-	assert.NoError(t, err, "Unexpected error when creating task execution role")
+	assert.NotNil(t, policyCreateTime, "Expected policy create time to be non-nil")
 }
 
 func TestCreateTaskExecutionRole_ErrorOnCreateRoleFails(t *testing.T) {
 	testRegistry := "myreg.test.io"
 	testRegCredARN := "arn:aws:secret/some-test-arn"
-	testCreds := make(map[string]CredsOutputEntry)
-	testCreds[testRegistry] = CredsOutputEntry{CredentialARN: testRegCredARN}
+	testCreds := make(map[string]readers.CredsOutputEntry)
+	testCreds[testRegistry] = readers.CredsOutputEntry{CredentialARN: testRegCredARN}
 	testRoleName := "myNginxProjectRole"
 
 	mocks := setupTestController(t)
@@ -177,18 +147,17 @@ func TestCreateTaskExecutionRole_ErrorOnCreateRoleFails(t *testing.T) {
 		Region:      "us-west-2",
 	}
 
-	err := createTaskExecutionRole(testParams, mocks.MockIAM, mocks.MockKMS)
+	_, err := createTaskExecutionRole(testParams, mocks.MockIAM, mocks.MockKMS)
 	assert.Error(t, err, "Expected error when CreateRole fails")
 }
 
 func TestCreateTaskExecutionRole_ErrorOnCreatePolicyFails(t *testing.T) {
 	testRegistry := "myreg.test.io"
 	testRegCredARN := "arn:aws:secret/some-test-arn"
-	testCreds := make(map[string]CredsOutputEntry)
-	testCreds[testRegistry] = CredsOutputEntry{CredentialARN: testRegCredARN}
+	testCreds := make(map[string]readers.CredsOutputEntry)
+	testCreds[testRegistry] = readers.CredsOutputEntry{CredentialARN: testRegCredARN}
 	testRoleName := "myNginxProjectRole"
 
-	//testPolicyArn := aws.String("arn:aws:iam::policy/" + testRoleName + "-policy")
 	testRoleArn := aws.String("arn:aws:iam::role/" + testRoleName)
 
 	mocks := setupTestController(t)
@@ -206,6 +175,6 @@ func TestCreateTaskExecutionRole_ErrorOnCreatePolicyFails(t *testing.T) {
 		Region:      "us-west-2",
 	}
 
-	err := createTaskExecutionRole(testParams, mocks.MockIAM, mocks.MockKMS)
+	_, err := createTaskExecutionRole(testParams, mocks.MockIAM, mocks.MockKMS)
 	assert.Error(t, err, "Expected error when CreatePolicy fails")
 }

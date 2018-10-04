@@ -57,5 +57,13 @@ func regcredsUpFlags() []cli.Flag {
 			Name:  flags.NoRoleFlag,
 			Usage: "[Optional] If specified, no task execution role will be created.",
 		},
+		cli.BoolFlag{
+			Name:  flags.NoOutputFileFlag,
+			Usage: "[Optional] If specified, no output file for use with 'compose' will be created.",
+		},
+		cli.StringFlag{
+			Name:  flags.OutputDirFlag,
+			Usage: "[Optional] The directory where the output file should be created. If none specified, file will be created in the current working directory.",
+		},
 	}
 }
