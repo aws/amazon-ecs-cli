@@ -118,6 +118,8 @@ const (
 	UpdateExistingSecretsFlag = "update-existing-secrets"
 	RoleNameFlag              = "role-name"
 	NoRoleFlag                = "no-role"
+	NoOutputFileFlag          = "no-output-file"
+	OutputDirFlag             = "output-dir"
 )
 
 // OptionalRegionAndProfileFlags provides these flags:

@@ -74,6 +74,22 @@ func ReadCredsInput(filename string) (*ECSRegCredsInput, error) {
 	return credsInput, nil
 }
 
+// ReadCredsOutput parses an ecs creds output file into an RegistryCredsOutput struct
+// TODO: use this to parse reg creds used with "compose" cmd
+func ReadCredsOutput(filename string) (*RegistryCredsOutput, error) {
+	rawCredsOutput, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Error reading file '%v'", filename)
+	}
+
+	credsOutput := &RegistryCredsOutput{}
+	if err = yaml.Unmarshal([]byte(rawCredsOutput), &credsOutput); err != nil {
+		return nil, errors.Wrapf(err, "Error unmarshalling yaml data from registry credential ouput file: %s", filename)
+	}
+
+	return credsOutput, nil
+}
+
 // expandCredEntry checks if individual fields are env vars and if so, retrieves & sets that value
 func expandCredEntry(credEntry RegistryCredEntry) RegistryCredEntry {
 	expandedSecretARN := getValueOrEnvVar(credEntry.SecretManagerARN)

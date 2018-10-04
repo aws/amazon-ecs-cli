@@ -22,14 +22,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/arn"
 )
 
-func buildOutputEntry(arn string, key string, containers []string) CredsOutputEntry {
-	return CredsOutputEntry{
-		CredentialARN:  arn,
-		KMSKeyID:       key,
-		ContainerNames: containers,
-	}
-}
-
 // returns the provided value with the ecs-cli resource prefix added
 func generateECSResourceName(providedName string) *string {
 	return aws.String(utils.ECSCLIResourcePrefix + providedName)
