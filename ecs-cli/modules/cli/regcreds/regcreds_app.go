@@ -16,6 +16,7 @@ package regcreds
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/iam"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/kms"
@@ -29,14 +30,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
-
-// CredsOutputEntry contains the credential ARN and associated container names
-// TODO: use & move to output_reader once implemented?
-type CredsOutputEntry struct {
-	CredentialARN  string
-	KMSKeyID       string
-	ContainerNames []string
-}
 
 // Up creates or updates registry credential secrets and an ECS task execution role needed to use them in a task def
 func Up(c *cli.Context) {
@@ -72,6 +65,14 @@ func Up(c *cli.Context) {
 		log.Fatal("Error executing 'up': ", err)
 	}
 
+	outputDir := c.String(flags.OutputDirFlag)
+	skipOutput := c.Bool(flags.NoOutputFileFlag)
+
+	err = validateOutputOptions(outputDir, skipOutput)
+	if err != nil {
+		log.Fatal("Error executing 'up': ", err)
+	}
+
 	// find or create secrets, role
 	updateAllowed := c.Bool(flags.UpdateExistingSecretsFlag)
 
@@ -80,6 +81,7 @@ func Up(c *cli.Context) {
 		log.Fatal("Error executing 'up': ", err)
 	}
 
+	var policyCreateTime *time.Time
 	if !skipRole {
 		region := commandConfig.Session.Config.Region
 
@@ -89,17 +91,24 @@ func Up(c *cli.Context) {
 			Region:      *region,
 		}
 
-		err = createTaskExecutionRole(roleParams, iamClient, kmsClient)
+		policyCreateTime, err = createTaskExecutionRole(roleParams, iamClient, kmsClient)
 		if err != nil {
 			log.Fatal("Error executing 'up': ", err)
 		}
+	} else {
+		log.Info("Skipping role creation.")
 	}
 
-	//TODO: produce output file
+	// produce output file
+	if !skipOutput {
+		readers.GenerateCredsOutput(credentialOutput, roleName, outputDir, policyCreateTime)
+	} else {
+		log.Info("Skipping output file generation.")
+	}
 }
 
-func getOrCreateRegistryCredentials(entryMap readers.RegistryCreds, smClient secretsClient.SMClient, updateAllowed bool) (map[string]CredsOutputEntry, error) {
-	registryResults := make(map[string]CredsOutputEntry)
+func getOrCreateRegistryCredentials(entryMap readers.RegistryCreds, smClient secretsClient.SMClient, updateAllowed bool) (map[string]readers.CredsOutputEntry, error) {
+	registryResults := make(map[string]readers.CredsOutputEntry)
 
 	for registryName, credentialEntry := range entryMap {
 		log.Infof("Processing credentials for registry %s...", registryName)
@@ -124,7 +133,7 @@ func getOrCreateRegistryCredentials(entryMap readers.RegistryCreds, smClient sec
 		if keyForSecret == nil {
 			keyForSecret = &credentialEntry.KmsKeyID
 		}
-		registryResults[registryName] = buildOutputEntry(arn, *keyForSecret, credentialEntry.ContainerNames)
+		registryResults[registryName] = readers.BuildOutputEntry(arn, *keyForSecret, credentialEntry.ContainerNames)
 	}
 
 	return registryResults, nil
@@ -277,4 +286,11 @@ func getNewCommandConfig(c *cli.Context) *config.CommandConfig {
 	}
 
 	return commandConfig
+}
+
+func validateOutputOptions(outputDir string, skipOutput bool) error {
+	if outputDir != "" && skipOutput {
+		return fmt.Errorf("both output directory ('%s') and '--"+flags.NoOutputFileFlag+"' specified", outputDir)
+	}
+	return nil
 }

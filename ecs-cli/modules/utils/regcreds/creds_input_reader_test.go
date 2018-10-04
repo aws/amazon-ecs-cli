@@ -151,3 +151,77 @@ registry_credentials:
 	_, err = ReadCredsInput(tmpfile.Name())
 	assert.Error(t, err, "Expected error on bad file YAML")
 }
+
+func TestReadCredsOutput(t *testing.T) {
+	credsOutputString := `version: "1"
+registry_credential_outputs:
+  task_execution_role: someTestRole
+  container_credentials:
+    my.example.registry.net:
+      secret_manager_arn: arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-my.example.registry.net
+      container_names:
+      - web
+    another.example.io:
+      secret_manager_arn: arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-another.example.io
+      kms_key_id: arn:aws:kms::key/some-key-57yrt
+      container_names:
+      - test`
+
+	tmpfile, err := ioutil.TempFile("", "test")
+	assert.NoError(t, err, "Unexpected error in creating test file")
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write([]byte(credsOutputString))
+	assert.NoError(t, err, "Unexpected error writing file")
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Unexpected error closing file")
+
+	credsOutput, err := ReadCredsOutput(tmpfile.Name())
+	assert.NoError(t, err, "Unexpected error reading creds output file")
+
+	// assert expected values match
+	assert.Equal(t, "1", credsOutput.Version)
+	assert.Equal(t, "someTestRole", credsOutput.CredentialResources.TaskExecutionRole)
+	assert.Equal(t, 2, len(credsOutput.CredentialResources.ContainerCredentials))
+
+	firstOutputEntry := credsOutput.CredentialResources.ContainerCredentials["my.example.registry.net"]
+	assert.NotEmpty(t, firstOutputEntry)
+	assert.Equal(t, "arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-my.example.registry.net", firstOutputEntry.CredentialARN)
+	assert.Equal(t, "", firstOutputEntry.KMSKeyID)
+	assert.ElementsMatch(t, []string{"web"}, firstOutputEntry.ContainerNames)
+
+	secondOutputEntry := credsOutput.CredentialResources.ContainerCredentials["another.example.io"]
+	assert.NotEmpty(t, secondOutputEntry)
+	assert.Equal(t, "arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-another.example.io", secondOutputEntry.CredentialARN)
+	assert.Equal(t, "arn:aws:kms::key/some-key-57yrt", secondOutputEntry.KMSKeyID)
+	assert.ElementsMatch(t, []string{"test"}, secondOutputEntry.ContainerNames)
+}
+
+func TestReadCredsOutput_ErrorOnBadYaml(t *testing.T) {
+	badCredsOutputFileString := `version: 1
+registry_credential_outputs:
+task_execution_role: someTestRole
+container_credentials:
+	myrepo.someregistry.io:
+	  secret_manager_arn: arn:aws:secretmanager:some-secret
+	  container_names:
+		  - test`
+
+	tmpfile, err := ioutil.TempFile("", "test")
+	assert.NoError(t, err, "Unexpected error in creating test file")
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write([]byte(badCredsOutputFileString))
+	assert.NoError(t, err, "Unexpected error writing file")
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Unexpected error closing file")
+
+	_, err = ReadCredsOutput(tmpfile.Name())
+	assert.Error(t, err, "Expected error on bad file YAML")
+}
+
+func TestReadCredsOutput_ErrorFileNotFound(t *testing.T) {
+	var fakeFileName = "/missingFile"
+	_, err := ReadCredsOutput(fakeFileName)
+	assert.Error(t, err, "Expected error on missing file")
+}
