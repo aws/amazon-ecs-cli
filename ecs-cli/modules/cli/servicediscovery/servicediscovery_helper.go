@@ -15,6 +15,7 @@ package servicediscovery
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudformation"
@@ -43,6 +44,10 @@ const (
 	parameterKeyDNSType                                 = "DNSType"
 	parameterKeyDNSTTL                                  = "DNSTTL"
 	parameterKeyHealthCheckCustomConfigFailureThreshold = "FailureThreshold"
+)
+
+const (
+	cfnStackNameMaxLength = 128
 )
 
 var requiredParamsSDS = []string{parameterKeyNamespaceID, parameterKeySDSName, parameterKeyDNSType}
@@ -212,8 +217,29 @@ func getOutputIDFromStack(cfnClient cloudformation.CloudformationClient, stackNa
 	return nil, fmt.Errorf("Failed to find output %s in stack %s", outputKey, stackName)
 }
 
-func cfnStackName(stackName, cluster, service string) string {
-	return fmt.Sprintf(stackName, cluster, service)
+func cfnStackName(stackNameFmt, cluster, service string) string {
+	maxLength := (cfnStackNameMaxLength - len(stackNameFmt)) / 2
+	name := fmt.Sprintf(stackNameFmt, truncate(cluster, maxLength), truncate(service, maxLength))
+	return sanitize(name)
+}
+
+// Makes the given string a valid CFN stack name
+// by replacing all characters that are not alphanumeric or hyphen with 0
+// and truncating at 128 characters
+func sanitize(s string) string {
+	reg, err := regexp.Compile("[^a-zA-Z0-9-]+")
+	if err != nil {
+		// the regex compiles, the unit tests verify this, there's no need to return this error
+		logrus.Fatal(err)
+	}
+	return reg.ReplaceAllString(s, "0")
+}
+
+func truncate(s string, length int) string {
+	if len(s) > length {
+		return s[:length]
+	}
+	return s
 }
 
 func getSDSCFNParams(namespaceID, sdsName, networkMode string, input *utils.ServiceDiscovery) *cloudformation.CfnStackParams {

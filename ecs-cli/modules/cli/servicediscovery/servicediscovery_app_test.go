@@ -16,6 +16,7 @@ package servicediscovery
 import (
 	"flag"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudformation"
@@ -38,8 +39,8 @@ const (
 	testServiceName        = "service"
 	testDescription        = "clyde loves pudding"
 	otherTestDescription   = "pudding plays hard to get"
-	testNamespaceStackName = "amazon-ecs-cli-setup-cluster-service-private-dns-namespace"
-	testSDSStackName       = "amazon-ecs-cli-setup-cluster-service-service-discovery-service"
+	testNamespaceStackName = "amazon-ecs-cli-setup-private-dns-namespace-cluster-service"
+	testSDSStackName       = "amazon-ecs-cli-setup-service-discovery-service-cluster-service"
 	testNamespaceName      = "corp"
 	otherTestNamespaceName = "dumpling"
 	testVPCID              = "vpc-8BAADF00D"
@@ -613,6 +614,22 @@ func TestDeleteServiceDiscoveryStackNotFoundError(t *testing.T) {
 
 	err := delete(emptyContext(), mockCloudformation, testServiceName, testServiceName, testClusterName)
 	assert.Error(t, err, "Expected error calling delete")
+}
+
+func TestCFNStackName(t *testing.T) {
+	// underscore is allowed in cluster and service names, but not CFNStack names
+	clusterName := "supercalifragilisticexpialidocious_________1234_"
+	serviceName := "anotherreallylongstring_______________________________________hi______________________________________________________wassup__________________________________________123456789"
+
+	sdsStackName := cfnStackName(serviceDiscoveryServiceStackNameFormat, clusterName, serviceName)
+	namespaceStackName := cfnStackName(privateDNSNamespaceStackNameFormat, clusterName, serviceName)
+
+	// underscore is allowed in cluster and service names, but not CFNStack names
+	assert.False(t, strings.Contains(sdsStackName, "_"), "Underscores are not allowed in CFN Stack names")
+	assert.False(t, strings.Contains(namespaceStackName, "_"), "Underscores are not allowed in CFN Stack names")
+	// CFN Stacknames must be no longer than 128 characters
+	assert.True(t, len(sdsStackName) <= 128, "CFN Stack names must be no longer than 128 characters")
+	assert.True(t, len(namespaceStackName) <= 128, "CFN Stack names must be no longer than 128 characters")
 }
 
 func testCreateServiceDiscovery(t *testing.T, networkMode string, ecsParamsSD *utils.ServiceDiscovery, c *cli.Context, validateNamespace validateNamespaceParamsFunc, validateSDS validateSDSParamsFunc, createNamespace bool) (*ecs.ServiceRegistry, error) {
