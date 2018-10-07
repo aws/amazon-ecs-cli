@@ -29,8 +29,8 @@ import (
 )
 
 const (
-	privateDNSNamespaceStackNameFormat     = "amazon-ecs-cli-setup-%s-%s-private-dns-namespace"
-	serviceDiscoveryServiceStackNameFormat = "amazon-ecs-cli-setup-%s-%s-service-discovery-service"
+	privateDNSNamespaceStackNameFormat     = "amazon-ecs-cli-setup-private-dns-namespace-%s-%s"
+	serviceDiscoveryServiceStackNameFormat = "amazon-ecs-cli-setup-service-discovery-service-%s-%s"
 )
 
 const (
