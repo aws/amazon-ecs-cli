@@ -13,7 +13,7 @@
 
 ## Development Setup
 ### Environment
-* Make sure you are using Go 1.10 (`go version`).
+* Make sure you are using Go 1.11 (`go version`).
 * Copy the source code (`go get github.com/aws/amazon-ecs-cli`).
 * We use [dep](https://github.com/golang/dep) to manage dependencies. Make sure you have version 0.4.1 of [dep](https://github.com/golang/dep/releases/tag/v0.4.1) (installation instructions [here](https://golang.github.io/dep/docs/installation.html)). You can also run `make generate-deps` to install the latest version of dep as well as other tools.
 
