@@ -174,7 +174,7 @@ var template = `
         "p2.16xlarge",
         "p3.2xlarge",
         "p3.8xlarge",
-        "p3.16xlarge"
+        "p3.16xlarge",
         "z1d.large",
         "z1d.xlarge",
         "z1d.2xlarge",
