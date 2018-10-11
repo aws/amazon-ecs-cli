@@ -77,6 +77,7 @@ const (
 	SubnetIdsFlag                   = "subnets"
 	VpcIdFlag                       = "vpc"
 	InstanceTypeFlag                = "instance-type"
+	SpotPriceFlag                   = "spot-price"
 	InstanceRoleFlag                = "instance-role"
 	ImageIdFlag                     = "image-id"
 	KeypairNameFlag                 = "keypair"
@@ -221,5 +222,6 @@ func CFNResourceFlags() []string {
 		InstanceRoleFlag,
 		ImageIdFlag,
 		KeypairNameFlag,
+		SpotPriceFlag,
 	}
 }

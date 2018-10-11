@@ -38,6 +38,7 @@ const (
 	ParameterKeyInstanceRole             = "InstanceRole"
 	ParameterKeyIsFargate                = "IsFargate"
 	ParameterKeyUserData                 = "UserData"
+	ParameterKeySpotPrice                = "SpotPrice"
 )
 
 var ParameterNotFoundError = errors.New("Parameter not found")
@@ -72,6 +73,7 @@ func init() {
 		ParameterKeyCluster,
 		ParameterKeyAmiId,
 		ParameterKeyAssociatePublicIPAddress,
+		ParameterKeySpotPrice,
 	}
 }
 

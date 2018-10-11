@@ -87,6 +87,10 @@ func clusterUpFlags() []cli.Flag {
 			Usage: "[Optional] Specifies the EC2 instance type for your container instances. Defaults to t2.micro. NOTE: Not applicable for launch type FARGATE.",
 		},
 		cli.StringFlag{
+			Name:  flags.SpotPriceFlag,
+			Usage: "[Optional] If filled and greater than 0, EC2 Spot instances will be requested.",
+		},
+		cli.StringFlag{
 			Name:  flags.ImageIdFlag,
 			Usage: "[Optional] Specify the AMI ID for your container instances. Defaults to amazon-ecs-optimized AMI. NOTE: Not applicable for launch type FARGATE.",
 		},

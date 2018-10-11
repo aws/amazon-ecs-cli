@@ -184,6 +184,11 @@ var template = `
       ],
       "ConstraintDescription": "must be a valid EC2 instance type."
     },
+    "SpotPrice": {
+      "Type": "Number",
+      "Description": "If greater than 0, then a EC2 Spot instance will be requested",
+      "Default": "0"
+    },
     "KeyName": {
       "Type": "String",
       "Description": "Optional - Name of an existing EC2 KeyPair to enable SSH access to the ECS instances",
@@ -339,6 +344,18 @@ var template = `
             ""
           ]
         }
+      ]
+    },
+    "UseSpotInstances": {
+      "Fn::Not": [
+      {
+        "Fn::Equals": [
+        {
+          "Ref": "SpotPrice"
+        },
+        0
+        ]
+      }
       ]
     }
   },
@@ -564,6 +581,17 @@ var template = `
         "ImageId": { "Ref" : "EcsAmiId" },
         "InstanceType": {
           "Ref": "EcsInstanceType"
+        },
+        "SpotPrice": {
+          "Fn::If": [
+            "UseSpotInstances",
+            {
+              "Ref": "SpotPrice"
+            },
+            {
+              "Ref": "AWS::NoValue"
+            }
+          ]
         },
         "AssociatePublicIpAddress": {
           "Ref": "AssociatePublicIpAddress"

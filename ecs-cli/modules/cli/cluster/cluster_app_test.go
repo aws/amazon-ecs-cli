@@ -262,6 +262,49 @@ func TestClusterUpWithUserData(t *testing.T) {
 	assert.ElementsMatch(t, []string{"some_file", "some_file2"}, userdataMock.files, "Expected userdata file list to match")
 }
 
+func TestClusterUpWithSpotPrice(t *testing.T) {
+	defer os.Clearenv()
+	mockECS, mockCloudformation, mockSSM := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+
+	spotPrice := "0.03"
+
+	gomock.InOrder(
+		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
+	)
+
+	gomock.InOrder(
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI().Return(amiMetadata(amiID), nil),
+	)
+
+	gomock.InOrder(
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, gomock.Any()).Do(func(x, y, z interface{}) {
+			cfnParams := z.(*cloudformation.CfnStackParams)
+			param, err := cfnParams.GetParameter(cloudformation.ParameterKeySpotPrice)
+			assert.NoError(t, err, "Expected Spot Price parameter to be set")
+			assert.Equal(t, spotPrice, aws.StringValue(param.ParameterValue), "Expected spot price to match")
+		}).Return("", nil),
+		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
+	)
+
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
+	flagSet.String(flags.SpotPriceFlag, spotPrice, "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	rdwr := newMockReadWriter()
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
+
+	err = createCluster(context, awsClients, commandConfig)
+	assert.NoError(t, err, "Unexpected error bringing up cluster")
+}
+
 func TestClusterUpWithVPC(t *testing.T) {
 	defer os.Clearenv()
 	mockECS, mockCloudformation, mockSSM := setupTest(t)

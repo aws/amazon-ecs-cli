@@ -58,6 +58,7 @@ func init() {
 		flags.KeypairNameFlag:   cloudformation.ParameterKeyKeyPairName,
 		flags.ImageIdFlag:       cloudformation.ParameterKeyAmiId,
 		flags.InstanceRoleFlag:  cloudformation.ParameterKeyInstanceRole,
+		flags.SpotPriceFlag:	 cloudformation.ParameterKeySpotPrice,
 	}
 }
 
