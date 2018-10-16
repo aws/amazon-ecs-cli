@@ -21,7 +21,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/iam/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/kms/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/secretsmanager/mock"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcreds"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcredio"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/kms"
 	secretsmanager "github.com/aws/aws-sdk-go/service/secretsmanager"
@@ -35,9 +35,9 @@ func TestGetOrCreateRegistryCredentials_WithCredPair(t *testing.T) {
 	testPassword := "someP4$$w0rd"
 	testRegistryName := "examplereg.net"
 	testContainers := []string{"logging", "web"}
-
-	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
-	testRegistryCreds[testRegistryName] = getTestCredsEntry("", testUsername, testPassword, "", testContainers)
+	testRegistryCreds := map[string]regcredio.RegistryCredEntry{
+		testRegistryName: getTestCredsEntry("", testUsername, testPassword, "", testContainers),
+	}
 
 	expectedCreateInput := secretsmanager.CreateSecretInput{
 		Name:         generateECSResourceName(testRegistryName),
@@ -67,9 +67,9 @@ func TestGetOrCreateRegistryCredentials_WithCredPairAndKmsKey(t *testing.T) {
 	testKmsKeyID := "my-fav-key"
 	testRegistryName := "examplereg.net"
 	testContainers := []string{"logging", "web"}
-
-	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
-	testRegistryCreds[testRegistryName] = getTestCredsEntry("", testUsername, testPassword, testKmsKeyID, testContainers)
+	testRegistryCreds := map[string]regcredio.RegistryCredEntry{
+		testRegistryName: getTestCredsEntry("", testUsername, testPassword, testKmsKeyID, testContainers),
+	}
 
 	expectedCreateInput := secretsmanager.CreateSecretInput{
 		Name:         generateECSResourceName(testRegistryName),
@@ -99,9 +99,9 @@ func TestGetOrCreateRegistryCredentials_WithCredPairAndExistingFound(t *testing.
 	testPassword := "someP4$$w0rd"
 	testRegistryName := "examplereg.net"
 	testContainers := []string{"logging", "web"}
-
-	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
-	testRegistryCreds[testRegistryName] = getTestCredsEntry("", testUsername, testPassword, "", testContainers)
+	testRegistryCreds := map[string]regcredio.RegistryCredEntry{
+		testRegistryName: getTestCredsEntry("", testUsername, testPassword, "", testContainers),
+	}
 
 	responseARN := "arn:aws:secretsmanager:examplereg.net-123"
 
@@ -121,9 +121,9 @@ func TestGetOrCreateRegistryCredentials_WithSecretArnOnly(t *testing.T) {
 	testSecretARN := "arn:aws:secretsmanager:examplereg.net-123"
 	testRegistryName := "examplereg.net"
 	testContainers := []string{"logging", "web"}
-
-	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
-	testRegistryCreds[testRegistryName] = getTestCredsEntry(testSecretARN, "", "", "", testContainers)
+	testRegistryCreds := map[string]regcredio.RegistryCredEntry{
+		testRegistryName: getTestCredsEntry(testSecretARN, "", "", "", testContainers),
+	}
 
 	mocks := setupTestController(t)
 	mocks.MockSM.EXPECT().DescribeSecret(gomock.Any()).Return(&secretsmanager.DescribeSecretOutput{}, nil)
@@ -143,9 +143,9 @@ func TestGetOrCreateRegistryCredentials_WithExistingAndCredsUpdateOk(t *testing.
 	testPassword := "someP4$$w0rd"
 	testRegistryName := "examplereg.net"
 	testContainers := []string{"logging", "web"}
-
-	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
-	testRegistryCreds[testRegistryName] = getTestCredsEntry(testSecretARN, testUsername, testPassword, "", testContainers)
+	testRegistryCreds := map[string]regcredio.RegistryCredEntry{
+		testRegistryName: getTestCredsEntry(testSecretARN, testUsername, testPassword, "", testContainers),
+	}
 
 	expectedPutSecretValueInput := secretsmanager.PutSecretValueInput{
 		SecretId:     aws.String(testSecretARN),
@@ -173,9 +173,9 @@ func TestGetOrCreateRegistryCredentials_WithExistingAndCredsNoUpdate(t *testing.
 	testPassword := "someP4$$w0rd"
 	testRegistryName := "examplereg.net"
 	testContainers := []string{"logging", "web"}
-
-	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
-	testRegistryCreds[testRegistryName] = getTestCredsEntry(testSecretARN, testUsername, testPassword, "", testContainers)
+	testRegistryCreds := map[string]regcredio.RegistryCredEntry{
+		testRegistryName: getTestCredsEntry(testSecretARN, testUsername, testPassword, "", testContainers),
+	}
 
 	// call with updateAllowed = false
 	mocks := setupTestController(t)
@@ -190,8 +190,9 @@ func TestGetOrCreateRegistryCredentials_WithExistingAndCredsNoUpdate(t *testing.
 }
 
 func TestGetOrCreateRegistryCredentials_ErrorOnCreate(t *testing.T) {
-	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
-	testRegistryCreds["testRegistry"] = getTestCredsEntry("", "testUsername", "testPassword", "", []string{"test"})
+	testRegistryCreds := map[string]regcredio.RegistryCredEntry{
+		"testRegistry": getTestCredsEntry("", "testUsername", "testPassword", "", []string{"test"}),
+	}
 
 	mocks := setupTestController(t)
 	gomock.InOrder(
@@ -204,8 +205,9 @@ func TestGetOrCreateRegistryCredentials_ErrorOnCreate(t *testing.T) {
 }
 
 func TestGetOrCreateRegistryCredentials_ErrorOnUpdate(t *testing.T) {
-	testRegistryCreds := make(map[string]readers.RegistryCredEntry)
-	testRegistryCreds["testRegistry"] = getTestCredsEntry("arn:aws:secretsmanager:secret:test", "testUsername", "testPassword", "", []string{"test"})
+	testRegistryCreds := map[string]regcredio.RegistryCredEntry{
+		"testRegistry": getTestCredsEntry("arn:aws:secretsmanager:secret:test", "testUsername", "testPassword", "", []string{"test"}),
+	}
 
 	mocks := setupTestController(t)
 	mocks.MockSM.EXPECT().PutSecretValue(gomock.Any()).Return(nil, errors.New("something went wrong"))
@@ -215,8 +217,8 @@ func TestGetOrCreateRegistryCredentials_ErrorOnUpdate(t *testing.T) {
 }
 
 func TestValidateCredsInput_ErrorEmptyCreds(t *testing.T) {
-	emptyCredMap := make(map[string]readers.RegistryCredEntry)
-	emptyCredsInput := readers.ECSRegCredsInput{
+	emptyCredMap := make(map[string]regcredio.RegistryCredEntry)
+	emptyCredsInput := regcredio.ECSRegCredsInput{
 		Version:             "1",
 		RegistryCredentials: emptyCredMap,
 	}
@@ -226,10 +228,11 @@ func TestValidateCredsInput_ErrorEmptyCreds(t *testing.T) {
 }
 
 func TestValidateCredsInput_ErrorOnMissingReqFields(t *testing.T) {
-	mapWithEmptyCredEntry := make(map[string]readers.RegistryCredEntry)
-	mapWithEmptyCredEntry["example.com"] = readers.RegistryCredEntry{}
+	mapWithEmptyCredEntry := map[string]regcredio.RegistryCredEntry{
+		"example.com": regcredio.RegistryCredEntry{},
+	}
 
-	testCredsInput := readers.ECSRegCredsInput{
+	testCredsInput := regcredio.ECSRegCredsInput{
 		Version:             "1",
 		RegistryCredentials: mapWithEmptyCredEntry,
 	}
@@ -240,17 +243,18 @@ func TestValidateCredsInput_ErrorOnMissingReqFields(t *testing.T) {
 
 func TestValidateCredsInput_ErrorOnDuplicateContainers(t *testing.T) {
 	duplicateContainer := "http"
-	regCreds := make(map[string]readers.RegistryCredEntry)
-	regCreds["registry-1.net"] = readers.RegistryCredEntry{
-		SecretManagerARN: "arn:aws:secretsmanager:some-secret",
-		ContainerNames:   []string{duplicateContainer, "logging"},
-	}
-	regCreds["registry-2.net"] = readers.RegistryCredEntry{
-		SecretManagerARN: "arn:aws:secretsmanager:some-other-secret",
-		ContainerNames:   []string{"metrics", duplicateContainer},
+	regCreds := map[string]regcredio.RegistryCredEntry{
+		"registry-1.net": regcredio.RegistryCredEntry{
+			SecretManagerARN: "arn:aws:secretsmanager:some-secret",
+			ContainerNames:   []string{duplicateContainer, "logging"},
+		},
+		"registry-2.net": regcredio.RegistryCredEntry{
+			SecretManagerARN: "arn:aws:secretsmanager:some-other-secret",
+			ContainerNames:   []string{"metrics", duplicateContainer},
+		},
 	}
 
-	testCredsInput := readers.ECSRegCredsInput{
+	testCredsInput := regcredio.ECSRegCredsInput{
 		Version:             "1",
 		RegistryCredentials: regCreds,
 	}
@@ -261,11 +265,12 @@ func TestValidateCredsInput_ErrorOnDuplicateContainers(t *testing.T) {
 
 func TestValidateCredsInput_KeyAliasDescribed(t *testing.T) {
 	mocks := setupTestController(t)
-
-	regCreds := make(map[string]readers.RegistryCredEntry)
 	testRegName := "testRegistry"
-	regCreds[testRegName] = getTestCredsEntry("", "testuser", "testPassword", "alias/someKey", []string{"test"})
-	testCredsInput := readers.ECSRegCredsInput{
+	regCreds := map[string]regcredio.RegistryCredEntry{
+		testRegName: getTestCredsEntry("", "testuser", "testPassword", "alias/someKey", []string{"test"}),
+	}
+
+	testCredsInput := regcredio.ECSRegCredsInput{
 		Version:             "1",
 		RegistryCredentials: regCreds,
 	}
@@ -287,11 +292,12 @@ func TestValidateCredsInput_KeyAliasDescribed(t *testing.T) {
 
 func TestValidateCredsInput_NoDescribeOnKeyARN(t *testing.T) {
 	mocks := setupTestController(t)
-
-	regCreds := make(map[string]readers.RegistryCredEntry)
 	testKeyARN := "arn:aws:kms:key/7457r6ythfg-5rythgf"
-	regCreds["testRegistry"] = getTestCredsEntry("", "testuser", "testPassword", testKeyARN, []string{"test"})
-	testCredsInput := readers.ECSRegCredsInput{
+	regCreds := map[string]regcredio.RegistryCredEntry{
+		"testRegistry": getTestCredsEntry("", "testuser", "testPassword", testKeyARN, []string{"test"}),
+	}
+
+	testCredsInput := regcredio.ECSRegCredsInput{
 		Version:             "1",
 		RegistryCredentials: regCreds,
 	}
@@ -305,10 +311,10 @@ func TestValidateCredsInput_NoDescribeOnKeyARN(t *testing.T) {
 
 func TestValidateCredsInput_ErrorOnDescribeFail(t *testing.T) {
 	mocks := setupTestController(t)
-
-	regCreds := make(map[string]readers.RegistryCredEntry)
-	regCreds["testRegistry"] = getTestCredsEntry("", "testuser", "testPassword", "alias/someKey", []string{"test"})
-	testCredsInput := readers.ECSRegCredsInput{
+	regCreds := map[string]regcredio.RegistryCredEntry{
+		"testRegistry": getTestCredsEntry("", "testuser", "testPassword", "alias/someKey", []string{"test"}),
+	}
+	testCredsInput := regcredio.ECSRegCredsInput{
 		Version:             "1",
 		RegistryCredentials: regCreds,
 	}
@@ -324,9 +330,10 @@ func TestValidateCredsInput_ErrorOnDescribeFail(t *testing.T) {
 
 func TestValidateCredsInput_ErrorOnRegionMismatch(t *testing.T) {
 	testKeyARN := "arn:aws:kms:us-east-1:1234567:key/765ythgf-45erfd"
-	regCreds := make(map[string]readers.RegistryCredEntry)
-	regCreds["testRegistry"] = getTestCredsEntry("arn:aws:secretsmanager:us-west-2:1234567:secret/some-secret", "testuser", "testPassword", testKeyARN, []string{"test"})
-	testCredsInput := readers.ECSRegCredsInput{
+	regCreds := map[string]regcredio.RegistryCredEntry{
+		"testRegistry": getTestCredsEntry("arn:aws:secretsmanager:us-west-2:1234567:secret/some-secret", "testuser", "testPassword", testKeyARN, []string{"test"}),
+	}
+	testCredsInput := regcredio.ECSRegCredsInput{
 		Version:             "1",
 		RegistryCredentials: regCreds,
 	}
@@ -368,8 +375,8 @@ func TestGenerateSecretString(t *testing.T) {
 	}
 }
 
-func getTestCredsEntry(secretARN, username, password, kmsKey string, containers []string) readers.RegistryCredEntry {
-	return readers.RegistryCredEntry{
+func getTestCredsEntry(secretARN, username, password, kmsKey string, containers []string) regcredio.RegistryCredEntry {
+	return regcredio.RegistryCredEntry{
 		SecretManagerARN: secretARN,
 		Username:         username,
 		Password:         password,

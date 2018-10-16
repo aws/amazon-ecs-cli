@@ -16,7 +16,7 @@ package regcreds
 import (
 	"testing"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcreds"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcredio"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/iam"
@@ -29,11 +29,11 @@ func TestCreateTaskExecutionRole(t *testing.T) {
 	testRegistry := "myreg.test.io"
 	testRegCredARN := "arn:aws:secret/some-test-arn"
 	testRegKMSKey := "arn:aws:kms:key/67yt-756yth"
-	testCreds := make(map[string]readers.CredsOutputEntry)
-	testCreds[testRegistry] = readers.CredsOutputEntry{
-		CredentialARN: testRegCredARN,
-		KMSKeyID:      testRegKMSKey,
+
+	testCreds := map[string]regcredio.CredsOutputEntry{
+		testRegistry: regcredio.BuildOutputEntry(testRegCredARN, testRegKMSKey, []string{"test"}),
 	}
+
 	testRoleName := "myNginxProjectRole"
 
 	testPolicyArn := aws.String("arn:aws:iam::policy/" + testRoleName + "-policy")
@@ -66,8 +66,9 @@ func TestCreateTaskExecutionRole(t *testing.T) {
 func TestCreateTaskExecutionRole_NoKMSKey(t *testing.T) {
 	testRegistry := "myreg.test.io"
 	testRegCredARN := "arn:aws:secret/some-test-arn"
-	testCreds := make(map[string]readers.CredsOutputEntry)
-	testCreds[testRegistry] = readers.CredsOutputEntry{CredentialARN: testRegCredARN}
+	testCreds := map[string]regcredio.CredsOutputEntry{
+		testRegistry: regcredio.BuildOutputEntry(testRegCredARN, "", []string{""}),
+	}
 	testRoleName := "myNginxProjectRole"
 
 	testPolicyArn := aws.String("arn:aws:iam::policy/" + testRoleName + "-policy")
@@ -98,8 +99,9 @@ func TestCreateTaskExecutionRole_NoKMSKey(t *testing.T) {
 func TestCreateTaskExecutionRole_RoleExists(t *testing.T) {
 	testRegistry := "myreg.test.io"
 	testRegCredARN := "arn:aws:secret/some-test-arn"
-	testCreds := make(map[string]readers.CredsOutputEntry)
-	testCreds[testRegistry] = readers.CredsOutputEntry{CredentialARN: testRegCredARN}
+	testCreds := map[string]regcredio.CredsOutputEntry{
+		testRegistry: regcredio.BuildOutputEntry(testRegCredARN, "", []string{""}),
+	}
 	testRoleName := "myNginxProjectRole"
 
 	testPolicyArn := aws.String("arn:aws:iam::policy/" + testRoleName + "-policy")
@@ -131,8 +133,9 @@ func TestCreateTaskExecutionRole_RoleExists(t *testing.T) {
 func TestCreateTaskExecutionRole_ErrorOnCreateRoleFails(t *testing.T) {
 	testRegistry := "myreg.test.io"
 	testRegCredARN := "arn:aws:secret/some-test-arn"
-	testCreds := make(map[string]readers.CredsOutputEntry)
-	testCreds[testRegistry] = readers.CredsOutputEntry{CredentialARN: testRegCredARN}
+	testCreds := map[string]regcredio.CredsOutputEntry{
+		testRegistry: regcredio.BuildOutputEntry(testRegCredARN, "", []string{""}),
+	}
 	testRoleName := "myNginxProjectRole"
 
 	mocks := setupTestController(t)
@@ -154,8 +157,9 @@ func TestCreateTaskExecutionRole_ErrorOnCreateRoleFails(t *testing.T) {
 func TestCreateTaskExecutionRole_ErrorOnCreatePolicyFails(t *testing.T) {
 	testRegistry := "myreg.test.io"
 	testRegCredARN := "arn:aws:secret/some-test-arn"
-	testCreds := make(map[string]readers.CredsOutputEntry)
-	testCreds[testRegistry] = readers.CredsOutputEntry{CredentialARN: testRegCredARN}
+	testCreds := map[string]regcredio.CredsOutputEntry{
+		testRegistry: regcredio.BuildOutputEntry(testRegCredARN, "", []string{""}),
+	}
 	testRoleName := "myNginxProjectRole"
 
 	testRoleArn := aws.String("arn:aws:iam::role/" + testRoleName)
