@@ -23,7 +23,7 @@ import (
 	secretsClient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/secretsmanager"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcreds"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcredio"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/pkg/errors"
@@ -47,7 +47,7 @@ func Up(c *cli.Context) {
 	iamClient := iam.NewIAMClient(commandConfig)
 
 	// validate provided values before creating any resources
-	credsInput, err := readers.ReadCredsInput(args[0])
+	credsInput, err := regcredio.ReadCredsInput(args[0])
 	if err != nil {
 		log.Fatal("Error executing 'up': ", err)
 	}
@@ -101,14 +101,14 @@ func Up(c *cli.Context) {
 
 	// produce output file
 	if !skipOutput {
-		readers.GenerateCredsOutput(credentialOutput, roleName, outputDir, policyCreateTime)
+		regcredio.GenerateCredsOutput(credentialOutput, roleName, outputDir, policyCreateTime)
 	} else {
-		log.Info("Skipping output file generation.")
+		log.Info("Skipping generation of registry credentials output file.")
 	}
 }
 
-func getOrCreateRegistryCredentials(entryMap readers.RegistryCreds, smClient secretsClient.SMClient, updateAllowed bool) (map[string]readers.CredsOutputEntry, error) {
-	registryResults := make(map[string]readers.CredsOutputEntry)
+func getOrCreateRegistryCredentials(entryMap regcredio.RegistryCreds, smClient secretsClient.SMClient, updateAllowed bool) (map[string]regcredio.CredsOutputEntry, error) {
+	registryResults := make(map[string]regcredio.CredsOutputEntry)
 
 	for registryName, credentialEntry := range entryMap {
 		log.Infof("Processing credentials for registry %s...", registryName)
@@ -133,14 +133,14 @@ func getOrCreateRegistryCredentials(entryMap readers.RegistryCreds, smClient sec
 		if keyForSecret == nil {
 			keyForSecret = &credentialEntry.KmsKeyID
 		}
-		registryResults[registryName] = readers.BuildOutputEntry(arn, *keyForSecret, credentialEntry.ContainerNames)
+		registryResults[registryName] = regcredio.BuildOutputEntry(arn, *keyForSecret, credentialEntry.ContainerNames)
 	}
 
 	return registryResults, nil
 }
 
 // returns the ARN of a new or existing registry secret (and, if applicable, the KMS key associated with that secret)
-func findOrCreateRegistrySecret(registryName string, credEntry readers.RegistryCredEntry, smClient secretsClient.SMClient) (string, string, error) {
+func findOrCreateRegistrySecret(registryName string, credEntry regcredio.RegistryCredEntry, smClient secretsClient.SMClient) (string, string, error) {
 
 	secretName := generateECSResourceName(registryName)
 
@@ -177,7 +177,7 @@ func findOrCreateRegistrySecret(registryName string, credEntry readers.RegistryC
 	return *output.ARN, kmsKey, nil
 }
 
-func updateOrWarnForExistingSecret(credEntry readers.RegistryCredEntry, updateAllowed bool, smClient secretsClient.SMClient) error {
+func updateOrWarnForExistingSecret(credEntry regcredio.RegistryCredEntry, updateAllowed bool, smClient secretsClient.SMClient) error {
 	secretARN := credEntry.SecretManagerARN
 
 	if updateAllowed {
@@ -200,7 +200,7 @@ func updateOrWarnForExistingSecret(credEntry readers.RegistryCredEntry, updateAl
 	return nil
 }
 
-func validateCredsInput(input readers.ECSRegCredsInput, kmsClient kms.Client) (map[string]readers.RegistryCredEntry, error) {
+func validateCredsInput(input regcredio.ECSRegCredsInput, kmsClient kms.Client) (map[string]regcredio.RegistryCredEntry, error) {
 	// TODO: validate version?
 
 	inputRegCreds := input.RegistryCredentials
@@ -210,7 +210,7 @@ func validateCredsInput(input readers.ECSRegCredsInput, kmsClient kms.Client) (m
 	}
 
 	namedContainers := make(map[string]bool)
-	outputRegCreds := make(map[string]readers.RegistryCredEntry)
+	outputRegCreds := make(map[string]regcredio.RegistryCredEntry)
 
 	for registryName, credentialEntry := range inputRegCreds {
 		if !credentialEntry.HasRequiredFields() {
@@ -290,7 +290,7 @@ func getNewCommandConfig(c *cli.Context) *config.CommandConfig {
 
 func validateOutputOptions(outputDir string, skipOutput bool) error {
 	if outputDir != "" && skipOutput {
-		return fmt.Errorf("both output directory ('%s') and '--"+flags.NoOutputFileFlag+"' specified", outputDir)
+		return fmt.Errorf("Only one of '--"+flags.OutputDirFlag+"' (value '%s') and '--"+flags.NoOutputFileFlag+"' can be specified but both are present", outputDir)
 	}
 	return nil
 }

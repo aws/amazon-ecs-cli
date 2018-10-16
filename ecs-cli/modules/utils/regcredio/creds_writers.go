@@ -11,7 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package readers
+package regcredio
 
 import (
 	"fmt"
@@ -28,32 +28,13 @@ const (
 	ecsCredFileBaseName = "ecs-registry-creds"
 )
 
-// CredsOutputEntry contains the credential ARN, key, and associated container names for a registry
-type CredsOutputEntry struct {
-	CredentialARN  string   `yaml:"secret_manager_arn"`
-	KMSKeyID       string   `yaml:"kms_key_id,omitempty"`
-	ContainerNames []string `yaml:"container_names"`
-}
-
-// RegistryCredsOutput contains the content of the output file
-type RegistryCredsOutput struct {
-	Version             string
-	CredentialResources CredResources `yaml:"registry_credential_outputs"`
-}
-
-// CredResources contains the
-type CredResources struct {
-	TaskExecutionRole    string                      `yaml:"task_execution_role"`
-	ContainerCredentials map[string]CredsOutputEntry `yaml:"container_credentials"`
-}
-
 // GenerateCredsOutput marshals credential output JSON into YAML and outputs it to a file
 func GenerateCredsOutput(creds map[string]CredsOutputEntry, roleName, outputDir string, policyCreatTime *time.Time) error {
 	outputResources := CredResources{
 		ContainerCredentials: creds,
 		TaskExecutionRole:    roleName,
 	}
-	regOutput := RegistryCredsOutput{
+	regOutput := ECSRegistryCredsOutput{
 		Version:             "1",
 		CredentialResources: outputResources,
 	}

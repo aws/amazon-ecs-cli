@@ -11,7 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package readers
+package regcredio
 
 import (
 	"io/ioutil"
@@ -21,34 +21,6 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
-
-// ECSRegCredsInput contains registry cred entries for creation and/or use in a task execution role
-type ECSRegCredsInput struct {
-	Version             string
-	RegistryCredentials RegistryCreds `yaml:"registry_credentials"`
-}
-
-// RegistryCreds is a map of registry names to RegCredEntry structs
-type RegistryCreds map[string]RegistryCredEntry
-
-// RegistryCredEntry contains info needed to create an AWS Secrets Manager secret and match it to an ECS container(s)
-type RegistryCredEntry struct {
-	SecretManagerARN string   `yaml:"secret_manager_arn"`
-	Username         string   `yaml:"username"`
-	Password         string   `yaml:"password"`
-	KmsKeyID         string   `yaml:"kms_key_id"`
-	ContainerNames   []string `yaml:"container_names"`
-}
-
-// HasRequiredFields indicates whether the entry has the fields required to create or use registry credentials
-func (e RegistryCredEntry) HasRequiredFields() bool {
-	return e.SecretManagerARN != "" || e.HasCredPair()
-}
-
-// HasCredPair indicates whether the entry contains a username + password
-func (e RegistryCredEntry) HasCredPair() bool {
-	return e.Username != "" && e.Password != ""
-}
 
 // ReadCredsInput parses 'registry-creds up' input into an ECSRegCredsInput struct
 func ReadCredsInput(filename string) (*ECSRegCredsInput, error) {
@@ -74,15 +46,15 @@ func ReadCredsInput(filename string) (*ECSRegCredsInput, error) {
 	return credsInput, nil
 }
 
-// ReadCredsOutput parses an ecs creds output file into an RegistryCredsOutput struct
+// ReadCredsOutput parses an ECS creds output file into an RegistryCredsOutput struct
 // TODO: use this to parse reg creds used with "compose" cmd
-func ReadCredsOutput(filename string) (*RegistryCredsOutput, error) {
+func ReadCredsOutput(filename string) (*ECSRegistryCredsOutput, error) {
 	rawCredsOutput, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Error reading file '%v'", filename)
 	}
 
-	credsOutput := &RegistryCredsOutput{}
+	credsOutput := &ECSRegistryCredsOutput{}
 	if err = yaml.Unmarshal([]byte(rawCredsOutput), &credsOutput); err != nil {
 		return nil, errors.Wrapf(err, "Error unmarshalling yaml data from registry credential ouput file: %s", filename)
 	}

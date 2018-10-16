@@ -17,7 +17,7 @@ import (
 	"encoding/json"
 
 	kmsClient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/kms"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcreds"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcredio"
 )
 
 const (
@@ -37,7 +37,7 @@ type StatementEntry struct {
 	Resource []string
 }
 
-func generateSecretsPolicy(credEntries map[string]readers.CredsOutputEntry, kmsClient kmsClient.Client) (string, error) {
+func generateSecretsPolicy(credEntries map[string]regcredio.CredsOutputEntry, kmsClient kmsClient.Client) (string, error) {
 	policyStatements := make([]StatementEntry, 0, len(credEntries))
 
 	for _, entry := range credEntries {
