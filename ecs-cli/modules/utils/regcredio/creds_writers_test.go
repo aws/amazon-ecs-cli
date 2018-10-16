@@ -11,7 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package readers
+package regcredio
 
 import (
 	"io/ioutil"
@@ -56,5 +56,4 @@ func TestGenerateCredsOutput(t *testing.T) {
 	assert.Equal(t, testCreds[testReg1], actualRegCreds.ContainerCredentials[testReg1])
 	assert.Equal(t, testCreds[testReg2], actualRegCreds.ContainerCredentials[testReg2])
 	assert.Equal(t, actualRegCreds.TaskExecutionRole, testRoleName)
-
 }
