@@ -119,14 +119,14 @@ func update(c *cli.Context, networkMode, serviceName, clusterName string, cfnCli
 
 func delete(c *cli.Context, cfnClient cloudformation.CloudformationClient, serviceName, projectName, clusterName string) error {
 	sdsStackName := cfnStackName(serviceDiscoveryServiceStackNameFormat, clusterName, serviceName)
-	err := deleteStack(sdsStackName, projectName, "Service Discovery Service", cfnClient)
+	err := deleteStack(sdsStackName, projectName, "Service Discovery Service", cfnClient, true, false)
 	if err != nil {
 		return err
 	}
 
 	if c.Bool(flags.DeletePrivateNamespaceFlag) {
 		namspaceStackName := cfnStackName(privateDNSNamespaceStackNameFormat, clusterName, serviceName)
-		err = deleteStack(namspaceStackName, projectName, "Private DNS Namespace", cfnClient)
+		err = deleteStack(namspaceStackName, projectName, "Private DNS Namespace", cfnClient, false, false)
 		if err != nil {
 			return err
 		}
@@ -134,16 +134,21 @@ func delete(c *cli.Context, cfnClient cloudformation.CloudformationClient, servi
 	return nil
 }
 
-func deleteStack(stackName, projectName, resource string, cfnClient cloudformation.CloudformationClient) error {
+func deleteStack(stackName, projectName, resource string, cfnClient cloudformation.CloudformationClient, ignoreValidation, cleanUp bool) error {
 	if err := cfnClient.ValidateStackExists(stackName); err != nil {
+		if ignoreValidation {
+			return nil
+		}
 		return errors.Wrapf(err, "no %s CloudFormation stack found for project '%s'", resource, projectName)
 	}
-
+	if cleanUp {
+		logrus.Info("Cleaning up existing CloudFormation stack...")
+	} else {
+		logrus.Infof("Waiting for your %s resource to be deleted...", resource)
+	}
 	if err := cfnClient.DeleteStack(stackName); err != nil {
 		return err
 	}
-
-	logrus.Infof("Waiting for your %s resource to be deleted...", resource)
 	return cfnClient.WaitUntilDeleteComplete(stackName)
 }
 
@@ -174,6 +179,12 @@ func create(c *cli.Context, networkMode, serviceName string, cfnClient cloudform
 	}
 
 	sdsStackName := cfnStackName(serviceDiscoveryServiceStackNameFormat, config.Cluster, serviceName)
+
+	// first try to delete the SDS Stack to clean up previous attempts that failed
+	if err := deleteStack(sdsStackName, serviceName, "Service Discovery Service", cfnClient, true, true); err != nil {
+		return nil, errors.Wrapf(err, "A Service Discovery Service CloudFormation stack for %s already exists, failed to delete existing stack", serviceName)
+	}
+
 	if _, err := cfnClient.CreateStack(cloudformation.GetSDSTemplate(), sdsStackName, false, sdsParams); err != nil {
 		return nil, err
 	}
@@ -194,6 +205,10 @@ func create(c *cli.Context, networkMode, serviceName string, cfnClient cloudform
 	return serviceRegistry, err
 }
 
+// createNamespace creates a private DNS namespace
+// This function is used if getExistingNamespace() fails to find an existing namespace with the required settings
+// If a CFN stack with the same name exists already, we therefore know that it doesn't contain a namespace (stack create failed),
+// So we can safely delete the existing stack
 func createNamespace(c *cli.Context, networkMode, serviceName, clusterName string, cfnClient cloudformation.CloudformationClient, input *utils.ServiceDiscovery) (*string, error) {
 	namespaceParams := getNamespaceCFNParams(input)
 	if err := namespaceParams.Validate(); err != nil {
@@ -201,6 +216,11 @@ func createNamespace(c *cli.Context, networkMode, serviceName, clusterName strin
 	}
 
 	namespaceStackName := cfnStackName(privateDNSNamespaceStackNameFormat, clusterName, serviceName)
+
+	if err := deleteStack(namespaceStackName, serviceName, "Private DNS Namespace", cfnClient, true, true); err != nil {
+		return nil, errors.Wrapf(err, "A Private DNS Namespace CloudFormation stack for %s already exists, failed to delete existing stack: %s", serviceName, err)
+	}
+
 	if _, err := cfnClient.CreateStack(cloudformation.GetPrivateNamespaceTemplate(), namespaceStackName, false, namespaceParams); err != nil {
 		return nil, err
 	}
