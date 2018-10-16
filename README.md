@@ -31,6 +31,7 @@ Line Interface](http://aws.amazon.com/cli/) product detail page.
 	- [Creating a Service](#creating-a-service)
 	- [Using ECS parameters](#using-ecs-parameters)
 		- [Launching an AWS Fargate task](#launching-an-aws-fargate-task)
+		- [Using Route53 Service Discovery](#using-route53-service-discovery)
 	- [Viewing Running Tasks](#viewing-running-tasks)
 	- [Viewing Container Logs](#viewing-container-logs)
 - [Amazon ECS CLI Commands](#amazon-ecs-cli-commands)
@@ -479,6 +480,25 @@ run_params:
     constraints:
       - type: string                     // Valid values: "memberOf"|"distinctInstance"
         expression: string               // Not valid if type is "distinctInstance"
+  service_discovery:
+    container_name: string
+    container_port: integer
+    private_dns_namespace:
+      id: string
+      name: string
+      vpc: string
+      description: string
+    public_dns_namespace:
+      id: string
+      name: string
+    service_discovery_service:
+      name: string
+      description: string
+      dns_config:
+        type: string
+        ttl: integer
+      healthcheck_custom_config:
+        failure_threshold: integer
 ```
 
 **Version**
@@ -523,6 +543,7 @@ Currently, the only parameter supported under `run_params` is `network_configura
   * `constraint`: A list of objects, with two keys. Valid keys are `type` and `expression`.
     * `type`: Valid values are `distinctInstance` and `memberOf`. If `distinctInstance` is specified, the `expression` key should not be provided.
     * `expression`: When `type` is `memberOf`, valid values are key/value pairs for attributes or task groups, e.g. `task:group == databases` or `attribute:color =~ green`.
+* `service_discovery` allows the configuration of Service Discovery using Route53 auto naming. For an explanation of these fields, see [Using Route53 Service Discovery](#using-route53-service-discovery).
 
 For more information on task placement, see [Amazon ECS TaskPlacement] (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-placement.html).
 
@@ -639,6 +660,128 @@ or
 ```
 ecs-cli compose --ecs-params my-ecs-params.yml service up --launch-type FARGATE
 ```
+
+#### Using Route53 Service Discovery
+
+With the ECS CLI, you can create an ECS Service that uses [Route53 auto naming for service discovery](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-discovery.html). Service Discovery requires a Service Discovery Service and a DNS Namespace. Keep in mind that:
+* When you enable Service Discovery with the ECS CLI, a new Service Discovery Service is always created using CloudFormation.
+* For the DNS Namespace, you have the option of using an existing public or private DNS Namespace, or letting the ECS CLI create a private DNS Namespace for you using CloudFormation.
+* Creation of a Public DNS Namespaces is not supported with the ECS CLI.
+* Only a single DNS Namespace may be used with Service Discovery.
+
+##### Enabling Service Discovery
+
+###### Specifying Values
+
+The ECS-CLI simplifies the use of Service Discovery by providing default values for most fields, while still allowing maximum configurability. Here are the default values and explanations listed with the ECS Params input schema:
+
+```
+version: 1
+run_params:
+  service_discovery:
+    container_name: string            // Required if using SRV records
+    container_port: string            // Required if using SRV records
+    private_dns_namespace:
+      id: string                      // Allows you to specify an existing namespace by ID
+      name: string                    // DNS name for private namespace. Either used to specify an existing namespace, or if one does not exist with this name, the ECS CLI will create it
+      vpc: string                     // Required if "id" is not specified
+      description: string             // Only used if the namespace does not yet exist. Default = "Created by the Amazon ECS CLI"
+    public_dns_namespace:
+      id: string                      // Specify an existing public namespace by ID
+      name: string                    // Or specify an existing public namespace by Name
+    service_discovery_service:
+      name: string                    // Default = Name of the your ECS Service
+      description: string             // Default = "Created by the Amazon ECS CLI"
+      dns_config:
+        type: string                  // Valid values: A or SRV. SRV is required/the default when using bridge or host network mode. A is the default for the awsvpc network mode.
+        ttl: integer                  // Default = 60
+      healthcheck_custom_config:
+        failure_threshold: integer    // Default = 1
+```
+
+###### Simple Workflow
+
+Let's walk through a simple scenario with Service Discovery to see how it works with the ECS CLI. Many of the Service Discovery configuration values can be specified with flags, which take precedence over the ECS Params if both are present. Remember that with the ECS CLI, the Compose Project Name (name of the directory containing your Docker Compose File, unless otherwise specified using the flag) is used as the name for your ECS Service.
+
+First, we create a Service named `backend` and create a Private DNS Namespace in our VPC. Assume that the network mode is `awsvpc`, so the `container_name` and `container_port` values are not needed.
+
+```
+$ ecs-cli compose --project-name backend service up --private-dns-namespace tutorial --vpc vpc-04deee8176dce7d7d --enable-service-discovery
+INFO[0001] Using ECS task definition                     TaskDefinition="backend:1"
+INFO[0002] Waiting for the private DNS namespace to be created...
+INFO[0002] Cloudformation stack status                   stackStatus=CREATE_IN_PROGRESS
+WARN[0033] Defaulting DNS Type to A because network mode was awsvpc
+INFO[0033] Waiting for the Service Discovery Service to be created...
+INFO[0034] Cloudformation stack status                   stackStatus=CREATE_IN_PROGRESS
+INFO[0065] Created an ECS service                        service=backend taskDefinition="backend:1"
+INFO[0066] Updated ECS service successfully              desiredCount=1 serviceName=backend
+INFO[0081] (service backend) has started 1 tasks: (task 824b5a76-8f9c-4beb-a64b-6904e320630e).  timestamp="2018-09-12 00:00:26 +0000 UTC"
+INFO[0157] Service status                                desiredCount=1 runningCount=1 serviceName=backend
+INFO[0157] ECS Service has reached a stable state        desiredCount=1 runningCount=1 serviceName=backend
+```
+
+Next, we create another service called `frontend` in the same Private DNS Namespace. Since the Namespace was already created, the ECS CLI knows to use the existing one.
+
+```
+$ ecs-cli compose --project-name frontend service up --private-dns-namespace tutorial --vpc vpc-04deee8176dce7d7d --enable-service-discovery
+INFO[0001] Using ECS task definition                     TaskDefinition="frontend:1"
+INFO[0002] Using existing namespace ns-kvhnzhb5vxplfmls
+WARN[0033] Defaulting DNS Type to A because network mode was awsvpc
+INFO[0033] Waiting for the Service Discovery Service to be created...
+INFO[0034] Cloudformation stack status                   stackStatus=CREATE_IN_PROGRESS
+INFO[0065] Created an ECS service                        service=frontend taskDefinition="frontend:1"
+INFO[0066] Updated ECS service successfully              desiredCount=1 serviceName=frontend
+INFO[0081] (service frontend) has started 1 tasks: (task 824b5a76-8f9c-4beb-a64b-6904e320630e).  timestamp="2018-09-12 00:00:26 +0000 UTC"
+INFO[0157] Service status                                desiredCount=1 runningCount=1 serviceName=frontend
+INFO[0157] ECS Service has reached a stable state        desiredCount=1 runningCount=1 serviceName=frontend
+```
+
+Now, the two Services can find each other in the VPC using DNS. The DNS host name will be the name of the Service Discovery Service plus the name of the DNS Namespace. So the ECS Service `frontend` can be found at `frontend.tutorial`, and `backend` can be found at `backend.tutorial`. Remember that since this is a Private DNS Namespace, these domain names can only be resolved within your VPC.
+
+Now, let's update some of the Service Discovery settings for `frontend`; the only values that can be updated are `DNS TTL` and `Health Check Custom Config Failure Threshold` (the failure threshold for the health check administered by ECS, which determines when unhealthy containers will have their DNS records removed).
+
+```
+$ ecs-cli compose --project-name frontend service up --update-service-discovery --dns-type SRV --dns-ttl 120 --healthcheck-custom-config-failure-threshold 2
+INFO[0001] Using ECS task definition                     TaskDefinition="frontend:1"
+INFO[0001] Updated ECS service successfully              desiredCount=1 serviceName=frontend
+INFO[0001] Service status                                desiredCount=1 runningCount=1 serviceName=frontend
+INFO[0001] ECS Service has reached a stable state        desiredCount=1 runningCount=1 serviceName=frontend
+INFO[0002] Waiting for your Service Discovery resources to be updated...
+INFO[0002] Cloudformation stack status                   stackStatus=UPDATE_IN_PROGRESS
+```
+
+Next, we delete the services and the Service Discovery resources. When we delete `frontend`, the CLI automatically removes its associated Service Discovery Service.
+
+```
+$ ecs-cli compose --project-name frontend service down
+INFO[0000] Updated ECS service successfully              desiredCount=0 serviceName=frontend
+INFO[0001] Service status                                desiredCount=0 runningCount=1 serviceName=frontend
+INFO[0016] Service status                                desiredCount=0 runningCount=0 serviceName=frontend
+INFO[0016] (service frontend) has stopped 1 running tasks: (task 824b5a76-8f9c-4beb-a64b-6904e320630e).  timestamp="2018-09-12 00:37:25 +0000 UTC"
+INFO[0016] ECS Service has reached a stable state        desiredCount=0 runningCount=0 serviceName=frontend
+INFO[0016] Deleted ECS service                           service=frontend
+INFO[0016] ECS Service has reached a stable state        desiredCount=0 runningCount=0 serviceName=frontend
+INFO[0027] Waiting for your Service Discovery Service resource to be deleted...
+INFO[0027] Cloudformation stack status                   stackStatus=DELETE_IN_PROGRESS
+```
+
+Finally, we delete `backend` and the Private DNS Namespace which was created with it (the CLI associates the CloudFormation Stack for the Namespace with the ECS Service that it was originally created for, so the two should be deleted together).
+
+```
+$ ecs-cli compose --project-name backend service down --delete-namespace
+INFO[0000] Updated ECS service successfully              desiredCount=0 serviceName=backend
+INFO[0001] Service status                                desiredCount=0 runningCount=1 serviceName=backend
+INFO[0016] Service status                                desiredCount=0 runningCount=0 serviceName=backend
+INFO[0016] (service backend) has stopped 1 running tasks: (task 824b5a76-8f9c-4beb-a64b-6904e320630e).  timestamp="2018-09-12 00:37:25 +0000 UTC"
+INFO[0016] ECS Service has reached a stable state        desiredCount=0 runningCount=0 serviceName=backend
+INFO[0016] Deleted ECS service                           service=backend
+INFO[0016] ECS Service has reached a stable state        desiredCount=0 runningCount=0 serviceName=backend
+INFO[0027] Waiting for your Service Discovery Service resource to be deleted...
+INFO[0027] Cloudformation stack status                   stackStatus=DELETE_IN_PROGRESS
+INFO[0059] Waiting for your Private DNS Namespace resource to be deleted...
+INFO[0059] Cloudformation stack status                   stackStatus=DELETE_IN_PROGRESS
+```
+
 
 ### Viewing Running Tasks
 
