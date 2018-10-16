@@ -17,6 +17,7 @@ import (
 	"fmt"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcredio"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/pkg/errors"
@@ -45,6 +46,7 @@ type ConvertTaskDefParams struct {
 	Volumes                *adapter.Volumes
 	ContainerConfigs       []adapter.ContainerConfig
 	ECSParams              *ECSParams
+	PrivRegistryContext    *regcredio.ECSRegistryCredsOutput
 }
 
 // ConvertToTaskDefinition transforms the yaml configs to its ecs equivalent (task definition)
@@ -94,6 +96,33 @@ func ConvertToTaskDefinition(params ConvertTaskDefParams) (*ecs.TaskDefinition, 
 		return nil, err
 	}
 
+	executionRoleArn := taskDefParams.executionRoleArn
+
+	// Check for and apply provided ecs-registry-creds values
+	if params.PrivRegistryContext != nil {
+		err := addRegistryCredsToContainerDefs(containerDefinitions, params.PrivRegistryContext.CredentialResources.ContainerCredentials)
+		if err != nil {
+			return nil, err
+		}
+
+		// if provided, add or replace existing executionRoleArn with value from cred file
+		if params.PrivRegistryContext.CredentialResources.TaskExecutionRole != "" {
+			newExecutionRole := params.PrivRegistryContext.CredentialResources.TaskExecutionRole
+
+			if executionRoleArn != "" {
+				// TODO: refactor 'showResourceOverrideMsg()' to take in override src and use here
+				log.WithFields(log.Fields{
+					"option name": "task_execution_role",
+				}).Infof("Using "+regcredio.ECSCredFileBaseName+" value as override (was %s but is now %s)", executionRoleArn, newExecutionRole)
+			} else {
+				log.WithFields(log.Fields{
+					"option name": "task_execution_role",
+				}).Infof("Using "+regcredio.ECSCredFileBaseName+" value %s", newExecutionRole)
+			}
+			executionRoleArn = newExecutionRole
+		}
+	}
+
 	taskDefinition := &ecs.TaskDefinition{
 		Family:               aws.String(params.TaskDefName),
 		ContainerDefinitions: containerDefinitions,
@@ -102,7 +131,7 @@ func ConvertToTaskDefinition(params ConvertTaskDefParams) (*ecs.TaskDefinition, 
 		NetworkMode:          aws.String(taskDefParams.networkMode),
 		Cpu:                  aws.String(taskDefParams.cpu),
 		Memory:               aws.String(taskDefParams.memory),
-		ExecutionRoleArn:     aws.String(taskDefParams.executionRoleArn),
+		ExecutionRoleArn:     aws.String(executionRoleArn),
 	}
 
 	// Set launch type
@@ -406,4 +435,59 @@ func convertTaskDefParams(ecsParams *ECSParams) (params TaskDefParams, e error) 
 	params.executionRoleArn = taskDef.ExecutionRole
 
 	return params, nil
+}
+
+func addRegistryCredsToContainerDefs(containerDefs []*ecs.ContainerDefinition, containerCreds map[string]regcredio.CredsOutputEntry) error {
+	credsMap, err := getContainersToCredsMap(containerCreds)
+	if err != nil {
+		return err
+	}
+	// set registry creds to applicable container definitions
+	if len(credsMap) > 0 {
+		for _, containerDef := range containerDefs {
+			containerName := aws.StringValue(containerDef.Name)
+
+			if foundCredParam := credsMap[containerName]; foundCredParam != "" {
+				if containerDef.RepositoryCredentials != nil && aws.StringValue(containerDef.RepositoryCredentials.CredentialsParameter) != "" {
+					log.WithFields(log.Fields{
+						"container name": containerName,
+						"option name":    "credentials_parameter",
+					}).Infof("Using "+regcredio.ECSCredFileBaseName+" value as override (was %s but is now %s)", *containerDef.RepositoryCredentials.CredentialsParameter, foundCredParam)
+				} else {
+					log.WithFields(log.Fields{
+						"container name": containerName,
+						"option name":    "credentials_parameter",
+					}).Infof("Using "+regcredio.ECSCredFileBaseName+" value %s", foundCredParam)
+				}
+				// set RepositoryCredentials to new value
+				containerRepoCreds := ecs.RepositoryCredentials{
+					CredentialsParameter: aws.String(foundCredParam),
+				}
+				containerDef.RepositoryCredentials = &containerRepoCreds
+			}
+		}
+	}
+	return nil
+}
+
+func getContainersToCredsMap(containerCreds map[string]regcredio.CredsOutputEntry) (map[string]string, error) {
+	containerToCredMap := make(map[string]string)
+
+	for registry, credEntry := range containerCreds {
+		if credEntry.CredentialARN != "" && len(credEntry.ContainerNames) > 0 {
+			credParam := credEntry.CredentialARN
+
+			for _, containerName := range credEntry.ContainerNames {
+				// if duplicate entries for a given container are found, return error
+				if containerToCredMap[containerName] != "" {
+					return nil, fmt.Errorf("Duplicate credential_parameter values found for container %s (%s and %s)", containerName, containerToCredMap[containerName], credParam)
+				}
+
+				containerToCredMap[containerName] = credParam
+			}
+		} else {
+			log.Warnf("No containers found for registry %s", registry)
+		}
+	}
+	return containerToCredMap, nil
 }

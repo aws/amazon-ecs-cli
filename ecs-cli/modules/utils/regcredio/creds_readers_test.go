@@ -158,11 +158,11 @@ registry_credential_outputs:
   task_execution_role: someTestRole
   container_credentials:
     my.example.registry.net:
-      secret_manager_arn: arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-my.example.registry.net
+      credentials_parameter: arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-my.example.registry.net
       container_names:
       - web
     another.example.io:
-      secret_manager_arn: arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-another.example.io
+      credentials_parameter: arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-another.example.io
       kms_key_id: arn:aws:kms::key/some-key-57yrt
       container_names:
       - test`
@@ -203,7 +203,7 @@ registry_credential_outputs:
 task_execution_role: someTestRole
 container_credentials:
 	myrepo.someregistry.io:
-	  secret_manager_arn: arn:aws:secretmanager:some-secret
+      credentials_parameter: arn:aws:secretmanager:some-secret
 	  container_names:
 		  - test`
 
@@ -224,4 +224,40 @@ func TestReadCredsOutput_ErrorFileNotFound(t *testing.T) {
 	var fakeFileName = "/missingFile"
 	_, err := ReadCredsOutput(fakeFileName)
 	assert.Error(t, err, "Expected error on missing file")
+}
+
+func TestFindLatestRegCredsOutputFile(t *testing.T) {
+	testCases := []struct {
+		description    string
+		inputFileNames []string
+		expectedLatest string
+	}{
+		{"Find latest of 3 valid output files", []string{"ecs-registry-creds_20171117T125102Z.yml", "ecs-registry-creds_20181012T215145Z.yml", "ecs-registry-creds_20181017T125102Z.yml"}, "ecs-registry-creds_20181017T125102Z.yml"},
+		{"Find latest valid file out of mixed valid/invalid output files", []string{"ecs-registry-creds_3.yml", "ecs-registry-creds_20181013T125105Z.yml"}, "ecs-registry-creds_20181013T125105Z.yml"},
+		{"Return no file if no valid file found", []string{"ecs-registry-creds_3.yml", "ecs-registry-creds_TEST.yml"}, ""},
+		{"Return no file if no files found", []string{}, ""},
+	}
+	for _, test := range testCases {
+		t.Run(test.description, func(t *testing.T) {
+			// setup test dir & file
+			testOutputDir, err := ioutil.TempDir("", "test")
+			assert.NoError(t, err, "Unexpected error creating temp directory")
+
+			defer os.RemoveAll(testOutputDir)
+
+			for _, fileName := range test.inputFileNames {
+				err := ioutil.WriteFile(testOutputDir+string(os.PathSeparator)+fileName, []byte("creds go here"), os.ModeTemporary)
+				assert.NoError(t, err, "Unexpected error creating test file")
+			}
+
+			expectedLatestFile := ""
+			if test.expectedLatest != "" {
+				expectedLatestFile = testOutputDir + string(os.PathSeparator) + test.expectedLatest
+			}
+
+			actualLatestFile, err := FindLatestRegCredsOutputFile(testOutputDir)
+			assert.NoError(t, err, "Unexpected error finding latest creds file")
+			assert.Equal(t, expectedLatestFile, actualLatestFile)
+		})
+	}
 }
