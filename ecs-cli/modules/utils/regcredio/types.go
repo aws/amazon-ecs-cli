@@ -59,7 +59,7 @@ type CredResources struct {
 
 // CredsOutputEntry contains the credential ARN, key, and associated container names for a single registry
 type CredsOutputEntry struct {
-	CredentialARN  string   `yaml:"secret_manager_arn"`
+	CredentialARN  string   `yaml:"credentials_parameter"` //TODO: rename 'CredentialARN' to 'CredentialsParam' ?
 	KMSKeyID       string   `yaml:"kms_key_id,omitempty"`
 	ContainerNames []string `yaml:"container_names"`
 }

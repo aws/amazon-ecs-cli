@@ -24,8 +24,9 @@ import (
 
 const (
 	// ECSCredFileTimeFmt is the timestamp format to use on 'registry-creds up' outputs
-	ECSCredFileTimeFmt  = "20060102T150405Z"
-	ecsCredFileBaseName = "ecs-registry-creds"
+	ECSCredFileTimeFmt = "20060102T150405Z"
+	// ECSCredFileBaseName is the base name of any private registry cred file produced or read by the ecs-cli
+	ECSCredFileBaseName = "ecs-registry-creds"
 )
 
 // GenerateCredsOutput marshals credential output JSON into YAML and outputs it to a file
@@ -58,7 +59,7 @@ func GenerateCredsOutput(creds map[string]CredsOutputEntry, roleName, outputDir 
 	}
 	timestampedSuffix := fmt.Sprintf("_%s.yml", timeStamp.Format(ECSCredFileTimeFmt))
 
-	file, err := os.Create(outputFileDir + string(os.PathSeparator) + ecsCredFileBaseName + timestampedSuffix)
+	file, err := os.Create(outputFileDir + string(os.PathSeparator) + ECSCredFileBaseName + timestampedSuffix)
 	if err != nil {
 		return err
 	}

@@ -44,7 +44,7 @@ func TestGenerateCredsOutput(t *testing.T) {
 	assert.NoError(t, err, "Unexpected error when generating creds output")
 
 	// assert output file was produced, is legible
-	outputFile, err := filepath.Glob(testOutputDir + string(os.PathSeparator) + ecsCredFileBaseName + "*.yml")
+	outputFile, err := filepath.Glob(testOutputDir + string(os.PathSeparator) + ECSCredFileBaseName + "*.yml")
 	assert.NoError(t, err, "Unexpected error finding output file")
 
 	actualCredsOutput, err := ReadCredsOutput(outputFile[0])

@@ -16,9 +16,12 @@ package regcredio
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
 
@@ -49,6 +52,19 @@ func ReadCredsInput(filename string) (*ECSRegCredsInput, error) {
 // ReadCredsOutput parses an ECS creds output file into an RegistryCredsOutput struct
 // TODO: use this to parse reg creds used with "compose" cmd
 func ReadCredsOutput(filename string) (*ECSRegistryCredsOutput, error) {
+	if filename == "" {
+		cwd, _ := os.Getwd()
+		latestCredFile, err := FindLatestRegCredsOutputFile(cwd)
+		if err != nil {
+			return nil, err
+		}
+		if latestCredFile == "" {
+			return nil, nil
+		}
+		filename = latestCredFile
+	}
+	log.Infof("Found %s file %s", ECSCredFileBaseName, filename)
+
 	rawCredsOutput, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Error reading file '%v'", filename)
@@ -60,6 +76,41 @@ func ReadCredsOutput(filename string) (*ECSRegistryCredsOutput, error) {
 	}
 
 	return credsOutput, nil
+}
+
+// FindLatestRegCredsOutputFile returns the newest ecs-registry-creds file in the current working directory
+func FindLatestRegCredsOutputFile(targetDir string) (string, error) {
+	searchPattern := ECSCredFileBaseName + "_*.yml"
+
+	// if targetDir defined, search there instead of current working directory
+	if targetDir != "" {
+		searchPattern = targetDir + string(os.PathSeparator) + searchPattern
+	}
+	files, err := filepath.Glob(searchPattern)
+	if err != nil {
+		return "", err
+	}
+
+	latestFileName := ""
+	latestCreateTime := time.Time{}
+	for _, file := range files {
+		fileTime := getTimeFromCredOutputFile(file)
+
+		if fileTime.After(latestCreateTime) {
+			latestCreateTime = fileTime
+			latestFileName = file
+		}
+	}
+
+	return latestFileName, nil
+}
+
+func getTimeFromCredOutputFile(filename string) time.Time {
+	dateString := strings.TrimSuffix(strings.Split(filename, "_")[1], ".yml")
+	outputTime, _ := time.Parse(ECSCredFileTimeFmt, dateString)
+
+	// if dateString can't be parsed, return empty Time struct
+	return outputTime
 }
 
 // expandCredEntry checks if individual fields are env vars and if so, retrieves & sets that value

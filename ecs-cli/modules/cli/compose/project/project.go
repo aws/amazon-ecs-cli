@@ -25,6 +25,7 @@ import (
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcredio"
 	"github.com/docker/libcompose/project"
 )
 
@@ -52,9 +53,10 @@ type Project interface {
 
 // ecsProject struct is an implementation of Project.
 type ecsProject struct {
-	containerConfigs []adapter.ContainerConfig
-	volumes          *adapter.Volumes
-	ecsContext       *context.ECSContext
+	containerConfigs       []adapter.ContainerConfig
+	volumes                *adapter.Volumes
+	ecsContext             *context.ECSContext
+	privateRegistryContext *regcredio.ECSRegistryCredsOutput // TODO: rename to 'ecsRegistryCreds'
 
 	// TODO: track a map of entities [taskDefinition -> Entity]
 	// 1 task definition for every disjoint set of containers in the compose file
@@ -124,6 +126,10 @@ func (p *ecsProject) Parse() error {
 		return err
 	}
 
+	if err := p.parsePrivateRegistryContext(); err != nil {
+		return err
+	}
+
 	return p.transformTaskDefinition()
 }
 
@@ -174,6 +180,19 @@ func (p *ecsProject) parseECSParams() error {
 	return nil
 }
 
+func (p *ecsProject) parsePrivateRegistryContext() error {
+	logrus.Debug("Parsing the ecs-registry-creds yaml...")
+	registryCredsFileName := p.ecsContext.CLIContext.GlobalString(flags.RegistryCredsFileNameFlag)
+	regCreds, err := regcredio.ReadCredsOutput(registryCredsFileName)
+	if err != nil {
+		return err
+	}
+
+	p.privateRegistryContext = regCreds
+
+	return nil
+}
+
 // transformTaskDefinition converts the compose yml and ecs-params yml into an
 // ECS task definition and loads it onto the project entity
 func (p *ecsProject) transformTaskDefinition() error {
@@ -193,6 +212,7 @@ func (p *ecsProject) transformTaskDefinition() error {
 		Volumes:                p.VolumeConfigs(),
 		ContainerConfigs:       p.ContainerConfigs(), // TODO Change to pointer on project?
 		ECSParams:              ecsContext.ECSParams,
+		PrivRegistryContext:    p.privateRegistryContext,
 	}
 
 	taskDefinition, err := utils.ConvertToTaskDefinition(convertParams)
