@@ -37,28 +37,37 @@ type TaskDefParams struct {
 	executionRoleArn string
 }
 
+// ConvertTaskDefParams contains the inputs required to convert compose & ECS inputs into an ECS task definition
+type ConvertTaskDefParams struct {
+	TaskDefName            string
+	TaskRoleArn            string
+	RequiredCompatibilites string
+	Volumes                *adapter.Volumes
+	ContainerConfigs       []adapter.ContainerConfig
+	ECSParams              *ECSParams
+}
+
 // ConvertToTaskDefinition transforms the yaml configs to its ecs equivalent (task definition)
-func ConvertToTaskDefinition(taskDefinitionName string, volumes *adapter.Volumes,
-	containerConfigs []adapter.ContainerConfig, taskRoleArn string, requiredCompatibilites string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
-	if len(containerConfigs) == 0 {
+func ConvertToTaskDefinition(params ConvertTaskDefParams) (*ecs.TaskDefinition, error) {
+	if len(params.ContainerConfigs) == 0 {
 		return nil, errors.New("cannot create a task definition with no containers; invalid service config")
 	}
 
 	// Instantiates zero values for fields on task def specified by ecs-params
-	taskDefParams, err := convertTaskDefParams(ecsParams)
+	taskDefParams, err := convertTaskDefParams(params.ECSParams)
 	if err != nil {
 		return nil, err
 	}
 
 	// The task-role-arn flag takes precedence over a taskRoleArn value specified in ecs-params file.
-	if taskRoleArn == "" {
-		taskRoleArn = taskDefParams.taskRoleArn
+	if params.TaskRoleArn == "" {
+		params.TaskRoleArn = taskDefParams.taskRoleArn
 	}
 
 	// Create containerDefinitions
 	containerDefinitions := []*ecs.ContainerDefinition{}
 
-	for _, containerConfig := range containerConfigs {
+	for _, containerConfig := range params.ContainerConfigs {
 		name := containerConfig.Name
 		// Check if there are ecs-params specified for the container
 		ecsContainerDef := &ContainerDef{Essential: true}
@@ -67,7 +76,7 @@ func ConvertToTaskDefinition(taskDefinitionName string, volumes *adapter.Volumes
 		}
 
 		// Validate essential containers
-		count := len(containerConfigs)
+		count := len(params.ContainerConfigs)
 		if !hasEssential(taskDefParams.containerDefs, count) {
 			return nil, errors.New("Task definition does not have any essential containers")
 		}
@@ -80,16 +89,16 @@ func ConvertToTaskDefinition(taskDefinitionName string, volumes *adapter.Volumes
 		containerDefinitions = append(containerDefinitions, containerDef)
 	}
 
-	ecsVolumes, err := convertToECSVolumes(volumes, ecsParams)
+	ecsVolumes, err := convertToECSVolumes(params.Volumes, params.ECSParams)
 	if err != nil {
 		return nil, err
 	}
 
 	taskDefinition := &ecs.TaskDefinition{
-		Family:               aws.String(taskDefinitionName),
+		Family:               aws.String(params.TaskDefName),
 		ContainerDefinitions: containerDefinitions,
 		Volumes:              ecsVolumes,
-		TaskRoleArn:          aws.String(taskRoleArn),
+		TaskRoleArn:          aws.String(params.TaskRoleArn),
 		NetworkMode:          aws.String(taskDefParams.networkMode),
 		Cpu:                  aws.String(taskDefParams.cpu),
 		Memory:               aws.String(taskDefParams.memory),
@@ -97,8 +106,8 @@ func ConvertToTaskDefinition(taskDefinitionName string, volumes *adapter.Volumes
 	}
 
 	// Set launch type
-	if requiredCompatibilites != "" {
-		taskDefinition.RequiresCompatibilities = []*string{aws.String(requiredCompatibilites)}
+	if params.RequiredCompatibilites != "" {
+		taskDefinition.RequiresCompatibilities = []*string{aws.String(params.RequiredCompatibilites)}
 	}
 
 	return taskDefinition, nil

@@ -1168,7 +1168,16 @@ func TestMemReservationHigherThanMemLimit(t *testing.T) {
 	volumeConfigs := adapter.NewVolumes()
 	containerConfigs := []adapter.ContainerConfig{containerConfig}
 
-	_, err := ConvertToTaskDefinition(projectName, volumeConfigs, containerConfigs, "", "", nil)
+	testParams := ConvertTaskDefParams{
+		TaskDefName:            projectName,
+		TaskRoleArn:            "",
+		RequiredCompatibilites: "",
+		Volumes:                volumeConfigs,
+		ContainerConfigs:       containerConfigs,
+		ECSParams:              nil,
+	}
+
+	_, err := ConvertToTaskDefinition(testParams)
 	assert.EqualError(t, err, "mem_limit must be greater than mem_reservation")
 }
 
@@ -1209,7 +1218,16 @@ func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
 		},
 	}
 
-	taskDefinition, err := ConvertToTaskDefinition(projectName, volumeConfigs, containerConfigs, "", "", nil)
+	testParams := ConvertTaskDefParams{
+		TaskDefName:            projectName,
+		TaskRoleArn:            "",
+		RequiredCompatibilites: "",
+		Volumes:                volumeConfigs,
+		ContainerConfigs:       containerConfigs,
+		ECSParams:              nil,
+	}
+
+	taskDefinition, err := ConvertToTaskDefinition(testParams)
 	assert.NoError(t, err, "Unexpected error converting Task Definition")
 
 	actualVolumes := taskDefinition.Volumes
@@ -1244,7 +1262,16 @@ func TestConvertToTaskDefinitionWithVolumesWithHostOnly(t *testing.T) {
 		},
 	}
 
-	taskDefinition, err := ConvertToTaskDefinition(projectName, volumeConfigs, containerConfigs, "", "", nil)
+	testParams := ConvertTaskDefParams{
+		TaskDefName:            projectName,
+		TaskRoleArn:            "",
+		RequiredCompatibilites: "",
+		Volumes:                volumeConfigs,
+		ContainerConfigs:       containerConfigs,
+		ECSParams:              nil,
+	}
+
+	taskDefinition, err := ConvertToTaskDefinition(testParams)
 	assert.NoError(t, err, "Unexpected error converting Task Definition")
 
 	actualVolumes := taskDefinition.Volumes
@@ -1295,7 +1322,16 @@ func TestConvertToTaskDefinitionWithECSParamsVolumeWithoutNameError(t *testing.T
 		},
 	}
 
-	_, err := ConvertToTaskDefinition(projectName, volumeConfigs, containerConfigs, "", "", ecsParams)
+	testParams := ConvertTaskDefParams{
+		TaskDefName:            projectName,
+		TaskRoleArn:            "",
+		RequiredCompatibilites: "",
+		Volumes:                volumeConfigs,
+		ContainerConfigs:       containerConfigs,
+		ECSParams:              ecsParams,
+	}
+
+	_, err := ConvertToTaskDefinition(testParams)
 	assert.Error(t, err, "Expected error converting Task Definition with ECS Params volume without name")
 }
 
@@ -1474,7 +1510,16 @@ func convertToTaskDefinitionInTest(t *testing.T, containerConfig *adapter.Contai
 	containerConfigs := []adapter.ContainerConfig{}
 	containerConfigs = append(containerConfigs, *containerConfig)
 
-	taskDefinition, err := ConvertToTaskDefinition(projectName, volumeConfigs, containerConfigs, taskRoleArn, launchType, nil)
+	testParams := ConvertTaskDefParams{
+		TaskDefName:            projectName,
+		TaskRoleArn:            taskRoleArn,
+		RequiredCompatibilites: launchType,
+		Volumes:                volumeConfigs,
+		ContainerConfigs:       containerConfigs,
+		ECSParams:              nil,
+	}
+
+	taskDefinition, err := ConvertToTaskDefinition(testParams)
 	if err != nil {
 		t.Errorf("Expected to convert [%v] containerConfigs without errors. But got [%v]", containerConfig, err)
 	}
@@ -1486,7 +1531,16 @@ func convertToTaskDefWithEcsParamsInTest(t *testing.T, containerConfigs []adapte
 		VolumeEmptyHost: []string{namedVolume},
 	}
 
-	taskDefinition, err := ConvertToTaskDefinition(projectName, volumeConfigs, containerConfigs, taskRoleArn, "", ecsParams)
+	testParams := ConvertTaskDefParams{
+		TaskDefName:            projectName,
+		TaskRoleArn:            taskRoleArn,
+		RequiredCompatibilites: "",
+		Volumes:                volumeConfigs,
+		ContainerConfigs:       containerConfigs,
+		ECSParams:              ecsParams,
+	}
+
+	taskDefinition, err := ConvertToTaskDefinition(testParams)
 	if err != nil {
 		return nil, err
 	}

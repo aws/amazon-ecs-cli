@@ -186,14 +186,16 @@ func (p *ecsProject) transformTaskDefinition() error {
 	requiredCompatibilities := ecsContext.CommandConfig.LaunchType
 	taskDefinitionName := ecsContext.ProjectName
 
-	taskDefinition, err := utils.ConvertToTaskDefinition(
-		taskDefinitionName,
-		p.VolumeConfigs(),
-		p.ContainerConfigs(), // TODO Change to pointer on project?
-		taskRoleArn,
-		requiredCompatibilities,
-		ecsContext.ECSParams,
-	)
+	convertParams := utils.ConvertTaskDefParams{
+		TaskDefName:            taskDefinitionName,
+		TaskRoleArn:            taskRoleArn,
+		RequiredCompatibilites: requiredCompatibilities,
+		Volumes:                p.VolumeConfigs(),
+		ContainerConfigs:       p.ContainerConfigs(), // TODO Change to pointer on project?
+		ECSParams:              ecsContext.ECSParams,
+	}
+
+	taskDefinition, err := utils.ConvertToTaskDefinition(convertParams)
 
 	if err != nil {
 		return err
