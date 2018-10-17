@@ -242,8 +242,13 @@ func truncate(s string, length int) string {
 	return s
 }
 
-func getSDSCFNParams(namespaceID, sdsName, networkMode string, input *utils.ServiceDiscovery) *cloudformation.CfnStackParams {
+func getSDSCFNParams(namespaceID, ecsServiceName, networkMode string, input *utils.ServiceDiscovery) *cloudformation.CfnStackParams {
 	cfnParams := cloudformation.NewCfnStackParams(requiredParamsSDS)
+
+	sdsName := input.ServiceDiscoveryService.Name
+	if sdsName == "" {
+		sdsName = ecsServiceName
+	}
 
 	cfnParams.Add(parameterKeyNamespaceID, namespaceID)
 	cfnParams.Add(parameterKeySDSName, sdsName)
