@@ -37,6 +37,7 @@ import (
 const (
 	testClusterName        = "cluster"
 	testServiceName        = "service"
+	otherTestServiceName   = "some-other-name"
 	testDescription        = "clyde loves pudding"
 	otherTestDescription   = "pudding plays hard to get"
 	testNamespaceStackName = "amazon-ecs-cli-setup-private-dns-namespace-cluster-service"
@@ -231,7 +232,7 @@ func TestCreateServiceDiscoveryWithECSParams(t *testing.T) {
 			Description: testDescription,
 		},
 		ServiceDiscoveryService: utils.ServiceDiscoveryService{
-			Name:        testServiceName,
+			Name:        otherTestServiceName,
 			Description: testDescription,
 			DNSConfig: utils.DNSConfig{
 				TTL:  aws.Int64(60),
@@ -250,7 +251,7 @@ func TestCreateServiceDiscoveryWithECSParams(t *testing.T) {
 	}
 	var validateSDS validateSDSParamsFunc = func(t *testing.T, cfnParams *cloudformation.CfnStackParams) {
 		validateCFNParam(testNamespaceID, parameterKeyNamespaceID, cfnParams, t)
-		validateCFNParam(testServiceName, parameterKeySDSName, cfnParams, t)
+		validateCFNParam(otherTestServiceName, parameterKeySDSName, cfnParams, t)
 		validateCFNParam(servicediscovery.RecordTypeSrv, parameterKeyDNSType, cfnParams, t)
 		validateCFNParam(testDescription, parameterKeySDSDescription, cfnParams, t)
 		validateCFNParam("60", parameterKeyDNSTTL, cfnParams, t)
