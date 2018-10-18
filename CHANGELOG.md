@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.9.0
+* Feature - Add support for Service Discovery (#485)
+* Feature - Add support for EC2 Spot Instances in ECS Clusters (#396)
+* Feature - Add support for custom user data (#16)
+* Bug - Fix error using env vars with nil value (#620)
+* Enhancement - Improve `logs` command behavior and error handling (#612)
+* Enhancement - Add support for GO 1.11 (#632)
+* Enhancement - Add support for new EC2 Instance types (#630, #618)
+
 ## 1.8.0
 * Feature - Add support for volumes with docker volume configuration in ECS Params #587
 * Feature - Add support for task placement constraints and strategies in ECS Params (#515, #212)
