@@ -65,8 +65,8 @@ func resolveIntPointerFieldOverride(c *cli.Context, flagName string, ecsParamsVa
 	}
 
 	if flagVal != nil && ecsParamsVal != nil {
-		paramsVal := string(*ecsParamsVal)
-		override := string(*flagVal)
+		paramsVal := strconv.FormatInt(*ecsParamsVal, 10)
+		override := strconv.FormatInt(*flagVal, 10)
 		showFieldOverrideMsg(paramsVal, override, field)
 	}
 	if flagVal != nil {
