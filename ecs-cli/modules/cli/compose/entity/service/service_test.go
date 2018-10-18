@@ -659,6 +659,69 @@ func TestUpdateExistingServiceWithDesiredCountOverOne(t *testing.T) {
 	upServiceWithNewTaskDefTest(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
 }
 
+func TestCreateWithServiceDiscovery(t *testing.T) {
+	sdsARN := "arn:aws:servicediscovery:eu-west-1:11111111111:service/srv-clydelovespudding"
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(flags.EnableServiceDiscoveryFlag, true, "")
+
+	// Reset mockable function after test
+	nonMockedServicediscoveryCreate := servicediscoveryCreate
+	defer func() { servicediscoveryCreate = nonMockedServicediscoveryCreate }()
+
+	servicediscoveryCreate = func(networkMode, serviceName string, c *context.ECSContext) (*ecs.ServiceRegistry, error) {
+		return &ecs.ServiceRegistry{
+			RegistryArn: aws.String(sdsARN),
+		}, nil
+	}
+
+	createServiceTest(
+		t,
+		flagSet,
+		&config.CommandConfig{},
+		&utils.ECSParams{},
+		func(input *ecs.CreateServiceInput) {
+			actualServiceRegistries := input.ServiceRegistries
+			assert.Len(t, actualServiceRegistries, 1, "Expected a single Service Registry")
+			assert.Equal(t, sdsARN, aws.StringValue(actualServiceRegistries[0].RegistryArn), "Service Registry should match")
+		},
+	)
+}
+
+func TestCreateWithServiceDiscoveryWithContainerNameAndPort(t *testing.T) {
+	sdsARN := "arn:aws:servicediscovery:eu-west-1:11111111111:service/srv-clydelovespudding"
+	containerName := "nginx"
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(flags.EnableServiceDiscoveryFlag, true, "")
+
+	// Reset mockable function after test
+	nonMockedServicediscoveryCreate := servicediscoveryCreate
+	defer func() { servicediscoveryCreate = nonMockedServicediscoveryCreate }()
+
+	servicediscoveryCreate = func(networkMode, serviceName string, c *context.ECSContext) (*ecs.ServiceRegistry, error) {
+		return &ecs.ServiceRegistry{
+			RegistryArn:   aws.String(sdsARN),
+			ContainerName: aws.String(containerName),
+			ContainerPort: aws.Int64(80),
+		}, nil
+	}
+
+	createServiceTest(
+		t,
+		flagSet,
+		&config.CommandConfig{},
+		&utils.ECSParams{},
+		func(input *ecs.CreateServiceInput) {
+			actualServiceRegistries := input.ServiceRegistries
+			assert.Len(t, actualServiceRegistries, 1, "Expected a single Service Registry")
+			assert.Equal(t, int64(80), aws.Int64Value(actualServiceRegistries[0].ContainerPort), "Expected container port to be 80")
+			assert.Equal(t, containerName, aws.StringValue(actualServiceRegistries[0].ContainerName), "Expected ContainerName to match")
+			assert.Equal(t, sdsARN, aws.StringValue(actualServiceRegistries[0].RegistryArn), "Service Registry should match")
+		},
+	)
+}
+
 func getDefaultUpdateInput() UpdateServiceParams {
 	return UpdateServiceParams{
 		deploymentConfig: &ecs.DeploymentConfiguration{},

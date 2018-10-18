@@ -21,6 +21,8 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/servicediscovery"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/route53"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
@@ -35,20 +37,33 @@ import (
 // Service type is placeholder for a single task definition and its cache
 // and it performs operations on ECS Service level
 type Service struct {
-	taskDef          *ecs.TaskDefinition
-	cache            cache.Cache
-	ecsContext       *context.ECSContext
-	timeSleeper      *utils.TimeSleeper
-	deploymentConfig *ecs.DeploymentConfiguration
-	loadBalancer     *ecs.LoadBalancer
-	role             string
-	healthCheckGP    *int64
+	taskDef           *ecs.TaskDefinition
+	cache             cache.Cache
+	ecsContext        *context.ECSContext
+	timeSleeper       *utils.TimeSleeper
+	deploymentConfig  *ecs.DeploymentConfiguration
+	loadBalancer      *ecs.LoadBalancer
+	role              string
+	healthCheckGP     *int64
+	serviceRegistries []*ecs.ServiceRegistry
 }
 
 const (
 	ecsActiveResourceCode  = "ACTIVE"
 	ecsMissingResourceCode = "MISSING"
 )
+
+// make servicediscovery.Create easily mockable in tests
+var servicediscoveryCreate servicediscovery.CreateFunc = servicediscovery.Create
+
+// make servicediscovery.Update easily mockable in tests
+var servicediscoveryUpdate servicediscovery.UpdateFunc = servicediscovery.Update
+
+// make servicediscovery.Delete easily mockable in tests
+var servicediscoveryDelete servicediscovery.DeleteFunc = servicediscovery.Delete
+
+// make servicediscovery.Delete easily mockable in tests
+var waitUntilSDSDeletable route53.WaitUntilSDSDeletableFunc = route53.WaitUntilSDSDeletable
 
 // NewService creates an instance of a Service and also sets up a cache for task definition
 func NewService(ecsContext *context.ECSContext) entity.ProjectEntity {
@@ -183,21 +198,11 @@ func (s *Service) Create() error {
 // TODO: Instead of always setting count=1, if the containers were Stopped before,
 //       Start should fetch the previously set desired-count from the cache and start x count of containers
 func (s *Service) Start() error {
-	ecsService, err := s.describeService()
-	if err != nil {
-		// Describe API returns the failures for resources in the response (instead of returning an error)
-		// Read the custom error returned from describeService to see if the resource was missing
-		if strings.Contains(err.Error(), ecsMissingResourceCode) {
-			return fmt.Errorf("Please use '%s' command to create the service '%s' first",
-				flags.CreateServiceCommandName, entity.GetServiceName(s))
-		}
-		return err
-	}
-	err = entity.OptionallyCreateLogs(s)
+	err := entity.OptionallyCreateLogs(s)
 	if err != nil {
 		return err
 	}
-	return s.startService(ecsService)
+	return s.startService()
 }
 
 // Up creates the task definition and service and starts the containers if necessary.
@@ -239,7 +244,25 @@ func (s *Service) Up() error {
 		if err != nil {
 			return err
 		}
-		return s.Start()
+		return s.startService()
+	}
+
+	// Update Service
+	if err = s.updateExistingService(ecsService, newTaskDefinition); err != nil {
+		return err
+	}
+
+	// Update Service Discovery
+	if s.Context().CLIContext.Bool(flags.UpdateServiceDiscoveryFlag) {
+		return servicediscoveryUpdate(aws.StringValue(newTaskDefinition.NetworkMode), entity.GetServiceName(s), s.Context())
+	}
+
+	return nil
+}
+
+func (s *Service) updateExistingService(ecsService *ecs.Service, newTaskDefinition *ecs.TaskDefinition) error {
+	if s.Context().CLIContext.Bool(flags.EnableServiceDiscoveryFlag) {
+		return fmt.Errorf("Service Discovery can not be enabled on an existing ECS Service")
 	}
 
 	ecsServiceName := aws.StringValue(ecsService.ServiceName)
@@ -346,7 +369,30 @@ func (s *Service) Down() error {
 	if err = s.Context().ECSClient.DeleteService(ecsServiceName); err != nil {
 		return err
 	}
-	return waitForServiceTasks(s, ecsServiceName)
+	if err = waitForServiceTasks(s, ecsServiceName); err != nil {
+		return err
+	}
+
+	// delete Service Discovery resources if they exist
+	if len(ecsService.ServiceRegistries) > 0 {
+		log.Info("Trying to delete any Service Discovery Resources that were created by the ECS CLI...")
+		registryArn := aws.StringValue(ecsService.ServiceRegistries[0].RegistryArn)
+		if err = s.deleteServiceDiscoveryResources(registryArn, ecsServiceName); err != nil {
+			// SD deletion errors are logged but aren't fatal.
+			log.Errorf("Problem deleting Service Discovery resources: %v", err)
+		}
+	}
+
+	return nil
+}
+
+func (s *Service) deleteServiceDiscoveryResources(registryArn, ecsServiceName string) error {
+	sdsID := getSDSIDFromArn(registryArn)
+	if err := waitUntilSDSDeletable(sdsID, s.Context().CommandConfig); err != nil {
+		return err
+	}
+	return servicediscoveryDelete(ecsServiceName, s.Context())
+
 }
 
 // Run expects to issue a command override and start containers. But that doesnt apply to the context of ECS Services
@@ -402,6 +448,10 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string) (*ecs
 		createServiceInput.HealthCheckGracePeriodSeconds = aws.Int64(*s.healthCheckGP)
 	}
 
+	if len(s.serviceRegistries) > 0 {
+		createServiceInput.ServiceRegistries = s.serviceRegistries
+	}
+
 	if networkConfig != nil {
 		createServiceInput.NetworkConfiguration = networkConfig
 	}
@@ -448,6 +498,21 @@ func (s *Service) createService() error {
 	serviceName := entity.GetServiceName(s)
 	taskDefName := entity.GetIdFromArn(s.TaskDefinition().TaskDefinitionArn)
 
+	cliContext := s.Context().CLIContext
+
+	if cliContext.Bool(flags.EnableServiceDiscoveryFlag) {
+		networkMode := aws.StringValue(s.TaskDefinition().NetworkMode)
+
+		serviceRegistry, err := servicediscoveryCreate(networkMode, serviceName, s.Context())
+		if err != nil {
+			return err
+		}
+
+		s.serviceRegistries = []*ecs.ServiceRegistry{
+			serviceRegistry,
+		}
+	}
+
 	// Create request input
 	createServiceInput, err := s.buildCreateServiceInput(serviceName, taskDefName)
 	if err != nil {
@@ -483,7 +548,17 @@ func (s *Service) describeService() (*ecs.Service, error) {
 }
 
 // startService checks if the service has a zero desired count and updates the count to 1 (of each container)
-func (s *Service) startService(ecsService *ecs.Service) error {
+func (s *Service) startService() error {
+	ecsService, err := s.describeService()
+	if err != nil {
+		// Describe API returns the failures for resources in the response (instead of returning an error)
+		// Read the custom error returned from describeService to see if the resource was missing
+		if strings.Contains(err.Error(), ecsMissingResourceCode) {
+			return fmt.Errorf("Please use '%s' command to create the service '%s' first",
+				flags.CreateServiceCommandName, entity.GetServiceName(s))
+		}
+		return err
+	}
 	desiredCount := aws.Int64Value(ecsService.DesiredCount)
 	forceDeployment := s.Context().CLIContext.Bool(flags.ForceDeploymentFlag)
 	if desiredCount != 0 {
@@ -541,4 +616,8 @@ func (s *Service) updateService(count int64) error {
 
 	log.WithFields(fields).Info("Updated ECS service successfully")
 	return waitForServiceTasks(s, serviceName)
+}
+
+func getSDSIDFromArn(sdsARN string) string {
+	return strings.Split(sdsARN, "/")[1]
 }
