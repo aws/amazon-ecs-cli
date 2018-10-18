@@ -108,8 +108,13 @@ func (s *Service) LoadContext() error {
 	}
 	s.healthCheckGP = healthCheckGP
 
-	// Validates LoadBalancerName and TargetGroupArn cannot exist at the same time
-	// The rest will be taken care off by the API call
+	// Validates LoadBalancerName and TargetGroupArn cannot exist at the same time.
+	// Other validation is taken care of by the API call. This currently
+	// includes errors on absence of container name and port if target
+	// group or ELB name is specified or if the load balancing resources
+	// specified do not exist.
+	// TODO: Add validation on targetGroupArn or loadBalancerName being
+	// present if containerName or containerPort are specified
 	if role != "" || targetGroupArn != "" || loadBalancerName != "" || containerName != "" || containerPort != nil {
 		if targetGroupArn != "" && loadBalancerName != "" {
 			return errors.Errorf("[--%s] and [--%s] flags cannot both be specified", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)

@@ -220,11 +220,11 @@ func deploymentConfigFlags(specifyDefaults bool) []cli.Flag {
 }
 
 func loadBalancerFlags() []cli.Flag {
-	targetGroupArnUsageString := "[Optional] Specifies the full Amazon Resource Name (ARN) of a previously configured Elastic Load Balancing target group to associate with your service."
-	containerNameUsageString := "[Optional] Specifies the container name (as it appears in a container definition). This parameter is required if a load balancer or target group is specified."
-	containerPortUsageString := "[Optional] Specifies the port on the container to associate with the load balancer. This port must correspond to a containerPort in the service's task definition. This parameter is required if a load balancer or target group is specified."
-	loadBalancerNameUsageString := "[Optional] Specifies the name of a previously configured Elastic Load Balancing load balancer to associate with your service."
-	roleUsageString := "[Optional] Specifies the name or full Amazon Resource Name (ARN) of the IAM role that allows Amazon ECS to make calls to your load balancer or target group on your behalf. This parameter is required if you are using a load balancer or target group with your service. If you specify the role parameter, you must also specify a load balancer name or target group ARN, along with a container name and container port."
+	targetGroupArnUsageString := fmt.Sprintf("[Optional] Specifies the full Amazon Resource Name (ARN) of a previously configured target group for an Application Load Balancer or Network Load Balancer to associate with your service. NOTE: For Classic Load Balancers, use the --%s flag.", flags.LoadBalancerNameFlag)
+	containerNameUsageString := fmt.Sprintf("[Optional] Specifies the container name (as it appears in a container definition). This parameter is required if --%s or --%s is specified.", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
+	containerPortUsageString := fmt.Sprintf("[Optional] Specifies the port on the container to associate with the load balancer. This port must correspond to a containerPort in the service's task definition. This parameter is required if --%s or --%s is specified.", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
+	loadBalancerNameUsageString := fmt.Sprintf("[Optional] Specifies the name of a previously configured Classic Elastic Load Balancing load balancer to associate with your service. NOTE: For Application Load Balancers or Network Load Balancers, use the --%s flag.", flags.TargetGroupArnFlag)
+	roleUsageString := fmt.Sprintf("[Optional] Specifies the name or full Amazon Resource Name (ARN) of the IAM role that allows Amazon ECS to make calls to your load balancer or target group on your behalf. This parameter requires either --%s or --%s to be specified.", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
 	healthCheckGracePeriodString := "[Optional] Specifies the period of time, in seconds, that the Amazon ECS service scheduler should ignore unhealthy Elastic Load Balancing target health checks after a task has first started."
 
 	return []cli.Flag{
