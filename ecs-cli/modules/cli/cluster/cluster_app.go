@@ -511,7 +511,10 @@ func cliFlagsToCfnStackParams(context *cli.Context, cluster, launchType string) 
 		// handle extra user data, which is a string slice flag
 		if userDataFiles := context.StringSlice(flags.UserDataFlag); len(userDataFiles) > 0 {
 			for _, file := range userDataFiles {
-				builder.AddFile(file)
+				err := builder.AddFile(file)
+				if err != nil {
+					return nil, err
+				}
 			}
 		}
 		userData, err := builder.Build()
