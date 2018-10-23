@@ -16,6 +16,7 @@ package cloudwatchlogs
 import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs/cloudwatchlogsiface"
 )
@@ -33,9 +34,8 @@ type cwLogsClient struct {
 
 // NewCloudWatchLogsClient creates an instance of ec2Client object.
 func NewCloudWatchLogsClient(params *config.CommandConfig, logRegion string) Client {
-	session := params.Session
-	session.Config = session.Config.WithRegion(logRegion)
-	client := cloudwatchlogs.New(session)
+	newSession := params.Session.Copy(&aws.Config{Region: aws.String(logRegion)})
+	client := cloudwatchlogs.New(newSession)
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
 	return &cwLogsClient{
 		client: client,
