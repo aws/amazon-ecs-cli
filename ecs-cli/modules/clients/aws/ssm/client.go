@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	amazonLinuxRecommendedParameterName = "/aws/service/ecs/optimized-ami/amazon-linux/recommended"
+	amazonLinux2RecommendedParameterName = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended"
 )
 
 type AMIMetadata struct {
@@ -55,7 +55,7 @@ func NewSSMClient(commandConfig *config.CommandConfig) Client {
 
 func (c *ssmClient) GetRecommendedECSLinuxAMI() (*AMIMetadata, error) {
 	response, err := c.client.GetParameter(&ssm.GetParameterInput{
-		Name: aws.String(amazonLinuxRecommendedParameterName),
+		Name: aws.String(amazonLinux2RecommendedParameterName),
 	})
 	if err != nil {
 		return nil, err
