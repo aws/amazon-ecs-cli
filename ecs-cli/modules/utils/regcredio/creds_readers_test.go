@@ -32,7 +32,7 @@ registry_credentials:
       - nginx-custom
       - logging
   other-registry.net:
-    secret_manager_arn: aws:arn:secretsmanager:secret/repocreds-776ytg
+    secrets_manager_arn: aws:arn:secretsmanager:secret/repocreds-776ytg
     container_names:
       - metrics`
 
@@ -93,7 +93,7 @@ func TestReadCredsInputWithEnvVarsFromShell(t *testing.T) {
 	inputFileString := `version: 1
 registry_credentials:
   myrepo.someregistry.io:
-    secret_manager_arn: ${MY_SECRET_ARN}
+    secrets_manager_arn: ${MY_SECRET_ARN}
     username: ${MY_REG_USRNAME}
     password: ${MY_REG_PASSWORD}
     kms_key_id: ${MY_KEY_ARN}
@@ -135,7 +135,7 @@ func TestReadCredsInput_ErrorBadYaml(t *testing.T) {
 	badCredEntryFileString := `version: 1
 registry_credentials:
   myrepo.someregistry.io:
-  secret_manager_arn: arn:aws:secretmanager:some-secret
+  secrets_manager_arn: arn:aws:secretmanager:some-secret
   container_names:
 	  - test`
 

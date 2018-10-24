@@ -31,6 +31,10 @@ import (
 	"github.com/urfave/cli"
 )
 
+const (
+	maxContainersPerTaskDef = 10
+)
+
 // Up creates or updates registry credential secrets and an ECS task execution role needed to use them in a task def
 func Up(c *cli.Context) {
 	args := c.Args()
@@ -105,6 +109,8 @@ func Up(c *cli.Context) {
 	} else {
 		log.Info("Skipping generation of registry credentials output file.")
 	}
+
+	log.Info("\nIf your input file contains sensitive information, make sure that you delete it after use.")
 }
 
 func getOrCreateRegistryCredentials(entryMap regcredio.RegistryCreds, smClient secretsClient.SMClient, updateAllowed bool) (map[string]regcredio.CredsOutputEntry, error) {
@@ -208,6 +214,9 @@ func validateCredsInput(input regcredio.ECSRegCredsInput, kmsClient kms.Client) 
 	if len(inputRegCreds) == 0 {
 		return nil, errors.New("provided credentials must contain at least one registry")
 	}
+	if len(inputRegCreds) > maxContainersPerTaskDef {
+		return nil, errors.New("no more than" + string(maxContainersPerTaskDef) + "registry credential entries can be created at one time")
+	}
 
 	namedContainers := make(map[string]bool)
 	outputRegCreds := make(map[string]regcredio.RegistryCredEntry)
@@ -219,13 +228,16 @@ func validateCredsInput(input regcredio.ECSRegCredsInput, kmsClient kms.Client) 
 		if len(credentialEntry.ContainerNames) > 0 {
 			for _, container := range credentialEntry.ContainerNames {
 				if namedContainers[container] {
-					return nil, fmt.Errorf("container '%s' appears in more than one registry; container names must be unique across a set of registry credentials", container)
+					return nil, fmt.Errorf("container '%s' appears in more than one registry; container names must be unique across given registry credentials", container)
 				}
 				namedContainers[container] = true
 			}
 		}
+		if len(credentialEntry.ContainerNames) == 0 {
+			log.Warnf("No container names given for registry '%s'; output cannot be incorporated into a task definition when running 'compose' command", registryName)
+		}
 		if credentialEntry.SecretManagerARN != "" && !isARN(credentialEntry.SecretManagerARN) {
-			return nil, fmt.Errorf("invalid secret_manager_arn for registry %s", registryName)
+			return nil, fmt.Errorf("invalid secrets_manager_arn for registry %s", registryName)
 		}
 		// if key specified as ID or alias, validate & get ARN
 		if credentialEntry.KmsKeyID != "" {
@@ -241,7 +253,7 @@ func validateCredsInput(input regcredio.ECSRegCredsInput, kmsClient kms.Client) 
 			keyRegion := strings.Split(credentialEntry.KmsKeyID, ":")[3]
 
 			if secretRegion != keyRegion {
-				return nil, fmt.Errorf("region of 'secret_manager_arn'(%s) and 'kms_key_id'(%s) for registry %s do not match; secret and encryption key must be in same region", secretRegion, keyRegion, registryName)
+				return nil, fmt.Errorf("region of 'secrets_manager_arn'(%s) and 'kms_key_id'(%s) for registry %s do not match; secret and encryption key must be in same region", secretRegion, keyRegion, registryName)
 			}
 		}
 		outputRegCreds[registryName] = credentialEntry

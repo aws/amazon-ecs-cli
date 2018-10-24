@@ -26,7 +26,7 @@ type RegistryCreds map[string]RegistryCredEntry
 
 // RegistryCredEntry contains info needed to create an AWS Secrets Manager secret and match it to an ECS container(s)
 type RegistryCredEntry struct {
-	SecretManagerARN string   `yaml:"secret_manager_arn"`
+	SecretManagerARN string   `yaml:"secrets_manager_arn"`
 	Username         string   `yaml:"username"`
 	Password         string   `yaml:"password"`
 	KmsKeyID         string   `yaml:"kms_key_id"`

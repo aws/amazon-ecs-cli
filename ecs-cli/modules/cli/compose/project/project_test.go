@@ -296,11 +296,11 @@ func setupTestProject(t *testing.T) *ecsProject {
 }
 
 func setupTestProjectWithEcsParams(t *testing.T, ecsParamsFileName string) *ecsProject {
-	return setupTestProjectWithPrivateRegistryContext(t, ecsParamsFileName, "")
+	return setupTestProjectWithECSRegistryCreds(t, ecsParamsFileName, "")
 }
 
 // TODO: refactor into all-purpose 'setupTestProject' func
-func setupTestProjectWithPrivateRegistryContext(t *testing.T, ecsParamsFileName, credFileName string) *ecsProject {
+func setupTestProjectWithECSRegistryCreds(t *testing.T, ecsParamsFileName, credFileName string) *ecsProject {
 	envLookup, err := utils.GetDefaultEnvironmentLookup()
 	assert.NoError(t, err, "Unexpected error setting up environment lookup")
 
@@ -326,7 +326,7 @@ func setupTestProjectWithPrivateRegistryContext(t *testing.T, ecsParamsFileName,
 	}
 }
 
-func TestParsePrivateRegistryContext(t *testing.T) {
+func TestParseECSRegistryCreds(t *testing.T) {
 	credsInputString := `version: "1"
 registry_credential_outputs:
   task_execution_role: someTestRole
@@ -349,16 +349,16 @@ registry_credential_outputs:
 	credFileName := tmpfile.Name()
 	defer os.Remove(credFileName)
 
-	project := setupTestProjectWithPrivateRegistryContext(t, "", credFileName)
+	project := setupTestProjectWithECSRegistryCreds(t, "", credFileName)
 
 	_, err = tmpfile.Write(content)
 	assert.NoError(t, err, "Could not write data to ecs registry creds tempfile")
 
-	if err := project.parsePrivateRegistryContext(); err != nil {
+	if err := project.parseECSRegistryCreds(); err != nil {
 		t.Fatalf("Unexpected error parsing the "+regcredio.ECSCredFileBaseName+" data [%s]: %v", credsInputString, err)
 	}
 
-	ecsRegCreds := project.privateRegistryContext
+	ecsRegCreds := project.ecsRegistryCreds
 	assert.NotNil(t, ecsRegCreds, "Expected "+regcredio.ECSCredFileBaseName+" to be set on project")
 	assert.Equal(t, "1", ecsRegCreds.Version, "Expected Version to match")
 
@@ -380,10 +380,10 @@ registry_credential_outputs:
 	assert.ElementsMatch(t, []string{"test"}, secondOutputEntry.ContainerNames)
 }
 
-func TestParsePrivateRegistryContext_NoFile(t *testing.T) {
+func TestParseECSRegistryCreds_NoFile(t *testing.T) {
 	project := setupTestProject(t)
-	err := project.parsePrivateRegistryContext()
+	err := project.parseECSRegistryCreds()
 	if assert.NoError(t, err) {
-		assert.Nil(t, project.privateRegistryContext)
+		assert.Nil(t, project.ecsRegistryCreds)
 	}
 }
