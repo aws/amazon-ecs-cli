@@ -36,9 +36,9 @@ func RegistryCredsCommand() cli.Command {
 func upCommand() cli.Command {
 	return cli.Command{
 		Name:         "up",
-		Usage:        "Generates AWS Secrets Manager secrets and an IAM Task Execution Role for use in an ECS Task Definition.",
+		Usage:        "Uses a YAML input file to generate AWS Secrets Manager secrets and an IAM Task Execution Role for use in an ECS Task Definition.",
 		Action:       regcreds.Up,
-		Flags:        regcredsUpFlags(),
+		Flags:        flags.AppendFlags(flags.OptionalRegionAndProfileFlags(), regcredsUpFlags()),
 		OnUsageError: flags.UsageErrorFactory("up"),
 	}
 }

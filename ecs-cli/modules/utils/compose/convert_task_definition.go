@@ -46,7 +46,7 @@ type ConvertTaskDefParams struct {
 	Volumes                *adapter.Volumes
 	ContainerConfigs       []adapter.ContainerConfig
 	ECSParams              *ECSParams
-	PrivRegistryContext    *regcredio.ECSRegistryCredsOutput
+	ECSRegistryCreds       *regcredio.ECSRegistryCredsOutput
 }
 
 // ConvertToTaskDefinition transforms the yaml configs to its ecs equivalent (task definition)
@@ -99,15 +99,15 @@ func ConvertToTaskDefinition(params ConvertTaskDefParams) (*ecs.TaskDefinition, 
 	executionRoleArn := taskDefParams.executionRoleArn
 
 	// Check for and apply provided ecs-registry-creds values
-	if params.PrivRegistryContext != nil {
-		err := addRegistryCredsToContainerDefs(containerDefinitions, params.PrivRegistryContext.CredentialResources.ContainerCredentials)
+	if params.ECSRegistryCreds != nil {
+		err := addRegistryCredsToContainerDefs(containerDefinitions, params.ECSRegistryCreds.CredentialResources.ContainerCredentials)
 		if err != nil {
 			return nil, err
 		}
 
 		// if provided, add or replace existing executionRoleArn with value from cred file
-		if params.PrivRegistryContext.CredentialResources.TaskExecutionRole != "" {
-			newExecutionRole := params.PrivRegistryContext.CredentialResources.TaskExecutionRole
+		if params.ECSRegistryCreds.CredentialResources.TaskExecutionRole != "" {
+			newExecutionRole := params.ECSRegistryCreds.CredentialResources.TaskExecutionRole
 
 			if executionRoleArn != "" {
 				// TODO: refactor 'showResourceOverrideMsg()' to take in override src and use here
@@ -464,7 +464,18 @@ func addRegistryCredsToContainerDefs(containerDefs []*ecs.ContainerDefinition, c
 					CredentialsParameter: aws.String(foundCredParam),
 				}
 				containerDef.RepositoryCredentials = &containerRepoCreds
+
+				// remove container entry from cred map
+				delete(credsMap, containerName)
 			}
+		}
+		// if credMap contains container names not present in our container definitions, log a warning
+		if len(credsMap) > 0 {
+			unusedContainers := make([]string, 0, len(credsMap))
+			for container := range credsMap {
+				unusedContainers = append(unusedContainers, container)
+			}
+			log.Warnf("Containers listed with registry credentials but not used: %v", unusedContainers)
 		}
 	}
 	return nil

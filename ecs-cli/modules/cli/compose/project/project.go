@@ -53,10 +53,10 @@ type Project interface {
 
 // ecsProject struct is an implementation of Project.
 type ecsProject struct {
-	containerConfigs       []adapter.ContainerConfig
-	volumes                *adapter.Volumes
-	ecsContext             *context.ECSContext
-	privateRegistryContext *regcredio.ECSRegistryCredsOutput // TODO: rename to 'ecsRegistryCreds'
+	containerConfigs []adapter.ContainerConfig
+	volumes          *adapter.Volumes
+	ecsContext       *context.ECSContext
+	ecsRegistryCreds *regcredio.ECSRegistryCredsOutput
 
 	// TODO: track a map of entities [taskDefinition -> Entity]
 	// 1 task definition for every disjoint set of containers in the compose file
@@ -126,7 +126,7 @@ func (p *ecsProject) Parse() error {
 		return err
 	}
 
-	if err := p.parsePrivateRegistryContext(); err != nil {
+	if err := p.parseECSRegistryCreds(); err != nil {
 		return err
 	}
 
@@ -180,7 +180,7 @@ func (p *ecsProject) parseECSParams() error {
 	return nil
 }
 
-func (p *ecsProject) parsePrivateRegistryContext() error {
+func (p *ecsProject) parseECSRegistryCreds() error {
 	logrus.Debug("Parsing the ecs-registry-creds yaml...")
 	registryCredsFileName := p.ecsContext.CLIContext.GlobalString(flags.RegistryCredsFileNameFlag)
 	regCreds, err := regcredio.ReadCredsOutput(registryCredsFileName)
@@ -188,7 +188,7 @@ func (p *ecsProject) parsePrivateRegistryContext() error {
 		return err
 	}
 
-	p.privateRegistryContext = regCreds
+	p.ecsRegistryCreds = regCreds
 
 	return nil
 }
@@ -212,7 +212,7 @@ func (p *ecsProject) transformTaskDefinition() error {
 		Volumes:                p.VolumeConfigs(),
 		ContainerConfigs:       p.ContainerConfigs(), // TODO Change to pointer on project?
 		ECSParams:              ecsContext.ECSParams,
-		PrivRegistryContext:    p.privateRegistryContext,
+		ECSRegistryCreds:       p.ecsRegistryCreds,
 	}
 
 	taskDefinition, err := utils.ConvertToTaskDefinition(convertParams)

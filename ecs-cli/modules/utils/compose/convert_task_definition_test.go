@@ -1523,7 +1523,7 @@ task_definition:
 // helper functions //
 //////////////////////
 
-func TestConvertToTaskDefinitionWithPrivRegContext(t *testing.T) {
+func TestConvertToTaskDefinitionWithECSRegistryCreds(t *testing.T) {
 	containerConfigs := testContainerConfigs([]string{"mysql", "wordpress"})
 	credsFileString := `version: "1"
 registry_credential_outputs:
@@ -1557,7 +1557,7 @@ registry_credential_outputs:
 	assert.Equal(t, "arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-my.example.registry.net", aws.StringValue(mysqlContainer.RepositoryCredentials.CredentialsParameter))
 }
 
-func TestConvertToTaskDefinitionWithPrivRegContext_EmptyContainerCredMap(t *testing.T) {
+func TestConvertToTaskDefinitionWithECSRegistryCreds_EmptyContainerCredMap(t *testing.T) {
 	containerConfigs := testContainerConfigs([]string{"mysql", "wordpress"})
 	credsNoContainersFileString := `version: "1"
 registry_credential_outputs:
@@ -1589,7 +1589,7 @@ registry_credential_outputs:
 	assert.Empty(t, mysqlContainer.RepositoryCredentials)
 }
 
-func TestConvertToTaskDefinitionWithPrivRegContext_OverrideECSParamsValues(t *testing.T) {
+func TestConvertToTaskDefinitionWithECSRegistryCreds_OverrideECSParamsValues(t *testing.T) {
 	containerConfigs := testContainerConfigs([]string{"mysql", "wordpress"})
 
 	// set up reg cred file
@@ -1654,7 +1654,7 @@ task_definition:
 	assert.Equal(t, "arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-my.example.registry.net", aws.StringValue(mysqlContainer.RepositoryCredentials.CredentialsParameter))
 }
 
-func TestConvertToTaskDefinitionWithPrivRegContext_ErrorOnDuplicateContainers(t *testing.T) {
+func TestConvertToTaskDefinitionWithECSRegistryCreds_ErrorOnDuplicateContainers(t *testing.T) {
 	containerConfigs := testContainerConfigs([]string{"mysql", "wordpress"})
 	credsDuplicateContainersFileString := `version: "1"
 registry_credential_outputs:
@@ -1698,7 +1698,7 @@ func convertToTaskDefinitionForTest(t *testing.T, containerConfigs []adapter.Con
 		Volumes:                volumeConfigs,
 		ContainerConfigs:       containerConfigs,
 		ECSParams:              ecsParams,
-		PrivRegistryContext:    ecsRegCreds,
+		ECSRegistryCreds:       ecsRegCreds,
 	}
 
 	taskDefinition, err := ConvertToTaskDefinition(testParams)
