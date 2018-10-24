@@ -837,6 +837,137 @@ OPTIONS:
 --timestamps, -t           [Optional] Shows timestamps on each line in the log output.
 ```
 
+## Using Private Registry Authentication
+
+If you want to use privately hosted container images with ECS, the ECS CLI can store your private registry credentials for you with AWS Secrets Manager and create an IAM role which ECS can use to access the credentials and private images. This allows you to:
+
+* Store private registry credentials within AWS for use with ECS or other services
+* Add the permissions needed to use your registry secrets to a new or existing Task Execution Role
+* Automatically add your private registry credentials to your task definition when running a task or service
+
+Using privately hosted images with the ECS CLI is done in two parts:
+
+1) Create new AWS Secrets Manager secrets and an IAM Task Execution Role with `ecs-cli registry-creds up`
+2) Run `ecs-cli compose up` to create and run a task definition that includes the new resources
+
+### Storing private registry credentials with `ecs-cli registry-creds up`
+
+To get started, first create an input file that contains the name of your registry and the credentials needed to access it:
+
+```
+# file name: cred_input.yml
+version: '1'
+registry_credentials:
+  my-registry.example.com: 
+    username: myUserName
+    password: ${MY_PASSWORD}
+    kms_key_id: <optional KMS Key ID to use to encryt the new secret>
+    container_names:
+      - web
+      - log
+```
+
+In this example, we're storing credentials for a registry called `my-registry.example.com` and passing in the password with an environment variable. `container_names` is a list of the `service_names` in your Docker Compose project which need access to images in this registry. If you don't plan to use the output of `registry-creds up` to launch a task or service with `compose`, then you can leave this field empty.
+
+Other options:
+* To store credentials for multiple private registries, add additional (up to 10) registry names and their required details as a separate keys under `registry_credentials`.
+* If you want to encrypt the AWS Secrets Manager secret for your registry with a custom KMS Key, then add the ARN, ID or Alias of the Key in the `kms_key_id` field. Otherwise, AWS Secrets Manager will use the default key in your account.
+* If you don't want to create Task Execution Role for these secrets, use the `--no-role` flag instead of specifying a role name.
+* If you don't want to generate an output file for use with `compose` or for records purposes, use the `--no-output-file` flag.
+* If you want the output file to be created in a specific directory on your machine, you can specify it with the `--output-dir <value>` flag. Otherwise, the file will be created in your working directory.
+
+After creating the input file, run the `registry-creds up` command on the file and pass in the name of the new or existing Task Execution Role you want to use for the secrets:
+
+```
+$ ecs-cli registry-creds up ./cred_input.yml --role-name myTaskExecutionRole
+```
+
+The command will output the names of the resources it creates, including the name of the output file which was generated:
+
+```
+$ ecs-cli registry-creds up ./cred_input.yml --role-name myTaskExecutionRole
+INFO[0000] Processing credentials for registry my-registry.example.com...
+INFO[0000] New credential secret created: arn:aws:secretsmanager:region:aws_account_id:secret:amazon-ecs-cli-setup-my-registry.example.com-VeDqXm
+INFO[0000] Creating resources for task execution role myTaskExecutionRole...
+INFO[0000] Created new task execution role arn:aws:iam::aws_account_id:role/myTaskExecutionRole
+INFO[0000] Created new task execution role policy arn:aws:iam::aws_account_id:policy/amazon-ecs-cli-setup-myTaskExecutionRole-policy-20181023T210805Z
+INFO[0000] Attached AWS managed policy arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy to role myTaskExecutionRole
+INFO[0001] Attached new policy arn:aws:iam::aws_account_id:policy/amazon-ecs-cli-setup-myTaskExecutionRole-policy-20181023T210805Z to role myTaskExecutionRole
+INFO[0001] Writing registry credential output to new file C:\Users\myuser\regcreds\regCredTest\ecs-registry-creds_20181023T210805Z.yml
+```
+
+The output file `ecs-registry-creds_20181023T210805Z.yml` should like like this:
+```
+version: "1"
+registry_credential_outputs:
+  task_execution_role: myTaskExecutionRole
+  container_credentials:
+    my-registry.example.com:
+      credentials_parameter: arn:aws:secretsmanager:region:aws_account_id:secret:amazon-ecs-cli-setup-my-registry.example.com-VeDqXm
+      container_names:
+      - web
+      - log
+```
+
+This file contains: 
+* the name of the IAM Task Execution Role with permissions for the new secrets 
+* the ARN of the new `credentials_parameter` created for the registry
+* the list of containers the new `credentials_parameter` should be used for when running a task or service
+
+We can now use this file with `ecs-cli compose up` to start a task with images in our private registry.
+
+### Using private registry credentials when launching tasks or services
+
+Now that we have an output file that identifies which resources we need to use our private registry, the ECS CLI will incorporate them into our Docker Compose project when we run `ecs-cli compose`.
+
+In the same directory (let's call it "privateImageApp"), create a docker-compose.yml file for your application:
+
+```
+version: "3"
+services:
+  web:
+    environment:
+      - SERVICE_NAME=web
+    image: my-registry.example.com/httpd 
+    ports:
+      - "80:80"
+  log:
+    environment:
+      - SERVICE_NAME=log
+    image: my-registry.example.com/logging
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: myApps
+        awslogs-region: us-west-2
+        awslogs-stream-prefix: privateImageApp
+```
+
+Now run the command `ecs-cli compose up` to launch a task. The ECS CLI will automatically detect and use the newest `ecs-registry-creds` file within the current directory:
+
+```
+$~\privateImageApp> ecs-cli compose up
+INFO[0000] Found ecs-registry-creds file C:\Users\myuser\regcreds\regCredTest\ecs-registry-creds_20181023T210805Z.yml
+INFO[0000] Using ecs-registry-creds value arn:aws:secretsmanager:region:aws_account_id:secret:amazon-ecs-cli-setup-my-registry.example.com-VeDqXm container name=web option name=credentials_parameter
+Using ecs-registry-creds value arn:aws:secretsmanager:region:aws_account_id:secret:amazon-ecs-cli-setup-my-registry.example.com-VeDqXm container name=log option name=credentials_parameter
+INFO[0000] Using ecs-registry-creds value myTaskExecutionRole option name=task_execution_role
+INFO[0000] Using ECS task definition TaskDefinition="privateImageApp:1"
+INFO[0000] Starting container... container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/web
+INFO[0000] Starting container... container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/log
+INFO[0012] Describe ECS container status container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/web desiredStatus=RUNNING lastStatus=PENDING taskDefinition="privateImageApp:1"
+INFO[0013] Describe ECS container status container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/log desiredStatus=RUNNING lastStatus=PENDING taskDefinition="privateImageApp:1"
+INFO[0018] Started container... container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/web desiredStatus=RUNNING lastStatus=RUNNING taskDefinition="privateImageApp:1"
+INFO[0018] Started container... container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/log desiredStatus=RUNNING lastStatus=RUNNING taskDefinition="privateImageApp:1"
+```
+
+ The within your new task definition `privateImageApp:1`, the container definitions for both `web` and `log` should have your "my-registry.example.com" secret as a `credentialsParameter` and the `executionRoleArn` will be "myTaskExecutionRole"
+
+ Other options:
+ * to use an ecs-registry-creds output file from outside the current directory, you can specify it in with the `--registry-creds <value>` flag
+
+ For more information about using private registries with ECS, see [Private Registry Authentication for Tasks](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/private-auth.html).
+
+
 ## Amazon ECS CLI Commands
 
 For a complete list of commands, see the
