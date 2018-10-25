@@ -34,6 +34,7 @@ Line Interface](http://aws.amazon.com/cli/) product detail page.
 		- [Using Route53 Service Discovery](#using-route53-service-discovery)
 	- [Viewing Running Tasks](#viewing-running-tasks)
 	- [Viewing Container Logs](#viewing-container-logs)
+    - [Using Private Registry Authentication](#using-private-registry-authentication)
 - [Amazon ECS CLI Commands](#amazon-ecs-cli-commands)
 - [Contributing to the CLI](#contributing-to-the-cli)
 - [License](#license)
@@ -839,16 +840,16 @@ OPTIONS:
 
 ## Using Private Registry Authentication
 
-If you want to use privately hosted container images with ECS, the ECS CLI can store your private registry credentials for you with AWS Secrets Manager and create an IAM role which ECS can use to access the credentials and private images. This allows you to:
+If you want to use privately hosted container images with ECS, the ECS CLI can store your private registry credentials in AWS Secrets Manager and create an IAM role which ECS can use to access the credentials and private images. This allows you to:
 
-* Store private registry credentials within AWS for use with ECS or other services
+* Store private registry credentials within AWS for use with ECS
 * Add the permissions needed to use your registry secrets to a new or existing Task Execution Role
 * Automatically add your private registry credentials to your task definition when running a task or service
 
 Using privately hosted images with the ECS CLI is done in two parts:
 
 1) Create new AWS Secrets Manager secrets and an IAM Task Execution Role with `ecs-cli registry-creds up`
-2) Run `ecs-cli compose up` to create and run a task definition that includes the new resources
+2) Run `ecs-cli compose` commands to create and run a task definition that includes the new resources
 
 ### Storing private registry credentials with `ecs-cli registry-creds up`
 
@@ -856,13 +857,16 @@ To get started, first create an input file that contains the name of your regist
 
 ```
 # file name: cred_input.yml
+# when using environment variables, only '${VAR_NAME}' format is supported
+
 version: '1'
 registry_credentials:
   my-registry.example.com: 
-    username: myUserName
-    password: ${MY_PASSWORD}
-    kms_key_id: <optional KMS Key ID to use to encryt the new secret>
-    container_names:
+    secrets_manager_arn:        # required when using (with no modification) or updating an existing secret
+    username: myUserName        # required when creating or updating a new secret
+    password: ${MY_PASSWORD}    # required when creating or updating a new secret  
+    kms_key_id:                 # optional custom KMS Key ID to use to encrypt new secret
+    container_names:            # required to match credential resources with docker-compose services
       - web
       - log
 ```
@@ -870,11 +874,12 @@ registry_credentials:
 In this example, we're storing credentials for a registry called `my-registry.example.com` and passing in the password with an environment variable. `container_names` is a list of the `service_names` in your Docker Compose project which need access to images in this registry. If you don't plan to use the output of `registry-creds up` to launch a task or service with `compose`, then you can leave this field empty.
 
 Other options:
-* To store credentials for multiple private registries, add additional (up to 10) registry names and their required details as a separate keys under `registry_credentials`.
+* To store credentials for multiple private registries, add additional (up to 10 total) registry names and their required details as separate keys under `registry_credentials`. 
+  * Existing registry secrets from other regions can be included by specifying their `secrets_manager_arn` and associated `kms_key_id`. Creating or updating secrets must be done from within that region.
 * If you want to encrypt the AWS Secrets Manager secret for your registry with a custom KMS Key, then add the ARN, ID or Alias of the Key in the `kms_key_id` field. Otherwise, AWS Secrets Manager will use the default key in your account.
-* If you don't want to create Task Execution Role for these secrets, use the `--no-role` flag instead of specifying a role name.
+* If you don't want to create or update an IAM Task Execution Role for these secrets, use the `--no-role` flag instead of specifying a role name.
 * If you don't want to generate an output file for use with `compose` or for records purposes, use the `--no-output-file` flag.
-* If you want the output file to be created in a specific directory on your machine, you can specify it with the `--output-dir <value>` flag. Otherwise, the file will be created in your working directory.
+* If you want the output file to be created in a specific directory on your machine, you can specify it with the `--output-dir <value>` flag. Otherwise, the file will be created in your working directory.   
 
 After creating the input file, run the `registry-creds up` command on the file and pass in the name of the new or existing Task Execution Role you want to use for the secrets:
 
@@ -914,7 +919,7 @@ This file contains:
 * the ARN of the new `credentials_parameter` created for the registry
 * the list of containers the new `credentials_parameter` should be used for when running a task or service
 
-We can now use this file with `ecs-cli compose up` to start a task with images in our private registry.
+We can now use this file with `ecs-cli compose` commands to start a task with images in our private registry.
 
 ### Using private registry credentials when launching tasks or services
 
@@ -960,7 +965,7 @@ INFO[0018] Started container... container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/w
 INFO[0018] Started container... container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/log desiredStatus=RUNNING lastStatus=RUNNING taskDefinition="privateImageApp:1"
 ```
 
- The within your new task definition `privateImageApp:1`, the container definitions for both `web` and `log` should have your "my-registry.example.com" secret as a `credentialsParameter` and the `executionRoleArn` will be "myTaskExecutionRole"
+ The within your new task definition `privateImageApp:1`, the container definitions for both `web` and `log` should have your "my-registry.example.com" secret as a `credentialsParameter`. The `executionRoleArn` field will be the role we created in the previous step, "myTaskExecutionRole".
 
  Other options:
  * to use an ecs-registry-creds output file from outside the current directory, you can specify it in with the `--registry-creds <value>` flag
