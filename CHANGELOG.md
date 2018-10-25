@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.10.0
+* Feature - Add `registry-creds` command as part of Private Registry Authentication workflow #652 #601
+* Feature - Use Amazon Linux 2 ECS Optimized AMI #647
+* Bug - Catch errors from missing user data files #646
+* Bug - Fix '--create-log-groups' to leave region for Service Discovery resources unchanged #644
+
 ## 1.9.0
 * Feature - Add support for Service Discovery (#485)
 * Feature - Add support for EC2 Spot Instances in ECS Clusters (#396)
