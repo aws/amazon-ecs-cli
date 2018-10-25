@@ -107,11 +107,12 @@ const (
 	UntaggedFlag   = "untagged"
 
 	// Compose
-	ProjectNameFlag       = "project-name"
-	ComposeFileNameFlag   = "file"
-	TaskRoleArnFlag       = "task-role-arn"
-	ECSParamsFileNameFlag = "ecs-params"
-	ForceUpdateFlag       = "force-update"
+	ProjectNameFlag           = "project-name"
+	ComposeFileNameFlag       = "file"
+	TaskRoleArnFlag           = "task-role-arn"
+	ECSParamsFileNameFlag     = "ecs-params"
+	ForceUpdateFlag           = "force-update"
+	RegistryCredsFileNameFlag = "registry-creds"
 
 	// Compose Service
 	CreateServiceCommandName                = "create"
@@ -127,6 +128,13 @@ const (
 	RoleFlag                                = "role"
 	ComposeServiceTimeOutFlag               = "timeout"
 	ForceDeploymentFlag                     = "force-deployment"
+
+	// Registry Creds
+	UpdateExistingSecretsFlag = "update-existing-secrets"
+	RoleNameFlag              = "role-name"
+	NoRoleFlag                = "no-role"
+	NoOutputFileFlag          = "no-output-file"
+	OutputDirFlag             = "output-dir"
 )
 
 // OptionalRegionAndProfileFlags provides these flags:

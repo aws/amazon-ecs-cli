@@ -22,6 +22,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcredio"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
 )
@@ -295,6 +296,11 @@ func setupTestProject(t *testing.T) *ecsProject {
 }
 
 func setupTestProjectWithEcsParams(t *testing.T, ecsParamsFileName string) *ecsProject {
+	return setupTestProjectWithECSRegistryCreds(t, ecsParamsFileName, "")
+}
+
+// TODO: refactor into all-purpose 'setupTestProject' func
+func setupTestProjectWithECSRegistryCreds(t *testing.T, ecsParamsFileName, credFileName string) *ecsProject {
 	envLookup, err := utils.GetDefaultEnvironmentLookup()
 	assert.NoError(t, err, "Unexpected error setting up environment lookup")
 
@@ -304,6 +310,7 @@ func setupTestProjectWithEcsParams(t *testing.T, ecsParamsFileName string) *ecsP
 	flagSet := flag.NewFlagSet("ecs-cli", 0)
 	flagSet.String(flags.ProjectNameFlag, testProjectName, "")
 	flagSet.String(flags.ECSParamsFileNameFlag, ecsParamsFileName, "")
+	flagSet.String(flags.RegistryCredsFileNameFlag, credFileName, "")
 
 	parentContext := cli.NewContext(nil, flagSet, nil)
 	cliContext := cli.NewContext(nil, nil, parentContext)
@@ -316,5 +323,67 @@ func setupTestProjectWithEcsParams(t *testing.T, ecsParamsFileName string) *ecsP
 
 	return &ecsProject{
 		ecsContext: ecsContext,
+	}
+}
+
+func TestParseECSRegistryCreds(t *testing.T) {
+	credsInputString := `version: "1"
+registry_credential_outputs:
+  task_execution_role: someTestRole
+  container_credentials:
+    my.example.registry.net:
+      credentials_parameter: arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-my.example.registry.net
+      container_names:
+      - web
+    another.example.io:
+      credentials_parameter: arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-another.example.io
+      kms_key_id: arn:aws:kms::key/some-key-57yrt
+      container_names:
+      - test`
+
+	content := []byte(credsInputString)
+
+	tmpfile, err := ioutil.TempFile("", regcredio.ECSCredFileBaseName)
+	assert.NoError(t, err, "Could not create ecs registry creds tempfile")
+
+	credFileName := tmpfile.Name()
+	defer os.Remove(credFileName)
+
+	project := setupTestProjectWithECSRegistryCreds(t, "", credFileName)
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs registry creds tempfile")
+
+	if err := project.parseECSRegistryCreds(); err != nil {
+		t.Fatalf("Unexpected error parsing the "+regcredio.ECSCredFileBaseName+" data [%s]: %v", credsInputString, err)
+	}
+
+	ecsRegCreds := project.ecsRegistryCreds
+	assert.NotNil(t, ecsRegCreds, "Expected "+regcredio.ECSCredFileBaseName+" to be set on project")
+	assert.Equal(t, "1", ecsRegCreds.Version, "Expected Version to match")
+
+	credResources := ecsRegCreds.CredentialResources
+	assert.NotNil(t, credResources, "Expected credential resources to be non-nil")
+	assert.Equal(t, "someTestRole", credResources.TaskExecutionRole)
+	assert.NotNil(t, credResources.ContainerCredentials, "Expected ContainerCredentials to be non-nil")
+
+	firstOutputEntry := credResources.ContainerCredentials["my.example.registry.net"]
+	assert.NotEmpty(t, firstOutputEntry)
+	assert.Equal(t, "arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-my.example.registry.net", firstOutputEntry.CredentialARN)
+	assert.Equal(t, "", firstOutputEntry.KMSKeyID)
+	assert.ElementsMatch(t, []string{"web"}, firstOutputEntry.ContainerNames)
+
+	secondOutputEntry := credResources.ContainerCredentials["another.example.io"]
+	assert.NotEmpty(t, secondOutputEntry)
+	assert.Equal(t, "arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-another.example.io", secondOutputEntry.CredentialARN)
+	assert.Equal(t, "arn:aws:kms::key/some-key-57yrt", secondOutputEntry.KMSKeyID)
+	assert.ElementsMatch(t, []string{"test"}, secondOutputEntry.ContainerNames)
+}
+
+func TestParseECSRegistryCreds_NoFile(t *testing.T) {
+	project := setupTestProject(t)
+	err := project.parseECSRegistryCreds()
+	if assert.NoError(t, err) {
+		assert.Nil(t, project.ecsRegistryCreds)
 	}
 }

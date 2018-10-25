@@ -103,6 +103,10 @@ func composeFlags() []cli.Flag {
 			Name:  flags.ECSParamsFileNameFlag,
 			Usage: "[Optional] Specifies ecs-params file to use. Defaults to " + ecsParamsFileNameDefaultValue + " file, if one exists.",
 		},
+		cli.StringFlag{
+			Name:  flags.RegistryCredsFileNameFlag,
+			Usage: "[Optional] Specifies the ecs-registry-creds file to use. Defaults to latest 'ecs-registry-creds' output file, if one exists.",
+		},
 	}
 }
 
