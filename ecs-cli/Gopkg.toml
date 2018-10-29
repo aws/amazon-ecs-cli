@@ -82,4 +82,9 @@
 
 [[constraint]]
   name = "github.com/docker/cli"
-  revision = "1872bd802c697f39eb783a9b7d25e60d6fe601d6"
+  version = "18.06.0-ce"
+
+[[override]]
+  name = "github.com/docker/docker"
+  revision = "8e435b8279f2af3e0cebd73fa9e25ca1bb26004e"
+  source = "https://github.com/moby/moby.git"

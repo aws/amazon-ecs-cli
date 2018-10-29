@@ -117,7 +117,8 @@
     "cli/compose/types",
     "opts"
   ]
-  revision = "1872bd802c697f39eb783a9b7d25e60d6fe601d6"
+  revision = "7178075fdad68c953431cab5989dbe08bdcb94ac"
+  version = "v18.06.0-ce-rc3"
 
 [[projects]]
   name = "github.com/docker/docker"
@@ -149,7 +150,8 @@
     "pkg/term/windows",
     "pkg/urlutil"
   ]
-  revision = "92309e34e42aec3a0e041403bdd3c4fc0dc20269"
+  revision = "8e435b8279f2af3e0cebd73fa9e25ca1bb26004e"
+  source = "https://github.com/moby/moby.git"
 
 [[projects]]
   name = "github.com/docker/go-connections"
@@ -331,6 +333,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "09cc6ede11a1723e900b53c27e98f3f8d462c0516dca8e5ce2f6a27bb01aba9c"
+  inputs-digest = "d59fab9628f333a133b15b020e103485bb80f1a12055a4dee8c6bcfc1d62c355"
   solver-name = "gps-cdcl"
   solver-version = 1
