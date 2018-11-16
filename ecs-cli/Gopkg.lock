@@ -43,6 +43,7 @@
     "aws/request",
     "aws/session",
     "aws/signer/v4",
+    "internal/ini",
     "internal/sdkio",
     "internal/sdkrand",
     "internal/sdkuri",
@@ -79,8 +80,8 @@
     "service/sts",
     "service/sts/stsiface"
   ]
-  revision = "66974140c322f22c1daaf95a18930ea6a9e4d21e"
-  version = "v1.15.16"
+  revision = "64fc3d5c40fffc817c1cc1c1d89a6e482bf1120d"
+  version = "v1.15.77"
 
 [[projects]]
   name = "github.com/awslabs/amazon-ecr-credential-helper"
@@ -194,7 +195,6 @@
   name = "github.com/go-ini/ini"
   packages = ["."]
   revision = "32e4c1e6bc4e7d0d8451aa6b75200d19e37a536a"
-  version = "v1.32.0"
 
 [[projects]]
   name = "github.com/gogo/protobuf"
