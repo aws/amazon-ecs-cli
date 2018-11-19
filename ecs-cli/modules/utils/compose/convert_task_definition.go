@@ -228,6 +228,10 @@ func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *C
 			outputContDef.RepositoryCredentials.SetCredentialsParameter(credParam)
 		}
 
+		if len(ecsContainerDef.Secrets) > 0 {
+			outputContDef.SetSecrets(convertToECSSecrets(ecsContainerDef.Secrets))
+		}
+
 		var err error
 		healthCheck, err = resolveHealthCheck(inputCfg.Name, healthCheck, ecsContainerDef.HealthCheck)
 		if err != nil {
@@ -353,6 +357,18 @@ func convertToECSVolumes(hostPaths *adapter.Volumes, ecsParams *ECSParams) ([]*e
 	}
 	output = append(output, volumesWithoutHost...)
 	return output, nil
+}
+
+func convertToECSSecrets(secrets []Secret) []*ecs.Secret {
+	var ecsSecrets []*ecs.Secret
+	for _, secret := range secrets {
+		s := &ecs.Secret{
+			ValueFrom: aws.String(secret.ValueFrom),
+			Name:      aws.String(secret.Name),
+		}
+		ecsSecrets = append(ecsSecrets, s)
+	}
+	return ecsSecrets
 }
 
 func mergeVolumesWithoutHost(composeVolumes []string, ecsParams *ECSParams) ([]*ecs.Volume, error) {

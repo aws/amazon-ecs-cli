@@ -85,7 +85,12 @@ task_definition:
     wordpress:
       essential: true
       repository_credentials:
-        credentials_parameter: arn:aws:secretsmanager:1234567890:secret:test-RT4iv`
+        credentials_parameter: arn:aws:secretsmanager:1234567890:secret:test-RT4iv
+      secrets:
+        - value_from: arn:aws:ssm:eu-west-1:111111111111:parameter/mysecrets/dbpassword
+          name: DB_PASSWORD
+        - value_from: /mysecrets/dbusername
+          name: DB_USERNAME`
 
 	content := []byte(ecsParamsString)
 
@@ -120,6 +125,19 @@ task_definition:
 		assert.Equal(t, yaml.MemStringorInt(524288000), mysql.MemoryReservation)
 		assert.True(t, wordpress.Essential, "Expected container to be essential")
 		assert.Equal(t, "arn:aws:secretsmanager:1234567890:secret:test-RT4iv", wordpress.RepositoryCredentials.CredentialsParameter, "Expected CredentialsParameter to match")
+
+		expectedSecrets := []Secret{
+			Secret{
+				ValueFrom: "arn:aws:ssm:eu-west-1:111111111111:parameter/mysecrets/dbpassword",
+				Name:      "DB_PASSWORD",
+			},
+			Secret{
+				ValueFrom: "/mysecrets/dbusername",
+				Name:      "DB_USERNAME",
+			},
+		}
+
+		assert.ElementsMatch(t, expectedSecrets, wordpress.Secrets, "Expected secrets to match")
 	}
 }
 
