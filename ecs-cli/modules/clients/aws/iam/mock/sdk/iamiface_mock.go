@@ -4414,6 +4414,50 @@ func (mr *MockIAMAPIMockRecorder) ListRolePoliciesWithContext(arg0, arg1 interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRolePoliciesWithContext", reflect.TypeOf((*MockIAMAPI)(nil).ListRolePoliciesWithContext), varargs...)
 }
 
+// ListRoleTags mocks base method
+func (m *MockIAMAPI) ListRoleTags(arg0 *iam.ListRoleTagsInput) (*iam.ListRoleTagsOutput, error) {
+	ret := m.ctrl.Call(m, "ListRoleTags", arg0)
+	ret0, _ := ret[0].(*iam.ListRoleTagsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListRoleTags indicates an expected call of ListRoleTags
+func (mr *MockIAMAPIMockRecorder) ListRoleTags(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRoleTags", reflect.TypeOf((*MockIAMAPI)(nil).ListRoleTags), arg0)
+}
+
+// ListRoleTagsRequest mocks base method
+func (m *MockIAMAPI) ListRoleTagsRequest(arg0 *iam.ListRoleTagsInput) (*request.Request, *iam.ListRoleTagsOutput) {
+	ret := m.ctrl.Call(m, "ListRoleTagsRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*iam.ListRoleTagsOutput)
+	return ret0, ret1
+}
+
+// ListRoleTagsRequest indicates an expected call of ListRoleTagsRequest
+func (mr *MockIAMAPIMockRecorder) ListRoleTagsRequest(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRoleTagsRequest", reflect.TypeOf((*MockIAMAPI)(nil).ListRoleTagsRequest), arg0)
+}
+
+// ListRoleTagsWithContext mocks base method
+func (m *MockIAMAPI) ListRoleTagsWithContext(arg0 aws.Context, arg1 *iam.ListRoleTagsInput, arg2 ...request.Option) (*iam.ListRoleTagsOutput, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListRoleTagsWithContext", varargs...)
+	ret0, _ := ret[0].(*iam.ListRoleTagsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListRoleTagsWithContext indicates an expected call of ListRoleTagsWithContext
+func (mr *MockIAMAPIMockRecorder) ListRoleTagsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRoleTagsWithContext", reflect.TypeOf((*MockIAMAPI)(nil).ListRoleTagsWithContext), varargs...)
+}
+
 // ListRoles mocks base method
 func (m *MockIAMAPI) ListRoles(arg0 *iam.ListRolesInput) (*iam.ListRolesOutput, error) {
 	ret := m.ctrl.Call(m, "ListRoles", arg0)
@@ -4865,6 +4909,50 @@ func (m *MockIAMAPI) ListUserPoliciesWithContext(arg0 aws.Context, arg1 *iam.Lis
 func (mr *MockIAMAPIMockRecorder) ListUserPoliciesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListUserPoliciesWithContext", reflect.TypeOf((*MockIAMAPI)(nil).ListUserPoliciesWithContext), varargs...)
+}
+
+// ListUserTags mocks base method
+func (m *MockIAMAPI) ListUserTags(arg0 *iam.ListUserTagsInput) (*iam.ListUserTagsOutput, error) {
+	ret := m.ctrl.Call(m, "ListUserTags", arg0)
+	ret0, _ := ret[0].(*iam.ListUserTagsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListUserTags indicates an expected call of ListUserTags
+func (mr *MockIAMAPIMockRecorder) ListUserTags(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListUserTags", reflect.TypeOf((*MockIAMAPI)(nil).ListUserTags), arg0)
+}
+
+// ListUserTagsRequest mocks base method
+func (m *MockIAMAPI) ListUserTagsRequest(arg0 *iam.ListUserTagsInput) (*request.Request, *iam.ListUserTagsOutput) {
+	ret := m.ctrl.Call(m, "ListUserTagsRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*iam.ListUserTagsOutput)
+	return ret0, ret1
+}
+
+// ListUserTagsRequest indicates an expected call of ListUserTagsRequest
+func (mr *MockIAMAPIMockRecorder) ListUserTagsRequest(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListUserTagsRequest", reflect.TypeOf((*MockIAMAPI)(nil).ListUserTagsRequest), arg0)
+}
+
+// ListUserTagsWithContext mocks base method
+func (m *MockIAMAPI) ListUserTagsWithContext(arg0 aws.Context, arg1 *iam.ListUserTagsInput, arg2 ...request.Option) (*iam.ListUserTagsOutput, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListUserTagsWithContext", varargs...)
+	ret0, _ := ret[0].(*iam.ListUserTagsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListUserTagsWithContext indicates an expected call of ListUserTagsWithContext
+func (mr *MockIAMAPIMockRecorder) ListUserTagsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListUserTagsWithContext", reflect.TypeOf((*MockIAMAPI)(nil).ListUserTagsWithContext), varargs...)
 }
 
 // ListUsers mocks base method
@@ -5641,6 +5729,182 @@ func (m *MockIAMAPI) SimulatePrincipalPolicyWithContext(arg0 aws.Context, arg1 *
 func (mr *MockIAMAPIMockRecorder) SimulatePrincipalPolicyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SimulatePrincipalPolicyWithContext", reflect.TypeOf((*MockIAMAPI)(nil).SimulatePrincipalPolicyWithContext), varargs...)
+}
+
+// TagRole mocks base method
+func (m *MockIAMAPI) TagRole(arg0 *iam.TagRoleInput) (*iam.TagRoleOutput, error) {
+	ret := m.ctrl.Call(m, "TagRole", arg0)
+	ret0, _ := ret[0].(*iam.TagRoleOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// TagRole indicates an expected call of TagRole
+func (mr *MockIAMAPIMockRecorder) TagRole(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TagRole", reflect.TypeOf((*MockIAMAPI)(nil).TagRole), arg0)
+}
+
+// TagRoleRequest mocks base method
+func (m *MockIAMAPI) TagRoleRequest(arg0 *iam.TagRoleInput) (*request.Request, *iam.TagRoleOutput) {
+	ret := m.ctrl.Call(m, "TagRoleRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*iam.TagRoleOutput)
+	return ret0, ret1
+}
+
+// TagRoleRequest indicates an expected call of TagRoleRequest
+func (mr *MockIAMAPIMockRecorder) TagRoleRequest(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TagRoleRequest", reflect.TypeOf((*MockIAMAPI)(nil).TagRoleRequest), arg0)
+}
+
+// TagRoleWithContext mocks base method
+func (m *MockIAMAPI) TagRoleWithContext(arg0 aws.Context, arg1 *iam.TagRoleInput, arg2 ...request.Option) (*iam.TagRoleOutput, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "TagRoleWithContext", varargs...)
+	ret0, _ := ret[0].(*iam.TagRoleOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// TagRoleWithContext indicates an expected call of TagRoleWithContext
+func (mr *MockIAMAPIMockRecorder) TagRoleWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TagRoleWithContext", reflect.TypeOf((*MockIAMAPI)(nil).TagRoleWithContext), varargs...)
+}
+
+// TagUser mocks base method
+func (m *MockIAMAPI) TagUser(arg0 *iam.TagUserInput) (*iam.TagUserOutput, error) {
+	ret := m.ctrl.Call(m, "TagUser", arg0)
+	ret0, _ := ret[0].(*iam.TagUserOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// TagUser indicates an expected call of TagUser
+func (mr *MockIAMAPIMockRecorder) TagUser(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TagUser", reflect.TypeOf((*MockIAMAPI)(nil).TagUser), arg0)
+}
+
+// TagUserRequest mocks base method
+func (m *MockIAMAPI) TagUserRequest(arg0 *iam.TagUserInput) (*request.Request, *iam.TagUserOutput) {
+	ret := m.ctrl.Call(m, "TagUserRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*iam.TagUserOutput)
+	return ret0, ret1
+}
+
+// TagUserRequest indicates an expected call of TagUserRequest
+func (mr *MockIAMAPIMockRecorder) TagUserRequest(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TagUserRequest", reflect.TypeOf((*MockIAMAPI)(nil).TagUserRequest), arg0)
+}
+
+// TagUserWithContext mocks base method
+func (m *MockIAMAPI) TagUserWithContext(arg0 aws.Context, arg1 *iam.TagUserInput, arg2 ...request.Option) (*iam.TagUserOutput, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "TagUserWithContext", varargs...)
+	ret0, _ := ret[0].(*iam.TagUserOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// TagUserWithContext indicates an expected call of TagUserWithContext
+func (mr *MockIAMAPIMockRecorder) TagUserWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TagUserWithContext", reflect.TypeOf((*MockIAMAPI)(nil).TagUserWithContext), varargs...)
+}
+
+// UntagRole mocks base method
+func (m *MockIAMAPI) UntagRole(arg0 *iam.UntagRoleInput) (*iam.UntagRoleOutput, error) {
+	ret := m.ctrl.Call(m, "UntagRole", arg0)
+	ret0, _ := ret[0].(*iam.UntagRoleOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UntagRole indicates an expected call of UntagRole
+func (mr *MockIAMAPIMockRecorder) UntagRole(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UntagRole", reflect.TypeOf((*MockIAMAPI)(nil).UntagRole), arg0)
+}
+
+// UntagRoleRequest mocks base method
+func (m *MockIAMAPI) UntagRoleRequest(arg0 *iam.UntagRoleInput) (*request.Request, *iam.UntagRoleOutput) {
+	ret := m.ctrl.Call(m, "UntagRoleRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*iam.UntagRoleOutput)
+	return ret0, ret1
+}
+
+// UntagRoleRequest indicates an expected call of UntagRoleRequest
+func (mr *MockIAMAPIMockRecorder) UntagRoleRequest(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UntagRoleRequest", reflect.TypeOf((*MockIAMAPI)(nil).UntagRoleRequest), arg0)
+}
+
+// UntagRoleWithContext mocks base method
+func (m *MockIAMAPI) UntagRoleWithContext(arg0 aws.Context, arg1 *iam.UntagRoleInput, arg2 ...request.Option) (*iam.UntagRoleOutput, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UntagRoleWithContext", varargs...)
+	ret0, _ := ret[0].(*iam.UntagRoleOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UntagRoleWithContext indicates an expected call of UntagRoleWithContext
+func (mr *MockIAMAPIMockRecorder) UntagRoleWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UntagRoleWithContext", reflect.TypeOf((*MockIAMAPI)(nil).UntagRoleWithContext), varargs...)
+}
+
+// UntagUser mocks base method
+func (m *MockIAMAPI) UntagUser(arg0 *iam.UntagUserInput) (*iam.UntagUserOutput, error) {
+	ret := m.ctrl.Call(m, "UntagUser", arg0)
+	ret0, _ := ret[0].(*iam.UntagUserOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UntagUser indicates an expected call of UntagUser
+func (mr *MockIAMAPIMockRecorder) UntagUser(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UntagUser", reflect.TypeOf((*MockIAMAPI)(nil).UntagUser), arg0)
+}
+
+// UntagUserRequest mocks base method
+func (m *MockIAMAPI) UntagUserRequest(arg0 *iam.UntagUserInput) (*request.Request, *iam.UntagUserOutput) {
+	ret := m.ctrl.Call(m, "UntagUserRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*iam.UntagUserOutput)
+	return ret0, ret1
+}
+
+// UntagUserRequest indicates an expected call of UntagUserRequest
+func (mr *MockIAMAPIMockRecorder) UntagUserRequest(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UntagUserRequest", reflect.TypeOf((*MockIAMAPI)(nil).UntagUserRequest), arg0)
+}
+
+// UntagUserWithContext mocks base method
+func (m *MockIAMAPI) UntagUserWithContext(arg0 aws.Context, arg1 *iam.UntagUserInput, arg2 ...request.Option) (*iam.UntagUserOutput, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UntagUserWithContext", varargs...)
+	ret0, _ := ret[0].(*iam.UntagUserOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UntagUserWithContext indicates an expected call of UntagUserWithContext
+func (mr *MockIAMAPIMockRecorder) UntagUserWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UntagUserWithContext", reflect.TypeOf((*MockIAMAPI)(nil).UntagUserWithContext), varargs...)
 }
 
 // UpdateAccessKey mocks base method

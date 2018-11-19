@@ -63,6 +63,7 @@ type ContainerDef struct {
 	Memory            libYaml.MemStringorInt `yaml:"mem_limit"`
 	MemoryReservation libYaml.MemStringorInt `yaml:"mem_reservation"`
 	HealthCheck       *HealthCheck           `yaml:"healthcheck"`
+	Secrets           []Secret               `yaml:"secrets"`
 }
 
 type DockerVolume struct {
@@ -88,6 +89,12 @@ type HealthCheck struct {
 // RepositoryCredentials holds CredentialParameters for a ContainerDef
 type RepositoryCredentials struct {
 	CredentialsParameter string `yaml:"credentials_parameter"`
+}
+
+// Secret supports the ECS Secrets integration with SSM Parameter Store
+type Secret struct {
+	ValueFrom string `yaml:"value_from"`
+	Name      string `yaml:"name"`
 }
 
 // TaskSize holds Cpu and Memory values needed for Fargate tasks

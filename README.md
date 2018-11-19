@@ -458,6 +458,9 @@ task_definition:
         timeout: string
         retries: integer
         start_period: string
+      secrets:
+        - value_from: string
+          name: string
   docker_volumes:
     - name: string
       scope: string                      // Valid values: "shared" | "task"
@@ -520,6 +523,9 @@ Fields listed under `task_definition` correspond to fields that will be included
   * `healthcheck` This parameter maps to `healthcheck` in the [Docker compose file reference](https://docs.docker.com/compose/compose-file/#healthcheck). This field can either be used here in the ECS Params file, or it can be used in Compose File version 3 with the ECS CLI.
     * `test` can also be specified as `command` and must be either a string or a list or strings. If `test` is specified as a list of strings, the first item must be either NONE, CMD, or CMD-SHELL. If test or command is specified as a string, CMD-SHELL will be prepended and ECS will run the command in the container's default shell.
     * `interval`, `timeout`, and `start_period` are specified as durations in a string format. For example: 2.5s, 10s, 1m30s, 2h23m, or 5h34m56s.
+  * `secrets` allows you to specify secrets which will be retrieved from SSM Parameter Store. See the [ECS Docs](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html) for more information, including how reference AWS Secrets Managers secrets from SSM Parameter Store.
+    * `value_from` is the SSM Parameter ARN or name (if the parameter is in the same region as your ECS Task).
+    * `name` is the name of the environment variable in which the secret will be stored.
 
 * `docker_volumes` allows you to create docker volumes. The name key is required, and `scope`, `autoprovision`, `driver`, `driver_opts` and `labels` correspond with the fields under [dockerVolumeConfiguration](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-volumes.html) in an ECS Task Definition. Volumes defined with the `docker_volumes` key can be referenced in your compose file by name, even if they were not also specified in the compose file.
 
@@ -861,7 +867,7 @@ To get started, first create an input file that contains the name of your regist
 
 version: '1'
 registry_credentials:
-  my-registry.example.com: 
+  my-registry.example.com:
     secrets_manager_arn:        # required when using (with no modification) or updating an existing secret
     username: myUserName        # required when creating or updating a new secret
     password: ${MY_PASSWORD}    # required when creating or updating a new secret  
@@ -874,7 +880,7 @@ registry_credentials:
 In this example, we're storing credentials for a registry called `my-registry.example.com` and passing in the password with an environment variable. `container_names` is a list of the `service_names` in your Docker Compose project which need access to images in this registry. If you don't plan to use the output of `registry-creds up` to launch a task or service with `compose`, then you can leave this field empty.
 
 Other options:
-* To store credentials for multiple private registries, add additional (up to 10 total) registry names and their required details as separate keys under `registry_credentials`. 
+* To store credentials for multiple private registries, add additional (up to 10 total) registry names and their required details as separate keys under `registry_credentials`.
   * Existing registry secrets from other regions can be included by specifying their `secrets_manager_arn` and associated `kms_key_id`. Creating or updating secrets must be done from within that region.
 * If you want to encrypt the AWS Secrets Manager secret for your registry with a custom KMS Key, then add the ARN, ID or Alias of the Key in the `kms_key_id` field. Otherwise, AWS Secrets Manager will use the default key in your account.
 * If you don't want to create or update an IAM Task Execution Role for these secrets, use the `--no-role` flag instead of specifying a role name.
@@ -914,8 +920,8 @@ registry_credential_outputs:
       - log
 ```
 
-This file contains: 
-* the name of the IAM Task Execution Role with permissions for the new secrets 
+This file contains:
+* the name of the IAM Task Execution Role with permissions for the new secrets
 * the ARN of the new `credentials_parameter` created for the registry
 * the list of containers the new `credentials_parameter` should be used for when running a task or service
 
@@ -933,7 +939,7 @@ services:
   web:
     environment:
       - SERVICE_NAME=web
-    image: my-registry.example.com/httpd 
+    image: my-registry.example.com/httpd
     ports:
       - "80:80"
   log:
