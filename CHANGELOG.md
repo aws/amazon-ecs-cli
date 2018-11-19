@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.11.0
+* Feature - Add support ECS Secrets for #664
+* Feature - Add support for IPC and PID flags #665
+* Feature - Add support for mandatory variables in docker-compose #651
+* Enhancement - Add support for FIPs endpoint when using ECR #666
+
 ## 1.10.0
 * Feature - Add `registry-creds` command as part of Private Registry Authentication workflow #652 #601
 * Feature - Use Amazon Linux 2 ECS Optimized AMI #647
