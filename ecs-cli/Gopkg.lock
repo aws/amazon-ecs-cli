@@ -80,8 +80,8 @@
     "service/sts",
     "service/sts/stsiface"
   ]
-  revision = "64fc3d5c40fffc817c1cc1c1d89a6e482bf1120d"
-  version = "v1.15.77"
+  revision = "5ebc7a404e942062fd3aa7ff50975498716eb990"
+  version = "v1.15.78"
 
 [[projects]]
   name = "github.com/awslabs/amazon-ecr-credential-helper"
