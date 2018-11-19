@@ -25,17 +25,15 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/license"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/log"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/regcreds"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/logger"
+	logger "github.com/awslabs/amazon-ecr-credential-helper/ecr-login/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/version"
-	"github.com/cihub/seelog"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
 func main() {
-	// Setup seelog for amazon-ecr-credential-helper
+	// Setup logrus for amazon-ecr-credential-helper
 	logger.SetupLogger()
-	defer seelog.Flush()
 
 	app := cli.NewApp()
 	app.Name = version.AppName
