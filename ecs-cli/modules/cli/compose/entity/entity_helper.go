@@ -123,6 +123,8 @@ func createRegisterTaskDefinitionRequest(taskDefinition *ecs.TaskDefinition) *ec
 		TaskRoleArn:             taskDefinition.TaskRoleArn,
 		RequiresCompatibilities: taskDefinition.RequiresCompatibilities,
 		ExecutionRoleArn:        taskDefinition.ExecutionRoleArn,
+		PidMode:                 taskDefinition.PidMode,
+		IpcMode:                 taskDefinition.IpcMode,
 	}
 
 	if networkMode := taskDefinition.NetworkMode; aws.StringValue(networkMode) != "" {
