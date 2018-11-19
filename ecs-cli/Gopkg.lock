@@ -88,9 +88,11 @@
   packages = [
     "ecr-login/api",
     "ecr-login/cache",
-    "ecr-login/config"
+    "ecr-login/config",
+    "ecr-login/version"
   ]
-  revision = "19c5038b3c1fc63328b4eb99c507c72f12a27f66"
+  revision = "b9fd5a88b82e749a5227a31409fea58f91bdd489"
+  version = "v0.2.0"
 
 [[projects]]
   name = "github.com/cihub/seelog"
@@ -333,6 +335,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d59fab9628f333a133b15b020e103485bb80f1a12055a4dee8c6bcfc1d62c355"
+  inputs-digest = "7a6fbb4b7019aeef644e76bac598a04cb737023759cd84f41ad68ff7acf856de"
   solver-name = "gps-cdcl"
   solver-version = 1
