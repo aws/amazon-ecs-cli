@@ -444,6 +444,8 @@ task_definition:
   task_size:                             // Required for running tasks with Fargate launch type
     cpu_limit: string
     mem_limit: string
+  pid: string                            // Supported string values: task or host
+  ipc: string                            // Supported string values: task, host, or none
   services:
     <service_name>:
       essential: boolean
@@ -532,6 +534,10 @@ Fields listed under `task_definition` correspond to fields that will be included
 * `task_execution_role` should be the ARN of an IAM role. **NOTE**: This field is required to enable ECS Tasks to be configured with Cloudwatch Logs, or to pull images from ECR for your tasks.
 
 * `task_size` Contains two fields, CPU and Memory. These fields are required for launching tasks with Fargate launch type. See [the documentation on ECS Task Definition Parameters](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html) for more information.
+
+* `pid` allows you to control the process namespace in which your containers run. Valid values are `task` or `host`. See the [ECS documentation](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_definition_pidmode) for more information.
+
+* `ipc` allows you to control the IPC resource namespace in which your containers run. Valid values are `task`, `host`, or `none`. See the [ECS documentation](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_definition_ipcmode) for more information.
 
 **Run Params**
 Fields listed under `run_params` are for values needed as options to API calls not related to a Task Definition, such as `compose up` (RunTask) and `compose service up` (CreateService).
