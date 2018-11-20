@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.12.0
+* Feature - Add support for IPC and PID Docker flags #669
+
 ## 1.11.1
 * Bug - Revert IPC/PID flags due to bad default behavior
 
