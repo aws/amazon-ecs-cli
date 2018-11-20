@@ -45,8 +45,6 @@ type ECSParams struct {
 type EcsTaskDef struct {
 	NetworkMode          string         `yaml:"ecs_network_mode"`
 	TaskRoleArn          string         `yaml:"task_role_arn"`
-	PID                  string         `yaml:"pid"`
-	IPC                  string         `yaml:"ipc"`
 	ContainerDefinitions ContainerDefs  `yaml:"services"`
 	ExecutionRole        string         `yaml:"task_execution_role"`
 	TaskSize             TaskSize       `yaml:"task_size"` // Needed to run FARGATE tasks

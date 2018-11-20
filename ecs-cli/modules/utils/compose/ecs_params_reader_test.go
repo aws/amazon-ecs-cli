@@ -356,34 +356,6 @@ task_definition:
 	}
 }
 
-func TestReadECSParams_WithPIDandIPC(t *testing.T) {
-	ecsParamsString := `version: 1
-task_definition:
-  pid: host
-  ipc: task`
-
-	content := []byte(ecsParamsString)
-
-	tmpfile, err := ioutil.TempFile("", "ecs-params")
-	assert.NoError(t, err, "Could not create ecs-params tempfile")
-
-	ecsParamsFileName := tmpfile.Name()
-	defer os.Remove(ecsParamsFileName)
-
-	_, err = tmpfile.Write(content)
-	assert.NoError(t, err, "Could not write data to ecs-params tempfile")
-
-	err = tmpfile.Close()
-	assert.NoError(t, err, "Could not close tempfile")
-
-	ecsParams, err := ReadECSParams(ecsParamsFileName)
-
-	if assert.NoError(t, err) {
-		assert.Equal(t, "host", ecsParams.TaskDefinition.PID, "Expected PID to be set")
-		assert.Equal(t, "task", ecsParams.TaskDefinition.IPC, "Expected IPC to be set")
-	}
-}
-
 /** ConvertToECSNetworkConfiguration tests **/
 
 func TestConvertToECSNetworkConfiguration(t *testing.T) {

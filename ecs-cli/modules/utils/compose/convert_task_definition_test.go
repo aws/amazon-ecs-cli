@@ -1201,43 +1201,6 @@ func TestMemReservationHigherThanMemLimit(t *testing.T) {
 	assert.EqualError(t, err, "mem_limit must be greater than mem_reservation")
 }
 
-func TestConvertToTaskDefinitionWithECSParams_PIDandIPC(t *testing.T) {
-	containerConfig := &adapter.ContainerConfig{
-		Name:  "web",
-		Image: "httpd",
-	}
-
-	ecsParamsString := `version: 1
-task_definition:
-  pid: task
-  ipc: host`
-
-	content := []byte(ecsParamsString)
-
-	tmpfile, err := ioutil.TempFile("", "ecs-params")
-	assert.NoError(t, err, "Could not create ecs params tempfile")
-
-	defer os.Remove(tmpfile.Name())
-
-	_, err = tmpfile.Write(content)
-	assert.NoError(t, err, "Could not write data to ecs params tempfile")
-
-	err = tmpfile.Close()
-	assert.NoError(t, err, "Could not close tempfile")
-
-	ecsParamsFileName := tmpfile.Name()
-	ecsParams, err := ReadECSParams(ecsParamsFileName)
-	assert.NoError(t, err, "Could not read ECS Params file")
-
-	containerConfigs := []adapter.ContainerConfig{*containerConfig}
-	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
-
-	if assert.NoError(t, err) {
-		assert.Equal(t, "task", aws.StringValue(taskDefinition.PidMode))
-		assert.Equal(t, "host", aws.StringValue(taskDefinition.IpcMode))
-	}
-}
-
 func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
 	volumeConfigs := &adapter.Volumes{
 		VolumeWithHost: map[string]string{

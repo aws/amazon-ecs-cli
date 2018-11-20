@@ -34,8 +34,6 @@ type TaskDefParams struct {
 	taskRoleArn      string
 	cpu              string
 	memory           string
-	pidMode          string
-	ipcMode          string
 	containerDefs    ContainerDefs
 	executionRoleArn string
 }
@@ -125,7 +123,6 @@ func ConvertToTaskDefinition(params ConvertTaskDefParams) (*ecs.TaskDefinition, 
 		}
 	}
 
-	// Note: this is later converted into an ecs.RegisterTaskDefinitionInput in entity_helper.go
 	taskDefinition := &ecs.TaskDefinition{
 		Family:               aws.String(params.TaskDefName),
 		ContainerDefinitions: containerDefinitions,
@@ -134,8 +131,6 @@ func ConvertToTaskDefinition(params ConvertTaskDefParams) (*ecs.TaskDefinition, 
 		NetworkMode:          aws.String(taskDefParams.networkMode),
 		Cpu:                  aws.String(taskDefParams.cpu),
 		Memory:               aws.String(taskDefParams.memory),
-		PidMode:              aws.String(taskDefParams.pidMode),
-		IpcMode:              aws.String(taskDefParams.ipcMode),
 		ExecutionRoleArn:     aws.String(executionRoleArn),
 	}
 
@@ -143,6 +138,7 @@ func ConvertToTaskDefinition(params ConvertTaskDefParams) (*ecs.TaskDefinition, 
 	if params.RequiredCompatibilites != "" {
 		taskDefinition.RequiresCompatibilities = []*string{aws.String(params.RequiredCompatibilites)}
 	}
+
 	return taskDefinition, nil
 }
 
@@ -453,8 +449,6 @@ func convertTaskDefParams(ecsParams *ECSParams) (params TaskDefParams, e error) 
 	params.cpu = taskDef.TaskSize.Cpu
 	params.memory = taskDef.TaskSize.Memory
 	params.executionRoleArn = taskDef.ExecutionRole
-	params.ipcMode = taskDef.IPC
-	params.pidMode = taskDef.PID
 
 	return params, nil
 }
