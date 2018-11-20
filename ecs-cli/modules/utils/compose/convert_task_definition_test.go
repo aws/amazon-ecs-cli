@@ -239,6 +239,9 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	// verify task def fields
 	assert.Equal(t, taskRoleArn, aws.StringValue(taskDefinition.TaskRoleArn), "Expected taskRoleArn to match")
 	assert.Empty(t, taskDefinition.RequiresCompatibilities, "Did not expect RequiresCompatibilities to be set")
+	// PID and IPC should be unset
+	assert.Nil(t, taskDefinition.IpcMode, "Expected IpcMode to be nil")
+	assert.Nil(t, taskDefinition.PidMode, "Expected PidMode to be nil")
 
 	// verify container def fields
 	assert.Equal(t, aws.String(name), containerDef.Name, "Expected container def name to match")
@@ -432,6 +435,10 @@ task_definition:
 	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
 	if assert.NoError(t, err) {
+		// PID and IPC should be unset
+		assert.Nil(t, taskDefinition.IpcMode, "Expected IpcMode to be nil")
+		assert.Nil(t, taskDefinition.PidMode, "Expected PidMode to be nil")
+
 		assert.Equal(t, "host", aws.StringValue(taskDefinition.NetworkMode), "Expected network mode to match")
 		assert.Equal(t, "arn:aws:iam::123456789012:role/my_role", aws.StringValue(taskDefinition.TaskRoleArn), "Expected task role ARN to match")
 
@@ -1199,6 +1206,43 @@ func TestMemReservationHigherThanMemLimit(t *testing.T) {
 
 	_, err := ConvertToTaskDefinition(testParams)
 	assert.EqualError(t, err, "mem_limit must be greater than mem_reservation")
+}
+
+func TestConvertToTaskDefinitionWithECSParams_PIDandIPC(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "httpd",
+	}
+
+	ecsParamsString := `version: 1
+task_definition:
+  pid_mode: task
+  ipc_mode: host`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, "task", aws.StringValue(taskDefinition.PidMode))
+		assert.Equal(t, "host", aws.StringValue(taskDefinition.IpcMode))
+	}
 }
 
 func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
