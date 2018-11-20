@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.11.1
+* Bug - Revert IPC/PID flags due to bad default behavior
+
 ## 1.11.0
 * Feature - Add support ECS Secrets for #664
 * Feature - Add support for IPC and PID flags #665
