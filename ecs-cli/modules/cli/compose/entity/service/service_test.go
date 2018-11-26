@@ -31,6 +31,10 @@ import (
 	"github.com/urfave/cli"
 )
 
+//////////////////////////
+// Create Service tests //
+/////////////////////////
+
 func TestCreateWithDeploymentConfig(t *testing.T) {
 	deploymentMaxPercent := 200
 	deploymentMinPercent := 100
@@ -268,7 +272,7 @@ func ecsParamsWithTaskPlacement() *utils.ECSParams {
 	}
 }
 
-// Specifies TargeGroupArn to test ALB
+// Specifies TargetGroupArn to test ALB
 func TestCreateWithALB(t *testing.T) {
 	targetGroupArn := "targetGroupArn"
 	containerName := "containerName"
@@ -402,6 +406,84 @@ func TestCreateWithHealthCheckGracePeriodAndELB(t *testing.T) {
 	)
 }
 
+func TestDelayedServiceCreate(t *testing.T) {
+	// define test flag set
+	timeoutFlagValue := 1
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.ComposeServiceTimeOutFlag, strconv.Itoa(timeoutFlagValue), "")
+	cliContext := cli.NewContext(nil, flagSet, nil)
+
+	// call tests
+	createNewServiceWithDelay(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{})
+}
+
+func TestCreateWithServiceDiscovery(t *testing.T) {
+	sdsARN := "arn:aws:servicediscovery:eu-west-1:11111111111:service/srv-clydelovespudding"
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(flags.EnableServiceDiscoveryFlag, true, "")
+
+	// Reset mockable function after test
+	nonMockedServicediscoveryCreate := servicediscoveryCreate
+	defer func() { servicediscoveryCreate = nonMockedServicediscoveryCreate }()
+
+	servicediscoveryCreate = func(networkMode, serviceName string, c *context.ECSContext) (*ecs.ServiceRegistry, error) {
+		return &ecs.ServiceRegistry{
+			RegistryArn: aws.String(sdsARN),
+		}, nil
+	}
+
+	createServiceTest(
+		t,
+		flagSet,
+		&config.CommandConfig{},
+		&utils.ECSParams{},
+		func(input *ecs.CreateServiceInput) {
+			actualServiceRegistries := input.ServiceRegistries
+			assert.Len(t, actualServiceRegistries, 1, "Expected a single Service Registry")
+			assert.Equal(t, sdsARN, aws.StringValue(actualServiceRegistries[0].RegistryArn), "Service Registry should match")
+		},
+	)
+}
+
+func TestCreateWithServiceDiscoveryWithContainerNameAndPort(t *testing.T) {
+	sdsARN := "arn:aws:servicediscovery:eu-west-1:11111111111:service/srv-clydelovespudding"
+	containerName := "nginx"
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(flags.EnableServiceDiscoveryFlag, true, "")
+
+	// Reset mockable function after test
+	nonMockedServicediscoveryCreate := servicediscoveryCreate
+	defer func() { servicediscoveryCreate = nonMockedServicediscoveryCreate }()
+
+	servicediscoveryCreate = func(networkMode, serviceName string, c *context.ECSContext) (*ecs.ServiceRegistry, error) {
+		return &ecs.ServiceRegistry{
+			RegistryArn:   aws.String(sdsARN),
+			ContainerName: aws.String(containerName),
+			ContainerPort: aws.Int64(80),
+		}, nil
+	}
+
+	createServiceTest(
+		t,
+		flagSet,
+		&config.CommandConfig{},
+		&utils.ECSParams{},
+		func(input *ecs.CreateServiceInput) {
+			actualServiceRegistries := input.ServiceRegistries
+			assert.Len(t, actualServiceRegistries, 1, "Expected a single Service Registry")
+			assert.Equal(t, int64(80), aws.Int64Value(actualServiceRegistries[0].ContainerPort), "Expected container port to be 80")
+			assert.Equal(t, containerName, aws.StringValue(actualServiceRegistries[0].ContainerName), "Expected ContainerName to match")
+			assert.Equal(t, sdsARN, aws.StringValue(actualServiceRegistries[0].RegistryArn), "Service Registry should match")
+		},
+	)
+}
+
+//////////////////////////////////////
+// Helpers for CreateService tests //
+//////////////////////////////////////
 type validateCreateServiceInputField func(*ecs.CreateServiceInput)
 
 func createServiceTest(t *testing.T,
@@ -418,18 +500,18 @@ func createServiceTest(t *testing.T,
 
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	gomock.InOrder(
-		mockEcs.EXPECT().RegisterTaskDefinitionIfNeeded(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
-			// verify input fields
-			req := x.(*ecs.RegisterTaskDefinitionInput)
-			assert.Equal(t, aws.StringValue(taskDefinition.Family), aws.StringValue(req.Family), "Task Definition family should match")
+		mockEcs.EXPECT().RegisterTaskDefinitionIfNeeded(
+			gomock.Any(), // RegisterTaskDefinitionInput
+			gomock.Any(), // taskDefinitionCache
+		).Do(func(input, cache interface{}) {
+			verifyTaskDefinitionInput(t, taskDefinition, input.(*ecs.RegisterTaskDefinitionInput))
 		}).Return(&registerTaskDefResponse, nil),
 
 		mockEcs.EXPECT().CreateService(
-			gomock.Any(),
-			gomock.Any(),
-		).Do(func(serviceName, input interface{}) {
+			gomock.Any(), // createServiceInput
+		).Do(func(input interface{}) {
 			req := input.(*ecs.CreateServiceInput)
-			validateInput(req)
+			validateInput(req) // core test assertion
 		}).Return(nil),
 	)
 
@@ -454,6 +536,87 @@ func createServiceTest(t *testing.T,
 	assert.Equal(t, taskDefArn, aws.StringValue(service.TaskDefinition().TaskDefinitionArn), "TaskDefArn should match")
 }
 
+// helper for createNewServiceWithDelay
+func getCreateServiceWithDelayMockClient(t *testing.T,
+	ctrl *gomock.Controller,
+	taskDefinition ecs.TaskDefinition,
+	taskDefID string,
+	registerTaskDefResponse ecs.TaskDefinition) *mock_ecs.MockECSClient {
+
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+
+	createdService := &ecs.Service{
+		TaskDefinition: aws.String("arn/" + taskDefID),
+		Status:         aws.String("ACTIVE"),
+		DesiredCount:   aws.Int64(0),
+		RunningCount:   aws.Int64(0),
+		ServiceName:    aws.String("test-created"),
+	}
+	updatedService := *createdService
+	gomock.InOrder(
+		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(getDescribeServiceTestResponse(nil), nil),
+
+
+		mockEcs.EXPECT().RegisterTaskDefinitionIfNeeded(
+			gomock.Any(), // RegisterTaskDefinitionInput
+			gomock.Any(), // taskDefinitionCache
+		).Do(func(input, cache interface{}) {
+			verifyTaskDefinitionInput(t, taskDefinition, input.(*ecs.RegisterTaskDefinitionInput))
+		}).Return(&registerTaskDefResponse, nil),
+
+		mockEcs.EXPECT().CreateService(
+			gomock.Any(), // createServiceInput
+		).Do(func(input interface{}) {
+			req := input.(*ecs.CreateServiceInput)
+			observedTaskDefID := req.TaskDefinition
+			assert.Equal(t, taskDefID, aws.StringValue(observedTaskDefID), "Task Definition name should match")
+		}).Return(nil),
+
+		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(getDescribeServiceTestResponse(nil), nil),
+		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(getDescribeServiceTestResponse(createdService), nil).MaxTimes(2),
+		mockEcs.EXPECT().UpdateService(
+			gomock.Any(), // updateServiceInput
+		).Return(nil),
+		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(getDescribeServiceTestResponse(updatedService.SetDeployments([]*ecs.Deployment{&ecs.Deployment{}}).SetDesiredCount(1).SetRunningCount(1)), nil),
+	)
+	return mockEcs
+}
+
+func createNewServiceWithDelay(t *testing.T,
+	cliContext *cli.Context,
+	commandConfig *config.CommandConfig,
+	ecsParams *utils.ECSParams) {
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	taskDefID := "newTaskDefinitionId"
+	taskDefArn, taskDefinition, registerTaskDefResponse := getTestTaskDef(taskDefID)
+
+	mockEcs := getCreateServiceWithDelayMockClient(t, ctrl, taskDefinition, taskDefID, registerTaskDefResponse)
+
+	ecsContext := &context.ECSContext{
+		ECSClient:     mockEcs,
+		CommandConfig: commandConfig,
+		CLIContext:    cliContext,
+		ECSParams:     ecsParams,
+	}
+	ecsContext.SetProjectName()
+	service := NewService(ecsContext)
+	err := service.LoadContext()
+	assert.NoError(t, err, "Unexpected error while loading context in update service with new task def test")
+
+	service.SetTaskDefinition(&taskDefinition)
+	err = service.Up()
+	assert.NoError(t, err, "Unexpected error on service up with new task def")
+
+	// task definition should be set
+	assert.Equal(t, taskDefArn, aws.StringValue(service.TaskDefinition().TaskDefinitionArn), "TaskDefArn should match")
+}
+
+////////////////////////
+// LoadContext tests //
+///////////////////////
 func TestLoadContext(t *testing.T) {
 	deploymentMaxPercent := 150
 
@@ -507,6 +670,10 @@ func TestLoadContextForLoadBalancerInputError(t *testing.T) {
 	assert.Error(t, err, "Expected error to load context when flag is a string but got done")
 }
 
+/////////////////
+// Info tests //
+////////////////
+
 func TestServiceInfo(t *testing.T) {
 	entity.TestInfo(func(context *context.ECSContext) entity.ProjectEntity {
 		return NewService(context)
@@ -516,13 +683,20 @@ func TestServiceInfo(t *testing.T) {
 	}, t, true)
 }
 
+
+////////////////
+// Run tests //
+///////////////
+
 func TestServiceRun(t *testing.T) {
 	service := NewService(&context.ECSContext{})
 	err := service.Run(map[string][]string{})
 	assert.Error(t, err, "Expected unsupported error")
 }
 
-// Up Service tests
+///////////////////////
+// Up Service tests //
+//////////////////////
 
 type UpdateServiceParams struct {
 	serviceName            string
@@ -534,18 +708,7 @@ type UpdateServiceParams struct {
 	forceDeployment        bool
 }
 
-func TestDelayedServiceCreate(t *testing.T) {
-	// define test flag set
-	timeoutFlagValue := 1
-
-	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(flags.ComposeServiceTimeOutFlag, strconv.Itoa(timeoutFlagValue), "")
-	cliContext := cli.NewContext(nil, flagSet, nil)
-
-	// call tests
-	upNewServiceWithDelay(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{})
-}
-
+// For an existing service
 func TestUpdateExistingServiceWithForceFlag(t *testing.T) {
 	// define test flag set
 	forceFlagValue := true
@@ -659,68 +822,9 @@ func TestUpdateExistingServiceWithDesiredCountOverOne(t *testing.T) {
 	upServiceWithNewTaskDefTest(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
 }
 
-func TestCreateWithServiceDiscovery(t *testing.T) {
-	sdsARN := "arn:aws:servicediscovery:eu-west-1:11111111111:service/srv-clydelovespudding"
-
-	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(flags.EnableServiceDiscoveryFlag, true, "")
-
-	// Reset mockable function after test
-	nonMockedServicediscoveryCreate := servicediscoveryCreate
-	defer func() { servicediscoveryCreate = nonMockedServicediscoveryCreate }()
-
-	servicediscoveryCreate = func(networkMode, serviceName string, c *context.ECSContext) (*ecs.ServiceRegistry, error) {
-		return &ecs.ServiceRegistry{
-			RegistryArn: aws.String(sdsARN),
-		}, nil
-	}
-
-	createServiceTest(
-		t,
-		flagSet,
-		&config.CommandConfig{},
-		&utils.ECSParams{},
-		func(input *ecs.CreateServiceInput) {
-			actualServiceRegistries := input.ServiceRegistries
-			assert.Len(t, actualServiceRegistries, 1, "Expected a single Service Registry")
-			assert.Equal(t, sdsARN, aws.StringValue(actualServiceRegistries[0].RegistryArn), "Service Registry should match")
-		},
-	)
-}
-
-func TestCreateWithServiceDiscoveryWithContainerNameAndPort(t *testing.T) {
-	sdsARN := "arn:aws:servicediscovery:eu-west-1:11111111111:service/srv-clydelovespudding"
-	containerName := "nginx"
-
-	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.Bool(flags.EnableServiceDiscoveryFlag, true, "")
-
-	// Reset mockable function after test
-	nonMockedServicediscoveryCreate := servicediscoveryCreate
-	defer func() { servicediscoveryCreate = nonMockedServicediscoveryCreate }()
-
-	servicediscoveryCreate = func(networkMode, serviceName string, c *context.ECSContext) (*ecs.ServiceRegistry, error) {
-		return &ecs.ServiceRegistry{
-			RegistryArn:   aws.String(sdsARN),
-			ContainerName: aws.String(containerName),
-			ContainerPort: aws.Int64(80),
-		}, nil
-	}
-
-	createServiceTest(
-		t,
-		flagSet,
-		&config.CommandConfig{},
-		&utils.ECSParams{},
-		func(input *ecs.CreateServiceInput) {
-			actualServiceRegistries := input.ServiceRegistries
-			assert.Len(t, actualServiceRegistries, 1, "Expected a single Service Registry")
-			assert.Equal(t, int64(80), aws.Int64Value(actualServiceRegistries[0].ContainerPort), "Expected container port to be 80")
-			assert.Equal(t, containerName, aws.StringValue(actualServiceRegistries[0].ContainerName), "Expected ContainerName to match")
-			assert.Equal(t, sdsARN, aws.StringValue(actualServiceRegistries[0].RegistryArn), "Service Registry should match")
-		},
-	)
-}
+///////////////////////////////////////
+//  Update Service Helper functions  //
+///////////////////////////////////////
 
 func getDefaultUpdateInput() UpdateServiceParams {
 	return UpdateServiceParams{
@@ -729,6 +833,7 @@ func getDefaultUpdateInput() UpdateServiceParams {
 	}
 }
 
+// helper for upServiceWithNewTaskDefTest and upServiceWithCurrentTaskDefTest
 func getUpdateServiceMockClient(t *testing.T,
 	ctrl *gomock.Controller,
 	describeServiceResponse *ecs.DescribeServicesOutput,
@@ -740,81 +845,29 @@ func getUpdateServiceMockClient(t *testing.T,
 	gomock.InOrder(
 		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(describeServiceResponse, nil),
 
-		mockEcs.EXPECT().RegisterTaskDefinitionIfNeeded(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
-			verifyTaskDefinitionInput(t, taskDefinition, x.(*ecs.RegisterTaskDefinitionInput))
+		mockEcs.EXPECT().RegisterTaskDefinitionIfNeeded(
+			gomock.Any(), // RegisterTaskDefinitionInput
+			gomock.Any(), // taskDefinitionCache
+		).Do(func(input, cache interface{}) {
+			verifyTaskDefinitionInput(t, taskDefinition, input.(*ecs.RegisterTaskDefinitionInput))
 		}).Return(&registerTaskDefResponse, nil),
 
 		mockEcs.EXPECT().UpdateService(
-			gomock.Any(), // serviceName
-			gomock.Any(), // taskDefinition
-			gomock.Any(), // count
-			gomock.Any(), // deploymentConfig
-			gomock.Any(), // networkConfig
-			gomock.Any(), // healthCheckGracePeriod
-			gomock.Any(), // force
-		).Do(func(a, b, c, d, e, f, g interface{}) {
-			// validate the client is called with the expected inputs
+			gomock.Any(), // updateServiceInput
+		).Do(func(input interface{}) {
+			req := input.(*ecs.UpdateServiceInput)
 			observedInput := UpdateServiceParams{
-				serviceName:            a.(string),
-				taskDefinition:         b.(string),
-				count:                  c.(int64),
-				deploymentConfig:       d.(*ecs.DeploymentConfiguration),
-				networkConfig:          e.(*ecs.NetworkConfiguration),
-				healthCheckGracePeriod: f.(*int64),
-				forceDeployment:        g.(bool),
+				serviceName:            aws.StringValue(req.Service),
+				taskDefinition:         aws.StringValue(req.TaskDefinition),
+				count:                  aws.Int64Value(req.DesiredCount),
+				deploymentConfig:       req.DeploymentConfiguration,
+				networkConfig:          req.NetworkConfiguration,
+				healthCheckGracePeriod: req.HealthCheckGracePeriodSeconds,
+				forceDeployment:        aws.BoolValue(req.ForceNewDeployment),
 			}
 			assert.Equal(t, expectedInput, observedInput)
 
 		}).Return(nil),
-	)
-	return mockEcs
-}
-
-func getCreateServiceWithDelayMockClient(t *testing.T,
-	ctrl *gomock.Controller,
-	taskDefinition ecs.TaskDefinition,
-	taskDefID string,
-	registerTaskDefResponse ecs.TaskDefinition,
-) *mock_ecs.MockECSClient {
-
-	mockEcs := mock_ecs.NewMockECSClient(ctrl)
-
-	createdService := &ecs.Service{
-		TaskDefinition: aws.String("arn/" + taskDefID),
-		Status:         aws.String("ACTIVE"),
-		DesiredCount:   aws.Int64(0),
-		RunningCount:   aws.Int64(0),
-		ServiceName:    aws.String("test-created"),
-	}
-	updatedService := *createdService
-	gomock.InOrder(
-		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(getDescribeServiceTestResponse(nil), nil),
-
-		mockEcs.EXPECT().RegisterTaskDefinitionIfNeeded(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
-			verifyTaskDefinitionInput(t, taskDefinition, x.(*ecs.RegisterTaskDefinitionInput))
-		}).Return(&registerTaskDefResponse, nil),
-
-		mockEcs.EXPECT().CreateService(
-			gomock.Any(), // serviceName
-			gomock.Any(), // taskDefName
-		).Do(func(serviceName, input interface{}) {
-			req := input.(*ecs.CreateServiceInput)
-			observedTaskDefID := req.TaskDefinition
-			assert.Equal(t, taskDefID, aws.StringValue(observedTaskDefID), "Task Definition name should match")
-		}).Return(nil),
-
-		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(getDescribeServiceTestResponse(nil), nil),
-		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(getDescribeServiceTestResponse(createdService), nil).MaxTimes(2),
-		mockEcs.EXPECT().UpdateService(
-			gomock.Any(), // serviceName
-			gomock.Any(), // taskDefinition
-			gomock.Any(), // count
-			gomock.Any(), // deploymentConfig
-			gomock.Any(), // networkConfig
-			gomock.Any(), // healthCheckGracePeriod
-			gomock.Any(), // force
-		).Return(nil),
-		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(getDescribeServiceTestResponse(updatedService.SetDeployments([]*ecs.Deployment{&ecs.Deployment{}}).SetDesiredCount(1).SetRunningCount(1)), nil),
 	)
 	return mockEcs
 }
@@ -840,7 +893,8 @@ func upServiceWithCurrentTaskDefTest(t *testing.T,
 	// set up DescribeService() response
 	describeServiceResponse := getDescribeServiceTestResponse(existingService)
 
-	mockEcs := getUpdateServiceMockClient(t, ctrl, describeServiceResponse, taskDefinition, registerTaskDefResponse, expectedInput)
+	mockEcs := getUpdateServiceMockClient(t, ctrl, describeServiceResponse,
+	taskDefinition, registerTaskDefResponse, expectedInput)
 
 	ecsContext := &context.ECSContext{
 		ECSClient:     mockEcs,
@@ -859,38 +913,6 @@ func upServiceWithCurrentTaskDefTest(t *testing.T,
 	service.SetTaskDefinition(&taskDefinition)
 	err = service.Up()
 	assert.NoError(t, err, "Unexpected error on service up with current task def")
-
-	// task definition should be set
-	assert.Equal(t, taskDefArn, aws.StringValue(service.TaskDefinition().TaskDefinitionArn), "TaskDefArn should match")
-}
-
-func upNewServiceWithDelay(t *testing.T,
-	cliContext *cli.Context,
-	commandConfig *config.CommandConfig,
-	ecsParams *utils.ECSParams) {
-
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	taskDefID := "newTaskDefinitionId"
-	taskDefArn, taskDefinition, registerTaskDefResponse := getTestTaskDef(taskDefID)
-
-	mockEcs := getCreateServiceWithDelayMockClient(t, ctrl, taskDefinition, taskDefID, registerTaskDefResponse)
-
-	ecsContext := &context.ECSContext{
-		ECSClient:     mockEcs,
-		CommandConfig: commandConfig,
-		CLIContext:    cliContext,
-		ECSParams:     ecsParams,
-	}
-	ecsContext.SetProjectName()
-	service := NewService(ecsContext)
-	err := service.LoadContext()
-	assert.NoError(t, err, "Unexpected error while loading context in update service with new task def test")
-
-	service.SetTaskDefinition(&taskDefinition)
-	err = service.Up()
-	assert.NoError(t, err, "Unexpected error on service up with new task def")
 
 	// task definition should be set
 	assert.Equal(t, taskDefArn, aws.StringValue(service.TaskDefinition().TaskDefinitionArn), "TaskDefArn should match")
@@ -916,7 +938,8 @@ func upServiceWithNewTaskDefTest(t *testing.T,
 	// set up DescribeService() response
 	describeServiceResponse := getDescribeServiceTestResponse(existingService)
 
-	mockEcs := getUpdateServiceMockClient(t, ctrl, describeServiceResponse, taskDefinition, registerTaskDefResponse, expectedInput)
+	mockEcs := getUpdateServiceMockClient(t, ctrl, describeServiceResponse,
+	taskDefinition, registerTaskDefResponse, expectedInput)
 
 	ecsContext := &context.ECSContext{
 		ECSClient:     mockEcs,
@@ -924,6 +947,11 @@ func upServiceWithNewTaskDefTest(t *testing.T,
 		CLIContext:    cliContext,
 		ECSParams:     ecsParams,
 	}
+
+
+
+
+
 	service := NewService(ecsContext)
 	err := service.LoadContext()
 	assert.NoError(t, err, "Unexpected error while loading context in update service with new task def test")
@@ -937,22 +965,23 @@ func upServiceWithNewTaskDefTest(t *testing.T,
 }
 
 func getDescribeServiceTestResponse(existingService *ecs.Service) *ecs.DescribeServicesOutput {
-	describeFailure := &ecs.Failure{
-		Reason: aws.String("MISSING"),
-		Arn:    aws.String("arn:missing-service"),
+	if existingService != nil {
+		return &ecs.DescribeServicesOutput{
+			Failures: []*ecs.Failure{},
+			Services: []*ecs.Service{existingService},
+		}
 	}
-	existingServiceResponse := &ecs.DescribeServicesOutput{
-		Failures: []*ecs.Failure{},
-		Services: []*ecs.Service{existingService},
-	}
-	emptyDescribeServiceResponse := &ecs.DescribeServicesOutput{
-		Failures: []*ecs.Failure{describeFailure},
+
+	// otherwise service does not exist; return empty response
+	return &ecs.DescribeServicesOutput{
+		Failures: []*ecs.Failure{
+			&ecs.Failure{
+				Reason: aws.String("MISSING"),
+				Arn:    aws.String("arn:missing-service"),
+			},
+		},
 		Services: []*ecs.Service{},
 	}
-	if existingService != nil {
-		return existingServiceResponse
-	}
-	return emptyDescribeServiceResponse
 }
 
 func getTestTaskDef(taskDefID string) (taskDefArn string, taskDefinition, registerTaskDefResponse ecs.TaskDefinition) {

@@ -42,8 +42,8 @@ type ECSClient interface {
 	IsActiveCluster(clusterName string) (bool, error)
 
 	// Service related
-	CreateService(serviceName string, createServiceInput *ecs.CreateServiceInput) error
-	UpdateService(serviceName, taskDefinitionName string, count int64, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, healthCheckGracePeriod *int64, force bool) error
+	CreateService(createServiceInput *ecs.CreateServiceInput) error
+	UpdateService(updateServiceInput *ecs.UpdateServiceInput) error
 	DescribeService(serviceName string) (*ecs.DescribeServicesOutput, error)
 	DeleteService(serviceName string) error
 
@@ -131,10 +131,10 @@ func (c *ecsClient) DeleteService(serviceName string) error {
 	return nil
 }
 
-func (c *ecsClient) CreateService(serviceName string, createServiceInput *ecs.CreateServiceInput) error {
-	if _, err := c.client.CreateService(createServiceInput); err != nil {
+func (c *ecsClient) CreateService(input *ecs.CreateServiceInput) error {
+	if _, err := c.client.CreateService(input); err != nil {
 		log.WithFields(log.Fields{
-			"service": serviceName,
+			"service": aws.StringValue(input.ServiceName),
 			"error":   err,
 		}).Error("Error creating service")
 		return err
@@ -143,48 +143,15 @@ func (c *ecsClient) CreateService(serviceName string, createServiceInput *ecs.Cr
 	return nil
 }
 
-func (c *ecsClient) UpdateService(serviceName, taskDefinition string, count int64, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, healthCheckGracePeriod *int64, force bool) error {
-	input := &ecs.UpdateServiceInput{
-		DesiredCount:            aws.Int64(count),
-		Service:                 aws.String(serviceName),
-		Cluster:                 aws.String(c.config.Cluster),
-		DeploymentConfiguration: deploymentConfig,
-		ForceNewDeployment:      &force,
-	}
-
-	if healthCheckGracePeriod != nil {
-		input.HealthCheckGracePeriodSeconds = aws.Int64(*healthCheckGracePeriod)
-	}
-
-	if networkConfig != nil {
-		input.NetworkConfiguration = networkConfig
-	}
-
-	if taskDefinition != "" {
-		input.TaskDefinition = aws.String(taskDefinition)
-	}
-	_, err := c.client.UpdateService(input)
-	if err != nil {
+func (c *ecsClient) UpdateService(input *ecs.UpdateServiceInput) error {
+	if _, err := c.client.UpdateService(input); err != nil {
 		log.WithFields(log.Fields{
-			"service": serviceName,
+			"service": aws.StringValue(input.Service),
 			"error":   err,
 		}).Error("Error updating service")
 		return err
 	}
-	fields := log.Fields{
-		"service": serviceName,
-		"count":   count,
-	}
-	if taskDefinition != "" {
-		fields["taskDefinition"] = taskDefinition
-	}
-	if deploymentConfig != nil && deploymentConfig.MaximumPercent != nil {
-		fields["deployment-max-percent"] = aws.Int64Value(deploymentConfig.MaximumPercent)
-	}
-	if deploymentConfig != nil && deploymentConfig.MinimumHealthyPercent != nil {
-		fields["deployment-min-healthy-percent"] = aws.Int64Value(deploymentConfig.MinimumHealthyPercent)
-	}
-	log.WithFields(fields).Debug("Updated ECS service")
+
 	return nil
 }
 

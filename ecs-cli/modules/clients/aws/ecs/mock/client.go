@@ -63,15 +63,15 @@ func (mr *MockECSClientMockRecorder) CreateCluster(arg0 interface{}) *gomock.Cal
 }
 
 // CreateService mocks base method
-func (m *MockECSClient) CreateService(arg0 string, arg1 *ecs0.CreateServiceInput) error {
-	ret := m.ctrl.Call(m, "CreateService", arg0, arg1)
+func (m *MockECSClient) CreateService(arg0 *ecs0.CreateServiceInput) error {
+	ret := m.ctrl.Call(m, "CreateService", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateService indicates an expected call of CreateService
-func (mr *MockECSClientMockRecorder) CreateService(arg0, arg1 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateService", reflect.TypeOf((*MockECSClient)(nil).CreateService), arg0, arg1)
+func (mr *MockECSClientMockRecorder) CreateService(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateService", reflect.TypeOf((*MockECSClient)(nil).CreateService), arg0)
 }
 
 // DeleteCluster mocks base method
@@ -228,13 +228,13 @@ func (mr *MockECSClientMockRecorder) StopTask(arg0 interface{}) *gomock.Call {
 }
 
 // UpdateService mocks base method
-func (m *MockECSClient) UpdateService(arg0, arg1 string, arg2 int64, arg3 *ecs0.DeploymentConfiguration, arg4 *ecs0.NetworkConfiguration, arg5 *int64, arg6 bool) error {
-	ret := m.ctrl.Call(m, "UpdateService", arg0, arg1, arg2, arg3, arg4, arg5, arg6)
+func (m *MockECSClient) UpdateService(arg0 *ecs0.UpdateServiceInput) error {
+	ret := m.ctrl.Call(m, "UpdateService", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateService indicates an expected call of UpdateService
-func (mr *MockECSClientMockRecorder) UpdateService(arg0, arg1, arg2, arg3, arg4, arg5, arg6 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateService", reflect.TypeOf((*MockECSClient)(nil).UpdateService), arg0, arg1, arg2, arg3, arg4, arg5, arg6)
+func (mr *MockECSClientMockRecorder) UpdateService(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateService", reflect.TypeOf((*MockECSClient)(nil).UpdateService), arg0)
 }

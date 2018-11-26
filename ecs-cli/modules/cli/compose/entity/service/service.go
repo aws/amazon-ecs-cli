@@ -211,9 +211,10 @@ func (s *Service) Start() error {
 }
 
 // Up creates the task definition and service and starts the containers if necessary.
-// It does so by calling DescribeService to see if its present, else's calls Create() and Start()
-// If the compose file had changed, it would update the service with the new task definition
-// by calling UpdateService with the new task definition
+// It does so by calling DescribeService to see if it exists, then calls Create() and Start().
+// Otherwise, if the compose or ecs-params files have changed, it will update
+// the existing service with the new task definition by calling UpdateService
+// with the new task definition and service parameters.
 func (s *Service) Up() error {
 	// describe service to get the task definition and count running
 	ecsService, err := s.describeService()
@@ -252,8 +253,8 @@ func (s *Service) Up() error {
 		return s.startService()
 	}
 
-	// Update Service
-	if err = s.updateExistingService(ecsService, newTaskDefinition); err != nil {
+	// Update Existing Service
+	if err = s.updateService(ecsService, newTaskDefinition); err != nil {
 		return err
 	}
 
@@ -265,7 +266,39 @@ func (s *Service) Up() error {
 	return nil
 }
 
-func (s *Service) updateExistingService(ecsService *ecs.Service, newTaskDefinition *ecs.TaskDefinition) error {
+func (s *Service) buildUpdateServiceInput(count int64, serviceName, taskDefinition string) (*ecs.UpdateServiceInput, error) {
+	cluster := s.Context().CommandConfig.Cluster
+	deploymentConfig := s.DeploymentConfig()
+	forceDeployment := s.Context().CLIContext.Bool(flags.ForceDeploymentFlag)
+	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(s.ecsContext.ECSParams)
+	if err != nil {
+		return nil, err
+	}
+
+	input := &ecs.UpdateServiceInput{
+		DesiredCount:            aws.Int64(count),
+		Service:                 aws.String(serviceName),
+		Cluster:                 aws.String(cluster),
+		DeploymentConfiguration: deploymentConfig,
+		ForceNewDeployment:      &forceDeployment,
+	}
+
+	if s.healthCheckGP != nil {
+		input.HealthCheckGracePeriodSeconds = aws.Int64(*s.healthCheckGP)
+	}
+
+	if networkConfig != nil {
+		input.NetworkConfiguration = networkConfig
+	}
+
+	if taskDefinition != "" {
+		input.TaskDefinition = aws.String(taskDefinition)
+	}
+
+	return input, nil
+}
+
+func (s *Service) updateService(ecsService *ecs.Service, newTaskDefinition *ecs.TaskDefinition) error {
 	if s.Context().CLIContext.Bool(flags.EnableServiceDiscoveryFlag) {
 		return fmt.Errorf("Service Discovery can not be enabled on an existing ECS Service")
 	}
@@ -288,41 +321,26 @@ func (s *Service) updateExistingService(ecsService *ecs.Service, newTaskDefiniti
 	newTaskDefinitionId := entity.GetIdFromArn(newTaskDefinition.TaskDefinitionArn)
 
 	if oldTaskDefinitionId == newTaskDefinitionId {
-		return s.updateService(newCount)
+		return s.updateServiceCount(newCount)
 	}
 
-	deploymentConfig := s.DeploymentConfig()
 	// if the task definitions were different, updateService with new task definition
 	// this creates a deployment in ECS and slowly takes down the containers with old ones and starts new ones
 
-	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(s.ecsContext.ECSParams)
+	updateServiceInput, err := s.buildUpdateServiceInput(newCount, ecsServiceName, newTaskDefinitionId)
 	if err != nil {
 		return err
 	}
 
-	forceDeployment := s.Context().CLIContext.Bool(flags.ForceDeploymentFlag)
-
-	err = s.Context().ECSClient.UpdateService(ecsServiceName, newTaskDefinitionId, newCount, deploymentConfig, networkConfig, s.healthCheckGP, forceDeployment)
+	err = s.Context().ECSClient.UpdateService(updateServiceInput)
 	if err != nil {
 		return err
 	}
-	fields := log.Fields{
-		"serviceName":    ecsServiceName,
-		"taskDefinition": newTaskDefinitionId,
-		"desiredCount":   newCount,
-	}
-	if deploymentConfig != nil && deploymentConfig.MaximumPercent != nil {
-		fields["deployment-max-percent"] = aws.Int64Value(deploymentConfig.MaximumPercent)
-	}
-	if deploymentConfig != nil && deploymentConfig.MinimumHealthyPercent != nil {
-		fields["deployment-min-healthy-percent"] = aws.Int64Value(deploymentConfig.MinimumHealthyPercent)
-	}
-	if s.healthCheckGP != nil {
-		fields["health-check-grace-period"] = *s.healthCheckGP
-	}
 
-	log.WithFields(fields).Info("Updated the ECS service with a new task definition. " +
-		"Old containers will be stopped automatically, and replaced with new ones")
+	message := "Updated the ECS service with a new task definition. " +
+	"Old containers will be stopped automatically, and replaced with new ones"
+	s.logUpdateService(updateServiceInput, message)
+
 	return waitForServiceTasks(s, ecsServiceName)
 }
 
@@ -336,13 +354,13 @@ func (s *Service) Info(filterProjectTasks bool) (project.InfoSet, error) {
 
 // Scale the service desired count to be the specified count
 func (s *Service) Scale(count int) error {
-	return s.updateService(int64(count))
+	return s.updateServiceCount(int64(count))
 }
 
 // Stop stops all the containers in the service by calling ECS.UpdateService(count=0)
 // TODO, Store the current desiredCount in a cache, so that number of tasks(group of containers) can be started again
 func (s *Service) Stop() error {
-	return s.updateService(int64(0))
+	return s.updateServiceCount(int64(0))
 }
 
 // Down stops any running containers(tasks) by calling Stop() and deletes an active ECS Service
@@ -527,7 +545,7 @@ func (s *Service) createService() error {
 	defer s.logCreateService(serviceName, taskDefName)
 
 	// Call ECS Client
-	err = s.Context().ECSClient.CreateService(serviceName, createServiceInput)
+	err = s.Context().ECSClient.CreateService(createServiceInput)
 	if err != nil {
 		return err
 	}
@@ -574,7 +592,7 @@ func (s *Service) startService() error {
 				"desiredCount":     desiredCount,
 				"force-deployment": strconv.FormatBool(forceDeployment),
 			}).Info("Forcing new deployment of running ECS Service")
-			return s.updateService(desiredCount)
+			return s.updateServiceCount(desiredCount)
 		}
 		//NoOp
 		log.WithFields(log.Fields{
@@ -584,43 +602,47 @@ func (s *Service) startService() error {
 
 		return waitForServiceTasks(s, serviceName)
 	}
-	return s.updateService(int64(1))
+	return s.updateServiceCount(int64(1))
 }
 
-// updateService calls the underlying ECS.UpdateService with the specified count
-func (s *Service) updateService(count int64) error {
+// updateServiceCount calls the underlying ECS.UpdateService with the specified count
+// NOTE: If network configuration has changed in ECS Params, this will also be updated
+func (s *Service) updateServiceCount(count int64) error {
 	serviceName := entity.GetServiceName(s)
-	deploymentConfig := s.DeploymentConfig()
-	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(s.ecsContext.ECSParams)
-	forceDeployment := s.Context().CLIContext.Bool(flags.ForceDeploymentFlag)
 
+	updateServiceInput, err := s.buildUpdateServiceInput(count, serviceName, "")
 	if err != nil {
 		return err
 	}
 
-	if err = s.Context().ECSClient.UpdateService(serviceName, "", count, deploymentConfig, networkConfig, s.healthCheckGP, forceDeployment); err != nil {
+	if err = s.Context().ECSClient.UpdateService(updateServiceInput); err != nil {
 		return err
 	}
 
+	s.logUpdateService(updateServiceInput, "Updated ECS service successfully")
+
+	return waitForServiceTasks(s, serviceName)
+}
+
+func (s *Service) logUpdateService(input *ecs.UpdateServiceInput, message string) {
 	fields := log.Fields{
-		"serviceName":  serviceName,
-		"desiredCount": count,
+		"service":     aws.StringValue(input.Service),
+		"desiredCount": aws.Int64Value(input.DesiredCount),
 	}
-	if deploymentConfig != nil && deploymentConfig.MaximumPercent != nil {
-		fields["deployment-max-percent"] = aws.Int64Value(deploymentConfig.MaximumPercent)
+	if s.deploymentConfig != nil && s.deploymentConfig.MaximumPercent != nil {
+		fields["deployment-max-percent"] = aws.Int64Value(s.deploymentConfig.MaximumPercent)
 	}
-	if deploymentConfig != nil && deploymentConfig.MinimumHealthyPercent != nil {
-		fields["deployment-min-healthy-percent"] = aws.Int64Value(deploymentConfig.MinimumHealthyPercent)
+	if s.deploymentConfig != nil && s.deploymentConfig.MinimumHealthyPercent != nil {
+		fields["deployment-min-healthy-percent"] = aws.Int64Value(s.deploymentConfig.MinimumHealthyPercent)
 	}
 	if s.healthCheckGP != nil {
 		fields["health-check-grace-period"] = *s.healthCheckGP
 	}
-	if forceDeployment {
-		fields["force-deployment"] = forceDeployment
+	if input.ForceNewDeployment != nil {
+		fields["force-deployment"] = aws.BoolValue(input.ForceNewDeployment)
 	}
 
-	log.WithFields(fields).Info("Updated ECS service successfully")
-	return waitForServiceTasks(s, serviceName)
+	log.WithFields(fields).Info(message)
 }
 
 func getSDSIDFromArn(sdsARN string) string {
