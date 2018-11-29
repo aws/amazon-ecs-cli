@@ -137,47 +137,47 @@ func serviceDiscoveryFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.BoolFlag{
 			Name:  flags.EnableServiceDiscoveryFlag,
-			Usage: "Enable Service Discovery for your ECS Service",
+			Usage: "[Service Discovery] Enable Service Discovery for your ECS Service",
 		},
 		cli.StringFlag{
 			Name:  flags.VpcIdFlag,
-			Usage: "Service Discovery - The VPC that will be attached to the private DNS namespace",
+			Usage: "[Service Discovery] The VPC that will be attached to the private DNS namespace",
 		},
 		cli.StringFlag{
 			Name:  flags.PrivateDNSNamespaceNameFlag,
-			Usage: "Service Discovery - The name of the private DNS namespace to use with Service Discovery. The CLI creates the namespace if it doesn't already exist. For example, if the name is 'corp' than a service 'foo' will be reachable via DNS at 'foo.corp'",
+			Usage: "[Service Discovery] The name of the private DNS namespace to use with Service Discovery. The CLI creates the namespace if it doesn't already exist. For example, if the name is 'corp' than a service 'foo' will be reachable via DNS at 'foo.corp'",
 		},
 		cli.StringFlag{
 			Name:  flags.PrivateDNSNamespaceIDFlag,
-			Usage: "Service Discovery - The ID of an existing private DNS namespace to use with Service Discovery.",
+			Usage: "[Service Discovery] The ID of an existing private DNS namespace to use with Service Discovery.",
 		},
 		cli.StringFlag{
 			Name:  flags.PublicDNSNamespaceIDFlag,
-			Usage: "Service Discovery - The ID of an existing public DNS namespace to use with Service Discovery.",
+			Usage: "[Service Discovery] The ID of an existing public DNS namespace to use with Service Discovery.",
 		},
 		cli.StringFlag{
 			Name:  flags.PublicDNSNamespaceNameFlag,
-			Usage: "Service Discovery - The name of an existing public DNS namespace to use with Service Discovery. For example, if the name is 'corp' than a service 'foo' will be reachable via DNS at 'foo.corp'",
+			Usage: "[Service Discovery] The name of an existing public DNS namespace to use with Service Discovery. For example, if the name is 'corp' than a service 'foo' will be reachable via DNS at 'foo.corp'",
 		},
 		cli.StringFlag{
 			Name:  flags.ServiceDiscoveryContainerNameFlag,
-			Usage: "Service Discovery - The name of the container (service name in compose) that will use Service Discovery",
+			Usage: "[Service Discovery] The name of the container (service name in compose) that will use Service Discovery",
 		},
 		cli.StringFlag{
 			Name:  flags.ServiceDiscoveryContainerPortFlag,
-			Usage: "Service Discovery - The port on the container used for Service Discovery",
+			Usage: "[Service Discovery] The port on the container used for Service Discovery",
 		},
 		cli.StringFlag{
 			Name:  flags.DNSTTLFlag,
-			Usage: "Service Discovery - The TTL of the DNS Records used with the Route53 Service Discovery Resource",
+			Usage: "[Service Discovery] The TTL of the DNS Records used with the Route53 Service Discovery Resource",
 		},
 		cli.StringFlag{
 			Name:  flags.DNSTypeFlag,
-			Usage: "Service Discovery - The TTL of the DNS Records used with the Route53 Service Discovery Resource. Note that SRV records require container name and container port",
+			Usage: "[Service Discovery] The type of the DNS Records used with the Route53 Service Discovery Resource (A or SRV). Note that SRV records require container name and container port",
 		},
 		cli.StringFlag{
 			Name:  flags.HealthcheckCustomConfigFailureThresholdFlag,
-			Usage: "Service Discovery - The number of 30-second intervals that you want service discovery service to wait after receiving an UpdateInstanceCustomHealthStatus request before it changes the health status of a service instance",
+			Usage: "[Service Discovery] The number of 30-second intervals that you want service discovery service to wait after receiving an UpdateInstanceCustomHealthStatus request before it changes the health status of a service instance",
 		},
 	}
 }
@@ -186,7 +186,7 @@ func updateServiceDiscoveryFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.BoolFlag{
 			Name:  flags.UpdateServiceDiscoveryFlag,
-			Usage: "[Optional] Service Discovery - Allows update of Service Discovery Service settings DNS TTL and Failure Threshold.",
+			Usage: "[Optional] [Service Discovery] Allows update of Service Discovery Service settings DNS TTL and Failure Threshold.",
 		},
 	}
 }
@@ -195,7 +195,7 @@ func deleteServiceDiscoveryFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.BoolFlag{
 			Name:  flags.DeletePrivateNamespaceFlag,
-			Usage: "[Optional] Service Discovery - Deletes the private namespace created by the ECS CLI",
+			Usage: "[Optional] [Service Discovery] Deletes the private namespace created by the ECS CLI",
 		},
 	}
 }
