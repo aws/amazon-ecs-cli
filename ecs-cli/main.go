@@ -25,7 +25,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/license"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/log"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/regcreds"
-	logger "github.com/awslabs/amazon-ecr-credential-helper/ecr-login/config"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/logger"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/version"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
