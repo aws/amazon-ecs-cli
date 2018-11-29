@@ -358,7 +358,7 @@ func TestConvertToTaskDefinitionLaunchTypeFargate(t *testing.T) {
 	assert.Equal(t, "FARGATE", aws.StringValue(taskDefinition.RequiresCompatibilities[0]))
 }
 
-// Tests for ConvertToContainerDefinition with ECS Params
+// Tests for ConvertToTaskDefinition with ECS Params
 func TestConvertToTaskDefinitionWithECSParams_ComposeMemoryLessThanMemoryRes(t *testing.T) {
 	// set up containerConfig w/o value for Memory
 	containerConfig := &adapter.ContainerConfig{
@@ -1062,8 +1062,9 @@ task_definition:
 	web := findContainerByName("web", containerDefs)
 
 	if assert.NoError(t, err) {
-		assert.Equal(t, webMem, aws.Int64Value(web.Memory), "Expected Memory to match")
 		assert.Equal(t, webMem, aws.Int64Value(web.MemoryReservation), "Expected MemoryReservation to match")
+		// check mem_limit not set
+		assert.Empty(t, web.Memory, "Expected Memory to be nil")
 		// check config values not present in ecs-params are present
 		assert.Empty(t, web.Cpu, "Expected CPU to be empty")
 	}
@@ -1165,7 +1166,7 @@ func TestConvertToTaskDefinition_MemReservationOnlyProvided(t *testing.T) {
 	containerDefs := taskDefinition.ContainerDefinitions
 	web := findContainerByName("web", containerDefs)
 
-	assert.Equal(t, webMem, aws.Int64Value(web.Memory), "Expected Memory to match")
+	assert.Empty(t, web.Memory, "Expected Memory to be nil")
 	assert.Equal(t, webMem, aws.Int64Value(web.MemoryReservation), "Expected MemoryReservation to match")
 	assert.Empty(t, web.Cpu, "Expected CPU to be empty")
 }
@@ -1505,6 +1506,29 @@ task_definition:
 		assert.Equal(t, aws.Int64(5), web.HealthCheck.Retries)
 		assert.Equal(t, aws.Int64(50), web.HealthCheck.StartPeriod)
 	}
+}
+
+func TestConvertToTaskDefinitionWithECSParams_OnlyTaskMemProvided(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name: "web",
+	}
+	ecsParams := &ECSParams{
+		TaskDefinition: EcsTaskDef{
+			TaskSize: TaskSize{
+				Memory: "1gb",
+			},
+		},
+	}
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	assert.NoError(t, err)
+	assert.Empty(t, web.Memory, "Expected Memory to be nil")
+	assert.Equal(t, taskDefinition.Memory, aws.String("1gb"))
 }
 
 func TestConvertToTaskDefinitionWithECSParams_HealthCheckOverrideCompose(t *testing.T) {

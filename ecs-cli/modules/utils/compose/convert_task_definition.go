@@ -24,10 +24,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const (
-	defaultMemLimit = 512
-)
-
 // TaskDefParams contains basic fields to build an ECS task definition
 type TaskDefParams struct {
 	networkMode      string
@@ -85,7 +81,11 @@ func ConvertToTaskDefinition(params ConvertTaskDefParams) (*ecs.TaskDefinition, 
 			return nil, errors.New("Task definition does not have any essential containers")
 		}
 
-		containerDef, err := convertToContainerDef(&containerConfig, ecsContainerDef)
+		taskVals := taskLevelValues{
+			MemLimit: taskDefParams.memory,
+		}
+
+		containerDef, err := reconcileContainerDef(&containerConfig, ecsContainerDef, taskVals)
 		if err != nil {
 			return nil, err
 		}
@@ -148,135 +148,6 @@ func ConvertToTaskDefinition(params ConvertTaskDefParams) (*ecs.TaskDefinition, 
 		taskDefinition.SetIpcMode(taskDefParams.ipcMode)
 	}
 	return taskDefinition, nil
-}
-
-// convertToContainerDef transforms each service in docker-compose.yml and
-// ecs-params.yml to an equivalent ECS container definition
-func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *ContainerDef) (*ecs.ContainerDefinition, error) {
-	outputContDef := &ecs.ContainerDefinition{}
-
-	// Populate ECS container definition, offloading the validation to aws-sdk
-	outputContDef.SetCommand(aws.StringSlice(inputCfg.Command))
-	outputContDef.SetDnsSearchDomains(aws.StringSlice(inputCfg.DNSSearchDomains))
-	outputContDef.SetDnsServers(aws.StringSlice(inputCfg.DNSServers))
-	outputContDef.SetDockerLabels(inputCfg.DockerLabels)
-	outputContDef.SetDockerSecurityOptions(aws.StringSlice(inputCfg.DockerSecurityOptions))
-	outputContDef.SetEntryPoint(aws.StringSlice(inputCfg.Entrypoint))
-	outputContDef.SetEnvironment(inputCfg.Environment)
-	outputContDef.SetExtraHosts(inputCfg.ExtraHosts)
-	if inputCfg.Hostname != "" {
-		outputContDef.SetHostname(inputCfg.Hostname)
-	}
-	outputContDef.SetImage(inputCfg.Image)
-	outputContDef.SetLinks(aws.StringSlice(inputCfg.Links)) // TODO, read from external links
-	outputContDef.SetLogConfiguration(inputCfg.LogConfiguration)
-	outputContDef.SetMountPoints(inputCfg.MountPoints)
-	outputContDef.SetName(inputCfg.Name)
-	outputContDef.SetPrivileged(inputCfg.Privileged)
-	outputContDef.SetPortMappings(inputCfg.PortMappings)
-	outputContDef.SetReadonlyRootFilesystem(inputCfg.ReadOnly)
-	outputContDef.SetUlimits(inputCfg.Ulimits)
-
-	if inputCfg.User != "" {
-		outputContDef.SetUser(inputCfg.User)
-	}
-	outputContDef.SetVolumesFrom(inputCfg.VolumesFrom)
-	if inputCfg.WorkingDirectory != "" {
-		outputContDef.SetWorkingDirectory(inputCfg.WorkingDirectory)
-	}
-
-	// Set Linux Parameters
-	outputContDef.LinuxParameters = &ecs.LinuxParameters{Capabilities: &ecs.KernelCapabilities{}}
-	if inputCfg.CapAdd != nil {
-		outputContDef.LinuxParameters.Capabilities.SetAdd(aws.StringSlice(inputCfg.CapAdd))
-	}
-	if inputCfg.CapDrop != nil {
-		outputContDef.LinuxParameters.Capabilities.SetDrop(aws.StringSlice(inputCfg.CapDrop))
-	}
-	if inputCfg.Devices != nil {
-		outputContDef.LinuxParameters.SetDevices(inputCfg.Devices)
-	}
-
-	// Only set shmSize if specified. Otherwise we expect this sharedMemorySize for the
-	// containerDefinition to be null; Docker will by default allocate 64M for shared memory if
-	// shmSize is null.
-	if inputCfg.ShmSize != 0 {
-		outputContDef.LinuxParameters.SetSharedMemorySize(inputCfg.ShmSize)
-	}
-
-	// Only set tmpfs if tmpfs mounts are specified.
-	if inputCfg.Tmpfs != nil { // will never be nil?
-		outputContDef.LinuxParameters.SetTmpfs(inputCfg.Tmpfs)
-	}
-
-	// initialize container resources from inputCfg
-	cpu := inputCfg.CPU
-	mem := inputCfg.Memory
-	memRes := inputCfg.MemoryReservation
-	healthCheck := inputCfg.HealthCheck
-
-	// Set essential & resource fields from ecs-params file, if present
-	if ecsContainerDef != nil {
-		outputContDef.Essential = aws.Bool(ecsContainerDef.Essential)
-
-		// CPU and Memory are expected to be set here if compose v3 was used
-		cpu = resolveIntResourceOverride(inputCfg.Name, cpu, ecsContainerDef.Cpu, "CPU")
-
-		ecsMemInMB := adapter.ConvertToMemoryInMB(int64(ecsContainerDef.Memory))
-		mem = resolveIntResourceOverride(inputCfg.Name, mem, ecsMemInMB, "MemoryLimit")
-
-		ecsMemResInMB := adapter.ConvertToMemoryInMB(int64(ecsContainerDef.MemoryReservation))
-
-		memRes = resolveIntResourceOverride(inputCfg.Name, memRes, ecsMemResInMB, "MemoryReservation")
-
-		credParam := ecsContainerDef.RepositoryCredentials.CredentialsParameter
-
-		if credParam != "" {
-			outputContDef.RepositoryCredentials = &ecs.RepositoryCredentials{}
-			outputContDef.RepositoryCredentials.SetCredentialsParameter(credParam)
-		}
-
-		if len(ecsContainerDef.Secrets) > 0 {
-			outputContDef.SetSecrets(convertToECSSecrets(ecsContainerDef.Secrets))
-		}
-
-		var err error
-		healthCheck, err = resolveHealthCheck(inputCfg.Name, healthCheck, ecsContainerDef.HealthCheck)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// One or both of memory and memoryReservation is required to register a task definition with ECS
-	// If neither is provided by 1) compose file or 2) ecs-params, set default
-	// NOTE: Docker does not set a memory limit for containers
-	if mem == 0 && memRes == 0 {
-		mem = defaultMemLimit
-	}
-
-	// Docker compose allows specifying memory reservation with memory, so
-	// we should default to minimum allowable value for memory hard limit
-	if mem == 0 && memRes != 0 {
-		mem = memRes
-	}
-
-	if mem < memRes {
-		return nil, errors.New("mem_limit must be greater than mem_reservation")
-	}
-
-	outputContDef.SetCpu(cpu)
-	if mem != 0 {
-		outputContDef.SetMemory(mem)
-	}
-	if memRes != 0 {
-		outputContDef.SetMemoryReservation(memRes)
-	}
-
-	if healthCheck != nil {
-		outputContDef.SetHealthCheck(healthCheck)
-	}
-
-	return outputContDef, nil
 }
 
 func resolveHealthCheck(serviceName string, healthCheck *ecs.HealthCheck, ecsParamsHealthCheck *HealthCheck) (*ecs.HealthCheck, error) {
