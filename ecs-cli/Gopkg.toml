@@ -32,10 +32,6 @@
   version = "0.2.0"
 
 [[constraint]]
-  name = "github.com/cihub/seelog"
-  revision = "a98235bd6d927ba8379ef4f0050c32c9a2ea17b8"
-
-[[constraint]]
   name = "github.com/docker/go-units"
   revision = "e30f1e79f3cd72542f2026ceec18d3bd67ab859c"
 

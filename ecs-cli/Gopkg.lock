@@ -95,11 +95,6 @@
   version = "v0.2.0"
 
 [[projects]]
-  name = "github.com/cihub/seelog"
-  packages = ["."]
-  revision = "a98235bd6d927ba8379ef4f0050c32c9a2ea17b8"
-
-[[projects]]
   name = "github.com/containerd/continuity"
   packages = ["pathdriver"]
   revision = "b2b946a77f5973f420514090d6f6dd58b08303f0"
@@ -335,6 +330,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7a6fbb4b7019aeef644e76bac598a04cb737023759cd84f41ad68ff7acf856de"
+  inputs-digest = "2c5ab6ee696b39b2da9dba2cd47d69c3d2f04b1196cba92e3a04a58fb0cb8c25"
   solver-name = "gps-cdcl"
   solver-version = 1
