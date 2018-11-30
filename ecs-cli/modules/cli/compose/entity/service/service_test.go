@@ -31,6 +31,10 @@ import (
 	"github.com/urfave/cli"
 )
 
+const (
+	arnPrefix = "arn:aws:ecs:us-west-2:accountId:task-definition/"
+)
+
 //////////////////////////
 // Create Service tests //
 /////////////////////////
@@ -483,7 +487,7 @@ func TestCreateWithServiceDiscoveryWithContainerNameAndPort(t *testing.T) {
 
 //////////////////////////////////////
 // Helpers for CreateService tests //
-//////////////////////////////////////
+/////////////////////////////////////
 type validateCreateServiceInputField func(*ecs.CreateServiceInput)
 
 func createServiceTest(t *testing.T,
@@ -498,6 +502,7 @@ func createServiceTest(t *testing.T,
 	taskDefID := "taskDefinitionId"
 	taskDefArn, taskDefinition, registerTaskDefResponse := getTestTaskDef(taskDefID)
 
+	// Mock ECS calls
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	gomock.InOrder(
 		mockEcs.EXPECT().RegisterTaskDefinitionIfNeeded(
@@ -516,7 +521,6 @@ func createServiceTest(t *testing.T,
 	)
 
 	cliContext := cli.NewContext(nil, flagSet, nil)
-
 	context := &context.ECSContext{
 		ECSClient:     mockEcs,
 		CommandConfig: commandConfig,
@@ -555,7 +559,6 @@ func getCreateServiceWithDelayMockClient(t *testing.T,
 	updatedService := *createdService
 	gomock.InOrder(
 		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(getDescribeServiceTestResponse(nil), nil),
-
 
 		mockEcs.EXPECT().RegisterTaskDefinitionIfNeeded(
 			gomock.Any(), // RegisterTaskDefinitionInput
@@ -637,7 +640,6 @@ func TestLoadContext(t *testing.T) {
 		"DeploymentConfig.MaxPercent should match")
 	assert.Nil(t, observedDeploymentConfig.MinimumHealthyPercent,
 		"DeploymentConfig.MinimumHealthyPercent should be nil")
-
 }
 
 func TestLoadContextForIncorrectInput(t *testing.T) {
@@ -683,7 +685,6 @@ func TestServiceInfo(t *testing.T) {
 	}, t, true)
 }
 
-
 ////////////////
 // Run tests //
 ///////////////
@@ -715,7 +716,6 @@ func TestUpdateExistingServiceWithForceFlag(t *testing.T) {
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(flags.ForceDeploymentFlag, forceFlagValue, "")
-	cliContext := cli.NewContext(nil, flagSet, nil)
 
 	// define existing service
 	serviceName := "test-service"
@@ -732,8 +732,7 @@ func TestUpdateExistingServiceWithForceFlag(t *testing.T) {
 	expectedInput.forceDeployment = forceFlagValue
 
 	// call tests
-	upServiceWithCurrentTaskDefTest(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
-	upServiceWithNewTaskDefTest(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
+	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
 }
 
 func TestUpdateExistingServiceWithNewDeploymentConfig(t *testing.T) {
@@ -744,7 +743,6 @@ func TestUpdateExistingServiceWithNewDeploymentConfig(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.String(flags.DeploymentMaxPercentFlag, strconv.Itoa(deploymentMaxPercent), "")
 	flagSet.String(flags.DeploymentMinHealthyPercentFlag, strconv.Itoa(deploymentMinPercent), "")
-	cliContext := cli.NewContext(nil, flagSet, nil)
 
 	// define existing service
 	serviceName := "test-service"
@@ -764,8 +762,7 @@ func TestUpdateExistingServiceWithNewDeploymentConfig(t *testing.T) {
 	}
 
 	// call tests
-	upServiceWithCurrentTaskDefTest(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
-	upServiceWithNewTaskDefTest(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
+	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
 }
 
 func TestUpdateExistingServiceWithNewHCGP(t *testing.T) {
@@ -774,7 +771,6 @@ func TestUpdateExistingServiceWithNewHCGP(t *testing.T) {
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.String(flags.HealthCheckGracePeriodFlag, strconv.Itoa(healthCheckGracePeriod), "")
-	cliContext := cli.NewContext(nil, flagSet, nil)
 
 	// define existing service
 	serviceName := "test-service"
@@ -792,8 +788,7 @@ func TestUpdateExistingServiceWithNewHCGP(t *testing.T) {
 	expectedInput.healthCheckGracePeriod = aws.Int64(int64(healthCheckGracePeriod))
 
 	// call tests
-	upServiceWithCurrentTaskDefTest(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
-	upServiceWithNewTaskDefTest(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
+	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
 }
 
 func TestUpdateExistingServiceWithDesiredCountOverOne(t *testing.T) {
@@ -801,7 +796,6 @@ func TestUpdateExistingServiceWithDesiredCountOverOne(t *testing.T) {
 	existingDesiredCount := 2
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	cliContext := cli.NewContext(nil, flagSet, nil)
 
 	// define existing service
 	serviceName := "test-service"
@@ -818,8 +812,7 @@ func TestUpdateExistingServiceWithDesiredCountOverOne(t *testing.T) {
 	expectedInput.count = *aws.Int64(int64(existingDesiredCount))
 
 	// call tests
-	upServiceWithCurrentTaskDefTest(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
-	upServiceWithNewTaskDefTest(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
+	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
 }
 
 ///////////////////////////////////////
@@ -833,15 +826,25 @@ func getDefaultUpdateInput() UpdateServiceParams {
 	}
 }
 
-// helper for upServiceWithNewTaskDefTest and upServiceWithCurrentTaskDefTest
-func getUpdateServiceMockClient(t *testing.T,
-	ctrl *gomock.Controller,
-	describeServiceResponse *ecs.DescribeServicesOutput,
-	taskDefinition ecs.TaskDefinition,
-	registerTaskDefResponse ecs.TaskDefinition,
-	expectedInput UpdateServiceParams) *mock_ecs.MockECSClient {
+// Tests only existing services, e.g. updateService private method rather than
+// the public Up method, which would potentially create a new service if it
+// does not already exist.
+func updateServiceTest(t *testing.T,
+	flagSet *flag.FlagSet,
+	commandConfig *config.CommandConfig,
+	ecsParams *utils.ECSParams,
+	expectedInput UpdateServiceParams,
+	existingService *ecs.Service) {
 
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	taskDefID := entity.GetIdFromArn(existingService.TaskDefinition)
+	taskDefArn, taskDefinition, registerTaskDefResponse := getTestTaskDef(taskDefID)
+
+	// Mock ECS calls
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	describeServiceResponse := getDescribeServiceTestResponse(existingService)
 	gomock.InOrder(
 		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(describeServiceResponse, nil),
 
@@ -869,43 +872,16 @@ func getUpdateServiceMockClient(t *testing.T,
 
 		}).Return(nil),
 	)
-	return mockEcs
-}
 
-func upServiceWithCurrentTaskDefTest(t *testing.T,
-	cliContext *cli.Context,
-	commandConfig *config.CommandConfig,
-	ecsParams *utils.ECSParams,
-	expectedInput UpdateServiceParams,
-	existingService *ecs.Service) {
-
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	// set up expected task def
-	taskDefID := "taskDefinitionId"
-	if existingService != nil {
-		// set to existing if provided
-		taskDefID = entity.GetIdFromArn(existingService.TaskDefinition)
-	}
-	taskDefArn, taskDefinition, registerTaskDefResponse := getTestTaskDef(taskDefID)
-
-	// set up DescribeService() response
-	describeServiceResponse := getDescribeServiceTestResponse(existingService)
-
-	mockEcs := getUpdateServiceMockClient(t, ctrl, describeServiceResponse,
-	taskDefinition, registerTaskDefResponse, expectedInput)
-
+	cliContext := cli.NewContext(nil, flagSet, nil)
 	ecsContext := &context.ECSContext{
 		ECSClient:     mockEcs,
 		CommandConfig: commandConfig,
 		CLIContext:    cliContext,
 		ECSParams:     ecsParams,
 	}
-	// if taskDef is unchanged, serviceName is taken from current context
-	if existingService != nil {
-		ecsContext.ProjectName = *existingService.ServiceName
-	}
+
+	ecsContext.ProjectName = *existingService.ServiceName
 	service := NewService(ecsContext)
 	err := service.LoadContext()
 	assert.NoError(t, err, "Unexpected error while loading context in update service with current task def test")
@@ -913,52 +889,6 @@ func upServiceWithCurrentTaskDefTest(t *testing.T,
 	service.SetTaskDefinition(&taskDefinition)
 	err = service.Up()
 	assert.NoError(t, err, "Unexpected error on service up with current task def")
-
-	// task definition should be set
-	assert.Equal(t, taskDefArn, aws.StringValue(service.TaskDefinition().TaskDefinitionArn), "TaskDefArn should match")
-}
-
-func upServiceWithNewTaskDefTest(t *testing.T,
-	cliContext *cli.Context,
-	commandConfig *config.CommandConfig,
-	ecsParams *utils.ECSParams,
-	expectedInput UpdateServiceParams,
-	existingService *ecs.Service) {
-
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	// set up expected (new) task def
-	taskDefID := "newTaskDefinitionId"
-	taskDefArn, taskDefinition, registerTaskDefResponse := getTestTaskDef(taskDefID)
-
-	// expect input to include new task def
-	expectedInput.taskDefinition = taskDefID
-
-	// set up DescribeService() response
-	describeServiceResponse := getDescribeServiceTestResponse(existingService)
-
-	mockEcs := getUpdateServiceMockClient(t, ctrl, describeServiceResponse,
-	taskDefinition, registerTaskDefResponse, expectedInput)
-
-	ecsContext := &context.ECSContext{
-		ECSClient:     mockEcs,
-		CommandConfig: commandConfig,
-		CLIContext:    cliContext,
-		ECSParams:     ecsParams,
-	}
-
-
-
-
-
-	service := NewService(ecsContext)
-	err := service.LoadContext()
-	assert.NoError(t, err, "Unexpected error while loading context in update service with new task def test")
-
-	service.SetTaskDefinition(&taskDefinition)
-	err = service.Up()
-	assert.NoError(t, err, "Unexpected error on service up with new task def")
 
 	// task definition should be set
 	assert.Equal(t, taskDefArn, aws.StringValue(service.TaskDefinition().TaskDefinitionArn), "TaskDefArn should match")
@@ -985,16 +915,16 @@ func getDescribeServiceTestResponse(existingService *ecs.Service) *ecs.DescribeS
 }
 
 func getTestTaskDef(taskDefID string) (taskDefArn string, taskDefinition, registerTaskDefResponse ecs.TaskDefinition) {
-	taskDefArn = "arn/" + taskDefID
+	taskDefArn = arnPrefix + taskDefID
 	taskDefinition = ecs.TaskDefinition{
-		Family:               aws.String("family"),
+		Family:               aws.String(taskDefID),
 		ContainerDefinitions: []*ecs.ContainerDefinition{},
 		Volumes:              []*ecs.Volume{},
 	}
 	registerTaskDefResponse = taskDefinition
 	registerTaskDefResponse.TaskDefinitionArn = aws.String(taskDefArn)
 
-	return taskDefArn, taskDefinition, registerTaskDefResponse
+	return
 }
 
 func verifyTaskDefinitionInput(t *testing.T,
