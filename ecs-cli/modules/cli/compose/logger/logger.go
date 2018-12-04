@@ -37,6 +37,7 @@ var supportedComposeV1V2YamlOptions = []string{
 	"entrypoint",
 	"env_file",
 	"environment",
+	"extends",
 	"extra_hosts",
 	"hostname",
 	"image",
