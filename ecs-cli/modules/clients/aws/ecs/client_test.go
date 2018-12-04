@@ -448,7 +448,52 @@ func TestRunTask(t *testing.T) {
 		assert.Nil(t, req.LaunchType, "Expected Launch Type to be nil.")
 	}).Return(&ecs.RunTaskOutput{}, nil)
 
-	_, err := client.RunTask(td, group, count, nil, "")
+	runTaskInput := &ecs.RunTaskInput{
+		Cluster:        aws.String(clusterName),
+		TaskDefinition: aws.String(td),
+		Group:          aws.String(group),
+		Count:          aws.Int64(int64(count)),
+	}
+
+	_, err := client.RunTask(runTaskInput)
+	assert.NoError(t, err, "Unexpected error when calling RunTask")
+}
+
+func TestRunTaskWithOverrides(t *testing.T) {
+	mockEcs, _, client, ctrl := setupTestController(t, getDefaultCLIConfigParams(t))
+	defer ctrl.Finish()
+
+	td := "taskDef"
+	group := "taskGroup"
+	count := 5
+	containterOverride := &ecs.ContainerOverride{
+			Name:    aws.String("railsapp"),
+			Command: aws.StringSlice([]string{"bundle,exec,puma,-C,config/puma.rb"}),
+		}
+	taskOverride := &ecs.TaskOverride{
+		ContainerOverrides: []*ecs.ContainerOverride{containterOverride},
+	}
+
+	mockEcs.EXPECT().RunTask(gomock.Any()).Do(func(input interface{}) {
+		req := input.(*ecs.RunTaskInput)
+		assert.Equal(t, clusterName, aws.StringValue(req.Cluster), "Expected clusterName to match")
+		assert.Equal(t, td, aws.StringValue(req.TaskDefinition), "Expected taskDefinition to match")
+		assert.Equal(t, group, aws.StringValue(req.Group), "Expected group to match")
+		assert.Equal(t, taskOverride, req.Overrides, "Expected taskOverride to match")
+		assert.Equal(t, int64(count), aws.Int64Value(req.Count), "Expected count to match")
+		assert.Nil(t, req.NetworkConfiguration, "Expected Network Config to be nil.")
+		assert.Nil(t, req.LaunchType, "Expected Launch Type to be nil.")
+	}).Return(&ecs.RunTaskOutput{}, nil)
+
+	runTaskInput := &ecs.RunTaskInput{
+		Cluster:        aws.String(clusterName),
+		TaskDefinition: aws.String(td),
+		Group:          aws.String(group),
+		Count:          aws.Int64(int64(count)),
+		Overrides:      taskOverride,
+	}
+
+	_, err := client.RunTask(runTaskInput)
 	assert.NoError(t, err, "Unexpected error when calling RunTask")
 }
 
@@ -470,7 +515,14 @@ func TestRunTaskWithLaunchTypeEC2(t *testing.T) {
 		assert.Nil(t, req.NetworkConfiguration, "Expected Network Config to be nil.")
 	}).Return(&ecs.RunTaskOutput{}, nil)
 
-	_, err := client.RunTask(td, group, count, nil, "EC2")
+	runTaskInput := &ecs.RunTaskInput{
+		Cluster:        aws.String(clusterName),
+		TaskDefinition: aws.String(td),
+		Group:          aws.String(group),
+		Count:          aws.Int64(int64(count)),
+		LaunchType:     aws.String("EC2"),
+	}
+	_, err := client.RunTask(runTaskInput)
 	assert.NoError(t, err, "Unexpected error when calling RunTask")
 }
 
@@ -503,7 +555,16 @@ func TestRunTaskWithLaunchTypeFargate(t *testing.T) {
 		assert.NotNil(t, req.NetworkConfiguration, "Expected Network Config to not be nil.")
 	}).Return(&ecs.RunTaskOutput{}, nil)
 
-	_, err := client.RunTask(td, group, count, networkConfig, "FARGATE")
+	runTaskInput := &ecs.RunTaskInput{
+		Cluster:              aws.String(clusterName),
+		TaskDefinition:       aws.String(td),
+		Group:                aws.String(group),
+		Count:                aws.Int64(int64(count)),
+		LaunchType:           aws.String("FARGATE"),
+		NetworkConfiguration: networkConfig,
+	}
+
+	_, err := client.RunTask(runTaskInput)
 	assert.NoError(t, err, "Unexpected error when calling RunTask")
 }
 
@@ -534,7 +595,63 @@ func TestRunTask_WithTaskNetworking(t *testing.T) {
 		assert.Equal(t, networkConfig, req.NetworkConfiguration, "Expected networkConfiguration to match")
 	}).Return(&ecs.RunTaskOutput{}, nil)
 
-	_, err := client.RunTask(td, group, count, networkConfig, "")
+	runTaskInput := &ecs.RunTaskInput{
+		Cluster:              aws.String(clusterName),
+		TaskDefinition:       aws.String(td),
+		Group:                aws.String(group),
+		Count:                aws.Int64(int64(count)),
+		LaunchType:           aws.String("EC2"),
+		NetworkConfiguration: networkConfig,
+	}
+	_, err := client.RunTask(runTaskInput)
+	assert.NoError(t, err, "Unexpected error when calling RunTask")
+}
+
+func TestRunTask_WithTaskPlacement(t *testing.T) {
+	mockEcs, _, client, ctrl := setupTestController(t, getDefaultCLIConfigParams(t))
+	defer ctrl.Finish()
+
+	td := "taskDef"
+	group := "taskGroup"
+	count := 5
+
+	placementConstraints := []*ecs.PlacementConstraint{
+		{
+			Type: aws.String("distinctInstance"),
+		}, {
+			Expression: aws.String("attribute:ecs.instance-type =~ t2.*"),
+			Type:       aws.String("memberOf"),
+		},
+	}
+	placementStrategy := []*ecs.PlacementStrategy{
+		{
+			Type: aws.String("random"),
+		}, {
+			Field: aws.String("instanceId"),
+			Type:  aws.String("binpack"),
+		},
+	}
+
+	mockEcs.EXPECT().RunTask(gomock.Any()).Do(func(input interface{}) {
+		req := input.(*ecs.RunTaskInput)
+		assert.Equal(t, clusterName, aws.StringValue(req.Cluster), "Expected clusterName to match")
+		assert.Equal(t, td, aws.StringValue(req.TaskDefinition), "Expected taskDefinition to match")
+		assert.Equal(t, group, aws.StringValue(req.Group), "Expected group to match")
+		assert.Equal(t, int64(count), aws.Int64Value(req.Count), "Expected count to match")
+		assert.Equal(t, placementConstraints, req.PlacementConstraints, "Expected placement constraints to match")
+		assert.Equal(t, placementStrategy, req.PlacementStrategy, "Expected placement strategy to match")
+	}).Return(&ecs.RunTaskOutput{}, nil)
+
+	runTaskInput := &ecs.RunTaskInput{
+		Cluster:              aws.String(clusterName),
+		TaskDefinition:       aws.String(td),
+		Group:                aws.String(group),
+		Count:                aws.Int64(int64(count)),
+		LaunchType:           aws.String("EC2"),
+		PlacementConstraints: placementConstraints,
+		PlacementStrategy:    placementStrategy,
+	}
+	_, err := client.RunTask(runTaskInput)
 	assert.NoError(t, err, "Unexpected error when calling RunTask")
 }
 

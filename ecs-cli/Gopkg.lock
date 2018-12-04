@@ -26,6 +26,7 @@
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
+    "aws/arn",
     "aws/awserr",
     "aws/awsutil",
     "aws/client",
@@ -35,14 +36,17 @@
     "aws/credentials/ec2rolecreds",
     "aws/credentials/endpointcreds",
     "aws/credentials/stscreds",
+    "aws/csm",
     "aws/defaults",
     "aws/ec2metadata",
     "aws/endpoints",
     "aws/request",
     "aws/session",
     "aws/signer/v4",
+    "internal/ini",
     "internal/sdkio",
     "internal/sdkrand",
+    "internal/sdkuri",
     "internal/shareddefaults",
     "private/protocol",
     "private/protocol/ec2query",
@@ -51,6 +55,7 @@
     "private/protocol/query",
     "private/protocol/query/queryutil",
     "private/protocol/rest",
+    "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
     "service/cloudformation",
     "service/cloudformation/cloudformationiface",
@@ -62,27 +67,32 @@
     "service/ecr/ecriface",
     "service/ecs",
     "service/ecs/ecsiface",
+    "service/iam",
+    "service/iam/iamiface",
+    "service/kms",
+    "service/kms/kmsiface",
+    "service/route53",
+    "service/secretsmanager",
+    "service/secretsmanager/secretsmanageriface",
+    "service/servicediscovery",
     "service/ssm",
     "service/ssm/ssmiface",
     "service/sts",
     "service/sts/stsiface"
   ]
-  revision = "7f68df2a5baf19398d17def23a514a6e617e5937"
-  version = "v1.13.28"
+  revision = "5ebc7a404e942062fd3aa7ff50975498716eb990"
+  version = "v1.15.78"
 
 [[projects]]
   name = "github.com/awslabs/amazon-ecr-credential-helper"
   packages = [
     "ecr-login/api",
     "ecr-login/cache",
-    "ecr-login/config"
+    "ecr-login/config",
+    "ecr-login/version"
   ]
-  revision = "19c5038b3c1fc63328b4eb99c507c72f12a27f66"
-
-[[projects]]
-  name = "github.com/cihub/seelog"
-  packages = ["."]
-  revision = "a98235bd6d927ba8379ef4f0050c32c9a2ea17b8"
+  revision = "b9fd5a88b82e749a5227a31409fea58f91bdd489"
+  version = "v0.2.0"
 
 [[projects]]
   name = "github.com/containerd/continuity"
@@ -105,7 +115,8 @@
     "cli/compose/types",
     "opts"
   ]
-  revision = "1872bd802c697f39eb783a9b7d25e60d6fe601d6"
+  revision = "7178075fdad68c953431cab5989dbe08bdcb94ac"
+  version = "v18.06.0-ce-rc3"
 
 [[projects]]
   name = "github.com/docker/docker"
@@ -137,7 +148,8 @@
     "pkg/term/windows",
     "pkg/urlutil"
   ]
-  revision = "92309e34e42aec3a0e041403bdd3c4fc0dc20269"
+  revision = "8e435b8279f2af3e0cebd73fa9e25ca1bb26004e"
+  source = "https://github.com/moby/moby.git"
 
 [[projects]]
   name = "github.com/docker/go-connections"
@@ -180,7 +192,6 @@
   name = "github.com/go-ini/ini"
   packages = ["."]
   revision = "32e4c1e6bc4e7d0d8451aa6b75200d19e37a536a"
-  version = "v1.32.0"
 
 [[projects]]
   name = "github.com/gogo/protobuf"
@@ -319,6 +330,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "bd82f6f125188fa0e514267655428cb6365fd57127fb9c00460893bbcdaadac4"
+  inputs-digest = "2c5ab6ee696b39b2da9dba2cd47d69c3d2f04b1196cba92e3a04a58fb0cb8c25"
   solver-name = "gps-cdcl"
   solver-version = 1

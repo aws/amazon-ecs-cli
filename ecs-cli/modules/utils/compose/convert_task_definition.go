@@ -14,51 +14,60 @@
 package utils
 
 import (
+	"fmt"
+
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcredio"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
-const (
-	defaultMemLimit = 512
-)
-
-// TaskDefParams contains basic fields to build an
-// ECS task definition
+// TaskDefParams contains basic fields to build an ECS task definition
 type TaskDefParams struct {
 	networkMode      string
 	taskRoleArn      string
 	cpu              string
 	memory           string
+	pidMode          string
+	ipcMode          string
 	containerDefs    ContainerDefs
 	executionRoleArn string
 }
 
+// ConvertTaskDefParams contains the inputs required to convert compose & ECS inputs into an ECS task definition
+type ConvertTaskDefParams struct {
+	TaskDefName            string
+	TaskRoleArn            string
+	RequiredCompatibilites string
+	Volumes                *adapter.Volumes
+	ContainerConfigs       []adapter.ContainerConfig
+	ECSParams              *ECSParams
+	ECSRegistryCreds       *regcredio.ECSRegistryCredsOutput
+}
+
 // ConvertToTaskDefinition transforms the yaml configs to its ecs equivalent (task definition)
-func ConvertToTaskDefinition(taskDefinitionName string, volumes *adapter.Volumes,
-	containerConfigs []adapter.ContainerConfig, taskRoleArn string, requiredCompatibilites string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
-	if len(containerConfigs) == 0 {
+func ConvertToTaskDefinition(params ConvertTaskDefParams) (*ecs.TaskDefinition, error) {
+	if len(params.ContainerConfigs) == 0 {
 		return nil, errors.New("cannot create a task definition with no containers; invalid service config")
 	}
 
 	// Instantiates zero values for fields on task def specified by ecs-params
-	taskDefParams, err := convertTaskDefParams(ecsParams)
+	taskDefParams, err := convertTaskDefParams(params.ECSParams)
 	if err != nil {
 		return nil, err
 	}
 
 	// The task-role-arn flag takes precedence over a taskRoleArn value specified in ecs-params file.
-	if taskRoleArn == "" {
-		taskRoleArn = taskDefParams.taskRoleArn
+	if params.TaskRoleArn == "" {
+		params.TaskRoleArn = taskDefParams.taskRoleArn
 	}
 
 	// Create containerDefinitions
 	containerDefinitions := []*ecs.ContainerDefinition{}
 
-	for _, containerConfig := range containerConfigs {
-		// logUnsupportedServiceConfigFields(name, serviceConfig) // TODO switch this to use ContainerConfig
+	for _, containerConfig := range params.ContainerConfigs {
 		name := containerConfig.Name
 		// Check if there are ecs-params specified for the container
 		ecsContainerDef := &ContainerDef{Essential: true}
@@ -66,13 +75,17 @@ func ConvertToTaskDefinition(taskDefinitionName string, volumes *adapter.Volumes
 			ecsContainerDef = &cd
 		}
 
-		// Validate essential containers TODO: merge other ecs params fields
-		count := len(containerConfigs)
+		// Validate essential containers
+		count := len(params.ContainerConfigs)
 		if !hasEssential(taskDefParams.containerDefs, count) {
 			return nil, errors.New("Task definition does not have any essential containers")
 		}
 
-		containerDef, err := convertToContainerDef(&containerConfig, ecsContainerDef)
+		taskVals := taskLevelValues{
+			MemLimit: taskDefParams.memory,
+		}
+
+		containerDef, err := reconcileContainerDef(&containerConfig, ecsContainerDef, taskVals)
 		if err != nil {
 			return nil, err
 		}
@@ -80,142 +93,131 @@ func ConvertToTaskDefinition(taskDefinitionName string, volumes *adapter.Volumes
 		containerDefinitions = append(containerDefinitions, containerDef)
 	}
 
+	ecsVolumes, err := convertToECSVolumes(params.Volumes, params.ECSParams)
+	if err != nil {
+		return nil, err
+	}
+
+	executionRoleArn := taskDefParams.executionRoleArn
+
+	// Check for and apply provided ecs-registry-creds values
+	if params.ECSRegistryCreds != nil {
+		err := addRegistryCredsToContainerDefs(containerDefinitions, params.ECSRegistryCreds.CredentialResources.ContainerCredentials)
+		if err != nil {
+			return nil, err
+		}
+
+		// if provided, add or replace existing executionRoleArn with value from cred file
+		if params.ECSRegistryCreds.CredentialResources.TaskExecutionRole != "" {
+			newExecutionRole := params.ECSRegistryCreds.CredentialResources.TaskExecutionRole
+
+			if executionRoleArn != "" {
+				// TODO: refactor 'showResourceOverrideMsg()' to take in override src and use here
+				log.WithFields(log.Fields{
+					"option name": "task_execution_role",
+				}).Infof("Using "+regcredio.ECSCredFileBaseName+" value as override (was %s but is now %s)", executionRoleArn, newExecutionRole)
+			} else {
+				log.WithFields(log.Fields{
+					"option name": "task_execution_role",
+				}).Infof("Using "+regcredio.ECSCredFileBaseName+" value %s", newExecutionRole)
+			}
+			executionRoleArn = newExecutionRole
+		}
+	}
+
+	// Note: this is later converted into an ecs.RegisterTaskDefinitionInput in entity_helper.go
 	taskDefinition := &ecs.TaskDefinition{
-		Family:               aws.String(taskDefinitionName),
+		Family:               aws.String(params.TaskDefName),
 		ContainerDefinitions: containerDefinitions,
-		Volumes:              convertToECSVolumes(volumes),
-		TaskRoleArn:          aws.String(taskRoleArn),
+		Volumes:              ecsVolumes,
+		TaskRoleArn:          aws.String(params.TaskRoleArn),
 		NetworkMode:          aws.String(taskDefParams.networkMode),
 		Cpu:                  aws.String(taskDefParams.cpu),
 		Memory:               aws.String(taskDefParams.memory),
-		ExecutionRoleArn:     aws.String(taskDefParams.executionRoleArn),
+		ExecutionRoleArn:     aws.String(executionRoleArn),
 	}
 
 	// Set launch type
-	if requiredCompatibilites != "" {
-		taskDefinition.RequiresCompatibilities = []*string{aws.String(requiredCompatibilites)}
+	if params.RequiredCompatibilites != "" {
+		taskDefinition.RequiresCompatibilities = []*string{aws.String(params.RequiredCompatibilites)}
 	}
-
+	if taskDefParams.pidMode != "" {
+		taskDefinition.SetPidMode(taskDefParams.pidMode)
+	}
+	if taskDefParams.ipcMode != "" {
+		taskDefinition.SetIpcMode(taskDefParams.ipcMode)
+	}
 	return taskDefinition, nil
 }
 
-// convertToContainerDef transforms each service in docker-compose.yml and
-// ecs-params.yml to an equivalent ECS container definition
-func convertToContainerDef(inputCfg *adapter.ContainerConfig, ecsContainerDef *ContainerDef) (*ecs.ContainerDefinition, error) {
-	outputContDef := &ecs.ContainerDefinition{}
+func resolveHealthCheck(serviceName string, healthCheck *ecs.HealthCheck, ecsParamsHealthCheck *HealthCheck) (*ecs.HealthCheck, error) {
+	if ecsParamsHealthCheck != nil {
+		healthCheckOverride, err := ecsParamsHealthCheck.ConvertToECSHealthCheck()
+		if err != nil {
+			return nil, err
+		}
 
-	// Populate ECS container definition, offloading the validation to aws-sdk
-	outputContDef.SetCommand(aws.StringSlice(inputCfg.Command))
-	outputContDef.SetDnsSearchDomains(aws.StringSlice(inputCfg.DNSSearchDomains))
-	outputContDef.SetDnsServers(aws.StringSlice(inputCfg.DNSServers))
-	outputContDef.SetDockerLabels(inputCfg.DockerLabels)
-	outputContDef.SetDockerSecurityOptions(aws.StringSlice(inputCfg.DockerSecurityOptions))
-	outputContDef.SetEntryPoint(aws.StringSlice(inputCfg.Entrypoint))
-	outputContDef.SetEnvironment(inputCfg.Environment)
-	outputContDef.SetExtraHosts(inputCfg.ExtraHosts)
-	if inputCfg.Hostname != "" {
-		outputContDef.SetHostname(inputCfg.Hostname)
+		if healthCheck != nil {
+			healthCheck.Command = resolveStringSliceResourceOverride(serviceName, healthCheck.Command, healthCheckOverride.Command, "healthcheck command")
+			healthCheck.Interval = resolveIntPointerResourceOverride(serviceName, healthCheck.Interval, healthCheckOverride.Interval, "healthcheck interval")
+			healthCheck.Retries = resolveIntPointerResourceOverride(serviceName, healthCheck.Retries, healthCheckOverride.Retries, "healthcheck retries")
+			healthCheck.Timeout = resolveIntPointerResourceOverride(serviceName, healthCheck.Timeout, healthCheckOverride.Timeout, "healthcheck timeout")
+			healthCheck.StartPeriod = resolveIntPointerResourceOverride(serviceName, healthCheck.StartPeriod, healthCheckOverride.StartPeriod, "healthcheck start_period")
+		} else {
+			healthCheck = healthCheckOverride
+		}
 	}
-	outputContDef.SetImage(inputCfg.Image)
-	outputContDef.SetLinks(aws.StringSlice(inputCfg.Links)) // TODO, read from external links
-	outputContDef.SetLogConfiguration(inputCfg.LogConfiguration)
-	outputContDef.SetMountPoints(inputCfg.MountPoints)
-	outputContDef.SetName(inputCfg.Name)
-	outputContDef.SetPrivileged(inputCfg.Privileged)
-	outputContDef.SetPortMappings(inputCfg.PortMappings)
-	outputContDef.SetReadonlyRootFilesystem(inputCfg.ReadOnly)
-	outputContDef.SetUlimits(inputCfg.Ulimits)
-
-	if inputCfg.User != "" {
-		outputContDef.SetUser(inputCfg.User)
+	// validate healthcheck
+	if healthCheck != nil && healthCheck.Validate() != nil {
+		return healthCheck, fmt.Errorf("%s: test/command is a required field for container healthcheck", serviceName)
 	}
-	outputContDef.SetVolumesFrom(inputCfg.VolumesFrom)
-	if inputCfg.WorkingDirectory != "" {
-		outputContDef.SetWorkingDirectory(inputCfg.WorkingDirectory)
-	}
-
-	// Set Linux Parameters
-	outputContDef.LinuxParameters = &ecs.LinuxParameters{Capabilities: &ecs.KernelCapabilities{}}
-	if inputCfg.CapAdd != nil {
-		outputContDef.LinuxParameters.Capabilities.SetAdd(aws.StringSlice(inputCfg.CapAdd))
-	}
-	if inputCfg.CapDrop != nil {
-		outputContDef.LinuxParameters.Capabilities.SetDrop(aws.StringSlice(inputCfg.CapDrop))
-	}
-
-	// Only set shmSize if specified. Otherwise we expect this sharedMemorySize for the
-	// containerDefinition to be null; Docker will by default allocate 64M for shared memory if
-	// shmSize is null.
-	if inputCfg.ShmSize != 0 {
-		outputContDef.LinuxParameters.SetSharedMemorySize(inputCfg.ShmSize)
-	}
-
-	// Only set tmpfs if tmpfs mounts are specified.
-	if inputCfg.Tmpfs != nil { // will never be nil?
-		outputContDef.LinuxParameters.SetTmpfs(inputCfg.Tmpfs)
-	}
-
-	// initialize container resources from inputCfg
-	cpu := inputCfg.CPU
-	mem := inputCfg.Memory
-	memRes := inputCfg.MemoryReservation
-
-	// Set essential & resource fields from ecs-params file, if present
-	if ecsContainerDef != nil {
-		outputContDef.Essential = aws.Bool(ecsContainerDef.Essential)
-
-		cpu = getResourceValue(inputCfg.Name, cpu, ecsContainerDef.Cpu)
-
-		ecsMemInMB := adapter.ConvertToMemoryInMB(int64(ecsContainerDef.Memory))
-		mem = getResourceValue(inputCfg.Name, mem, ecsMemInMB)
-
-		ecsMemResInMB := adapter.ConvertToMemoryInMB(int64(ecsContainerDef.MemoryReservation))
-		memRes = getResourceValue(inputCfg.Name, memRes, ecsMemResInMB)
-	}
-
-	if mem < memRes {
-		return nil, errors.New("mem_limit must be greater than mem_reservation")
-	}
-
-	// One or both of memory and memoryReservation is required to register a task definition with ECS
-	// If neither is provided by 1) compose file or 2) ecs-params, set default
-	// NOTE: Docker does not set a memory limit for containers
-	if mem == 0 && memRes == 0 {
-		mem = defaultMemLimit
-	}
-
-	outputContDef.SetCpu(cpu)
-	if mem != 0 {
-		outputContDef.SetMemory(mem)
-	}
-	if memRes != 0 {
-		outputContDef.SetMemoryReservation(memRes)
-	}
-
-	return outputContDef, nil
+	return healthCheck, nil
 }
 
-func getResourceValue(serviceName string, inputVal, ecsVal int64) int64 {
-	if ecsVal == 0 {
-		return inputVal
+func resolveIntResourceOverride(serviceName string, composeVal, ecsParamsVal int64, option string) int64 {
+	if composeVal > 0 && ecsParamsVal > 0 {
+		showResourceOverrideMsg(serviceName, composeVal, ecsParamsVal, option)
 	}
-	if inputVal > 0 {
-		showResourceOverrideMsg(serviceName, inputVal, ecsVal)
+	if ecsParamsVal > 0 {
+		return ecsParamsVal
 	}
-	return ecsVal
+	return composeVal
 }
 
-func showResourceOverrideMsg(serviceName string, oldValue int64, newValue int64) {
+func resolveIntPointerResourceOverride(serviceName string, composeVal, ecsParamsVal *int64, option string) *int64 {
+	if composeVal != nil && ecsParamsVal != nil {
+		showResourceOverrideMsg(serviceName, aws.Int64Value(composeVal), aws.Int64Value(ecsParamsVal), option)
+	}
+	if ecsParamsVal != nil {
+		return ecsParamsVal
+	}
+	return composeVal
+}
+
+func resolveStringSliceResourceOverride(serviceName string, composeVal, ecsParamsVal []*string, option string) []*string {
+	if len(composeVal) > 0 && len(ecsParamsVal) > 0 {
+		log.WithFields(log.Fields{
+			"option name":  option,
+			"service name": serviceName,
+		}).Infof("Using ecs-params value as override")
+	}
+	if len(ecsParamsVal) > 0 {
+		return ecsParamsVal
+	}
+	return composeVal
+}
+
+func showResourceOverrideMsg(serviceName string, val int64, override int64, option string) {
 	overrideMsg := "Using ecs-params value as override (was %v but is now %v)"
 
 	log.WithFields(log.Fields{
-		"option name":  "MemoryReservation",
+		"option name":  option,
 		"service name": serviceName,
-	}).Infof(overrideMsg, oldValue, newValue)
+	}).Infof(overrideMsg, val, override)
 }
 
 // convertToECSVolumes transforms the map of hostPaths to the format of ecs.Volume
-func convertToECSVolumes(hostPaths *adapter.Volumes) []*ecs.Volume {
+func convertToECSVolumes(hostPaths *adapter.Volumes, ecsParams *ECSParams) ([]*ecs.Volume, error) {
 	output := []*ecs.Volume{}
 	// volumes with a host path
 	for hostPath, volName := range hostPaths.VolumeWithHost {
@@ -226,14 +228,66 @@ func convertToECSVolumes(hostPaths *adapter.Volumes) []*ecs.Volume {
 			}}
 		output = append(output, ecsVolume)
 	}
-	// volumes with an empty host path
-	for _, volName := range hostPaths.VolumeEmptyHost {
+
+	// volumes without host path (allowed to have Docker Volume Configuration)
+	volumesWithoutHost, err := mergeVolumesWithoutHost(hostPaths.VolumeEmptyHost, ecsParams)
+	if err != nil {
+		return nil, err
+	}
+	output = append(output, volumesWithoutHost...)
+	return output, nil
+}
+
+func convertToECSSecrets(secrets []Secret) []*ecs.Secret {
+	var ecsSecrets []*ecs.Secret
+	for _, secret := range secrets {
+		s := &ecs.Secret{
+			ValueFrom: aws.String(secret.ValueFrom),
+			Name:      aws.String(secret.Name),
+		}
+		ecsSecrets = append(ecsSecrets, s)
+	}
+	return ecsSecrets
+}
+
+func mergeVolumesWithoutHost(composeVolumes []string, ecsParams *ECSParams) ([]*ecs.Volume, error) {
+	volumesWithoutHost := make(map[string]DockerVolume)
+	output := []*ecs.Volume{}
+
+	for _, volName := range composeVolumes {
+		volumesWithoutHost[volName] = DockerVolume{}
+	}
+
+	if ecsParams != nil {
+		for _, dockerVol := range ecsParams.TaskDefinition.DockerVolumes {
+			if dockerVol.Name != "" {
+				volumesWithoutHost[dockerVol.Name] = dockerVol
+			} else {
+				return nil, fmt.Errorf("Name is required when specifying a docker volume")
+			}
+		}
+	}
+
+	for volName, dVol := range volumesWithoutHost {
 		ecsVolume := &ecs.Volume{
 			Name: aws.String(volName),
 		}
+		if dVol.Name != "" {
+			ecsVolume.DockerVolumeConfiguration = &ecs.DockerVolumeConfiguration{
+				Autoprovision: dVol.Autoprovision,
+				Driver:        aws.String(dVol.Driver),
+				Scope:         aws.String(dVol.Scope),
+			}
+			if dVol.DriverOptions != nil {
+				ecsVolume.DockerVolumeConfiguration.DriverOpts = aws.StringMap(dVol.DriverOptions)
+			}
+			if dVol.Labels != nil {
+				ecsVolume.DockerVolumeConfiguration.Labels = aws.StringMap(dVol.Labels)
+			}
+		}
 		output = append(output, ecsVolume)
 	}
-	return output
+	return output, nil
 }
 
 func hasEssential(ecsParamsContainerDefs ContainerDefs, count int) bool {
@@ -274,6 +328,74 @@ func convertTaskDefParams(ecsParams *ECSParams) (params TaskDefParams, e error) 
 	params.cpu = taskDef.TaskSize.Cpu
 	params.memory = taskDef.TaskSize.Memory
 	params.executionRoleArn = taskDef.ExecutionRole
+	params.ipcMode = taskDef.IPCMode
+	params.pidMode = taskDef.PIDMode
 
 	return params, nil
+}
+
+func addRegistryCredsToContainerDefs(containerDefs []*ecs.ContainerDefinition, containerCreds map[string]regcredio.CredsOutputEntry) error {
+	credsMap, err := getContainersToCredsMap(containerCreds)
+	if err != nil {
+		return err
+	}
+	// set registry creds to applicable container definitions
+	if len(credsMap) > 0 {
+		for _, containerDef := range containerDefs {
+			containerName := aws.StringValue(containerDef.Name)
+
+			if foundCredParam := credsMap[containerName]; foundCredParam != "" {
+				if containerDef.RepositoryCredentials != nil && aws.StringValue(containerDef.RepositoryCredentials.CredentialsParameter) != "" {
+					log.WithFields(log.Fields{
+						"container name": containerName,
+						"option name":    "credentials_parameter",
+					}).Infof("Using "+regcredio.ECSCredFileBaseName+" value as override (was %s but is now %s)", *containerDef.RepositoryCredentials.CredentialsParameter, foundCredParam)
+				} else {
+					log.WithFields(log.Fields{
+						"container name": containerName,
+						"option name":    "credentials_parameter",
+					}).Infof("Using "+regcredio.ECSCredFileBaseName+" value %s", foundCredParam)
+				}
+				// set RepositoryCredentials to new value
+				containerRepoCreds := ecs.RepositoryCredentials{
+					CredentialsParameter: aws.String(foundCredParam),
+				}
+				containerDef.RepositoryCredentials = &containerRepoCreds
+
+				// remove container entry from cred map
+				delete(credsMap, containerName)
+			}
+		}
+		// if credMap contains container names not present in our container definitions, log a warning
+		if len(credsMap) > 0 {
+			unusedContainers := make([]string, 0, len(credsMap))
+			for container := range credsMap {
+				unusedContainers = append(unusedContainers, container)
+			}
+			log.Warnf("Containers listed with registry credentials but not used: %v", unusedContainers)
+		}
+	}
+	return nil
+}
+
+func getContainersToCredsMap(containerCreds map[string]regcredio.CredsOutputEntry) (map[string]string, error) {
+	containerToCredMap := make(map[string]string)
+
+	for registry, credEntry := range containerCreds {
+		if credEntry.CredentialARN != "" && len(credEntry.ContainerNames) > 0 {
+			credParam := credEntry.CredentialARN
+
+			for _, containerName := range credEntry.ContainerNames {
+				// if duplicate entries for a given container are found, return error
+				if containerToCredMap[containerName] != "" {
+					return nil, fmt.Errorf("Duplicate credential_parameter values found for container %s (%s and %s)", containerName, containerToCredMap[containerName], credParam)
+				}
+
+				containerToCredMap[containerName] = credParam
+			}
+		} else {
+			log.Warnf("No containers found for registry %s", registry)
+		}
+	}
+	return containerToCredMap, nil
 }

@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -57,12 +58,26 @@ const (
 	TimeStampsFlag     = "timestamps"
 	CreateLogsFlag     = "create-log-groups"
 
+	// Service Discovery
+	PrivateDNSNamespaceNameFlag                 = "private-dns-namespace"
+	PrivateDNSNamespaceIDFlag                   = "private-dns-namespace-id"
+	PublicDNSNamespaceIDFlag                    = "public-dns-namespace-id"
+	PublicDNSNamespaceNameFlag                  = "public-dns-namespace"
+	EnableServiceDiscoveryFlag                  = "enable-service-discovery"
+	DNSTypeFlag                                 = "dns-type"
+	DNSTTLFlag                                  = "dns-ttl"
+	ServiceDiscoveryContainerNameFlag           = "sd-container-name"
+	ServiceDiscoveryContainerPortFlag           = "sd-container-port"
+	HealthcheckCustomConfigFailureThresholdFlag = "healthcheck-custom-config-failure-threshold"
+	DeletePrivateNamespaceFlag                  = "delete-namespace"
+	UpdateServiceDiscoveryFlag                  = "update-service-discovery"
+
 	ComposeProjectNamePrefixFlag         = "compose-project-name-prefix"
 	ComposeProjectNamePrefixDefaultValue = "ecscompose-"
 	ComposeServiceNamePrefixFlag         = "compose-service-name-prefix"
 	ComposeServiceNamePrefixDefaultValue = ComposeProjectNamePrefixDefaultValue + "service-"
 	CFNStackNameFlag                     = "cfn-stack-name"
-	CFNStackNamePrefixDefaultValue       = "amazon-ecs-cli-setup-"
+	CFNStackNamePrefixDefaultValue       = utils.ECSCLIResourcePrefix
 
 	LaunchTypeFlag        = "launch-type"
 	DefaultLaunchTypeFlag = "default-launch-type"
@@ -76,6 +91,7 @@ const (
 	SubnetIdsFlag                   = "subnets"
 	VpcIdFlag                       = "vpc"
 	InstanceTypeFlag                = "instance-type"
+	SpotPriceFlag                   = "spot-price"
 	InstanceRoleFlag                = "instance-role"
 	ImageIdFlag                     = "image-id"
 	KeypairNameFlag                 = "keypair"
@@ -83,6 +99,7 @@ const (
 	NoAutoAssignPublicIPAddressFlag = "no-associate-public-ip-address"
 	ForceFlag                       = "force"
 	EmptyFlag                       = "empty"
+	UserDataFlag                    = "extra-user-data"
 
 	// Image
 	RegistryIdFlag = "registry-id"
@@ -90,10 +107,12 @@ const (
 	UntaggedFlag   = "untagged"
 
 	// Compose
-	ProjectNameFlag       = "project-name"
-	ComposeFileNameFlag   = "file"
-	TaskRoleArnFlag       = "task-role-arn"
-	ECSParamsFileNameFlag = "ecs-params"
+	ProjectNameFlag           = "project-name"
+	ComposeFileNameFlag       = "file"
+	TaskRoleArnFlag           = "task-role-arn"
+	ECSParamsFileNameFlag     = "ecs-params"
+	ForceUpdateFlag           = "force-update"
+	RegistryCredsFileNameFlag = "registry-creds"
 
 	// Compose Service
 	CreateServiceCommandName                = "create"
@@ -109,6 +128,13 @@ const (
 	RoleFlag                                = "role"
 	ComposeServiceTimeOutFlag               = "timeout"
 	ForceDeploymentFlag                     = "force-deployment"
+
+	// Registry Creds
+	UpdateExistingSecretsFlag = "update-existing-secrets"
+	RoleNameFlag              = "role-name"
+	NoRoleFlag                = "no-role"
+	NoOutputFileFlag          = "no-output-file"
+	OutputDirFlag             = "output-dir"
 )
 
 // OptionalRegionAndProfileFlags provides these flags:
@@ -163,22 +189,36 @@ func OptionalConfigFlags() []cli.Flag {
 }
 
 // OptionalLaunchTypeFlag allows users to specify the launch type for their task/service/cluster
-func OptionalLaunchTypeFlag() cli.Flag {
-	return cli.StringFlag{
-		Name: LaunchTypeFlag,
-		Usage: fmt.Sprintf(
-			"[Optional] Specifies the launch type. Options: EC2 or FARGATE. Overrides the default launch type stored in your cluster configuration. Defaults to EC2 if a cluster configuration is not used.",
-		),
+func OptionalLaunchTypeFlag() []cli.Flag {
+	return []cli.Flag{
+		cli.StringFlag{
+			Name: LaunchTypeFlag,
+			Usage: fmt.Sprintf(
+				"[Optional] Specifies the launch type. Options: EC2 or FARGATE. Overrides the default launch type stored in your cluster configuration. Defaults to EC2 if a cluster configuration is not used.",
+			),
+		},
 	}
 }
 
 // OptionalCreateLogsFlag allows users to specify the launch type for their task/service/cluster
-func OptionalCreateLogsFlag() cli.Flag {
-	return cli.BoolFlag{
-		Name: CreateLogsFlag,
-		Usage: fmt.Sprintf(
-			"[Optional] Create the CloudWatch log groups specified in your compose file(s).",
-		),
+func OptionalCreateLogsFlag() []cli.Flag {
+	return []cli.Flag{
+		cli.BoolFlag{
+			Name: CreateLogsFlag,
+			Usage: fmt.Sprintf(
+				"[Optional] Create the CloudWatch log groups specified in your compose file(s).",
+			),
+		},
+	}
+}
+
+// OptionalForceUpdateFlag allows users to force an update of running tasks on compose up.
+func OptionalForceUpdateFlag() []cli.Flag {
+	return []cli.Flag{
+		cli.BoolFlag{
+			Name:  ForceUpdateFlag + ",u",
+			Usage: "[Optional] Forces update of task or service with current run parameters",
+		},
 	}
 }
 
@@ -210,5 +250,15 @@ func CFNResourceFlags() []string {
 		InstanceRoleFlag,
 		ImageIdFlag,
 		KeypairNameFlag,
+		SpotPriceFlag,
 	}
+}
+
+// AppendFlags appends a series of lists of flags
+func AppendFlags(flags ...[]cli.Flag) []cli.Flag {
+	var allFlags []cli.Flag
+	for _, set := range flags {
+		allFlags = append(allFlags, set...)
+	}
+	return allFlags
 }

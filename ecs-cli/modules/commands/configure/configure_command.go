@@ -16,9 +16,10 @@ package configureCommand
 import (
 	"fmt"
 
-	"github.com/sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/configure"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
@@ -186,7 +187,7 @@ func configureFlags() []cli.Flag {
 		cli.StringFlag{
 			Name: flags.CFNStackNameFlag,
 			Usage: fmt.Sprintf(
-				"[Optional] Specifies the name of AWS CloudFormation stack created on ecs-cli up. (default: \"amazon-ecs-cli-setup-<cluster-name>\")",
+				"[Optional] Specifies the name of AWS CloudFormation stack created on ecs-cli up. (default: \"" + utils.ECSCLIResourcePrefix + "<cluster-name>\")",
 			),
 		},
 		cli.StringFlag{

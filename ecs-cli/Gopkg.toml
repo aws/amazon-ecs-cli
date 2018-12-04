@@ -25,15 +25,11 @@
 
 [[constraint]]
   name = "github.com/aws/aws-sdk-go"
-  version = "1.13.17"
+  version = "1.15.2"
 
 [[constraint]]
   name = "github.com/awslabs/amazon-ecr-credential-helper"
-  revision = "19c5038b3c1fc63328b4eb99c507c72f12a27f66"
-
-[[constraint]]
-  name = "github.com/cihub/seelog"
-  revision = "a98235bd6d927ba8379ef4f0050c32c9a2ea17b8"
+  version = "0.2.0"
 
 [[constraint]]
   name = "github.com/docker/go-units"
@@ -82,4 +78,9 @@
 
 [[constraint]]
   name = "github.com/docker/cli"
-  revision = "1872bd802c697f39eb783a9b7d25e60d6fe601d6"
+  version = "18.06.0-ce"
+
+[[override]]
+  name = "github.com/docker/docker"
+  revision = "8e435b8279f2af3e0cebd73fa9e25ca1bb26004e"
+  source = "https://github.com/moby/moby.git"

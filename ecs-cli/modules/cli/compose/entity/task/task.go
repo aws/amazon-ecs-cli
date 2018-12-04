@@ -17,6 +17,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
 	composeutils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
@@ -99,7 +100,8 @@ func (t *Task) Start() error {
 // if count of running tasks = 0, starts 1
 // if count != 0, and the task definitions differed, then its stops the old ones and starts the new ones
 func (t *Task) Up() error {
-	return t.up(true)
+	updateTasks := t.Context().CLIContext.Bool(flags.ForceUpdateFlag)
+	return t.up(updateTasks)
 }
 
 // Info returns a formatted list of containers (running and stopped) in the current cluster
@@ -108,11 +110,12 @@ func (t *Task) Info(filterLocal bool) (project.InfoSet, error) {
 	return entity.Info(t, filterLocal)
 }
 
-// Scale finds out the current count of running tasks for this project and scales to the desired count
+// Scale finds out the current count of running tasks for this project and scales to the desired count.
+// Any run params specified will be taken into account.
 // if desired = current, noop
 // if desired > current, stops the extra ones
 // if desired < current, start new ones (also if current was 0, create a new task definition)
-func (t *Task) Scale(expectedCount int) error {
+func (t *Task) Scale(desiredCount int) error {
 	ecsTasks, err := entity.CollectTasksWithStatus(t, ecs.DesiredStatusRunning, true)
 	if err != nil {
 		return err
@@ -120,7 +123,7 @@ func (t *Task) Scale(expectedCount int) error {
 
 	observedCount := len(ecsTasks)
 
-	if expectedCount == observedCount {
+	if desiredCount == observedCount {
 		// NoOp
 		log.WithFields(log.Fields{
 			"countOfRunningTasks": observedCount,
@@ -129,9 +132,9 @@ func (t *Task) Scale(expectedCount int) error {
 		return nil
 	}
 
-	// running more than expected, stop the tasks
-	if expectedCount < observedCount {
-		diff := observedCount - expectedCount
+	// running more than desired, stop the extra tasks
+	if desiredCount < observedCount {
+		diff := observedCount - desiredCount
 		ecsTasksToStop := []*ecs.Task{}
 		for i := 0; i < diff; i++ {
 			ecsTasksToStop = append(ecsTasksToStop, ecsTasks[i])
@@ -139,8 +142,8 @@ func (t *Task) Scale(expectedCount int) error {
 		return t.stopTasks(ecsTasksToStop)
 	}
 
-	// if expected > observed, then run the difference
-	diff := expectedCount - observedCount
+	// if desired > observed, then run the difference
+	diff := desiredCount - observedCount
 
 	var taskDef string
 	// if nothing was running, create new task definition
@@ -164,21 +167,31 @@ func (t *Task) Scale(expectedCount int) error {
 
 // Run starts all containers defined in the task definition once regardless of if they were started before
 // It also overrides the commands for the specified containers
+// TODO Account for other ContainerOverrides
 func (t *Task) Run(commandOverrides map[string][]string) error {
 	taskDef, err := entity.GetOrCreateTaskDefinition(t)
 	if err != nil {
 		return err
 	}
 	taskDefinitionId := aws.StringValue(taskDef.TaskDefinitionArn)
-	ecsTasks, err := t.Context().ECSClient.RunTaskWithOverrides(taskDefinitionId, entity.GetTaskGroup(t), 1, commandOverrides)
+	count := 1
+
+	runTaskInput, err := t.buildRunTaskInput(taskDefinitionId, count, commandOverrides)
 	if err != nil {
-		return nil
+		return err
 	}
+
+	ecsTasks, err := t.Context().ECSClient.RunTask(runTaskInput)
+	if err != nil {
+		return err
+	}
+
 	for _, failure := range ecsTasks.Failures {
 		log.WithFields(log.Fields{
 			"reason": aws.StringValue(failure.Reason),
 		}).Info("Couldn't run containers")
 	}
+
 	return t.waitForRunTasks(ecsTasks.Tasks)
 }
 
@@ -240,19 +253,10 @@ func (t *Task) stopTasks(ecsTasks []*ecs.Task) error {
 }
 
 // runTasks issues run task request to ECS Service in chunks of count=10
-func (t *Task) runTasks(taskDefinitionId string, totalCount int) ([]*ecs.Task, error) {
-	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(t.ecsContext.ECSParams)
-	if err != nil {
-		return nil, err
-	}
-
+// it always takes into account the latest ECS params
+func (t *Task) runTasks(taskDefinition string, totalCount int) ([]*ecs.Task, error) {
 	result := []*ecs.Task{}
-	chunkSize := 10 // can issue only upto 10 tasks in a RunTask Call
-	launchType := t.Context().CommandConfig.LaunchType
-
-	if err := entity.ValidateFargateParams(t.Context().ECSParams, launchType); err != nil {
-		return nil, err
-	}
+	chunkSize := 10 // can issue only up to 10 tasks in a RunTask Call
 
 	for i := 0; i < totalCount; i += chunkSize {
 		count := chunkSize
@@ -260,10 +264,16 @@ func (t *Task) runTasks(taskDefinitionId string, totalCount int) ([]*ecs.Task, e
 			count = totalCount - i
 		}
 
-		ecsTasks, err := t.Context().ECSClient.RunTask(taskDefinitionId, entity.GetTaskGroup(t), count, networkConfig, launchType)
+		runTaskInput, err := t.buildRunTaskInput(taskDefinition, count, nil)
 		if err != nil {
 			return nil, err
 		}
+
+		ecsTasks, err := t.Context().ECSClient.RunTask(runTaskInput)
+		if err != nil {
+			return nil, err
+		}
+
 		for _, failure := range ecsTasks.Failures {
 			log.WithFields(log.Fields{
 				"reason": aws.StringValue(failure.Reason),
@@ -275,6 +285,90 @@ func (t *Task) runTasks(taskDefinitionId string, totalCount int) ([]*ecs.Task, e
 	return result, nil
 }
 
+func convertToECSTaskOverride(overrides map[string][]string) (*ecs.TaskOverride, error) {
+	if overrides == nil {
+		return nil, nil
+	}
+
+	commandOverrides := []*ecs.ContainerOverride{}
+	for cont, command := range overrides {
+		contOverride := &ecs.ContainerOverride{
+			Name:    aws.String(cont),
+			Command: aws.StringSlice(command),
+		}
+		commandOverrides = append(commandOverrides, contOverride)
+	}
+
+	ecsOverrides := &ecs.TaskOverride{
+		ContainerOverrides: commandOverrides,
+	}
+
+	return ecsOverrides, nil
+}
+
+// buildRunTaskInput will account for what is currently specified in ECS Params
+func (t *Task) buildRunTaskInput(taskDefinition string, count int, overrides map[string][]string) (*ecs.RunTaskInput, error) {
+	cluster := t.Context().CommandConfig.Cluster
+	launchType := t.Context().CommandConfig.LaunchType
+	group := entity.GetTaskGroup(t)
+
+	ecsParams := t.ecsContext.ECSParams
+	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(ecsParams)
+
+	if err != nil {
+		return nil, err
+	}
+
+	placementConstraints, err := composeutils.ConvertToECSPlacementConstraints(ecsParams)
+	if err != nil {
+		return nil, err
+	}
+
+	placementStrategy, err := composeutils.ConvertToECSPlacementStrategy(ecsParams)
+	if err != nil {
+		return nil, err
+	}
+
+	// NOTE: this validation is not useful if called after RegisterTaskDefinition
+	if err := entity.ValidateFargateParams(ecsParams, launchType); err != nil {
+		return nil, err
+	}
+
+	taskOverride, err := convertToECSTaskOverride(overrides)
+	if err != nil {
+		return nil, err
+	}
+
+	runTaskInput := &ecs.RunTaskInput{
+		Cluster:        aws.String(cluster),
+		TaskDefinition: aws.String(taskDefinition),
+		Group:          aws.String(group),
+		Count:          aws.Int64(int64(count)),
+	}
+
+	if networkConfig != nil {
+		runTaskInput.NetworkConfiguration = networkConfig
+	}
+
+	if taskOverride != nil {
+		runTaskInput.Overrides = taskOverride
+	}
+
+	if placementConstraints != nil {
+		runTaskInput.PlacementConstraints = placementConstraints
+	}
+
+	if placementStrategy != nil {
+		runTaskInput.PlacementStrategy = placementStrategy
+	}
+
+	if launchType != "" {
+		runTaskInput.LaunchType = aws.String(launchType)
+	}
+
+	return runTaskInput, nil
+}
+
 // createOne issues run task with count=1 and waits for it to get to running state
 func (t *Task) createOne() error {
 	ecsTask, err := t.runTasks(aws.StringValue(t.TaskDefinition().TaskDefinitionArn), 1)
@@ -284,10 +378,11 @@ func (t *Task) createOne() error {
 	return t.waitForRunTasks(ecsTask)
 }
 
-// up gets a list of running tasks and if updateTasks is set to true, it updates it with the latest task definition
-// if count of running tasks = 0, starts 1
-// if count != 0, and the task definitions differed, then its stops the old ones and starts the new ones
-func (t *Task) up(updateTasks bool) error {
+// up gets a list of running tasks. If there are no running tasks, it starts 1 task.
+// If there are no running tasks, and either the task definition has changed or
+// forceUpdate is specified, then the running tasks are stopped and relaunched
+// with the task definition and run parameters in the current call.
+func (t *Task) up(forceUpdate bool) error {
 	ecsTasks, err := entity.CollectTasksWithStatus(t, ecs.DesiredStatusRunning, true)
 	if err != nil {
 		return err
@@ -318,7 +413,7 @@ func (t *Task) up(updateTasks bool) error {
 
 	ecsTaskArns := make(map[string]bool)
 
-	if oldTaskDef != newTaskDef {
+	if oldTaskDef != newTaskDef || forceUpdate {
 		log.WithFields(log.Fields{"taskDefinition": newTaskDef}).Info("Updating to new task definition")
 
 		chunkSize := 10

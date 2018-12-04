@@ -10,6 +10,7 @@ type ContainerConfig struct {
 	CapDrop               []string
 	Command               []string
 	CPU                   int64
+	Devices               []*ecs.Device
 	DNSSearchDomains      []string
 	DNSServers            []string
 	DockerLabels          map[string]*string
@@ -17,6 +18,7 @@ type ContainerConfig struct {
 	Entrypoint            []string
 	Environment           []*ecs.KeyValuePair
 	ExtraHosts            []*ecs.HostEntry
+	HealthCheck           *ecs.HealthCheck
 	Hostname              string
 	Image                 string
 	Links                 []string

@@ -89,6 +89,7 @@ func ProjectPs(p ecscompose.Project, c *cli.Context) {
 }
 
 // ProjectRun starts containers and executes one-time command against the container
+// TODO These only account for command overrides within a ContainerOverride: https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerOverride.html
 func ProjectRun(p ecscompose.Project, c *cli.Context) {
 	args := c.Args()
 	if len(args)%2 != 0 {

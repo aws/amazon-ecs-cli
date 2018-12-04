@@ -15,11 +15,15 @@ package adapter
 
 import (
 	"fmt"
+	"math/rand"
 	"strconv"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/docker/cli/cli/compose/types"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/yaml"
 	"github.com/stretchr/testify/assert"
@@ -170,13 +174,13 @@ func TestConvertToTmpfs_WithMalformedSize(t *testing.T) {
 }
 
 func TestConvertToPortMappings(t *testing.T) {
-	implicitTcp := portMapping                      // 8000:8000
-	explicitTcp := portMapping + "/tcp"             // "8000:8000/tcp"
+	implicitTCP := portMapping                      // 8000:8000
+	explicitTCP := portMapping + "/tcp"             // "8000:8000/tcp"
 	udpPort := portMapping + "/udp"                 // "8000:8000/udp"
 	containerPortOnly := strconv.Itoa(portNumber)   // "8000"
-	portWithIpAddress := "127.0.0.1:" + portMapping // "127.0.0.1:8000:8000"
+	portWithIPAddress := "127.0.0.1:" + portMapping // "127.0.0.1:8000:8000"
 
-	portMappingsIn := []string{implicitTcp, explicitTcp, udpPort, containerPortOnly, portWithIpAddress}
+	portMappingsIn := []string{implicitTCP, explicitTCP, udpPort, containerPortOnly, portWithIPAddress}
 	portMappingsOut, err := ConvertToPortMappings("test", portMappingsIn)
 
 	assert.NoError(t, err, "Unexpected error converting port mapping")
@@ -372,6 +376,58 @@ func TestGetSourcePathAndUpdateVolumesWithNamedVol(t *testing.T) {
 	assert.Equal(t, namedSourcePath, volumes.VolumeEmptyHost[0])
 }
 
+func TestConvertToDevices(t *testing.T) {
+	testCases := []struct {
+		input                 string
+		expectedHostPath      string
+		expectedContainerPath string
+		expectedPermissions   []string
+	}{
+		{"/dev/sda", "/dev/sda", "", []string{}},
+		{"/dev/sda:/dev/xvdc", "/dev/sda", "/dev/xvdc", []string{}},
+		{"/dev/sda:/dev/xvdc:w", "/dev/sda", "/dev/xvdc", []string{"write"}},
+		{"/dev/nvid:/dev/xvdc:rw", "/dev/nvid", "/dev/xvdc", []string{"read", "write"}},
+	}
+	for _, test := range testCases {
+		t.Run(fmt.Sprintf("Convert %s", test.input), func(t *testing.T) {
+			inputSlice := []string{test.input}
+			outputDevices, err := ConvertToDevices(inputSlice)
+			assert.NoError(t, err, "Unexpected error converting Devices")
+			assert.Equal(t, 1, len(outputDevices), "Expected Devices length to be 1")
+
+			var expectedContainer *string
+			var expectedPerms []*string
+
+			if test.expectedContainerPath != "" {
+				expectedContainer = aws.String(test.expectedContainerPath)
+			}
+
+			if len(test.expectedPermissions) != 0 {
+				expectedPerms = aws.StringSlice(test.expectedPermissions)
+			}
+
+			outputDev := *outputDevices[0]
+			assert.Equal(t, test.expectedHostPath, *outputDev.HostPath, "Expected HostPath to match")
+			assert.Equal(t, expectedContainer, outputDev.ContainerPath, "Expected ContainerPath to match")
+			assert.ElementsMatch(t, expectedPerms, outputDev.Permissions, "Expected Permissions to match")
+		})
+	}
+}
+
+func TestConvertToDevices_ErrorOnInvalidOptions(t *testing.T) {
+	testCases := []string{
+		"/dev/xf:/dex/gru:rw:m", // too many args
+		"/dev/xx:/dex/gru:ytr",  // invalid option flags (y, t)
+		"/dev/xx:/dex/sda:rrmw", // too many options (max is 3)
+	}
+	for _, test := range testCases {
+		t.Run(fmt.Sprintf("Expect error for %s", test), func(t *testing.T) {
+			_, err := ConvertToDevices([]string{test})
+			assert.Error(t, err, "Expected error for invalid device option")
+		})
+	}
+}
+
 func TestConvertToExtraHosts(t *testing.T) {
 	hostname := "test.local"
 	ipAddress := "127.10.10.10"
@@ -511,6 +567,48 @@ func TestConvertToVolumes_ErrorsWithExternalSubfield(t *testing.T) {
 	assert.Error(t, err, "Expected error converting libcompose volume configs when external is specified")
 }
 
+func TestRegisterTaskDefinitionInputEquivalence(t *testing.T) {
+	family := aws.String("family1")
+	dockerLabels := map[string]string{
+		"label1":         "",
+		"com.foo.label2": "value",
+	}
+	cdefs := []*ecs.ContainerDefinition{}
+	N := 10
+	for i := 0; i < N; i++ {
+		command := make([]string, i+1)
+		for j := 0; j < i+1; j++ {
+			command[j] = strings.Repeat(string(rune(65+j)), i+1)
+		}
+		cdefs = append(cdefs, &ecs.ContainerDefinition{
+			Name:         aws.String(strings.Repeat(string(rune(65+i)), i+1)),
+			Command:      aws.StringSlice(command),
+			DockerLabels: aws.StringMap(dockerLabels),
+		})
+	}
+	inputA := ecs.RegisterTaskDefinitionInput{
+		Family:               family,
+		ContainerDefinitions: cdefs,
+	}
+
+	shuffle_cdefs := make([]*ecs.ContainerDefinition, len(cdefs))
+	for i, v := range rand.Perm(len(cdefs)) {
+		shuffle_cdefs[v] = cdefs[i]
+	}
+
+	inputB := ecs.RegisterTaskDefinitionInput{
+		ContainerDefinitions: shuffle_cdefs,
+		Family:               family,
+	}
+
+	strA, err := SortedGoString(SortedContainerDefinitionsByName(&inputA))
+	assert.NoError(t, err, "Unexpected error generating sorted map string")
+	strB, err := SortedGoString(SortedContainerDefinitionsByName(&inputB))
+	assert.NoError(t, err, "Unexpected error generating sorted map string")
+
+	assert.Equal(t, strA, strB, "Sorted inputs should match")
+}
+
 func TestSortedGoString(t *testing.T) {
 	family := aws.String("family1")
 	name := aws.String("foo")
@@ -566,4 +664,24 @@ func TestConvertCamelCaseToUnderScore(t *testing.T) {
 			assert.Equal(t, test.expected, output, "Expected output to match")
 		})
 	}
+}
+
+func TestConvertToHealthCheck(t *testing.T) {
+	timeout := 10 * time.Second
+	interval := time.Minute
+	retries := uint64(3)
+	startPeriod := 2 * time.Minute
+	input := &types.HealthCheckConfig{
+		Test:        []string{"CMD", "echo 'echo is not a good health check test command'"},
+		Timeout:     &timeout,
+		Interval:    &interval,
+		Retries:     &retries,
+		StartPeriod: &startPeriod,
+	}
+	output := ConvertToHealthCheck(input)
+	assert.ElementsMatch(t, input.Test, aws.StringValueSlice(output.Command))
+	assert.Equal(t, aws.Int64(10), output.Timeout)
+	assert.Equal(t, aws.Int64(60), output.Interval)
+	assert.Equal(t, aws.Int64(3), output.Retries)
+	assert.Equal(t, aws.Int64(120), output.StartPeriod)
 }

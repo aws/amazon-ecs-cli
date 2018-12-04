@@ -2,8 +2,10 @@ package project
 
 import (
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/logger"
@@ -69,10 +71,12 @@ func getV3Config(composeFiles []string) (*types.Config, error) {
 		return nil, err
 	}
 
+	localEnv := getEnvironment()
+
 	configDetails := types.ConfigDetails{
 		WorkingDir:  wrkDir,
 		ConfigFiles: configFiles,
-		Environment: nil,
+		Environment: localEnv,
 	}
 
 	// load config from config details
@@ -88,7 +92,6 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig, serviceVols *ad
 	logger.LogUnsupportedV3ServiceConfigFields(serviceConfig)
 	logWarningForDeployFields(serviceConfig.Deploy, serviceConfig.Name)
 
-	//TODO: Add Healthcheck, Devices to ContainerConfig
 	c := &adapter.ContainerConfig{
 		CapAdd:                serviceConfig.CapAdd,
 		CapDrop:               serviceConfig.CapDrop,
@@ -103,6 +106,16 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig, serviceVols *ad
 		ReadOnly:              serviceConfig.ReadOnly,
 		User:                  serviceConfig.User,
 		WorkingDirectory:      serviceConfig.WorkingDir,
+	}
+
+	devices, err := adapter.ConvertToDevices(serviceConfig.Devices)
+	if err != nil {
+		return nil, err
+	}
+	c.Devices = devices
+
+	if serviceConfig.HealthCheck != nil && !serviceConfig.HealthCheck.Disable {
+		c.HealthCheck = adapter.ConvertToHealthCheck(serviceConfig.HealthCheck)
 	}
 
 	if serviceConfig.DNS != nil {
@@ -120,7 +133,11 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig, serviceVols *ad
 	for k, v := range serviceConfig.Environment {
 		env := ecs.KeyValuePair{}
 		env.SetName(k)
-		env.SetValue(*v)
+		if v != nil {
+			env.SetValue(*v)
+		} else {
+			env.SetValue("")
+		}
 		envVars = append(envVars, &env)
 	}
 	c.Environment = envVars
@@ -243,4 +260,14 @@ func logWarningForDeployFields(d types.DeployConfig, serviceName string) {
 			"service name": serviceName,
 		}).Warn("Skipping unsupported YAML option for service...")
 	}
+}
+
+func getEnvironment() map[string]string {
+	env := os.Environ()
+	envMap := make(map[string]string, len(env))
+	for _, s := range env {
+		varParts := strings.SplitN(s, "=", 2)
+		envMap[varParts[0]] = varParts[1]
+	}
+	return envMap
 }

@@ -19,6 +19,20 @@ func TestParseV1V2_Version1_HappyPath(t *testing.T) {
 	webImage := "web"
 	cpuShares := int64(73)
 	command := []string{"bundle exec thin -p 3000"}
+	devices := []*ecs.Device{
+		{
+			HostPath:      aws.String("/dev/sda"),
+			ContainerPath: aws.String("/dev/sdd"),
+			Permissions:   aws.StringSlice([]string{"read"}),
+		},
+		{
+			HostPath:      aws.String("/dev/sdd"),
+			ContainerPath: aws.String("/dev/xdr"),
+		},
+		{
+			HostPath: aws.String("/dev/sda"),
+		},
+	}
 	dnsServers := []string{"1.2.3.4"}
 	dnsSearchDomains := []string{"search.example.com"}
 	entryPoint := []string{"/code/entrypoint.sh"}
@@ -98,6 +112,10 @@ func TestParseV1V2_Version1_HappyPath(t *testing.T) {
   cpu_shares: 73
   command:
    - bundle exec thin -p 3000
+  devices:
+   - "/dev/sda:/dev/sdd:r"
+   - "/dev/sdd:/dev/xdr"
+   - "/dev/sda"
   dns:
    - 1.2.3.4
   dns_search: search.example.com
@@ -173,6 +191,7 @@ redis:
 
 	assert.Equal(t, command, web.Command, "Expected Command to match")
 	assert.Equal(t, cpuShares, web.CPU, "Expected CPU to match")
+	assert.ElementsMatch(t, devices, web.Devices, "Expected Devices to match")
 	assert.Equal(t, dnsSearchDomains, web.DNSSearchDomains, "Expected DNSSearchDomains to match")
 	assert.Equal(t, dnsServers, web.DNSServers, "Expected DNSServers to match")
 	assert.Equal(t, labels, web.DockerLabels, "Expected DockerLabels to match")
@@ -202,6 +221,20 @@ func TestParseV1V2_Version2Files(t *testing.T) {
 
 	capAdd := []string{"ALL"}
 	capDrop := []string{"NET_ADMIN", "SYS_ADMIN"}
+	devices := []*ecs.Device{
+		{
+			HostPath:      aws.String("/dev/sda"),
+			ContainerPath: aws.String("/dev/sdd"),
+			Permissions:   aws.StringSlice([]string{"read"}),
+		},
+		{
+			HostPath:      aws.String("/dev/sdd"),
+			ContainerPath: aws.String("/dev/xdr"),
+		},
+		{
+			HostPath: aws.String("/dev/sda"),
+		},
+	}
 	logOpts := map[string]*string{
 		"syslog-address": aws.String("tcp://192.168.0.42:123"),
 	}
@@ -272,6 +305,10 @@ services:
     cap_drop:
       - NET_ADMIN
       - SYS_ADMIN
+    devices:
+      - "/dev/sda:/dev/sdd:r"
+      - "/dev/sdd:/dev/xdr"
+      - "/dev/sda"
     image: wordpress
     ports: ["80:80"]
     mem_reservation: 500000000
@@ -324,6 +361,7 @@ volumes:
 	assert.Equal(t, wordpressImage, wordpress.Image, "Expected wordpress Image to match")
 	assert.Equal(t, capAdd, wordpress.CapAdd, "Expected CapAdd to match")
 	assert.Equal(t, capDrop, wordpress.CapDrop, "Expected CapDrop to match")
+	assert.ElementsMatch(t, devices, wordpress.Devices, "Expected Devices to match")
 	assert.Equal(t, logging, wordpress.LogConfiguration, "Expected Log Configuration to match")
 
 	assert.Equal(t, memoryReservation, wordpress.MemoryReservation, "Expected memoryReservation to match")
@@ -467,11 +505,46 @@ services:
 	assert.Equal(t, expectedEnv, web.Environment, "Expected Environment to match")
 }
 
+func TestParseV1V2_MemoryValidation(t *testing.T) {
+	// Setup docker-compose file
+	memory := int64(128)
+	composeFileString := `version: '2'
+services:
+  web:
+    image: webapp
+    mem_reservation: 128m`
+
+	tmpfile, err := ioutil.TempFile("", "test")
+	assert.NoError(t, err, "Unexpected error in creating test file")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write([]byte(composeFileString))
+	assert.NoError(t, err, "Unexpected error in writing to test file")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Unexpected error closing file")
+
+	// Set up project
+	project := setupTestProject(t)
+	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, tmpfile.Name())
+
+	actualConfigs, err := project.parseV1V2()
+	assert.NoError(t, err, "Unexpected error parsing file")
+
+	// verify wordpress ServiceConfig
+	web, err := getContainerConfigByName("web", actualConfigs)
+	if assert.NoError(t, err) {
+		assert.Equal(t, memory, web.Memory, "Expected Memory to match")
+		assert.Equal(t, memory, web.MemoryReservation, "Expected MemoryReservation to match")
+	}
+}
+
 func getContainerConfigByName(name string, configs *[]adapter.ContainerConfig) (*adapter.ContainerConfig, error) {
 	for _, config := range *configs {
 		if config.Name == name {
 			return &config, nil
 		}
 	}
-	return nil, fmt.Errorf("Container with name %v could not be found.", name)
+	return nil, fmt.Errorf("Container with name %v could not be found", name)
 }

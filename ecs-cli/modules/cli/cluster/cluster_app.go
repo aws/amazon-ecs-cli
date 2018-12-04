@@ -20,6 +20,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/cluster/userdata"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/container"
 	ecscontext "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/task"
@@ -34,24 +35,48 @@ import (
 	"github.com/urfave/cli"
 )
 
+// user data builder can be easily mocked in tests
+var newUserDataBuilder func(string) userdata.UserDataBuilder = userdata.NewBuilder
+
 // displayTitle flag is used to print the title for the fields
 const displayTitle = true
 
+const (
+	ParameterKeyAsgMaxSize               = "AsgMaxSize"
+	ParameterKeyVPCAzs                   = "VpcAvailabilityZones"
+	ParameterKeySecurityGroup            = "SecurityGroupIds"
+	ParameterKeySourceCidr               = "SourceCidr"
+	ParameterKeyEcsPort                  = "EcsPort"
+	ParameterKeySubnetIds                = "SubnetIds"
+	ParameterKeyVpcId                    = "VpcId"
+	ParameterKeyInstanceType             = "EcsInstanceType"
+	ParameterKeyKeyPairName              = "KeyName"
+	ParameterKeyCluster                  = "EcsCluster"
+	ParameterKeyAmiId                    = "EcsAmiId"
+	ParameterKeyAssociatePublicIPAddress = "AssociatePublicIpAddress"
+	ParameterKeyInstanceRole             = "InstanceRole"
+	ParameterKeyIsFargate                = "IsFargate"
+	ParameterKeyUserData                 = "UserData"
+	ParameterKeySpotPrice                = "SpotPrice"
+)
+
 var flagNamesToStackParameterKeys map[string]string
+var requiredParameters []string = []string{ParameterKeyCluster}
 
 func init() {
 	flagNamesToStackParameterKeys = map[string]string{
-		flags.AsgMaxSizeFlag:    cloudformation.ParameterKeyAsgMaxSize,
-		flags.VpcAzFlag:         cloudformation.ParameterKeyVPCAzs,
-		flags.SecurityGroupFlag: cloudformation.ParameterKeySecurityGroup,
-		flags.SourceCidrFlag:    cloudformation.ParameterKeySourceCidr,
-		flags.EcsPortFlag:       cloudformation.ParameterKeyEcsPort,
-		flags.SubnetIdsFlag:     cloudformation.ParameterKeySubnetIds,
-		flags.VpcIdFlag:         cloudformation.ParameterKeyVpcId,
-		flags.InstanceTypeFlag:  cloudformation.ParameterKeyInstanceType,
-		flags.KeypairNameFlag:   cloudformation.ParameterKeyKeyPairName,
-		flags.ImageIdFlag:       cloudformation.ParameterKeyAmiId,
-		flags.InstanceRoleFlag:  cloudformation.ParameterKeyInstanceRole,
+		flags.AsgMaxSizeFlag:    ParameterKeyAsgMaxSize,
+		flags.VpcAzFlag:         ParameterKeyVPCAzs,
+		flags.SecurityGroupFlag: ParameterKeySecurityGroup,
+		flags.SourceCidrFlag:    ParameterKeySourceCidr,
+		flags.EcsPortFlag:       ParameterKeyEcsPort,
+		flags.SubnetIdsFlag:     ParameterKeySubnetIds,
+		flags.VpcIdFlag:         ParameterKeyVpcId,
+		flags.InstanceTypeFlag:  ParameterKeyInstanceType,
+		flags.KeypairNameFlag:   ParameterKeyKeyPairName,
+		flags.ImageIdFlag:       ParameterKeyAmiId,
+		flags.InstanceRoleFlag:  ParameterKeyInstanceRole,
+		flags.SpotPriceFlag:     ParameterKeySpotPrice,
 	}
 }
 
@@ -150,7 +175,6 @@ func ClusterPS(c *cli.Context) {
 	os.Stdout.WriteString(infoSet.String(container.ContainerInfoColumns, displayTitle))
 }
 
-
 ///////////////////////
 // Helper functions //
 //////////////////////
@@ -204,56 +228,64 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 	}
 
 	// Populate cfn params
-	cfnParams := cliFlagsToCfnStackParams(context)
-	cfnParams.Add(cloudformation.ParameterKeyCluster, commandConfig.Cluster)
+	cfnParams, err := cliFlagsToCfnStackParams(context, commandConfig.Cluster, launchType)
+	if err != nil {
+		return err
+	}
+	cfnParams.Add(ParameterKeyCluster, commandConfig.Cluster)
 	if context.Bool(flags.NoAutoAssignPublicIPAddressFlag) {
-		cfnParams.Add(cloudformation.ParameterKeyAssociatePublicIPAddress, "false")
+		cfnParams.Add(ParameterKeyAssociatePublicIPAddress, "false")
 	}
 
 	if launchType == config.LaunchTypeFargate {
-		cfnParams.Add(cloudformation.ParameterKeyIsFargate, "true")
+		cfnParams.Add(ParameterKeyIsFargate, "true")
 	}
 
 	// Check if vpc and AZs are not both specified.
-	if validateMutuallyExclusiveParams(cfnParams, cloudformation.ParameterKeyVPCAzs, cloudformation.ParameterKeyVpcId) {
+	if validateMutuallyExclusiveParams(cfnParams, ParameterKeyVPCAzs, ParameterKeyVpcId) {
 		return fmt.Errorf("You can only specify '--%s' or '--%s'", flags.VpcIdFlag, flags.VpcAzFlag)
 	}
 
+	// Check that user data is not specified with Fargate
+	if validateMutuallyExclusiveParams(cfnParams, ParameterKeyIsFargate, ParameterKeyUserData) {
+		return fmt.Errorf("You can only specify '--%s' with the EC2 launch type", flags.UserDataFlag)
+	}
+
 	// Check if 2 AZs are specified
-	if validateCommaSeparatedParam(cfnParams, cloudformation.ParameterKeyVPCAzs, 2, 2) {
+	if validateCommaSeparatedParam(cfnParams, ParameterKeyVPCAzs, 2, 2) {
 		return fmt.Errorf("You must specify 2 comma-separated availability zones with the '--%s' flag", flags.VpcAzFlag)
 	}
 
 	// Check if more than one custom instance role is specified
-	if validateCommaSeparatedParam(cfnParams, cloudformation.ParameterKeyInstanceRole, 1, 1) {
+	if validateCommaSeparatedParam(cfnParams, ParameterKeyInstanceRole, 1, 1) {
 		return fmt.Errorf("You can only specify one instance role name with the '--%s' flag", flags.InstanceRoleFlag)
 	}
 
 	// Check if vpc exists when security group is specified
-	if validateDependentParams(cfnParams, cloudformation.ParameterKeySecurityGroup, cloudformation.ParameterKeyVpcId) {
+	if validateDependentParams(cfnParams, ParameterKeySecurityGroup, ParameterKeyVpcId) {
 		return fmt.Errorf("You have selected a security group. Please specify a VPC with the '--%s' flag", flags.VpcIdFlag)
 	}
 
 	// Check if subnets exists when vpc is specified
-	if validateDependentParams(cfnParams, cloudformation.ParameterKeyVpcId, cloudformation.ParameterKeySubnetIds) {
+	if validateDependentParams(cfnParams, ParameterKeyVpcId, ParameterKeySubnetIds) {
 		return fmt.Errorf("You have selected a VPC. Please specify 2 comma-separated subnets with the '--%s' flag", flags.SubnetIdsFlag)
 	}
 
 	// Check if vpc exists when subnets is specified
-	if validateDependentParams(cfnParams, cloudformation.ParameterKeySubnetIds, cloudformation.ParameterKeyVpcId) {
+	if validateDependentParams(cfnParams, ParameterKeySubnetIds, ParameterKeyVpcId) {
 		return fmt.Errorf("You have selected subnets. Please specify a VPC with the '--%s' flag", flags.VpcIdFlag)
 	}
 
 	if launchType == config.LaunchTypeEC2 {
 		// Check if image id was supplied, else populate
-		_, err = cfnParams.GetParameter(cloudformation.ParameterKeyAmiId)
+		_, err = cfnParams.GetParameter(ParameterKeyAmiId)
 		if err == cloudformation.ParameterNotFoundError {
 			amiMetadata, err := ssmClient.GetRecommendedECSLinuxAMI()
 			if err != nil {
 				return err
 			}
 			logrus.Infof("Using recommended %s AMI with ECS Agent %s and %s", amiMetadata.OsName, amiMetadata.AgentVersion, amiMetadata.RuntimeVersion)
-			cfnParams.Add(cloudformation.ParameterKeyAmiId, amiMetadata.ImageID)
+			cfnParams.Add(ParameterKeyAmiId, amiMetadata.ImageID)
 		} else if err != nil {
 			return err
 		}
@@ -278,9 +310,9 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 		}
 	}
 	// Create cfn stack
-	template := cloudformation.GetTemplate()
+	template := cloudformation.GetClusterTemplate()
 
-	if _, err := cfnClient.CreateStack(template, stackName, cfnParams); err != nil {
+	if _, err := cfnClient.CreateStack(template, stackName, true, cfnParams); err != nil {
 		return err
 	}
 
@@ -400,11 +432,11 @@ func scaleCluster(context *cli.Context, awsClients *AWSClients, commandConfig *c
 	}
 
 	// Populate update params for the cfn stack
-	cfnParams, err := cloudformation.NewCfnStackParamsForUpdate(existingParameters)
+	cfnParams, err := cloudformation.NewCfnStackParamsForUpdate(requiredParameters, existingParameters)
 	if err != nil {
 		return err
 	}
-	cfnParams.Add(cloudformation.ParameterKeyAsgMaxSize, size)
+	cfnParams.Add(ParameterKeyAsgMaxSize, size)
 
 	// Update the stack.
 	if _, err := cfnClient.UpdateStack(stackName, cfnParams); err != nil {
@@ -414,7 +446,6 @@ func scaleCluster(context *cli.Context, awsClients *AWSClients, commandConfig *c
 	logrus.Info("Waiting for your cluster resources to be updated...")
 	return cfnClient.WaitUntilUpdateComplete(stackName)
 }
-
 
 // createPS executes the 'ps' command.
 func clusterPS(context *cli.Context, rdwr config.ReadWriter) (project.InfoSet, error) {
@@ -466,8 +497,8 @@ func deleteClusterPrompt(reader *bufio.Reader) error {
 }
 
 // cliFlagsToCfnStackParams converts values set for CLI flags to cloudformation stack parameters.
-func cliFlagsToCfnStackParams(context *cli.Context) *cloudformation.CfnStackParams {
-	cfnParams := cloudformation.NewCfnStackParams()
+func cliFlagsToCfnStackParams(context *cli.Context, cluster, launchType string) (*cloudformation.CfnStackParams, error) {
+	cfnParams := cloudformation.NewCfnStackParams(requiredParameters)
 	for cliFlag, cfnParamKeyName := range flagNamesToStackParameterKeys {
 		cfnParamKeyValue := context.String(cliFlag)
 		if cfnParamKeyValue != "" {
@@ -475,7 +506,24 @@ func cliFlagsToCfnStackParams(context *cli.Context) *cloudformation.CfnStackPara
 		}
 	}
 
-	return cfnParams
+	if launchType == config.LaunchTypeEC2 {
+		builder := newUserDataBuilder(cluster)
+		// handle extra user data, which is a string slice flag
+		if userDataFiles := context.StringSlice(flags.UserDataFlag); len(userDataFiles) > 0 {
+			for _, file := range userDataFiles {
+				err := builder.AddFile(file)
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
+		userData, err := builder.Build()
+		if err != nil {
+			return nil, err
+		}
+		cfnParams.Add(ParameterKeyUserData, userData)
+	}
+	return cfnParams, nil
 }
 
 // isIAMAcknowledged returns true if the 'capability-iam' flag is set from CLI.

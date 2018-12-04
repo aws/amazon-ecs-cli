@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcredio"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/value"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -33,6 +34,8 @@ const (
 	containerPath2 = "/tmp/cache2"
 	hostPath       = "./cache"
 	namedVolume    = "named_volume"
+	namedVolume2   = "named_volume2"
+	namedVolume3   = "named_volume3"
 )
 
 var defaultNetwork = &yaml.Network{
@@ -41,10 +44,20 @@ var defaultNetwork = &yaml.Network{
 }
 
 // TODO Extract test docker file and use in test (to avoid gaps between parse and conversion unit tests)
-var testContainerConfig = &adapter.ContainerConfig{
-	Name:             "mysql",
-	Command:          []string{"cmd"},
-	CPU:              int64(131072),
+var testContainerConfig = adapter.ContainerConfig{
+	Name:    "mysql",
+	Command: []string{"cmd"},
+	CPU:     int64(131072),
+	Devices: []*ecs.Device{
+		{
+			HostPath:      aws.String("/dev/sda"),
+			ContainerPath: aws.String("/dev/sdd"),
+			Permissions:   aws.StringSlice([]string{"read"}),
+		},
+		{
+			HostPath: aws.String("/dev/sda"),
+		},
+	},
 	DNSSearchDomains: []string{"search.example.com"},
 	DNSServers:       []string{"1.2.3.4"},
 	DockerLabels: map[string]*string{
@@ -64,6 +77,13 @@ var testContainerConfig = &adapter.ContainerConfig{
 			Hostname:  aws.String("test.local"),
 			IpAddress: aws.String("127.10.10.10"),
 		},
+	},
+	HealthCheck: &ecs.HealthCheck{
+		Command:     aws.StringSlice([]string{"CMD-SHELL", "curl -f http://localhost"}),
+		Interval:    aws.Int64(int64(70)),
+		Timeout:     aws.Int64(int64(15)),
+		Retries:     aws.Int64(int64(5)),
+		StartPeriod: aws.Int64(int64(40)),
 	},
 	Hostname: "foobarbaz",
 	Image:    "testimage",
@@ -123,6 +143,16 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	name := "mysql"
 	cpu := int64(131072) // 128 * 1024
 	command := []string{"cmd"}
+	devices := []*ecs.Device{
+		{
+			HostPath:      aws.String("/dev/sda"),
+			ContainerPath: aws.String("/dev/sdd"),
+			Permissions:   aws.StringSlice([]string{"read"}),
+		},
+		{
+			HostPath: aws.String("/dev/sda"),
+		},
+	}
 	entryPoint := []string{"/code/entrypoint.sh"}
 	env := []*ecs.KeyValuePair{
 		{
@@ -201,17 +231,23 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	// TODO add top-level volumes
 
 	// convert
-	taskDefinition := convertToTaskDefinitionInTest(t, testContainerConfig, taskRoleArn, "")
+	taskDefinition, err := convertToTaskDefinitionForTest(t, []adapter.ContainerConfig{testContainerConfig}, taskRoleArn, "", nil, nil)
+	assert.NoError(t, err, "Unexpected error converting Task Definition")
+
 	containerDef := *taskDefinition.ContainerDefinitions[0]
 
 	// verify task def fields
 	assert.Equal(t, taskRoleArn, aws.StringValue(taskDefinition.TaskRoleArn), "Expected taskRoleArn to match")
 	assert.Empty(t, taskDefinition.RequiresCompatibilities, "Did not expect RequiresCompatibilities to be set")
+	// PID and IPC should be unset
+	assert.Nil(t, taskDefinition.IpcMode, "Expected IpcMode to be nil")
+	assert.Nil(t, taskDefinition.PidMode, "Expected PidMode to be nil")
 
 	// verify container def fields
 	assert.Equal(t, aws.String(name), containerDef.Name, "Expected container def name to match")
 	assert.Equal(t, aws.StringSlice(command), containerDef.Command, "Expected container def command to match")
 	assert.Equal(t, aws.Int64(cpu), containerDef.Cpu, "Expected container def cpu to match")
+	assert.ElementsMatch(t, devices, containerDef.LinuxParameters.Devices, "Expected container def devices to match")
 	assert.Equal(t, aws.StringSlice(dnsSearchDomains), containerDef.DnsSearchDomains, "Expected container def DNS Search Domains to match")
 	assert.Equal(t, aws.StringSlice(dnsServers), containerDef.DnsServers, "Expected container def DNS Servers to match")
 	assert.Equal(t, aws.StringMap(dockerLabels), containerDef.DockerLabels, "Expected container def Docker labels to match")
@@ -237,6 +273,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	assert.ElementsMatch(t, ulimits, containerDef.Ulimits, "Expected Ulimits to match")
 	assert.Equal(t, volumesFrom, containerDef.VolumesFrom, "Expected VolumesFrom to match")
 	assert.Equal(t, aws.String(workingDir), containerDef.WorkingDirectory, "Expected container def WorkingDirectory to match")
+	assert.Equal(t, testContainerConfig.HealthCheck, containerDef.HealthCheck)
 
 	// If no containers are specified as being essential, all containers
 	// are marked "essential"
@@ -245,14 +282,90 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	}
 }
 
-// ConvertToContainerDefinition tests
+func TestConvertToTaskDefinitionWithNoSharedMemorySize(t *testing.T) {
+	containerConfig := adapter.ContainerConfig{
+		ShmSize: int64(0),
+	}
 
-func TestConvertToTaskDefinitionWithECSParams_DefaultMemoryLessThanMemoryRes(t *testing.T) {
+	taskDefinition, err := convertToTaskDefinitionForTest(t, []adapter.ContainerConfig{containerConfig}, "", "", nil, nil)
+	assert.NoError(t, err, "Unexpected error converting Task Definition")
+
+	containerDef := *taskDefinition.ContainerDefinitions[0]
+
+	assert.Nil(t, containerDef.LinuxParameters.SharedMemorySize, "Expected sharedMemorySize to be null")
+}
+
+func TestConvertToTaskDefinitionWithNoTmpfs(t *testing.T) {
+	containerConfig := adapter.ContainerConfig{
+		Tmpfs: nil,
+	}
+
+	taskDefinition, err := convertToTaskDefinitionForTest(t, []adapter.ContainerConfig{containerConfig}, "", "", nil, nil)
+	assert.NoError(t, err, "Unexpected error converting Task Definition")
+
+	containerDef := *taskDefinition.ContainerDefinitions[0]
+
+	assert.Nil(t, containerDef.LinuxParameters.Tmpfs, "Expected Tmpfs to be null")
+}
+
+func TestConvertToTaskDefinitionWithBlankHostname(t *testing.T) {
+	containerConfig := adapter.ContainerConfig{
+		Hostname: "",
+	}
+
+	taskDefinition, err := convertToTaskDefinitionForTest(t, []adapter.ContainerConfig{containerConfig}, "", "", nil, nil)
+	assert.NoError(t, err, "Unexpected error converting Task Definition")
+
+	containerDef := *taskDefinition.ContainerDefinitions[0]
+
+	assert.Nil(t, containerDef.Hostname, "Expected Hostname to be nil")
+}
+
+// TODO add test for nil cap add/cap drop
+
+// Test Launch Types
+func TestConvertToTaskDefinitionLaunchTypeEmpty(t *testing.T) {
+	containerConfig := adapter.ContainerConfig{}
+
+	taskDefinition, err := convertToTaskDefinitionForTest(t, []adapter.ContainerConfig{containerConfig}, "", "", nil, nil)
+	assert.NoError(t, err, "Unexpected error converting Task Definition")
+	if len(taskDefinition.RequiresCompatibilities) > 0 {
+		t.Error("Did not expect RequiresCompatibilities to be set")
+	}
+}
+
+func TestConvertToTaskDefinitionLaunchTypeEC2(t *testing.T) {
+	containerConfig := adapter.ContainerConfig{}
+
+	taskDefinition, err := convertToTaskDefinitionForTest(t, []adapter.ContainerConfig{containerConfig}, "", "EC2", nil, nil)
+	assert.NoError(t, err, "Unexpected error converting Task Definition")
+
+	if len(taskDefinition.RequiresCompatibilities) != 1 {
+		t.Error("Expected exactly one required compatibility to be set.")
+	}
+	assert.Equal(t, "EC2", aws.StringValue(taskDefinition.RequiresCompatibilities[0]))
+}
+
+func TestConvertToTaskDefinitionLaunchTypeFargate(t *testing.T) {
+	containerConfig := adapter.ContainerConfig{}
+
+	taskDefinition, err := convertToTaskDefinitionForTest(t, []adapter.ContainerConfig{containerConfig}, "", "FARGATE", nil, nil)
+	assert.NoError(t, err, "Unexpected error converting Task Definition")
+
+	if len(taskDefinition.RequiresCompatibilities) != 1 {
+		t.Error("Expected exactly one required compatibility to be set.")
+	}
+	assert.Equal(t, "FARGATE", aws.StringValue(taskDefinition.RequiresCompatibilities[0]))
+}
+
+// Tests for ConvertToTaskDefinition with ECS Params
+func TestConvertToTaskDefinitionWithECSParams_ComposeMemoryLessThanMemoryRes(t *testing.T) {
 	// set up containerConfig w/o value for Memory
 	containerConfig := &adapter.ContainerConfig{
-		Name:  "web",
-		Image: "httpd",
-		CPU:   int64(5),
+		Name:   "web",
+		Image:  "httpd",
+		CPU:    int64(5),
+		Memory: int64(512),
 	}
 
 	// define ecs-params value we expect to be present in final containerDefinition
@@ -280,76 +393,11 @@ task_definition:
 	assert.NoError(t, err, "Could not read ECS Params file")
 
 	containerConfigs := []adapter.ContainerConfig{*containerConfig}
-	_, err = convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+	_, err = convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
 	assert.Error(t, err, "Expected error because memory reservation is greater than memory limit")
 }
-func TestConvertToTaskDefinitionWithNoSharedMemorySize(t *testing.T) {
-	containerConfig := &adapter.ContainerConfig{
-		ShmSize: int64(0),
-	}
 
-	taskDefinition := convertToTaskDefinitionInTest(t, containerConfig, "", "")
-	containerDef := *taskDefinition.ContainerDefinitions[0]
-
-	assert.Nil(t, containerDef.LinuxParameters.SharedMemorySize, "Expected sharedMemorySize to be null")
-}
-
-func TestConvertToTaskDefinitionWithNoTmpfs(t *testing.T) {
-	containerConfig := &adapter.ContainerConfig{
-		Tmpfs: nil,
-	}
-
-	taskDefinition := convertToTaskDefinitionInTest(t, containerConfig, "", "")
-	containerDef := *taskDefinition.ContainerDefinitions[0]
-
-	assert.Nil(t, containerDef.LinuxParameters.Tmpfs, "Expected Tmpfs to be null")
-}
-
-func TestConvertToTaskDefinitionWithBlankHostname(t *testing.T) {
-	containerConfig := &adapter.ContainerConfig{
-		Hostname: "",
-	}
-
-	taskDefinition := convertToTaskDefinitionInTest(t, containerConfig, "", "")
-	containerDef := *taskDefinition.ContainerDefinitions[0]
-
-	assert.Nil(t, containerDef.Hostname, "Expected Hostname to be nil")
-}
-
-// TODO add test for nil cap add/cap drop
-
-// Test Launch Types
-func TestConvertToTaskDefinitionLaunchTypeEmpty(t *testing.T) {
-	containerConfig := &adapter.ContainerConfig{}
-
-	taskDefinition := convertToTaskDefinitionInTest(t, containerConfig, "", "")
-	if len(taskDefinition.RequiresCompatibilities) > 0 {
-		t.Error("Did not expect RequiresCompatibilities to be set")
-	}
-}
-
-func TestConvertToTaskDefinitionLaunchTypeEC2(t *testing.T) {
-	containerConfig := &adapter.ContainerConfig{}
-
-	taskDefinition := convertToTaskDefinitionInTest(t, containerConfig, "", "EC2")
-	if len(taskDefinition.RequiresCompatibilities) != 1 {
-		t.Error("Expected exactly one required compatibility to be set.")
-	}
-	assert.Equal(t, "EC2", aws.StringValue(taskDefinition.RequiresCompatibilities[0]))
-}
-
-func TestConvertToTaskDefinitionLaunchTypeFargate(t *testing.T) {
-	containerConfig := &adapter.ContainerConfig{}
-
-	taskDefinition := convertToTaskDefinitionInTest(t, containerConfig, "", "FARGATE")
-	if len(taskDefinition.RequiresCompatibilities) != 1 {
-		t.Error("Expected exactly one required compatibility to be set.")
-	}
-	assert.Equal(t, "FARGATE", aws.StringValue(taskDefinition.RequiresCompatibilities[0]))
-}
-
-// Test Conversion with ECS Params
 func testContainerConfigs(names []string) []adapter.ContainerConfig {
 	containerConfigs := []adapter.ContainerConfig{}
 	for _, name := range names {
@@ -384,9 +432,13 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
 	if assert.NoError(t, err) {
+		// PID and IPC should be unset
+		assert.Nil(t, taskDefinition.IpcMode, "Expected IpcMode to be nil")
+		assert.Nil(t, taskDefinition.PidMode, "Expected PidMode to be nil")
+
 		assert.Equal(t, "host", aws.StringValue(taskDefinition.NetworkMode), "Expected network mode to match")
 		assert.Equal(t, "arn:aws:iam::123456789012:role/my_role", aws.StringValue(taskDefinition.TaskRoleArn), "Expected task role ARN to match")
 
@@ -398,7 +450,7 @@ task_definition:
 	}
 }
 
-func TestConvertToTaskDefinition_WithECSParamsAllFields(t *testing.T) {
+func TestConvertToTaskDefinitionWithECSParams_AllFields(t *testing.T) {
 	containerConfigs := testContainerConfigs([]string{"mysql", "wordpress"})
 	ecsParamsString := `version: 1
 task_definition:
@@ -407,6 +459,8 @@ task_definition:
   services:
     mysql:
       essential: false
+      repository_credentials:
+        credentials_parameter: arn:aws:secretsmanager:1234567890:secret:test-secret
   task_size:
     mem_limit: 5Gb
     cpu_limit: 256`
@@ -428,7 +482,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
 	containerDefs := taskDefinition.ContainerDefinitions
 	mysql := findContainerByName("mysql", containerDefs)
@@ -442,7 +496,7 @@ task_definition:
 		assert.Equal(t, "256", aws.StringValue(taskDefinition.Cpu), "Expected CPU to match")
 		assert.Equal(t, "5Gb", aws.StringValue(taskDefinition.Memory), "Expected CPU to match")
 		assert.True(t, aws.BoolValue(wordpress.Essential), "Expected container with name: '%v' to be true", *wordpress.Name)
-
+		assert.Equal(t, "arn:aws:secretsmanager:1234567890:secret:test-secret", aws.StringValue(mysql.RepositoryCredentials.CredentialsParameter), "Expected CredentialsParameter to match")
 	}
 }
 
@@ -471,7 +525,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
 	containerDefs := taskDefinition.ContainerDefinitions
 	mysql := findContainerByName("mysql", containerDefs)
@@ -510,7 +564,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
 	containerDefs := taskDefinition.ContainerDefinitions
 	mysql := findContainerByName("mysql", containerDefs)
@@ -549,7 +603,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
 	containerDefs := taskDefinition.ContainerDefinitions
 	mysql := findContainerByName("mysql", containerDefs)
@@ -587,7 +641,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
 	containerDefs := taskDefinition.ContainerDefinitions
 	mysql := findContainerByName("mysql", containerDefs)
@@ -626,7 +680,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	_, err = convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+	_, err = convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
 	assert.Error(t, err, "Expected error if no containers are marked essential")
 }
@@ -658,7 +712,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	_, err = convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+	_, err = convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
 	assert.Error(t, err, "Expected error if no containers are marked essential")
 }
@@ -687,7 +741,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 	assert.NoError(t, err, "Unexpected error when no containers are marked essential")
 
 	mysql := findContainerByName("mysql", taskDefinition.ContainerDefinitions)
@@ -725,7 +779,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
 	assert.NoError(t, err, "Unexpected error when no containers are marked essential")
 	mysql := findContainerByName("mysql", taskDefinition.ContainerDefinitions)
@@ -760,7 +814,7 @@ task_definition:
 
 	taskRoleArn := "arn:aws:iam::123456789012:role/tweedledum"
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, taskRoleArn, ecsParams)
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, taskRoleArn, "", ecsParams, nil)
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, "host", aws.StringValue(taskDefinition.NetworkMode), "Expected network mode to match")
@@ -782,7 +836,7 @@ func TestConvertToTaskDefinitionWithECSParams_ContainerResourcesPresent(t *testi
 	ecsParamsString := `version: 1
 task_definition:
   services:
-    mysql:  
+    mysql:
       cpu_shares: 100
       mem_limit: 15m
       mem_reservation: 10m
@@ -808,7 +862,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
 	containerDefs := taskDefinition.ContainerDefinitions
 	mysql := findContainerByName("mysql", containerDefs)
@@ -865,7 +919,7 @@ task_definition:
 	assert.NoError(t, err, "Could not read ECS Params file")
 
 	containerConfigs := []adapter.ContainerConfig{*containerConfig}
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
 	containerDefs := taskDefinition.ContainerDefinitions
 	web := findContainerByName("web", containerDefs)
@@ -910,7 +964,7 @@ task_definition:
 	assert.NoError(t, err, "Could not read ECS Params file")
 
 	containerConfigs := []adapter.ContainerConfig{*containerConfig}
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
 	containerDefs := taskDefinition.ContainerDefinitions
 	web := findContainerByName("web", containerDefs)
@@ -922,7 +976,7 @@ task_definition:
 	}
 }
 
-func TestConvertToTaskDefinitionWithECSParams_SomeContainerResourcesProvided(t *testing.T) {
+func TestConvertToTaskDefinitionWithECSParams_MemLimitOnlyProvided(t *testing.T) {
 	// set up containerConfig w/o value for Memory
 	containerConfig := &adapter.ContainerConfig{
 		Name:              "web",
@@ -959,7 +1013,7 @@ task_definition:
 	assert.NoError(t, err, "Could not read ECS Params file")
 
 	containerConfigs := []adapter.ContainerConfig{*containerConfig}
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
 	containerDefs := taskDefinition.ContainerDefinitions
 	web := findContainerByName("web", containerDefs)
@@ -970,6 +1024,49 @@ task_definition:
 		// check config values not present in ecs-params are present
 		assert.Equal(t, containerConfig.CPU, aws.Int64Value(web.Cpu), "Expected CPU to match")
 		assert.Equal(t, containerConfig.MemoryReservation, aws.Int64Value(web.MemoryReservation), "Expected MemoryReservation to match")
+	}
+}
+
+func TestConvertToTaskDefinitionWithECSParams_MemReservationOnlyProvided(t *testing.T) {
+	containerConfigs := testContainerConfigs([]string{"web"})
+
+	// define ecs-params value we expect to be present in final containerDefinition
+	webMem := int64(20)
+
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    web:
+      mem_reservation: 20m`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, webMem, aws.Int64Value(web.MemoryReservation), "Expected MemoryReservation to match")
+		// check mem_limit not set
+		assert.Empty(t, web.Memory, "Expected Memory to be nil")
+		// check config values not present in ecs-params are present
+		assert.Empty(t, web.Cpu, "Expected CPU to be empty")
 	}
 }
 
@@ -1000,12 +1097,12 @@ task_definition:
 	assert.NoError(t, err, "Could not read ECS Params file")
 
 	containerConfigs := []adapter.ContainerConfig{*containerConfig}
-	_, err = convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+	_, err = convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
 	assert.Error(t, err, "Expected error if mem_reservation was more than mem_limit")
 }
 
-func TestConvertToTaskDefinition_WithTaskSize(t *testing.T) {
+func TestConvertToTaskDefinitionWithECSParams_WithTaskSize(t *testing.T) {
 	containerConfigs := testContainerConfigs([]string{"mysql", "wordpress"})
 	ecsParamsString := `version: 1
 task_definition:
@@ -1030,7 +1127,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	taskDefinition, err := convertToTaskDefWithEcsParamsInTest(t, containerConfigs, "", ecsParams)
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, "200", aws.StringValue(taskDefinition.Cpu), "Expected CPU to match")
@@ -1038,35 +1135,115 @@ task_definition:
 	}
 }
 
-func TestMemReservationHigherThanMemLimit(t *testing.T) {
-	cpu := int64(131072) // 128 * 1024
-	command := "cmd"
-	hostname := "local360"
-	image := "testimage"
-	memory := int64(65536) // 64mb
-	privileged := true
-	readOnly := true
-	user := "user"
-	workingDir := "/var"
-
+func TestConvertToTaskDefinition_MemLimitOnlyProvided(t *testing.T) {
+	webMem := int64(1048576)
 	containerConfig := adapter.ContainerConfig{
-		CPU:               cpu,
-		Command:           []string{command},
-		Hostname:          hostname,
-		Image:             image,
-		Memory:            int64(524288) * memory,
-		MemoryReservation: int64(1048576) * memory,
-		Privileged:        privileged,
-		ReadOnly:          readOnly,
-		User:              user,
-		WorkingDirectory:  workingDir,
+		Name:   "web",
+		Memory: webMem,
+	}
+
+	taskDefinition, err := convertToTaskDefinitionForTest(t, []adapter.ContainerConfig{containerConfig}, "", "", nil, nil)
+	assert.NoError(t, err, "Unexpected error converting Task Definition")
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	assert.Equal(t, webMem, aws.Int64Value(web.Memory), "Expected Memory to match")
+	assert.Empty(t, web.MemoryReservation, "Expected MemoryReservation to be empty")
+	assert.Empty(t, web.Cpu, "Expected CPU to be empty")
+}
+
+func TestConvertToTaskDefinition_MemReservationOnlyProvided(t *testing.T) {
+	webMem := int64(1048576)
+	containerConfig := adapter.ContainerConfig{
+		Name:              "web",
+		MemoryReservation: webMem,
+	}
+
+	taskDefinition, err := convertToTaskDefinitionForTest(t, []adapter.ContainerConfig{containerConfig}, "", "", nil, nil)
+	assert.NoError(t, err, "Unexpected error converting Task Definition")
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	assert.Empty(t, web.Memory, "Expected Memory to be nil")
+	assert.Equal(t, webMem, aws.Int64Value(web.MemoryReservation), "Expected MemoryReservation to match")
+	assert.Empty(t, web.Cpu, "Expected CPU to be empty")
+}
+
+func TestConvertToTaskDefinition_NoMemoryProvided(t *testing.T) {
+	containerConfig := adapter.ContainerConfig{
+		Name: "web",
+	}
+
+	taskDefinition, err := convertToTaskDefinitionForTest(t, []adapter.ContainerConfig{containerConfig}, "", "", nil, nil)
+	assert.NoError(t, err, "Unexpected error converting Task Definition")
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	assert.Equal(t, aws.Int64(defaultMemLimit), web.Memory, "Expected Memory to match default")
+	assert.Empty(t, web.MemoryReservation, "Expected MemoryReservation to be empty")
+	assert.Empty(t, web.Cpu, "Expected CPU to be empty")
+}
+
+func TestMemReservationHigherThanMemLimit(t *testing.T) {
+	containerConfig := adapter.ContainerConfig{
+		Memory:            int64(524288),
+		MemoryReservation: int64(1048576),
 	}
 
 	volumeConfigs := adapter.NewVolumes()
 	containerConfigs := []adapter.ContainerConfig{containerConfig}
 
-	_, err := ConvertToTaskDefinition(projectName, volumeConfigs, containerConfigs, "", "", nil)
+	testParams := ConvertTaskDefParams{
+		TaskDefName:            projectName,
+		TaskRoleArn:            "",
+		RequiredCompatibilites: "",
+		Volumes:                volumeConfigs,
+		ContainerConfigs:       containerConfigs,
+		ECSParams:              nil,
+	}
+
+	_, err := ConvertToTaskDefinition(testParams)
 	assert.EqualError(t, err, "mem_limit must be greater than mem_reservation")
+}
+
+func TestConvertToTaskDefinitionWithECSParams_PIDandIPC(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "httpd",
+	}
+
+	ecsParamsString := `version: 1
+task_definition:
+  pid_mode: task
+  ipc_mode: host`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, "task", aws.StringValue(taskDefinition.PidMode))
+		assert.Equal(t, "host", aws.StringValue(taskDefinition.IpcMode))
+	}
 }
 
 func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
@@ -1081,7 +1258,7 @@ func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
 		{
 			ContainerPath: aws.String("/tmp/cache"),
 			ReadOnly:      aws.Bool(false),
-			SourceVolume:  aws.String("volume-3"),
+			SourceVolume:  aws.String("volume-0"),
 		},
 		{
 			ContainerPath: aws.String("/tmp/cache"),
@@ -1106,11 +1283,121 @@ func TestConvertToTaskDefinitionWithVolumes(t *testing.T) {
 		},
 	}
 
-	taskDefinition, err := ConvertToTaskDefinition(projectName, volumeConfigs, containerConfigs, "", "", nil)
+	testParams := ConvertTaskDefParams{
+		TaskDefName:            projectName,
+		TaskRoleArn:            "",
+		RequiredCompatibilites: "",
+		Volumes:                volumeConfigs,
+		ContainerConfigs:       containerConfigs,
+		ECSParams:              nil,
+	}
+
+	taskDefinition, err := ConvertToTaskDefinition(testParams)
 	assert.NoError(t, err, "Unexpected error converting Task Definition")
 
 	actualVolumes := taskDefinition.Volumes
 	assert.ElementsMatch(t, expectedVolumes, actualVolumes, "Expected volumes to match")
+}
+
+func TestConvertToTaskDefinitionWithVolumesWithHostOnly(t *testing.T) {
+	volumeConfigs := &adapter.Volumes{
+		VolumeWithHost: map[string]string{
+			hostPath: containerPath,
+		},
+	}
+
+	mountPoints := []*ecs.MountPoint{
+		{
+			ContainerPath: aws.String("/tmp/cache"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("volume-0"),
+		},
+	}
+	containerConfig := adapter.ContainerConfig{
+		MountPoints: mountPoints,
+	}
+
+	containerConfigs := []adapter.ContainerConfig{containerConfig}
+
+	host := &ecs.HostVolumeProperties{SourcePath: aws.String(hostPath)}
+	expectedVolumes := []*ecs.Volume{
+		{
+			Host: host,
+			Name: aws.String(containerPath),
+		},
+	}
+
+	testParams := ConvertTaskDefParams{
+		TaskDefName:            projectName,
+		TaskRoleArn:            "",
+		RequiredCompatibilites: "",
+		Volumes:                volumeConfigs,
+		ContainerConfigs:       containerConfigs,
+		ECSParams:              nil,
+	}
+
+	taskDefinition, err := ConvertToTaskDefinition(testParams)
+	assert.NoError(t, err, "Unexpected error converting Task Definition")
+
+	actualVolumes := taskDefinition.Volumes
+	assert.ElementsMatch(t, expectedVolumes, actualVolumes, "Expected volumes to match")
+}
+
+func TestConvertToTaskDefinitionWithECSParamsVolumeWithoutNameError(t *testing.T) {
+	volumeConfigs := &adapter.Volumes{
+		VolumeEmptyHost: []string{namedVolume, namedVolume2},
+	}
+
+	mountPoints := []*ecs.MountPoint{
+		{
+			ContainerPath: aws.String("/var/log"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("named_volume"),
+		},
+		{
+			ContainerPath: aws.String("/tmp/cache"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("named_volume2"),
+		},
+	}
+	containerConfig := adapter.ContainerConfig{
+		MountPoints: mountPoints,
+	}
+
+	containerConfigs := []adapter.ContainerConfig{containerConfig}
+	labels := map[string]string{
+		"testing.thisdoesntactuallyreallyadvancetheplot": "true",
+	}
+	options := map[string]string{
+		"Clyde": "says Goodbye Stranger, decides to Take The Long Way Home, and enjoys some Breakfast in America",
+		"He":    "is a big fan of 70s music",
+	}
+
+	ecsParams := &ECSParams{
+		TaskDefinition: EcsTaskDef{
+			DockerVolumes: []DockerVolume{
+				DockerVolume{
+					Autoprovision: aws.Bool(true),
+					Scope:         "shared",
+					Driver:        "local",
+					DriverOptions: options,
+					Labels:        labels,
+				},
+			},
+		},
+	}
+
+	testParams := ConvertTaskDefParams{
+		TaskDefName:            projectName,
+		TaskRoleArn:            "",
+		RequiredCompatibilites: "",
+		Volumes:                volumeConfigs,
+		ContainerConfigs:       containerConfigs,
+		ECSParams:              ecsParams,
+	}
+
+	_, err := ConvertToTaskDefinition(testParams)
+	assert.Error(t, err, "Expected error converting Task Definition with ECS Params volume without name")
 }
 
 func TestIsZeroForEmptyConfig(t *testing.T) {
@@ -1172,30 +1459,372 @@ func TestIsZeroWhenConfigHasValues(t *testing.T) {
 	}
 }
 
+func TestConvertToTaskDefinitionWithECSParams_HealthCheck(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "httpd",
+	}
+
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    web:
+      healthcheck:
+        test: curl -f http://localhost
+        interval: 10m
+        timeout: 15s
+        retries: 5
+        start_period: 50`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, []string{"CMD-SHELL", "curl -f http://localhost"}, aws.StringValueSlice(web.HealthCheck.Command))
+		assert.Equal(t, aws.Int64(600), web.HealthCheck.Interval)
+		assert.Equal(t, aws.Int64(15), web.HealthCheck.Timeout)
+		assert.Equal(t, aws.Int64(5), web.HealthCheck.Retries)
+		assert.Equal(t, aws.Int64(50), web.HealthCheck.StartPeriod)
+	}
+}
+
+func TestConvertToTaskDefinitionWithECSParams_OnlyTaskMemProvided(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name: "web",
+	}
+	ecsParams := &ECSParams{
+		TaskDefinition: EcsTaskDef{
+			TaskSize: TaskSize{
+				Memory: "1gb",
+			},
+		},
+	}
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	assert.NoError(t, err)
+	assert.Empty(t, web.Memory, "Expected Memory to be nil")
+	assert.Equal(t, taskDefinition.Memory, aws.String("1gb"))
+}
+
+func TestConvertToTaskDefinitionWithECSParams_HealthCheckOverrideCompose(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "httpd",
+		HealthCheck: &ecs.HealthCheck{
+			Command:     aws.StringSlice([]string{"CMD", "curl", "-f", "http://example.com"}),
+			Interval:    aws.Int64(int64(91)),
+			Timeout:     aws.Int64(int64(17)),
+			Retries:     aws.Int64(int64(7)),
+			StartPeriod: aws.Int64(int64(73)),
+		},
+	}
+
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    web:
+      healthcheck:
+        test: curl -f http://localhost
+        interval: 10m
+        timeout: 15s
+        retries: 5
+        start_period: 50`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, []string{"CMD-SHELL", "curl -f http://localhost"}, aws.StringValueSlice(web.HealthCheck.Command))
+		assert.Equal(t, aws.Int64(600), web.HealthCheck.Interval)
+		assert.Equal(t, aws.Int64(15), web.HealthCheck.Timeout)
+		assert.Equal(t, aws.Int64(5), web.HealthCheck.Retries)
+		assert.Equal(t, aws.Int64(50), web.HealthCheck.StartPeriod)
+	}
+}
+
+func TestConvertToTaskDefinitionWithECSRegistryCreds(t *testing.T) {
+	containerConfigs := testContainerConfigs([]string{"mysql", "wordpress"})
+	credsFileString := `version: "1"
+registry_credential_outputs:
+  task_execution_role: someTestRole
+  container_credentials:
+    my.example.registry.net:
+      credentials_parameter: arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-my.example.registry.net
+      container_names:
+      - mysql`
+
+	content := []byte(credsFileString)
+
+	tmpfile, err := ioutil.TempFile("", regcredio.ECSCredFileBaseName)
+	assert.NoError(t, err, "Could not create reg creds tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to reg creds tempfile")
+
+	regCreds, err := regcredio.ReadCredsOutput(tmpfile.Name())
+	assert.NoError(t, err, "Could not read reg creds file")
+
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", nil, regCreds)
+	assert.NoError(t, err, "Unexpected error when converting task definition")
+	assert.Equal(t, "someTestRole", aws.StringValue(taskDefinition.ExecutionRoleArn))
+
+	mysqlContainer := findContainerByName("mysql", taskDefinition.ContainerDefinitions)
+	assert.NotEmpty(t, mysqlContainer)
+	assert.NotEmpty(t, mysqlContainer.RepositoryCredentials)
+	assert.Equal(t, "arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-my.example.registry.net", aws.StringValue(mysqlContainer.RepositoryCredentials.CredentialsParameter))
+}
+
+func TestConvertToTaskDefinitionWithECSRegistryCreds_EmptyContainerCredMap(t *testing.T) {
+	containerConfigs := testContainerConfigs([]string{"mysql", "wordpress"})
+	credsNoContainersFileString := `version: "1"
+registry_credential_outputs:
+  task_execution_role: someTestRole
+  container_credentials:
+    my.example.registry.net:
+      credentials_parameter: arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-my.example.registry.net
+      container_names:`
+
+	content := []byte(credsNoContainersFileString)
+
+	tmpfile, err := ioutil.TempFile("", regcredio.ECSCredFileBaseName)
+	assert.NoError(t, err, "Could not create reg creds tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to reg creds tempfile")
+
+	regCreds, err := regcredio.ReadCredsOutput(tmpfile.Name())
+	assert.NoError(t, err, "Could not read reg creds file")
+
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", nil, regCreds)
+	assert.NoError(t, err, "Unexpected error when converting task definition")
+	assert.Equal(t, "someTestRole", aws.StringValue(taskDefinition.ExecutionRoleArn))
+
+	mysqlContainer := findContainerByName("mysql", taskDefinition.ContainerDefinitions)
+	assert.NotEmpty(t, mysqlContainer)
+	assert.Empty(t, mysqlContainer.RepositoryCredentials)
+}
+
+func TestConvertToTaskDefinitionWithECSRegistryCreds_OverrideECSParamsValues(t *testing.T) {
+	containerConfigs := testContainerConfigs([]string{"mysql", "wordpress"})
+
+	// set up reg cred file
+	credsFileString := `version: "1"
+registry_credential_outputs:
+  task_execution_role: someTestRole
+  container_credentials:
+    my.example.registry.net:
+      credentials_parameter: arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-my.example.registry.net
+      container_names:
+      - mysql`
+
+	credsContent := []byte(credsFileString)
+
+	tmpfileCreds, err := ioutil.TempFile("", regcredio.ECSCredFileBaseName)
+	assert.NoError(t, err, "Could not create reg creds tempfile")
+
+	defer os.Remove(tmpfileCreds.Name())
+
+	_, err = tmpfileCreds.Write(credsContent)
+	assert.NoError(t, err, "Could not write data to reg creds tempfile")
+
+	regCreds, err := regcredio.ReadCredsOutput(tmpfileCreds.Name())
+	assert.NoError(t, err, "Could not read reg creds file")
+
+	// set up ecs-params
+	ecsParamsString := `version: 1
+task_definition:
+  ecs_network_mode: host
+  task_execution_role: arn:aws:iam::123456789012:role/my_role
+  services:
+    mysql:
+      essential: true
+      cpu_shares: 100
+      mem_limit: 524288000
+      repository_credentials:
+        credentials_parameter: arn:aws:secretsmanager:1234567890:secret:test-RT4iv`
+
+	contentECSParams := []byte(ecsParamsString)
+
+	tmpfileECSParams, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs-params tempfile")
+
+	ecsParamsFileName := tmpfileECSParams.Name()
+	defer os.Remove(tmpfileECSParams.Name())
+
+	_, err = tmpfileECSParams.Write(contentECSParams)
+	assert.NoError(t, err, "Could not write data to ecs-params tempfile")
+
+	err = tmpfileECSParams.Close()
+	assert.NoError(t, err, "Could not close ecs-params tempfile")
+
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, regCreds)
+	assert.NoError(t, err, "Unexpected error when converting task definition")
+	assert.Equal(t, "someTestRole", aws.StringValue(taskDefinition.ExecutionRoleArn))
+
+	mysqlContainer := findContainerByName("mysql", taskDefinition.ContainerDefinitions)
+	assert.NotEmpty(t, mysqlContainer)
+	assert.NotEmpty(t, mysqlContainer.RepositoryCredentials)
+	assert.Equal(t, "arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-my.example.registry.net", aws.StringValue(mysqlContainer.RepositoryCredentials.CredentialsParameter))
+}
+
+func TestConvertToTaskDefinitionWithECSRegistryCreds_ErrorOnDuplicateContainers(t *testing.T) {
+	containerConfigs := testContainerConfigs([]string{"mysql", "wordpress"})
+	credsDuplicateContainersFileString := `version: "1"
+registry_credential_outputs:
+  task_execution_role: someTestRole
+  container_credentials:
+    my.example.registry.net:
+      credentials_parameter: arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-my.example.registry.net
+      container_names:
+      - mysql
+    my.otherregistry.net:
+      credentials_parameter: arn:aws:secretsmanager::secret:amazon-ecs-cli-setup-my.otherregistry.net
+      container_names:
+      - mysql`
+
+	content := []byte(credsDuplicateContainersFileString)
+
+	tmpfile, err := ioutil.TempFile("", regcredio.ECSCredFileBaseName)
+	assert.NoError(t, err, "Could not create reg creds tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to reg creds tempfile")
+
+	regCreds, err := regcredio.ReadCredsOutput(tmpfile.Name())
+	assert.NoError(t, err, "Could not read reg creds file")
+
+	_, err = convertToTaskDefinitionForTest(t, containerConfigs, "", "", nil, regCreds)
+	assert.Error(t, err, "Expected error when converting task definition")
+}
+
+func TestConvertToTaskDefinitionWithECSParams_Secrets(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "wordpress",
+	}
+
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    web:
+      secrets:
+        - value_from: /mysecrets/dbusername
+          name: DB_USERNAME
+        - value_from: arn:aws:ssm:eu-west-1:111111111111:parameter/mysecrets/dbpassword
+          name: DB_PASSWORD`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	expectedSecrets := []*ecs.Secret{
+		&ecs.Secret{
+			ValueFrom: aws.String("arn:aws:ssm:eu-west-1:111111111111:parameter/mysecrets/dbpassword"),
+			Name:      aws.String("DB_PASSWORD"),
+		},
+		&ecs.Secret{
+			ValueFrom: aws.String("/mysecrets/dbusername"),
+			Name:      aws.String("DB_USERNAME"),
+		},
+	}
+
+	if assert.NoError(t, err) {
+		assert.ElementsMatch(t, expectedSecrets, web.Secrets, "Expected secrets to match")
+	}
+}
+
 ///////////////////////
 // helper functions //
 //////////////////////
-func convertToTaskDefinitionInTest(t *testing.T, containerConfig *adapter.ContainerConfig, taskRoleArn string, launchType string) *ecs.TaskDefinition {
+
+func convertToTaskDefinitionForTest(t *testing.T, containerConfigs []adapter.ContainerConfig, taskRoleArn string, launchType string, ecsParams *ECSParams, ecsRegCreds *regcredio.ECSRegistryCredsOutput) (*ecs.TaskDefinition, error) {
 	volumeConfigs := &adapter.Volumes{
 		VolumeEmptyHost: []string{namedVolume},
 	}
 
-	containerConfigs := []adapter.ContainerConfig{}
-	containerConfigs = append(containerConfigs, *containerConfig)
-
-	taskDefinition, err := ConvertToTaskDefinition(projectName, volumeConfigs, containerConfigs, taskRoleArn, launchType, nil)
-	if err != nil {
-		t.Errorf("Expected to convert [%v] containerConfigs without errors. But got [%v]", containerConfig, err)
-	}
-	return taskDefinition
-}
-
-func convertToTaskDefWithEcsParamsInTest(t *testing.T, containerConfigs []adapter.ContainerConfig, taskRoleArn string, ecsParams *ECSParams) (*ecs.TaskDefinition, error) {
-	volumeConfigs := &adapter.Volumes{
-		VolumeEmptyHost: []string{namedVolume},
+	testParams := ConvertTaskDefParams{
+		TaskDefName:            projectName,
+		TaskRoleArn:            taskRoleArn,
+		RequiredCompatibilites: launchType,
+		Volumes:                volumeConfigs,
+		ContainerConfigs:       containerConfigs,
+		ECSParams:              ecsParams,
+		ECSRegistryCreds:       ecsRegCreds,
 	}
 
-	taskDefinition, err := ConvertToTaskDefinition(projectName, volumeConfigs, containerConfigs, taskRoleArn, "", ecsParams)
+	taskDefinition, err := ConvertToTaskDefinition(testParams)
 	if err != nil {
 		return nil, err
 	}

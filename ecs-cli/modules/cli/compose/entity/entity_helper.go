@@ -16,7 +16,6 @@ package entity
 import (
 	"fmt"
 
-	log "github.com/sirupsen/logrus"
 	composecontainer "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/container"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/logs"
@@ -28,6 +27,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/docker/libcompose/project"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -85,6 +85,8 @@ func SetupTaskDefinitionCache() cache.Cache {
 // GetOrCreateTaskDefinition gets the task definition from cache if present, else
 // creates it in ECS and persists in a local cache. It also sets the latest
 // taskDefinition to the current instance of task
+// TODO: convert to method on entity, since it changes state of entity?
+// Also, since this is called before other task/service API calls, might be good to add Fargate validation here
 func GetOrCreateTaskDefinition(entity ProjectEntity) (*ecs.TaskDefinition, error) {
 	taskDefinition := entity.TaskDefinition()
 	log.WithFields(log.Fields{
@@ -121,6 +123,8 @@ func createRegisterTaskDefinitionRequest(taskDefinition *ecs.TaskDefinition) *ec
 		TaskRoleArn:             taskDefinition.TaskRoleArn,
 		RequiresCompatibilities: taskDefinition.RequiresCompatibilities,
 		ExecutionRoleArn:        taskDefinition.ExecutionRoleArn,
+		PidMode:                 taskDefinition.PidMode,
+		IpcMode:                 taskDefinition.IpcMode,
 	}
 
 	if networkMode := taskDefinition.NetworkMode; aws.StringValue(networkMode) != "" {
@@ -305,29 +309,35 @@ func getContainersForTasksWithTaskNetworking(entity ProjectEntity, ecsTasks []*e
 	}
 
 	for _, ecsTask := range ecsTasks {
-		var hasTaskNetworking bool
-		for _, container := range ecsTask.Containers {
-			if len(container.NetworkInterfaces) > 0 {
-				taskDef, err := tdStore.getTaskDefintion(entity, aws.StringValue(ecsTask.TaskDefinitionArn))
-				if err != nil {
-					return nil, nil, err
-				}
+		taskDef, err := tdStore.getTaskDefintion(entity, aws.StringValue(ecsTask.TaskDefinitionArn))
+		if err != nil {
+			return nil, nil, err
+		}
+		if aws.StringValue(taskDef.NetworkMode) == ecs.NetworkModeAwsvpc {
+			for _, container := range ecsTask.Containers {
 				containerDef, err := getContainerDef(taskDef, aws.StringValue(container.Name))
 				if err != nil {
 					return nil, nil, err
 				}
 				bindings := convertToNetworkBindings(containerDef)
-				ipAddress := aws.StringValue(container.NetworkInterfaces[0].PrivateIpv4Address)
-				if aws.StringValue(ecsTask.LaunchType) == config.LaunchTypeFargate {
-					if ip := taskENIPublicIPs[aws.StringValue(ecsTask.TaskArn)]; ip != "" {
-						ipAddress = ip
+				ipAddress := ""
+				status := aws.StringValue(ecsTask.LastStatus)
+				if status == "PENDING" || status == "PROVISIONING" {
+					ipAddress = "(PENDING)"
+				}
+
+				// Get IPs from ENIs if they have been provisioned and the task is still running
+				if len(container.NetworkInterfaces) > 0 && status != "STOPPED" {
+					ipAddress = aws.StringValue(container.NetworkInterfaces[0].PrivateIpv4Address)
+					if aws.StringValue(ecsTask.LaunchType) == config.LaunchTypeFargate {
+						if ip := taskENIPublicIPs[aws.StringValue(ecsTask.TaskArn)]; ip != "" {
+							ipAddress = ip
+						}
 					}
 				}
 				info = append(info, composecontainer.NewContainer(ecsTask, ipAddress, container, bindings))
-				hasTaskNetworking = true
 			}
-		}
-		if !hasTaskNetworking {
+		} else {
 			tasksWithInstanceIPs = append(tasksWithInstanceIPs, ecsTask)
 		}
 	}

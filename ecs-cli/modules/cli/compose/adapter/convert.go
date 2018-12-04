@@ -18,8 +18,10 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/aws-sdk-go/aws"
@@ -43,6 +45,69 @@ const (
 	volumeFromContainerKey    = "container"
 )
 
+// ConvertToDevices transforms a slice of device strings into a slice of ECS Device structs
+func ConvertToDevices(cfgDevices []string) ([]*ecs.Device, error) {
+	devices := []*ecs.Device{}
+	for _, devString := range cfgDevices {
+		var device ecs.Device
+
+		parts := strings.Split(devString, ":")
+		numOfParts := len(parts)
+
+		hostPath := parts[0]
+		device.SetHostPath(hostPath)
+
+		if numOfParts > 1 {
+			containerPath := parts[1]
+			device.SetContainerPath(containerPath)
+		}
+		if numOfParts > 2 {
+			permissions, err := getDevicePermissions(parts[2])
+			if err != nil {
+				return nil, err
+			}
+			device.SetPermissions(aws.StringSlice(permissions))
+		}
+		if numOfParts > 3 {
+			return nil, fmt.Errorf(
+				"Invalid number of arguments in device %s", devString)
+		}
+
+		devices = append(devices, &device)
+	}
+	return devices, nil
+}
+
+func getDevicePermissions(perms string) ([]string, error) {
+	// store in map to prevent duplicates, which will fail on RegisterTaskDefinition
+	seenPerms := map[string]bool{}
+
+	if len(perms) > 3 {
+		return nil, fmt.Errorf(
+			"Invalid number of device options: found %d, max is 3", len(perms))
+	}
+	for _, char := range perms {
+		switch char {
+		case 'r':
+			seenPerms["read"] = true
+		case 'w':
+			seenPerms["write"] = true
+		case 'm':
+			seenPerms["mknod"] = true
+		default:
+			return nil, fmt.Errorf(
+				"Invalid device option: found '%s', but only 'r', 'w' or 'm' are valid", string(char))
+		}
+	}
+
+	permissions := []string{}
+	for key := range seenPerms {
+		permissions = append(permissions, key)
+	}
+
+	return permissions, nil
+}
+
 // ConvertToExtraHosts transforms the yml extra hosts slice to ecs compatible HostEntry slice
 func ConvertToExtraHosts(cfgExtraHosts []string) ([]*ecs.HostEntry, error) {
 	extraHosts := []*ecs.HostEntry{}
@@ -60,6 +125,28 @@ func ConvertToExtraHosts(cfgExtraHosts []string) ([]*ecs.HostEntry, error) {
 	}
 
 	return extraHosts, nil
+}
+
+// ConvertToHealthCheck converts a compose healthcheck to ECS healthcheck
+func ConvertToHealthCheck(healthCheckConfig *types.HealthCheckConfig) *ecs.HealthCheck {
+	ecsHealthcheck := &ecs.HealthCheck{
+		Command: aws.StringSlice(healthCheckConfig.Test),
+	}
+	// optional fields with defaults provided by ECS
+	if healthCheckConfig.Interval != nil {
+		ecsHealthcheck.Interval = ConvertToTimeInSeconds(healthCheckConfig.Interval)
+	}
+	if healthCheckConfig.Retries != nil {
+		ecsHealthcheck.Retries = aws.Int64(int64(*healthCheckConfig.Retries))
+	}
+	if healthCheckConfig.Timeout != nil {
+		ecsHealthcheck.Timeout = ConvertToTimeInSeconds(healthCheckConfig.Timeout)
+	}
+	if healthCheckConfig.StartPeriod != nil {
+		ecsHealthcheck.StartPeriod = ConvertToTimeInSeconds(healthCheckConfig.StartPeriod)
+	}
+
+	return ecsHealthcheck
 }
 
 // ConvertToKeyValuePairs transforms the map of environment variables into list of ecs.KeyValuePair.
@@ -127,6 +214,12 @@ func ConvertToMemoryInMB(bytes int64) int64 {
 		memory = int64(bytes) / miB
 	}
 	return memory
+}
+
+// ConvertToTimeInSeconds converts a duration to an int64 number of seconds
+func ConvertToTimeInSeconds(d *time.Duration) *int64 {
+	val := d.Nanoseconds() / 1E9
+	return &val
 }
 
 // ConvertToMountPoints transforms the yml volumes slice to ecs compatible MountPoints slice
@@ -439,6 +532,17 @@ func SortedGoString(v interface{}) (string, error) {
 		return "", err
 	}
 	return string(b), nil
+}
+
+// Necessary in conjunction with SortedGoString to avoid spurious tdcache misses
+func SortedContainerDefinitionsByName(request *ecs.RegisterTaskDefinitionInput) ecs.RegisterTaskDefinitionInput {
+	cdefs := request.ContainerDefinitions
+	sort.Slice(cdefs, func(i, j int) bool {
+		return *cdefs[i].Name < *cdefs[j].Name
+	})
+	sorted := *request
+	sorted.ContainerDefinitions = cdefs
+	return sorted
 }
 
 // ConvertCamelCaseToUnderScore returns an underscore-separated name for a given camelcased string

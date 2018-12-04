@@ -42,7 +42,7 @@ type ECSClient interface {
 	IsActiveCluster(clusterName string) (bool, error)
 
 	// Service related
-	CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, launchType string, healthCheckGracePeriod *int64) error
+	CreateService(serviceName string, createServiceInput *ecs.CreateServiceInput) error
 	UpdateService(serviceName, taskDefinitionName string, count int64, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, healthCheckGracePeriod *int64, force bool) error
 	DescribeService(serviceName string) (*ecs.DescribeServicesOutput, error)
 	DeleteService(serviceName string) error
@@ -54,8 +54,7 @@ type ECSClient interface {
 
 	// Tasks related
 	GetTasksPages(listTasksInput *ecs.ListTasksInput, fn ProcessTasksAction) error
-	RunTask(taskDefinition, taskGroup string, count int, networkConfig *ecs.NetworkConfiguration, launchType string) (*ecs.RunTaskOutput, error)
-	RunTaskWithOverrides(taskDefinition, taskGroup string, count int, overrides map[string][]string) (*ecs.RunTaskOutput, error)
+	RunTask(runTaskInput *ecs.RunTaskInput) (*ecs.RunTaskOutput, error)
 	StopTask(taskID string) error
 	DescribeTasks(taskIds []*string) ([]*ecs.Task, error)
 
@@ -132,29 +131,7 @@ func (c *ecsClient) DeleteService(serviceName string) error {
 	return nil
 }
 
-func (c *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer *ecs.LoadBalancer, role string, deploymentConfig *ecs.DeploymentConfiguration, networkConfig *ecs.NetworkConfiguration, launchType string, healthCheckGracePeriod *int64) error {
-	createServiceInput := &ecs.CreateServiceInput{
-		DesiredCount:            aws.Int64(0),            // Required
-		ServiceName:             aws.String(serviceName), // Required
-		TaskDefinition:          aws.String(taskDefName), // Required
-		Cluster:                 aws.String(c.config.Cluster),
-		DeploymentConfiguration: deploymentConfig,
-		LoadBalancers:           []*ecs.LoadBalancer{loadBalancer},
-		Role:                    aws.String(role),
-	}
-
-	if healthCheckGracePeriod != nil {
-		createServiceInput.HealthCheckGracePeriodSeconds = aws.Int64(*healthCheckGracePeriod)
-	}
-
-	if networkConfig != nil {
-		createServiceInput.NetworkConfiguration = networkConfig
-	}
-
-	if launchType != "" {
-		createServiceInput.LaunchType = aws.String(launchType)
-	}
-
+func (c *ecsClient) CreateService(serviceName string, createServiceInput *ecs.CreateServiceInput) error {
 	if _, err := c.client.CreateService(createServiceInput); err != nil {
 		log.WithFields(log.Fields{
 			"service": serviceName,
@@ -163,21 +140,6 @@ func (c *ecsClient) CreateService(serviceName, taskDefName string, loadBalancer 
 		return err
 	}
 
-	fields := log.Fields{
-		"service":        serviceName,
-		"taskDefinition": taskDefName,
-	}
-	if deploymentConfig != nil && deploymentConfig.MaximumPercent != nil {
-		fields["deployment-max-percent"] = aws.Int64Value(deploymentConfig.MaximumPercent)
-	}
-	if deploymentConfig != nil && deploymentConfig.MinimumHealthyPercent != nil {
-		fields["deployment-min-healthy-percent"] = aws.Int64Value(deploymentConfig.MinimumHealthyPercent)
-	}
-	if healthCheckGracePeriod != nil {
-		fields["health-check-grace-period"] = *healthCheckGracePeriod
-	}
-
-	log.WithFields(fields).Info("Created an ECS service")
 	return nil
 }
 
@@ -262,8 +224,9 @@ func (c *ecsClient) RegisterTaskDefinition(request *ecs.RegisterTaskDefinitionIn
 func (c *ecsClient) RegisterTaskDefinitionIfNeeded(
 	request *ecs.RegisterTaskDefinitionInput,
 	taskDefinitionCache cache.Cache) (*ecs.TaskDefinition, error) {
+
 	if request.Family == nil {
-		return nil, errors.New("invalid task definitions: family is required")
+		return nil, errors.New("invalid task definition: family is required")
 	}
 
 	taskDefResp, err := c.DescribeTaskDefinition(aws.StringValue(request.Family))
@@ -310,7 +273,7 @@ func (c *ecsClient) constructTaskDefinitionCacheHash(taskDefinition *ecs.TaskDef
 	// Get the region from the ecsClient configuration
 	region := aws.StringValue(c.config.Session.Config.Region)
 	awsUserAccountId := utils.GetAwsAccountIdFromArn(aws.StringValue(taskDefinition.TaskDefinitionArn))
-	sortedRequestString, err := adapter.SortedGoString(request)
+	sortedRequestString, err := adapter.SortedGoString(adapter.SortedContainerDefinitionsByName(request))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -405,57 +368,12 @@ func (c *ecsClient) DescribeTasks(taskArns []*string) ([]*ecs.Task, error) {
 }
 
 // RunTask issues a run task request for the input task definition
-func (c *ecsClient) RunTask(taskDefinition, group string, count int, networkConfig *ecs.NetworkConfiguration, launchType string) (*ecs.RunTaskOutput, error) {
-	runTaskInput := &ecs.RunTaskInput{
-		Cluster:        aws.String(c.config.Cluster),
-		TaskDefinition: aws.String(taskDefinition),
-		Group:          aws.String(group),
-		Count:          aws.Int64(int64(count)),
-	}
-
-	if networkConfig != nil {
-		runTaskInput.NetworkConfiguration = networkConfig
-	}
-
-	if launchType != "" {
-		runTaskInput.LaunchType = aws.String(launchType)
-	}
-
-	resp, err := c.client.RunTask(runTaskInput)
+func (c *ecsClient) RunTask(input *ecs.RunTaskInput) (*ecs.RunTaskOutput, error) {
+	resp, err := c.client.RunTask(input)
 
 	if err != nil {
 		log.WithFields(log.Fields{
-			"task definition": taskDefinition,
-			"error":           err,
-		}).Error("Error running tasks")
-	}
-	return resp, err
-}
-
-// RunTask issues a run task request for the input task definition
-func (c *ecsClient) RunTaskWithOverrides(taskDefinition, group string, count int, overrides map[string][]string) (*ecs.RunTaskOutput, error) {
-	commandOverrides := []*ecs.ContainerOverride{}
-	for cont, command := range overrides {
-		contOverride := &ecs.ContainerOverride{
-			Name:    aws.String(cont),
-			Command: aws.StringSlice(command),
-		}
-		commandOverrides = append(commandOverrides, contOverride)
-	}
-	ecsOverrides := &ecs.TaskOverride{
-		ContainerOverrides: commandOverrides,
-	}
-
-	resp, err := c.client.RunTask(&ecs.RunTaskInput{
-		Cluster:        aws.String(c.config.Cluster),
-		TaskDefinition: aws.String(taskDefinition),
-		Group:          aws.String(group),
-		Count:          aws.Int64(int64(count)),
-		Overrides:      ecsOverrides,
-	})
-	if err != nil {
-		log.WithFields(log.Fields{
-			"task definition": taskDefinition,
+			"task definition": input.TaskDefinition,
 			"error":           err,
 		}).Error("Error running tasks")
 	}

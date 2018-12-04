@@ -66,7 +66,7 @@ func createServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "create",
 		Usage:        "Creates an ECS service from your compose file. The service is created with a desired count of 0, so no containers are started by this command. Note that we do not recommend using plain text environment variables for sensitive information, such as credential data.",
 		Action:       compose.WithProject(factory, compose.ProjectCreate, true),
-		Flags:        append(append(deploymentConfigFlags(true), append(loadBalancerFlags(), flags.OptionalConfigFlags()...)...), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag()),
+		Flags:        flags.AppendFlags(deploymentConfigFlags(true), loadBalancerFlags(), flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), serviceDiscoveryFlags()),
 		OnUsageError: flags.UsageErrorFactory("create"),
 	}
 }
@@ -76,7 +76,7 @@ func startServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "start",
 		Usage:        "Starts one copy of each of the containers on an existing ECS service by setting the desired count to 1 (only if the current desired count is 0).",
 		Action:       compose.WithProject(factory, compose.ProjectStart, true),
-		Flags:        append(append(flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag(), flags.OptionalCreateLogsFlag()), ForceNewDeploymentFlag()),
+		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag(), flags.OptionalCreateLogsFlag(), ForceNewDeploymentFlag()),
 		OnUsageError: flags.UsageErrorFactory("start"),
 	}
 }
@@ -86,7 +86,7 @@ func upServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "up",
 		Usage:        "Creates a new ECS service or updates an existing one according to your compose file. For new services or existing services with a current desired count of 0, the desired count for the service is set to 1. For existing services with non-zero desired counts, a new task definition is created to reflect any changes to the compose file and the service is updated to use that task definition. In this case, the desired count does not change.",
 		Action:       compose.WithProject(factory, compose.ProjectUp, true),
-		Flags:        append(append(append(append(deploymentConfigFlags(true), append(loadBalancerFlags(), flags.OptionalConfigFlags()...)...), ComposeServiceTimeoutFlag()), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag()), ForceNewDeploymentFlag()),
+		Flags:        flags.AppendFlags(deploymentConfigFlags(true), loadBalancerFlags(), flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), ForceNewDeploymentFlag(), serviceDiscoveryFlags(), updateServiceDiscoveryFlags()),
 		OnUsageError: flags.UsageErrorFactory("up"),
 	}
 }
@@ -107,7 +107,7 @@ func scaleServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "scale",
 		Usage:        "ecs-cli compose service scale [count] - scales the desired count of the service to the specified count",
 		Action:       compose.WithProject(factory, compose.ProjectScale, true),
-		Flags:        append(append(deploymentConfigFlags(false), flags.OptionalConfigFlags()...), ComposeServiceTimeoutFlag()),
+		Flags:        flags.AppendFlags(deploymentConfigFlags(false), flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag()),
 		OnUsageError: flags.UsageErrorFactory("scale"),
 	}
 }
@@ -117,7 +117,7 @@ func stopServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "stop",
 		Usage:        "Stops the running tasks that belong to the service created with the compose project. This command updates the desired count of the service to 0.",
 		Action:       compose.WithProject(factory, compose.ProjectStop, true),
-		Flags:        append(flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag()),
+		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag()),
 		OnUsageError: flags.UsageErrorFactory("stop"),
 	}
 }
@@ -128,8 +128,75 @@ func rmServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Aliases:      []string{"delete", "down"},
 		Usage:        "Updates the desired count of the service to 0 and then deletes the service.",
 		Action:       compose.WithProject(factory, compose.ProjectDown, true),
-		Flags:        append(flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag()),
+		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag(), deleteServiceDiscoveryFlags()),
 		OnUsageError: flags.UsageErrorFactory("rm"),
+	}
+}
+
+func serviceDiscoveryFlags() []cli.Flag {
+	return []cli.Flag{
+		cli.BoolFlag{
+			Name:  flags.EnableServiceDiscoveryFlag,
+			Usage: "[Service Discovery] Enable Service Discovery for your ECS Service",
+		},
+		cli.StringFlag{
+			Name:  flags.VpcIdFlag,
+			Usage: "[Service Discovery] The VPC that will be attached to the private DNS namespace",
+		},
+		cli.StringFlag{
+			Name:  flags.PrivateDNSNamespaceNameFlag,
+			Usage: "[Service Discovery] The name of the private DNS namespace to use with Service Discovery. The CLI creates the namespace if it doesn't already exist. For example, if the name is 'corp' than a service 'foo' will be reachable via DNS at 'foo.corp'",
+		},
+		cli.StringFlag{
+			Name:  flags.PrivateDNSNamespaceIDFlag,
+			Usage: "[Service Discovery] The ID of an existing private DNS namespace to use with Service Discovery.",
+		},
+		cli.StringFlag{
+			Name:  flags.PublicDNSNamespaceIDFlag,
+			Usage: "[Service Discovery] The ID of an existing public DNS namespace to use with Service Discovery.",
+		},
+		cli.StringFlag{
+			Name:  flags.PublicDNSNamespaceNameFlag,
+			Usage: "[Service Discovery] The name of an existing public DNS namespace to use with Service Discovery. For example, if the name is 'corp' than a service 'foo' will be reachable via DNS at 'foo.corp'",
+		},
+		cli.StringFlag{
+			Name:  flags.ServiceDiscoveryContainerNameFlag,
+			Usage: "[Service Discovery] The name of the container (service name in compose) that will use Service Discovery",
+		},
+		cli.StringFlag{
+			Name:  flags.ServiceDiscoveryContainerPortFlag,
+			Usage: "[Service Discovery] The port on the container used for Service Discovery",
+		},
+		cli.StringFlag{
+			Name:  flags.DNSTTLFlag,
+			Usage: "[Service Discovery] The TTL of the DNS Records used with the Route53 Service Discovery Resource",
+		},
+		cli.StringFlag{
+			Name:  flags.DNSTypeFlag,
+			Usage: "[Service Discovery] The type of the DNS Records used with the Route53 Service Discovery Resource (A or SRV). Note that SRV records require container name and container port",
+		},
+		cli.StringFlag{
+			Name:  flags.HealthcheckCustomConfigFailureThresholdFlag,
+			Usage: "[Service Discovery] The number of 30-second intervals that you want service discovery service to wait after receiving an UpdateInstanceCustomHealthStatus request before it changes the health status of a service instance",
+		},
+	}
+}
+
+func updateServiceDiscoveryFlags() []cli.Flag {
+	return []cli.Flag{
+		cli.BoolFlag{
+			Name:  flags.UpdateServiceDiscoveryFlag,
+			Usage: "[Optional] [Service Discovery] Allows update of Service Discovery Service settings DNS TTL and Failure Threshold.",
+		},
+	}
+}
+
+func deleteServiceDiscoveryFlags() []cli.Flag {
+	return []cli.Flag{
+		cli.BoolFlag{
+			Name:  flags.DeletePrivateNamespaceFlag,
+			Usage: "[Optional] [Service Discovery] Deletes the private namespace created by the ECS CLI",
+		},
 	}
 }
 
@@ -153,11 +220,11 @@ func deploymentConfigFlags(specifyDefaults bool) []cli.Flag {
 }
 
 func loadBalancerFlags() []cli.Flag {
-	targetGroupArnUsageString := "[Optional] Specifies the full Amazon Resource Name (ARN) of a previously configured Elastic Load Balancing target group to associate with your service."
-	containerNameUsageString := "[Optional] Specifies the container name (as it appears in a container definition). This parameter is required if a load balancer or target group is specified."
-	containerPortUsageString := "[Optional] Specifies the port on the container to associate with the load balancer. This port must correspond to a containerPort in the service's task definition. This parameter is required if a load balancer or target group is specified."
-	loadBalancerNameUsageString := "[Optional] Specifies the name of a previously configured Elastic Load Balancing load balancer to associate with your service."
-	roleUsageString := "[Optional] Specifies the name or full Amazon Resource Name (ARN) of the IAM role that allows Amazon ECS to make calls to your load balancer or target group on your behalf. This parameter is required if you are using a load balancer or target group with your service. If you specify the role parameter, you must also specify a load balancer name or target group ARN, along with a container name and container port."
+	targetGroupArnUsageString := fmt.Sprintf("[Optional] Specifies the full Amazon Resource Name (ARN) of a previously configured target group for an Application Load Balancer or Network Load Balancer to associate with your service. NOTE: For Classic Load Balancers, use the --%s flag.", flags.LoadBalancerNameFlag)
+	containerNameUsageString := fmt.Sprintf("[Optional] Specifies the container name (as it appears in a container definition). This parameter is required if --%s or --%s is specified.", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
+	containerPortUsageString := fmt.Sprintf("[Optional] Specifies the port on the container to associate with the load balancer. This port must correspond to a containerPort in the service's task definition. This parameter is required if --%s or --%s is specified.", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
+	loadBalancerNameUsageString := fmt.Sprintf("[Optional] Specifies the name of a previously configured Classic Elastic Load Balancing load balancer to associate with your service. NOTE: For Application Load Balancers or Network Load Balancers, use the --%s flag.", flags.TargetGroupArnFlag)
+	roleUsageString := fmt.Sprintf("[Optional] Specifies the name or full Amazon Resource Name (ARN) of the IAM role that allows Amazon ECS to make calls to your load balancer or target group on your behalf. This parameter requires either --%s or --%s to be specified.", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
 	healthCheckGracePeriodString := "[Optional] Specifies the period of time, in seconds, that the Amazon ECS service scheduler should ignore unhealthy Elastic Load Balancing target health checks after a task has first started."
 
 	return []cli.Flag{
@@ -189,19 +256,23 @@ func loadBalancerFlags() []cli.Flag {
 }
 
 // ComposeServiceTimeoutFlag allows user to specify a custom timeout
-func ComposeServiceTimeoutFlag() cli.Flag {
-	return cli.Float64Flag{
-		Name:  flags.ComposeServiceTimeOutFlag,
-		Value: service.DefaultUpdateServiceTimeout,
-		Usage: fmt.Sprintf(
-			"Specifies the timeout value in minutes (decimals supported) to wait for the running task count to change. If the running task count has not changed for the specified period of time, then the CLI times out and returns an error. Setting the timeout to 0 will cause the command to return without checking for success.",
-		),
+func ComposeServiceTimeoutFlag() []cli.Flag {
+	return []cli.Flag{
+		cli.Float64Flag{
+			Name:  flags.ComposeServiceTimeOutFlag,
+			Value: service.DefaultUpdateServiceTimeout,
+			Usage: fmt.Sprintf(
+				"Specifies the timeout value in minutes (decimals supported) to wait for the running task count to change. If the running task count has not changed for the specified period of time, then the CLI times out and returns an error. Setting the timeout to 0 will cause the command to return without checking for success.",
+			),
+		},
 	}
 }
 
-func ForceNewDeploymentFlag() cli.Flag {
-	return cli.BoolFlag{
-		Name:  flags.ForceDeploymentFlag,
-		Usage: "[Optional] Whether or not to force a new deployment of the service.",
+func ForceNewDeploymentFlag() []cli.Flag {
+	return []cli.Flag{
+		cli.BoolFlag{
+			Name:  flags.ForceDeploymentFlag,
+			Usage: "[Optional] Whether or not to force a new deployment of the service.",
+		},
 	}
 }

@@ -103,6 +103,10 @@ func composeFlags() []cli.Flag {
 			Name:  flags.ECSParamsFileNameFlag,
 			Usage: "[Optional] Specifies ecs-params file to use. Defaults to " + ecsParamsFileNameDefaultValue + " file, if one exists.",
 		},
+		cli.StringFlag{
+			Name:  flags.RegistryCredsFileNameFlag,
+			Usage: "[Optional] Specifies the ecs-registry-creds file to use. Defaults to latest 'ecs-registry-creds' output file, if one exists.",
+		},
 	}
 }
 
@@ -111,7 +115,7 @@ func createCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "create",
 		Usage:        "Creates an ECS task definition from your compose file. Note that we do not recommend using plain text environment variables for sensitive information, such as credential data.",
 		Action:       compose.WithProject(factory, compose.ProjectCreate, false),
-		Flags:        append(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag()),
+		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag()),
 		OnUsageError: flags.UsageErrorFactory("create"),
 	}
 }
@@ -132,7 +136,7 @@ func upCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "up",
 		Usage:        "Creates an ECS task definition from your compose file (if it does not already exist) and runs one instance of that task on your cluster (a combination of create and start).",
 		Action:       compose.WithProject(factory, compose.ProjectUp, false),
-		Flags:        append(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag()),
+		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), flags.OptionalForceUpdateFlag()),
 		OnUsageError: flags.UsageErrorFactory("up"),
 	}
 }
@@ -142,7 +146,7 @@ func startCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "start",
 		Usage:        "Starts a single task from the task definition created from your compose file.",
 		Action:       compose.WithProject(factory, compose.ProjectStart, false),
-		Flags:        append(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag()),
+		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag()),
 		OnUsageError: flags.UsageErrorFactory("start"),
 	}
 }
@@ -174,7 +178,7 @@ func scaleCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "scale",
 		Usage:        "ecs-cli compose scale [count] - scales the number of running tasks to the specified count.",
 		Action:       compose.WithProject(factory, compose.ProjectScale, false),
-		Flags:        append(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag()),
+		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag()),
 		OnUsageError: flags.UsageErrorFactory("scale"),
 	}
 }

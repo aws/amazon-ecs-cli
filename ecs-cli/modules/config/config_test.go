@@ -425,7 +425,7 @@ func TestCredentialsWhenUsingEC2InstanceRole(t *testing.T) {
 	}`
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/latest/meta-data/iam/security-credentials" {
+		if r.URL.Path == "/latest/meta-data/iam/security-credentials/" {
 			fmt.Fprintln(w, ec2InstanceRoleName)
 		} else if r.URL.Path == "/latest/meta-data/iam/security-credentials/"+ec2InstanceRoleName {
 			fmt.Fprintf(w, ec2Creds, "2014-12-16T01:51:37Z")

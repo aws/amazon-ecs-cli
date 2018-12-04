@@ -55,6 +55,11 @@ func (p *ecsProject) parseV1V2() (*[]adapter.ContainerConfig, error) {
 func convertV1V2ToContainerConfig(context *project.Context, serviceName string, volumes *adapter.Volumes, service *config.ServiceConfig) (*adapter.ContainerConfig, error) {
 	logger.LogUnsupportedV1V2ServiceConfigFields(serviceName, service)
 
+	devices, err := adapter.ConvertToDevices(service.Devices)
+	if err != nil {
+		return nil, err
+	}
+
 	environment := adapter.ConvertToKeyValuePairs(context, service.Environment, serviceName)
 
 	extraHosts, err := adapter.ConvertToExtraHosts(service.ExtraHosts)
@@ -69,6 +74,11 @@ func convertV1V2ToContainerConfig(context *project.Context, serviceName string, 
 
 	memory := adapter.ConvertToMemoryInMB(int64(service.MemLimit))
 	memoryReservation := adapter.ConvertToMemoryInMB(int64(service.MemReservation))
+
+	// Validate memory and memory reservation
+	if memory == 0 && memoryReservation != 0 {
+		memory = memoryReservation
+	}
 
 	mountPoints, err := adapter.ConvertToMountPoints(service.Volumes, volumes)
 	if err != nil {
@@ -103,6 +113,7 @@ func convertV1V2ToContainerConfig(context *project.Context, serviceName string, 
 		CapDrop:               service.CapDrop,
 		Command:               service.Command,
 		CPU:                   int64(service.CPUShares),
+		Devices:               devices,
 		DNSSearchDomains:      service.DNSSearch,
 		DNSServers:            service.DNS,
 		DockerLabels:          aws.StringMap(service.Labels),

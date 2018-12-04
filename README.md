@@ -31,8 +31,10 @@ Line Interface](http://aws.amazon.com/cli/) product detail page.
 	- [Creating a Service](#creating-a-service)
 	- [Using ECS parameters](#using-ecs-parameters)
 		- [Launching an AWS Fargate task](#launching-an-aws-fargate-task)
+		- [Using Route53 Service Discovery](#using-route53-service-discovery)
 	- [Viewing Running Tasks](#viewing-running-tasks)
 	- [Viewing Container Logs](#viewing-container-logs)
+    - [Using Private Registry Authentication](#using-private-registry-authentication)
 - [Amazon ECS CLI Commands](#amazon-ecs-cli-commands)
 - [Contributing to the CLI](#contributing-to-the-cli)
 - [License](#license)
@@ -327,6 +329,29 @@ ecs-cli up --cluster myCluster --empty
 
 This is equivalent to the [create-cluster command](https://docs.aws.amazon.com/cli/latest/reference/ecs/create-cluster.html), and will not create a CloudFormation stack associated with your cluster.
 
+#### User Data
+
+For the EC2 launch type, the ECS CLI always creates EC2 instances that include the following User Data:
+
+```
+#!/bin/bash
+echo ECS_CLUSTER={ clusterName } >> /etc/ecs/ecs.config
+```
+
+This user data directs the EC2 instance to join your ECS Cluster. You can optionally include extra user data with `--extra-user-data`; this flag takes a file name as its argument.  
+The flag can be used multiple times to specify multiple files. Extra user data can be shell scripts or cloud-init directives- see the [EC2 documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html) for more information.
+The ECS CLI takes all the User Data, and packs it into a MIME Multipart archive which can be used by cloud-init on the EC2 instance. The ECS CLI even allows existing MIME Multipart archives to be passed in with `--extra-user-data`.
+The CLI will unpack the existing archive, and then repack it into the final archive (preserving all header and content type information). Here is an example of specifying extra user data:
+
+```
+ecs-cli up \  
+  --capability-iam \  
+  --extra-user-data my-shellscript \  
+  --extra-user-data my-cloud-boot-hook \  
+  --extra-user-data my-mime-multipart-archive \  
+  --launch-type EC2
+```
+
 #### Creating a Fargate cluster
 
 ```
@@ -419,16 +444,67 @@ task_definition:
   task_size:                             // Required for running tasks with Fargate launch type
     cpu_limit: string
     mem_limit: string
+  pid_mode: string                            // Supported string values: task or host
+  ipc_mode: string                            // Supported string values: task, host, or none
   services:
     <service_name>:
       essential: boolean
+      repository_credentials:
+        credentials_parameter: string
+      cpu_shares: integer
+      mem_limit: string
+      mem_reservation: string
+      healthcheck:
+        test: string or list of strings
+        interval: string
+        timeout: string
+        retries: integer
+        start_period: string
+      secrets:
+        - value_from: string
+          name: string
+  docker_volumes:
+    - name: string
+      scope: string                      // Valid values: "shared" | "task"
+      autoprovision: boolean             // only valid if scope = "shared"
+      driver: string
+      driver_opts:
+        string: string
+      labels:
+        string: string
 
 run_params:
   network_configuration:
     awsvpc_configuration:
       subnets: array of strings          // These should be in the same VPC and Availability Zone as your instance
-      security_groups: array of strings  // These should be in the same VPC as your instance
+      security_groups: list of strings   // These should be in the same VPC as your instance
       assign_public_ip: string           // supported values: ENABLED or DISABLED
+  task_placement:
+    strategy:
+      - type: string                     // Valid values: "spread"|"binpack"|"random"
+        field: string                    // Not valid if type is "random"
+    constraints:
+      - type: string                     // Valid values: "memberOf"|"distinctInstance"
+        expression: string               // Not valid if type is "distinctInstance"
+  service_discovery:
+    container_name: string
+    container_port: integer
+    private_dns_namespace:
+      id: string
+      name: string
+      vpc: string
+      description: string
+    public_dns_namespace:
+      id: string
+      name: string
+    service_discovery_service:
+      name: string
+      description: string
+      dns_config:
+        type: string
+        ttl: integer
+      healthcheck_custom_config:
+        failure_threshold: integer
 ```
 
 **Version**
@@ -442,11 +518,26 @@ Fields listed under `task_definition` correspond to fields that will be included
 * `task_role_arn` should be the ARN of an IAM role. **NOTE**: If this role does not have the proper permissions/trust relationships on it, the `up` command will fail.
 
 * `services` correspond to the services listed in your docker compose file, with `service_name` matching the name of the container you wish to run. Its fields will be merged into an [ECS Container Definition](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ecs-taskdefinition-containerdefinitions.html).
-The only field you can specify on it is `essential`. The default value for the essential field is true.
+  * If the [`essential`](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ecs-taskdefinition-containerdefinitions.html#cfn-ecs-taskdefinition-containerdefinition-essential) field is not specified, the value defaults to true.
+  * If you are using Docker compose version 3, the `cpu_shares`, `mem_limit`, and `mem_reservation` fields are optional and must be specified in the ECS params file rather than the compose file.
+  * In Docker compose version 2, the `cpu_shares`, `mem_limit`, and `mem_reservation` fields can be specified in either the compose or ECS params file. If they are specified in the ECS params file, the values will override values present in the compose file.
+  * If you are using a private repository for pulling images, `repository_credentials` allows you to specify an AWS Secrets Manager secret ARN for the name of the secret containing your private repository credentials as a `credential_parameter`.
+  * `healthcheck` This parameter maps to `healthcheck` in the [Docker compose file reference](https://docs.docker.com/compose/compose-file/#healthcheck). This field can either be used here in the ECS Params file, or it can be used in Compose File version 3 with the ECS CLI.
+    * `test` can also be specified as `command` and must be either a string or a list or strings. If `test` is specified as a list of strings, the first item must be either NONE, CMD, or CMD-SHELL. If test or command is specified as a string, CMD-SHELL will be prepended and ECS will run the command in the container's default shell.
+    * `interval`, `timeout`, and `start_period` are specified as durations in a string format. For example: 2.5s, 10s, 1m30s, 2h23m, or 5h34m56s.
+  * `secrets` allows you to specify secrets which will be retrieved from SSM Parameter Store. See the [ECS Docs](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html) for more information, including how reference AWS Secrets Managers secrets from SSM Parameter Store.
+    * `value_from` is the SSM Parameter ARN or name (if the parameter is in the same region as your ECS Task).
+    * `name` is the name of the environment variable in which the secret will be stored.
+
+* `docker_volumes` allows you to create docker volumes. The name key is required, and `scope`, `autoprovision`, `driver`, `driver_opts` and `labels` correspond with the fields under [dockerVolumeConfiguration](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-volumes.html) in an ECS Task Definition. Volumes defined with the `docker_volumes` key can be referenced in your compose file by name, even if they were not also specified in the compose file.
 
 * `task_execution_role` should be the ARN of an IAM role. **NOTE**: This field is required to enable ECS Tasks to be configured with Cloudwatch Logs, or to pull images from ECR for your tasks.
 
 * `task_size` Contains two fields, CPU and Memory. These fields are required for launching tasks with Fargate launch type. See [the documentation on ECS Task Definition Parameters](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html) for more information.
+
+* `pid_mode` allows you to control the process namespace in which your containers run. Valid values are `task` or `host`. See the [ECS documentation](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_definition_pidmode) for more information.
+
+* `ipc_mode` allows you to control the IPC resource namespace in which your containers run. Valid values are `task`, `host`, or `none`. See the [ECS documentation](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_definition_ipcmode) for more information.
 
 **Run Params**
 Fields listed under `run_params` are for values needed as options to API calls not related to a Task Definition, such as `compose up` (RunTask) and `compose service up` (CreateService).
@@ -456,6 +547,18 @@ Currently, the only parameter supported under `run_params` is `network_configura
   * `subnets`: list of subnet ids used to launch tasks. ***NOTE*** These should be in the same VPC and availability zone as the instances on which you wish to launch your tasks.
   * `security_groups`: list of securtiy-group ids used to launch tasks. ***NOTE*** These should be in the same VPC as the instances on which you wish to launch your tasks.
   * `assign_public_ip`: supported values for this field are either "ENABLED" or "DISABLED". This field is *only* used for tasks launched with Fargate launch type. If this field is present in tasks with network configuration launched with EC2 launch type, the request will fail.
+* `task_placement` is an optional field with `EC2` launch-type only (it is *not* valid for `FARGATE`). It has two subfields:
+  * `strategy`: A list of objects, with two keys. Valid keys are `type` and `field`.
+    * `type`: Valid values are `random`, `binpack`, or `spread`. If `random` is specified, the `field` key should not be provided.
+    * `field`: Valid values depend on the strategy type.
+      * For `spread`, valid values are `instanceId`, `host`, or attribute key/value pairs, e.g. `attribute:ecs.instance-type =~ t2.*`
+      * For "binpack", valid values are "cpu" or "memory".
+  * `constraint`: A list of objects, with two keys. Valid keys are `type` and `expression`.
+    * `type`: Valid values are `distinctInstance` and `memberOf`. If `distinctInstance` is specified, the `expression` key should not be provided.
+    * `expression`: When `type` is `memberOf`, valid values are key/value pairs for attributes or task groups, e.g. `task:group == databases` or `attribute:color =~ green`.
+* `service_discovery` allows the configuration of Service Discovery using Route53 auto naming. For an explanation of these fields, see [Using Route53 Service Discovery](#using-route53-service-discovery).
+
+For more information on task placement, see [Amazon ECS TaskPlacement] (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-placement.html).
 
 Example `ecs-params.yml` file:
 
@@ -465,8 +568,20 @@ task_definition:
   ecs_network_mode: host
   task_role_arn: myCustomRole
   services:
-    my_service:
+    logging:
       essential: false
+    wordpress:
+      cpu_shares: 100
+      mem_limit: 500m
+    mysql:
+      cpu_shares: 105
+      mem_limit: 500m
+      mem_reservation: 450m
+  docker_volumes:
+    - name: database_volume
+      scope: shared
+      autoprovision: true
+      driver: local
 ```
 
 Example `ecs-params.yml` with network configuration with **EC2** launch type:
@@ -515,6 +630,24 @@ run_params:
       assign_public_ip: ENABLED
 ```
 
+Example `ecs-params.yml` with task placement:
+
+```
+version: 1
+run_params:
+  task_placement:
+    strategy:
+      - field: memory
+        type: binpack
+      - field: attribute:ecs.availability-zone
+        type: spread
+      - type: random
+    constraints:
+      - expression: attribute:ecs.instance-type =~ t2.*
+        type: memberOf
+      - type: distinctInstance`
+```
+
 You can then start a task by calling:
 ```
 ecs-cli compose --ecs-params my-ecs-params.yml up
@@ -540,6 +673,128 @@ or
 ```
 ecs-cli compose --ecs-params my-ecs-params.yml service up --launch-type FARGATE
 ```
+
+#### Using Route53 Service Discovery
+
+With the ECS CLI, you can create an ECS Service that uses [Route53 auto naming for service discovery](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-discovery.html). Service Discovery requires a Service Discovery Service and a DNS Namespace. Keep in mind that:
+* When you enable Service Discovery with the ECS CLI, a new Service Discovery Service is always created using CloudFormation.
+* For the DNS Namespace, you have the option of using an existing public or private DNS Namespace, or letting the ECS CLI create a private DNS Namespace for you using CloudFormation.
+* Creation of a Public DNS Namespaces is not supported with the ECS CLI.
+* Only a single DNS Namespace may be used with Service Discovery.
+
+##### Enabling Service Discovery
+
+###### Specifying Values
+
+The ECS-CLI simplifies the use of Service Discovery by providing default values for most fields, while still allowing maximum configurability. Here are the default values and explanations listed with the ECS Params input schema:
+
+```
+version: 1
+run_params:
+  service_discovery:
+    container_name: string            // Required if using SRV records
+    container_port: string            // Required if using SRV records
+    private_dns_namespace:
+      id: string                      // Allows you to specify an existing namespace by ID
+      name: string                    // DNS name for private namespace. Either used to specify an existing namespace, or if one does not exist with this name, the ECS CLI will create it
+      vpc: string                     // Required if "id" is not specified
+      description: string             // Only used if the namespace does not yet exist. Default = "Created by the Amazon ECS CLI"
+    public_dns_namespace:
+      id: string                      // Specify an existing public namespace by ID
+      name: string                    // Or specify an existing public namespace by Name
+    service_discovery_service:
+      name: string                    // Default = Name of the your ECS Service
+      description: string             // Default = "Created by the Amazon ECS CLI"
+      dns_config:
+        type: string                  // Valid values: A or SRV. SRV is required/the default when using bridge or host network mode. A is the default for the awsvpc network mode.
+        ttl: integer                  // Default = 60
+      healthcheck_custom_config:
+        failure_threshold: integer    // Default = 1
+```
+
+###### Simple Workflow
+
+Let's walk through a simple scenario with Service Discovery to see how it works with the ECS CLI. Many of the Service Discovery configuration values can be specified with flags, which take precedence over the ECS Params if both are present. Remember that with the ECS CLI, the Compose Project Name (name of the directory containing your Docker Compose File, unless otherwise specified using the flag) is used as the name for your ECS Service.
+
+First, we create a Service named `backend` and create a Private DNS Namespace in our VPC. Assume that the network mode is `awsvpc`, so the `container_name` and `container_port` values are not needed.
+
+```
+$ ecs-cli compose --project-name backend service up --private-dns-namespace tutorial --vpc vpc-04deee8176dce7d7d --enable-service-discovery
+INFO[0001] Using ECS task definition                     TaskDefinition="backend:1"
+INFO[0002] Waiting for the private DNS namespace to be created...
+INFO[0002] Cloudformation stack status                   stackStatus=CREATE_IN_PROGRESS
+WARN[0033] Defaulting DNS Type to A because network mode was awsvpc
+INFO[0033] Waiting for the Service Discovery Service to be created...
+INFO[0034] Cloudformation stack status                   stackStatus=CREATE_IN_PROGRESS
+INFO[0065] Created an ECS service                        service=backend taskDefinition="backend:1"
+INFO[0066] Updated ECS service successfully              desiredCount=1 serviceName=backend
+INFO[0081] (service backend) has started 1 tasks: (task 824b5a76-8f9c-4beb-a64b-6904e320630e).  timestamp="2018-09-12 00:00:26 +0000 UTC"
+INFO[0157] Service status                                desiredCount=1 runningCount=1 serviceName=backend
+INFO[0157] ECS Service has reached a stable state        desiredCount=1 runningCount=1 serviceName=backend
+```
+
+Next, we create another service called `frontend` in the same Private DNS Namespace. Since the Namespace was already created, the ECS CLI knows to use the existing one.
+
+```
+$ ecs-cli compose --project-name frontend service up --private-dns-namespace tutorial --vpc vpc-04deee8176dce7d7d --enable-service-discovery
+INFO[0001] Using ECS task definition                     TaskDefinition="frontend:1"
+INFO[0002] Using existing namespace ns-kvhnzhb5vxplfmls
+WARN[0033] Defaulting DNS Type to A because network mode was awsvpc
+INFO[0033] Waiting for the Service Discovery Service to be created...
+INFO[0034] Cloudformation stack status                   stackStatus=CREATE_IN_PROGRESS
+INFO[0065] Created an ECS service                        service=frontend taskDefinition="frontend:1"
+INFO[0066] Updated ECS service successfully              desiredCount=1 serviceName=frontend
+INFO[0081] (service frontend) has started 1 tasks: (task 824b5a76-8f9c-4beb-a64b-6904e320630e).  timestamp="2018-09-12 00:00:26 +0000 UTC"
+INFO[0157] Service status                                desiredCount=1 runningCount=1 serviceName=frontend
+INFO[0157] ECS Service has reached a stable state        desiredCount=1 runningCount=1 serviceName=frontend
+```
+
+Now, the two Services can find each other in the VPC using DNS. The DNS host name will be the name of the Service Discovery Service plus the name of the DNS Namespace. So the ECS Service `frontend` can be found at `frontend.tutorial`, and `backend` can be found at `backend.tutorial`. Remember that since this is a Private DNS Namespace, these domain names can only be resolved within your VPC.
+
+Now, let's update some of the Service Discovery settings for `frontend`; the only values that can be updated are `DNS TTL` and `Health Check Custom Config Failure Threshold` (the failure threshold for the health check administered by ECS, which determines when unhealthy containers will have their DNS records removed).
+
+```
+$ ecs-cli compose --project-name frontend service up --update-service-discovery --dns-type SRV --dns-ttl 120 --healthcheck-custom-config-failure-threshold 2
+INFO[0001] Using ECS task definition                     TaskDefinition="frontend:1"
+INFO[0001] Updated ECS service successfully              desiredCount=1 serviceName=frontend
+INFO[0001] Service status                                desiredCount=1 runningCount=1 serviceName=frontend
+INFO[0001] ECS Service has reached a stable state        desiredCount=1 runningCount=1 serviceName=frontend
+INFO[0002] Waiting for your Service Discovery resources to be updated...
+INFO[0002] Cloudformation stack status                   stackStatus=UPDATE_IN_PROGRESS
+```
+
+Next, we delete the services and the Service Discovery resources. When we delete `frontend`, the CLI automatically removes its associated Service Discovery Service.
+
+```
+$ ecs-cli compose --project-name frontend service down
+INFO[0000] Updated ECS service successfully              desiredCount=0 serviceName=frontend
+INFO[0001] Service status                                desiredCount=0 runningCount=1 serviceName=frontend
+INFO[0016] Service status                                desiredCount=0 runningCount=0 serviceName=frontend
+INFO[0016] (service frontend) has stopped 1 running tasks: (task 824b5a76-8f9c-4beb-a64b-6904e320630e).  timestamp="2018-09-12 00:37:25 +0000 UTC"
+INFO[0016] ECS Service has reached a stable state        desiredCount=0 runningCount=0 serviceName=frontend
+INFO[0016] Deleted ECS service                           service=frontend
+INFO[0016] ECS Service has reached a stable state        desiredCount=0 runningCount=0 serviceName=frontend
+INFO[0027] Waiting for your Service Discovery Service resource to be deleted...
+INFO[0027] Cloudformation stack status                   stackStatus=DELETE_IN_PROGRESS
+```
+
+Finally, we delete `backend` and the Private DNS Namespace which was created with it (the CLI associates the CloudFormation Stack for the Namespace with the ECS Service that it was originally created for, so the two should be deleted together).
+
+```
+$ ecs-cli compose --project-name backend service down --delete-namespace
+INFO[0000] Updated ECS service successfully              desiredCount=0 serviceName=backend
+INFO[0001] Service status                                desiredCount=0 runningCount=1 serviceName=backend
+INFO[0016] Service status                                desiredCount=0 runningCount=0 serviceName=backend
+INFO[0016] (service backend) has stopped 1 running tasks: (task 824b5a76-8f9c-4beb-a64b-6904e320630e).  timestamp="2018-09-12 00:37:25 +0000 UTC"
+INFO[0016] ECS Service has reached a stable state        desiredCount=0 runningCount=0 serviceName=backend
+INFO[0016] Deleted ECS service                           service=backend
+INFO[0016] ECS Service has reached a stable state        desiredCount=0 runningCount=0 serviceName=backend
+INFO[0027] Waiting for your Service Discovery Service resource to be deleted...
+INFO[0027] Cloudformation stack status                   stackStatus=DELETE_IN_PROGRESS
+INFO[0059] Waiting for your Private DNS Namespace resource to be deleted...
+INFO[0059] Cloudformation stack status                   stackStatus=DELETE_IN_PROGRESS
+```
+
 
 ### Viewing Running Tasks
 
@@ -594,6 +849,141 @@ OPTIONS:
 --end-time value           [Optional] Returns logs before a specific date (format: RFC 3339. Example: 2006-01-02T15:04:05+07:00). Cannot be used with --follow
 --timestamps, -t           [Optional] Shows timestamps on each line in the log output.
 ```
+
+## Using Private Registry Authentication
+
+If you want to use privately hosted container images with ECS, the ECS CLI can store your private registry credentials in AWS Secrets Manager and create an IAM role which ECS can use to access the credentials and private images. This allows you to:
+
+* Store private registry credentials within AWS for use with ECS
+* Add the permissions needed to use your registry secrets to a new or existing Task Execution Role
+* Automatically add your private registry credentials to your task definition when running a task or service
+
+Using privately hosted images with the ECS CLI is done in two parts:
+
+1) Create new AWS Secrets Manager secrets and an IAM Task Execution Role with `ecs-cli registry-creds up`
+2) Run `ecs-cli compose` commands to create and run a task definition that includes the new resources
+
+### Storing private registry credentials with `ecs-cli registry-creds up`
+
+To get started, first create an input file that contains the name of your registry and the credentials needed to access it:
+
+```
+# file name: cred_input.yml
+# when using environment variables, only '${VAR_NAME}' format is supported
+
+version: '1'
+registry_credentials:
+  my-registry.example.com:
+    secrets_manager_arn:        # required when using (with no modification) or updating an existing secret
+    username: myUserName        # required when creating or updating a new secret
+    password: ${MY_PASSWORD}    # required when creating or updating a new secret  
+    kms_key_id:                 # optional custom KMS Key ID to use to encrypt new secret
+    container_names:            # required to match credential resources with docker-compose services
+      - web
+      - log
+```
+
+In this example, we're storing credentials for a registry called `my-registry.example.com` and passing in the password with an environment variable. `container_names` is a list of the `service_names` in your Docker Compose project which need access to images in this registry. If you don't plan to use the output of `registry-creds up` to launch a task or service with `compose`, then you can leave this field empty.
+
+Other options:
+* To store credentials for multiple private registries, add additional (up to 10 total) registry names and their required details as separate keys under `registry_credentials`.
+  * Existing registry secrets from other regions can be included by specifying their `secrets_manager_arn` and associated `kms_key_id`. Creating or updating secrets must be done from within that region.
+* If you want to encrypt the AWS Secrets Manager secret for your registry with a custom KMS Key, then add the ARN, ID or Alias of the Key in the `kms_key_id` field. Otherwise, AWS Secrets Manager will use the default key in your account.
+* If you don't want to create or update an IAM Task Execution Role for these secrets, use the `--no-role` flag instead of specifying a role name.
+* If you don't want to generate an output file for use with `compose` or for records purposes, use the `--no-output-file` flag.
+* If you want the output file to be created in a specific directory on your machine, you can specify it with the `--output-dir <value>` flag. Otherwise, the file will be created in your working directory.   
+
+After creating the input file, run the `registry-creds up` command on the file and pass in the name of the new or existing Task Execution Role you want to use for the secrets:
+
+```
+$ ecs-cli registry-creds up ./cred_input.yml --role-name myTaskExecutionRole
+```
+
+The command will output the names of the resources it creates, including the name of the output file which was generated:
+
+```
+$ ecs-cli registry-creds up ./cred_input.yml --role-name myTaskExecutionRole
+INFO[0000] Processing credentials for registry my-registry.example.com...
+INFO[0000] New credential secret created: arn:aws:secretsmanager:region:aws_account_id:secret:amazon-ecs-cli-setup-my-registry.example.com-VeDqXm
+INFO[0000] Creating resources for task execution role myTaskExecutionRole...
+INFO[0000] Created new task execution role arn:aws:iam::aws_account_id:role/myTaskExecutionRole
+INFO[0000] Created new task execution role policy arn:aws:iam::aws_account_id:policy/amazon-ecs-cli-setup-myTaskExecutionRole-policy-20181023T210805Z
+INFO[0000] Attached AWS managed policy arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy to role myTaskExecutionRole
+INFO[0001] Attached new policy arn:aws:iam::aws_account_id:policy/amazon-ecs-cli-setup-myTaskExecutionRole-policy-20181023T210805Z to role myTaskExecutionRole
+INFO[0001] Writing registry credential output to new file C:\Users\myuser\regcreds\regCredTest\ecs-registry-creds_20181023T210805Z.yml
+```
+
+The output file `ecs-registry-creds_20181023T210805Z.yml` should like like this:
+```
+version: "1"
+registry_credential_outputs:
+  task_execution_role: myTaskExecutionRole
+  container_credentials:
+    my-registry.example.com:
+      credentials_parameter: arn:aws:secretsmanager:region:aws_account_id:secret:amazon-ecs-cli-setup-my-registry.example.com-VeDqXm
+      container_names:
+      - web
+      - log
+```
+
+This file contains:
+* the name of the IAM Task Execution Role with permissions for the new secrets
+* the ARN of the new `credentials_parameter` created for the registry
+* the list of containers the new `credentials_parameter` should be used for when running a task or service
+
+We can now use this file with `ecs-cli compose` commands to start a task with images in our private registry.
+
+### Using private registry credentials when launching tasks or services
+
+Now that we have an output file that identifies which resources we need to use our private registry, the ECS CLI will incorporate them into our Docker Compose project when we run `ecs-cli compose`.
+
+In the same directory (let's call it "privateImageApp"), create a docker-compose.yml file for your application:
+
+```
+version: "3"
+services:
+  web:
+    environment:
+      - SERVICE_NAME=web
+    image: my-registry.example.com/httpd
+    ports:
+      - "80:80"
+  log:
+    environment:
+      - SERVICE_NAME=log
+    image: my-registry.example.com/logging
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: myApps
+        awslogs-region: us-west-2
+        awslogs-stream-prefix: privateImageApp
+```
+
+Now run the command `ecs-cli compose up` to launch a task. The ECS CLI will automatically detect and use the newest `ecs-registry-creds` file within the current directory:
+
+```
+$~\privateImageApp> ecs-cli compose up
+INFO[0000] Found ecs-registry-creds file C:\Users\myuser\regcreds\regCredTest\ecs-registry-creds_20181023T210805Z.yml
+INFO[0000] Using ecs-registry-creds value arn:aws:secretsmanager:region:aws_account_id:secret:amazon-ecs-cli-setup-my-registry.example.com-VeDqXm container name=web option name=credentials_parameter
+Using ecs-registry-creds value arn:aws:secretsmanager:region:aws_account_id:secret:amazon-ecs-cli-setup-my-registry.example.com-VeDqXm container name=log option name=credentials_parameter
+INFO[0000] Using ecs-registry-creds value myTaskExecutionRole option name=task_execution_role
+INFO[0000] Using ECS task definition TaskDefinition="privateImageApp:1"
+INFO[0000] Starting container... container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/web
+INFO[0000] Starting container... container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/log
+INFO[0012] Describe ECS container status container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/web desiredStatus=RUNNING lastStatus=PENDING taskDefinition="privateImageApp:1"
+INFO[0013] Describe ECS container status container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/log desiredStatus=RUNNING lastStatus=PENDING taskDefinition="privateImageApp:1"
+INFO[0018] Started container... container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/web desiredStatus=RUNNING lastStatus=RUNNING taskDefinition="privateImageApp:1"
+INFO[0018] Started container... container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/log desiredStatus=RUNNING lastStatus=RUNNING taskDefinition="privateImageApp:1"
+```
+
+ The within your new task definition `privateImageApp:1`, the container definitions for both `web` and `log` should have your "my-registry.example.com" secret as a `credentialsParameter`. The `executionRoleArn` field will be the role we created in the previous step, "myTaskExecutionRole".
+
+ Other options:
+ * to use an ecs-registry-creds output file from outside the current directory, you can specify it in with the `--registry-creds <value>` flag
+
+ For more information about using private registries with ECS, see [Private Registry Authentication for Tasks](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/private-auth.html).
+
 
 ## Amazon ECS CLI Commands
 

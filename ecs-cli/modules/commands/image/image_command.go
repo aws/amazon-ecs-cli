@@ -28,7 +28,7 @@ func PushCommand() cli.Command {
 		ArgsUsage:    image.PushImageFormat,
 		Before:       app.BeforeApp,
 		Action:       image.ImagePush,
-		Flags:        append(imagePushFlags(), flags.OptionalRegionAndProfileFlags()...),
+		Flags:        flags.AppendFlags(imagePushFlags(), flags.OptionalRegionAndProfileFlags()),
 		OnUsageError: flags.UsageErrorFactory("push"),
 	}
 }
@@ -41,7 +41,7 @@ func PullCommand() cli.Command {
 		ArgsUsage:    image.PullImageFormat,
 		Before:       app.BeforeApp,
 		Action:       image.ImagePull,
-		Flags:        append(imagePullFlags(), flags.OptionalRegionAndProfileFlags()...),
+		Flags:        flags.AppendFlags(imagePullFlags(), flags.OptionalRegionAndProfileFlags()),
 		OnUsageError: flags.UsageErrorFactory("pull"),
 	}
 }
@@ -54,7 +54,7 @@ func ImagesCommand() cli.Command {
 		ArgsUsage:    image.ListImageFormat,
 		Before:       app.BeforeApp,
 		Action:       image.ImageList,
-		Flags:        append(imageListFlags(), flags.OptionalRegionAndProfileFlags()...),
+		Flags:        flags.AppendFlags(imageListFlags(), flags.OptionalRegionAndProfileFlags()),
 		OnUsageError: flags.UsageErrorFactory("images"),
 	}
 }

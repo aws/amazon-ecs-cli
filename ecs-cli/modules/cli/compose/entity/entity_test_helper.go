@@ -41,6 +41,23 @@ func TestInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasks
 	ec2Instance := &ec2.Instance{
 		PublicIpAddress: aws.String("publicIpAddress"),
 	}
+	taskDefArn := "arn:123456:taskdefinition/mytaskdef"
+	taskDef := &ecs.TaskDefinition{
+		TaskDefinitionArn: aws.String(taskDefArn),
+		NetworkMode:       aws.String(ecs.NetworkModeHost),
+		ContainerDefinitions: []*ecs.ContainerDefinition{
+			&ecs.ContainerDefinition{
+				Name: aws.String("contName"),
+				PortMappings: []*ecs.PortMapping{
+					&ecs.PortMapping{
+						ContainerPort: aws.Int64(80),
+						HostPort:      aws.Int64(80),
+						Protocol:      aws.String("tcp"),
+					},
+				},
+			},
+		},
+	}
 
 	instanceIdsMap := make(map[string]string)
 	instanceIdsMap[containerInstance] = ec2InstanceID
@@ -55,6 +72,7 @@ func TestInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasks
 	}
 
 	ecsTask := &ecs.Task{
+		TaskDefinitionArn:    aws.String(taskDefArn),
 		TaskArn:              aws.String("taskArn/taskId"),
 		Containers:           []*ecs.Container{container},
 		ContainerInstanceArn: aws.String(containerInstance),
@@ -63,6 +81,7 @@ func TestInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasks
 
 	// Deperecated
 	ecsTaskWithStartedBy := &ecs.Task{
+		TaskDefinitionArn:    aws.String(taskDefArn),
 		TaskArn:              aws.String("taskArn/taskId"),
 		Containers:           []*ecs.Container{container},
 		ContainerInstanceArn: aws.String(containerInstance),
@@ -99,13 +118,14 @@ func TestInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasks
 			funct := y.(ecsClient.ProcessTasksAction)
 			funct(stoppedTasks)
 		}).Return(nil),
+		mockEcs.EXPECT().DescribeTaskDefinition(taskDefArn).Return(taskDef, nil),
 		mockEcs.EXPECT().GetEC2InstanceIDs([]*string{&containerInstance}).Return(instanceIdsMap, nil),
 		mockEc2.EXPECT().DescribeInstances([]*string{&ec2InstanceID}).Return(ec2InstancesMap, nil),
 	)
 
 	context := &context.ECSContext{
-		ECSClient: mockEcs,
-		EC2Client: mockEc2,
+		ECSClient:     mockEcs,
+		EC2Client:     mockEc2,
 		CommandConfig: &config.CommandConfig{},
 		Context: project.Context{
 			ProjectName: projectName,

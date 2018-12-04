@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 
+	interp "github.com/docker/cli/cli/compose/interpolation"
 	"github.com/docker/cli/cli/compose/schema"
 	"github.com/docker/cli/cli/compose/template"
 	"github.com/docker/cli/cli/compose/types"
@@ -21,6 +22,16 @@ import (
 	"github.com/sirupsen/logrus"
 	yaml "gopkg.in/yaml.v2"
 )
+
+// Options supported by Load
+type Options struct {
+	// Skip schema validation
+	SkipValidation bool
+	// Skip interpolation
+	SkipInterpolation bool
+	// Interpolation options
+	Interpolate *interp.Options
+}
 
 // ParseYAML reads the bytes from a file, parses the bytes into a mapping
 // structure, and returns it.
@@ -41,12 +52,25 @@ func ParseYAML(source []byte) (map[string]interface{}, error) {
 }
 
 // Load reads a ConfigDetails and returns a fully loaded configuration
-func Load(configDetails types.ConfigDetails) (*types.Config, error) {
+func Load(configDetails types.ConfigDetails, options ...func(*Options)) (*types.Config, error) {
 	if len(configDetails.ConfigFiles) < 1 {
 		return nil, errors.Errorf("No files specified")
 	}
 
+	opts := &Options{
+		Interpolate: &interp.Options{
+			Substitute:      template.Substitute,
+			LookupValue:     configDetails.LookupEnv,
+			TypeCastMapping: interpolateTypeCastMapping,
+		},
+	}
+
+	for _, op := range options {
+		op(opts)
+	}
+
 	configs := []*types.Config{}
+	var err error
 
 	for _, file := range configDetails.ConfigFiles {
 		configDict := file.Config
@@ -62,14 +86,17 @@ func Load(configDetails types.ConfigDetails) (*types.Config, error) {
 			return nil, err
 		}
 
-		var err error
-		configDict, err = interpolateConfig(configDict, configDetails.LookupEnv)
-		if err != nil {
-			return nil, err
+		if !opts.SkipInterpolation {
+			configDict, err = interpolateConfig(configDict, *opts.Interpolate)
+			if err != nil {
+				return nil, err
+			}
 		}
 
-		if err := schema.Validate(configDict, configDetails.Version); err != nil {
-			return nil, err
+		if !opts.SkipValidation {
+			if err := schema.Validate(configDict, configDetails.Version); err != nil {
+				return nil, err
+			}
 		}
 
 		cfg, err := loadSections(configDict, configDetails)
@@ -98,7 +125,9 @@ func validateForbidden(configDict map[string]interface{}) error {
 
 func loadSections(config map[string]interface{}, configDetails types.ConfigDetails) (*types.Config, error) {
 	var err error
-	cfg := types.Config{}
+	cfg := types.Config{
+		Version: schema.Version(config),
+	}
 
 	var loaders = []struct {
 		key string
@@ -145,6 +174,7 @@ func loadSections(config map[string]interface{}, configDetails types.ConfigDetai
 			return nil, err
 		}
 	}
+	cfg.Extras = getExtras(config)
 	return &cfg, nil
 }
 
@@ -359,8 +389,33 @@ func LoadService(name string, serviceDict map[string]interface{}, workingDir str
 		return nil, err
 	}
 
-	resolveVolumePaths(serviceConfig.Volumes, workingDir, lookupEnv)
+	if err := resolveVolumePaths(serviceConfig.Volumes, workingDir, lookupEnv); err != nil {
+		return nil, err
+	}
+
+	serviceConfig.Extras = getExtras(serviceDict)
+
 	return serviceConfig, nil
+}
+
+func loadExtras(name string, source map[string]interface{}) map[string]interface{} {
+	if dict, ok := source[name].(map[string]interface{}); ok {
+		return getExtras(dict)
+	}
+	return nil
+}
+
+func getExtras(dict map[string]interface{}) map[string]interface{} {
+	extras := map[string]interface{}{}
+	for key, value := range dict {
+		if strings.HasPrefix(key, "x-") {
+			extras[key] = value
+		}
+	}
+	if len(extras) == 0 {
+		return nil
+	}
+	return extras
 }
 
 func updateEnvironment(environment map[string]*string, vars map[string]*string, lookupEnv template.Mapping) {
@@ -398,10 +453,14 @@ func resolveEnvironment(serviceConfig *types.ServiceConfig, workingDir string, l
 	return nil
 }
 
-func resolveVolumePaths(volumes []types.ServiceVolumeConfig, workingDir string, lookupEnv template.Mapping) {
+func resolveVolumePaths(volumes []types.ServiceVolumeConfig, workingDir string, lookupEnv template.Mapping) error {
 	for i, volume := range volumes {
 		if volume.Type != "bind" {
 			continue
+		}
+
+		if volume.Source == "" {
+			return errors.New(`invalid mount config for type "bind": field Source must not be empty`)
 		}
 
 		filePath := expandUser(volume.Source, lookupEnv)
@@ -416,6 +475,7 @@ func resolveVolumePaths(volumes []types.ServiceVolumeConfig, workingDir string, 
 		volume.Source = filePath
 		volumes[i] = volume
 	}
+	return nil
 }
 
 // TODO: make this more robust
@@ -470,6 +530,7 @@ func LoadNetworks(source map[string]interface{}, version string) (map[string]typ
 		case network.Name == "":
 			network.Name = name
 		}
+		network.Extras = loadExtras(name, source)
 		networks[name] = network
 	}
 	return networks, nil
@@ -512,6 +573,7 @@ func LoadVolumes(source map[string]interface{}, version string) (map[string]type
 		case volume.Name == "":
 			volume.Name = name
 		}
+		volume.Extras = loadExtras(name, source)
 		volumes[name] = volume
 	}
 	return volumes, nil
@@ -529,7 +591,9 @@ func LoadSecrets(source map[string]interface{}, details types.ConfigDetails) (ma
 		if err != nil {
 			return nil, err
 		}
-		secrets[name] = types.SecretConfig(obj)
+		secretConfig := types.SecretConfig(obj)
+		secretConfig.Extras = loadExtras(name, source)
+		secrets[name] = secretConfig
 	}
 	return secrets, nil
 }
@@ -546,7 +610,9 @@ func LoadConfigObjs(source map[string]interface{}, details types.ConfigDetails) 
 		if err != nil {
 			return nil, err
 		}
-		configs[name] = types.ConfigObjConfig(obj)
+		configConfig := types.ConfigObjConfig(obj)
+		configConfig.Extras = loadExtras(name, source)
+		configs[name] = configConfig
 	}
 	return configs, nil
 }

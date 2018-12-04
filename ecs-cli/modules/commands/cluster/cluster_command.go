@@ -26,7 +26,7 @@ func UpCommand() cli.Command {
 		Usage:        "Creates the ECS cluster (if it does not already exist) and the AWS resources required to set up the cluster.",
 		Before:       ecscli.BeforeApp,
 		Action:       cluster.ClusterUp,
-		Flags:        append(clusterUpFlags(), flags.OptionalConfigFlags()...),
+		Flags:        flags.AppendFlags(clusterUpFlags(), flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag()),
 		OnUsageError: flags.UsageErrorFactory("up"),
 	}
 }
@@ -36,7 +36,7 @@ func DownCommand() cli.Command {
 		Name:         "down",
 		Usage:        "Deletes the CloudFormation stack that was created by ecs-cli up and the associated resources.",
 		Action:       cluster.ClusterDown,
-		Flags:        append(clusterDownFlags(), flags.OptionalConfigFlags()...),
+		Flags:        flags.AppendFlags(clusterDownFlags(), flags.OptionalConfigFlags()),
 		OnUsageError: flags.UsageErrorFactory("down"),
 	}
 }
@@ -46,7 +46,7 @@ func ScaleCommand() cli.Command {
 		Name:         "scale",
 		Usage:        "Modifies the number of container instances in your cluster. This command changes the desired and maximum instance count in the Auto Scaling group created by the ecs-cli up command. You can use this command to scale up (increase the number of instances) or scale down (decrease the number of instances) your cluster.",
 		Action:       cluster.ClusterScale,
-		Flags:        append(clusterScaleFlags(), flags.OptionalConfigFlags()...),
+		Flags:        flags.AppendFlags(clusterScaleFlags(), flags.OptionalConfigFlags()),
 		OnUsageError: flags.UsageErrorFactory("scale"),
 	}
 }
@@ -87,6 +87,10 @@ func clusterUpFlags() []cli.Flag {
 			Usage: "[Optional] Specifies the EC2 instance type for your container instances. Defaults to t2.micro. NOTE: Not applicable for launch type FARGATE.",
 		},
 		cli.StringFlag{
+			Name:  flags.SpotPriceFlag,
+			Usage: "[Optional] If filled and greater than 0, EC2 Spot instances will be requested.",
+		},
+		cli.StringFlag{
 			Name:  flags.ImageIdFlag,
 			Usage: "[Optional] Specify the AMI ID for your container instances. Defaults to amazon-ecs-optimized AMI. NOTE: Not applicable for launch type FARGATE.",
 		},
@@ -122,11 +126,15 @@ func clusterUpFlags() []cli.Flag {
 			Name:  flags.VpcIdFlag,
 			Usage: "[Optional] Specifies the ID of an existing VPC in which to launch your container instances. If you specify a VPC ID, you must specify a list of existing subnets in that VPC with the --subnets option. If you do not specify a VPC ID, a new VPC is created with two subnets.",
 		},
+		cli.StringSliceFlag{
+			Name:  flags.UserDataFlag,
+			Usage: "[Optional] Specifies additional User Data for your EC2 instances. Files can be shell scripts or cloud-init directives and are packaged into a MIME Multipart Archive along with ECS CLI provided User Data which directs instances to join your cluster.",
+			Value: &cli.StringSlice{},
+		},
 		cli.BoolFlag{
 			Name:  flags.ForceFlag + ", f",
 			Usage: "[Optional] Forces the recreation of any existing resources that match your current configuration. This option is useful for cleaning up stale resources from previous failed attempts.",
 		},
-		flags.OptionalLaunchTypeFlag(),
 	}
 }
 
