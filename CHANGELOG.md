@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.12.1
+* Bug - Allow container mem_limit to be null if task mem_limit is set (#606)
+* Bug - Allow container mem_limit to be null if mem_reservation is set (#570)
+* Bug - Ensure that logger writes to stdout (#675)
+* Bug - Remove spurious warning for `extends` field in Compose files (#681)
+
 ## 1.12.0
 * Feature - Add support for IPC and PID Docker flags #669
 
