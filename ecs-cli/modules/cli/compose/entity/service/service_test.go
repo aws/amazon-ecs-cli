@@ -16,6 +16,7 @@ package service
 import (
 	"flag"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
@@ -485,6 +486,85 @@ func TestCreateWithServiceDiscoveryWithContainerNameAndPort(t *testing.T) {
 	)
 }
 
+func TestCreateWithSchedulingStrategyWithDaemon(t *testing.T) {
+	schedulingStrategy := ecs.SchedulingStrategyDaemon
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.SchedulingStrategyFlag, schedulingStrategy, "")
+
+	createServiceTest(
+		t,
+		flagSet,
+		&config.CommandConfig{},
+		&utils.ECSParams{},
+		func(input *ecs.CreateServiceInput) {
+			actual := input
+			assert.NotNil(t, actual.SchedulingStrategy, "SchedulingStrategy should not be nil")
+			assert.Equal(t, schedulingStrategy, aws.StringValue(actual.SchedulingStrategy), "SchedulingStrategy should match")
+			assert.Nil(t, actual.DesiredCount, "DesiredCount should be nil")
+		},
+	)
+}
+
+func TestCreateWithSchedulingStrategyWithReplica(t *testing.T) {
+	schedulingStrategy := ecs.SchedulingStrategyReplica
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.SchedulingStrategyFlag, schedulingStrategy, "")
+
+	createServiceTest(
+		t,
+		flagSet,
+		&config.CommandConfig{},
+		&utils.ECSParams{},
+		func(input *ecs.CreateServiceInput) {
+			actual := input
+			assert.NotNil(t, actual.SchedulingStrategy, "SchedulingStrategy should not be nil")
+			assert.Equal(t, schedulingStrategy, aws.StringValue(actual.SchedulingStrategy), "SchedulingStrategy should match")
+			assert.NotNil(t, actual.DesiredCount, "DesiredCount should not be nil")
+			assert.Equal(t, int64(0), aws.Int64Value(actual.DesiredCount), "DesiredCount should be zero")
+		},
+	)
+}
+
+func TestCreateWithSchedulingStrategyWithReplicaLowercase(t *testing.T) {
+	schedulingStrategy := ecs.SchedulingStrategyReplica
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.SchedulingStrategyFlag, strings.ToLower(schedulingStrategy), "")
+
+	createServiceTest(
+		t,
+		flagSet,
+		&config.CommandConfig{},
+		&utils.ECSParams{},
+		func(input *ecs.CreateServiceInput) {
+			actual := input
+			assert.NotNil(t, actual.SchedulingStrategy, "SchedulingStrategy should not be nil")
+			assert.Equal(t, schedulingStrategy, aws.StringValue(actual.SchedulingStrategy), "SchedulingStrategy should match")
+			assert.NotNil(t, actual.DesiredCount, "DesiredCount should not be nil")
+			assert.Equal(t, int64(0), aws.Int64Value(actual.DesiredCount), "DesiredCount should be zero")
+		},
+	)
+}
+
+func TestCreateWithoutSchedulingStrategy(t *testing.T) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+
+	createServiceTest(
+		t,
+		flagSet,
+		&config.CommandConfig{},
+		&utils.ECSParams{},
+		func(input *ecs.CreateServiceInput) {
+			actual := input
+			assert.Nil(t, actual.SchedulingStrategy, "SchedulingStrategy should be nil")
+			assert.NotNil(t, actual.DesiredCount, "DesiredCount should not be nil")
+			assert.Equal(t, int64(0), aws.Int64Value(actual.DesiredCount), "DesiredCount should be zero")
+		},
+	)
+}
+
 //////////////////////////////////////
 // Helpers for CreateService tests //
 /////////////////////////////////////
@@ -702,7 +782,7 @@ func TestServiceRun(t *testing.T) {
 type UpdateServiceParams struct {
 	serviceName            string
 	taskDefinition         string
-	count                  int64
+	count                  *int64
 	deploymentConfig       *ecs.DeploymentConfiguration
 	networkConfig          *ecs.NetworkConfiguration
 	healthCheckGracePeriod *int64
@@ -809,10 +889,73 @@ func TestUpdateExistingServiceWithDesiredCountOverOne(t *testing.T) {
 	// define expected client input given the above info
 	expectedInput := getDefaultUpdateInput()
 	expectedInput.serviceName = serviceName
-	expectedInput.count = *aws.Int64(int64(existingDesiredCount))
+	expectedInput.count = aws.Int64(int64(existingDesiredCount))
 
 	// call tests
 	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
+}
+
+func TestUpdateExistingServiceWithDaemonSchedulingStrategy(t *testing.T) {
+	// define test values
+	schedulingStrategy := ecs.SchedulingStrategyDaemon
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.SchedulingStrategyFlag, strings.ToLower(schedulingStrategy), "")
+
+	// define existing service
+	serviceName := "test-service"
+	existingService := &ecs.Service{
+		TaskDefinition:     aws.String("arn/test-task-def"),
+		Status:             aws.String("ACTIVE"),
+		SchedulingStrategy: aws.String(schedulingStrategy),
+		ServiceName:        aws.String(serviceName),
+	}
+
+	// define expected client input given the above info
+	expectedInput := getDefaultUpdateInput()
+	expectedInput.serviceName = serviceName
+	expectedInput.count = nil
+	expectedInput.taskDefinition = ""
+
+	// call tests
+	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
+	startServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, existingService)
+}
+
+func TestUpdateExistingServiceWithDaemonSchedulingStrategyFlag(t *testing.T) {
+	// define test values
+	schedulingStrategy := ecs.SchedulingStrategyDaemon
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.SchedulingStrategyFlag, schedulingStrategy, "")
+
+	// define existing service
+	serviceName := "test-service"
+	existingService := &ecs.Service{
+		TaskDefinition:     aws.String("arn/test-task-def"),
+		Status:             aws.String("ACTIVE"),
+		SchedulingStrategy: aws.String(ecs.SchedulingStrategyReplica),
+		ServiceName:        aws.String(serviceName),
+	}
+
+	// call tests
+	updateServiceExceptionTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, existingService)
+}
+
+func TestUpdateExistingServiceWithServiceDiscoveryFlag(t *testing.T) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(flags.EnableServiceDiscoveryFlag, true, "")
+
+	// define existing service
+	serviceName := "test-service"
+	existingService := &ecs.Service{
+		TaskDefinition: aws.String("arn/test-task-def"),
+		Status:         aws.String("ACTIVE"),
+		ServiceName:    aws.String(serviceName),
+	}
+
+	// call tests
+	updateServiceExceptionTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, existingService)
 }
 
 ///////////////////////////////////////
@@ -822,7 +965,7 @@ func TestUpdateExistingServiceWithDesiredCountOverOne(t *testing.T) {
 func getDefaultUpdateInput() UpdateServiceParams {
 	return UpdateServiceParams{
 		deploymentConfig: &ecs.DeploymentConfiguration{},
-		count:            1,
+		count:            aws.Int64(1),
 	}
 }
 
@@ -862,7 +1005,7 @@ func updateServiceTest(t *testing.T,
 			observedInput := UpdateServiceParams{
 				serviceName:            aws.StringValue(req.Service),
 				taskDefinition:         aws.StringValue(req.TaskDefinition),
-				count:                  aws.Int64Value(req.DesiredCount),
+				count:                  req.DesiredCount,
 				deploymentConfig:       req.DeploymentConfiguration,
 				networkConfig:          req.NetworkConfiguration,
 				healthCheckGracePeriod: req.HealthCheckGracePeriodSeconds,
@@ -892,6 +1035,88 @@ func updateServiceTest(t *testing.T,
 
 	// task definition should be set
 	assert.Equal(t, taskDefArn, aws.StringValue(service.TaskDefinition().TaskDefinitionArn), "TaskDefArn should match")
+}
+
+func updateServiceExceptionTest(t *testing.T,
+	flagSet *flag.FlagSet,
+	commandConfig *config.CommandConfig,
+	ecsParams *utils.ECSParams,
+	existingService *ecs.Service) {
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	taskDefID := entity.GetIdFromArn(existingService.TaskDefinition)
+	_, taskDefinition, registerTaskDefResponse := getTestTaskDef(taskDefID)
+
+	// Mock ECS calls
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	describeServiceResponse := getDescribeServiceTestResponse(existingService)
+	gomock.InOrder(
+		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(describeServiceResponse, nil),
+		mockEcs.EXPECT().RegisterTaskDefinitionIfNeeded(
+			gomock.Any(), // RegisterTaskDefinitionInput
+			gomock.Any(), // taskDefinitionCache
+		).Do(func(input, cache interface{}) {
+			verifyTaskDefinitionInput(t, taskDefinition, input.(*ecs.RegisterTaskDefinitionInput))
+		}).Return(&registerTaskDefResponse, nil),
+	)
+
+	cliContext := cli.NewContext(nil, flagSet, nil)
+	ecsContext := &context.ECSContext{
+		ECSClient:     mockEcs,
+		CommandConfig: commandConfig,
+		CLIContext:    cliContext,
+		ECSParams:     ecsParams,
+	}
+
+	ecsContext.ProjectName = *existingService.ServiceName
+	service := NewService(ecsContext)
+	err := service.LoadContext()
+	assert.NoError(t, err, "Unexpected error while loading context in update service with current task def test")
+
+	service.SetTaskDefinition(&taskDefinition)
+	err = service.Up()
+	assert.Error(t, err, "Expected error when updating service")
+}
+
+func startServiceTest(t *testing.T,
+	flagSet *flag.FlagSet,
+	commandConfig *config.CommandConfig,
+	ecsParams *utils.ECSParams,
+	existingService *ecs.Service) {
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	taskDefID := entity.GetIdFromArn(existingService.TaskDefinition)
+	_, taskDefinition, _ := getTestTaskDef(taskDefID)
+
+	// Mock ECS calls
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	describeServiceResponse := getDescribeServiceTestResponse(existingService)
+	gomock.InOrder(
+		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(describeServiceResponse, nil),
+	)
+
+	cliContext := cli.NewContext(nil, flagSet, nil)
+	ecsContext := &context.ECSContext{
+		ECSClient:     mockEcs,
+		CommandConfig: commandConfig,
+		CLIContext:    cliContext,
+		ECSParams:     ecsParams,
+	}
+
+	ecsContext.ProjectName = *existingService.ServiceName
+	service := NewService(ecsContext)
+	err := service.LoadContext()
+	assert.NoError(t, err, "Unexpected error while loading context in update service with current task def test")
+
+	service.SetTaskDefinition(&taskDefinition)
+	err = service.Start()
+	assert.NoError(t, err, "Unexpected error on service start with current task def")
+
+	assert.Equal(t, "", aws.StringValue(service.TaskDefinition().TaskDefinitionArn), "TaskDefArn should be blank")
 }
 
 func getDescribeServiceTestResponse(existingService *ecs.Service) *ecs.DescribeServicesOutput {
