@@ -79,8 +79,9 @@ const (
 	CFNStackNameFlag                     = "cfn-stack-name"
 	CFNStackNamePrefixDefaultValue       = utils.ECSCLIResourcePrefix
 
-	LaunchTypeFlag        = "launch-type"
-	DefaultLaunchTypeFlag = "default-launch-type"
+	LaunchTypeFlag         = "launch-type"
+	DefaultLaunchTypeFlag  = "default-launch-type"
+	SchedulingStrategyFlag = "scheduling-strategy"
 
 	// Cluster
 	AsgMaxSizeFlag                  = "size"
@@ -195,6 +196,18 @@ func OptionalLaunchTypeFlag() []cli.Flag {
 			Name: LaunchTypeFlag,
 			Usage: fmt.Sprintf(
 				"[Optional] Specifies the launch type. Options: EC2 or FARGATE. Overrides the default launch type stored in your cluster configuration. Defaults to EC2 if a cluster configuration is not used.",
+			),
+		},
+	}
+}
+
+// OptionalSchedulingStrategyFlag allows users to specify the scheduling strategy for their task/service/cluster
+func OptionalSchedulingStrategyFlag() []cli.Flag {
+	return []cli.Flag{
+		cli.StringFlag{
+			Name: SchedulingStrategyFlag,
+			Usage: fmt.Sprintf(
+				"[Optional] Specifies the scheduling strategy type. Options: REPLICA (default) or DAEMON.",
 			),
 		},
 	}

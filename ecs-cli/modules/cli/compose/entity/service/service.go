@@ -266,7 +266,7 @@ func (s *Service) Up() error {
 	return nil
 }
 
-func (s *Service) buildUpdateServiceInput(count int64, serviceName, taskDefinition string) (*ecs.UpdateServiceInput, error) {
+func (s *Service) buildUpdateServiceInput(count *int64, serviceName, taskDefinition string) (*ecs.UpdateServiceInput, error) {
 	cluster := s.Context().CommandConfig.Cluster
 	deploymentConfig := s.DeploymentConfig()
 	forceDeployment := s.Context().CLIContext.Bool(flags.ForceDeploymentFlag)
@@ -276,7 +276,7 @@ func (s *Service) buildUpdateServiceInput(count int64, serviceName, taskDefiniti
 	}
 
 	input := &ecs.UpdateServiceInput{
-		DesiredCount:            aws.Int64(count),
+		DesiredCount:            count,
 		Service:                 aws.String(serviceName),
 		Cluster:                 aws.String(cluster),
 		DeploymentConfiguration: deploymentConfig,
@@ -303,6 +303,11 @@ func (s *Service) updateService(ecsService *ecs.Service, newTaskDefinition *ecs.
 		return fmt.Errorf("Service Discovery can not be enabled on an existing ECS Service")
 	}
 
+	schedulingStrategy := strings.ToUpper(s.Context().CLIContext.String(flags.SchedulingStrategyFlag))
+	if schedulingStrategy != "" && schedulingStrategy != aws.StringValue(ecsService.SchedulingStrategy) {
+		return fmt.Errorf("Scheduling Strategy cannot be updated on an existing ECS Service")
+	}
+
 	ecsServiceName := aws.StringValue(ecsService.ServiceName)
 	if s.loadBalancer != nil {
 		log.WithFields(log.Fields{
@@ -312,22 +317,27 @@ func (s *Service) updateService(ecsService *ecs.Service, newTaskDefinition *ecs.
 
 	oldCount := aws.Int64Value(ecsService.DesiredCount)
 	newCount := int64(1)
+	count := &newCount
 	if oldCount != 0 {
-		newCount = oldCount // get the current non-zero count
+		count = &oldCount // get the current non-zero count
 	}
 
 	// if both the task definitions are the same, call update with the new count
 	oldTaskDefinitionId := entity.GetIdFromArn(ecsService.TaskDefinition)
 	newTaskDefinitionId := entity.GetIdFromArn(newTaskDefinition.TaskDefinitionArn)
 
+	if aws.StringValue(ecsService.SchedulingStrategy) == ecs.SchedulingStrategyDaemon {
+		count = nil
+	}
+
 	if oldTaskDefinitionId == newTaskDefinitionId {
-		return s.updateServiceCount(newCount)
+		return s.updateServiceCount(count)
 	}
 
 	// if the task definitions were different, updateService with new task definition
 	// this creates a deployment in ECS and slowly takes down the containers with old ones and starts new ones
 
-	updateServiceInput, err := s.buildUpdateServiceInput(newCount, ecsServiceName, newTaskDefinitionId)
+	updateServiceInput, err := s.buildUpdateServiceInput(count, ecsServiceName, newTaskDefinitionId)
 	if err != nil {
 		return err
 	}
@@ -338,7 +348,7 @@ func (s *Service) updateService(ecsService *ecs.Service, newTaskDefinition *ecs.
 	}
 
 	message := "Updated the ECS service with a new task definition. " +
-	"Old containers will be stopped automatically, and replaced with new ones"
+		"Old containers will be stopped automatically, and replaced with new ones"
 	s.logUpdateService(updateServiceInput, message)
 
 	return waitForServiceTasks(s, ecsServiceName)
@@ -354,13 +364,13 @@ func (s *Service) Info(filterProjectTasks bool) (project.InfoSet, error) {
 
 // Scale the service desired count to be the specified count
 func (s *Service) Scale(count int) error {
-	return s.updateServiceCount(int64(count))
+	return s.updateServiceCount(aws.Int64(int64(count)))
 }
 
 // Stop stops all the containers in the service by calling ECS.UpdateService(count=0)
 // TODO, Store the current desiredCount in a cache, so that number of tasks(group of containers) can be started again
 func (s *Service) Stop() error {
-	return s.updateServiceCount(int64(0))
+	return s.updateServiceCount(aws.Int64(0))
 }
 
 // Down stops any running containers(tasks) by calling Stop() and deletes an active ECS Service
@@ -382,7 +392,7 @@ func (s *Service) Down() error {
 	}
 
 	// stop any running tasks
-	if aws.Int64Value(ecsService.DesiredCount) != 0 {
+	if aws.Int64Value(ecsService.DesiredCount) != 0 && aws.StringValue(ecsService.SchedulingStrategy) != ecs.SchedulingStrategyDaemon {
 		if err = s.Stop(); err != nil {
 			return err
 		}
@@ -434,6 +444,7 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string) (*ecs
 	launchType := s.Context().CommandConfig.LaunchType
 	cluster := s.Context().CommandConfig.Cluster
 	ecsParams := s.ecsContext.ECSParams
+	schedulingStrategy := strings.ToUpper(s.Context().CLIContext.String(flags.SchedulingStrategyFlag))
 
 	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(ecsParams)
 	if err != nil {
@@ -458,13 +469,20 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string) (*ecs
 	}
 
 	createServiceInput := &ecs.CreateServiceInput{
-		DesiredCount:            aws.Int64(0),            // Required
+		DesiredCount:            aws.Int64(0),            // Required unless DAEMON schedulingStrategy
 		ServiceName:             aws.String(serviceName), // Required
 		TaskDefinition:          aws.String(taskDefName), // Required
 		Cluster:                 aws.String(cluster),
 		DeploymentConfiguration: s.deploymentConfig,
 		LoadBalancers:           []*ecs.LoadBalancer{s.loadBalancer},
 		Role:                    aws.String(s.role),
+	}
+
+	if schedulingStrategy != "" {
+		createServiceInput.SchedulingStrategy = aws.String(schedulingStrategy)
+		if schedulingStrategy == ecs.SchedulingStrategyDaemon {
+			createServiceInput.DesiredCount = nil
+		}
 	}
 
 	if s.healthCheckGP != nil {
@@ -582,32 +600,40 @@ func (s *Service) startService() error {
 		}
 		return err
 	}
+
+	serviceName := aws.StringValue(ecsService.ServiceName)
 	desiredCount := aws.Int64Value(ecsService.DesiredCount)
 	forceDeployment := s.Context().CLIContext.Bool(flags.ForceDeploymentFlag)
-	if desiredCount != 0 {
-		serviceName := aws.StringValue(ecsService.ServiceName)
+	schedulingStrategy := aws.StringValue(ecsService.SchedulingStrategy)
+	if desiredCount != 0 || schedulingStrategy == ecs.SchedulingStrategyDaemon {
 		if forceDeployment {
 			log.WithFields(log.Fields{
-				"serviceName":      serviceName,
-				"desiredCount":     desiredCount,
-				"force-deployment": strconv.FormatBool(forceDeployment),
+				"serviceName":        serviceName,
+				"desiredCount":       desiredCount,
+				"schedulingStrategy": schedulingStrategy,
+				"force-deployment":   strconv.FormatBool(forceDeployment),
 			}).Info("Forcing new deployment of running ECS Service")
-			return s.updateServiceCount(desiredCount)
+			count := aws.Int64(desiredCount)
+			if schedulingStrategy == ecs.SchedulingStrategyDaemon {
+				count = nil
+			}
+			return s.updateServiceCount(count)
 		}
 		//NoOp
 		log.WithFields(log.Fields{
-			"serviceName":  serviceName,
-			"desiredCount": desiredCount,
+			"serviceName":        serviceName,
+			"desiredCount":       desiredCount,
+			"schedulingStrategy": schedulingStrategy,
 		}).Info("ECS Service is already running")
 
 		return waitForServiceTasks(s, serviceName)
 	}
-	return s.updateServiceCount(int64(1))
+	return s.updateServiceCount(aws.Int64(1))
 }
 
 // updateServiceCount calls the underlying ECS.UpdateService with the specified count
 // NOTE: If network configuration has changed in ECS Params, this will also be updated
-func (s *Service) updateServiceCount(count int64) error {
+func (s *Service) updateServiceCount(count *int64) error {
 	serviceName := entity.GetServiceName(s)
 
 	updateServiceInput, err := s.buildUpdateServiceInput(count, serviceName, "")
@@ -626,7 +652,7 @@ func (s *Service) updateServiceCount(count int64) error {
 
 func (s *Service) logUpdateService(input *ecs.UpdateServiceInput, message string) {
 	fields := log.Fields{
-		"service":     aws.StringValue(input.Service),
+		"service":      aws.StringValue(input.Service),
 		"desiredCount": aws.Int64Value(input.DesiredCount),
 	}
 	if s.deploymentConfig != nil && s.deploymentConfig.MaximumPercent != nil {
