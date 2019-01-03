@@ -65,7 +65,19 @@ func ImagePush(c *cli.Context) {
 	if err != nil {
 		logrus.Fatal("Error executing 'push': ", err)
 	}
-	ecrClient := ecrclient.NewClient(commandConfig)
+
+	var ecrClient ecrclient.Client
+	useFips := c.Bool(flags.UseFIPSFlag)
+
+	if useFips {
+		ecrClient, err = ecrclient.NewFipsClient(commandConfig)
+		if err != nil {
+			logrus.Fatal("Error executing 'push': ", err)
+		}
+	} else {
+		ecrClient = ecrclient.NewClient(commandConfig)
+	}
+
 	stsClient := stsclient.NewClient(commandConfig)
 
 	if err := pushImage(c, rdwr, dockerClient, ecrClient, stsClient); err != nil {
@@ -89,7 +101,19 @@ func ImagePull(c *cli.Context) {
 	if err != nil {
 		logrus.Fatal("Error executing 'pull': ", err)
 	}
-	ecrClient := ecrclient.NewClient(commandConfig)
+
+	var ecrClient ecrclient.Client
+	useFips := c.Bool(flags.UseFIPSFlag)
+
+	if useFips {
+		ecrClient, err = ecrclient.NewFipsClient(commandConfig)
+		if err != nil {
+			logrus.Fatal("Error executing 'pull': ", err)
+		}
+	} else {
+		ecrClient = ecrclient.NewClient(commandConfig)
+	}
+
 	stsClient := stsclient.NewClient(commandConfig)
 
 	if err := pullImage(c, rdwr, dockerClient, ecrClient, stsClient); err != nil {
@@ -109,7 +133,18 @@ func ImageList(c *cli.Context) {
 		logrus.Fatal("Error executing 'images': ", err)
 	}
 
-	ecrClient := ecrclient.NewClient(commandConfig)
+	var ecrClient ecrclient.Client
+	useFips := c.Bool(flags.UseFIPSFlag)
+
+	if useFips {
+		ecrClient, err = ecrclient.NewFipsClient(commandConfig)
+		if err != nil {
+			logrus.Fatal("Error executing 'images': ", err)
+		}
+	} else {
+		ecrClient = ecrclient.NewClient(commandConfig)
+	}
+
 	if err := getImages(c, rdwr, ecrClient); err != nil {
 		logrus.Fatal("Error executing 'images': ", err)
 		return
@@ -118,6 +153,7 @@ func ImageList(c *cli.Context) {
 
 func pushImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient.Client, ecrClient ecrclient.Client, stsClient stsclient.Client) error {
 	registryID := c.String(flags.RegistryIdFlag)
+
 	args := c.Args()
 
 	if len(args) != 1 {
@@ -253,12 +289,12 @@ func listImagesContent(w *tabwriter.Writer, info imageInfo, count int) {
 
 func printImageRow(w io.Writer, info imageInfo) {
 	fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t\n",
-		info.RepositoryName,
-		info.Tag,
-		info.ImageDigest,
-		info.PushedAt,
-		info.Size,
-	)
+	info.RepositoryName,
+	info.Tag,
+	info.ImageDigest,
+	info.PushedAt,
+	info.Size,
+)
 }
 
 func getTagStatus(c *cli.Context) string {
@@ -297,17 +333,15 @@ func getECRAuth(registryURI string, registryID string,
 	return ecrClient.GetAuthorizationToken(registryURI)
 }
 
-func splitImageName(image string, seperatorRegExp string,
-	format string) (registry string, repository string, tag string, err error) {
-
+func splitImageName(image string, seperatorRegExp string, format string) (registry string, repository string, tag string,  err error) {
 	re := regexp.MustCompile(
-		`^(?:((?:[a-zA-Z0-9][a-zA-Z0-9-_]*)\.dkr\.ecr\.[a-zA-Z0-9\-_]+\.amazonaws\.com(?:\.cn)?)/)?` + // repository uri (Optional)
-			`([0-9a-z\-_/]+)` + // repository
-			`(?:` + seperatorRegExp + `([0-9A-Za-z_.\-:]+))?$`) // tag (Optional)
-	matches := re.FindStringSubmatch(image)
-	if len(matches) == 0 {
-		return "", "", "", fmt.Errorf("Please specify the image name in the correct format [%s]", format)
-	}
+		`^(?:((?:[a-zA-Z0-9][a-zA-Z0-9-_]*)\.dkr\.ecr(\-fips)?\.[a-zA-Z0-9\-_]+\.amazonaws\.com(?:\.cn)?)/)?` + // registry uri (Optional)
+		`([0-9a-z\-_/]+)` + // repository
+		`(?:` + seperatorRegExp + `([0-9A-Za-z_.\-:]+))?$`) // tag or sha (Optional)
+		matches := re.FindStringSubmatch(image)
+		if len(matches) == 0 {
+			return "", "", "", fmt.Errorf("Please specify the image name in the correct format [%s]", format)
+		}
 
-	return matches[1], matches[2], matches[3], nil
-}
+		return matches[1], matches[3], matches[4], nil
+	}

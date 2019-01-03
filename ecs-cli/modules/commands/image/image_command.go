@@ -65,6 +65,13 @@ func imagePushFlags() []cli.Flag {
 			Name:  flags.RegistryIdFlag,
 			Usage: "[Optional] Specifies the Amazon ECR registry ID to push the image to. By default, images are pushed to the current AWS account.",
 		},
+		cli.BoolFlag{
+			Name: flags.UseFIPSFlag,
+			Usage: "[Optional] Routes calls to AWS services through FIPS endpoints.",
+		},
+		cli.BoolFlag{
+			Name: flags.VerboseFlag + ",debug",
+		},
 	}
 }
 
@@ -73,6 +80,13 @@ func imagePullFlags() []cli.Flag {
 		cli.StringFlag{
 			Name:  flags.RegistryIdFlag,
 			Usage: "[Optional] Specifies the the Amazon ECR registry ID to pull the image from. By default, images are pulled from the current AWS account.",
+		},
+		cli.BoolFlag{
+			Name: flags.UseFIPSFlag,
+			Usage: "[Optional] Routes calls to AWS services through FIPS endpoints.",
+		},
+		cli.BoolFlag{
+			Name: flags.VerboseFlag + ",debug",
 		},
 	}
 }
@@ -86,6 +100,13 @@ func imageListFlags() []cli.Flag {
 		cli.BoolFlag{
 			Name:  flags.UntaggedFlag,
 			Usage: "[Optional] Filters the result to show only untagged images",
+		},
+		cli.BoolFlag{
+			Name: flags.UseFIPSFlag,
+			Usage: "[Optional] Routes calls to AWS services through FIPS endpoints.",
+		},
+		cli.BoolFlag{
+			Name: flags.VerboseFlag + ",debug",
 		},
 	}
 }

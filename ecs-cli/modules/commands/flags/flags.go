@@ -106,6 +106,7 @@ const (
 	RegistryIdFlag = "registry-id"
 	TaggedFlag     = "tagged"
 	UntaggedFlag   = "untagged"
+	UseFIPSFlag    = "use-fips" // TODO: repurpose to use more generally with other services/workflows
 
 	// Compose
 	ProjectNameFlag           = "project-name"
