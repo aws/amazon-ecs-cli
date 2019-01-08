@@ -438,17 +438,24 @@ func TestCreateLogGroupsTwoContainers(t *testing.T) {
 	assert.NoError(t, err, "Unexpected error in call to CreateLogGroups()")
 }
 
-func TestCreateLogGroupsWrongDriver(t *testing.T) {
+func TestCreateLogGroupsOneContainerWrongDriver(t *testing.T) {
 	taskDef := dummyTaskDef([]*ecs.ContainerDefinition{
-		dummyContainerDef(logRegion1, logGroup1, logPrefix1, "catsanddogslogger", containerName, containerImage),
+		dummyContainerDef(logRegion1, logGroup1, logPrefix1, "awslogs", containerName, containerImage),
+		dummyContainerDef(logRegion2, logGroup2, logPrefix1, "catsanddogslogger", containerName, containerImage),
 	})
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockLogFactory := mock_cloudwatchlogs.NewMockLogClientFactory(ctrl)
+	mockLogClient := mock_cloudwatchlogs.NewMockClient(ctrl)
+
+	gomock.InOrder(
+		mockLogFactory.EXPECT().Get(logRegion1).Return(mockLogClient),
+		mockLogClient.EXPECT().CreateLogGroup(gomock.Any()),
+	)
 
 	err := CreateLogGroups(taskDef, mockLogFactory)
-	assert.Error(t, err, "Expected error in call to CreateLogGroups()")
+	assert.NoError(t, err, "Unexpected error in call to CreateLogGroups()")
 }
 
 func TestCreateLogGroupsLogGroupAlreadyExists(t *testing.T) {
