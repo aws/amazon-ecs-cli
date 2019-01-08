@@ -309,6 +309,9 @@ func logConfigMisMatchError(taskDef *ecs.TaskDefinition, fieldName string) error
 // CreateLogGroups creates any needed log groups for the task definition to use CloudWatch Logs
 func CreateLogGroups(taskDef *ecs.TaskDefinition, logClientFactory cwlogsclient.LogClientFactory) error {
 	for _, container := range taskDef.ContainerDefinitions {
+		if container.LogConfiguration == nil || container.LogConfiguration.LogDriver == nil || aws.StringValue(container.LogConfiguration.LogDriver) != "awslogs" {
+			continue
+		}
 		logConfig, err := getContainerLogConfig(container)
 		if err != nil {
 			return err
