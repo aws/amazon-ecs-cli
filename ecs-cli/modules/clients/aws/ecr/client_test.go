@@ -32,7 +32,7 @@ const (
 	registryID     = "123456789012"
 	repositoryName = "repo-name"
 	imageDigest    = "sha:256"
-	registryURI    = "123456789012.ecr"
+	registryURI    = registryID +".dkr.ecr.us-west-2.amazonaws.com"
 )
 
 func TestGetAuthorizationToken(t *testing.T) {
