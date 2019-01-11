@@ -86,12 +86,12 @@ type ProfileConfig struct {
 	Profiles map[string]Profile `yaml:"ecs_profiles"`
 }
 
-// NewLocalConfig creates a new instance of CliConfig from the cluster name.
+// NewLocalConfig creates a new instance of LocalConfig from the cluster name.
 func NewLocalConfig(cluster string) *LocalConfig {
 	return &LocalConfig{Cluster: cluster}
 }
 
-// ToAWSSession creates a new Session object from the CliConfig object.
+// ToAWSSession creates a new Session object from the LocalConfig object.
 // Region: Order of resolution
 //  1) ECS CLI Flags
 //   a) Region Flag --region
