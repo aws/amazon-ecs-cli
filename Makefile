@@ -35,6 +35,14 @@ $(LOCAL_BINARY): $(SOURCES)
 test:
 	env -i PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT go test -timeout=120s -v -cover ./ecs-cli/modules/...
 
+
+.PHONY: integ-test
+integ-test:
+	@echo "Building ecs-cli..."
+	./scripts/build_binary.sh ./bin/local
+	@echo "Running integration tests..."
+	go test -tags integ -v ./ecs-cli/integ/...
+
 .PHONY: generate
 generate: $(SOURCES)
 	PATH=$(LOCAL_PATH) go generate ./ecs-cli/modules/...
