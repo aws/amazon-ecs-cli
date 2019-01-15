@@ -66,18 +66,7 @@ func ImagePush(c *cli.Context) {
 		logrus.Fatal("Error executing 'push': ", err)
 	}
 
-	var ecrClient ecrclient.Client
-	useFips := c.Bool(flags.UseFIPSFlag)
-
-	if useFips {
-		ecrClient, err = ecrclient.NewFipsClient(commandConfig)
-		if err != nil {
-			logrus.Fatal("Error executing 'push': ", err)
-		}
-	} else {
-		ecrClient = ecrclient.NewClient(commandConfig)
-	}
-
+	ecrClient := getECRClient(c, commandConfig)
 	stsClient := stsclient.NewClient(commandConfig)
 
 	if err := pushImage(c, rdwr, dockerClient, ecrClient, stsClient); err != nil {
@@ -102,18 +91,7 @@ func ImagePull(c *cli.Context) {
 		logrus.Fatal("Error executing 'pull': ", err)
 	}
 
-	var ecrClient ecrclient.Client
-	useFips := c.Bool(flags.UseFIPSFlag)
-
-	if useFips {
-		ecrClient, err = ecrclient.NewFipsClient(commandConfig)
-		if err != nil {
-			logrus.Fatal("Error executing 'pull': ", err)
-		}
-	} else {
-		ecrClient = ecrclient.NewClient(commandConfig)
-	}
-
+	ecrClient := getECRClient(c, commandConfig)
 	stsClient := stsclient.NewClient(commandConfig)
 
 	if err := pullImage(c, rdwr, dockerClient, ecrClient, stsClient); err != nil {
@@ -133,22 +111,27 @@ func ImageList(c *cli.Context) {
 		logrus.Fatal("Error executing 'images': ", err)
 	}
 
-	var ecrClient ecrclient.Client
-	useFips := c.Bool(flags.UseFIPSFlag)
-
-	if useFips {
-		ecrClient, err = ecrclient.NewFipsClient(commandConfig)
-		if err != nil {
-			logrus.Fatal("Error executing 'images': ", err)
-		}
-	} else {
-		ecrClient = ecrclient.NewClient(commandConfig)
-	}
+	ecrClient := getECRClient(c, commandConfig)
 
 	if err := getImages(c, rdwr, ecrClient); err != nil {
 		logrus.Fatal("Error executing 'images': ", err)
 		return
 	}
+}
+
+func getECRClient(c *cli.Context, commandConfig *config.CommandConfig) ecrclient.Client {
+	ecrClient := ecrclient.NewClient(commandConfig)
+
+	useFips := c.Bool(flags.UseFIPSFlag)
+
+	if useFips {
+		fipsClient, err := ecrclient.NewFipsClient(commandConfig)
+		if err != nil {
+			logrus.Fatal("Error creating FIPS client: ", err)
+		}
+		ecrClient = fipsClient
+	}
+	return ecrClient
 }
 
 func pushImage(c *cli.Context, rdwr config.ReadWriter, dockerClient dockerclient.Client, ecrClient ecrclient.Client, stsClient stsclient.Client) error {
