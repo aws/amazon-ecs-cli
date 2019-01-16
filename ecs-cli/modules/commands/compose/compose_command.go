@@ -58,7 +58,7 @@ func ComposeCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:   "compose",
 		Usage:  "Executes docker-compose-style commands on an ECS cluster.",
 		Before: ecscli.BeforeApp,
-		Flags:  append(composeFlags(), flags.OptionalConfigFlags()...),
+		Flags:  flags.AppendFlags(composeFlags(), flags.DebugFlag(), flags.OptionalConfigFlags()),
 		Subcommands: []cli.Command{
 			createCommand(factory),
 			psCommand(factory),
@@ -80,10 +80,6 @@ func ComposeCommand(factory composeFactory.ProjectFactory) cli.Command {
 // commonComposeFlags lists the flags used by the compose subcommand
 func composeFlags() []cli.Flag {
 	return []cli.Flag{
-		cli.BoolFlag{
-			Name:  flags.VerboseFlag + ",debug",
-			Usage: "Increase the verbosity of command output to aid in diagnostics.",
-		},
 		cli.StringSliceFlag{
 			Name:   flags.ComposeFileNameFlag + ",f",
 			Usage:  "Specifies one or more Docker compose files to use. Defaults to " + composeFileNameDefaultValue + " file, and an optional " + composeOverrideFileNameDefaultValue + " file.",

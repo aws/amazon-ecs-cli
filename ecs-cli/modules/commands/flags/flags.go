@@ -236,6 +236,24 @@ func OptionalForceUpdateFlag() []cli.Flag {
 	}
 }
 
+func DebugFlag() []cli.Flag {
+	return []cli.Flag{
+		cli.BoolFlag{
+			Name:  VerboseFlag + ",debug",
+			Usage: "[Optional] Increase the verbosity of command output to aid in diagnostics.",
+		},
+	}
+}
+
+func FipsEndpointFlag() []cli.Flag {
+	return []cli.Flag{
+		cli.BoolFlag{
+			Name: UseFIPSFlag + ",fips",
+			Usage: "[Optional] Routes calls to AWS services through FIPS endpoints.",
+		},
+	}
+}
+
 // UsageErrorFactory Returns a usage error function for the specified command
 func UsageErrorFactory(command string) func(*cli.Context, error, bool) error {
 	return func(c *cli.Context, err error, isSubcommand bool) error {

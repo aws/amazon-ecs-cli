@@ -26,7 +26,7 @@ func UpCommand() cli.Command {
 		Usage:        "Creates the ECS cluster (if it does not already exist) and the AWS resources required to set up the cluster.",
 		Before:       ecscli.BeforeApp,
 		Action:       cluster.ClusterUp,
-		Flags:        flags.AppendFlags(clusterUpFlags(), flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag()),
+		Flags:        flags.AppendFlags(clusterUpFlags(), flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.DebugFlag()),
 		OnUsageError: flags.UsageErrorFactory("up"),
 	}
 }
@@ -63,9 +63,6 @@ func PsCommand() cli.Command {
 
 func clusterUpFlags() []cli.Flag {
 	return []cli.Flag{
-		cli.BoolFlag{
-			Name: flags.VerboseFlag + ",debug",
-		},
 		cli.BoolFlag{
 			Name:  flags.CapabilityIAMFlag,
 			Usage: "Acknowledges that this command may create IAM resources. Required if --instance-role is not specified. NOTE: Not applicable for launch type FARGATE or when creating an empty cluster.",
