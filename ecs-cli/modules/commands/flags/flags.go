@@ -106,6 +106,7 @@ const (
 	RegistryIdFlag = "registry-id"
 	TaggedFlag     = "tagged"
 	UntaggedFlag   = "untagged"
+	UseFIPSFlag    = "use-fips" // TODO: repurpose to use more generally with other services/workflows
 
 	// Compose
 	ProjectNameFlag           = "project-name"
@@ -231,6 +232,24 @@ func OptionalForceUpdateFlag() []cli.Flag {
 		cli.BoolFlag{
 			Name:  ForceUpdateFlag + ",u",
 			Usage: "[Optional] Forces update of task or service with current run parameters",
+		},
+	}
+}
+
+func DebugFlag() []cli.Flag {
+	return []cli.Flag{
+		cli.BoolFlag{
+			Name:  VerboseFlag + ",debug",
+			Usage: "[Optional] Increase the verbosity of command output to aid in diagnostics.",
+		},
+	}
+}
+
+func FipsEndpointFlag() []cli.Flag {
+	return []cli.Flag{
+		cli.BoolFlag{
+			Name: UseFIPSFlag + ",fips",
+			Usage: "[Optional] Routes calls to AWS services through FIPS endpoints.",
 		},
 	}
 }

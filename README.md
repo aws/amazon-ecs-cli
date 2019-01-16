@@ -34,7 +34,8 @@ Line Interface](http://aws.amazon.com/cli/) product detail page.
 		- [Using Route53 Service Discovery](#using-route53-service-discovery)
 	- [Viewing Running Tasks](#viewing-running-tasks)
 	- [Viewing Container Logs](#viewing-container-logs)
-    - [Using Private Registry Authentication](#using-private-registry-authentication)
+	- [Using FIPS Endpoints](#using-fips-endpoints)
+	- [Using Private Registry Authentication](#using-private-registry-authentication)
 - [Amazon ECS CLI Commands](#amazon-ecs-cli-commands)
 - [Contributing to the CLI](#contributing-to-the-cli)
 - [License](#license)
@@ -338,17 +339,17 @@ For the EC2 launch type, the ECS CLI always creates EC2 instances that include t
 echo ECS_CLUSTER={ clusterName } >> /etc/ecs/ecs.config
 ```
 
-This user data directs the EC2 instance to join your ECS Cluster. You can optionally include extra user data with `--extra-user-data`; this flag takes a file name as its argument.  
+This user data directs the EC2 instance to join your ECS Cluster. You can optionally include extra user data with `--extra-user-data`; this flag takes a file name as its argument.
 The flag can be used multiple times to specify multiple files. Extra user data can be shell scripts or cloud-init directives- see the [EC2 documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html) for more information.
 The ECS CLI takes all the User Data, and packs it into a MIME Multipart archive which can be used by cloud-init on the EC2 instance. The ECS CLI even allows existing MIME Multipart archives to be passed in with `--extra-user-data`.
 The CLI will unpack the existing archive, and then repack it into the final archive (preserving all header and content type information). Here is an example of specifying extra user data:
 
 ```
-ecs-cli up \  
-  --capability-iam \  
-  --extra-user-data my-shellscript \  
-  --extra-user-data my-cloud-boot-hook \  
-  --extra-user-data my-mime-multipart-archive \  
+ecs-cli up \
+  --capability-iam \
+  --extra-user-data my-shellscript \
+  --extra-user-data my-cloud-boot-hook \
+  --extra-user-data my-mime-multipart-archive \
   --launch-type EC2
 ```
 
@@ -850,7 +851,26 @@ OPTIONS:
 --timestamps, -t           [Optional] Shows timestamps on each line in the log output.
 ```
 
-## Using Private Registry Authentication
+### Using FIPS Endpoints
+The ECS-CLI supports using [FIPS endpoints](https://aws.amazon.com/compliance/fips/) for calls to ECR. To ensure you are accessing ECR using FIPS endpoints, use the `--use-fips` flag on the `push`, `pull`, or `images` command. FIPS endpoints are currently available in us-west-1, us-west-2, us-east-1, us-east-2, and in the [GovCloud partition](https://docs.aws.amazon.com/govcloud-us/latest/ug-west/using-govcloud-endpoints.html).
+
+```
+$ ecs-cli push myRepository:latest --use-fips --debug
+DEBU[0000] Using FIPS endpoint: https://ecr-fips.us-west-2.amazonaws.com
+INFO[0000] Getting AWS account ID...
+DEBU[0000] Getting authorization token...
+DEBU[0000] Checking file cache                           registry=xxxxxxxxxx123
+DEBU[0000] Calling ECR.GetAuthorizationToken             registry=xxxxxxxxxx123
+DEBU[0000] Saving credentials to file cache              registry=xxxxxxxxxx123
+DEBU[0000] Retrieved authorization token via endpoint: https://xxxxxxxxxxx123.dkr.ecr-fips.us-west-2.amazonaws.com
+INFO[0000] Tagging image                                 image=myRepository repository=xxxxxxxxxxx123.dkr.ecr-fips.us-west-2.amazonaws.com/myRepository tag=latest
+INFO[0000] Image tagged
+DEBU[0000] Check if repository exists                    repository=myRepository
+INFO[0000] Pushing image                                 repository=xxxxxxxxxxx123.dkr.ecr-fips.us-west-2.amazonaws.com/myRepository tag=latest
+INFO[0002] Image pushed
+```
+
+### Using Private Registry Authentication
 
 If you want to use privately hosted container images with ECS, the ECS CLI can store your private registry credentials in AWS Secrets Manager and create an IAM role which ECS can use to access the credentials and private images. This allows you to:
 
@@ -863,7 +883,7 @@ Using privately hosted images with the ECS CLI is done in two parts:
 1) Create new AWS Secrets Manager secrets and an IAM Task Execution Role with `ecs-cli registry-creds up`
 2) Run `ecs-cli compose` commands to create and run a task definition that includes the new resources
 
-### Storing private registry credentials with `ecs-cli registry-creds up`
+#### Storing private registry credentials with `ecs-cli registry-creds up`
 
 To get started, first create an input file that contains the name of your registry and the credentials needed to access it:
 
@@ -876,7 +896,7 @@ registry_credentials:
   my-registry.example.com:
     secrets_manager_arn:        # required when using (with no modification) or updating an existing secret
     username: myUserName        # required when creating or updating a new secret
-    password: ${MY_PASSWORD}    # required when creating or updating a new secret  
+    password: ${MY_PASSWORD}    # required when creating or updating a new secret
     kms_key_id:                 # optional custom KMS Key ID to use to encrypt new secret
     container_names:            # required to match credential resources with docker-compose services
       - web
@@ -891,7 +911,7 @@ Other options:
 * If you want to encrypt the AWS Secrets Manager secret for your registry with a custom KMS Key, then add the ARN, ID or Alias of the Key in the `kms_key_id` field. Otherwise, AWS Secrets Manager will use the default key in your account.
 * If you don't want to create or update an IAM Task Execution Role for these secrets, use the `--no-role` flag instead of specifying a role name.
 * If you don't want to generate an output file for use with `compose` or for records purposes, use the `--no-output-file` flag.
-* If you want the output file to be created in a specific directory on your machine, you can specify it with the `--output-dir <value>` flag. Otherwise, the file will be created in your working directory.   
+* If you want the output file to be created in a specific directory on your machine, you can specify it with the `--output-dir <value>` flag. Otherwise, the file will be created in your working directory.
 
 After creating the input file, run the `registry-creds up` command on the file and pass in the name of the new or existing Task Execution Role you want to use for the secrets:
 
@@ -933,7 +953,7 @@ This file contains:
 
 We can now use this file with `ecs-cli compose` commands to start a task with images in our private registry.
 
-### Using private registry credentials when launching tasks or services
+#### Using private registry credentials when launching tasks or services
 
 Now that we have an output file that identifies which resources we need to use our private registry, the ECS CLI will incorporate them into our Docker Compose project when we run `ecs-cli compose`.
 
@@ -983,7 +1003,6 @@ INFO[0018] Started container... container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/l
  * to use an ecs-registry-creds output file from outside the current directory, you can specify it in with the `--registry-creds <value>` flag
 
  For more information about using private registries with ECS, see [Private Registry Authentication for Tasks](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/private-auth.html).
-
 
 ## Amazon ECS CLI Commands
 

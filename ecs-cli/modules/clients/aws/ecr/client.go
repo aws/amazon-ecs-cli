@@ -19,6 +19,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/service/ecr"
 	"github.com/aws/aws-sdk-go/service/ecr/ecriface"
 	login "github.com/awslabs/amazon-ecr-credential-helper/ecr-login/api"
@@ -65,6 +66,45 @@ func NewClient(config *config.CommandConfig) Client {
 	return newClient(config, client, loginClient)
 }
 
+// NewFipsClient Creates a new ECR client that will communicate with a FIPS endpoint.
+func NewFipsClient(config *config.CommandConfig) (Client, error) {
+	region := aws.StringValue(config.Session.Config.Region)
+	resolver := endpoints.DefaultResolver()
+
+	// The convention for FIPS endpoints is to add "-fips" to the official
+	// service name; however this would result in an UnknownServiceError
+	// being thrown. To allow the endpoint resolver to fallback to the
+	// correct endpoint, we can set the ResolveUnknownService flag to true.
+	endpoint, err := resolver.EndpointFor("ecr-fips", region, func(opts *endpoints.Options) {
+		opts.ResolveUnknownService = true
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	log.Debugf("Using FIPS endpoint: %+v", endpoint.URL)
+
+	awsSession := config.Session
+	awsConfig := &aws.Config{
+		Endpoint: aws.String(endpoint.URL),
+	}
+
+	client := ecr.New(awsSession, awsConfig)
+	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
+
+	// NOTE: While there is a NewClientWithFipsEndpoint method on
+	// login.DefaultClientFactory, this would instantiate a login client
+	// with a different AWS session/config from that of the ecrClient.
+	loginClient := login.DefaultClientFactory{}.NewClientWithOptions(login.Options{
+		Session:  awsSession,
+		Config:   awsConfig,
+		CacheDir: CacheDir,
+	})
+
+	return newClient(config, client, loginClient), nil
+}
+
 func newClient(config *config.CommandConfig, client ecriface.ECRAPI, loginClient login.Client) Client {
 	return &ecrClient{
 		config:      config,
@@ -83,10 +123,12 @@ type Auth struct {
 
 func (c *ecrClient) GetAuthorizationTokenByID(registryID string) (*Auth, error) {
 	log.Debug("Getting authorization token...")
+
 	auth, err := c.loginClient.GetCredentialsByRegistryID(registryID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to serialize authorization token")
 	}
+	log.Debugf("Retrieved authorization token via endpoint: %+v", auth.ProxyEndpoint)
 
 	return &Auth{
 		Username:      auth.Username,
@@ -102,6 +144,7 @@ func (c *ecrClient) GetAuthorizationToken(registryURI string) (*Auth, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to serialize authorization token")
 	}
+	log.Debugf("Retrieved authorization token via endpoint: %+v", auth.ProxyEndpoint)
 
 	return &Auth{
 		Username:      auth.Username,
