@@ -39,6 +39,7 @@ type Container struct {
 	task            *ecs.Task
 	EC2IPAddress    string
 	networkBindings []*ecs.NetworkBinding
+
 	ecsContainer    *ecs.Container
 }
 
