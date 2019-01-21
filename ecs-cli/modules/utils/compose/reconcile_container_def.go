@@ -53,6 +53,7 @@ func reconcileContainerDef(inputCfg *adapter.ContainerConfig, ecsConDef *Contain
 	outputContDef.SetName(inputCfg.Name)
 	outputContDef.SetPrivileged(inputCfg.Privileged)
 	outputContDef.SetPortMappings(inputCfg.PortMappings)
+	outputContDef.SetPseudoTerminal(inputCfg.PseudoTerminal)
 	outputContDef.SetReadonlyRootFilesystem(inputCfg.ReadOnly)
 	outputContDef.SetUlimits(inputCfg.Ulimits)
 

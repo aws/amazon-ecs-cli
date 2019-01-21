@@ -82,6 +82,7 @@ func TestParseV3WithOneFile(t *testing.T) {
 	}
 	wordpressCon.Privileged = true
 	wordpressCon.ReadOnly = true
+	wordpressCon.PseudoTerminal = true
 	wordpressCon.DockerSecurityOptions = []string{"label:role:ROLE", "label:user:USER"}
 	wordpressCon.Ulimits = []*ecs.Ulimit{
 		{
@@ -160,6 +161,7 @@ services:
         awslogs-stream-prefix: wordpress
     tmpfs:
       - "/run:rw,size=1gb"
+    tty: true
     read_only: true
     hostname: wrdhost
     security_opt:
@@ -746,6 +748,7 @@ func verifyContainerConfig(t *testing.T, expected, actual adapter.ContainerConfi
 	assert.Equal(t, expected.Privileged, actual.Privileged, "Expected Privileged to match")
 	assert.Equal(t, expected.ReadOnly, actual.ReadOnly, "Expected ReadOnly to match")
 	assert.ElementsMatch(t, expected.Tmpfs, actual.Tmpfs, "Expected Tmpfs to match")
+	assert.Equal(t, expected.PseudoTerminal, actual.PseudoTerminal, "Expected PseuoTerminal to match")
 	assert.ElementsMatch(t, expected.Ulimits, actual.Ulimits, "Expected Ulimits to match")
 	assert.Equal(t, expected.User, actual.User, "Expected User to match")
 	assert.Equal(t, expected.WorkingDirectory, actual.WorkingDirectory, "Expected WorkingDirectory to match")

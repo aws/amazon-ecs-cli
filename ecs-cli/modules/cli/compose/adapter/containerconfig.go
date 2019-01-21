@@ -28,6 +28,7 @@ type ContainerConfig struct {
 	MountPoints           []*ecs.MountPoint
 	PortMappings          []*ecs.PortMapping
 	Privileged            bool
+	PseudoTerminal        bool
 	ReadOnly              bool
 	ShmSize               int64
 	Tmpfs                 []*ecs.Tmpfs

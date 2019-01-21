@@ -54,6 +54,7 @@ var supportedComposeV1V2YamlOptions = []string{
 	"security_opt",
 	"shm_size",
 	"tmpfs",
+	"tty",
 	"ulimits",
 	"user",
 	"volumes", // v2
@@ -85,6 +86,7 @@ var supportedFieldsInV3 = map[string]bool{
 	"ReadOnly":    true,
 	"SecurityOpt": true,
 	"Tmpfs":       true,
+	"Tty":         true,
 	"Ulimits":     true,
 	"User":        true,
 	"Volumes":     true,

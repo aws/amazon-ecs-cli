@@ -85,6 +85,7 @@ func TestParseV1V2_Version1_HappyPath(t *testing.T) {
 	}
 	privileged := true
 	readonly := true
+	tty := true
 	securityOpts := []string{"label:type:test_virt"}
 	shmSize := int64(128)
 	user := "user"
@@ -144,6 +145,7 @@ func TestParseV1V2_Version1_HappyPath(t *testing.T) {
   security_opt:
    - label:type:test_virt
   shm_size: 128M
+  tty: true
   ulimits:
     nproc: 65535
     nofile:
@@ -207,6 +209,7 @@ redis:
 	assert.Equal(t, mountPoints, web.MountPoints, "Expected MountPoints to match")
 	assert.ElementsMatch(t, ports, web.PortMappings, "Expected PortMappings to match")
 	assert.Equal(t, privileged, web.Privileged, "Expected Privileged to match")
+	assert.Equal(t, tty, web.PseudoTerminal, "Expected PseudoTerminal to match")
 	assert.Equal(t, readonly, web.ReadOnly, "Expected ReadOnly to match")
 	assert.Equal(t, shmSize, web.ShmSize, "Expected ShmSize to match")
 	assert.Equal(t, user, web.User, "Expected User to match")

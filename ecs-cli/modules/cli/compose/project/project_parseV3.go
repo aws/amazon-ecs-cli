@@ -103,6 +103,7 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig, serviceVols *ad
 		Links:                 serviceConfig.Links,
 		Name:                  serviceConfig.Name,
 		Privileged:            serviceConfig.Privileged,
+		PseudoTerminal:        serviceConfig.Tty,
 		ReadOnly:              serviceConfig.ReadOnly,
 		User:                  serviceConfig.User,
 		WorkingDirectory:      serviceConfig.WorkingDir,
