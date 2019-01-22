@@ -17,11 +17,12 @@ import (
 	"os"
 	"strconv"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/container"
 	composeFactory "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/factory"
 	ecscompose "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/project"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/flynn/go-shlex"
+	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
@@ -81,7 +82,7 @@ func ProjectUp(p ecscompose.Project, c *cli.Context) {
 
 // ProjectPs lists the containers.
 func ProjectPs(p ecscompose.Project, c *cli.Context) {
-	allInfo, err := p.Info()
+	allInfo, err := p.Info(c.String(flags.DesiredTaskStatus))
 	if err != nil {
 		log.Fatal(err)
 	}

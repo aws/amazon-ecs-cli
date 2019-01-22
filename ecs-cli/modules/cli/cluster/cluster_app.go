@@ -496,7 +496,7 @@ func clusterPS(context *cli.Context, rdwr config.ReadWriter) (project.InfoSet, e
 
 	ecsContext := &ecscontext.ECSContext{ECSClient: ecsClient, EC2Client: ec2Client}
 	task := task.NewTask(ecsContext)
-	return task.Info(false)
+	return task.Info(false, context.String(flags.DesiredTaskStatus))
 }
 
 // validateCluster validates if the cluster exists in ECS and is in "ACTIVE" state.

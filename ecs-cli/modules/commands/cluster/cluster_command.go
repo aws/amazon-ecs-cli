@@ -56,7 +56,7 @@ func PsCommand() cli.Command {
 		Name:         "ps",
 		Usage:        "Lists all of the running containers in your ECS cluster",
 		Action:       cluster.ClusterPS,
-		Flags:        flags.OptionalConfigFlags(),
+		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalDesiredStatusFlag()),
 		OnUsageError: flags.UsageErrorFactory("ps"),
 	}
 }

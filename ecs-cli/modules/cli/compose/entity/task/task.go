@@ -106,8 +106,8 @@ func (t *Task) Up() error {
 
 // Info returns a formatted list of containers (running and stopped) in the current cluster
 // filtered by this project if filterLocal is set to true
-func (t *Task) Info(filterLocal bool) (project.InfoSet, error) {
-	return entity.Info(t, filterLocal)
+func (t *Task) Info(filterLocal bool, desiredStatus string) (project.InfoSet, error) {
+	return entity.Info(t, filterLocal, desiredStatus)
 }
 
 // Scale finds out the current count of running tasks for this project and scales to the desired count.

@@ -51,9 +51,9 @@ func TestTaskCreate(t *testing.T) {
 	cliContext := cli.NewContext(nil, flagSet, nil)
 
 	context := &context.ECSContext{
-		ECSClient:  mockEcs,
-		CommandConfig:  &config.CommandConfig{},
-		CLIContext: cliContext,
+		ECSClient:     mockEcs,
+		CommandConfig: &config.CommandConfig{},
+		CLIContext:    cliContext,
 	}
 	task := NewTask(context)
 	task.SetTaskDefinition(&taskDefinition)
@@ -68,7 +68,7 @@ func TestTaskInfoFilterLocal(t *testing.T) {
 		return NewTask(context)
 	}, func(req *ecs.ListTasksInput, projectName string, t *testing.T) {
 		assert.Equal(t, projectName, aws.StringValue(req.Family), "Expected Task Definition Family to be project name")
-	}, t, true)
+	}, t, true, "")
 }
 
 func TestTaskInfoAll(t *testing.T) {
@@ -78,7 +78,29 @@ func TestTaskInfoAll(t *testing.T) {
 		assert.Nil(t, req.StartedBy, "Unexpected filter on StartedBy")
 		assert.Nil(t, req.Family, "Unexpected filter on Task Definition family")
 		assert.Nil(t, req.ServiceName, "Unexpected filter on Service Name")
-	}, t, false)
+	}, t, false, "")
+}
+
+func TestTaskInfoRunning(t *testing.T) {
+	entity.TestInfo(func(context *context.ECSContext) entity.ProjectEntity {
+		return NewTask(context)
+	}, func(req *ecs.ListTasksInput, projectName string, t *testing.T) {
+		assert.Nil(t, req.StartedBy, "Unexpected filter on StartedBy")
+		assert.Nil(t, req.Family, "Unexpected filter on Task Definition family")
+		assert.Nil(t, req.ServiceName, "Unexpected filter on Service Name")
+		assert.Equal(t, ecs.DesiredStatusRunning, aws.StringValue(req.DesiredStatus), "Expected Desired status to match")
+	}, t, false, ecs.DesiredStatusRunning)
+}
+
+func TestTaskInfoStopped(t *testing.T) {
+	entity.TestInfo(func(context *context.ECSContext) entity.ProjectEntity {
+		return NewTask(context)
+	}, func(req *ecs.ListTasksInput, projectName string, t *testing.T) {
+		assert.Nil(t, req.StartedBy, "Unexpected filter on StartedBy")
+		assert.Nil(t, req.Family, "Unexpected filter on Task Definition family")
+		assert.Nil(t, req.ServiceName, "Unexpected filter on Service Name")
+		assert.Equal(t, ecs.DesiredStatusStopped, aws.StringValue(req.DesiredStatus), "Expected Desired status to match")
+	}, t, false, ecs.DesiredStatusStopped)
 }
 
 // TODO: Test UP
@@ -95,7 +117,7 @@ func TestConvertToECSTaskOverride(t *testing.T) {
 	expected := &ecs.TaskOverride{
 		ContainerOverrides: []*ecs.ContainerOverride{
 			{
-				Name: aws.String(container),
+				Name:    aws.String(container),
 				Command: aws.StringSlice(command),
 			},
 		},
@@ -131,8 +153,8 @@ func TestBuildRuntaskInput(t *testing.T) {
 	context := &context.ECSContext{
 		ECSClient:  mockEcs,
 		CLIContext: cliContext,
-		CommandConfig:  &config.CommandConfig{
-			Cluster: cluster,
+		CommandConfig: &config.CommandConfig{
+			Cluster:    cluster,
 			LaunchType: launchType,
 		},
 	}
@@ -170,8 +192,8 @@ func TestBuildRuntaskInput_WithOverride(t *testing.T) {
 	context := &context.ECSContext{
 		ECSClient:  mockEcs,
 		CLIContext: cliContext,
-		CommandConfig:  &config.CommandConfig{
-			Cluster: cluster,
+		CommandConfig: &config.CommandConfig{
+			Cluster:    cluster,
 			LaunchType: launchType,
 		},
 	}
@@ -183,7 +205,7 @@ func TestBuildRuntaskInput_WithOverride(t *testing.T) {
 	expectedOverride := &ecs.TaskOverride{
 		ContainerOverrides: []*ecs.ContainerOverride{
 			{
-				Name: aws.String("railsapp"),
+				Name:    aws.String("railsapp"),
 				Command: aws.StringSlice(command),
 			},
 		},
