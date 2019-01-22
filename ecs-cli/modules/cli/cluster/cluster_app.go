@@ -17,6 +17,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -24,12 +25,13 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/container"
 	ecscontext "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/task"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/amimetadata"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudformation"
 	ec2client "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ec2"
 	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ssm"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/docker/libcompose/project"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -60,6 +62,10 @@ const (
 	ParameterKeySpotPrice                = "SpotPrice"
 )
 
+const (
+	defaultARM64InstanceType = "a1.medium"
+)
+
 var flagNamesToStackParameterKeys map[string]string
 var requiredParameters []string = []string{ParameterKeyCluster}
 
@@ -81,17 +87,17 @@ func init() {
 }
 
 type AWSClients struct {
-	ECSClient ecsclient.ECSClient
-	CFNClient cloudformation.CloudformationClient
-	SSMClient ssm.Client
+	ECSClient         ecsclient.ECSClient
+	CFNClient         cloudformation.CloudformationClient
+	AMIMetadataClient amimetadata.Client
 }
 
 func newAWSClients(commandConfig *config.CommandConfig) *AWSClients {
 	ecsClient := ecsclient.NewECSClient(commandConfig)
 	cfnClient := cloudformation.NewCloudformationClient(commandConfig)
-	ssmClient := ssm.NewSSMClient(commandConfig)
+	metadataClient := amimetadata.NewMetadataClient(commandConfig)
 
-	return &AWSClients{ecsClient, cfnClient, ssmClient}
+	return &AWSClients{ecsClient, cfnClient, metadataClient}
 }
 
 ///////////////////////
@@ -185,7 +191,7 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 
 	ecsClient := awsClients.ECSClient
 	cfnClient := awsClients.CFNClient
-	ssmClient := awsClients.SSMClient
+	metadataClient := awsClients.AMIMetadataClient
 
 	// Check if cluster is specified
 	if commandConfig.Cluster == "" {
@@ -277,10 +283,15 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 	}
 
 	if launchType == config.LaunchTypeEC2 {
+		architecture, err := determineArchitecture(cfnParams)
+		if err != nil {
+			return err
+		}
+
 		// Check if image id was supplied, else populate
 		_, err = cfnParams.GetParameter(ParameterKeyAmiId)
 		if err == cloudformation.ParameterNotFoundError {
-			amiMetadata, err := ssmClient.GetRecommendedECSLinuxAMI()
+			amiMetadata, err := metadataClient.GetRecommendedECSLinuxAMI(architecture)
 			if err != nil {
 				return err
 			}
@@ -319,6 +330,28 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 	logrus.Info("Waiting for your cluster resources to be created...")
 	// Wait for stack creation
 	return cfnClient.WaitUntilCreateComplete(stackName)
+}
+
+func determineArchitecture(cfnParams *cloudformation.CfnStackParams) (string, error) {
+	architecture := amimetadata.ArchitectureTypeX86
+
+	// a1 instances get the Arm based ECS AMI
+	instanceTypeParam, err := cfnParams.GetParameter(ParameterKeyInstanceType)
+	if err == cloudformation.ParameterNotFoundError {
+		logrus.Infof("Defaulting instance type to t2.micro")
+	} else if err != nil {
+		return "", err
+	} else {
+		instanceType := aws.StringValue(instanceTypeParam.ParameterValue)
+		// This regex matches all current a1 instances, and should work for any future additions as well
+		r := regexp.MustCompile("a1\\.(medium|\\d*x?large)")
+		if r.MatchString(instanceType) {
+			logrus.Infof("Using Arm ecs-optimized AMI because instance type was %s", instanceType)
+			architecture = amimetadata.ArchitectureTypeARM64
+		}
+	}
+
+	return architecture, nil
 }
 
 var newCommandConfig = func(context *cli.Context, rdwr config.ReadWriter) (*config.CommandConfig, error) {

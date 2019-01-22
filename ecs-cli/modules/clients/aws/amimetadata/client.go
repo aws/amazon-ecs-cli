@@ -11,7 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package ssm
+package amimetadata
 
 import (
 	"encoding/json"
@@ -19,12 +19,20 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ssm"
 	"github.com/aws/aws-sdk-go/service/ssm/ssmiface"
+	"github.com/pkg/errors"
 )
 
 const (
-	amazonLinux2RecommendedParameterName = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended"
+	amazonLinux2X86RecommendedParameterName   = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended"
+	amazonLinux2ARM64RecommendedParameterName = "/aws/service/ecs/optimized-ami/amazon-linux-2/arm64/recommended"
+)
+
+const (
+	ArchitectureTypeARM64 = "arm64"
+	ArchitectureTypeX86   = "x86"
 )
 
 type AMIMetadata struct {
@@ -36,28 +44,41 @@ type AMIMetadata struct {
 
 // Client defines methods to interact with the SSM API interface.
 type Client interface {
-	GetRecommendedECSLinuxAMI() (*AMIMetadata, error)
+	GetRecommendedECSLinuxAMI(string) (*AMIMetadata, error)
 }
 
 // ssmClient implements Client
-type ssmClient struct {
+type metadataClient struct {
 	client ssmiface.SSMAPI
+	region string
 }
 
 // NewSSMClient creates an instance of Client.
-func NewSSMClient(commandConfig *config.CommandConfig) Client {
+func NewMetadataClient(commandConfig *config.CommandConfig) Client {
 	client := ssm.New(commandConfig.Session)
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
-	return &ssmClient{
+	return &metadataClient{
 		client: client,
+		region: aws.StringValue(commandConfig.Session.Config.Region),
 	}
 }
 
-func (c *ssmClient) GetRecommendedECSLinuxAMI() (*AMIMetadata, error) {
+func (c *metadataClient) GetRecommendedECSLinuxAMI(architecture string) (*AMIMetadata, error) {
+	ssmParam := amazonLinux2X86RecommendedParameterName
+	if architecture == ArchitectureTypeARM64 {
+		ssmParam = amazonLinux2ARM64RecommendedParameterName
+	}
+
 	response, err := c.client.GetParameter(&ssm.GetParameterInput{
-		Name: aws.String(amazonLinux2RecommendedParameterName),
+		Name: aws.String(ssmParam),
 	})
 	if err != nil {
+		if aerr, ok := err.(awserr.Error); ok {
+			if aerr.Code() == ssm.ErrCodeParameterNotFound {
+				// Added for arm AMIs which are only supported in some regions
+				return nil, errors.Wrapf(err, "Could not find Recommended Amazon Linux 2 AMI in %s with architecture %s; the AMI may not be supported in this region", c.region, architecture)
+			}
+		}
 		return nil, err
 	}
 	metadata := &AMIMetadata{}
