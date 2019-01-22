@@ -11,7 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package ssm
+package amimetadata
 
-//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ssm Client mock/client.go
+//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/amimetadata Client mock/client.go
 //go:generate mockgen.sh github.com/aws/aws-sdk-go/service/ssm/ssmiface SSMAPI mock/sdk/ssmiface.go

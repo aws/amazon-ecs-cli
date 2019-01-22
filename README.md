@@ -330,6 +330,10 @@ ecs-cli up --cluster myCluster --empty
 
 This is equivalent to the [create-cluster command](https://docs.aws.amazon.com/cli/latest/reference/ecs/create-cluster.html), and will not create a CloudFormation stack associated with your cluster.
 
+#### AMI
+
+You can specify the AMI to use with your EC2 instances using the `--image-id` flag. Alternatively, if you do not specify an image ID, the ECS CLI will use the [recommended Amazon Linux 2 ECS Optimized AMI](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/retrieve-ecs-optimized_AMI.html). By default, the x86 variant of this AMI is used. However, if you specify an instance in the A1 family using `--instance-type`, then the `arm64` version of the ECS Optimized AMI will be used. Note: `arm64` ECS Optimized AMIs are only supported in some regions; please see [Amazon ECS-Optimized Amazon Linux 2 AMI](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/al2ami.html).
+
 #### User Data
 
 For the EC2 launch type, the ECS CLI always creates EC2 instances that include the following User Data:

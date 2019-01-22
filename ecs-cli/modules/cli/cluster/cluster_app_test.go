@@ -22,11 +22,11 @@ import (
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/cluster/userdata"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/amimetadata"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/amimetadata/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudformation"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudformation/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ssm"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ssm/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
@@ -41,6 +41,7 @@ const (
 	clusterName    = "defaultCluster"
 	stackName      = "defaultCluster"
 	amiID          = "ami-deadb33f"
+	armAMIID       = "ami-baadf00d"
 	mockedUserData = "some user data"
 )
 
@@ -93,12 +94,12 @@ func (b *mockUserDataBuilder) Build() (string, error) {
 	return b.userdata, nil
 }
 
-func setupTest(t *testing.T) (*mock_ecs.MockECSClient, *mock_cloudformation.MockCloudformationClient, *mock_ssm.MockClient) {
+func setupTest(t *testing.T) (*mock_ecs.MockECSClient, *mock_cloudformation.MockCloudformationClient, *mock_amimetadata.MockClient) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockECS := mock_ecs.NewMockECSClient(ctrl)
 	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
-	mockSSM := mock_ssm.NewMockClient(ctrl)
+	mockSSM := mock_amimetadata.NewMockClient(ctrl)
 
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "secret")
@@ -141,7 +142,7 @@ func TestClusterUpWithForce(t *testing.T) {
 	)
 
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI().Return(amiMetadata(amiID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(amiID), nil),
 	)
 
 	gomock.InOrder(
@@ -176,13 +177,13 @@ func TestClusterUpWithoutPublicIP(t *testing.T) {
 	)
 
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI().Return(amiMetadata(amiID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(amiID), nil),
 	)
 
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(x, y, w, z interface{}) {
-			capabilityIAM := w.(bool)
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(w, x, y, z interface{}) {
+			capabilityIAM := y.(bool)
 			cfnParams := z.(*cloudformation.CfnStackParams)
 			associateIPAddress, err := cfnParams.GetParameter(ParameterKeyAssociatePublicIPAddress)
 			assert.NoError(t, err, "Unexpected error getting cfn parameter")
@@ -228,12 +229,12 @@ func TestClusterUpWithUserData(t *testing.T) {
 	)
 
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI().Return(amiMetadata(amiID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(amiID), nil),
 	)
 
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(x, y, w, z interface{}) {
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(w, x, y, z interface{}) {
 			cfnParams := z.(*cloudformation.CfnStackParams)
 			param, err := cfnParams.GetParameter(ParameterKeyUserData)
 			assert.NoError(t, err, "Expected User Data parameter to be set")
@@ -276,12 +277,12 @@ func TestClusterUpWithSpotPrice(t *testing.T) {
 	)
 
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI().Return(amiMetadata(amiID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(amiID), nil),
 	)
 
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(x, y, w, z interface{}) {
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(w, x, y, z interface{}) {
 			cfnParams := z.(*cloudformation.CfnStackParams)
 			param, err := cfnParams.GetParameter(ParameterKeySpotPrice)
 			assert.NoError(t, err, "Expected Spot Price parameter to be set")
@@ -651,13 +652,13 @@ func TestClusterUpForImageIdInput(t *testing.T) {
 	)
 
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI().Return(amiMetadata(imageID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(imageID), nil),
 	)
 
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(x, y, w, z interface{}) {
-			capabilityIAM := w.(bool)
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(w, x, y, z interface{}) {
+			capabilityIAM := y.(bool)
 			cfnStackParams := z.(*cloudformation.CfnStackParams)
 			param, err := cfnStackParams.GetParameter(ParameterKeyAmiId)
 			assert.NoError(t, err, "Expected image id params to be present")
@@ -723,11 +724,11 @@ func TestClusterUpWithFargateLaunchTypeFlag(t *testing.T) {
 		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
 	)
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI().Return(amiMetadata(amiID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(amiID), nil),
 	)
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(x, y, w, z interface{}) {
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(w, x, y, z interface{}) {
 			cfnParams := z.(*cloudformation.CfnStackParams)
 			isFargate, err := cfnParams.GetParameter(ParameterKeyIsFargate)
 			assert.NoError(t, err, "Unexpected error getting cfn parameter")
@@ -768,8 +769,8 @@ func TestClusterUpWithFargateDefaultLaunchTypeConfig(t *testing.T) {
 	)
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(x, y, w, z interface{}) {
-			capabilityIAM := w.(bool)
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(w, x, y, z interface{}) {
+			capabilityIAM := y.(bool)
 			cfnParams := z.(*cloudformation.CfnStackParams)
 			isFargate, err := cfnParams.GetParameter(ParameterKeyIsFargate)
 			assert.NoError(t, err, "Unexpected error getting cfn parameter")
@@ -809,12 +810,12 @@ func TestClusterUpWithFargateLaunchTypeFlagOverride(t *testing.T) {
 		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
 	)
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI().Return(amiMetadata(amiID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(amiID), nil),
 	)
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(x, y, w, z interface{}) {
-			capabilityIAM := w.(bool)
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(w, x, y, z interface{}) {
+			capabilityIAM := y.(bool)
 			cfnParams := z.(*cloudformation.CfnStackParams)
 			isFargate, err := cfnParams.GetParameter(ParameterKeyIsFargate)
 			assert.NoError(t, err, "Unexpected error getting cfn parameter")
@@ -854,7 +855,7 @@ func TestClusterUpWithEC2LaunchTypeFlagOverride(t *testing.T) {
 		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
 	)
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI().Return(amiMetadata(amiID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(amiID), nil),
 	)
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
@@ -919,7 +920,7 @@ func TestClusterUpWithEmptyCluster(t *testing.T) {
 		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
 	)
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI().Return(amiMetadata(amiID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(amiID), nil),
 	)
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
@@ -944,7 +945,7 @@ func TestClusterUpWithEmptyClusterWithExistingStack(t *testing.T) {
 		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
 	)
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI().Return(amiMetadata(amiID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(amiID), nil),
 	)
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(nil),
@@ -959,6 +960,73 @@ func TestClusterUpWithEmptyClusterWithExistingStack(t *testing.T) {
 
 	err = createCluster(context, awsClients, commandConfig)
 	assert.Error(t, err, "Unexpected error bringing up empty cluster")
+}
+
+func TestClusterUpARM64(t *testing.T) {
+	defer os.Clearenv()
+	mockECS, mockCloudformation, mockSSM := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+
+	gomock.InOrder(
+		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
+	)
+
+	gomock.InOrder(
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("arm64").Return(amiMetadata(armAMIID), nil),
+	)
+
+	gomock.InOrder(
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any()).Do(func(x, y, w, z interface{}) {
+			capabilityIAM := w.(bool)
+			cfnParams := z.(*cloudformation.CfnStackParams)
+			amiIDParam, err := cfnParams.GetParameter(ParameterKeyAmiId)
+			assert.NoError(t, err, "Unexpected error getting cfn parameter")
+			assert.Equal(t, armAMIID, aws.StringValue(amiIDParam.ParameterValue), "Expected ami ID to be set to recommended for arm64")
+			assert.True(t, capabilityIAM, "Expected capability capabilityIAM to be true")
+		}).Return("", nil),
+		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
+	)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+	flagSet.String(flags.KeypairNameFlag, "default", "")
+	flagSet.String(flags.InstanceTypeFlag, "a1.medium", "")
+
+	context := cli.NewContext(nil, flagSet, nil)
+	rdwr := newMockReadWriter()
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
+
+	err = createCluster(context, awsClients, commandConfig)
+	assert.NoError(t, err, "Unexpected error bringing up cluster")
+}
+
+func TestDetermineArchitecture(t *testing.T) {
+	var testCases = []struct {
+		in  string
+		out string
+	}{
+		{"a1.medium", "arm64"},
+		{"a1.large", "arm64"},
+		{"a1.xlarge", "arm64"},
+		{"a1.2xlarge", "arm64"},
+		{"a1.4xlarge", "arm64"},
+		{"t2.medium", "x86"},
+		{"c5.large", "x86"},
+		{"i3.metal", "x86"},
+		{"t3.micro", "x86"},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.in, func(t *testing.T) {
+			cfnParams := cloudformation.NewCfnStackParams(requiredParameters)
+			cfnParams.Add(ParameterKeyInstanceType, tt.in)
+			arch, err := determineArchitecture(cfnParams)
+			assert.NoError(t, err, "Unexpected error determining architecture")
+			assert.Equal(t, tt.out, arch, "Expected architecture to match")
+		})
+	}
 }
 
 ///////////////////
@@ -1152,8 +1220,8 @@ func TestClusterPSTaskGetInfoFail(t *testing.T) {
 // private methods //
 /////////////////////
 
-func amiMetadata(imageID string) *ssm.AMIMetadata {
-	return &ssm.AMIMetadata{
+func amiMetadata(imageID string) *amimetadata.AMIMetadata {
+	return &amimetadata.AMIMetadata{
 		ImageID:        imageID,
 		OsName:         "Amazon Linux",
 		AgentVersion:   "1.7.2",
@@ -1161,12 +1229,12 @@ func amiMetadata(imageID string) *ssm.AMIMetadata {
 	}
 }
 
-func mocksForSuccessfulClusterUp(mockECS *mock_ecs.MockECSClient, mockCloudformation *mock_cloudformation.MockCloudformationClient, mockSSM *mock_ssm.MockClient) {
+func mocksForSuccessfulClusterUp(mockECS *mock_ecs.MockECSClient, mockCloudformation *mock_cloudformation.MockCloudformationClient, mockSSM *mock_amimetadata.MockClient) {
 	gomock.InOrder(
 		mockECS.EXPECT().CreateCluster(clusterName).Return(clusterName, nil),
 	)
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI().Return(amiMetadata(amiID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(amiID), nil),
 	)
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),

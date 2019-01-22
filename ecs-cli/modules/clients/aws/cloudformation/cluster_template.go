@@ -54,6 +54,11 @@ var cluster_template = `
       "Description": "ECS EC2 instance type",
       "Default": "t2.micro",
       "AllowedValues": [
+        "a1.medium",
+        "a1.large",
+        "a1.xlarge",
+        "a1.2xlarge",
+        "a1.4xlarge",
         "t2.nano",
         "t2.micro",
         "t2.small",

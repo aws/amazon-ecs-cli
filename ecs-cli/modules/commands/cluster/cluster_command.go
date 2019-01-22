@@ -81,7 +81,7 @@ func clusterUpFlags() []cli.Flag {
 		},
 		cli.StringFlag{
 			Name:  flags.InstanceTypeFlag,
-			Usage: "[Optional] Specifies the EC2 instance type for your container instances. Defaults to t2.micro. NOTE: Not applicable for launch type FARGATE.",
+			Usage: "[Optional] Specifies the EC2 instance type for your container instances. If you specify the A1 instance family, the ECS optimized arm64 AMI will be used, otherwise the x86 AMI will be used. Defaults to t2.micro. NOTE: Not applicable for launch type FARGATE.",
 		},
 		cli.StringFlag{
 			Name:  flags.SpotPriceFlag,
