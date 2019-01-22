@@ -762,7 +762,7 @@ func TestServiceInfo(t *testing.T) {
 	}, func(req *ecs.ListTasksInput, projectName string, t *testing.T) {
 		assert.Contains(t, aws.StringValue(req.ServiceName), projectName, "ServiceName should contain ProjectName")
 		assert.Nil(t, req.StartedBy, "StartedBy should be nil")
-	}, t, true)
+	}, t, true, "")
 }
 
 ////////////////

@@ -109,6 +109,11 @@ func TestValidateFargateParams_WrongNetworkMode(t *testing.T) {
 	assert.Error(t, err, "Launch Type FARGATE requires network mode to be 'awsvpc'. Set network mode using an ECS Params file.")
 }
 
+func TestInfoInvalidStatus(t *testing.T) {
+	_, err := Info(nil, true, "Not a valid status")
+	assert.Error(t, err, "Expected error when status was invalid")
+}
+
 // NOTE: ValidateFargateParams should technically also check for the presence
 // of subnets, but this check already exists in
 // utils#ConvertToECSNetworkConfiguration, since it also applies to non-Fargate

@@ -18,6 +18,7 @@ import (
 	"os"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
+	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -137,6 +138,8 @@ const (
 	NoRoleFlag                = "no-role"
 	NoOutputFileFlag          = "no-output-file"
 	OutputDirFlag             = "output-dir"
+
+	DesiredTaskStatus = "desired-status"
 )
 
 // OptionalRegionAndProfileFlags provides these flags:
@@ -250,6 +253,20 @@ func FipsEndpointFlag() []cli.Flag {
 		cli.BoolFlag{
 			Name: UseFIPSFlag + ",fips",
 			Usage: "[Optional] Routes calls to AWS services through FIPS endpoints.",
+		},
+	}
+}
+
+// OptionalDesiredStatusFlag allows users to filter tasks returned by the ps commands
+func OptionalDesiredStatusFlag() []cli.Flag {
+	return []cli.Flag{
+		cli.StringFlag{
+			Name: DesiredTaskStatus,
+			Usage: fmt.Sprintf(
+				"[Optional] Filter tasks by desired status. Valid values: %s or %s",
+				ecs.DesiredStatusRunning,
+				ecs.DesiredStatusStopped,
+			),
 		},
 	}
 }

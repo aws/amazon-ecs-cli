@@ -122,7 +122,7 @@ func psCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Aliases:      []string{"list"},
 		Usage:        "Lists all the containers in your cluster that were started by the compose project.",
 		Action:       compose.WithProject(factory, compose.ProjectPs, false),
-		Flags:        flags.OptionalConfigFlags(),
+		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalDesiredStatusFlag()),
 		OnUsageError: flags.UsageErrorFactory("ps"),
 	}
 }

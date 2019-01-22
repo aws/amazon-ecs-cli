@@ -27,6 +27,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/docker/libcompose/project"
 	"github.com/golang/mock/gomock"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -34,7 +35,7 @@ type validateListTasksInput func(*ecs.ListTasksInput, string, *testing.T)
 type setupEntityForTestInfo func(*context.ECSContext) ProjectEntity
 
 // TestInfo tests ps commands
-func TestInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasksInput, t *testing.T, filterLocal bool) {
+func TestInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasksInput, t *testing.T, filterLocal bool, desiredStatus string) {
 	projectName := "project"
 	containerInstance := "containerInstance"
 	ec2InstanceID := "ec2InstanceID"
@@ -96,31 +97,52 @@ func TestInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasks
 	mockEcs := mock_ecs.NewMockECSClient(ctrl)
 	mockEc2 := mock_ec2.NewMockEC2Client(ctrl)
 
-	gomock.InOrder(
+	var expectedCalls []*gomock.Call
 
-		mockEcs.EXPECT().GetTasksPages(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
-			// verify input fields
-			req := x.(*ecs.ListTasksInput)
-			validateFunc(req, projectName, t)
-			assert.Equal(t, ecs.DesiredStatusRunning, aws.StringValue(req.DesiredStatus), "Expected DesiredStatus to match")
+	logrus.Info("desiredStatus in TestInfo: " + desiredStatus)
 
-			// execute the function passed as input
-			funct := y.(ecsClient.ProcessTasksAction)
-			funct(runningTasks)
-		}).Return(nil),
-		mockEcs.EXPECT().GetTasksPages(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
-			// verify input fields
-			req := x.(*ecs.ListTasksInput)
-			validateFunc(req, projectName, t)
-			assert.Equal(t, ecs.DesiredStatusStopped, aws.StringValue(req.DesiredStatus), "Expected DesiredStatus to match")
+	if desiredStatus == "" || desiredStatus == ecs.DesiredStatusRunning {
+		expectedCalls = append(expectedCalls,
+			mockEcs.EXPECT().GetTasksPages(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
+				logrus.Info("Running tasks call")
+				// verify input fields
+				req := x.(*ecs.ListTasksInput)
+				validateFunc(req, projectName, t)
+				assert.Equal(t, ecs.DesiredStatusRunning, aws.StringValue(req.DesiredStatus), "Expected DesiredStatus to be RUNNING")
 
-			// execute the function passed as input
-			funct := y.(ecsClient.ProcessTasksAction)
-			funct(stoppedTasks)
-		}).Return(nil),
+				// execute the function passed as input
+				funct := y.(ecsClient.ProcessTasksAction)
+				funct(runningTasks)
+			}).Return(nil),
+		)
+	}
+
+	if desiredStatus == "" || desiredStatus == ecs.DesiredStatusStopped {
+		expectedCalls = append(expectedCalls,
+			mockEcs.EXPECT().GetTasksPages(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
+				logrus.Info("Stopped tasks call")
+				// verify input fields
+				req := x.(*ecs.ListTasksInput)
+				validateFunc(req, projectName, t)
+				assert.Equal(t, ecs.DesiredStatusStopped, aws.StringValue(req.DesiredStatus), "Expected DesiredStatus to be STOPPED")
+
+				// execute the function passed as input
+				funct := y.(ecsClient.ProcessTasksAction)
+				funct(stoppedTasks)
+			}).Return(nil),
+		)
+	}
+
+	logrus.Infof("Len of expected list calls: %d", len(expectedCalls))
+
+	expectedCalls = append(expectedCalls,
 		mockEcs.EXPECT().DescribeTaskDefinition(taskDefArn).Return(taskDef, nil),
 		mockEcs.EXPECT().GetEC2InstanceIDs([]*string{&containerInstance}).Return(instanceIdsMap, nil),
 		mockEc2.EXPECT().DescribeInstances([]*string{&ec2InstanceID}).Return(ec2InstancesMap, nil),
+	)
+
+	gomock.InOrder(
+		expectedCalls...,
 	)
 
 	context := &context.ECSContext{
@@ -132,9 +154,16 @@ func TestInfo(setupEntity setupEntityForTestInfo, validateFunc validateListTasks
 		},
 	}
 	entity := setupEntity(context)
-	infoSet, err := entity.Info(filterLocal)
+	infoSet, err := entity.Info(filterLocal, desiredStatus)
 	assert.NoError(t, err, "Unexpected error when getting info")
 
-	expectedCountOfContainers := len(runningTasks) + len(stoppedTasks)
+	var expectedCountOfContainers int
+	if desiredStatus == ecs.DesiredStatusRunning {
+		expectedCountOfContainers = len(runningTasks)
+	} else if desiredStatus == ecs.DesiredStatusStopped {
+		expectedCountOfContainers = len(stoppedTasks)
+	} else if desiredStatus == "" {
+		expectedCountOfContainers = len(runningTasks) + len(stoppedTasks)
+	}
 	assert.Len(t, infoSet, expectedCountOfContainers, "Expected containers count to match")
 }

@@ -144,18 +144,28 @@ func createRegisterTaskDefinitionRequest(taskDefinition *ecs.TaskDefinition) *ec
 
 // Info returns a formatted list of containers (running and stopped) in the current cluster
 // filtered by this project if filterLocal is set to true
-func Info(entity ProjectEntity, filterLocal bool) (project.InfoSet, error) {
-	containers, err := collectContainers(entity, filterLocal)
+func Info(entity ProjectEntity, filterLocal bool, desiredStatus string) (project.InfoSet, error) {
+	if err := validateDesiredStatus(desiredStatus); err != nil {
+		return nil, err
+	}
+	containers, err := collectContainers(entity, filterLocal, desiredStatus)
 	if err != nil {
 		return nil, err
 	}
 	return composecontainer.ConvertContainersToInfoSet(containers), nil
 }
 
+func validateDesiredStatus(desiredStatus string) error {
+	if desiredStatus != "" && desiredStatus != ecs.DesiredStatusRunning && desiredStatus != ecs.DesiredStatusStopped {
+		return fmt.Errorf("%s is not a valid value for desired status. Please use %s or %s.", desiredStatus, ecs.DesiredStatusRunning, ecs.DesiredStatusStopped)
+	}
+	return nil
+}
+
 // collectContainers gets all the desiredStatus=RUNNING and STOPPED tasks with EC2 IP Addresses
 // if filterLocal is set to true, it filters tasks created by this project
-func collectContainers(entity ProjectEntity, filterLocal bool) ([]composecontainer.Container, error) {
-	ecsTasks, err := collectTasks(entity, filterLocal)
+func collectContainers(entity ProjectEntity, filterLocal bool, desiredStatus string) ([]composecontainer.Container, error) {
+	ecsTasks, err := collectTasks(entity, filterLocal, desiredStatus)
 	if err != nil {
 		return nil, err
 	}
@@ -168,20 +178,25 @@ func collectContainers(entity ProjectEntity, filterLocal bool) ([]composecontain
 
 // collectTasks gets all the desiredStatus=RUNNING and STOPPED tasks
 // if filterLocal is set to true, it filters tasks created by this project
-func collectTasks(entity ProjectEntity, filterLocal bool) ([]*ecs.Task, error) {
+func collectTasks(entity ProjectEntity, filterLocal bool, desiredStatus string) ([]*ecs.Task, error) {
 	// TODO, parallelize, perhaps using channels
 	result := []*ecs.Task{}
-	ecsTasks, err := CollectTasksWithStatus(entity, ecs.DesiredStatusRunning, filterLocal)
-	if err != nil {
-		return nil, err
+	if desiredStatus == "" || desiredStatus == ecs.DesiredStatusRunning {
+		ecsTasks, err := CollectTasksWithStatus(entity, ecs.DesiredStatusRunning, filterLocal)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, ecsTasks...)
 	}
-	result = append(result, ecsTasks...)
 
-	ecsTasks, err = CollectTasksWithStatus(entity, ecs.DesiredStatusStopped, filterLocal)
-	if err != nil {
-		return nil, err
+	if desiredStatus == "" || desiredStatus == ecs.DesiredStatusStopped {
+		ecsTasks, err := CollectTasksWithStatus(entity, ecs.DesiredStatusStopped, filterLocal)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, ecsTasks...)
 	}
-	result = append(result, ecsTasks...)
+
 	return result, nil
 }
 
@@ -212,8 +227,10 @@ func CollectTasksWithStatus(entity ProjectEntity, status string, filterLocal boo
 
 // constructListPagesRequest constructs the request based on the entity type and function parameters
 func constructListPagesRequest(entity ProjectEntity, status string, filterLocal bool) *ecs.ListTasksInput {
-	request := &ecs.ListTasksInput{
-		DesiredStatus: aws.String(status),
+	request := &ecs.ListTasksInput{}
+
+	if status != "" {
+		request.DesiredStatus = aws.String(status)
 	}
 
 	// if service set ServiceName to the request, else set Task definition family to filter out (provided filterLocal is true)

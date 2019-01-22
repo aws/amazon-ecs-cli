@@ -28,7 +28,7 @@ type ProjectEntity interface {
 	Create() error
 	Start() error
 	Up() error
-	Info(filterComposeTasks bool) (project.InfoSet, error)
+	Info(filterComposeTasks bool, desiredStatus string) (project.InfoSet, error)
 	Run(commandOverrides map[string][]string) error
 	Scale(count int) error
 	Stop() error

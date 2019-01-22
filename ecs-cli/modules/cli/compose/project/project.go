@@ -44,7 +44,7 @@ type Project interface {
 	Create() error
 	Start() error
 	Up() error
-	Info() (project.InfoSet, error)
+	Info(string) (project.InfoSet, error)
 	Run(commandOverrides map[string][]string) error
 	Scale(count int) error
 	Stop() error
@@ -238,8 +238,8 @@ func (p *ecsProject) Up() error {
 	return p.entity.Up()
 }
 
-func (p *ecsProject) Info() (project.InfoSet, error) {
-	return p.entity.Info(true)
+func (p *ecsProject) Info(desiredStatus string) (project.InfoSet, error) {
+	return p.entity.Info(true, desiredStatus)
 }
 
 func (p *ecsProject) Run(commandOverrides map[string][]string) error {

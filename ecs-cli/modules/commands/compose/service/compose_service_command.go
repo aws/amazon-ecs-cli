@@ -97,7 +97,7 @@ func psServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Aliases:      []string{"list"},
 		Usage:        "Lists all the containers in your cluster that belong to the service created with the compose project.",
 		Action:       compose.WithProject(factory, compose.ProjectPs, true),
-		Flags:        flags.OptionalConfigFlags(),
+		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalDesiredStatusFlag()),
 		OnUsageError: flags.UsageErrorFactory("ps"),
 	}
 }

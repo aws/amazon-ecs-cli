@@ -111,16 +111,16 @@ func (mr *MockProjectMockRecorder) Entity() *gomock.Call {
 }
 
 // Info mocks base method
-func (m *MockProject) Info() (project.InfoSet, error) {
-	ret := m.ctrl.Call(m, "Info")
+func (m *MockProject) Info(arg0 string) (project.InfoSet, error) {
+	ret := m.ctrl.Call(m, "Info", arg0)
 	ret0, _ := ret[0].(project.InfoSet)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Info indicates an expected call of Info
-func (mr *MockProjectMockRecorder) Info() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Info", reflect.TypeOf((*MockProject)(nil).Info))
+func (mr *MockProjectMockRecorder) Info(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Info", reflect.TypeOf((*MockProject)(nil).Info), arg0)
 }
 
 // Name mocks base method

@@ -355,11 +355,11 @@ func (s *Service) updateService(ecsService *ecs.Service, newTaskDefinition *ecs.
 }
 
 // Info returns a formatted list of containers (running and stopped) started by this service
-func (s *Service) Info(filterProjectTasks bool) (project.InfoSet, error) {
+func (s *Service) Info(filterProjectTasks bool, desiredStatus string) (project.InfoSet, error) {
 	// filterProjectTasks is not honored for services, because ECS Services have their
 	// own custom Group field, overriding that with startedBy=project will result in no tasks
 	// We should instead filter by ServiceName=service
-	return entity.Info(s, false)
+	return entity.Info(s, false, desiredStatus)
 }
 
 // Scale the service desired count to be the specified count
