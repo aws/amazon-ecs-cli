@@ -17,8 +17,11 @@ package utils
 import (
 	"fmt"
 	"os"
+	"strings"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/service/ecs"
 )
 
 const (
@@ -57,4 +60,21 @@ func EntityAlreadyExists(err error) bool {
 		return awsErr.Code() == "EntityAlreadyExists"
 	}
 	return false
+}
+
+// GetTags parses AWS Resource tags from the flag value
+// users specify tags in this format: key1=value1,key2=value2,key3=value3
+func GetTags(flagValue string, tags []*ecs.Tag) ([]*ecs.Tag, error) {
+	keyValPairs := strings.Split(flagValue, ",")
+	for _, pair := range keyValPairs {
+		split := strings.Split(pair, "=")
+		if len(split) != 2 {
+			return nil, fmt.Errorf("Tag input not formatted correctly: %s", pair)
+		}
+		tags = append(tags, &ecs.Tag{
+			Key:   aws.String(split[0]),
+			Value: aws.String(split[1]),
+		})
+	}
+	return tags, nil
 }
