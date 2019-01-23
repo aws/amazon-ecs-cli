@@ -48,7 +48,6 @@ type ECSClient interface {
 	DeleteService(serviceName string) error
 
 	// Task Definition related
-	RegisterTaskDefinition(request *ecs.RegisterTaskDefinitionInput) (*ecs.TaskDefinition, error)
 	RegisterTaskDefinitionIfNeeded(request *ecs.RegisterTaskDefinitionInput, tdCache cache.Cache) (*ecs.TaskDefinition, error)
 	DescribeTaskDefinition(taskDefinitionName string) (*ecs.TaskDefinition, error)
 
@@ -180,7 +179,7 @@ func (c *ecsClient) DescribeService(serviceName string) (*ecs.DescribeServicesOu
 	return output, err
 }
 
-func (c *ecsClient) RegisterTaskDefinition(request *ecs.RegisterTaskDefinitionInput) (*ecs.TaskDefinition, error) {
+func (c *ecsClient) registerTaskDefinition(request *ecs.RegisterTaskDefinitionInput) (*ecs.TaskDefinition, error) {
 	resp, err := c.client.RegisterTaskDefinition(request)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -263,7 +262,7 @@ func (c *ecsClient) constructTaskDefinitionCacheHash(taskDefinition *ecs.TaskDef
 
 // persistTaskDefinition registers the task definition with ECS and creates a new local cache entry
 func persistTaskDefinition(request *ecs.RegisterTaskDefinitionInput, client *ecsClient, taskDefinitionCache cache.Cache) (*ecs.TaskDefinition, error) {
-	resp, err := client.RegisterTaskDefinition(request)
+	resp, err := client.registerTaskDefinition(request)
 	if err != nil {
 		return nil, err
 	}
