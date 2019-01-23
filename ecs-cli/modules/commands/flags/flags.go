@@ -143,6 +143,8 @@ const (
 	OutputDirFlag             = "output-dir"
 
 	DesiredTaskStatus = "desired-status"
+
+	ResourceTagsFlag = "tags"
 )
 
 // OptionalRegionAndProfileFlags provides these flags:
@@ -254,7 +256,7 @@ func DebugFlag() []cli.Flag {
 func FipsEndpointFlag() []cli.Flag {
 	return []cli.Flag{
 		cli.BoolFlag{
-			Name: UseFIPSFlag + ",fips",
+			Name:  UseFIPSFlag + ",fips",
 			Usage: "[Optional] Routes calls to AWS services through FIPS endpoints.",
 		},
 	}
