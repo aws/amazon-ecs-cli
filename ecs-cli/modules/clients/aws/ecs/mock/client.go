@@ -50,16 +50,16 @@ func (m *MockECSClient) EXPECT() *MockECSClientMockRecorder {
 }
 
 // CreateCluster mocks base method
-func (m *MockECSClient) CreateCluster(arg0 string) (string, error) {
-	ret := m.ctrl.Call(m, "CreateCluster", arg0)
+func (m *MockECSClient) CreateCluster(arg0 string, arg1 []*ecs0.Tag) (string, error) {
+	ret := m.ctrl.Call(m, "CreateCluster", arg0, arg1)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateCluster indicates an expected call of CreateCluster
-func (mr *MockECSClientMockRecorder) CreateCluster(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCluster", reflect.TypeOf((*MockECSClient)(nil).CreateCluster), arg0)
+func (mr *MockECSClientMockRecorder) CreateCluster(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCluster", reflect.TypeOf((*MockECSClient)(nil).CreateCluster), arg0, arg1)
 }
 
 // CreateService mocks base method

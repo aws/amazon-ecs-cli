@@ -49,16 +49,16 @@ func (m *MockCloudformationClient) EXPECT() *MockCloudformationClientMockRecorde
 }
 
 // CreateStack mocks base method
-func (m *MockCloudformationClient) CreateStack(arg0, arg1 string, arg2 bool, arg3 *cloudformation.CfnStackParams) (string, error) {
-	ret := m.ctrl.Call(m, "CreateStack", arg0, arg1, arg2, arg3)
+func (m *MockCloudformationClient) CreateStack(arg0, arg1 string, arg2 bool, arg3 *cloudformation.CfnStackParams, arg4 []*cloudformation0.Tag) (string, error) {
+	ret := m.ctrl.Call(m, "CreateStack", arg0, arg1, arg2, arg3, arg4)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateStack indicates an expected call of CreateStack
-func (mr *MockCloudformationClientMockRecorder) CreateStack(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateStack", reflect.TypeOf((*MockCloudformationClient)(nil).CreateStack), arg0, arg1, arg2, arg3)
+func (mr *MockCloudformationClientMockRecorder) CreateStack(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateStack", reflect.TypeOf((*MockCloudformationClient)(nil).CreateStack), arg0, arg1, arg2, arg3, arg4)
 }
 
 // DeleteStack mocks base method

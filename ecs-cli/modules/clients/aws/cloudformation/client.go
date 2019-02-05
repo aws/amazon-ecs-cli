@@ -88,7 +88,7 @@ func init() {
 
 // CloudformationClient defines methods to interact the with the CloudFormationAPI interface.
 type CloudformationClient interface {
-	CreateStack(string, string, bool, *CfnStackParams) (string, error)
+	CreateStack(string, string, bool, *CfnStackParams, []*cloudformation.Tag) (string, error)
 	WaitUntilCreateComplete(string) error
 	DeleteStack(string) error
 	DescribeStacks(string) (*cloudformation.DescribeStacksOutput, error)
@@ -124,7 +124,7 @@ func newClient(config *config.CommandConfig, client cloudformationiface.CloudFor
 }
 
 // CreateStack creates the cloudformation stack by invoking the sdk's CreateStack API and returns the stack id.
-func (c *cloudformationClient) CreateStack(template, stackName string, capabilityIAM bool, params *CfnStackParams) (string, error) {
+func (c *cloudformationClient) CreateStack(template, stackName string, capabilityIAM bool, params *CfnStackParams, tags []*cloudformation.Tag) (string, error) {
 	input := &cloudformation.CreateStackInput{
 		TemplateBody: aws.String(template),
 		StackName:    aws.String(stackName),
@@ -132,6 +132,9 @@ func (c *cloudformationClient) CreateStack(template, stackName string, capabilit
 	}
 	if capabilityIAM {
 		input.Capabilities = aws.StringSlice([]string{cloudformation.CapabilityCapabilityIam})
+	}
+	if len(tags) > 0 {
+		input.Tags = tags
 	}
 	output, err := c.client.CreateStack(input)
 

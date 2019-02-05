@@ -37,7 +37,7 @@ type ProcessTasksAction func(tasks []*ecs.Task) error
 // ECSClient is an interface that specifies only the methods used from the sdk interface. Intended to make mocking and testing easier.
 type ECSClient interface {
 	// Cluster related
-	CreateCluster(clusterName string) (string, error)
+	CreateCluster(clusterName string, tags []*ecs.Tag) (string, error)
 	DeleteCluster(clusterName string) (string, error)
 	IsActiveCluster(clusterName string) (bool, error)
 
@@ -86,8 +86,15 @@ func newClient(config *config.CommandConfig, client ecsiface.ECSAPI) ECSClient {
 	}
 }
 
-func (c *ecsClient) CreateCluster(clusterName string) (string, error) {
-	resp, err := c.client.CreateCluster(&ecs.CreateClusterInput{ClusterName: &clusterName})
+func (c *ecsClient) CreateCluster(clusterName string, tags []*ecs.Tag) (string, error) {
+	input := &ecs.CreateClusterInput{
+		ClusterName: &clusterName,
+	}
+	if len(tags) > 0 {
+		input.Tags = tags
+	}
+	resp, err := c.client.CreateCluster(input)
+
 	if err != nil {
 		log.WithFields(log.Fields{
 			"cluster": clusterName,
