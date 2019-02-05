@@ -66,14 +66,14 @@ func EntityAlreadyExists(err error) bool {
 // users specify tags in this format: key1=value1,key2=value2,key3=value3
 func GetTags(flagValue string, tags []*ecs.Tag) ([]*ecs.Tag, error) {
 	keyValPairs := strings.Split(flagValue, ",")
-	for _, pair := range keyValPairs {
-		split := strings.Split(pair, "=")
-		if len(split) != 2 {
-			return nil, fmt.Errorf("Tag input not formatted correctly: %s", pair)
+	for _, kv := range keyValPairs {
+		pair := strings.Split(kv, "=")
+		if len(pair) != 2 {
+			return nil, fmt.Errorf("Tag input not formatted correctly: %s", kv)
 		}
 		tags = append(tags, &ecs.Tag{
-			Key:   aws.String(split[0]),
-			Value: aws.String(split[1]),
+			Key:   aws.String(pair[0]),
+			Value: aws.String(pair[1]),
 		})
 	}
 	return tags, nil

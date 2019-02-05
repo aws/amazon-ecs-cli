@@ -13,8 +13,65 @@
 
 package cloudformation
 
-func GetClusterTemplate() string {
-	return cluster_template
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/ecs"
+)
+
+func GetClusterTemplate(tags []*ecs.Tag, stackName string) (string, error) {
+	tagJSON, err := json.Marshal(tags)
+	if err != nil {
+		return "", err
+	}
+
+	asgTags := getASGTags(tags, stackName)
+	asgTagJSON, err := json.Marshal(asgTags)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf(cluster_template, string(tagJSON), string(asgTagJSON)), nil
+}
+
+// Autoscaling CFN tags have an additional field that determines if they are
+// propagated to the EC2 instances launched
+// ECS CLI also adds a 'Name' tag
+// (unless customer specifies a Name; only one name is allowed by the API)
+func getASGTags(tags []*ecs.Tag, stackName string) []autoscalingTag {
+	asgTags := []autoscalingTag{}
+	addName := true
+	for _, tag := range tags {
+		asgTag := autoscalingTag{
+			Key:               aws.StringValue(tag.Key),
+			Value:             aws.StringValue(tag.Value),
+			PropagateAtLaunch: true,
+		}
+		if asgTag.Key == "Name" {
+			addName = false
+		}
+		asgTags = append(asgTags, asgTag)
+	}
+
+	if addName {
+		asgTags = append(asgTags, autoscalingTag{
+			Key:               "Name",
+			Value:             fmt.Sprintf("ECS Instance - %s", stackName),
+			PropagateAtLaunch: true,
+		})
+	}
+
+	return asgTags
+}
+
+// custom struct needed because sdk's autoscaling.Tag contains additional
+// fields that aren't valid in CFN
+type autoscalingTag struct {
+	Key               string
+	Value             string
+	PropagateAtLaunch bool
 }
 
 // TODO: Improvements:
@@ -373,7 +430,8 @@ var cluster_template = `
         "EnableDnsHostnames" : true,
         "CidrBlock": {
           "Fn::FindInMap": ["VpcCidrs", "vpc", "cidr"]
-        }
+        },
+        "Tags": %[1]s
       }
     },
     "PubSubnetAz1": {
@@ -386,6 +444,7 @@ var cluster_template = `
         "CidrBlock": {
           "Fn::FindInMap": ["VpcCidrs", "pubsubnet1", "cidr"]
         },
+        "Tags": %[1]s,
         "AvailabilityZone": {
           "Fn::If": [
             "UseSpecifiedVpcAvailabilityZones",
@@ -421,6 +480,7 @@ var cluster_template = `
         "CidrBlock": {
           "Fn::FindInMap": ["VpcCidrs", "pubsubnet2", "cidr"]
         },
+        "Tags": %[1]s,
         "AvailabilityZone": {
           "Fn::If": [
             "UseSpecifiedVpcAvailabilityZones",
@@ -448,7 +508,10 @@ var cluster_template = `
     },
     "InternetGateway": {
       "Condition": "CreateVpcResources",
-      "Type": "AWS::EC2::InternetGateway"
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": %[1]s
+      }
     },
     "AttachGateway": {
       "Condition": "CreateVpcResources",
@@ -468,7 +531,8 @@ var cluster_template = `
       "Properties": {
         "VpcId": {
           "Ref": "Vpc"
-        }
+        },
+        "Tags": %[1]s
       }
     },
     "PublicRouteViaIgw": {
@@ -514,6 +578,7 @@ var cluster_template = `
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
         "GroupDescription": "ECS Allowed Ports",
+        "Tags": %[1]s,
         "VpcId": {
           "Fn::If": [
             "CreateVpcResources",
@@ -672,23 +737,7 @@ var cluster_template = `
         "DesiredCapacity": {
           "Ref": "AsgMaxSize"
         },
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": {
-              "Fn::Join": [
-                "",
-                [
-                  "ECS Instance - ",
-                  {
-                    "Ref": "AWS::StackName"
-                  }
-                ]
-              ]
-            },
-            "PropagateAtLaunch": "true"
-          }
-        ]
+        "Tags": %[2]s
       }
     }
   }
