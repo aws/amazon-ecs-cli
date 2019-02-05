@@ -182,10 +182,10 @@ func TestCreateServiceDiscoveryForceRecreate(t *testing.T) {
 		// validate that existing SDS stack is deleted
 		mockCloudformation.EXPECT().DeleteStack(testNamespaceStackName).Return(nil),
 		mockCloudformation.EXPECT().WaitUntilDeleteComplete(testNamespaceStackName).Return(nil),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), testNamespaceStackName, false, gomock.Any()).Do(func(x, y, w, z interface{}) {
-			stackName := y.(string)
-			capabilityIAM := w.(bool)
-			cfnParams := z.(*cloudformation.CfnStackParams)
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), testNamespaceStackName, false, gomock.Any(), gomock.Any()).Do(func(v, w, x, y, z interface{}) {
+			stackName := w.(string)
+			capabilityIAM := x.(bool)
+			cfnParams := y.(*cloudformation.CfnStackParams)
 			validateCFNParam(testNamespaceName, parameterKeyNamespaceName, cfnParams, t)
 			validateCFNParam(testVPCID, parameterKeyVPCID, cfnParams, t)
 			assert.False(t, capabilityIAM, "Expected capability capabilityIAM to be false")
@@ -197,10 +197,10 @@ func TestCreateServiceDiscoveryForceRecreate(t *testing.T) {
 		// Validate that existing Namespace stack is deleted
 		mockCloudformation.EXPECT().DeleteStack(testSDSStackName).Return(nil),
 		mockCloudformation.EXPECT().WaitUntilDeleteComplete(testSDSStackName).Return(nil),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), testSDSStackName, false, gomock.Any()).Do(func(x, y, w, z interface{}) {
-			stackName := y.(string)
-			capabilityIAM := w.(bool)
-			cfnParams := z.(*cloudformation.CfnStackParams)
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), testSDSStackName, false, gomock.Any(), gomock.Any()).Do(func(v, w, x, y, z interface{}) {
+			stackName := w.(string)
+			capabilityIAM := x.(bool)
+			cfnParams := y.(*cloudformation.CfnStackParams)
 			validateCFNParam(testNamespaceID, parameterKeyNamespaceID, cfnParams, t)
 			validateCFNParam(testServiceName, parameterKeySDSName, cfnParams, t)
 			validateCFNParam(servicediscovery.RecordTypeA, parameterKeyDNSType, cfnParams, t)
@@ -798,10 +798,10 @@ func testCreateServiceDiscovery(t *testing.T, networkMode string, ecsParamsSD *u
 	if createNamespace {
 		expectedCFNCalls = append(expectedCFNCalls, []*gomock.Call{
 			mockCloudformation.EXPECT().ValidateStackExists(testNamespaceStackName).Return(fmt.Errorf("Stack Not Found")),
-			mockCloudformation.EXPECT().CreateStack(gomock.Any(), testNamespaceStackName, false, gomock.Any()).Do(func(x, y, w, z interface{}) {
-				stackName := y.(string)
-				capabilityIAM := w.(bool)
-				cfnParams := z.(*cloudformation.CfnStackParams)
+			mockCloudformation.EXPECT().CreateStack(gomock.Any(), testNamespaceStackName, false, gomock.Any(), gomock.Any()).Do(func(v, w, x, y, z interface{}) {
+				stackName := w.(string)
+				capabilityIAM := x.(bool)
+				cfnParams := y.(*cloudformation.CfnStackParams)
 				validateNamespace(t, cfnParams)
 				assert.False(t, capabilityIAM, "Expected capability capabilityIAM to be false")
 				assert.Equal(t, testNamespaceStackName, stackName, "Expected stack name to match")
@@ -812,10 +812,10 @@ func testCreateServiceDiscovery(t *testing.T, networkMode string, ecsParamsSD *u
 	}
 	expectedCFNCalls = append(expectedCFNCalls, []*gomock.Call{
 		mockCloudformation.EXPECT().ValidateStackExists(testSDSStackName).Return(fmt.Errorf("Stack Not Found")),
-		mockCloudformation.EXPECT().CreateStack(gomock.Any(), testSDSStackName, false, gomock.Any()).Do(func(x, y, w, z interface{}) {
-			stackName := y.(string)
-			capabilityIAM := w.(bool)
-			cfnParams := z.(*cloudformation.CfnStackParams)
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), testSDSStackName, false, gomock.Any(), gomock.Any()).Do(func(v, w, x, y, z interface{}) {
+			stackName := w.(string)
+			capabilityIAM := x.(bool)
+			cfnParams := y.(*cloudformation.CfnStackParams)
 			validateSDS(t, cfnParams)
 			assert.False(t, capabilityIAM, "Expected capability capabilityIAM to be false")
 			assert.Equal(t, testSDSStackName, stackName, "Expected stack name to match")

@@ -132,6 +132,10 @@ func clusterUpFlags() []cli.Flag {
 			Name:  flags.ForceFlag + ", f",
 			Usage: "[Optional] Forces the recreation of any existing resources that match your current configuration. This option is useful for cleaning up stale resources from previous failed attempts.",
 		},
+		cli.StringFlag{
+			Name:  flags.ResourceTagsFlag,
+			Usage: "[Optional] Specify tags which will be added to AWS Resources created for your cluster. Specify in the format 'key1=value1,key2=value2,key3=value3'",
+		},
 	}
 }
 

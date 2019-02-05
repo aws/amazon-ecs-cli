@@ -31,8 +31,12 @@ import (
 	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/aws-sdk-go/aws"
+	sdkCFN "github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/docker/libcompose/project"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -238,6 +242,7 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 	if err != nil {
 		return err
 	}
+
 	cfnParams.Add(ParameterKeyCluster, commandConfig.Cluster)
 	if context.Bool(flags.NoAutoAssignPublicIPAddressFlag) {
 		cfnParams.Add(ParameterKeyAssociatePublicIPAddress, "false")
@@ -282,6 +287,14 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 		return fmt.Errorf("You have selected subnets. Please specify a VPC with the '--%s' flag", flags.VpcIdFlag)
 	}
 
+	tags := make([]*ecs.Tag, 0)
+	if tagVal := context.String(flags.ResourceTagsFlag); tagVal != "" {
+		tags, err = utils.GetTags(tagVal, tags)
+		if err != nil {
+			return err
+		}
+	}
+
 	if launchType == config.LaunchTypeEC2 {
 		architecture, err := determineArchitecture(cfnParams)
 		if err != nil {
@@ -306,7 +319,7 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 	}
 
 	// Create ECS cluster
-	if _, err := ecsClient.CreateCluster(commandConfig.Cluster); err != nil {
+	if _, err := ecsClient.CreateCluster(commandConfig.Cluster, tags); err != nil {
 		return err
 	}
 
@@ -321,9 +334,12 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 		}
 	}
 	// Create cfn stack
-	template := cloudformation.GetClusterTemplate()
+	template, err := cloudformation.GetClusterTemplate(tags, stackName)
+	if err != nil {
+		return errors.Wrapf(err, "Error building cloudformation template")
+	}
 
-	if _, err := cfnClient.CreateStack(template, stackName, true, cfnParams); err != nil {
+	if _, err := cfnClient.CreateStack(template, stackName, true, cfnParams, convertToCFNTags(tags)); err != nil {
 		return err
 	}
 
@@ -354,6 +370,18 @@ func determineArchitecture(cfnParams *cloudformation.CfnStackParams) (string, er
 	return architecture, nil
 }
 
+// unfortunately go SDK lacks a unified Tag type
+func convertToCFNTags(tags []*ecs.Tag) []*sdkCFN.Tag {
+	var cfnTags []*sdkCFN.Tag
+	for _, tag := range tags {
+		cfnTags = append(cfnTags, &sdkCFN.Tag{
+			Key:   tag.Key,
+			Value: tag.Value,
+		})
+	}
+	return cfnTags
+}
+
 var newCommandConfig = func(context *cli.Context, rdwr config.ReadWriter) (*config.CommandConfig, error) {
 	return config.NewCommandConfig(context, rdwr)
 }
@@ -378,7 +406,16 @@ func createEmptyCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfn
 		return fmt.Errorf("A CloudFormation stack already exists for the cluster '%s'.", commandConfig.Cluster)
 	}
 
-	if _, err := ecsClient.CreateCluster(commandConfig.Cluster); err != nil {
+	tags := make([]*ecs.Tag, 0)
+	var err error
+	if tagVal := context.String(flags.ResourceTagsFlag); tagVal != "" {
+		tags, err = utils.GetTags(tagVal, tags)
+		if err != nil {
+			return err
+		}
+	}
+
+	if _, err := ecsClient.CreateCluster(commandConfig.Cluster, tags); err != nil {
 		return err
 	}
 
