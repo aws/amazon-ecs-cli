@@ -36,6 +36,7 @@ Line Interface](http://aws.amazon.com/cli/) product detail page.
 	- [Viewing Container Logs](#viewing-container-logs)
 	- [Using FIPS Endpoints](#using-fips-endpoints)
 	- [Using Private Registry Authentication](#using-private-registry-authentication)
+	- [Tagging Resources](#tagging-resources)
 - [Amazon ECS CLI Commands](#amazon-ecs-cli-commands)
 - [Contributing to the CLI](#contributing-to-the-cli)
 - [License](#license)
@@ -1007,6 +1008,22 @@ INFO[0018] Started container... container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/l
  * to use an ecs-registry-creds output file from outside the current directory, you can specify it in with the `--registry-creds <value>` flag
 
  For more information about using private registries with ECS, see [Private Registry Authentication for Tasks](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/private-auth.html).
+
+### Tagging Resources
+
+ECS CLI Commmands support a `--tags` flag which allows you to specify AWS Resource Tags in the format `key=value,key2=value2,key3=value3`. Resource tags can be used for cost allocation, automation, access control, and more. See [AWS Tagging Strategies](https://aws.amazon.com/answers/account-management/aws-tagging-strategies/) for a discussion of use cases.
+
+#### ecs-cli up command
+
+ The ECS Cluster, and CloudFormation template with EC2 resources can be tagged. In addition, the ECS CLI will add tags to the following resources which are created by the CloudFormation template:
+ * VPC
+ * Subnets
+ * Internet Gateway
+ * Route Tables
+ * Security Group
+ * Autoscaling Group
+
+ For the autoscaling group, the ECS CLI will add a `Name` tag whose value will be `ECS Instance - <CloudFormation stack name>`, which will be propagated to your EC2 instances. You can override this behavior by specifying your own `Name` tag.
 
 ## Amazon ECS CLI Commands
 
