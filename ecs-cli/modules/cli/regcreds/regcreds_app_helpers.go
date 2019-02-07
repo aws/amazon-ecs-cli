@@ -48,12 +48,13 @@ func getExecutionRolePolicyARN(region string) string {
 		AccountID: "aws",
 	}
 
+	// TODO: use utils.GetPartition func once merged
 	if regionToPartition[region] != "" {
 		expectedARN.Partition = regionToPartition[region]
+		return expectedARN.String()
 	}
 
 	expectedARN.Partition = "aws"
-
 	return expectedARN.String()
 }
 

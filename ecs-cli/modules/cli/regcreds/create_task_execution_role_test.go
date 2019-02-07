@@ -18,6 +18,7 @@ import (
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcredio"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/golang/mock/gomock"
@@ -56,6 +57,86 @@ func TestCreateTaskExecutionRole(t *testing.T) {
 		CredEntries: testCreds,
 		RoleName:    testRoleName,
 		Region:      "us-west-2",
+	}
+
+	policyCreateTime, err := createTaskExecutionRole(testParams, mocks.MockIAM, mocks.MockKMS)
+	assert.NoError(t, err, "Unexpected error when creating task execution role")
+	assert.NotNil(t, policyCreateTime, "Expected policy create time to be non-nil")
+}
+
+func TestCreateTaskExecutionRole_CnPartition(t *testing.T) {
+	testRegistry := "myreg.test.io"
+	testRegCredARN := "arn:aws-cn:secret/some-test-arn"
+	testCreds := map[string]regcredio.CredsOutputEntry{
+		testRegistry: regcredio.BuildOutputEntry(testRegCredARN, "", []string{""}),
+	}
+	testRoleName := "myNginxProjectRole"
+
+	testPolicyArn := aws.String("arn:aws-cn:iam::policy/" + testRoleName + "-policy")
+	testRoleArn := aws.String("arn:aws-cn:iam::role/" + testRoleName)
+
+	expectedManagedPolicyARN := arn.ARN{
+		Service:   "iam",
+		Resource:  "policy/service-role/AmazonECSTaskExecutionRolePolicy",
+		AccountID: "aws",
+		Partition: "aws-cn", // Expected CN Partition
+	}
+
+	mocks := setupTestController(t)
+	gomock.InOrder(
+		mocks.MockIAM.EXPECT().CreateOrFindRole(testRoleName, roleDescriptionString, assumeRolePolicyDocString).Return(*testRoleArn, nil),
+		mocks.MockIAM.EXPECT().CreateRole(gomock.Any()).Return(&iam.CreateRoleOutput{Role: &iam.Role{Arn: testRoleArn}}, nil),
+	)
+	gomock.InOrder(
+		mocks.MockIAM.EXPECT().CreatePolicy(gomock.Any()).Return(&iam.CreatePolicyOutput{Policy: &iam.Policy{Arn: testPolicyArn}}, nil),
+		mocks.MockIAM.EXPECT().AttachRolePolicy(expectedManagedPolicyARN.String(), testRoleName).Return(nil, nil), // FAIL?
+		mocks.MockIAM.EXPECT().AttachRolePolicy(*testPolicyArn, testRoleName).Return(nil, nil),
+	)
+
+	testParams := executionRoleParams{
+		CredEntries: testCreds,
+		RoleName:    testRoleName,
+		Region:      "cn-north-1",
+	}
+
+	policyCreateTime, err := createTaskExecutionRole(testParams, mocks.MockIAM, mocks.MockKMS)
+	assert.NoError(t, err, "Unexpected error when creating task execution role")
+	assert.NotNil(t, policyCreateTime, "Expected policy create time to be non-nil")
+}
+
+func TestCreateTaskExecutionRole_UsGovPartition(t *testing.T) {
+	testRegistry := "myreg.test.io"
+	testRegCredARN := "arn:aws-us-gov:secret/some-test-arn"
+	testCreds := map[string]regcredio.CredsOutputEntry{
+		testRegistry: regcredio.BuildOutputEntry(testRegCredARN, "", []string{""}),
+	}
+	testRoleName := "myNginxProjectRole"
+
+	testPolicyArn := aws.String("arn:aws-us-gov:iam::policy/" + testRoleName + "-policy")
+	testRoleArn := aws.String("arn:aws-us-gov:iam::role/" + testRoleName)
+
+	expectedManagedPolicyARN := arn.ARN{
+		Service:   "iam",
+		Resource:  "policy/service-role/AmazonECSTaskExecutionRolePolicy",
+		AccountID: "aws",
+		Partition: "aws-us-gov", // Expected us-gov Partition
+	}
+
+	mocks := setupTestController(t)
+	gomock.InOrder(
+		mocks.MockIAM.EXPECT().CreateOrFindRole(testRoleName, roleDescriptionString, assumeRolePolicyDocString).Return(*testRoleArn, nil),
+		mocks.MockIAM.EXPECT().CreateRole(gomock.Any()).Return(&iam.CreateRoleOutput{Role: &iam.Role{Arn: testRoleArn}}, nil),
+	)
+	gomock.InOrder(
+		mocks.MockIAM.EXPECT().CreatePolicy(gomock.Any()).Return(&iam.CreatePolicyOutput{Policy: &iam.Policy{Arn: testPolicyArn}}, nil),
+		mocks.MockIAM.EXPECT().AttachRolePolicy(expectedManagedPolicyARN.String(), testRoleName).Return(nil, nil), // FAIL?
+		mocks.MockIAM.EXPECT().AttachRolePolicy(*testPolicyArn, testRoleName).Return(nil, nil),
+	)
+
+	testParams := executionRoleParams{
+		CredEntries: testCreds,
+		RoleName:    testRoleName,
+		Region:      "us-gov-west-1",
 	}
 
 	policyCreateTime, err := createTaskExecutionRole(testParams, mocks.MockIAM, mocks.MockKMS)
