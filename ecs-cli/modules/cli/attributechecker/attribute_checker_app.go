@@ -113,7 +113,7 @@ func describeContainerInstancesAttributeMap(context *cli.Context, ecsClient ecsc
 
 	descrContainerInstancesAttributes, err := ecsClient.GetAttributesFromDescribeContainerInstances(containerInstanceIdentifiers)
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("Failed to Describe Container Instances, please check region/containerInstance values"))
+		return nil, errors.Wrapf(err, fmt.Sprintf("Failed to Describe Container Instances, please check region/containerInstance/cluster values"))
 	}
 	return descrContainerInstancesAttributes, err
 }

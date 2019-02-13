@@ -412,6 +412,9 @@ func (c *ecsClient) GetAttributesFromDescribeContainerInstances(containerInstanc
 		if err != nil {
 			return nil, err
 		}
+		if len(descrContainerInstances.Failures) != 0 {
+			return nil, fmt.Errorf("Failures %v", descrContainerInstances.Failures)
+		}
 		for _, containerInstance := range descrContainerInstances.ContainerInstances {
 			var containerInstanceAttributeNames []*string
 			for _, containerInstanceattributenames := range containerInstance.Attributes {
