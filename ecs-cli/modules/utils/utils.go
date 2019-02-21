@@ -62,9 +62,9 @@ func EntityAlreadyExists(err error) bool {
 	return false
 }
 
-// GetTags parses AWS Resource tags from the flag value
+// ParseTags parses AWS Resource tags from the flag value
 // users specify tags in this format: key1=value1,key2=value2,key3=value3
-func GetTags(flagValue string, tags []*ecs.Tag) ([]*ecs.Tag, error) {
+func ParseTags(flagValue string, tags []*ecs.Tag) ([]*ecs.Tag, error) {
 	keyValPairs := strings.Split(flagValue, ",")
 	for _, kv := range keyValPairs {
 		pair := strings.Split(kv, "=")

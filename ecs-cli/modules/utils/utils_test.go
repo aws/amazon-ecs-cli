@@ -18,6 +18,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -49,6 +51,54 @@ func TestGetHomeDirInWindows(t *testing.T) {
 
 	_, err := GetHomeDir()
 	assert.NoError(t, err, "Unexpected error getting home dir")
+}
+
+func TestParseTags(t *testing.T) {
+	actualTags := make([]*ecs.Tag, 0)
+	expectedTags := []*ecs.Tag{
+		&ecs.Tag{
+			Key:   aws.String("Pink"),
+			Value: aws.String("Floyd"),
+		},
+		&ecs.Tag{
+			Key:   aws.String("Tame"),
+			Value: aws.String("Impala"),
+		},
+	}
+
+	var err error
+	actualTags, err = ParseTags("Pink=Floyd,Tame=Impala", actualTags)
+	assert.NoError(t, err, "Unexpected error calling ParseTags")
+	assert.ElementsMatch(t, actualTags, expectedTags, "Expected tags to match")
+
+}
+
+func TestParseTagsEmptyValue(t *testing.T) {
+	actualTags := make([]*ecs.Tag, 0)
+	expectedTags := []*ecs.Tag{
+		&ecs.Tag{
+			Key:   aws.String("thecheese"),
+			Value: aws.String(""),
+		},
+		&ecs.Tag{
+			Key:   aws.String("standsalone"),
+			Value: aws.String(""),
+		},
+	}
+
+	var err error
+	actualTags, err = ParseTags("thecheese=,standsalone=", actualTags)
+	assert.NoError(t, err, "Unexpected error calling ParseTags")
+	assert.ElementsMatch(t, actualTags, expectedTags, "Expected tags to match")
+
+}
+
+func TestParseTagInvalidFormat(t *testing.T) {
+	actualTags := make([]*ecs.Tag, 0)
+
+	var err error
+	_, err = ParseTags("incorrectly=formatted,tags", actualTags)
+	assert.Error(t, err, "Expected error calling ParseTags")
 }
 
 func tempDir(t *testing.T) string {

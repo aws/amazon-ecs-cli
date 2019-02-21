@@ -289,7 +289,7 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 
 	tags := make([]*ecs.Tag, 0)
 	if tagVal := context.String(flags.ResourceTagsFlag); tagVal != "" {
-		tags, err = utils.GetTags(tagVal, tags)
+		tags, err = utils.ParseTags(tagVal, tags)
 		if err != nil {
 			return err
 		}
@@ -409,7 +409,7 @@ func createEmptyCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfn
 	tags := make([]*ecs.Tag, 0)
 	var err error
 	if tagVal := context.String(flags.ResourceTagsFlag); tagVal != "" {
-		tags, err = utils.GetTags(tagVal, tags)
+		tags, err = utils.ParseTags(tagVal, tags)
 		if err != nil {
 			return err
 		}
