@@ -46,6 +46,7 @@ type Service struct {
 	role              string
 	healthCheckGP     *int64
 	serviceRegistries []*ecs.ServiceRegistry
+	tags              []*ecs.Tag
 }
 
 const (
@@ -438,6 +439,22 @@ func (s *Service) EntityType() types.Type {
 	return types.Service
 }
 
+func (s *Service) GetTags() ([]*ecs.Tag, error) {
+	if s.tags == nil {
+		tags := make([]*ecs.Tag, 0)
+		if tagVal := s.Context().CLIContext.String(flags.ResourceTagsFlag); tagVal != "" {
+			var err error
+			tags, err = utils.ParseTags(tagVal, tags)
+			if err != nil {
+				return nil, err
+			}
+		}
+		s.tags = tags
+
+	}
+	return s.tags, nil
+}
+
 // ----------- Commands' helper functions --------
 
 func (s *Service) buildCreateServiceInput(serviceName, taskDefName string) (*ecs.CreateServiceInput, error) {
@@ -511,6 +528,19 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string) (*ecs
 
 	if err = createServiceInput.Validate(); err != nil {
 		return nil, err
+	}
+
+	tags, err := s.GetTags()
+	if err != nil {
+		return nil, err
+	}
+	if len(tags) > 0 {
+		createServiceInput.Tags = tags
+		createServiceInput.PropagateTags = aws.String(ecs.PropagateTagsTaskDefinition)
+	}
+
+	if !s.Context().CLIContext.Bool(flags.DisableECSManagedTagsFlag) {
+		createServiceInput.EnableECSManagedTags = aws.Bool(true)
 	}
 
 	return createServiceInput, nil
