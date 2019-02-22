@@ -23,10 +23,13 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecr"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecr/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/sts/mock"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/tagging/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/docker/mock"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
 	ecrApi "github.com/aws/aws-sdk-go/service/ecr"
+	taggingSDK "github.com/aws/aws-sdk-go/service/resourcegroupstaggingapi"
 	"github.com/fsouza/go-dockerclient"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -39,6 +42,7 @@ const (
 	tag                 = "tag-v0.1.0"
 	image               = repository + ":" + tag
 	registry            = "https://" + registryID + ".dkr.ecr.us-west-2.amazonaws.com"
+	region              = "us-west-2"
 	registryID          = "012345678912"
 	repositoryURI       = registry + "/" + repository
 	clusterName         = "defaultCluster"
@@ -73,7 +77,7 @@ func newMockReadWriter() *mockReadWriter {
 }
 
 func TestImagePush(t *testing.T) {
-	mockECR, mockDocker, mockSTS := setupTestController(t)
+	mockECR, mockDocker, mockSTS, mockTagging := setupTestController(t)
 	setupEnvironmentVar()
 
 	gomock.InOrder(
@@ -89,14 +93,48 @@ func TestImagePush(t *testing.T) {
 	)
 
 	context := setAllPushImageFlags()
-	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
+	err := pushImage(context, region, mockDocker, mockECR, mockSTS, mockTagging)
+	assert.NoError(t, err, "Error pushing image")
+}
+
+func TestImagePush_WithTags(t *testing.T) {
+	mockECR, mockDocker, mockSTS, mockTagging := setupTestController(t)
+	setupEnvironmentVar()
+
+	expectedTags := map[string]*string{
+		"Hey":         aws.String("You"),
+		"Comfortably": aws.String("Numb"),
+		"The":         aws.String("Wall"),
+	}
+
+	gomock.InOrder(
+		mockSTS.EXPECT().GetAWSAccountID().Return(registryID, nil),
+		mockECR.EXPECT().GetAuthorizationTokenByID(gomock.Any()).Return(&ecr.Auth{
+			Registry: registry,
+		}, nil),
+		mockDocker.EXPECT().TagImage(image, repositoryURI, tag).Return(nil),
+		mockECR.EXPECT().RepositoryExists(repository).Return(false),
+		mockECR.EXPECT().CreateRepository(repository).Return(repository, nil),
+		mockTagging.EXPECT().TagResources(gomock.Any()).Do(func(x interface{}) {
+			input := x.(*taggingSDK.TagResourcesInput)
+			assert.Equal(t, expectedTags, input.Tags, "Expected tags to match")
+		}).Return(&taggingSDK.TagResourcesOutput{}, nil),
+		mockDocker.EXPECT().PushImage(repositoryURI, tag, registry,
+			docker.AuthConfiguration{}).Return(nil),
+	)
+
+	flagSet := flag.NewFlagSet("ecs-cli-push", 0)
+	flagSet.Parse([]string{image})
+	flagSet.String(flags.ResourceTagsFlag, "Hey=You,Comfortably=Numb,The=Wall", "")
+	context := cli.NewContext(nil, flagSet, nil)
+	err := pushImage(context, region, mockDocker, mockECR, mockSTS, mockTagging)
 	assert.NoError(t, err, "Error pushing image")
 }
 
 func TestImagePushWithURI(t *testing.T) {
 	repositoryWithURI := "012345678912.dkr.ecr.us-east-1.amazonaws.com/" + image
 
-	mockECR, mockDocker, mockSTS := setupTestController(t)
+	mockECR, mockDocker, mockSTS, mockTagging := setupTestController(t)
 	setupEnvironmentVar()
 
 	gomock.InOrder(
@@ -114,12 +152,12 @@ func TestImagePushWithURI(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli-push", 0)
 	flagSet.Parse([]string{repositoryWithURI})
 	context := cli.NewContext(nil, flagSet, nil)
-	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
+	err := pushImage(context, region, mockDocker, mockECR, mockSTS, mockTagging)
 	assert.NoError(t, err, "Error pushing image")
 }
 
 func TestImagePushWhenRepositoryExists(t *testing.T) {
-	mockECR, mockDocker, mockSTS := setupTestController(t)
+	mockECR, mockDocker, mockSTS, mockTagging := setupTestController(t)
 	setupEnvironmentVar()
 
 	gomock.InOrder(
@@ -135,33 +173,33 @@ func TestImagePushWhenRepositoryExists(t *testing.T) {
 	)
 
 	context := setAllPushImageFlags()
-	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
+	err := pushImage(context, region, mockDocker, mockECR, mockSTS, mockTagging)
 	assert.NoError(t, err, "Error pushing image")
 }
 
 func TestImagePushWithNoArguments(t *testing.T) {
-	mockECR, mockDocker, mockSTS := setupTestController(t)
+	mockECR, mockDocker, mockSTS, mockTagging := setupTestController(t)
 	setupEnvironmentVar()
 
 	flagSet := flag.NewFlagSet("ecs-cli-push", 0)
 	context := cli.NewContext(nil, flagSet, nil)
-	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
+	err := pushImage(context, region, mockDocker, mockECR, mockSTS, mockTagging)
 	assert.Error(t, err, "Expect error pushing image")
 }
 
 func TestImagePushWithTooManyArguments(t *testing.T) {
-	mockECR, mockDocker, mockSTS := setupTestController(t)
+	mockECR, mockDocker, mockSTS, mockTagging := setupTestController(t)
 	setupEnvironmentVar()
 
 	flagSet := flag.NewFlagSet("ecs-cli-push", 0)
 	flagSet.Parse([]string{repository, image})
 	context := cli.NewContext(nil, flagSet, nil)
-	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
+	err := pushImage(context, region, mockDocker, mockECR, mockSTS, mockTagging)
 	assert.Error(t, err, "Expect error pushing image")
 }
 
 func TestImagePushWhenGethAuthorizationTokenFail(t *testing.T) {
-	mockECR, mockDocker, mockSTS := setupTestController(t)
+	mockECR, mockDocker, mockSTS, mockTagging := setupTestController(t)
 	setupEnvironmentVar()
 
 	gomock.InOrder(
@@ -170,12 +208,12 @@ func TestImagePushWhenGethAuthorizationTokenFail(t *testing.T) {
 	)
 
 	context := setAllPushImageFlags()
-	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
+	err := pushImage(context, region, mockDocker, mockECR, mockSTS, mockTagging)
 	assert.Error(t, err, "Expect error pushing image")
 }
 
 func TestImagePushWhenTagImageFail(t *testing.T) {
-	mockECR, mockDocker, mockSTS := setupTestController(t)
+	mockECR, mockDocker, mockSTS, mockTagging := setupTestController(t)
 	setupEnvironmentVar()
 
 	gomock.InOrder(
@@ -187,12 +225,12 @@ func TestImagePushWhenTagImageFail(t *testing.T) {
 	)
 
 	context := setAllPushImageFlags()
-	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
+	err := pushImage(context, region, mockDocker, mockECR, mockSTS, mockTagging)
 	assert.Error(t, err, "Expect error pushing image")
 }
 
 func TestImagePushWhenCreateRepositoryFail(t *testing.T) {
-	mockECR, mockDocker, mockSTS := setupTestController(t)
+	mockECR, mockDocker, mockSTS, mockTagging := setupTestController(t)
 	setupEnvironmentVar()
 
 	gomock.InOrder(
@@ -206,12 +244,12 @@ func TestImagePushWhenCreateRepositoryFail(t *testing.T) {
 	)
 
 	context := setAllPushImageFlags()
-	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
+	err := pushImage(context, region, mockDocker, mockECR, mockSTS, mockTagging)
 	assert.Error(t, err, "Expect error pushing image")
 }
 
 func TestImagePushFail(t *testing.T) {
-	mockECR, mockDocker, mockSTS := setupTestController(t)
+	mockECR, mockDocker, mockSTS, mockTagging := setupTestController(t)
 	setupEnvironmentVar()
 
 	gomock.InOrder(
@@ -227,12 +265,12 @@ func TestImagePushFail(t *testing.T) {
 	)
 
 	context := setAllPushImageFlags()
-	err := pushImage(context, newMockReadWriter(), mockDocker, mockECR, mockSTS)
+	err := pushImage(context, region, mockDocker, mockECR, mockSTS, mockTagging)
 	assert.Error(t, err, "Expect error pushing image")
 }
 
 func TestImagePull(t *testing.T) {
-	mockECR, mockDocker, mockSTS := setupTestController(t)
+	mockECR, mockDocker, mockSTS, _ := setupTestController(t)
 	setupEnvironmentVar()
 
 	gomock.InOrder(
@@ -250,7 +288,7 @@ func TestImagePull(t *testing.T) {
 }
 
 func TestImagePullWithoutImage(t *testing.T) {
-	mockECR, mockDocker, mockSTS := setupTestController(t)
+	mockECR, mockDocker, mockSTS, _ := setupTestController(t)
 	setupEnvironmentVar()
 
 	flagSet := flag.NewFlagSet("ecs-cli-pull", 0)
@@ -260,7 +298,7 @@ func TestImagePullWithoutImage(t *testing.T) {
 }
 
 func TestImagePullWhenGetAuthorizationTokenFail(t *testing.T) {
-	mockECR, mockDocker, mockSTS := setupTestController(t)
+	mockECR, mockDocker, mockSTS, _ := setupTestController(t)
 	setupEnvironmentVar()
 
 	gomock.InOrder(
@@ -274,7 +312,7 @@ func TestImagePullWhenGetAuthorizationTokenFail(t *testing.T) {
 }
 
 func TestImagePullFail(t *testing.T) {
-	mockECR, mockDocker, mockSTS := setupTestController(t)
+	mockECR, mockDocker, mockSTS, _ := setupTestController(t)
 	setupEnvironmentVar()
 
 	gomock.InOrder(
@@ -292,7 +330,7 @@ func TestImagePullFail(t *testing.T) {
 }
 
 func TestImageList(t *testing.T) {
-	mockECR, _, _ := setupTestController(t)
+	mockECR, _, _, _ := setupTestController(t)
 	setupEnvironmentVar()
 
 	imageDigest := "sha:2561234567"
@@ -320,7 +358,7 @@ func TestImageList(t *testing.T) {
 }
 
 func TestImageListFail(t *testing.T) {
-	mockECR, _, _ := setupTestController(t)
+	mockECR, _, _, _ := setupTestController(t)
 	setupEnvironmentVar()
 
 	gomock.InOrder(
@@ -479,14 +517,15 @@ func TestSplitImageNameErrorCase(t *testing.T) {
 	assert.Error(t, err, "Expected error splitting image name")
 }
 
-func setupTestController(t *testing.T) (*mock_ecr.MockClient, *mock_docker.MockClient, *mock_sts.MockClient) {
+func setupTestController(t *testing.T) (*mock_ecr.MockClient, *mock_docker.MockClient, *mock_sts.MockClient, *mock_tagging.MockClient) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockECR := mock_ecr.NewMockClient(ctrl)
 	mockDocker := mock_docker.NewMockClient(ctrl)
 	mockSTS := mock_sts.NewMockClient(ctrl)
+	mockTagging := mock_tagging.NewMockClient(ctrl)
 
-	return mockECR, mockDocker, mockSTS
+	return mockECR, mockDocker, mockSTS, mockTagging
 }
 
 func setupEnvironmentVar() {

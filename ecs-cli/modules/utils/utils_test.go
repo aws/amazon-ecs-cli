@@ -101,6 +101,40 @@ func TestParseTagInvalidFormat(t *testing.T) {
 	assert.Error(t, err, "Expected error calling ParseTags")
 }
 
+func TestGetPartition(t *testing.T) {
+	var partitionTests = []struct {
+		region    string
+		partition string
+	}{
+		{"us-east-1", "aws"},
+		{"us-east-2", "aws"},
+		{"us-west-1", "aws"},
+		{"us-west-2", "aws"},
+		{"ap-south-1", "aws"},
+		{"ap-northeast-1", "aws"},
+		{"ap-northeast-2", "aws"},
+		{"ap-southeast-1", "aws"},
+		{"ap-southeast-2", "aws"},
+		{"ca-central-1", "aws"},
+		{"sa-east-1", "aws"},
+		{"eu-central-1", "aws"},
+		{"eu-north-1", "aws"},
+		{"eu-west-1", "aws"},
+		{"eu-west-2", "aws"},
+		{"eu-west-3", "aws"},
+		{"cn-north-1", "aws-cn"},
+		{"cn-northwest-1", "aws-cn"},
+		{"us-gov-east-1", "aws-us-gov"},
+		{"us-gov-west-1", "aws-us-gov"},
+	}
+
+	for _, test := range partitionTests {
+		t.Run(test.region, func(t *testing.T) {
+			assert.Equal(t, test.partition, GetPartition(test.region))
+		})
+	}
+}
+
 func tempDir(t *testing.T) string {
 	// Create a temprorary directory for the dummy ecs config
 	tempDirName, err := ioutil.TempDir("", "test")

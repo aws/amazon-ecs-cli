@@ -71,6 +71,8 @@
     "service/iam/iamiface",
     "service/kms",
     "service/kms/kmsiface",
+    "service/resourcegroupstaggingapi",
+    "service/resourcegroupstaggingapi/resourcegroupstaggingapiiface",
     "service/route53",
     "service/secretsmanager",
     "service/secretsmanager/secretsmanageriface",
@@ -330,6 +332,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2c5ab6ee696b39b2da9dba2cd47d69c3d2f04b1196cba92e3a04a58fb0cb8c25"
+  inputs-digest = "de8b3d279ddd7169c1c231683a5854b1958f6cad55dacfbfa660e91a7cbeb51e"
   solver-name = "gps-cdcl"
   solver-version = 1

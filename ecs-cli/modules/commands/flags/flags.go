@@ -251,15 +251,6 @@ func DebugFlag() []cli.Flag {
 	}
 }
 
-func FipsEndpointFlag() []cli.Flag {
-	return []cli.Flag{
-		cli.BoolFlag{
-			Name:  UseFIPSFlag + ",fips",
-			Usage: "[Optional] Routes calls to AWS services through FIPS endpoints.",
-		},
-	}
-}
-
 // OptionalDesiredStatusFlag allows users to filter tasks returned by the ps commands
 func OptionalDesiredStatusFlag() []cli.Flag {
 	return []cli.Flag{
