@@ -36,25 +36,14 @@ func generateSecretString(username, password string) *string {
 }
 
 func getExecutionRolePolicyARN(region string) string {
-	regionToPartition := map[string]string{
-		"cn-north-1":     "aws-cn",
-		"cn-northwest-1": "aws-cn",
-		"us-gov-west-1":  "aws-us-gov",
-	}
-
 	expectedARN := arn.ARN{
 		Service:   "iam",
 		Resource:  "policy/service-role/AmazonECSTaskExecutionRolePolicy",
 		AccountID: "aws",
 	}
 
-	// TODO: use utils.GetPartition func once merged
-	if regionToPartition[region] != "" {
-		expectedARN.Partition = regionToPartition[region]
-		return expectedARN.String()
-	}
+	expectedARN.Partition = utils.GetPartition(region)
 
-	expectedARN.Partition = "aws"
 	return expectedARN.String()
 }
 
