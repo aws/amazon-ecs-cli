@@ -565,6 +565,63 @@ func TestCreateWithoutSchedulingStrategy(t *testing.T) {
 	)
 }
 
+func TestCreateWithResourceTags(t *testing.T) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.ResourceTagsFlag, "amy=rory,smith=11", "")
+
+	expectedTags := []*ecs.Tag{
+		&ecs.Tag{
+			Key:   aws.String("amy"),
+			Value: aws.String("rory"),
+		},
+		&ecs.Tag{
+			Key:   aws.String("smith"),
+			Value: aws.String("11"),
+		},
+	}
+
+	createServiceTest(
+		t,
+		flagSet,
+		&config.CommandConfig{},
+		&utils.ECSParams{},
+		func(input *ecs.CreateServiceInput) {
+			actualTags := input.Tags
+			assert.ElementsMatch(t, actualTags, expectedTags, "Expected resource tags to match")
+		},
+	)
+}
+
+func TestCreateWithECSManagedTags(t *testing.T) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+
+	createServiceTest(
+		t,
+		flagSet,
+		&config.CommandConfig{},
+		&utils.ECSParams{},
+		func(input *ecs.CreateServiceInput) {
+			// feature is enabled by default in the CLI
+			assert.True(t, aws.BoolValue(input.EnableECSManagedTags), "Expected ECS Managed Tags to be enabled")
+		},
+	)
+}
+
+func TestCreateWithECSManagedTagsDisabled(t *testing.T) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(flags.DisableECSManagedTagsFlag, true, "")
+
+	createServiceTest(
+		t,
+		flagSet,
+		&config.CommandConfig{},
+		&utils.ECSParams{},
+		func(input *ecs.CreateServiceInput) {
+			assert.False(t, aws.BoolValue(input.EnableECSManagedTags), "Expected ECS Managed Tags to be disabled")
+		},
+	)
+}
+
 //////////////////////////////////////
 // Helpers for CreateService tests //
 /////////////////////////////////////

@@ -20,6 +20,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -55,6 +56,52 @@ func TestTaskCreate(t *testing.T) {
 		CommandConfig: &config.CommandConfig{},
 		CLIContext:    cliContext,
 	}
+	task := NewTask(context)
+	task.SetTaskDefinition(&taskDefinition)
+
+	err := task.Create()
+	assert.NoError(t, err, "Unexpected error while create")
+	assert.Equal(t, aws.StringValue(respTaskDef.TaskDefinitionArn), aws.StringValue(task.TaskDefinition().TaskDefinitionArn), "Expected TaskDefArn to match.")
+}
+
+func TestTaskCreateWithTags(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	taskDefinition := ecs.TaskDefinition{
+		Family:               aws.String("family"),
+		ContainerDefinitions: []*ecs.ContainerDefinition{},
+		Volumes:              []*ecs.Volume{},
+	}
+	respTaskDef := taskDefinition
+	respTaskDef.TaskDefinitionArn = aws.String("taskDefinitionArn")
+
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.String(flags.ResourceTagsFlag, "holmes=watson", "")
+	cliContext := cli.NewContext(nil, flagSet, nil)
+
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+
+	context := &context.ECSContext{
+		ECSClient:     mockEcs,
+		CommandConfig: &config.CommandConfig{},
+		CLIContext:    cliContext,
+	}
+
+	expectedTags := []*ecs.Tag{
+		&ecs.Tag{
+			Key:   aws.String("holmes"),
+			Value: aws.String("watson"),
+		},
+	}
+
+	mockEcs.EXPECT().RegisterTaskDefinitionIfNeeded(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
+		// verify input fields
+		req := x.(*ecs.RegisterTaskDefinitionInput)
+		assert.Equal(t, aws.StringValue(taskDefinition.Family), aws.StringValue(req.Family), "Expected Task Definition family to match.")
+		assert.ElementsMatch(t, expectedTags, req.Tags, "Expected resource tags to match")
+	}).Return(&respTaskDef, nil)
+
 	task := NewTask(context)
 	task.SetTaskDefinition(&taskDefinition)
 

@@ -34,6 +34,7 @@ type Task struct {
 	cache       cache.Cache
 	ecsContext  *context.ECSContext
 	timeSleeper *utils.TimeSleeper
+	tags        []*ecs.Tag
 }
 
 // NewTask creates an instance of a Task and also sets up a cache for task definition
@@ -366,6 +367,18 @@ func (t *Task) buildRunTaskInput(taskDefinition string, count int, overrides map
 		runTaskInput.LaunchType = aws.String(launchType)
 	}
 
+	tags, err := t.GetTags()
+	if err != nil {
+		return nil, err
+	}
+	if len(tags) > 0 {
+		runTaskInput.Tags = tags
+	}
+
+	if !t.Context().CLIContext.Bool(flags.DisableECSManagedTagsFlag) {
+		runTaskInput.EnableECSManagedTags = aws.Bool(true)
+	}
+
 	return runTaskInput, nil
 }
 
@@ -446,6 +459,22 @@ func (t *Task) up(forceUpdate bool) error {
 		return waitForTasks(t, ecsTaskArns)
 	}
 	return nil
+}
+
+func (t *Task) GetTags() ([]*ecs.Tag, error) {
+	if t.tags == nil {
+		tags := make([]*ecs.Tag, 0)
+		if tagVal := t.Context().CLIContext.String(flags.ResourceTagsFlag); tagVal != "" {
+			var err error
+			tags, err = utils.ParseTags(tagVal, tags)
+			if err != nil {
+				return nil, err
+			}
+		}
+		t.tags = tags
+
+	}
+	return t.tags, nil
 }
 
 // ---------- naming utils -----------

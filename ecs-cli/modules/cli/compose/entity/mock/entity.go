@@ -100,6 +100,19 @@ func (mr *MockProjectEntityMockRecorder) EntityType() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EntityType", reflect.TypeOf((*MockProjectEntity)(nil).EntityType))
 }
 
+// GetTags mocks base method
+func (m *MockProjectEntity) GetTags() ([]*ecs.Tag, error) {
+	ret := m.ctrl.Call(m, "GetTags")
+	ret0, _ := ret[0].([]*ecs.Tag)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTags indicates an expected call of GetTags
+func (mr *MockProjectEntityMockRecorder) GetTags() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTags", reflect.TypeOf((*MockProjectEntity)(nil).GetTags))
+}
+
 // Info mocks base method
 func (m *MockProjectEntity) Info(arg0 bool, arg1 string) (project.InfoSet, error) {
 	ret := m.ctrl.Call(m, "Info", arg0, arg1)

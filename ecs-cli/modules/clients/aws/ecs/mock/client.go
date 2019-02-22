@@ -189,19 +189,6 @@ func (mr *MockECSClientMockRecorder) IsActiveCluster(arg0 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsActiveCluster", reflect.TypeOf((*MockECSClient)(nil).IsActiveCluster), arg0)
 }
 
-// RegisterTaskDefinition mocks base method
-func (m *MockECSClient) RegisterTaskDefinition(arg0 *ecs0.RegisterTaskDefinitionInput) (*ecs0.TaskDefinition, error) {
-	ret := m.ctrl.Call(m, "RegisterTaskDefinition", arg0)
-	ret0, _ := ret[0].(*ecs0.TaskDefinition)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// RegisterTaskDefinition indicates an expected call of RegisterTaskDefinition
-func (mr *MockECSClientMockRecorder) RegisterTaskDefinition(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterTaskDefinition", reflect.TypeOf((*MockECSClient)(nil).RegisterTaskDefinition), arg0)
-}
-
 // RegisterTaskDefinitionIfNeeded mocks base method
 func (m *MockECSClient) RegisterTaskDefinitionIfNeeded(arg0 *ecs0.RegisterTaskDefinitionInput, arg1 cache.Cache) (*ecs0.TaskDefinition, error) {
 	ret := m.ctrl.Call(m, "RegisterTaskDefinitionIfNeeded", arg0, arg1)

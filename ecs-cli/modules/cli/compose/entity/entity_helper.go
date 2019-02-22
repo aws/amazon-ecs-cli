@@ -93,7 +93,13 @@ func GetOrCreateTaskDefinition(entity ProjectEntity) (*ecs.TaskDefinition, error
 		"TaskDefinition": taskDefinition,
 	}).Debug("Finding task definition in cache or creating if needed")
 
-	request := createRegisterTaskDefinitionRequest(taskDefinition)
+	tags, err := entity.GetTags()
+	if err != nil {
+		return nil, err
+	}
+
+	// Unfortunately, tags are not part of the task definition, rather they are a field on the Register Task Definition API
+	request := createRegisterTaskDefinitionRequest(taskDefinition, tags)
 
 	resp, err := entity.Context().ECSClient.RegisterTaskDefinitionIfNeeded(request, entity.TaskDefinitionCache())
 
@@ -111,7 +117,7 @@ func GetOrCreateTaskDefinition(entity ProjectEntity) (*ecs.TaskDefinition, error
 	return resp, nil
 }
 
-func createRegisterTaskDefinitionRequest(taskDefinition *ecs.TaskDefinition) *ecs.RegisterTaskDefinitionInput {
+func createRegisterTaskDefinitionRequest(taskDefinition *ecs.TaskDefinition, tags []*ecs.Tag) *ecs.RegisterTaskDefinitionInput {
 	// Valid values for network mode are none, host or bridge. If no value
 	// is passed for network mode, ECS will set it to 'bridge' on most
 	// platforms, but Windows has different network modes. Passing nil allows ECS
@@ -137,6 +143,10 @@ func createRegisterTaskDefinitionRequest(taskDefinition *ecs.TaskDefinition) *ec
 
 	if memory := taskDefinition.Memory; aws.StringValue(memory) != "" {
 		request.Memory = memory
+	}
+
+	if len(tags) > 0 {
+		request.Tags = tags
 	}
 
 	return request
