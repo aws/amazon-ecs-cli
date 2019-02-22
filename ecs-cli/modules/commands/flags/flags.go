@@ -141,7 +141,8 @@ const (
 
 	DesiredTaskStatus = "desired-status"
 
-	ResourceTagsFlag = "tags"
+	ResourceTagsFlag          = "tags"
+	DisableECSManagedTagsFlag = "disable-ecs-managed-tags"
 )
 
 // OptionalRegionAndProfileFlags provides these flags:
