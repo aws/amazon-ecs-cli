@@ -46,6 +46,7 @@ type Service struct {
 	role              string
 	healthCheckGP     *int64
 	serviceRegistries []*ecs.ServiceRegistry
+	desiredCount      *int64
 }
 
 const (
@@ -97,6 +98,7 @@ func (s *Service) LoadContext() error {
 	loadBalancerName := s.Context().CLIContext.String(flags.LoadBalancerNameFlag)
 	containerName := s.Context().CLIContext.String(flags.ContainerNameFlag)
 	containerPort, err := getInt64FromCLIContext(s.Context(), flags.ContainerPortFlag)
+	desiredCount ,err := getInt64FromCLIContext(s.Context(), flags.DesiredCountFlag)
 	if err != nil {
 		return err
 	}
@@ -132,6 +134,7 @@ func (s *Service) LoadContext() error {
 		}
 		s.role = role
 	}
+	s.desiredCount = desiredCount
 	return nil
 }
 
@@ -311,8 +314,8 @@ func (s *Service) updateService(ecsService *ecs.Service, newTaskDefinition *ecs.
 	}
 
 	oldCount := aws.Int64Value(ecsService.DesiredCount)
-	newCount := int64(1)
-	if oldCount != 0 {
+	newCount := aws.Int64Value(s.desiredCount)
+	if oldCount != 0 && newCount == 0 {
 		newCount = oldCount // get the current non-zero count
 	}
 
@@ -458,7 +461,7 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string) (*ecs
 	}
 
 	createServiceInput := &ecs.CreateServiceInput{
-		DesiredCount:            aws.Int64(0),            // Required
+		DesiredCount:            s.desiredCount,            // Required
 		ServiceName:             aws.String(serviceName), // Required
 		TaskDefinition:          aws.String(taskDefName), // Required
 		Cluster:                 aws.String(cluster),
@@ -582,7 +585,7 @@ func (s *Service) startService() error {
 		}
 		return err
 	}
-	desiredCount := aws.Int64Value(ecsService.DesiredCount)
+	desiredCount := s.Context().CLIContext.Int64(flags.DesiredCountFlag)
 	forceDeployment := s.Context().CLIContext.Bool(flags.ForceDeploymentFlag)
 	if desiredCount != 0 {
 		serviceName := aws.StringValue(ecsService.ServiceName)
@@ -602,7 +605,7 @@ func (s *Service) startService() error {
 
 		return waitForServiceTasks(s, serviceName)
 	}
-	return s.updateServiceCount(int64(1))
+	return s.updateServiceCount(desiredCount)
 }
 
 // updateServiceCount calls the underlying ECS.UpdateService with the specified count
