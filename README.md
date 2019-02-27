@@ -36,6 +36,7 @@ Line Interface](http://aws.amazon.com/cli/) product detail page.
 	- [Viewing Container Logs](#viewing-container-logs)
 	- [Using FIPS Endpoints](#using-fips-endpoints)
 	- [Using Private Registry Authentication](#using-private-registry-authentication)
+	- [Checking for Missing Attributes and Debugging Reason: Attribute Errors](#Checking-for-Missing-Attributes-and-Debugging-Reason:-Attribute-Errors)
 - [Amazon ECS CLI Commands](#amazon-ecs-cli-commands)
 - [Contributing to the CLI](#contributing-to-the-cli)
 - [License](#license)
@@ -1007,6 +1008,23 @@ INFO[0018] Started container... container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/l
  * to use an ecs-registry-creds output file from outside the current directory, you can specify it in with the `--registry-creds <value>` flag
 
  For more information about using private registries with ECS, see [Private Registry Authentication for Tasks](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/private-auth.html).
+
+### Checking for Missing Attributes and Debugging Reason: Attribute Errors
+
+Sometimes, when you try to Run a Task, the API will return the error message `"Reasons : ["ATTRIBUTE"]"`. This occurs because your container instances are missing an attribute required by your Task Definition. You can debug these failures using the `ecs-cli check-attributes` command.
+
+Here's an example of the command in action:
+
+```
+$ ecs-cli check-attributes --container-instances 28c5abd2-360e-41a0-81d8-0afca2d08d9b,45510138-f24f-47c6-a418-71c46dd51f88,ae66e18e-1d46-47ff-81c5-647f0f1426ce,dffe7f91-8faa-4e00-983b-c58fd279cf6d --cluster practice-cluster --region us-east-2 --task-def fluentd-kinesis
+Container Instance                    Missing Attributes
+dffe7f91-8faa-4e00-983b-c58fd279cf6d  None
+28c5abd2-360e-41a0-81d8-0afca2d08d9b  com.amazonaws.ecs.capability.logging-driver.fluentd
+45510138-f24f-47c6-a418-71c46dd51f88  None
+ae66e18e-1d46-47ff-81c5-647f0f1426ce  com.amazonaws.ecs.capability.logging-driver.fluentd
+```
+
+The command outputs a table of container instances and which attributes they are missing. In this case, the Task Definition requires the Fluentd log driver, but 2 container instances lack support for it.
 
 ## Amazon ECS CLI Commands
 
