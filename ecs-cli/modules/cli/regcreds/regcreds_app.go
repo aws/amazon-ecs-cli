@@ -21,10 +21,13 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/iam"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/kms"
 	secretsClient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/secretsmanager"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/tagging"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcredio"
 	"github.com/aws/aws-sdk-go/aws"
+	taggingSDK "github.com/aws/aws-sdk-go/service/resourcegroupstaggingapi"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -85,6 +88,14 @@ func Up(c *cli.Context) {
 		log.Fatal("Error executing 'up': ", err)
 	}
 
+	var tags map[string]*string
+	if tagVal := c.String(flags.ResourceTagsFlag); tagVal != "" {
+		tags, err = utils.GetTagsMap(tagVal)
+		if err != nil {
+			log.Fatal("Error executing 'up': ", err)
+		}
+	}
+
 	var policyCreateTime *time.Time
 	if !skipRole {
 		region := commandConfig.Session.Config.Region
@@ -93,6 +104,7 @@ func Up(c *cli.Context) {
 			CredEntries: credentialOutput,
 			RoleName:    roleName,
 			Region:      *region,
+			Tags:        tags,
 		}
 
 		policyCreateTime, err = createTaskExecutionRole(roleParams, iamClient, kmsClient)
@@ -101,6 +113,14 @@ func Up(c *cli.Context) {
 		}
 	} else {
 		log.Info("Skipping role creation.")
+	}
+
+	if len(tags) > 0 {
+		taggingClient := tagging.NewTaggingClient(commandConfig)
+		err = tagRegistryCredentials(credentialOutput, tags, taggingClient)
+		if err != nil {
+			log.Fatal("Failed to tag resources: ", err)
+		}
 	}
 
 	// produce output file
@@ -304,5 +324,28 @@ func validateOutputOptions(outputDir string, skipOutput bool) error {
 	if outputDir != "" && skipOutput {
 		return fmt.Errorf("Only one of '--"+flags.OutputDirFlag+"' (value '%s') and '--"+flags.NoOutputFileFlag+"' can be specified but both are present", outputDir)
 	}
+	return nil
+}
+
+func tagRegistryCredentials(creds map[string]regcredio.CredsOutputEntry, tags map[string]*string, taggingClient tagging.Client) error {
+	var arns []*string
+
+	for _, credInfo := range creds {
+		arns = append(arns, aws.String(credInfo.CredentialARN))
+	}
+
+	input := &taggingSDK.TagResourcesInput{
+		ResourceARNList: arns,
+		Tags:            tags,
+	}
+	output, err := taggingClient.TagResources(input)
+	if err != nil {
+		return err
+	}
+
+	for resource, info := range output.FailedResourcesMap {
+		return fmt.Errorf("Failed to tag resource %s; error=%s", resource, *info.ErrorMessage)
+	}
+
 	return nil
 }

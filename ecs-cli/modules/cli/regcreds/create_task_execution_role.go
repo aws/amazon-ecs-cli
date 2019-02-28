@@ -34,6 +34,7 @@ type executionRoleParams struct {
 	CredEntries map[string]regcredio.CredsOutputEntry
 	RoleName    string
 	Region      string
+	Tags        map[string]*string
 }
 
 // returns the time of IAM policy creation so that other resources (i.e., output file) can be dated to match
@@ -41,7 +42,7 @@ func createTaskExecutionRole(params executionRoleParams, iamClient iamClient.Cli
 	log.Infof("Creating resources for task execution role %s...", params.RoleName)
 
 	// create role
-	roleName, err := createOrFindRole(params.RoleName, iamClient)
+	roleName, err := createOrFindRole(params.RoleName, iamClient, convertToIAMTags(params.Tags))
 	if err != nil {
 		return nil, err
 	}
@@ -88,8 +89,8 @@ func createRegistryCredentialsPolicy(roleName, policyDoc string, createTime time
 	return policyResult.Policy, nil
 }
 
-func createOrFindRole(roleName string, client iamClient.Client) (string, error) {
-	roleResult, err := client.CreateOrFindRole(roleName, roleDescriptionString, assumeRolePolicyDocString)
+func createOrFindRole(roleName string, client iamClient.Client, tags []*iam.Tag) (string, error) {
+	roleResult, err := client.CreateOrFindRole(roleName, roleDescriptionString, assumeRolePolicyDocString, tags)
 	if err != nil {
 		return "", err
 	}
@@ -118,4 +119,16 @@ func attachRolePolicies(secretPolicyARN, roleName, region string, client iamClie
 	log.Infof("Attached new policy %s to role %s", secretPolicyARN, roleName)
 
 	return nil
+}
+
+func convertToIAMTags(tags map[string]*string) []*iam.Tag {
+	var iamTags []*iam.Tag
+	for key, value := range tags {
+		iamTags = append(iamTags, &iam.Tag{
+			Key:   aws.String(key),
+			Value: value,
+		})
+	}
+
+	return iamTags
 }
