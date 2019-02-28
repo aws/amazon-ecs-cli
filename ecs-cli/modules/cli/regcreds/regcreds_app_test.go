@@ -21,9 +21,11 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/iam/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/kms/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/secretsmanager/mock"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/tagging/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcredio"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/kms"
+	taggingSDK "github.com/aws/aws-sdk-go/service/resourcegroupstaggingapi"
 	secretsmanager "github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/golang/mock/gomock"
 	"github.com/pkg/errors"
@@ -214,6 +216,96 @@ func TestGetOrCreateRegistryCredentials_ErrorOnUpdate(t *testing.T) {
 
 	_, err := getOrCreateRegistryCredentials(testRegistryCreds, mocks.MockSM, true)
 	assert.Error(t, err)
+}
+
+func TestTagRegistryCredentials(t *testing.T) {
+	creds := map[string]regcredio.CredsOutputEntry{
+		"the-who-registry.com": regcredio.CredsOutputEntry{
+			CredentialARN: "arn:aws:secretsmanager:eu-west-1:111111111111:secret:path/whoareyou-1978",
+		},
+	}
+
+	tags := map[string]*string{
+		"Baba":     aws.String("O'riley"),
+		"Eminence": aws.String("Front"),
+		"My":       aws.String("Generation"),
+	}
+
+	ctrl := gomock.NewController(t)
+
+	mockTagging := mock_tagging.NewMockClient(ctrl)
+
+	gomock.InOrder(
+		mockTagging.EXPECT().TagResources(gomock.Any()).Do(func(x interface{}) {
+			input := x.(*taggingSDK.TagResourcesInput)
+			assert.Equal(t, tags, input.Tags, "Expected tags to match")
+		}).Return(&taggingSDK.TagResourcesOutput{}, nil),
+	)
+
+	err := tagRegistryCredentials(creds, tags, mockTagging)
+	assert.NoError(t, err, "Unexpected error calling tagRegistryCredentials")
+}
+
+func TestTagRegistryCredentialsError(t *testing.T) {
+	creds := map[string]regcredio.CredsOutputEntry{
+		"the-who-registry.com": regcredio.CredsOutputEntry{
+			CredentialARN: "arn:aws:secretsmanager:eu-west-1:111111111111:secret:path/whoareyou-1978",
+		},
+	}
+
+	tags := map[string]*string{
+		"Baba":     aws.String("O'riley"),
+		"Eminence": aws.String("Front"),
+		"My":       aws.String("Generation"),
+	}
+
+	ctrl := gomock.NewController(t)
+
+	mockTagging := mock_tagging.NewMockClient(ctrl)
+
+	gomock.InOrder(
+		mockTagging.EXPECT().TagResources(gomock.Any()).Do(func(x interface{}) {
+			input := x.(*taggingSDK.TagResourcesInput)
+			assert.Equal(t, tags, input.Tags, "Expected tags to match")
+		}).Return(nil, fmt.Errorf("Some API error")),
+	)
+
+	err := tagRegistryCredentials(creds, tags, mockTagging)
+	assert.Error(t, err, "Expected error calling tagRegistryCredentials")
+}
+
+func TestTagRegistryCredentialsFailedResources(t *testing.T) {
+	creds := map[string]regcredio.CredsOutputEntry{
+		"the-who-registry.com": regcredio.CredsOutputEntry{
+			CredentialARN: "arn:aws:secretsmanager:eu-west-1:111111111111:secret:path/whoareyou-1978",
+		},
+	}
+
+	tags := map[string]*string{
+		"Baba":     aws.String("O'riley"),
+		"Eminence": aws.String("Front"),
+		"My":       aws.String("Generation"),
+	}
+
+	ctrl := gomock.NewController(t)
+
+	mockTagging := mock_tagging.NewMockClient(ctrl)
+
+	gomock.InOrder(
+		mockTagging.EXPECT().TagResources(gomock.Any()).Do(func(x interface{}) {
+			input := x.(*taggingSDK.TagResourcesInput)
+			assert.Equal(t, tags, input.Tags, "Expected tags to match")
+		}).Return(&taggingSDK.TagResourcesOutput{
+			FailedResourcesMap: map[string]*taggingSDK.FailureInfo{
+				"arn:aws:secretsmanager:eu-west-1:111111111111:secret:path/whoareyou-1978": &taggingSDK.FailureInfo{
+					ErrorMessage: aws.String("Auth Error: who are you"),
+				},
+			},
+		}, nil),
+	)
+
+	err := tagRegistryCredentials(creds, tags, mockTagging)
+	assert.Error(t, err, "Expected error calling tagRegistryCredentials")
 }
 
 func TestValidateCredsInput_ErrorEmptyCreds(t *testing.T) {
