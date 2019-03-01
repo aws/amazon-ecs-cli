@@ -82,8 +82,9 @@ func newMockReadWriter() *mockReadWriter {
 }
 
 type mockUserDataBuilder struct {
-	userdata string
-	files    []string
+	userdata      string
+	files         []string
+	enableTagging bool
 }
 
 func (b *mockUserDataBuilder) AddFile(fileName string) error {
@@ -221,7 +222,8 @@ func TestClusterUpWithUserData(t *testing.T) {
 	userdataMock := &mockUserDataBuilder{
 		userdata: mockedUserData,
 	}
-	newUserDataBuilder = func(clusterName string) userdata.UserDataBuilder {
+	newUserDataBuilder = func(clusterName string, enableTagging bool) userdata.UserDataBuilder {
+		userdataMock.enableTagging = enableTagging
 		return userdataMock
 	}
 
@@ -240,6 +242,7 @@ func TestClusterUpWithUserData(t *testing.T) {
 			param, err := cfnParams.GetParameter(ParameterKeyUserData)
 			assert.NoError(t, err, "Expected User Data parameter to be set")
 			assert.Equal(t, mockedUserData, aws.StringValue(param.ParameterValue), "Expected user data to match")
+			assert.False(t, userdataMock.enableTagging, "Expected container instance tagging to be disabled")
 		}).Return("", nil),
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
@@ -626,7 +629,7 @@ func TestCliFlagsToCfnStackParams(t *testing.T) {
 	flagSet.String(flags.KeypairNameFlag, "default", "")
 
 	context := cli.NewContext(nil, flagSet, nil)
-	params, err := cliFlagsToCfnStackParams(context, clusterName, config.LaunchTypeEC2)
+	params, err := cliFlagsToCfnStackParams(context, clusterName, config.LaunchTypeEC2, false)
 	assert.NoError(t, err, "Unexpected error from call to cliFlagsToCfnStackParams")
 
 	_, err = params.GetParameter(ParameterKeyAsgMaxSize)
@@ -635,7 +638,7 @@ func TestCliFlagsToCfnStackParams(t *testing.T) {
 
 	flagSet.String(flags.AsgMaxSizeFlag, "2", "")
 	context = cli.NewContext(nil, flagSet, nil)
-	params, err = cliFlagsToCfnStackParams(context, clusterName, config.LaunchTypeEC2)
+	params, err = cliFlagsToCfnStackParams(context, clusterName, config.LaunchTypeEC2, false)
 	assert.NoError(t, err, "Unexpected error from call to cliFlagsToCfnStackParams")
 	_, err = params.GetParameter(ParameterKeyAsgMaxSize)
 	assert.NoError(t, err, "Unexpected error getting parameter ParameterKeyAsgMaxSize")
@@ -1030,7 +1033,17 @@ func TestClusterUpWithTags(t *testing.T) {
 		},
 	}
 
+	listSettingsResponse := &ecs.ListAccountSettingsOutput{
+		Settings: []*ecs.Setting{
+			&ecs.Setting{
+				Name:  aws.String(ecs.SettingNameContainerInstanceLongArnFormat),
+				Value: aws.String("disabled"),
+			},
+		},
+	}
+
 	gomock.InOrder(
+		mockECS.EXPECT().ListAccountSettings(gomock.Any()).Return(listSettingsResponse, nil),
 		mockECS.EXPECT().CreateCluster(clusterName, gomock.Any()).Return(clusterName, nil).Do(func(x, y interface{}) {
 			actualTags := y.([]*ecs.Tag)
 			assert.ElementsMatch(t, expectedECSTags, actualTags, "Expected tags to match")
@@ -1062,6 +1075,94 @@ func TestClusterUpWithTags(t *testing.T) {
 
 	err = createCluster(context, awsClients, commandConfig)
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
+}
+
+func TestClusterUpWithTagsContainerInstanceTaggingEnabled(t *testing.T) {
+	defer os.Clearenv()
+	mockECS, mockCloudformation, mockSSM := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+
+	oldNewUserDataBuilder := newUserDataBuilder
+	defer func() { newUserDataBuilder = oldNewUserDataBuilder }()
+	userdataMock := &mockUserDataBuilder{
+		userdata: mockedUserData,
+	}
+	newUserDataBuilder = func(clusterName string, enableTagging bool) userdata.UserDataBuilder {
+		userdataMock.enableTagging = enableTagging
+		return userdataMock
+	}
+
+	expectedCFNTags := []*sdkCFN.Tag{
+		&sdkCFN.Tag{
+			Key:   aws.String("madman"),
+			Value: aws.String("with-a-box"),
+		},
+		&sdkCFN.Tag{
+			Key:   aws.String("doctor"),
+			Value: aws.String("11"),
+		},
+	}
+
+	expectedECSTags := []*ecs.Tag{
+		&ecs.Tag{
+			Key:   aws.String("madman"),
+			Value: aws.String("with-a-box"),
+		},
+		&ecs.Tag{
+			Key:   aws.String("doctor"),
+			Value: aws.String("11"),
+		},
+	}
+
+	listSettingsResponse := &ecs.ListAccountSettingsOutput{
+		Settings: []*ecs.Setting{
+			&ecs.Setting{
+				Name:  aws.String(ecs.SettingNameContainerInstanceLongArnFormat),
+				Value: aws.String("enabled"),
+			},
+		},
+	}
+
+	gomock.InOrder(
+		mockECS.EXPECT().ListAccountSettings(gomock.Any()).Return(listSettingsResponse, nil),
+		mockECS.EXPECT().CreateCluster(clusterName, gomock.Any()).Return(clusterName, nil).Do(func(x, y interface{}) {
+			actualTags := y.([]*ecs.Tag)
+			assert.ElementsMatch(t, expectedECSTags, actualTags, "Expected tags to match")
+		}),
+	)
+	gomock.InOrder(
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(amiID), nil),
+	)
+	gomock.InOrder(
+		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
+		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any(), gomock.Any()).Do(func(v, w, x, y, z interface{}) {
+			actualTags := z.([]*sdkCFN.Tag)
+			assert.ElementsMatch(t, expectedCFNTags, actualTags, "Expected tags to match")
+
+			cfnParams := y.(*cloudformation.CfnStackParams)
+			param, err := cfnParams.GetParameter(ParameterKeyUserData)
+			assert.NoError(t, err, "Expected User Data parameter to be set")
+			assert.Equal(t, mockedUserData, aws.StringValue(param.ParameterValue), "Expected user data to match")
+		}).Return("", nil),
+		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
+		mockCloudformation.EXPECT().DescribeNetworkResources(stackName).Return(nil),
+	)
+	globalSet := flag.NewFlagSet("ecs-cli", 0)
+	globalContext := cli.NewContext(nil, globalSet, nil)
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.ResourceTagsFlag, "madman=with-a-box,doctor=11", "")
+	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
+
+	context := cli.NewContext(nil, flagSet, globalContext)
+	rdwr := newMockReadWriter()
+	commandConfig, err := newCommandConfig(context, rdwr)
+	assert.NoError(t, err, "Unexpected error creating CommandConfig")
+
+	err = createCluster(context, awsClients, commandConfig)
+	assert.NoError(t, err, "Unexpected error bringing up cluster")
+
+	assert.True(t, userdataMock.enableTagging, "Expected tagging to be enabled in container instance user data")
 }
 
 func TestDetermineArchitecture(t *testing.T) {

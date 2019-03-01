@@ -42,10 +42,16 @@ import (
 )
 
 // user data builder can be easily mocked in tests
-var newUserDataBuilder func(string) userdata.UserDataBuilder = userdata.NewBuilder
+var newUserDataBuilder func(string, bool) userdata.UserDataBuilder = userdata.NewBuilder
 
 // displayTitle flag is used to print the title for the fields
 const displayTitle = true
+
+// Values returned by the ECS Settings API
+const (
+	ecsSettingEnabled  = "enabled"
+	ecsSettingDisabled = "disabled"
+)
 
 const (
 	ParameterKeyAsgMaxSize               = "AsgMaxSize"
@@ -237,8 +243,26 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 		deleteStack = true
 	}
 
+	tags := make([]*ecs.Tag, 0)
+	if tagVal := context.String(flags.ResourceTagsFlag); tagVal != "" {
+		tags, err = utils.ParseTags(tagVal, tags)
+		if err != nil {
+			return err
+		}
+	}
+
+	var containerInstanceTaggingSupported bool
+
+	if len(tags) > 0 {
+		// determine if container instance tagging is supported
+		containerInstanceTaggingSupported, err = canEnableContainerInstanceTagging(awsClients.ECSClient)
+		if err != nil {
+			return err
+		}
+	}
+
 	// Populate cfn params
-	cfnParams, err := cliFlagsToCfnStackParams(context, commandConfig.Cluster, launchType)
+	cfnParams, err := cliFlagsToCfnStackParams(context, commandConfig.Cluster, launchType, containerInstanceTaggingSupported)
 	if err != nil {
 		return err
 	}
@@ -285,14 +309,6 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 	// Check if vpc exists when subnets is specified
 	if validateDependentParams(cfnParams, ParameterKeySubnetIds, ParameterKeyVpcId) {
 		return fmt.Errorf("You have selected subnets. Please specify a VPC with the '--%s' flag", flags.VpcIdFlag)
-	}
-
-	tags := make([]*ecs.Tag, 0)
-	if tagVal := context.String(flags.ResourceTagsFlag); tagVal != "" {
-		tags, err = utils.ParseTags(tagVal, tags)
-		if err != nil {
-			return err
-		}
 	}
 
 	if launchType == config.LaunchTypeEC2 {
@@ -346,6 +362,30 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 	logrus.Info("Waiting for your cluster resources to be created...")
 	// Wait for stack creation
 	return cfnClient.WaitUntilCreateComplete(stackName)
+}
+
+func canEnableContainerInstanceTagging(client ecsclient.ECSClient) (bool, error) {
+	output, err := client.ListAccountSettings(&ecs.ListAccountSettingsInput{
+		EffectiveSettings: aws.Bool(true),
+		Name:              aws.String(ecs.SettingNameContainerInstanceLongArnFormat),
+	})
+	if err != nil {
+		return false, err
+	}
+
+	// This should never evaluate to true, unless there is a problem with API
+	// This if block ensures that the CLI does not panic in that case
+	if len(output.Settings) < 1 {
+		return false, fmt.Errorf("Received unexpected response from ECS Settings API: %s", output)
+	}
+
+	if aws.StringValue(output.Settings[0].Value) == ecsSettingEnabled {
+		logrus.Warnf("Enabling container instance tagging because %s is enabled for your identity, %s. If this is not your account default setting, your instances will fail to join your cluster. You can use the PutAccountSettingDefault API to change your account default.", ecs.SettingNameContainerInstanceLongArnFormat, aws.StringValue(output.Settings[0].PrincipalArn))
+		return true, nil
+	}
+
+	logrus.Warnf("Disabling container instance tagging because %s is not enabled for your identity, %s. You can use the PutAccountSettingDefault API to change your account default.", ecs.SettingNameContainerInstanceLongArnFormat, aws.StringValue(output.Settings[0].PrincipalArn))
+	return false, nil
 }
 
 func determineArchitecture(cfnParams *cloudformation.CfnStackParams) (string, error) {
@@ -567,7 +607,7 @@ func deleteClusterPrompt(reader *bufio.Reader) error {
 }
 
 // cliFlagsToCfnStackParams converts values set for CLI flags to cloudformation stack parameters.
-func cliFlagsToCfnStackParams(context *cli.Context, cluster, launchType string) (*cloudformation.CfnStackParams, error) {
+func cliFlagsToCfnStackParams(context *cli.Context, cluster, launchType string, tagContainerInstances bool) (*cloudformation.CfnStackParams, error) {
 	cfnParams := cloudformation.NewCfnStackParams(requiredParameters)
 	for cliFlag, cfnParamKeyName := range flagNamesToStackParameterKeys {
 		cfnParamKeyValue := context.String(cliFlag)
@@ -577,7 +617,7 @@ func cliFlagsToCfnStackParams(context *cli.Context, cluster, launchType string) 
 	}
 
 	if launchType == config.LaunchTypeEC2 {
-		builder := newUserDataBuilder(cluster)
+		builder := newUserDataBuilder(cluster, tagContainerInstances)
 		// handle extra user data, which is a string slice flag
 		if userDataFiles := context.StringSlice(flags.UserDataFlag); len(userDataFiles) > 0 {
 			for _, file := range userDataFiles {
