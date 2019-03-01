@@ -27,7 +27,7 @@ type Client interface {
 	AttachRolePolicy(policyArn, roleName string) (*iam.AttachRolePolicyOutput, error)
 	CreateRole(iam.CreateRoleInput) (*iam.CreateRoleOutput, error)
 	CreatePolicy(iam.CreatePolicyInput) (*iam.CreatePolicyOutput, error)
-	CreateOrFindRole(string, string, string) (string, error)
+	CreateOrFindRole(string, string, string, []*iam.Tag) (string, error)
 }
 
 type iamClient struct {
@@ -81,11 +81,14 @@ func (c *iamClient) CreatePolicy(input iam.CreatePolicyInput) (*iam.CreatePolicy
 }
 
 // CreateOrFindRole returns a new role ARN or an empty string if role already exists
-func (c *iamClient) CreateOrFindRole(roleName, roleDescription, assumeRolePolicyDoc string) (string, error) {
+func (c *iamClient) CreateOrFindRole(roleName, roleDescription, assumeRolePolicyDoc string, tags []*iam.Tag) (string, error) {
 	createRoleRequest := iam.CreateRoleInput{
 		AssumeRolePolicyDocument: aws.String(assumeRolePolicyDoc),
 		Description:              aws.String(roleDescription),
 		RoleName:                 aws.String(roleName),
+	}
+	if len(tags) > 0 {
+		createRoleRequest.Tags = tags
 	}
 	roleResult, err := c.CreateRole(createRoleRequest)
 	// if err is b/c role already exists, OK to continue
