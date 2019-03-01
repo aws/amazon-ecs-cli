@@ -176,6 +176,19 @@ func (mr *MockECSClientMockRecorder) IsActiveCluster(arg0 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsActiveCluster", reflect.TypeOf((*MockECSClient)(nil).IsActiveCluster), arg0)
 }
 
+// ListAccountSettings mocks base method
+func (m *MockECSClient) ListAccountSettings(arg0 *ecs0.ListAccountSettingsInput) (*ecs0.ListAccountSettingsOutput, error) {
+	ret := m.ctrl.Call(m, "ListAccountSettings", arg0)
+	ret0, _ := ret[0].(*ecs0.ListAccountSettingsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListAccountSettings indicates an expected call of ListAccountSettings
+func (mr *MockECSClientMockRecorder) ListAccountSettings(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAccountSettings", reflect.TypeOf((*MockECSClient)(nil).ListAccountSettings), arg0)
+}
+
 // RegisterTaskDefinitionIfNeeded mocks base method
 func (m *MockECSClient) RegisterTaskDefinitionIfNeeded(arg0 *ecs0.RegisterTaskDefinitionInput, arg1 cache.Cache) (*ecs0.TaskDefinition, error) {
 	ret := m.ctrl.Call(m, "RegisterTaskDefinitionIfNeeded", arg0, arg1)

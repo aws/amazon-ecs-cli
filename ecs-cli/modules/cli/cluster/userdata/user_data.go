@@ -33,20 +33,22 @@ type UserDataBuilder interface {
 
 // Builder implements UserDataBuilder
 type Builder struct {
-	writer      *multipart.Writer
-	clusterName string
-	userdata    *bytes.Buffer
+	writer        *multipart.Writer
+	clusterName   string
+	userdata      *bytes.Buffer
+	enableTagging bool
 }
 
 // NewBuilder creates a Builder object for a given clusterName
-func NewBuilder(clusterName string) UserDataBuilder {
+func NewBuilder(clusterName string, enableTagging bool) UserDataBuilder {
 	buf := new(bytes.Buffer)
 	writer := multipart.NewWriter(buf)
 
 	builder := &Builder{
-		writer:      writer,
-		clusterName: clusterName,
-		userdata:    buf,
+		writer:        writer,
+		clusterName:   clusterName,
+		userdata:      buf,
+		enableTagging: enableTagging,
 	}
 
 	return builder
@@ -148,6 +150,11 @@ func (b *Builder) getClusterUserData() string {
 #!/bin/bash
 echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
 `
+	if b.enableTagging {
+		joinClusterUserData += `
+echo 'ECS_CONTAINER_INSTANCE_PROPAGATE_TAGS_FROM=ec2_instance' >> /etc/ecs/ecs.config`
+	}
+
 	return fmt.Sprintf(joinClusterUserData, b.clusterName)
 }
 

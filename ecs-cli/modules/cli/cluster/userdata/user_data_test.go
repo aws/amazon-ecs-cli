@@ -28,11 +28,12 @@ const (
 	testBoundary    = "========multipart-boundary=="
 )
 
-func newBuilderInTest(buf *bytes.Buffer, writer *multipart.Writer) *Builder {
+func newBuilderInTest(buf *bytes.Buffer, writer *multipart.Writer, enableTagging bool) *Builder {
 	builder := &Builder{
-		writer:      writer,
-		clusterName: testClusterName,
-		userdata:    buf,
+		writer:        writer,
+		clusterName:   testClusterName,
+		userdata:      buf,
+		enableTagging: enableTagging,
 	}
 
 	return builder
@@ -148,7 +149,7 @@ func TestBuildUserDataWithExtraData(t *testing.T) {
 	writer := multipart.NewWriter(buf)
 	// set the boundary between parts so that output is deterministic
 	writer.SetBoundary(testBoundary)
-	builder := newBuilderInTest(buf, writer)
+	builder := newBuilderInTest(buf, writer, false)
 
 	err := builder.AddFile(multipartFilePath)
 	assert.NoError(t, err, "Unexpected error calling AddFile()")
@@ -182,7 +183,35 @@ echo ECS_CLUSTER=cluster >> /etc/ecs/ecs.config
 	writer := multipart.NewWriter(buf)
 	// set the boundary between parts so that output is deterministic
 	writer.SetBoundary(testBoundary)
-	builder := newBuilderInTest(buf, writer)
+	builder := newBuilderInTest(buf, writer, false)
+
+	actual, err := builder.Build()
+	assert.NoError(t, err, "Unexpected error calling Build()")
+	expected := unixifyLineEndings(expectedUserData)
+	assert.Equal(t, expected, actual, "Expected resulting mime multipart archive to match")
+}
+
+func TestBuildUserDataNoExtraDataWithTaggingEnabled(t *testing.T) {
+	var expectedUserData = `Content-Type: multipart/mixed; boundary="========multipart-boundary=="
+MIME-Version: 1.0
+
+--========multipart-boundary==
+Content-Type: text/text/x-shellscript; charset="utf-8"
+Mime-Version: 1.0
+
+
+#!/bin/bash
+echo ECS_CLUSTER=cluster >> /etc/ecs/ecs.config
+
+echo 'ECS_CONTAINER_INSTANCE_PROPAGATE_TAGS_FROM=ec2_instance' >> /etc/ecs/ecs.config
+--========multipart-boundary==--
+`
+
+	buf := new(bytes.Buffer)
+	writer := multipart.NewWriter(buf)
+	// set the boundary between parts so that output is deterministic
+	writer.SetBoundary(testBoundary)
+	builder := newBuilderInTest(buf, writer, true)
 
 	actual, err := builder.Build()
 	assert.NoError(t, err, "Unexpected error calling Build()")

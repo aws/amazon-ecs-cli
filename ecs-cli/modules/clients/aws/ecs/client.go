@@ -59,6 +59,9 @@ type ECSClient interface {
 
 	// Container Instance related
 	GetEC2InstanceIDs(containerInstanceArns []*string) (map[string]string, error)
+
+	// Settings related
+	ListAccountSettings(input *ecs.ListAccountSettingsInput) (*ecs.ListAccountSettingsOutput, error)
 }
 
 // ecsClient implements ECSClient
@@ -420,4 +423,9 @@ func (c *ecsClient) IsActiveCluster(clusterName string) (bool, error) {
 
 	log.WithFields(log.Fields{"cluster": clusterName, "status": status}).Debug("cluster status")
 	return false, nil
+}
+
+// Checks if the given setting is enabled
+func (c *ecsClient) ListAccountSettings(input *ecs.ListAccountSettingsInput) (*ecs.ListAccountSettingsOutput, error) {
+	return c.client.ListAccountSettings(input)
 }
