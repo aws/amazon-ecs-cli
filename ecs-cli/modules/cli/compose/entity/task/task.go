@@ -14,9 +14,12 @@
 package task
 
 import (
+	"fmt"
+
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
+	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
@@ -376,10 +379,35 @@ func (t *Task) buildRunTaskInput(taskDefinition string, count int, overrides map
 	}
 
 	if !t.Context().CLIContext.Bool(flags.DisableECSManagedTagsFlag) {
-		runTaskInput.EnableECSManagedTags = aws.Bool(true)
+		enabled, err := isTaskLongARNEnabled(t.Context().ECSClient)
+		if err != nil {
+			return nil, err
+		}
+		if enabled {
+			log.Info("Auto-enabling ECS Managed Tags")
+			runTaskInput.EnableECSManagedTags = aws.Bool(true)
+		}
 	}
 
 	return runTaskInput, nil
+}
+
+func isTaskLongARNEnabled(client ecsclient.ECSClient) (bool, error) {
+	output, err := client.ListAccountSettings(&ecs.ListAccountSettingsInput{
+		EffectiveSettings: aws.Bool(true),
+		Name:              aws.String(ecs.SettingNameTaskLongArnFormat),
+	})
+	if err != nil {
+		return false, err
+	}
+
+	// This should never evaluate to true, unless there is a problem with API
+	// This if block ensures that the CLI does not panic in that case
+	if len(output.Settings) < 1 {
+		return false, fmt.Errorf("Received unexpected response from ECS Settings API: %s", output)
+	}
+
+	return aws.StringValue(output.Settings[0].Value) == "enabled", nil
 }
 
 // createOne issues run task with count=1 and waits for it to get to running state

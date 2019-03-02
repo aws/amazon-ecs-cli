@@ -206,6 +206,21 @@ func TestBuildRuntaskInput(t *testing.T) {
 		},
 	}
 
+	gomock.InOrder(
+		mockEcs.EXPECT().ListAccountSettings(gomock.Any()).Do(func(input interface{}) {
+			req := input.(*ecs.ListAccountSettingsInput)
+			assert.True(t, aws.BoolValue(req.EffectiveSettings), "Expected Effective settings to be true")
+			assert.Equal(t, ecs.SettingNameTaskLongArnFormat, aws.StringValue(req.Name), "Expected setting name to be task long ARN")
+		}).Return(&ecs.ListAccountSettingsOutput{
+			Settings: []*ecs.Setting{
+				&ecs.Setting{
+					Value: aws.String("disabled"),
+					Name:  aws.String(ecs.SettingNameTaskLongArnFormat),
+				},
+			},
+		}, nil),
+	)
+
 	task := &Task{
 		ecsContext: context,
 	}
@@ -218,6 +233,7 @@ func TestBuildRuntaskInput(t *testing.T) {
 		assert.Equal(t, aws.String(launchType), req.LaunchType)
 		assert.Equal(t, int64(count), aws.Int64Value(req.Count))
 		assert.Nil(t, req.Overrides)
+		assert.False(t, aws.BoolValue(req.EnableECSManagedTags), "Expected ECS Managed tags to be disabled")
 	}
 }
 
@@ -245,6 +261,21 @@ func TestBuildRuntaskInput_WithOverride(t *testing.T) {
 		},
 	}
 
+	gomock.InOrder(
+		mockEcs.EXPECT().ListAccountSettings(gomock.Any()).Do(func(input interface{}) {
+			req := input.(*ecs.ListAccountSettingsInput)
+			assert.True(t, aws.BoolValue(req.EffectiveSettings), "Expected Effective settings to be true")
+			assert.Equal(t, ecs.SettingNameTaskLongArnFormat, aws.StringValue(req.Name), "Expected setting name to be task long ARN")
+		}).Return(&ecs.ListAccountSettingsOutput{
+			Settings: []*ecs.Setting{
+				&ecs.Setting{
+					Value: aws.String("disabled"),
+					Name:  aws.String(ecs.SettingNameTaskLongArnFormat),
+				},
+			},
+		}, nil),
+	)
+
 	task := &Task{
 		ecsContext: context,
 	}
@@ -266,5 +297,92 @@ func TestBuildRuntaskInput_WithOverride(t *testing.T) {
 		assert.Equal(t, aws.String(launchType), req.LaunchType)
 		assert.Equal(t, int64(count), aws.Int64Value(req.Count))
 		assert.Equal(t, expectedOverride, req.Overrides)
+		assert.False(t, aws.BoolValue(req.EnableECSManagedTags), "Expected ECS Managed tags to be disabled")
+	}
+}
+
+func TestBuildRuntaskInputLongARNEnabled(t *testing.T) {
+	taskDef := "clydeApp"
+	count := 1
+	cluster := "myCluster"
+	launchType := "EC2"
+
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	cliContext := cli.NewContext(nil, flagSet, nil)
+	ctrl := gomock.NewController(t)
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	context := &context.ECSContext{
+		ECSClient:  mockEcs,
+		CLIContext: cliContext,
+		CommandConfig: &config.CommandConfig{
+			Cluster:    cluster,
+			LaunchType: launchType,
+		},
+	}
+
+	gomock.InOrder(
+		mockEcs.EXPECT().ListAccountSettings(gomock.Any()).Do(func(input interface{}) {
+			req := input.(*ecs.ListAccountSettingsInput)
+			assert.True(t, aws.BoolValue(req.EffectiveSettings), "Expected Effective settings to be true")
+			assert.Equal(t, ecs.SettingNameTaskLongArnFormat, aws.StringValue(req.Name), "Expected setting name to be task long ARN")
+		}).Return(&ecs.ListAccountSettingsOutput{
+			Settings: []*ecs.Setting{
+				&ecs.Setting{
+					Value: aws.String("enabled"),
+					Name:  aws.String(ecs.SettingNameTaskLongArnFormat),
+				},
+			},
+		}, nil),
+	)
+
+	task := &Task{
+		ecsContext: context,
+	}
+
+	req, err := task.buildRunTaskInput(taskDef, count, nil)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, aws.String(cluster), req.Cluster)
+		assert.Equal(t, aws.String(taskDef), req.TaskDefinition)
+		assert.Equal(t, aws.String(launchType), req.LaunchType)
+		assert.Equal(t, int64(count), aws.Int64Value(req.Count))
+		assert.Nil(t, req.Overrides)
+		assert.True(t, aws.BoolValue(req.EnableECSManagedTags), "Expected ECS Managed tags to be enabled")
+	}
+}
+
+func TestBuildRuntaskInputManagedTagsDisabled(t *testing.T) {
+	taskDef := "clydeApp"
+	count := 1
+	cluster := "myCluster"
+	launchType := "EC2"
+
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.Bool(flags.DisableECSManagedTagsFlag, true, "")
+	cliContext := cli.NewContext(nil, flagSet, nil)
+	ctrl := gomock.NewController(t)
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	context := &context.ECSContext{
+		ECSClient:  mockEcs,
+		CLIContext: cliContext,
+		CommandConfig: &config.CommandConfig{
+			Cluster:    cluster,
+			LaunchType: launchType,
+		},
+	}
+
+	task := &Task{
+		ecsContext: context,
+	}
+
+	req, err := task.buildRunTaskInput(taskDef, count, nil)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, aws.String(cluster), req.Cluster)
+		assert.Equal(t, aws.String(taskDef), req.TaskDefinition)
+		assert.Equal(t, aws.String(launchType), req.LaunchType)
+		assert.Equal(t, int64(count), aws.Int64Value(req.Count))
+		assert.Nil(t, req.Overrides)
+		assert.Nil(t, req.EnableECSManagedTags, "Expected ECS Managed tags to be unset")
 	}
 }

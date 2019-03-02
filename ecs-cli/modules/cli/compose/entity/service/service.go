@@ -22,6 +22,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/servicediscovery"
+	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/route53"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/tagging"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
@@ -576,14 +577,46 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string) (*ecs
 	}
 	if len(tags) > 0 {
 		createServiceInput.Tags = tags
+	}
+
+	arnEnabled, err := isTaskLongARNEnabled(s.Context().ECSClient)
+	if err != nil {
+		return nil, err
+	}
+
+	if arnEnabled {
+		// Even if the customer didn't create the service with tags, we enable propogation
+		// So that later, if the customer updates to a new task def that has tags,
+		// those tags will be propogated to tasks
 		createServiceInput.PropagateTags = aws.String(ecs.PropagateTagsTaskDefinition)
 	}
 
 	if !s.Context().CLIContext.Bool(flags.DisableECSManagedTagsFlag) {
-		createServiceInput.EnableECSManagedTags = aws.Bool(true)
+		if arnEnabled {
+			log.Info("Auto-enabling ECS Managed Tags")
+			createServiceInput.EnableECSManagedTags = aws.Bool(true)
+		}
 	}
 
 	return createServiceInput, nil
+}
+
+func isTaskLongARNEnabled(client ecsclient.ECSClient) (bool, error) {
+	output, err := client.ListAccountSettings(&ecs.ListAccountSettingsInput{
+		EffectiveSettings: aws.Bool(true),
+		Name:              aws.String(ecs.SettingNameTaskLongArnFormat),
+	})
+	if err != nil {
+		return false, err
+	}
+
+	// This should never evaluate to true, unless there is a problem with API
+	// This if block ensures that the CLI does not panic in that case
+	if len(output.Settings) < 1 {
+		return false, fmt.Errorf("Received unexpected response from ECS Settings API: %s", output)
+	}
+
+	return aws.StringValue(output.Settings[0].Value) == "enabled", nil
 }
 
 func (s *Service) logCreateService(serviceName, taskDefName string) {
