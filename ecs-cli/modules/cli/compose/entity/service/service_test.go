@@ -40,6 +40,12 @@ const (
 	arnPrefix = "arn:aws:ecs:us-west-2:accountId:task-definition/"
 )
 
+// Values returned by the ECS Settings API
+const (
+	ecsSettingEnabled  = "enabled"
+	ecsSettingDisabled = "disabled"
+)
+
 //////////////////////////
 // Create Service tests //
 /////////////////////////
@@ -62,6 +68,7 @@ func TestCreateWithDeploymentConfig(t *testing.T) {
 			assert.Equal(t, int64(deploymentMaxPercent), aws.Int64Value(actual.MaximumPercent), "DeploymentConfig.MaxPercent should match")
 			assert.Equal(t, int64(deploymentMinPercent), aws.Int64Value(actual.MinimumHealthyPercent), "DeploymentConfig.MinimumHealthyPercent should match")
 		},
+		ecsSettingDisabled,
 	)
 }
 
@@ -78,6 +85,7 @@ func TestCreateWithoutDeploymentConfig(t *testing.T) {
 			assert.Nil(t, actual.MaximumPercent, "DeploymentConfig.MaximumPercent should be nil")
 			assert.Nil(t, actual.MinimumHealthyPercent, "DeploymentConfig.MinimumHealthyPercent should be nil")
 		},
+		ecsSettingDisabled,
 	)
 }
 
@@ -113,6 +121,7 @@ func TestCreateWithNetworkConfig(t *testing.T) {
 			assert.Equal(t, 2, len(networkConfig.AwsvpcConfiguration.Subnets))
 			assert.Nil(t, networkConfig.AwsvpcConfiguration.AssignPublicIp)
 		},
+		ecsSettingDisabled,
 	)
 }
 
@@ -154,6 +163,7 @@ func TestCreateFargate(t *testing.T) {
 			assert.Equal(t, 2, len(networkConfig.AwsvpcConfiguration.Subnets))
 			assert.Equal(t, string(utils.Enabled), aws.StringValue(networkConfig.AwsvpcConfiguration.AssignPublicIp))
 		},
+		ecsSettingDisabled,
 	)
 }
 
@@ -215,6 +225,7 @@ func TestCreateEC2Explicitly(t *testing.T) {
 			networkConfig := input.NetworkConfiguration
 			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
 		},
+		ecsSettingDisabled,
 	)
 }
 
@@ -251,6 +262,7 @@ func TestCreateWithTaskPlacement(t *testing.T) {
 			assert.Len(t, placementStrategy, 2)
 			assert.Equal(t, expectedStrategy, placementStrategy, "Expected Placement Strategy to match")
 		},
+		ecsSettingDisabled,
 	)
 }
 
@@ -310,6 +322,7 @@ func TestCreateWithALB(t *testing.T) {
 			assert.Equal(t, int64(containerPort), aws.Int64Value(loadBalancer.ContainerPort), "LoadBalancer.ContainerPort should match")
 			assert.Equal(t, role, aws.StringValue(observedRole), "Role should match")
 		},
+		ecsSettingDisabled,
 	)
 }
 
@@ -345,6 +358,7 @@ func TestCreateWithHealthCheckGracePeriodAndALB(t *testing.T) {
 			assert.Equal(t, role, aws.StringValue(observedRole), "Role should match")
 			assert.Equal(t, int64(healthCheckGP), *healthCheckGracePeriod, "HealthCheckGracePeriod should match")
 		},
+		ecsSettingDisabled,
 	)
 }
 
@@ -377,6 +391,7 @@ func TestCreateWithELB(t *testing.T) {
 			assert.Equal(t, int64(containerPort), aws.Int64Value(loadBalancer.ContainerPort), "LoadBalancer.ContainerPort should match")
 			assert.Equal(t, role, aws.StringValue(observedRole), "Role should match")
 		},
+		ecsSettingDisabled,
 	)
 }
 
@@ -412,6 +427,7 @@ func TestCreateWithHealthCheckGracePeriodAndELB(t *testing.T) {
 			assert.Equal(t, role, aws.StringValue(observedRole), "Role should match")
 			assert.Equal(t, int64(healthCheckGP), *healthCheckGracePeriod, "HealthCheckGracePeriod should match")
 		},
+		ecsSettingDisabled,
 	)
 }
 
@@ -453,6 +469,7 @@ func TestCreateWithServiceDiscovery(t *testing.T) {
 			assert.Len(t, actualServiceRegistries, 1, "Expected a single Service Registry")
 			assert.Equal(t, sdsARN, aws.StringValue(actualServiceRegistries[0].RegistryArn), "Service Registry should match")
 		},
+		ecsSettingDisabled,
 	)
 }
 
@@ -487,6 +504,7 @@ func TestCreateWithServiceDiscoveryWithContainerNameAndPort(t *testing.T) {
 			assert.Equal(t, containerName, aws.StringValue(actualServiceRegistries[0].ContainerName), "Expected ContainerName to match")
 			assert.Equal(t, sdsARN, aws.StringValue(actualServiceRegistries[0].RegistryArn), "Service Registry should match")
 		},
+		ecsSettingDisabled,
 	)
 }
 
@@ -507,6 +525,7 @@ func TestCreateWithSchedulingStrategyWithDaemon(t *testing.T) {
 			assert.Equal(t, schedulingStrategy, aws.StringValue(actual.SchedulingStrategy), "SchedulingStrategy should match")
 			assert.Nil(t, actual.DesiredCount, "DesiredCount should be nil")
 		},
+		ecsSettingDisabled,
 	)
 }
 
@@ -528,6 +547,7 @@ func TestCreateWithSchedulingStrategyWithReplica(t *testing.T) {
 			assert.NotNil(t, actual.DesiredCount, "DesiredCount should not be nil")
 			assert.Equal(t, int64(0), aws.Int64Value(actual.DesiredCount), "DesiredCount should be zero")
 		},
+		ecsSettingDisabled,
 	)
 }
 
@@ -549,6 +569,7 @@ func TestCreateWithSchedulingStrategyWithReplicaLowercase(t *testing.T) {
 			assert.NotNil(t, actual.DesiredCount, "DesiredCount should not be nil")
 			assert.Equal(t, int64(0), aws.Int64Value(actual.DesiredCount), "DesiredCount should be zero")
 		},
+		ecsSettingDisabled,
 	)
 }
 
@@ -566,6 +587,7 @@ func TestCreateWithoutSchedulingStrategy(t *testing.T) {
 			assert.NotNil(t, actual.DesiredCount, "DesiredCount should not be nil")
 			assert.Equal(t, int64(0), aws.Int64Value(actual.DesiredCount), "DesiredCount should be zero")
 		},
+		ecsSettingDisabled,
 	)
 }
 
@@ -593,6 +615,7 @@ func TestCreateWithResourceTags(t *testing.T) {
 			actualTags := input.Tags
 			assert.ElementsMatch(t, actualTags, expectedTags, "Expected resource tags to match")
 		},
+		ecsSettingDisabled,
 	)
 }
 
@@ -605,9 +628,10 @@ func TestCreateWithECSManagedTags(t *testing.T) {
 		&config.CommandConfig{},
 		&utils.ECSParams{},
 		func(input *ecs.CreateServiceInput) {
-			// feature is enabled by default in the CLI
+			// feature is enabled by default in the CLI when account settings allow tagging
 			assert.True(t, aws.BoolValue(input.EnableECSManagedTags), "Expected ECS Managed Tags to be enabled")
 		},
+		ecsSettingEnabled,
 	)
 }
 
@@ -623,6 +647,43 @@ func TestCreateWithECSManagedTagsDisabled(t *testing.T) {
 		func(input *ecs.CreateServiceInput) {
 			assert.False(t, aws.BoolValue(input.EnableECSManagedTags), "Expected ECS Managed Tags to be disabled")
 		},
+		ecsSettingEnabled,
+	)
+}
+
+// test defaults are set correctly when long ARNs are enabled
+func TestCreateWithLongARNsEnabled(t *testing.T) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+
+	createServiceTest(
+		t,
+		flagSet,
+		&config.CommandConfig{},
+		&utils.ECSParams{},
+		func(input *ecs.CreateServiceInput) {
+			// features are enabled by default in the CLI when account settings allow tagging
+			assert.True(t, aws.BoolValue(input.EnableECSManagedTags), "Expected ECS Managed Tags to be enabled")
+			assert.Equal(t, aws.StringValue(input.PropagateTags), ecs.PropagateTagsTaskDefinition, "Expected propogate tags to be set")
+		},
+		ecsSettingEnabled,
+	)
+}
+
+// test that values are set correctly when long ARNs are disabled
+func TestCreateWithLongARNsDisabled(t *testing.T) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+
+	createServiceTest(
+		t,
+		flagSet,
+		&config.CommandConfig{},
+		&utils.ECSParams{},
+		func(input *ecs.CreateServiceInput) {
+			// features are enabled by default in the CLI when account settings allow tagging
+			assert.False(t, aws.BoolValue(input.EnableECSManagedTags), "Expected ECS Managed Tags to be enabled")
+			assert.Nil(t, input.PropagateTags, "Expected propogate tags to be set")
+		},
+		ecsSettingDisabled,
 	)
 }
 
@@ -635,7 +696,8 @@ func createServiceTest(t *testing.T,
 	flagSet *flag.FlagSet,
 	commandConfig *config.CommandConfig,
 	ecsParams *utils.ECSParams,
-	validateInput validateCreateServiceInputField) {
+	validateInput validateCreateServiceInputField,
+	settingsValue string) {
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -652,6 +714,19 @@ func createServiceTest(t *testing.T,
 		).Do(func(input, cache interface{}) {
 			verifyTaskDefinitionInput(t, taskDefinition, input.(*ecs.RegisterTaskDefinitionInput))
 		}).Return(&registerTaskDefResponse, nil),
+
+		mockEcs.EXPECT().ListAccountSettings(gomock.Any()).Do(func(input interface{}) {
+			req := input.(*ecs.ListAccountSettingsInput)
+			assert.True(t, aws.BoolValue(req.EffectiveSettings), "Expected Effective settings to be true")
+			assert.Equal(t, ecs.SettingNameTaskLongArnFormat, aws.StringValue(req.Name), "Expected setting name to be service long ARN")
+		}).Return(&ecs.ListAccountSettingsOutput{
+			Settings: []*ecs.Setting{
+				&ecs.Setting{
+					Value: aws.String(settingsValue),
+					Name:  aws.String(ecs.SettingNameTaskLongArnFormat),
+				},
+			},
+		}, nil),
 
 		mockEcs.EXPECT().CreateService(
 			gomock.Any(), // createServiceInput
@@ -707,6 +782,18 @@ func getCreateServiceWithDelayMockClient(t *testing.T,
 		).Do(func(input, cache interface{}) {
 			verifyTaskDefinitionInput(t, taskDefinition, input.(*ecs.RegisterTaskDefinitionInput))
 		}).Return(&registerTaskDefResponse, nil),
+
+		mockEcs.EXPECT().ListAccountSettings(gomock.Any()).Do(func(input interface{}) {
+			req := input.(*ecs.ListAccountSettingsInput)
+			assert.True(t, aws.BoolValue(req.EffectiveSettings), "Expected Effective settings to be true")
+			assert.Equal(t, ecs.SettingNameTaskLongArnFormat, aws.StringValue(req.Name), "Expected setting name to be service long ARN")
+		}).Return(&ecs.ListAccountSettingsOutput{
+			Settings: []*ecs.Setting{
+				&ecs.Setting{
+					Value: aws.String(ecsSettingDisabled),
+				},
+			},
+		}, nil),
 
 		mockEcs.EXPECT().CreateService(
 			gomock.Any(), // createServiceInput
