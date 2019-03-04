@@ -37,6 +37,7 @@ Line Interface](http://aws.amazon.com/cli/) product detail page.
 	- [Using FIPS Endpoints](#using-fips-endpoints)
 	- [Using Private Registry Authentication](#using-private-registry-authentication)
 	- [Tagging Resources](#tagging-resources)
+		- [ARN Formats](#arn-formats)
 - [Amazon ECS CLI Commands](#amazon-ecs-cli-commands)
 - [Contributing to the CLI](#contributing-to-the-cli)
 - [License](#license)
@@ -1013,6 +1014,11 @@ INFO[0018] Started container... container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/l
 
 ECS CLI Commmands support a `--tags` flag which allows you to specify AWS Resource Tags in the format `key=value,key2=value2,key3=value3`. Resource tags can be used for cost allocation, automation, access control, and more. See [AWS Tagging Strategies](https://aws.amazon.com/answers/account-management/aws-tagging-strategies/) for a discussion of use cases.
 
+#### ARN Formats
+
+ECS has released [new longer ARN formats](https://aws.amazon.com/blogs/compute/migrating-your-amazon-ecs-deployment-to-the-new-arn-and-resource-id-format-2/). ***You must opt in to these new formats in order to tag Tasks, Services, and Container instances.*** We strongly recommend opting-in all IAM Identities in your account. You can use the [PutAccountSettingDefault](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_PutAccountSettingDefault.html) API to opt-in to the new format for all IAM Identities in your account.
+
+
 #### ecs-cli up command
 
  The ECS Cluster, and CloudFormation template with EC2 resources can be tagged. In addition, the ECS CLI will add tags to the following resources which are created by the CloudFormation template:
@@ -1022,8 +1028,27 @@ ECS CLI Commmands support a `--tags` flag which allows you to specify AWS Resour
  * Route Tables
  * Security Group
  * Autoscaling Group
+ * ECS Container Instances (only if opted-in to [Container Instance Long ARN format](https://aws.amazon.com/blogs/compute/migrating-your-amazon-ecs-deployment-to-the-new-arn-and-resource-id-format-2/))
 
  For the autoscaling group, the ECS CLI will add a `Name` tag whose value will be `ECS Instance - <CloudFormation stack name>`, which will be propagated to your EC2 instances. You can override this behavior by specifying your own `Name` tag.
+
+#### ecs-cli compose create/up
+
+Resource tags specified with `--tags` will be added to your Tasks and Task Definitions. In addition, [ECS Managed Tags](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-using-tags.html) are enabled by default for all tasks launched by the ECS CLI (if you are opted-in the the new Task Long ARN Format). ECS will automatically add a `aws:ecs:clusterName` tag to each of your tasks. You can disable this feature using `--disable-ecs-managed-tags`.
+
+#### ecs-cli compose service create/up
+
+Resource tags specified with `--tags` will be added to your Service and Task Definitions. In addition, all Services created by the ECS CLI have [`propagateTags`](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_CreateService.html#ECS-CreateService-request-propagateTags) set to `TASK_DEFINITION` which means that tags from the Task Definition will propagate to the tasks in the Service. If you add new tags, the ECS CLI will register a new Task Definition and these tags will be propagated by ECS to your tasks.
+
+Similar to `compose up/create`, [ECS Managed Tags](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-using-tags.html) are enabled by default for all Services launched by the ECS CLI (if you are opted-in the the new Task Long ARN Format). ECS will automatically add `aws:ecs:clusterName` and `aws:ecs:serviceName` tags to each of the tasks launched by your service. You can disable this feature using `--disable-ecs-managed-tags`.
+
+#### ecs-cli push
+
+Resource tags specified with `--tags` will be added to your ECR repository.
+
+#### ecs-cli registry-creds up
+
+Resource tags specified with `--tags` will be added to new IAM Roles and new or existing AWS Secrets Manager Secrets. (Existing IAM Roles cannot be tagged.)
 
 ## Amazon ECS CLI Commands
 
