@@ -23,12 +23,14 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/servicediscovery"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/route53"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/tagging"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
 	composeutils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	taggingSDK "github.com/aws/aws-sdk-go/service/resourcegroupstaggingapi"
 	"github.com/docker/libcompose/project"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -262,6 +264,44 @@ func (s *Service) Up() error {
 	// Update Service Discovery
 	if s.Context().CLIContext.Bool(flags.UpdateServiceDiscoveryFlag) {
 		return servicediscoveryUpdate(aws.StringValue(newTaskDefinition.NetworkMode), entity.GetServiceName(s), s.Context())
+	}
+
+	// add new tags, if provided
+	if tagVal := s.Context().CLIContext.String(flags.ResourceTagsFlag); tagVal != "" {
+		err = s.updateTags(ecsService, tagVal)
+		if err != nil {
+			return err
+		}
+		log.Info("Added new tags to service")
+	}
+
+	return nil
+}
+
+// TODO: Refactor this if we use the stand alone tagging client in more places in the future
+var newTaggingClient = tagging.NewTaggingClient
+
+func (s *Service) updateTags(ecsService *ecs.Service, tagVal string) error {
+	taggingClient := newTaggingClient(s.Context().CommandConfig)
+
+	tags, err := utils.GetTagsMap(tagVal)
+	if err != nil {
+		return err
+	}
+
+	input := &taggingSDK.TagResourcesInput{
+		ResourceARNList: []*string{
+			ecsService.ServiceArn,
+		},
+		Tags: tags,
+	}
+	output, err := taggingClient.TagResources(input)
+	if err != nil {
+		return err
+	}
+
+	for resource, info := range output.FailedResourcesMap {
+		return fmt.Errorf("Failed to tag Service %s; error=%s", resource, *info.ErrorMessage)
 	}
 
 	return nil

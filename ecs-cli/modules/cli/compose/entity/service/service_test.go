@@ -15,6 +15,7 @@ package service
 
 import (
 	"flag"
+	"fmt"
 	"strconv"
 	"strings"
 	"testing"
@@ -22,11 +23,14 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/tagging"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/tagging/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	taggingSDK "github.com/aws/aws-sdk-go/service/resourcegroupstaggingapi"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
@@ -869,7 +873,145 @@ func TestUpdateExistingServiceWithForceFlag(t *testing.T) {
 	expectedInput.forceDeployment = forceFlagValue
 
 	// call tests
-	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
+	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService, true)
+}
+
+func TestUpdateExistingServiceWithTags(t *testing.T) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.ResourceTagsFlag, "everybodysworkingforthe=weekend", "")
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	taggingMock := mock_tagging.NewMockClient(ctrl)
+
+	newTaggingClient = func(commandConfig *config.CommandConfig) tagging.Client {
+		return taggingMock
+	}
+
+	serviceARN := "arn:aws:ecs:region:account-id:service/cluster-name/service-name"
+
+	expectedTags := map[string]*string{
+		"everybodysworkingforthe": aws.String("weekend"),
+	}
+
+	// define existing service
+	serviceName := "test-service"
+	existingService := &ecs.Service{
+		TaskDefinition: aws.String("arn/test-task-def"),
+		Status:         aws.String("ACTIVE"),
+		DesiredCount:   aws.Int64(0),
+		ServiceName:    aws.String(serviceName),
+		ServiceArn:     aws.String(serviceARN),
+	}
+
+	gomock.InOrder(
+		taggingMock.EXPECT().TagResources(gomock.Any()).Do(func(x interface{}) {
+			input := x.(*taggingSDK.TagResourcesInput)
+			assert.Equal(t, expectedTags, input.Tags, "Expected tags to match")
+			assert.Equal(t, serviceARN, aws.StringValue(input.ResourceARNList[0]))
+		}).Return(&taggingSDK.TagResourcesOutput{}, nil),
+	)
+
+	// define expected client input given the above info
+	expectedInput := getDefaultUpdateInput()
+	expectedInput.serviceName = serviceName
+
+	// call tests
+	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService, true)
+}
+
+func TestUpdateExistingServiceWithTagsError(t *testing.T) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.ResourceTagsFlag, "everybodysworkingforthe=weekend", "")
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	taggingMock := mock_tagging.NewMockClient(ctrl)
+
+	newTaggingClient = func(commandConfig *config.CommandConfig) tagging.Client {
+		return taggingMock
+	}
+
+	serviceARN := "arn:aws:ecs:region:account-id:service/cluster-name/service-name"
+
+	expectedTags := map[string]*string{
+		"everybodysworkingforthe": aws.String("weekend"),
+	}
+
+	// define existing service
+	serviceName := "test-service"
+	existingService := &ecs.Service{
+		TaskDefinition: aws.String("arn/test-task-def"),
+		Status:         aws.String("ACTIVE"),
+		DesiredCount:   aws.Int64(0),
+		ServiceName:    aws.String(serviceName),
+		ServiceArn:     aws.String(serviceARN),
+	}
+
+	gomock.InOrder(
+		taggingMock.EXPECT().TagResources(gomock.Any()).Do(func(x interface{}) {
+			input := x.(*taggingSDK.TagResourcesInput)
+			assert.Equal(t, expectedTags, input.Tags, "Expected tags to match")
+			assert.Equal(t, serviceARN, aws.StringValue(input.ResourceARNList[0]))
+		}).Return(nil, fmt.Errorf("API Error")),
+	)
+
+	// define expected client input given the above info
+	expectedInput := getDefaultUpdateInput()
+	expectedInput.serviceName = serviceName
+
+	// call tests
+	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService, false)
+}
+
+func TestUpdateExistingServiceWithTagsFailedResource(t *testing.T) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.ResourceTagsFlag, "everybodysworkingforthe=weekend", "")
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	taggingMock := mock_tagging.NewMockClient(ctrl)
+
+	newTaggingClient = func(commandConfig *config.CommandConfig) tagging.Client {
+		return taggingMock
+	}
+
+	serviceARN := "arn:aws:ecs:region:account-id:service/cluster-name/service-name"
+
+	expectedTags := map[string]*string{
+		"everybodysworkingforthe": aws.String("weekend"),
+	}
+
+	// define existing service
+	serviceName := "test-service"
+	existingService := &ecs.Service{
+		TaskDefinition: aws.String("arn/test-task-def"),
+		Status:         aws.String("ACTIVE"),
+		DesiredCount:   aws.Int64(0),
+		ServiceName:    aws.String(serviceName),
+		ServiceArn:     aws.String(serviceARN),
+	}
+
+	gomock.InOrder(
+		taggingMock.EXPECT().TagResources(gomock.Any()).Do(func(x interface{}) {
+			input := x.(*taggingSDK.TagResourcesInput)
+			assert.Equal(t, expectedTags, input.Tags, "Expected tags to match")
+			assert.Equal(t, serviceARN, aws.StringValue(input.ResourceARNList[0]))
+		}).Return(&taggingSDK.TagResourcesOutput{
+			FailedResourcesMap: map[string]*taggingSDK.FailureInfo{
+				"arn:aws:ecs:region:account-id:service/cluster-name/service-name": &taggingSDK.FailureInfo{
+					ErrorMessage: aws.String("Some reason"),
+				},
+			},
+		}, nil),
+	)
+
+	// define expected client input given the above info
+	expectedInput := getDefaultUpdateInput()
+	expectedInput.serviceName = serviceName
+
+	// call tests
+	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService, false)
 }
 
 func TestUpdateExistingServiceWithNewDeploymentConfig(t *testing.T) {
@@ -899,7 +1041,7 @@ func TestUpdateExistingServiceWithNewDeploymentConfig(t *testing.T) {
 	}
 
 	// call tests
-	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
+	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService, true)
 }
 
 func TestUpdateExistingServiceWithNewHCGP(t *testing.T) {
@@ -925,7 +1067,7 @@ func TestUpdateExistingServiceWithNewHCGP(t *testing.T) {
 	expectedInput.healthCheckGracePeriod = aws.Int64(int64(healthCheckGracePeriod))
 
 	// call tests
-	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
+	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService, true)
 }
 
 func TestUpdateExistingServiceWithDesiredCountOverOne(t *testing.T) {
@@ -949,7 +1091,7 @@ func TestUpdateExistingServiceWithDesiredCountOverOne(t *testing.T) {
 	expectedInput.count = aws.Int64(int64(existingDesiredCount))
 
 	// call tests
-	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
+	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService, true)
 }
 
 func TestUpdateExistingServiceWithDaemonSchedulingStrategy(t *testing.T) {
@@ -975,7 +1117,7 @@ func TestUpdateExistingServiceWithDaemonSchedulingStrategy(t *testing.T) {
 	expectedInput.taskDefinition = ""
 
 	// call tests
-	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService)
+	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService, true)
 	startServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, existingService)
 }
 
@@ -1034,7 +1176,8 @@ func updateServiceTest(t *testing.T,
 	commandConfig *config.CommandConfig,
 	ecsParams *utils.ECSParams,
 	expectedInput UpdateServiceParams,
-	existingService *ecs.Service) {
+	existingService *ecs.Service,
+	expectSuccess bool) {
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -1088,7 +1231,11 @@ func updateServiceTest(t *testing.T,
 
 	service.SetTaskDefinition(&taskDefinition)
 	err = service.Up()
-	assert.NoError(t, err, "Unexpected error on service up with current task def")
+	if expectSuccess {
+		assert.NoError(t, err, "Unexpected error on service up with current task def")
+	} else {
+		assert.Error(t, err, "Expected error on service up with current task def")
+	}
 
 	// task definition should be set
 	assert.Equal(t, taskDefArn, aws.StringValue(service.TaskDefinition().TaskDefinitionArn), "TaskDefArn should match")
