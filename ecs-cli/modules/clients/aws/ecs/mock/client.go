@@ -151,6 +151,19 @@ func (mr *MockECSClientMockRecorder) GetEC2InstanceIDs(arg0 interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEC2InstanceIDs", reflect.TypeOf((*MockECSClient)(nil).GetEC2InstanceIDs), arg0)
 }
 
+//GetAttributesFromDescribeContainerInstances indicates an expected call of GetAttributesFromDescribeContainerInstances
+func (_m *MockECSClient) GetAttributesFromDescribeContainerInstances(arg0 []*string) (map[string][]*string, error) {
+	ret := _m.ctrl.Call(_m, "GetAttributesFromDescribeContainerInstances", arg0)
+	ret0, _ := ret[0].(map[string][]*string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+//GetAttributesFromDescribeContainerInstances indicates an expected call of GetAttributesFromDescribeContainerInstances
+func (_mr *MockECSClientMockRecorder) GetAttributesFromDescribeContainerInstances(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetAttributesFromDescribeContainerInstances", arg0)
+}
+
 // GetTasksPages mocks base method
 func (m *MockECSClient) GetTasksPages(arg0 *ecs0.ListTasksInput, arg1 ecs.ProcessTasksAction) error {
 	ret := m.ctrl.Call(m, "GetTasksPages", arg0, arg1)

@@ -60,6 +60,9 @@ type ECSClient interface {
 
 	// Container Instance related
 	GetEC2InstanceIDs(containerInstanceArns []*string) (map[string]string, error)
+
+	//Describe Container Instances - Attribute Checker related
+	GetAttributesFromDescribeContainerInstances(containerInstanceArns []*string) (map[string][]*string, error)
 }
 
 // ecsClient implements ECSClient
@@ -389,6 +392,38 @@ func (c *ecsClient) GetEC2InstanceIDs(containerInstanceArns []*string) (map[stri
 		}
 	}
 	return containerToEC2InstanceMap, nil
+}
+
+// DescribeContainer Instances returns a Map with key container instance ARN and values list of attributes
+func (c *ecsClient) GetAttributesFromDescribeContainerInstances(containerInstanceArns []*string) (map[string][]*string, error) {
+	descrContainerInstancesoutputMap := map[string][]*string{}
+	for i := 0; i < len(containerInstanceArns); i += ecsChunkSize {
+		var chunk []*string
+		if i+ecsChunkSize > len(containerInstanceArns) {
+			chunk = containerInstanceArns[i:len(containerInstanceArns)]
+		} else {
+			chunk = containerInstanceArns[i : i+ecsChunkSize]
+		}
+
+		descrContainerInstances, err := c.client.DescribeContainerInstances(&ecs.DescribeContainerInstancesInput{
+			Cluster:            aws.String(c.config.Cluster),
+			ContainerInstances: chunk,
+		})
+		if err != nil {
+			return nil, err
+		}
+		if len(descrContainerInstances.Failures) != 0 {
+			return nil, fmt.Errorf("Failures %v", descrContainerInstances.Failures)
+		}
+		for _, containerInstance := range descrContainerInstances.ContainerInstances {
+			var containerInstanceAttributeNames []*string
+			for _, containerInstanceattributenames := range containerInstance.Attributes {
+				containerInstanceAttributeNames = append(containerInstanceAttributeNames, containerInstanceattributenames.Name)
+			}
+			descrContainerInstancesoutputMap[aws.StringValue(containerInstance.ContainerInstanceArn)] = containerInstanceAttributeNames
+		}
+	}
+	return descrContainerInstancesoutputMap, nil
 }
 
 // IsActiveCluster returns true if the cluster exists and can be described.

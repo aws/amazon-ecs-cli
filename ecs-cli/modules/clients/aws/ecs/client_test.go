@@ -467,9 +467,9 @@ func TestRunTaskWithOverrides(t *testing.T) {
 	group := "taskGroup"
 	count := 5
 	containterOverride := &ecs.ContainerOverride{
-			Name:    aws.String("railsapp"),
-			Command: aws.StringSlice([]string{"bundle,exec,puma,-C,config/puma.rb"}),
-		}
+		Name:    aws.String("railsapp"),
+		Command: aws.StringSlice([]string{"bundle,exec,puma,-C,config/puma.rb"}),
+	}
 	taskOverride := &ecs.TaskOverride{
 		ContainerOverrides: []*ecs.ContainerOverride{containterOverride},
 	}
@@ -761,6 +761,58 @@ func TestGetEC2InstanceIDsErrorCase(t *testing.T) {
 
 	_, err := client.GetEC2InstanceIDs(containerInstanceArns)
 	assert.Error(t, err, "Expected error when calling GetEC2InstanceIDs")
+}
+
+func TestGetAttributesFromDescribeContainerInstances(t *testing.T) {
+	mockEcs, _, client, ctrl := setupTestController(t, getDefaultCLIConfigParams(t))
+	defer ctrl.Finish()
+	containerInstanceArn := "containerInstanceArn"
+	ContainerInstanceAttributeName := "Name"
+	containerInstanceArns := []*string{aws.String(containerInstanceArn)}
+	AttributeNames := []*ecs.Attribute{{Name: aws.String(ContainerInstanceAttributeName)}}
+	ContainerInstanceAttributeNames := []*string{aws.String(ContainerInstanceAttributeName)}
+
+	containerInstances := []*ecs.ContainerInstance{
+		&ecs.ContainerInstance{
+			ContainerInstanceArn: aws.String(containerInstanceArn),
+			Attributes:           AttributeNames,
+		},
+	}
+
+	mockEcs.EXPECT().DescribeContainerInstances(gomock.Any()).Do(func(input interface{}) {
+		req := input.(*ecs.DescribeContainerInstancesInput)
+		assert.Equal(t, clusterName, aws.StringValue(req.Cluster), "Expected clusterName to match")
+		assert.Equal(t, len(containerInstanceArns), len(req.ContainerInstances), "Expected ContainerInstances to be the same length")
+		assert.Equal(t, containerInstanceArn, aws.StringValue(req.ContainerInstances[0]), "Expected containerInstanceArn to match")
+	}).Return(&ecs.DescribeContainerInstancesOutput{
+		ContainerInstances: containerInstances,
+	}, nil)
+
+	descrContainerInstancesoutputMap, err := client.GetAttributesFromDescribeContainerInstances(containerInstanceArns)
+	assert.NoError(t, err, "Unexpect error when calling GetAttributesFromDescribeContainerInstances")
+	assert.Equal(t, ContainerInstanceAttributeNames, descrContainerInstancesoutputMap[containerInstanceArn])
+}
+
+func TestGetAttributesFromDescribeContainerInstancesWithEmptyArns(t *testing.T) {
+	_, _, client, ctrl := setupTestController(t, nil)
+	defer ctrl.Finish()
+
+	containerARNToGetAttributesMap, err := client.GetAttributesFromDescribeContainerInstances([]*string{})
+	assert.NoError(t, err, "Unexpected error when calling GetAttributesFromDescribeContainerInstances")
+	assert.Empty(t, containerARNToGetAttributesMap, "containerARNToGetAttributesMap should be empty")
+}
+
+func TestGetAttributesFromDescribeContainerInstancesErrorCase(t *testing.T) {
+	mockEcs, _, client, ctrl := setupTestController(t, getDefaultCLIConfigParams(t))
+	defer ctrl.Finish()
+
+	containerInstanceArn := "containerInstanceArn"
+	containerInstanceArns := []*string{aws.String(containerInstanceArn)}
+
+	mockEcs.EXPECT().DescribeContainerInstances(gomock.Any()).Return(nil, errors.New("something wrong"))
+
+	_, err := client.GetAttributesFromDescribeContainerInstances(containerInstanceArns)
+	assert.Error(t, err, "Expected error when calling GetAttributesFromDescribeContainerInstances")
 }
 
 /*

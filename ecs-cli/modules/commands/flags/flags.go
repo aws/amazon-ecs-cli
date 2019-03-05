@@ -83,6 +83,9 @@ const (
 	LaunchTypeFlag         = "launch-type"
 	DefaultLaunchTypeFlag  = "default-launch-type"
 	SchedulingStrategyFlag = "scheduling-strategy"
+	
+	//attribute-checker
+	ContainerInstancesFlag = "container-instances"
 
 	// Cluster
 	AsgMaxSizeFlag                  = "size"

@@ -29,6 +29,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/version"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/attributechecker"
 )
 
 func main() {
@@ -54,6 +55,7 @@ func main() {
 		imageCommand.ImagesCommand(),
 		licenseCommand.LicenseCommand(),
 		composeCommand.ComposeCommand(composeFactory),
+		attributecheckercommand.AttributecheckerCommand(),
 		logsCommand.LogCommand(),
 		regcredsCommand.RegistryCredsCommand(),
 	}
