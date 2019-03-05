@@ -91,8 +91,8 @@
     "ecr-login/config",
     "ecr-login/version"
   ]
-  revision = "b9fd5a88b82e749a5227a31409fea58f91bdd489"
-  version = "v0.2.0"
+  revision = "798bf2536dbe8a8d297e0b9ce5d61a8ef3df7775"
+  version = "v0.3.0"
 
 [[projects]]
   name = "github.com/containerd/continuity"
@@ -330,6 +330,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2c5ab6ee696b39b2da9dba2cd47d69c3d2f04b1196cba92e3a04a58fb0cb8c25"
+  inputs-digest = "7b6e16cdffbc1c5f428b7bfaf4ce872385176e969728bf5b23c76eb065915f64"
   solver-name = "gps-cdcl"
   solver-version = 1
