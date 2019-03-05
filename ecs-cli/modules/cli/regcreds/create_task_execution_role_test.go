@@ -124,7 +124,7 @@ func TestCreateTaskExecutionRole_UsGovPartition(t *testing.T) {
 
 	mocks := setupTestController(t)
 	gomock.InOrder(
-		mocks.MockIAM.EXPECT().CreateOrFindRole(testRoleName, roleDescriptionString, assumeRolePolicyDocString).Return(*testRoleArn, nil),
+		mocks.MockIAM.EXPECT().CreateOrFindRole(testRoleName, roleDescriptionString, assumeRolePolicyDocString, nil).Return(*testRoleArn, nil),
 		mocks.MockIAM.EXPECT().CreateRole(gomock.Any()).Return(&iam.CreateRoleOutput{Role: &iam.Role{Arn: testRoleArn}}, nil),
 	)
 	gomock.InOrder(
@@ -247,7 +247,7 @@ func TestCreateTaskExecutionRole_ErrorOnCreatePolicyFails(t *testing.T) {
 
 	mocks := setupTestController(t)
 	gomock.InOrder(
-		mocks.MockIAM.EXPECT().CreateOrFindRole(testRoleName, roleDescriptionString, assumeRolePolicyDocString).Return(*testRoleArn, nil),
+		mocks.MockIAM.EXPECT().CreateOrFindRole(testRoleName, roleDescriptionString, assumeRolePolicyDocString, nil).Return(*testRoleArn, nil),
 		mocks.MockIAM.EXPECT().CreateRole(gomock.Any()).Return(&iam.CreateRoleOutput{Role: &iam.Role{Arn: testRoleArn}}, nil),
 	)
 	gomock.InOrder(
