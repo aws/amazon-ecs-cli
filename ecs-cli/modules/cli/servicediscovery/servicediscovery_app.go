@@ -185,7 +185,7 @@ func create(c *cli.Context, networkMode, serviceName string, cfnClient cloudform
 		return nil, errors.Wrapf(err, "A Service Discovery Service CloudFormation stack for %s already exists, failed to delete existing stack", serviceName)
 	}
 
-	if _, err := cfnClient.CreateStack(cloudformation.GetSDSTemplate(), sdsStackName, false, sdsParams); err != nil {
+	if _, err := cfnClient.CreateStack(cloudformation.GetSDSTemplate(), sdsStackName, false, sdsParams, nil); err != nil {
 		return nil, err
 	}
 
@@ -221,7 +221,7 @@ func createNamespace(c *cli.Context, networkMode, serviceName, clusterName strin
 		return nil, errors.Wrapf(err, "A Private DNS Namespace CloudFormation stack for %s already exists, failed to delete existing stack: %s", serviceName, err)
 	}
 
-	if _, err := cfnClient.CreateStack(cloudformation.GetPrivateNamespaceTemplate(), namespaceStackName, false, namespaceParams); err != nil {
+	if _, err := cfnClient.CreateStack(cloudformation.GetPrivateNamespaceTemplate(), namespaceStackName, false, namespaceParams, nil); err != nil {
 		return nil, err
 	}
 

@@ -143,6 +143,9 @@ const (
 	OutputDirFlag             = "output-dir"
 
 	DesiredTaskStatus = "desired-status"
+
+	ResourceTagsFlag          = "tags"
+	DisableECSManagedTagsFlag = "disable-ecs-managed-tags"
 )
 
 // OptionalRegionAndProfileFlags provides these flags:
@@ -247,15 +250,6 @@ func DebugFlag() []cli.Flag {
 		cli.BoolFlag{
 			Name:  VerboseFlag + ",debug",
 			Usage: "[Optional] Increase the verbosity of command output to aid in diagnostics.",
-		},
-	}
-}
-
-func FipsEndpointFlag() []cli.Flag {
-	return []cli.Flag{
-		cli.BoolFlag{
-			Name: UseFIPSFlag + ",fips",
-			Usage: "[Optional] Routes calls to AWS services through FIPS endpoints.",
 		},
 	}
 }

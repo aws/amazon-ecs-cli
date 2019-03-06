@@ -111,7 +111,7 @@ func createCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "create",
 		Usage:        "Creates an ECS task definition from your compose file. Note that we do not recommend using plain text environment variables for sensitive information, such as credential data.",
 		Action:       compose.WithProject(factory, compose.ProjectCreate, false),
-		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag()),
+		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), resourceTagsFlag(false)),
 		OnUsageError: flags.UsageErrorFactory("create"),
 	}
 }
@@ -132,7 +132,7 @@ func upCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "up",
 		Usage:        "Creates an ECS task definition from your compose file (if it does not already exist) and runs one instance of that task on your cluster (a combination of create and start).",
 		Action:       compose.WithProject(factory, compose.ProjectUp, false),
-		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), flags.OptionalForceUpdateFlag()),
+		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), flags.OptionalForceUpdateFlag(), resourceTagsFlag(true), disableECSManagedTagsFlag()),
 		OnUsageError: flags.UsageErrorFactory("up"),
 	}
 }
@@ -142,7 +142,7 @@ func startCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "start",
 		Usage:        "Starts a single task from the task definition created from your compose file.",
 		Action:       compose.WithProject(factory, compose.ProjectStart, false),
-		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag()),
+		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), resourceTagsFlag(true), disableECSManagedTagsFlag()),
 		OnUsageError: flags.UsageErrorFactory("start"),
 	}
 }
@@ -153,7 +153,7 @@ func runCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Usage:        "Starts all containers overriding commands with the supplied one-off commands for the containers.",
 		ArgsUsage:    "[CONTAINER_NAME] [\"COMMAND ...\"] [CONTAINER_NAME] [\"COMMAND ...\"] ...",
 		Action:       compose.WithProject(factory, compose.ProjectRun, false),
-		Flags:        flags.OptionalConfigFlags(),
+		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), resourceTagsFlag(true), disableECSManagedTagsFlag()),
 		OnUsageError: flags.UsageErrorFactory("run"),
 	}
 }
@@ -174,7 +174,29 @@ func scaleCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "scale",
 		Usage:        "ecs-cli compose scale [count] - scales the number of running tasks to the specified count.",
 		Action:       compose.WithProject(factory, compose.ProjectScale, false),
-		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag()),
+		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), resourceTagsFlag(true), disableECSManagedTagsFlag()),
 		OnUsageError: flags.UsageErrorFactory("scale"),
+	}
+}
+
+func resourceTagsFlag(runTasks bool) []cli.Flag {
+	usage := "[Optional] Specify resource tags for your Task Definition. Specify tags in the format 'key1=value1,key2=value2,key3=value3'."
+	if runTasks {
+		usage = "[Optional] Specify resource tags for your ECS Tasks and Task Definition. Specify tags in the format 'key1=value1,key2=value2,key3=value3'."
+	}
+	return []cli.Flag{
+		cli.StringFlag{
+			Name:  flags.ResourceTagsFlag,
+			Usage: usage,
+		},
+	}
+}
+
+func disableECSManagedTagsFlag() []cli.Flag {
+	return []cli.Flag{
+		cli.BoolFlag{
+			Name:  flags.DisableECSManagedTagsFlag,
+			Usage: "[Optional] Disable ECS Managed Tags (A Cluster name tag will not be automatically added to tasks).",
+		},
 	}
 }

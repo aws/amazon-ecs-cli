@@ -37,7 +37,7 @@ type ProcessTasksAction func(tasks []*ecs.Task) error
 // ECSClient is an interface that specifies only the methods used from the sdk interface. Intended to make mocking and testing easier.
 type ECSClient interface {
 	// Cluster related
-	CreateCluster(clusterName string) (string, error)
+	CreateCluster(clusterName string, tags []*ecs.Tag) (string, error)
 	DeleteCluster(clusterName string) (string, error)
 	IsActiveCluster(clusterName string) (bool, error)
 
@@ -48,7 +48,6 @@ type ECSClient interface {
 	DeleteService(serviceName string) error
 
 	// Task Definition related
-	RegisterTaskDefinition(request *ecs.RegisterTaskDefinitionInput) (*ecs.TaskDefinition, error)
 	RegisterTaskDefinitionIfNeeded(request *ecs.RegisterTaskDefinitionInput, tdCache cache.Cache) (*ecs.TaskDefinition, error)
 	DescribeTaskDefinition(taskDefinitionName string) (*ecs.TaskDefinition, error)
 
@@ -60,9 +59,10 @@ type ECSClient interface {
 
 	// Container Instance related
 	GetEC2InstanceIDs(containerInstanceArns []*string) (map[string]string, error)
-
 	//Describe Container Instances - Attribute Checker related
 	GetAttributesFromDescribeContainerInstances(containerInstanceArns []*string) (map[string][]*string, error)
+	// Settings related
+	ListAccountSettings(input *ecs.ListAccountSettingsInput) (*ecs.ListAccountSettingsOutput, error)
 }
 
 // ecsClient implements ECSClient
@@ -86,8 +86,15 @@ func newClient(config *config.CommandConfig, client ecsiface.ECSAPI) ECSClient {
 	}
 }
 
-func (c *ecsClient) CreateCluster(clusterName string) (string, error) {
-	resp, err := c.client.CreateCluster(&ecs.CreateClusterInput{ClusterName: &clusterName})
+func (c *ecsClient) CreateCluster(clusterName string, tags []*ecs.Tag) (string, error) {
+	input := &ecs.CreateClusterInput{
+		ClusterName: &clusterName,
+	}
+	if len(tags) > 0 {
+		input.Tags = tags
+	}
+	resp, err := c.client.CreateCluster(input)
+
 	if err != nil {
 		log.WithFields(log.Fields{
 			"cluster": clusterName,
@@ -173,7 +180,7 @@ func (c *ecsClient) DescribeService(serviceName string) (*ecs.DescribeServicesOu
 	return output, err
 }
 
-func (c *ecsClient) RegisterTaskDefinition(request *ecs.RegisterTaskDefinitionInput) (*ecs.TaskDefinition, error) {
+func (c *ecsClient) registerTaskDefinition(request *ecs.RegisterTaskDefinitionInput) (*ecs.TaskDefinition, error) {
 	resp, err := c.client.RegisterTaskDefinition(request)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -256,7 +263,7 @@ func (c *ecsClient) constructTaskDefinitionCacheHash(taskDefinition *ecs.TaskDef
 
 // persistTaskDefinition registers the task definition with ECS and creates a new local cache entry
 func persistTaskDefinition(request *ecs.RegisterTaskDefinitionInput, client *ecsClient, taskDefinitionCache cache.Cache) (*ecs.TaskDefinition, error) {
-	resp, err := client.RegisterTaskDefinition(request)
+	resp, err := client.registerTaskDefinition(request)
 	if err != nil {
 		return nil, err
 	}
@@ -449,4 +456,9 @@ func (c *ecsClient) IsActiveCluster(clusterName string) (bool, error) {
 
 	log.WithFields(log.Fields{"cluster": clusterName, "status": status}).Debug("cluster status")
 	return false, nil
+}
+
+// Checks if the given setting is enabled
+func (c *ecsClient) ListAccountSettings(input *ecs.ListAccountSettingsInput) (*ecs.ListAccountSettingsOutput, error) {
+	return c.client.ListAccountSettings(input)
 }

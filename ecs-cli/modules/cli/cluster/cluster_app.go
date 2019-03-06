@@ -31,17 +31,27 @@ import (
 	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/aws-sdk-go/aws"
+	sdkCFN "github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/docker/libcompose/project"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
 // user data builder can be easily mocked in tests
-var newUserDataBuilder func(string) userdata.UserDataBuilder = userdata.NewBuilder
+var newUserDataBuilder func(string, bool) userdata.UserDataBuilder = userdata.NewBuilder
 
 // displayTitle flag is used to print the title for the fields
 const displayTitle = true
+
+// Values returned by the ECS Settings API
+const (
+	ecsSettingEnabled  = "enabled"
+	ecsSettingDisabled = "disabled"
+)
 
 const (
 	ParameterKeyAsgMaxSize               = "AsgMaxSize"
@@ -233,11 +243,30 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 		deleteStack = true
 	}
 
+	tags := make([]*ecs.Tag, 0)
+	if tagVal := context.String(flags.ResourceTagsFlag); tagVal != "" {
+		tags, err = utils.ParseTags(tagVal, tags)
+		if err != nil {
+			return err
+		}
+	}
+
+	var containerInstanceTaggingSupported bool
+
+	if len(tags) > 0 {
+		// determine if container instance tagging is supported
+		containerInstanceTaggingSupported, err = canEnableContainerInstanceTagging(awsClients.ECSClient)
+		if err != nil {
+			return err
+		}
+	}
+
 	// Populate cfn params
-	cfnParams, err := cliFlagsToCfnStackParams(context, commandConfig.Cluster, launchType)
+	cfnParams, err := cliFlagsToCfnStackParams(context, commandConfig.Cluster, launchType, containerInstanceTaggingSupported)
 	if err != nil {
 		return err
 	}
+
 	cfnParams.Add(ParameterKeyCluster, commandConfig.Cluster)
 	if context.Bool(flags.NoAutoAssignPublicIPAddressFlag) {
 		cfnParams.Add(ParameterKeyAssociatePublicIPAddress, "false")
@@ -306,7 +335,7 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 	}
 
 	// Create ECS cluster
-	if _, err := ecsClient.CreateCluster(commandConfig.Cluster); err != nil {
+	if _, err := ecsClient.CreateCluster(commandConfig.Cluster, tags); err != nil {
 		return err
 	}
 
@@ -321,15 +350,42 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 		}
 	}
 	// Create cfn stack
-	template := cloudformation.GetClusterTemplate()
+	template, err := cloudformation.GetClusterTemplate(tags, stackName)
+	if err != nil {
+		return errors.Wrapf(err, "Error building cloudformation template")
+	}
 
-	if _, err := cfnClient.CreateStack(template, stackName, true, cfnParams); err != nil {
+	if _, err := cfnClient.CreateStack(template, stackName, true, cfnParams, convertToCFNTags(tags)); err != nil {
 		return err
 	}
 
 	logrus.Info("Waiting for your cluster resources to be created...")
 	// Wait for stack creation
 	return cfnClient.WaitUntilCreateComplete(stackName)
+}
+
+func canEnableContainerInstanceTagging(client ecsclient.ECSClient) (bool, error) {
+	output, err := client.ListAccountSettings(&ecs.ListAccountSettingsInput{
+		EffectiveSettings: aws.Bool(true),
+		Name:              aws.String(ecs.SettingNameContainerInstanceLongArnFormat),
+	})
+	if err != nil {
+		return false, err
+	}
+
+	// This should never evaluate to true, unless there is a problem with API
+	// This if block ensures that the CLI does not panic in that case
+	if len(output.Settings) < 1 {
+		return false, fmt.Errorf("Received unexpected response from ECS Settings API: %s", output)
+	}
+
+	if aws.StringValue(output.Settings[0].Value) == ecsSettingEnabled {
+		logrus.Warnf("Enabling container instance tagging because %s is enabled for your identity, %s. If this is not your account default setting, your instances will fail to join your cluster. You can use the PutAccountSettingDefault API to change your account default.", ecs.SettingNameContainerInstanceLongArnFormat, aws.StringValue(output.Settings[0].PrincipalArn))
+		return true, nil
+	}
+
+	logrus.Warnf("Disabling container instance tagging because %s is not enabled for your identity, %s. You can use the PutAccountSettingDefault API to change your account default.", ecs.SettingNameContainerInstanceLongArnFormat, aws.StringValue(output.Settings[0].PrincipalArn))
+	return false, nil
 }
 
 func determineArchitecture(cfnParams *cloudformation.CfnStackParams) (string, error) {
@@ -352,6 +408,18 @@ func determineArchitecture(cfnParams *cloudformation.CfnStackParams) (string, er
 	}
 
 	return architecture, nil
+}
+
+// unfortunately go SDK lacks a unified Tag type
+func convertToCFNTags(tags []*ecs.Tag) []*sdkCFN.Tag {
+	var cfnTags []*sdkCFN.Tag
+	for _, tag := range tags {
+		cfnTags = append(cfnTags, &sdkCFN.Tag{
+			Key:   tag.Key,
+			Value: tag.Value,
+		})
+	}
+	return cfnTags
 }
 
 var newCommandConfig = func(context *cli.Context, rdwr config.ReadWriter) (*config.CommandConfig, error) {
@@ -378,7 +446,16 @@ func createEmptyCluster(context *cli.Context, ecsClient ecsclient.ECSClient, cfn
 		return fmt.Errorf("A CloudFormation stack already exists for the cluster '%s'.", commandConfig.Cluster)
 	}
 
-	if _, err := ecsClient.CreateCluster(commandConfig.Cluster); err != nil {
+	tags := make([]*ecs.Tag, 0)
+	var err error
+	if tagVal := context.String(flags.ResourceTagsFlag); tagVal != "" {
+		tags, err = utils.ParseTags(tagVal, tags)
+		if err != nil {
+			return err
+		}
+	}
+
+	if _, err := ecsClient.CreateCluster(commandConfig.Cluster, tags); err != nil {
 		return err
 	}
 
@@ -530,7 +607,7 @@ func deleteClusterPrompt(reader *bufio.Reader) error {
 }
 
 // cliFlagsToCfnStackParams converts values set for CLI flags to cloudformation stack parameters.
-func cliFlagsToCfnStackParams(context *cli.Context, cluster, launchType string) (*cloudformation.CfnStackParams, error) {
+func cliFlagsToCfnStackParams(context *cli.Context, cluster, launchType string, tagContainerInstances bool) (*cloudformation.CfnStackParams, error) {
 	cfnParams := cloudformation.NewCfnStackParams(requiredParameters)
 	for cliFlag, cfnParamKeyName := range flagNamesToStackParameterKeys {
 		cfnParamKeyValue := context.String(cliFlag)
@@ -540,7 +617,7 @@ func cliFlagsToCfnStackParams(context *cli.Context, cluster, launchType string) 
 	}
 
 	if launchType == config.LaunchTypeEC2 {
-		builder := newUserDataBuilder(cluster)
+		builder := newUserDataBuilder(cluster, tagContainerInstances)
 		// handle extra user data, which is a string slice flag
 		if userDataFiles := context.StringSlice(flags.UserDataFlag); len(userDataFiles) > 0 {
 			for _, file := range userDataFiles {

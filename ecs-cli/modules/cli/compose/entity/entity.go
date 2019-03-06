@@ -41,4 +41,5 @@ type ProjectEntity interface {
 	TaskDefinitionCache() cache.Cache
 	SetTaskDefinition(taskDefinition *ecs.TaskDefinition)
 	EntityType() types.Type
+	GetTags() ([]*ecs.Tag, error)
 }

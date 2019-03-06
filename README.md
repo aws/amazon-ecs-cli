@@ -37,6 +37,8 @@ Line Interface](http://aws.amazon.com/cli/) product detail page.
 	- [Using FIPS Endpoints](#using-fips-endpoints)
 	- [Using Private Registry Authentication](#using-private-registry-authentication)
 	- [Checking for Missing Attributes and Debugging Reason: Attribute Errors](#Checking-for-Missing-Attributes-and-Debugging-Reason:-Attribute-Errors)
+	- [Tagging Resources](#tagging-resources)
+
 - [Amazon ECS CLI Commands](#amazon-ecs-cli-commands)
 - [Contributing to the CLI](#contributing-to-the-cli)
 - [License](#license)
@@ -1025,6 +1027,23 @@ ae66e18e-1d46-47ff-81c5-647f0f1426ce  com.amazonaws.ecs.capability.logging-drive
 ```
 
 The command outputs a table of container instances and which attributes they are missing. In this case, the Task Definition requires the Fluentd log driver, but 2 container instances lack support for it.
+
+### Tagging Resources
+
+ECS CLI Commmands support a `--tags` flag which allows you to specify AWS Resource Tags in the format `key=value,key2=value2,key3=value3`. Resource tags can be used for cost allocation, automation, access control, and more. See [AWS Tagging Strategies](https://aws.amazon.com/answers/account-management/aws-tagging-strategies/) for a discussion of use cases.
+
+#### ecs-cli up command
+
+ The ECS Cluster, and CloudFormation template with EC2 resources can be tagged. In addition, the ECS CLI will add tags to the following resources which are created by the CloudFormation template:
+ * VPC
+ * Subnets
+ * Internet Gateway
+ * Route Tables
+ * Security Group
+ * Autoscaling Group
+
+ For the autoscaling group, the ECS CLI will add a `Name` tag whose value will be `ECS Instance - <CloudFormation stack name>`, which will be propagated to your EC2 instances. You can override this behavior by specifying your own `Name` tag.
+
 
 ## Amazon ECS CLI Commands
 

@@ -14,9 +14,12 @@
 package task
 
 import (
+	"fmt"
+
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
+	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
@@ -34,6 +37,7 @@ type Task struct {
 	cache       cache.Cache
 	ecsContext  *context.ECSContext
 	timeSleeper *utils.TimeSleeper
+	tags        []*ecs.Tag
 }
 
 // NewTask creates an instance of a Task and also sets up a cache for task definition
@@ -366,7 +370,44 @@ func (t *Task) buildRunTaskInput(taskDefinition string, count int, overrides map
 		runTaskInput.LaunchType = aws.String(launchType)
 	}
 
+	tags, err := t.GetTags()
+	if err != nil {
+		return nil, err
+	}
+	if len(tags) > 0 {
+		runTaskInput.Tags = tags
+	}
+
+	if !t.Context().CLIContext.Bool(flags.DisableECSManagedTagsFlag) {
+		enabled, err := isTaskLongARNEnabled(t.Context().ECSClient)
+		if err != nil {
+			return nil, err
+		}
+		if enabled {
+			log.Info("Auto-enabling ECS Managed Tags")
+			runTaskInput.EnableECSManagedTags = aws.Bool(true)
+		}
+	}
+
 	return runTaskInput, nil
+}
+
+func isTaskLongARNEnabled(client ecsclient.ECSClient) (bool, error) {
+	output, err := client.ListAccountSettings(&ecs.ListAccountSettingsInput{
+		EffectiveSettings: aws.Bool(true),
+		Name:              aws.String(ecs.SettingNameTaskLongArnFormat),
+	})
+	if err != nil {
+		return false, err
+	}
+
+	// This should never evaluate to true, unless there is a problem with API
+	// This if block ensures that the CLI does not panic in that case
+	if len(output.Settings) < 1 {
+		return false, fmt.Errorf("Received unexpected response from ECS Settings API: %s", output)
+	}
+
+	return aws.StringValue(output.Settings[0].Value) == "enabled", nil
 }
 
 // createOne issues run task with count=1 and waits for it to get to running state
@@ -446,6 +487,22 @@ func (t *Task) up(forceUpdate bool) error {
 		return waitForTasks(t, ecsTaskArns)
 	}
 	return nil
+}
+
+func (t *Task) GetTags() ([]*ecs.Tag, error) {
+	if t.tags == nil {
+		tags := make([]*ecs.Tag, 0)
+		if tagVal := t.Context().CLIContext.String(flags.ResourceTagsFlag); tagVal != "" {
+			var err error
+			tags, err = utils.ParseTags(tagVal, tags)
+			if err != nil {
+				return nil, err
+			}
+		}
+		t.tags = tags
+
+	}
+	return t.tags, nil
 }
 
 // ---------- naming utils -----------

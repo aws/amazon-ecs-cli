@@ -22,13 +22,16 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/servicediscovery"
+	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/route53"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/tagging"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
 	composeutils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	taggingSDK "github.com/aws/aws-sdk-go/service/resourcegroupstaggingapi"
 	"github.com/docker/libcompose/project"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -46,6 +49,7 @@ type Service struct {
 	role              string
 	healthCheckGP     *int64
 	serviceRegistries []*ecs.ServiceRegistry
+	tags              []*ecs.Tag
 }
 
 const (
@@ -263,6 +267,44 @@ func (s *Service) Up() error {
 		return servicediscoveryUpdate(aws.StringValue(newTaskDefinition.NetworkMode), entity.GetServiceName(s), s.Context())
 	}
 
+	// add new tags, if provided
+	if tagVal := s.Context().CLIContext.String(flags.ResourceTagsFlag); tagVal != "" {
+		err = s.updateTags(ecsService, tagVal)
+		if err != nil {
+			return err
+		}
+		log.Info("Added new tags to service")
+	}
+
+	return nil
+}
+
+// TODO: Refactor this if we use the stand alone tagging client in more places in the future
+var newTaggingClient = tagging.NewTaggingClient
+
+func (s *Service) updateTags(ecsService *ecs.Service, tagVal string) error {
+	taggingClient := newTaggingClient(s.Context().CommandConfig)
+
+	tags, err := utils.GetTagsMap(tagVal)
+	if err != nil {
+		return err
+	}
+
+	input := &taggingSDK.TagResourcesInput{
+		ResourceARNList: []*string{
+			ecsService.ServiceArn,
+		},
+		Tags: tags,
+	}
+	output, err := taggingClient.TagResources(input)
+	if err != nil {
+		return err
+	}
+
+	for resource, info := range output.FailedResourcesMap {
+		return fmt.Errorf("Failed to tag Service %s; error=%s", resource, *info.ErrorMessage)
+	}
+
 	return nil
 }
 
@@ -438,6 +480,22 @@ func (s *Service) EntityType() types.Type {
 	return types.Service
 }
 
+func (s *Service) GetTags() ([]*ecs.Tag, error) {
+	if s.tags == nil {
+		tags := make([]*ecs.Tag, 0)
+		if tagVal := s.Context().CLIContext.String(flags.ResourceTagsFlag); tagVal != "" {
+			var err error
+			tags, err = utils.ParseTags(tagVal, tags)
+			if err != nil {
+				return nil, err
+			}
+		}
+		s.tags = tags
+
+	}
+	return s.tags, nil
+}
+
 // ----------- Commands' helper functions --------
 
 func (s *Service) buildCreateServiceInput(serviceName, taskDefName string) (*ecs.CreateServiceInput, error) {
@@ -513,7 +571,52 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string) (*ecs
 		return nil, err
 	}
 
+	tags, err := s.GetTags()
+	if err != nil {
+		return nil, err
+	}
+	if len(tags) > 0 {
+		createServiceInput.Tags = tags
+	}
+
+	arnEnabled, err := isTaskLongARNEnabled(s.Context().ECSClient)
+	if err != nil {
+		return nil, err
+	}
+
+	if arnEnabled {
+		// Even if the customer didn't create the service with tags, we enable propogation
+		// So that later, if the customer updates to a new task def that has tags,
+		// those tags will be propogated to tasks
+		createServiceInput.PropagateTags = aws.String(ecs.PropagateTagsTaskDefinition)
+	}
+
+	if !s.Context().CLIContext.Bool(flags.DisableECSManagedTagsFlag) {
+		if arnEnabled {
+			log.Info("Auto-enabling ECS Managed Tags")
+			createServiceInput.EnableECSManagedTags = aws.Bool(true)
+		}
+	}
+
 	return createServiceInput, nil
+}
+
+func isTaskLongARNEnabled(client ecsclient.ECSClient) (bool, error) {
+	output, err := client.ListAccountSettings(&ecs.ListAccountSettingsInput{
+		EffectiveSettings: aws.Bool(true),
+		Name:              aws.String(ecs.SettingNameTaskLongArnFormat),
+	})
+	if err != nil {
+		return false, err
+	}
+
+	// This should never evaluate to true, unless there is a problem with API
+	// This if block ensures that the CLI does not panic in that case
+	if len(output.Settings) < 1 {
+		return false, fmt.Errorf("Received unexpected response from ECS Settings API: %s", output)
+	}
+
+	return aws.StringValue(output.Settings[0].Value) == "enabled", nil
 }
 
 func (s *Service) logCreateService(serviceName, taskDefName string) {

@@ -28,7 +28,7 @@ func PushCommand() cli.Command {
 		ArgsUsage:    image.PushImageFormat,
 		Before:       app.BeforeApp,
 		Action:       image.ImagePush,
-		Flags:        flags.AppendFlags(imagePushFlags(), flags.OptionalRegionAndProfileFlags(), flags.DebugFlag(), flags.FipsEndpointFlag()),
+		Flags:        flags.AppendFlags(imagePushFlags(), flags.OptionalRegionAndProfileFlags(), flags.DebugFlag(), fipsEndpointFlag()),
 		OnUsageError: flags.UsageErrorFactory("push"),
 	}
 }
@@ -41,7 +41,7 @@ func PullCommand() cli.Command {
 		ArgsUsage:    image.PullImageFormat,
 		Before:       app.BeforeApp,
 		Action:       image.ImagePull,
-		Flags:        flags.AppendFlags(imagePullFlags(), flags.OptionalRegionAndProfileFlags(), flags.DebugFlag(), flags.FipsEndpointFlag()),
+		Flags:        flags.AppendFlags(imagePullFlags(), flags.OptionalRegionAndProfileFlags(), flags.DebugFlag(), fipsEndpointFlag()),
 		OnUsageError: flags.UsageErrorFactory("pull"),
 	}
 }
@@ -54,7 +54,7 @@ func ImagesCommand() cli.Command {
 		ArgsUsage:    image.ListImageFormat,
 		Before:       app.BeforeApp,
 		Action:       image.ImageList,
-		Flags:        flags.AppendFlags(imageListFlags(), flags.OptionalRegionAndProfileFlags(), flags.DebugFlag(),flags.FipsEndpointFlag()),
+		Flags:        flags.AppendFlags(imageListFlags(), flags.OptionalRegionAndProfileFlags(), flags.DebugFlag()),
 		OnUsageError: flags.UsageErrorFactory("images"),
 	}
 }
@@ -64,6 +64,10 @@ func imagePushFlags() []cli.Flag {
 		cli.StringFlag{
 			Name:  flags.RegistryIdFlag,
 			Usage: "[Optional] Specifies the Amazon ECR registry ID to push the image to. By default, images are pushed to the current AWS account.",
+		},
+		cli.StringFlag{
+			Name:  flags.ResourceTagsFlag,
+			Usage: "[Optional] Specify AWS Resource tags which will be to your ECR repository. Specify in the format 'key1=value1,key2=value2,key3=value3.",
 		},
 	}
 }
@@ -86,6 +90,15 @@ func imageListFlags() []cli.Flag {
 		cli.BoolFlag{
 			Name:  flags.UntaggedFlag,
 			Usage: "[Optional] Filters the result to show only untagged images",
+		},
+	}
+}
+
+func fipsEndpointFlag() []cli.Flag {
+	return []cli.Flag{
+		cli.BoolFlag{
+			Name:  flags.UseFIPSFlag + ",fips",
+			Usage: "[Optional] Routes calls to ECR through FIPS endpoints.",
 		},
 	}
 }

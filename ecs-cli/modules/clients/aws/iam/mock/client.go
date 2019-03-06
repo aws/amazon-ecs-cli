@@ -61,16 +61,16 @@ func (mr *MockClientMockRecorder) AttachRolePolicy(arg0, arg1 interface{}) *gomo
 }
 
 // CreateOrFindRole mocks base method
-func (m *MockClient) CreateOrFindRole(arg0, arg1, arg2 string) (string, error) {
-	ret := m.ctrl.Call(m, "CreateOrFindRole", arg0, arg1, arg2)
+func (m *MockClient) CreateOrFindRole(arg0, arg1, arg2 string, arg3 []*iam.Tag) (string, error) {
+	ret := m.ctrl.Call(m, "CreateOrFindRole", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateOrFindRole indicates an expected call of CreateOrFindRole
-func (mr *MockClientMockRecorder) CreateOrFindRole(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrFindRole", reflect.TypeOf((*MockClient)(nil).CreateOrFindRole), arg0, arg1, arg2)
+func (mr *MockClientMockRecorder) CreateOrFindRole(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrFindRole", reflect.TypeOf((*MockClient)(nil).CreateOrFindRole), arg0, arg1, arg2, arg3)
 }
 
 // CreatePolicy mocks base method

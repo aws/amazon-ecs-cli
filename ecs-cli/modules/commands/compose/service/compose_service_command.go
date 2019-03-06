@@ -66,7 +66,7 @@ func createServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "create",
 		Usage:        "Creates an ECS service from your compose file. The service is created with a desired count of 0, so no containers are started by this command. Note that we do not recommend using plain text environment variables for sensitive information, such as credential data.",
 		Action:       compose.WithProject(factory, compose.ProjectCreate, true),
-		Flags:        flags.AppendFlags(deploymentConfigFlags(true), loadBalancerFlags(), flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), serviceDiscoveryFlags(), flags.OptionalSchedulingStrategyFlag()),
+		Flags:        flags.AppendFlags(deploymentConfigFlags(true), loadBalancerFlags(), flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), serviceDiscoveryFlags(), flags.OptionalSchedulingStrategyFlag(), taggingFlags()),
 		OnUsageError: flags.UsageErrorFactory("create"),
 	}
 }
@@ -86,7 +86,7 @@ func upServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "up",
 		Usage:        "Creates a new ECS service or updates an existing one according to your compose file. For new services or existing services with a current desired count of 0, the desired count for the service is set to 1. For existing services with non-zero desired counts, a new task definition is created to reflect any changes to the compose file and the service is updated to use that task definition. In this case, the desired count does not change.",
 		Action:       compose.WithProject(factory, compose.ProjectUp, true),
-		Flags:        flags.AppendFlags(deploymentConfigFlags(true), loadBalancerFlags(), flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), ForceNewDeploymentFlag(), serviceDiscoveryFlags(), updateServiceDiscoveryFlags(), flags.OptionalSchedulingStrategyFlag()),
+		Flags:        flags.AppendFlags(deploymentConfigFlags(true), loadBalancerFlags(), flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), ForceNewDeploymentFlag(), serviceDiscoveryFlags(), updateServiceDiscoveryFlags(), flags.OptionalSchedulingStrategyFlag(), taggingFlags()),
 		OnUsageError: flags.UsageErrorFactory("up"),
 	}
 }
@@ -273,6 +273,19 @@ func ForceNewDeploymentFlag() []cli.Flag {
 		cli.BoolFlag{
 			Name:  flags.ForceDeploymentFlag,
 			Usage: "[Optional] Whether or not to force a new deployment of the service.",
+		},
+	}
+}
+
+func taggingFlags() []cli.Flag {
+	return []cli.Flag{
+		cli.BoolFlag{
+			Name:  flags.DisableECSManagedTagsFlag,
+			Usage: "[Optional] Disable ECS Managed Tags (Cluster name and Service name tags will not be automatically added to tasks). Only affects new Services.",
+		},
+		cli.StringFlag{
+			Name:  flags.ResourceTagsFlag,
+			Usage: "[Optional] Specify resource tags for your ECS Service and Task Definition; tags are only added when resources are created. Tags will be propogated from your task definition to tasks created by the service. Specify tags in the format 'key1=value1,key2=value2,key3=value3'",
 		},
 	}
 }

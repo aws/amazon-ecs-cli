@@ -65,5 +65,9 @@ func regcredsUpFlags() []cli.Flag {
 			Name:  flags.OutputDirFlag,
 			Usage: "[Optional] The directory where the output file should be created. If none specified, file will be created in the current working directory.",
 		},
+		cli.StringFlag{
+			Name:  flags.ResourceTagsFlag,
+			Usage: "[Optional] The AWS Resource tags to add to the Secrets Manager secrets and new IAM Role. Existing IAM Roles cannot be tagged.",
+		},
 	}
 }

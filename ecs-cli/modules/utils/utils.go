@@ -17,8 +17,11 @@ package utils
 import (
 	"fmt"
 	"os"
+	"strings"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/service/ecs"
 )
 
 const (
@@ -57,4 +60,49 @@ func EntityAlreadyExists(err error) bool {
 		return awsErr.Code() == "EntityAlreadyExists"
 	}
 	return false
+}
+
+// ParseTags parses AWS Resource tags from the flag value
+// users specify tags in this format: key1=value1,key2=value2,key3=value3
+func ParseTags(flagValue string, tags []*ecs.Tag) ([]*ecs.Tag, error) {
+	keyValPairs := strings.Split(flagValue, ",")
+	for _, kv := range keyValPairs {
+		pair := strings.Split(kv, "=")
+		if len(pair) != 2 {
+			return nil, fmt.Errorf("Tag input not formatted correctly: %s", kv)
+		}
+		tags = append(tags, &ecs.Tag{
+			Key:   aws.String(pair[0]),
+			Value: aws.String(pair[1]),
+		})
+	}
+	return tags, nil
+}
+
+// GetTags parses AWS Resource tags from the flag value
+// users specify tags in this format: key1=value1,key2=value2,key3=value3
+// Returns tags in the format used by the standalone resource tagging API
+func GetTagsMap(flagValue string) (map[string]*string, error) {
+	tags := make(map[string]*string)
+	keyValPairs := strings.Split(flagValue, ",")
+	for _, pair := range keyValPairs {
+		split := strings.Split(pair, "=")
+		if len(split) != 2 {
+			return nil, fmt.Errorf("Tag input not formatted correctly: %s", pair)
+		}
+		tags[split[0]] = aws.String(split[1])
+	}
+	return tags, nil
+}
+
+// GetPartition returns the partition for a given region
+// This is meant to be used when constructing ARNs
+func GetPartition(region string) string {
+	if strings.HasPrefix(region, "cn") {
+		return "aws-cn"
+	} else if strings.HasPrefix(region, "us-gov") {
+		return "aws-us-gov"
+	} else {
+		return "aws"
+	}
 }
