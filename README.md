@@ -36,9 +36,9 @@ Line Interface](http://aws.amazon.com/cli/) product detail page.
 	- [Viewing Container Logs](#viewing-container-logs)
 	- [Using FIPS Endpoints](#using-fips-endpoints)
 	- [Using Private Registry Authentication](#using-private-registry-authentication)
-	- [Checking for Missing Attributes and Debugging Reason: Attribute Errors](#Checking-for-Missing-Attributes-and-Debugging-Reason:-Attribute-Errors)
+	- [Checking for Missing Attributes and Debugging Reason Attribute Errors](#checking-for-missing-attributes-and-debugging-reason-attribute-errors)
 	- [Tagging Resources](#tagging-resources)
-
+		- [ARN Formats](#arn-formats)
 - [Amazon ECS CLI Commands](#amazon-ecs-cli-commands)
 - [Contributing to the CLI](#contributing-to-the-cli)
 - [License](#license)
@@ -78,8 +78,7 @@ same binaries, but they are localized within China to provide a faster download 
 
 ### Download specific version
 Using the URLs above, replace `latest` with the desired tag, for example `v1.0.0`. After
-downloading, remember to rename the binary file to `ecs-cli`.
-'''NOTE''': Windows is only supported starting with version `v1.0.0`.
+downloading, remember to rename the binary file to `ecs-cli`. ***NOTE:*** Windows is only supported starting with version `v1.0.0`.
 
 * Linux:
   * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v1.0.0](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v1.0.0)
@@ -191,10 +190,10 @@ CLI commands using the `--ecs-profile` flag; if a custom profile is not specifie
 profile will be used.
 
 Set up a CLI profile with the following command, substituting `profile_name` with your desired
-profile name, and `$AWS_ACCESS_KEY_ID` and `$AWS_SECRET_ACCESS_KEY` environment variables with your
+profile name, and `$AWS_ACCESS_KEY_ID`, `$AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` environment variables with your
 AWS credentials.
 
-`ecs-cli configure profile --profile-name profile_name --access-key $AWS_ACCESS_KEY_ID --secret-key $AWS_SECRET_ACCESS_KEY`
+`ecs-cli configure profile --profile-name profile_name --access-key $AWS_ACCESS_KEY_ID --secret-key $AWS_SECRET_ACCESS_KEY --session-token AWS_SESSION_TOKEN`
 
 ### Cluster Configurations
 
@@ -824,6 +823,8 @@ For tasks that use Task Networking with EC2 launch type, the ECS CLI will only s
 
 For Fargate tasks, the ECS CLI will return the public IP assigned to the ENI attached to the Fargate task. The ENI for your Fargate task will be assigned a public IP if `assign_public_ip: ENABLED` is present in your ECS Params file. If the ENI lacks a public IP, then its private IP is shown.
 
+You can use the `--desired-status` flag to filter for "STOPPED" or "RUNNING" containers.
+
 ### Viewing Container Logs
 
 View the CloudWatch Logs for a given task and container:
@@ -1011,7 +1012,7 @@ INFO[0018] Started container... container=bf35a813-dd76-4fe0-b5a2-c1334c2331f4/l
 
  For more information about using private registries with ECS, see [Private Registry Authentication for Tasks](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/private-auth.html).
 
-### Checking for Missing Attributes and Debugging Reason: Attribute Errors
+### Checking for Missing Attributes and Debugging Reason Attribute Errors
 
 Sometimes, when you try to Run a Task, the API will return the error message `"Reasons : ["ATTRIBUTE"]"`. This occurs because your container instances are missing an attribute required by your Task Definition. You can debug these failures using the `ecs-cli check-attributes` command.
 
@@ -1032,6 +1033,11 @@ The command outputs a table of container instances and which attributes they are
 
 ECS CLI Commmands support a `--tags` flag which allows you to specify AWS Resource Tags in the format `key=value,key2=value2,key3=value3`. Resource tags can be used for cost allocation, automation, access control, and more. See [AWS Tagging Strategies](https://aws.amazon.com/answers/account-management/aws-tagging-strategies/) for a discussion of use cases.
 
+#### ARN Formats
+
+ECS has released [new longer ARN formats](https://aws.amazon.com/blogs/compute/migrating-your-amazon-ecs-deployment-to-the-new-arn-and-resource-id-format-2/). ***You must opt in to these new formats in order to tag Tasks, Services, and Container instances.*** We strongly recommend opting-in all IAM Identities in your account. You can use the [PutAccountSettingDefault](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_PutAccountSettingDefault.html) API to opt-in to the new format for all IAM Identities in your account.
+
+
 #### ecs-cli up command
 
  The ECS Cluster, and CloudFormation template with EC2 resources can be tagged. In addition, the ECS CLI will add tags to the following resources which are created by the CloudFormation template:
@@ -1041,9 +1047,27 @@ ECS CLI Commmands support a `--tags` flag which allows you to specify AWS Resour
  * Route Tables
  * Security Group
  * Autoscaling Group
+ * ECS Container Instances (only if opted-in to [Container Instance Long ARN format](https://aws.amazon.com/blogs/compute/migrating-your-amazon-ecs-deployment-to-the-new-arn-and-resource-id-format-2/))
 
  For the autoscaling group, the ECS CLI will add a `Name` tag whose value will be `ECS Instance - <CloudFormation stack name>`, which will be propagated to your EC2 instances. You can override this behavior by specifying your own `Name` tag.
 
+#### ecs-cli compose create/up
+
+Resource tags specified with `--tags` will be added to your Tasks and Task Definitions. In addition, [ECS Managed Tags](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-using-tags.html) are enabled by default for all tasks launched by the ECS CLI (if you are opted-in the the new Task Long ARN Format). ECS will automatically add a `aws:ecs:clusterName` tag to each of your tasks. You can disable this feature using `--disable-ecs-managed-tags`.
+
+#### ecs-cli compose service create/up
+
+Resource tags specified with `--tags` will be added to your Service and Task Definitions. In addition, all Services created by the ECS CLI have [`propagateTags`](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_CreateService.html#ECS-CreateService-request-propagateTags) set to `TASK_DEFINITION` which means that tags from the Task Definition will propagate to the tasks in the Service. If you add new tags, the ECS CLI will register a new Task Definition and these tags will be propagated by ECS to your tasks.
+
+Similar to `compose up/create`, [ECS Managed Tags](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-using-tags.html) are enabled by default for all Services launched by the ECS CLI (if you are opted-in the the new Task Long ARN Format). ECS will automatically add `aws:ecs:clusterName` and `aws:ecs:serviceName` tags to each of the tasks launched by your service. You can disable this feature using `--disable-ecs-managed-tags`.
+
+#### ecs-cli push
+
+Resource tags specified with `--tags` will be added to your ECR repository.
+
+#### ecs-cli registry-creds up
+
+Resource tags specified with `--tags` will be added to new IAM Roles and new or existing AWS Secrets Manager Secrets. (Existing IAM Roles cannot be tagged.)
 
 ## Amazon ECS CLI Commands
 
