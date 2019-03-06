@@ -59,6 +59,7 @@ type ContainerDefs map[string]ContainerDef
 // ContainerDef holds fields for an ECS Container Definition that are not supplied by docker-compose
 type ContainerDef struct {
 	Essential             bool                  `yaml:"essential"`
+	InitProcessEnabled    bool                  `yaml:"init_process_enabled"`
 	RepositoryCredentials RepositoryCredentials `yaml:"repository_credentials"`
 	// resource field yaml names correspond to equivalent docker-compose field
 	Cpu               int64                  `yaml:"cpu_shares"`
