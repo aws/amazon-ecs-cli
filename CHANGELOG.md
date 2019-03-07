@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.13.0
+* Feature - Add support for specifying Scheduling Strategy on `compose service create` and `up` (#540)
+* Feature - Add `check-attributes` command to verify that task definition requirements are present on a set of container instances (#444)
+* Feature - Add support for instances with `arm64` architechture
+* Feature - Add `--desired-status` flag to all `ps` commands to allow filtering for "STOPPED" or "RUNNING" containers (#400)
+* Feature - Add support for tagging resources created by the ecs-cli. Tagging is supported on `ecs-cli up`, `ecs-cli push`, `ecs-cli registry-creds up` and all `ecs-cli compose` commands with use of the `--tags` flag. (#670)
+* Feature - Add support for ECR FIPS endpoints on `push` and `pull` commands (partially addresses #697)
+* Feature - Add support for `tty` attribute in compose projects (#705)
+
 ## 1.12.1
 * Bug - Allow container mem_limit to be null if task mem_limit is set (#606)
 * Bug - Allow container mem_limit to be null if mem_reservation is set (#570)
