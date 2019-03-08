@@ -33,7 +33,7 @@ func GetClusterTemplate(tags []*ecs.Tag, stackName string) (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprintf(cluster_template, string(tagJSON), string(asgTagJSON)), nil
+	return fmt.Sprintf(clusterTemplate, string(tagJSON), string(asgTagJSON)), nil
 }
 
 // Autoscaling CFN tags have an additional field that determines if they are
@@ -87,9 +87,10 @@ const (
 	Subnet2LogicalResourceId       = "PubSubnetAz2"
 	VPCLogicalResourceId           = "Vpc"
 	SecurityGroupLogicalResourceId = "EcsSecurityGroup"
+	DefaultECSInstanceType         = "t2.micro"
 )
 
-var cluster_template = `
+var clusterTemplate = `
 {
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "AWS CloudFormation template to create resources required to run tasks on an ECS cluster.",
@@ -109,8 +110,15 @@ var cluster_template = `
     "EcsInstanceType": {
       "Type": "String",
       "Description": "ECS EC2 instance type",
-      "Default": "t2.micro",
+      "Default": "` + DefaultECSInstanceType + `",
       "AllowedValues": [
+        "p2.xlarge",
+        "p2.8xlarge",
+        "p2.16xlarge",
+        "p3.2xlarge",
+        "p3.8xlarge",
+        "p3.16xlarge",
+        "p3dn.24xlarge",
         "a1.medium",
         "a1.large",
         "a1.xlarge",
