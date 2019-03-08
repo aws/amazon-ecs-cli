@@ -144,7 +144,7 @@ func TestClusterUpWithForce(t *testing.T) {
 	)
 
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(amiID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("t2.micro").Return(amiMetadata(amiID), nil),
 	)
 
 	gomock.InOrder(
@@ -179,7 +179,7 @@ func TestClusterUpWithoutPublicIP(t *testing.T) {
 	)
 
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(amiID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("t2.micro").Return(amiMetadata(amiID), nil),
 	)
 
 	gomock.InOrder(
@@ -232,7 +232,7 @@ func TestClusterUpWithUserData(t *testing.T) {
 	)
 
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(amiID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("t2.micro").Return(amiMetadata(amiID), nil),
 	)
 
 	gomock.InOrder(
@@ -281,7 +281,7 @@ func TestClusterUpWithSpotPrice(t *testing.T) {
 	)
 
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(amiID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("t2.micro").Return(amiMetadata(amiID), nil),
 	)
 
 	gomock.InOrder(
@@ -976,7 +976,7 @@ func TestClusterUpARM64(t *testing.T) {
 	)
 
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("arm64").Return(amiMetadata(armAMIID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("a1.medium").Return(amiMetadata(armAMIID), nil),
 	)
 
 	gomock.InOrder(
@@ -1050,7 +1050,7 @@ func TestClusterUpWithTags(t *testing.T) {
 		}),
 	)
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(amiID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("t2.micro").Return(amiMetadata(amiID), nil),
 	)
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
@@ -1131,7 +1131,7 @@ func TestClusterUpWithTagsContainerInstanceTaggingEnabled(t *testing.T) {
 		}),
 	)
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(amiID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("t2.micro").Return(amiMetadata(amiID), nil),
 	)
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
@@ -1163,33 +1163,6 @@ func TestClusterUpWithTagsContainerInstanceTaggingEnabled(t *testing.T) {
 	assert.NoError(t, err, "Unexpected error bringing up cluster")
 
 	assert.Equal(t, userdataMock.tags, expectedECSTags, "Expected tags to match")
-}
-
-func TestDetermineArchitecture(t *testing.T) {
-	var testCases = []struct {
-		in  string
-		out string
-	}{
-		{"a1.medium", "arm64"},
-		{"a1.large", "arm64"},
-		{"a1.xlarge", "arm64"},
-		{"a1.2xlarge", "arm64"},
-		{"a1.4xlarge", "arm64"},
-		{"t2.medium", "x86"},
-		{"c5.large", "x86"},
-		{"i3.metal", "x86"},
-		{"t3.micro", "x86"},
-	}
-
-	for _, tt := range testCases {
-		t.Run(tt.in, func(t *testing.T) {
-			cfnParams := cloudformation.NewCfnStackParams(requiredParameters)
-			cfnParams.Add(ParameterKeyInstanceType, tt.in)
-			arch, err := determineArchitecture(cfnParams)
-			assert.NoError(t, err, "Unexpected error determining architecture")
-			assert.Equal(t, tt.out, arch, "Expected architecture to match")
-		})
-	}
 }
 
 ///////////////////
@@ -1397,7 +1370,7 @@ func mocksForSuccessfulClusterUp(mockECS *mock_ecs.MockECSClient, mockCloudforma
 		mockECS.EXPECT().CreateCluster(clusterName, gomock.Any()).Return(clusterName, nil),
 	)
 	gomock.InOrder(
-		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("x86").Return(amiMetadata(amiID), nil),
+		mockSSM.EXPECT().GetRecommendedECSLinuxAMI("t2.micro").Return(amiMetadata(amiID), nil),
 	)
 	gomock.InOrder(
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),

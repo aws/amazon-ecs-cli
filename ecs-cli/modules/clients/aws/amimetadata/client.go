@@ -11,11 +11,11 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
+// Package amimetadata provides AMI metadata given an instance type.
 package amimetadata
 
 import (
 	"encoding/json"
-
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
@@ -23,18 +23,24 @@ import (
 	"github.com/aws/aws-sdk-go/service/ssm"
 	"github.com/aws/aws-sdk-go/service/ssm/ssmiface"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
+	"regexp"
+	"strings"
 )
 
+// SSM parameter names to retrieve ECS optimized AMI.
+// See: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/retrieve-ecs-optimized_AMI.html
 const (
-	amazonLinux2X86RecommendedParameterName   = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended"
-	amazonLinux2ARM64RecommendedParameterName = "/aws/service/ecs/optimized-ami/amazon-linux-2/arm64/recommended"
+	amazonLinux2X86RecommendedParameterName    = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended"
+	amazonLinux2ARM64RecommendedParameterName  = "/aws/service/ecs/optimized-ami/amazon-linux-2/arm64/recommended"
+	amazonLinux2X86GPURecommendedParameterName = "/aws/service/ecs/optimized-ami/amazon-linux-2/gpu/recommended"
 )
 
-const (
-	ArchitectureTypeARM64 = "arm64"
-	ArchitectureTypeX86   = "x86"
-)
-
+// AMIMetadata is returned through ssm:GetParameters and can be used to retrieve the ImageId
+// while launching instances.
+//
+// See: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/retrieve-ecs-optimized_AMI.html
+// See: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-as-launchconfig.html#cfn-as-launchconfig-imageid
 type AMIMetadata struct {
 	ImageID        string `json:"image_id"`
 	OsName         string `json:"os"`
@@ -47,13 +53,13 @@ type Client interface {
 	GetRecommendedECSLinuxAMI(string) (*AMIMetadata, error)
 }
 
-// ssmClient implements Client
+// metadataClient implements Client.
 type metadataClient struct {
 	client ssmiface.SSMAPI
 	region string
 }
 
-// NewSSMClient creates an instance of Client.
+// NewMetadataClient creates an instance of Client.
 func NewMetadataClient(commandConfig *config.CommandConfig) Client {
 	client := ssm.New(commandConfig.Session)
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
@@ -63,20 +69,31 @@ func NewMetadataClient(commandConfig *config.CommandConfig) Client {
 	}
 }
 
-func (c *metadataClient) GetRecommendedECSLinuxAMI(architecture string) (*AMIMetadata, error) {
-	ssmParam := amazonLinux2X86RecommendedParameterName
-	if architecture == ArchitectureTypeARM64 {
-		ssmParam = amazonLinux2ARM64RecommendedParameterName
+// GetRecommendedECSLinuxAMI returns the recommended Amazon ECS-Optimized AMI Metadata given the instance type.
+func (c *metadataClient) GetRecommendedECSLinuxAMI(instanceType string) (*AMIMetadata, error) {
+	if isARM64Instance(instanceType) {
+		logrus.Infof("Using Arm ecs-optimized AMI because instance type was %s", instanceType)
+		return c.parameterValueFor(amazonLinux2ARM64RecommendedParameterName)
 	}
+	if isGPUInstance(instanceType) {
+		logrus.Infof("Using GPU ecs-optimized AMI because instance type was %s", instanceType)
+		return c.parameterValueFor(amazonLinux2X86GPURecommendedParameterName)
+	}
+	return c.parameterValueFor(amazonLinux2X86RecommendedParameterName)
+}
 
+func (c *metadataClient) parameterValueFor(ssmParamName string) (*AMIMetadata, error) {
 	response, err := c.client.GetParameter(&ssm.GetParameterInput{
-		Name: aws.String(ssmParam),
+		Name: aws.String(ssmParamName),
 	})
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
 			if aerr.Code() == ssm.ErrCodeParameterNotFound {
-				// Added for arm AMIs which are only supported in some regions
-				return nil, errors.Wrapf(err, "Could not find Recommended Amazon Linux 2 AMI in %s with architecture %s; the AMI may not be supported in this region", c.region, architecture)
+				// Added for AMIs which are only supported in some regions
+				return nil, errors.Wrapf(err,
+					"Could not find Recommended Amazon Linux 2 AMI %s in %s; the AMI may not be supported in this region",
+					ssmParamName,
+					c.region)
 			}
 		}
 		return nil, err
@@ -84,4 +101,25 @@ func (c *metadataClient) GetRecommendedECSLinuxAMI(architecture string) (*AMIMet
 	metadata := &AMIMetadata{}
 	err = json.Unmarshal([]byte(aws.StringValue(response.Parameter.Value)), metadata)
 	return metadata, err
+}
+
+func isARM64Instance(instanceType string) bool {
+	r := regexp.MustCompile("a1\\.(medium|\\d*x?large)")
+	if r.MatchString(instanceType) {
+		return true
+	}
+	return false
+}
+
+func isGPUInstance(instanceType string) bool {
+	if strings.HasPrefix(instanceType, "p2.") {
+		return true
+	}
+	if strings.HasPrefix(instanceType, "p3.") {
+		return true
+	}
+	if strings.HasPrefix(instanceType, "p3dn.") {
+		return true
+	}
+	return false
 }

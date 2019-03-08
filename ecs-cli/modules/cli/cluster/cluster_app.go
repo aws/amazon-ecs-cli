@@ -17,7 +17,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -70,10 +69,6 @@ const (
 	ParameterKeyIsFargate                = "IsFargate"
 	ParameterKeyUserData                 = "UserData"
 	ParameterKeySpotPrice                = "SpotPrice"
-)
-
-const (
-	defaultARM64InstanceType = "a1.medium"
 )
 
 var flagNamesToStackParameterKeys map[string]string
@@ -317,20 +312,13 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 	}
 
 	if launchType == config.LaunchTypeEC2 {
-		architecture, err := determineArchitecture(cfnParams)
-		if err != nil {
-			return err
-		}
-
 		// Check if image id was supplied, else populate
 		_, err = cfnParams.GetParameter(ParameterKeyAmiId)
 		if err == cloudformation.ParameterNotFoundError {
-			amiMetadata, err := metadataClient.GetRecommendedECSLinuxAMI(architecture)
+			err := populateAMIID(cfnParams, metadataClient)
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Using recommended %s AMI with ECS Agent %s and %s", amiMetadata.OsName, amiMetadata.AgentVersion, amiMetadata.RuntimeVersion)
-			cfnParams.Add(ParameterKeyAmiId, amiMetadata.ImageID)
 		} else if err != nil {
 			return err
 		}
@@ -393,26 +381,33 @@ func canEnableContainerInstanceTagging(client ecsclient.ECSClient) (bool, error)
 	return false, nil
 }
 
-func determineArchitecture(cfnParams *cloudformation.CfnStackParams) (string, error) {
-	architecture := amimetadata.ArchitectureTypeX86
+func retrieveInstanceType(cfnParams *cloudformation.CfnStackParams) (string, error) {
+	param, err := cfnParams.GetParameter(ParameterKeyInstanceType)
 
-	// a1 instances get the Arm based ECS AMI
-	instanceTypeParam, err := cfnParams.GetParameter(ParameterKeyInstanceType)
 	if err == cloudformation.ParameterNotFoundError {
-		logrus.Infof("Defaulting instance type to t2.micro")
-	} else if err != nil {
+		logrus.Infof("Defaulting instance type to %s", cloudformation.DefaultECSInstanceType)
+		return cloudformation.DefaultECSInstanceType, nil
+	}
+	if err != nil {
 		return "", err
-	} else {
-		instanceType := aws.StringValue(instanceTypeParam.ParameterValue)
-		// This regex matches all current a1 instances, and should work for any future additions as well
-		r := regexp.MustCompile("a1\\.(medium|\\d*x?large)")
-		if r.MatchString(instanceType) {
-			logrus.Infof("Using Arm ecs-optimized AMI because instance type was %s", instanceType)
-			architecture = amimetadata.ArchitectureTypeARM64
-		}
+	}
+	return aws.StringValue(param.ParameterValue), nil
+}
+
+func populateAMIID(cfnParams *cloudformation.CfnStackParams, client amimetadata.Client) error {
+	instanceType, err := retrieveInstanceType(cfnParams)
+	if err != nil {
+		return err
 	}
 
-	return architecture, nil
+	amiMetadata, err := client.GetRecommendedECSLinuxAMI(instanceType)
+	if err != nil {
+		return err
+	}
+	logrus.Infof("Using recommended %s AMI with ECS Agent %s and %s",
+		amiMetadata.OsName, amiMetadata.AgentVersion, amiMetadata.RuntimeVersion)
+	cfnParams.Add(ParameterKeyAmiId, amiMetadata.ImageID)
+	return nil
 }
 
 // unfortunately go SDK lacks a unified Tag type
