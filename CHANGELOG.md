@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.13.1
+* Bug - Fix `ecs-cli up` so that container instances with tags successfully join cluster (#744)
+
 ## 1.13.0
 * Feature - Add support for specifying Scheduling Strategy on `compose service create` and `up` (#540)
 * Feature - Add `check-attributes` command to verify that task definition requirements are present on a set of container instances (#444)
