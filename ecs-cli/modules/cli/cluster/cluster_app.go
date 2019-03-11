@@ -42,7 +42,7 @@ import (
 )
 
 // user data builder can be easily mocked in tests
-var newUserDataBuilder func(string, bool) userdata.UserDataBuilder = userdata.NewBuilder
+var newUserDataBuilder func(string, []*ecs.Tag) userdata.UserDataBuilder = userdata.NewBuilder
 
 // displayTitle flag is used to print the title for the fields
 const displayTitle = true
@@ -262,7 +262,12 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 	}
 
 	// Populate cfn params
-	cfnParams, err := cliFlagsToCfnStackParams(context, commandConfig.Cluster, launchType, containerInstanceTaggingSupported)
+	var cfnParams *cloudformation.CfnStackParams
+	if containerInstanceTaggingSupported {
+		cfnParams, err = cliFlagsToCfnStackParams(context, commandConfig.Cluster, launchType, tags)
+	} else {
+		cfnParams, err = cliFlagsToCfnStackParams(context, commandConfig.Cluster, launchType, nil)
+	}
 	if err != nil {
 		return err
 	}
@@ -607,7 +612,7 @@ func deleteClusterPrompt(reader *bufio.Reader) error {
 }
 
 // cliFlagsToCfnStackParams converts values set for CLI flags to cloudformation stack parameters.
-func cliFlagsToCfnStackParams(context *cli.Context, cluster, launchType string, tagContainerInstances bool) (*cloudformation.CfnStackParams, error) {
+func cliFlagsToCfnStackParams(context *cli.Context, cluster, launchType string, tags []*ecs.Tag) (*cloudformation.CfnStackParams, error) {
 	cfnParams := cloudformation.NewCfnStackParams(requiredParameters)
 	for cliFlag, cfnParamKeyName := range flagNamesToStackParameterKeys {
 		cfnParamKeyValue := context.String(cliFlag)
@@ -617,7 +622,7 @@ func cliFlagsToCfnStackParams(context *cli.Context, cluster, launchType string, 
 	}
 
 	if launchType == config.LaunchTypeEC2 {
-		builder := newUserDataBuilder(cluster, tagContainerInstances)
+		builder := newUserDataBuilder(cluster, tags)
 		// handle extra user data, which is a string slice flag
 		if userDataFiles := context.StringSlice(flags.UserDataFlag); len(userDataFiles) > 0 {
 			for _, file := range userDataFiles {

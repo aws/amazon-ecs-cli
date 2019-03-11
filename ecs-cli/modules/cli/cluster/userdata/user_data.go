@@ -15,6 +15,7 @@ package userdata
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -23,6 +24,9 @@ import (
 	"net/mail"
 	"net/textproto"
 	"strings"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/ecs"
 )
 
 // UserDataBuilder contains functionality to create user data scripts for Container Instances
@@ -33,22 +37,22 @@ type UserDataBuilder interface {
 
 // Builder implements UserDataBuilder
 type Builder struct {
-	writer        *multipart.Writer
-	clusterName   string
-	userdata      *bytes.Buffer
-	enableTagging bool
+	writer      *multipart.Writer
+	clusterName string
+	userdata    *bytes.Buffer
+	tags        []*ecs.Tag
 }
 
 // NewBuilder creates a Builder object for a given clusterName
-func NewBuilder(clusterName string, enableTagging bool) UserDataBuilder {
+func NewBuilder(clusterName string, tags []*ecs.Tag) UserDataBuilder {
 	buf := new(bytes.Buffer)
 	writer := multipart.NewWriter(buf)
 
 	builder := &Builder{
-		writer:        writer,
-		clusterName:   clusterName,
-		userdata:      buf,
-		enableTagging: enableTagging,
+		writer:      writer,
+		clusterName: clusterName,
+		userdata:    buf,
+		tags:        tags,
 	}
 
 	return builder
@@ -145,17 +149,28 @@ func isMultipart(data string) (bool, map[string]string, io.Reader) {
 	return false, nil, nil
 }
 
-func (b *Builder) getClusterUserData() string {
+func (b *Builder) getClusterUserData() (string, error) {
 	joinClusterUserData := `
 #!/bin/bash
 echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
 `
-	if b.enableTagging {
-		joinClusterUserData += `
-echo 'ECS_CONTAINER_INSTANCE_PROPAGATE_TAGS_FROM=ec2_instance' >> /etc/ecs/ecs.config`
+	if len(b.tags) > 0 {
+		tags := convertTags(b.tags)
+		bits, err := json.Marshal(tags)
+		if err != nil {
+			return "", err
+		}
+		joinClusterUserData += fmt.Sprintf("echo 'ECS_CONTAINER_INSTANCE_TAGS=%s' >> /etc/ecs/ecs.config", string(bits))
 	}
+	return fmt.Sprintf(joinClusterUserData, b.clusterName), nil
+}
 
-	return fmt.Sprintf(joinClusterUserData, b.clusterName)
+func convertTags(tags []*ecs.Tag) map[string]string {
+	converted := make(map[string]string)
+	for _, tag := range tags {
+		converted[aws.StringValue(tag.Key)] = aws.StringValue(tag.Value)
+	}
+	return converted
 }
 
 // writes the user data script to join the ecs cluster to a multipart archive
@@ -164,7 +179,11 @@ func (b *Builder) writeClusterUserDataMimePart() error {
 	header.Add("Content-Type", "text/text/x-shellscript; charset=\"utf-8\"")
 	header.Add("MIME-Version", "1.0")
 
-	return b.writePart(header, []byte(b.getClusterUserData()))
+	userData, err := b.getClusterUserData()
+	if err != nil {
+		return err
+	}
+	return b.writePart(header, []byte(userData))
 }
 
 // takes user inputted user data and writes it as one part in the mime multipart archive
