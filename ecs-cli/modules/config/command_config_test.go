@@ -84,9 +84,7 @@ func TestNewCommandConfigFromEnvVarsWithRegionNotSpecified(t *testing.T) {
 	context, rdwr := setupTest(t)
 
 	_, err := NewCommandConfig(context, rdwr)
-	if err == nil {
-		t.Errorf("Expected error when region not specified")
-	}
+	assert.Error(t, err, "Expected error when region is not specified")
 }
 
 func TestNewCommandConfigFromEnvVarsWithRegionSpecifiedAsEnvVariable(t *testing.T) {
