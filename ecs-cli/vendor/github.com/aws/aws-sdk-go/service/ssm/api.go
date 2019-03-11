@@ -9,6 +9,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/request"
+	"github.com/aws/aws-sdk-go/private/protocol"
+	"github.com/aws/aws-sdk-go/private/protocol/jsonrpc"
 )
 
 const opAddTagsToResource = "AddTagsToResource"
@@ -50,6 +52,7 @@ func (c *SSM) AddTagsToResourceRequest(input *AddTagsToResourceInput) (req *requ
 
 	output = &AddTagsToResourceOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -164,6 +167,7 @@ func (c *SSM) CancelCommandRequest(input *CancelCommandInput) (req *request.Requ
 
 	output = &CancelCommandOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -981,6 +985,7 @@ func (c *SSM) CreateResourceDataSyncRequest(input *CreateResourceDataSyncInput) 
 
 	output = &CreateResourceDataSyncOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -994,8 +999,8 @@ func (c *SSM) CreateResourceDataSyncRequest(input *CreateResourceDataSyncInput) 
 // By default, data is not encrypted in Amazon S3. We strongly recommend that
 // you enable encryption in Amazon S3 to ensure secure data storage. We also
 // recommend that you secure access to the Amazon S3 bucket by creating a restrictive
-// bucket policy. To view an example of a restrictive Amazon S3 bucket policy
-// for Resource Data Sync, see Create a Resource Data Sync for Inventory (http://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-inventory-datasync-create.html)
+// bucket policy. For more information, see Configuring Resource Data Sync for
+// Inventory (http://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-inventory-datasync.html)
 // in the AWS Systems Manager User Guide.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
@@ -1079,6 +1084,7 @@ func (c *SSM) DeleteActivationRequest(input *DeleteActivationInput) (req *reques
 
 	output = &DeleteActivationOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1173,6 +1179,7 @@ func (c *SSM) DeleteAssociationRequest(input *DeleteAssociationInput) (req *requ
 
 	output = &DeleteAssociationOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1282,6 +1289,7 @@ func (c *SSM) DeleteDocumentRequest(input *DeleteDocumentInput) (req *request.Re
 
 	output = &DeleteDocumentOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1550,6 +1558,7 @@ func (c *SSM) DeleteParameterRequest(input *DeleteParameterInput) (req *request.
 
 	output = &DeleteParameterOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1795,6 +1804,7 @@ func (c *SSM) DeleteResourceDataSyncRequest(input *DeleteResourceDataSyncInput) 
 
 	output = &DeleteResourceDataSyncOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1880,6 +1890,7 @@ func (c *SSM) DeregisterManagedInstanceRequest(input *DeregisterManagedInstanceI
 
 	output = &DeregisterManagedInstanceOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -6814,6 +6825,103 @@ func (c *SSM) GetPatchBaselineForPatchGroupWithContext(ctx aws.Context, input *G
 	return out, req.Send()
 }
 
+const opGetServiceSetting = "GetServiceSetting"
+
+// GetServiceSettingRequest generates a "aws/request.Request" representing the
+// client's request for the GetServiceSetting operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See GetServiceSetting for more information on using the GetServiceSetting
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the GetServiceSettingRequest method.
+//    req, resp := client.GetServiceSettingRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/GetServiceSetting
+func (c *SSM) GetServiceSettingRequest(input *GetServiceSettingInput) (req *request.Request, output *GetServiceSettingOutput) {
+	op := &request.Operation{
+		Name:       opGetServiceSetting,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &GetServiceSettingInput{}
+	}
+
+	output = &GetServiceSettingOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// GetServiceSetting API operation for Amazon Simple Systems Manager (SSM).
+//
+// ServiceSetting is an account-level setting for an AWS service. This setting
+// defines how a user interacts with or uses a service or a feature of a service.
+// For example, if an AWS service charges money to the account based on feature
+// or service usage, then the AWS service team might create a default setting
+// of "false". This means the user can't use this feature unless they change
+// the setting to "true" and intentionally opt in for a paid feature.
+//
+// Services map a SettingId object to a setting value. AWS services teams define
+// the default value for a SettingId. You can't create a new SettingId, but
+// you can overwrite the default value if you have the ssm:UpdateServiceSetting
+// permission for the setting. Use the UpdateServiceSetting API action to change
+// the default setting. Or use the ResetServiceSetting to change the value back
+// to the original value defined by the AWS service team.
+//
+// Query the current service setting for the account.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Systems Manager (SSM)'s
+// API operation GetServiceSetting for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeInternalServerError "InternalServerError"
+//   An error occurred on the server side.
+//
+//   * ErrCodeServiceSettingNotFound "ServiceSettingNotFound"
+//   The specified service setting was not found. Either the service name or the
+//   setting has not been provisioned by the AWS service team.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/GetServiceSetting
+func (c *SSM) GetServiceSetting(input *GetServiceSettingInput) (*GetServiceSettingOutput, error) {
+	req, out := c.GetServiceSettingRequest(input)
+	return out, req.Send()
+}
+
+// GetServiceSettingWithContext is the same as GetServiceSetting with the addition of
+// the ability to pass a context and additional request options.
+//
+// See GetServiceSetting for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *SSM) GetServiceSettingWithContext(ctx aws.Context, input *GetServiceSettingInput, opts ...request.Option) (*GetServiceSettingOutput, error) {
+	req, out := c.GetServiceSettingRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opLabelParameterVersion = "LabelParameterVersion"
 
 // LabelParameterVersionRequest generates a "aws/request.Request" representing the
@@ -8298,6 +8406,7 @@ func (c *SSM) ModifyDocumentPermissionRequest(input *ModifyDocumentPermissionInp
 
 	output = &ModifyDocumentPermissionOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -8395,6 +8504,7 @@ func (c *SSM) PutComplianceItemsRequest(input *PutComplianceItemsInput) (req *re
 
 	output = &PutComplianceItemsOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -9172,6 +9282,7 @@ func (c *SSM) RemoveTagsFromResourceRequest(input *RemoveTagsFromResourceInput) 
 
 	output = &RemoveTagsFromResourceOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -9219,6 +9330,108 @@ func (c *SSM) RemoveTagsFromResource(input *RemoveTagsFromResourceInput) (*Remov
 // for more information on using Contexts.
 func (c *SSM) RemoveTagsFromResourceWithContext(ctx aws.Context, input *RemoveTagsFromResourceInput, opts ...request.Option) (*RemoveTagsFromResourceOutput, error) {
 	req, out := c.RemoveTagsFromResourceRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opResetServiceSetting = "ResetServiceSetting"
+
+// ResetServiceSettingRequest generates a "aws/request.Request" representing the
+// client's request for the ResetServiceSetting operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See ResetServiceSetting for more information on using the ResetServiceSetting
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the ResetServiceSettingRequest method.
+//    req, resp := client.ResetServiceSettingRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/ResetServiceSetting
+func (c *SSM) ResetServiceSettingRequest(input *ResetServiceSettingInput) (req *request.Request, output *ResetServiceSettingOutput) {
+	op := &request.Operation{
+		Name:       opResetServiceSetting,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &ResetServiceSettingInput{}
+	}
+
+	output = &ResetServiceSettingOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// ResetServiceSetting API operation for Amazon Simple Systems Manager (SSM).
+//
+// ServiceSetting is an account-level setting for an AWS service. This setting
+// defines how a user interacts with or uses a service or a feature of a service.
+// For example, if an AWS service charges money to the account based on feature
+// or service usage, then the AWS service team might create a default setting
+// of "false". This means the user can't use this feature unless they change
+// the setting to "true" and intentionally opt in for a paid feature.
+//
+// Services map a SettingId object to a setting value. AWS services teams define
+// the default value for a SettingId. You can't create a new SettingId, but
+// you can overwrite the default value if you have the ssm:UpdateServiceSetting
+// permission for the setting. Use the GetServiceSetting API action to view
+// the current value. Use the UpdateServiceSetting API action to change the
+// default setting.
+//
+// Reset the service setting for the account to the default value as provisioned
+// by the AWS service team.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Systems Manager (SSM)'s
+// API operation ResetServiceSetting for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeInternalServerError "InternalServerError"
+//   An error occurred on the server side.
+//
+//   * ErrCodeServiceSettingNotFound "ServiceSettingNotFound"
+//   The specified service setting was not found. Either the service name or the
+//   setting has not been provisioned by the AWS service team.
+//
+//   * ErrCodeTooManyUpdates "TooManyUpdates"
+//   There are concurrent updates for a resource that supports one update at a
+//   time.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/ResetServiceSetting
+func (c *SSM) ResetServiceSetting(input *ResetServiceSettingInput) (*ResetServiceSettingOutput, error) {
+	req, out := c.ResetServiceSettingRequest(input)
+	return out, req.Send()
+}
+
+// ResetServiceSettingWithContext is the same as ResetServiceSetting with the addition of
+// the ability to pass a context and additional request options.
+//
+// See ResetServiceSetting for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *SSM) ResetServiceSettingWithContext(ctx aws.Context, input *ResetServiceSettingInput, opts ...request.Option) (*ResetServiceSettingOutput, error) {
+	req, out := c.ResetServiceSettingRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -9353,6 +9566,7 @@ func (c *SSM) SendAutomationSignalRequest(input *SendAutomationSignalInput) (req
 
 	output = &SendAutomationSignalOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -9573,6 +9787,7 @@ func (c *SSM) StartAssociationsOnceRequest(input *StartAssociationsOnceInput) (r
 
 	output = &StartAssociationsOnceOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -9854,6 +10069,7 @@ func (c *SSM) StopAutomationExecutionRequest(input *StopAutomationExecutionInput
 
 	output = &StopAutomationExecutionOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -10285,6 +10501,10 @@ func (c *SSM) UpdateDocumentRequest(input *UpdateDocumentInput) (req *request.Re
 //   The content of the association document matches another document. Change
 //   the content of the document and try again.
 //
+//   * ErrCodeDuplicateDocumentVersionName "DuplicateDocumentVersionName"
+//   The version name has already been used in this document. Specify a different
+//   version name, and then try again.
+//
 //   * ErrCodeInvalidDocumentContent "InvalidDocumentContent"
 //   The content for the document is not valid.
 //
@@ -10296,6 +10516,10 @@ func (c *SSM) UpdateDocumentRequest(input *UpdateDocumentInput) (req *request.Re
 //
 //   * ErrCodeInvalidDocument "InvalidDocument"
 //   The specified document does not exist.
+//
+//   * ErrCodeInvalidDocumentOperation "InvalidDocumentOperation"
+//   You attempted to delete a document while it is still shared. You must stop
+//   sharing the document before you can delete it.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/UpdateDocument
 func (c *SSM) UpdateDocument(input *UpdateDocumentInput) (*UpdateDocumentOutput, error) {
@@ -10739,6 +10963,7 @@ func (c *SSM) UpdateManagedInstanceRoleRequest(input *UpdateManagedInstanceRoleI
 
 	output = &UpdateManagedInstanceRoleOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -10885,6 +11110,108 @@ func (c *SSM) UpdatePatchBaselineWithContext(ctx aws.Context, input *UpdatePatch
 	return out, req.Send()
 }
 
+const opUpdateServiceSetting = "UpdateServiceSetting"
+
+// UpdateServiceSettingRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateServiceSetting operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See UpdateServiceSetting for more information on using the UpdateServiceSetting
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the UpdateServiceSettingRequest method.
+//    req, resp := client.UpdateServiceSettingRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/UpdateServiceSetting
+func (c *SSM) UpdateServiceSettingRequest(input *UpdateServiceSettingInput) (req *request.Request, output *UpdateServiceSettingOutput) {
+	op := &request.Operation{
+		Name:       opUpdateServiceSetting,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &UpdateServiceSettingInput{}
+	}
+
+	output = &UpdateServiceSettingOutput{}
+	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
+	return
+}
+
+// UpdateServiceSetting API operation for Amazon Simple Systems Manager (SSM).
+//
+// ServiceSetting is an account-level setting for an AWS service. This setting
+// defines how a user interacts with or uses a service or a feature of a service.
+// For example, if an AWS service charges money to the account based on feature
+// or service usage, then the AWS service team might create a default setting
+// of "false". This means the user can't use this feature unless they change
+// the setting to "true" and intentionally opt in for a paid feature.
+//
+// Services map a SettingId object to a setting value. AWS services teams define
+// the default value for a SettingId. You can't create a new SettingId, but
+// you can overwrite the default value if you have the ssm:UpdateServiceSetting
+// permission for the setting. Use the GetServiceSetting API action to view
+// the current value. Or, use the ResetServiceSetting to change the value back
+// to the original value defined by the AWS service team.
+//
+// Update the service setting for the account.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Systems Manager (SSM)'s
+// API operation UpdateServiceSetting for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeInternalServerError "InternalServerError"
+//   An error occurred on the server side.
+//
+//   * ErrCodeServiceSettingNotFound "ServiceSettingNotFound"
+//   The specified service setting was not found. Either the service name or the
+//   setting has not been provisioned by the AWS service team.
+//
+//   * ErrCodeTooManyUpdates "TooManyUpdates"
+//   There are concurrent updates for a resource that supports one update at a
+//   time.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/UpdateServiceSetting
+func (c *SSM) UpdateServiceSetting(input *UpdateServiceSettingInput) (*UpdateServiceSettingOutput, error) {
+	req, out := c.UpdateServiceSettingRequest(input)
+	return out, req.Send()
+}
+
+// UpdateServiceSettingWithContext is the same as UpdateServiceSetting with the addition of
+// the ability to pass a context and additional request options.
+//
+// See UpdateServiceSetting for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *SSM) UpdateServiceSettingWithContext(ctx aws.Context, input *UpdateServiceSettingInput, opts ...request.Option) (*UpdateServiceSettingOutput, error) {
+	req, out := c.UpdateServiceSettingRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 // An activation registers one or more on-premises servers or virtual machines
 // (VMs) with AWS so that you can configure those servers or VMs using Run Command.
 // A server or VM that has been registered with AWS is called a managed instance.
@@ -10919,6 +11246,9 @@ type Activation struct {
 
 	// The number of managed instances already registered with this activation.
 	RegistrationsCount *int64 `min:"1" type:"integer"`
+
+	// Tags assigned to the activation.
+	Tags []*Tag `type:"list"`
 }
 
 // String returns the string representation
@@ -10982,6 +11312,12 @@ func (s *Activation) SetRegistrationLimit(v int64) *Activation {
 // SetRegistrationsCount sets the RegistrationsCount field's value.
 func (s *Activation) SetRegistrationsCount(v int64) *Activation {
 	s.RegistrationsCount = &v
+	return s
+}
+
+// SetTags sets the Tags field's value.
+func (s *Activation) SetTags(v []*Tag) *Activation {
+	s.Tags = v
 	return s
 }
 
@@ -11216,6 +11552,10 @@ type AssociationDescription struct {
 	// The association version.
 	AssociationVersion *string `type:"string"`
 
+	// Specify the target for the association. This target is required for associations
+	// that use an Automation document and target resources by using rate controls.
+	AutomationTargetParameterName *string `min:"1" type:"string"`
+
 	// The severity level that is assigned to the association.
 	ComplianceSeverity *string `type:"string" enum:"AssociationComplianceSeverity"`
 
@@ -11310,6 +11650,12 @@ func (s *AssociationDescription) SetAssociationName(v string) *AssociationDescri
 // SetAssociationVersion sets the AssociationVersion field's value.
 func (s *AssociationDescription) SetAssociationVersion(v string) *AssociationDescription {
 	s.AssociationVersion = &v
+	return s
+}
+
+// SetAutomationTargetParameterName sets the AutomationTargetParameterName field's value.
+func (s *AssociationDescription) SetAutomationTargetParameterName(v string) *AssociationDescription {
+	s.AutomationTargetParameterName = &v
 	return s
 }
 
@@ -12058,6 +12404,138 @@ func (s *AssociationVersionInfo) SetTargets(v []*Target) *AssociationVersionInfo
 	return s
 }
 
+// A structure that includes attributes that describe a document attachment.
+type AttachmentContent struct {
+	_ struct{} `type:"structure"`
+
+	// The cryptographic hash value of the document content.
+	Hash *string `type:"string"`
+
+	// The hash algorithm used to calculate the hash value.
+	HashType *string `type:"string" enum:"AttachmentHashType"`
+
+	// The name of an attachment.
+	Name *string `type:"string"`
+
+	// The size of an attachment in bytes.
+	Size *int64 `type:"long"`
+
+	// The URL location of the attachment content.
+	Url *string `type:"string"`
+}
+
+// String returns the string representation
+func (s AttachmentContent) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s AttachmentContent) GoString() string {
+	return s.String()
+}
+
+// SetHash sets the Hash field's value.
+func (s *AttachmentContent) SetHash(v string) *AttachmentContent {
+	s.Hash = &v
+	return s
+}
+
+// SetHashType sets the HashType field's value.
+func (s *AttachmentContent) SetHashType(v string) *AttachmentContent {
+	s.HashType = &v
+	return s
+}
+
+// SetName sets the Name field's value.
+func (s *AttachmentContent) SetName(v string) *AttachmentContent {
+	s.Name = &v
+	return s
+}
+
+// SetSize sets the Size field's value.
+func (s *AttachmentContent) SetSize(v int64) *AttachmentContent {
+	s.Size = &v
+	return s
+}
+
+// SetUrl sets the Url field's value.
+func (s *AttachmentContent) SetUrl(v string) *AttachmentContent {
+	s.Url = &v
+	return s
+}
+
+// An attribute of an attachment, such as the attachment name.
+type AttachmentInformation struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the attachment.
+	Name *string `type:"string"`
+}
+
+// String returns the string representation
+func (s AttachmentInformation) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s AttachmentInformation) GoString() string {
+	return s.String()
+}
+
+// SetName sets the Name field's value.
+func (s *AttachmentInformation) SetName(v string) *AttachmentInformation {
+	s.Name = &v
+	return s
+}
+
+// A key and value pair that identifies the location of an attachment to a document.
+type AttachmentsSource struct {
+	_ struct{} `type:"structure"`
+
+	// The key of a key and value pair that identifies the location of an attachment
+	// to a document.
+	Key *string `type:"string" enum:"AttachmentsSourceKey"`
+
+	// The URL of the location of a document attachment, such as the URL of an Amazon
+	// S3 bucket.
+	Values []*string `min:"1" type:"list"`
+}
+
+// String returns the string representation
+func (s AttachmentsSource) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s AttachmentsSource) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *AttachmentsSource) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "AttachmentsSource"}
+	if s.Values != nil && len(s.Values) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Values", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetKey sets the Key field's value.
+func (s *AttachmentsSource) SetKey(v string) *AttachmentsSource {
+	s.Key = &v
+	return s
+}
+
+// SetValues sets the Values field's value.
+func (s *AttachmentsSource) SetValues(v []*string) *AttachmentsSource {
+	s.Values = v
+	return s
+}
+
 // Detailed information about the current state of an individual Automation
 // execution.
 type AutomationExecution struct {
@@ -12377,7 +12855,7 @@ type AutomationExecutionMetadata struct {
 	// Timed out, or Cancelled.
 	AutomationExecutionStatus *string `type:"string" enum:"AutomationExecutionStatus"`
 
-	// Use this filter with DescribeAutomationExecution. Specify either Local of
+	// Use this filter with DescribeAutomationExecutions. Specify either Local or
 	// CrossAccount. CrossAccount is an Automation that executes in multiple AWS
 	// Regions and accounts. For more information, see Concurrently Executing Automations
 	// in Multiple AWS Regions and Accounts (http://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-automation-multiple-accounts-and-regions.html)
@@ -13967,6 +14445,30 @@ type CreateActivationInput struct {
 	// Specify the maximum number of managed instances you want to register. The
 	// default value is 1 instance.
 	RegistrationLimit *int64 `min:"1" type:"integer"`
+
+	// Optional metadata that you assign to a resource. Tags enable you to categorize
+	// a resource in different ways, such as by purpose, owner, or environment.
+	// For example, you might want to tag an activation to identify which servers
+	// or virtual machines (VMs) in your on-premises environment you intend to activate.
+	// In this case, you could specify the following key name/value pairs:
+	//
+	//    * Key=OS,Value=Windows
+	//
+	//    * Key=Environment,Value=Production
+	//
+	// When you install SSM Agent on your on-premises servers and VMs, you specify
+	// an activation ID and code. When you specify the activation ID and code, tags
+	// assigned to the activation are automatically applied to the on-premises servers
+	// or VMs.
+	//
+	// You can't add tags to or delete tags from an existing activation. You can
+	// tag your on-premises servers and VMs after they connect to Systems Manager
+	// for the first time and are assigned a managed instance ID. This means they
+	// are listed in the AWS Systems Manager console with an ID that is prefixed
+	// with "mi-". For information about how to add tags to your managed instances,
+	// see AddTagsToResource. For information about how to remove tags from your
+	// managed instances, see RemoveTagsFromResource.
+	Tags []*Tag `type:"list"`
 }
 
 // String returns the string representation
@@ -13987,6 +14489,16 @@ func (s *CreateActivationInput) Validate() error {
 	}
 	if s.RegistrationLimit != nil && *s.RegistrationLimit < 1 {
 		invalidParams.Add(request.NewErrParamMinValue("RegistrationLimit", 1))
+	}
+	if s.Tags != nil {
+		for i, v := range s.Tags {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Tags", i), err.(request.ErrInvalidParams))
+			}
+		}
 	}
 
 	if invalidParams.Len() > 0 {
@@ -14022,6 +14534,12 @@ func (s *CreateActivationInput) SetIamRole(v string) *CreateActivationInput {
 // SetRegistrationLimit sets the RegistrationLimit field's value.
 func (s *CreateActivationInput) SetRegistrationLimit(v int64) *CreateActivationInput {
 	s.RegistrationLimit = &v
+	return s
+}
+
+// SetTags sets the Tags field's value.
+func (s *CreateActivationInput) SetTags(v []*Tag) *CreateActivationInput {
+	s.Tags = v
 	return s
 }
 
@@ -14149,6 +14667,10 @@ type CreateAssociationBatchRequestEntry struct {
 	// Specify a descriptive name for the association.
 	AssociationName *string `type:"string"`
 
+	// Specify the target for the association. This target is required for associations
+	// that use an Automation document and target resources by using rate controls.
+	AutomationTargetParameterName *string `min:"1" type:"string"`
+
 	// The severity level to assign to the association.
 	ComplianceSeverity *string `type:"string" enum:"AssociationComplianceSeverity"`
 
@@ -14184,7 +14706,24 @@ type CreateAssociationBatchRequestEntry struct {
 	// set MaxConcurrency to 1 so that executions proceed one at a time.
 	MaxErrors *string `min:"1" type:"string"`
 
-	// The name of the configuration document.
+	// The name of the SSM document that contains the configuration information
+	// for the instance. You can specify Command, Policy, or Automation documents.
+	//
+	// You can specify AWS-predefined documents, documents you created, or a document
+	// that is shared with you from another account.
+	//
+	// For SSM documents that are shared with you from other AWS accounts, you must
+	// specify the complete SSM document ARN, in the following format:
+	//
+	// arn:aws:ssm:region:account-id:document/document-name
+	//
+	// For example:
+	//
+	// arn:aws:ssm:us-east-2:12345678912:document/My-Shared-Document
+	//
+	// For AWS-predefined documents and SSM documents you created in your account,
+	// you only need to specify the document name. For example, AWS-ApplyPatchBaseline
+	// or My-Document.
 	//
 	// Name is a required field
 	Name *string `type:"string" required:"true"`
@@ -14215,6 +14754,9 @@ func (s CreateAssociationBatchRequestEntry) GoString() string {
 // Validate inspects the fields of the type to determine if they are valid.
 func (s *CreateAssociationBatchRequestEntry) Validate() error {
 	invalidParams := request.ErrInvalidParams{Context: "CreateAssociationBatchRequestEntry"}
+	if s.AutomationTargetParameterName != nil && len(*s.AutomationTargetParameterName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("AutomationTargetParameterName", 1))
+	}
 	if s.MaxConcurrency != nil && len(*s.MaxConcurrency) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("MaxConcurrency", 1))
 	}
@@ -14252,6 +14794,12 @@ func (s *CreateAssociationBatchRequestEntry) Validate() error {
 // SetAssociationName sets the AssociationName field's value.
 func (s *CreateAssociationBatchRequestEntry) SetAssociationName(v string) *CreateAssociationBatchRequestEntry {
 	s.AssociationName = &v
+	return s
+}
+
+// SetAutomationTargetParameterName sets the AutomationTargetParameterName field's value.
+func (s *CreateAssociationBatchRequestEntry) SetAutomationTargetParameterName(v string) *CreateAssociationBatchRequestEntry {
+	s.AutomationTargetParameterName = &v
 	return s
 }
 
@@ -14321,6 +14869,10 @@ type CreateAssociationInput struct {
 	// Specify a descriptive name for the association.
 	AssociationName *string `type:"string"`
 
+	// Specify the target for the association. This target is required for associations
+	// that use an Automation document and target resources by using rate controls.
+	AutomationTargetParameterName *string `min:"1" type:"string"`
+
 	// The severity level to assign to the association.
 	ComplianceSeverity *string `type:"string" enum:"AssociationComplianceSeverity"`
 
@@ -14357,7 +14909,24 @@ type CreateAssociationInput struct {
 	// set MaxConcurrency to 1 so that executions proceed one at a time.
 	MaxErrors *string `min:"1" type:"string"`
 
-	// The name of the Systems Manager document.
+	// The name of the SSM document that contains the configuration information
+	// for the instance. You can specify Command, Policy, or Automation documents.
+	//
+	// You can specify AWS-predefined documents, documents you created, or a document
+	// that is shared with you from another account.
+	//
+	// For SSM documents that are shared with you from other AWS accounts, you must
+	// specify the complete SSM document ARN, in the following format:
+	//
+	// arn:partition:ssm:region:account-id:document/document-name
+	//
+	// For example:
+	//
+	// arn:aws:ssm:us-east-2:12345678912:document/My-Shared-Document
+	//
+	// For AWS-predefined documents and SSM documents you created in your account,
+	// you only need to specify the document name. For example, AWS-ApplyPatchBaseline
+	// or My-Document.
 	//
 	// Name is a required field
 	Name *string `type:"string" required:"true"`
@@ -14388,6 +14957,9 @@ func (s CreateAssociationInput) GoString() string {
 // Validate inspects the fields of the type to determine if they are valid.
 func (s *CreateAssociationInput) Validate() error {
 	invalidParams := request.ErrInvalidParams{Context: "CreateAssociationInput"}
+	if s.AutomationTargetParameterName != nil && len(*s.AutomationTargetParameterName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("AutomationTargetParameterName", 1))
+	}
 	if s.MaxConcurrency != nil && len(*s.MaxConcurrency) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("MaxConcurrency", 1))
 	}
@@ -14425,6 +14997,12 @@ func (s *CreateAssociationInput) Validate() error {
 // SetAssociationName sets the AssociationName field's value.
 func (s *CreateAssociationInput) SetAssociationName(v string) *CreateAssociationInput {
 	s.AssociationName = &v
+	return s
+}
+
+// SetAutomationTargetParameterName sets the AutomationTargetParameterName field's value.
+func (s *CreateAssociationInput) SetAutomationTargetParameterName(v string) *CreateAssociationInput {
+	s.AutomationTargetParameterName = &v
 	return s
 }
 
@@ -14514,6 +15092,10 @@ func (s *CreateAssociationOutput) SetAssociationDescription(v *AssociationDescri
 type CreateDocumentInput struct {
 	_ struct{} `type:"structure"`
 
+	// A list of key and value pairs that describe attachments to a version of a
+	// document.
+	Attachments []*AttachmentsSource `type:"list"`
+
 	// A valid JSON or YAML string.
 	//
 	// Content is a required field
@@ -14523,8 +15105,8 @@ type CreateDocumentInput struct {
 	// JSON or YAML. JSON is the default format.
 	DocumentFormat *string `type:"string" enum:"DocumentFormat"`
 
-	// The type of document to create. Valid document types include: Policy, Automation,
-	// and Command.
+	// The type of document to create. Valid document types include: Command, Policy,
+	// Automation, Session, and Package.
 	DocumentType *string `type:"string" enum:"DocumentType"`
 
 	// A name for the Systems Manager document.
@@ -14541,6 +15123,19 @@ type CreateDocumentInput struct {
 	// Name is a required field
 	Name *string `type:"string" required:"true"`
 
+	// Optional metadata that you assign to a resource. Tags enable you to categorize
+	// a resource in different ways, such as by purpose, owner, or environment.
+	// For example, you might want to tag an SSM document to identify the types
+	// of targets or the environment where it will run. In this case, you could
+	// specify the following key name/value pairs:
+	//
+	//    * Key=OS,Value=Windows
+	//
+	//    * Key=Environment,Value=Production
+	//
+	// To add tags to an existing SSM document, use the AddTagsToResource action.
+	Tags []*Tag `type:"list"`
+
 	// Specify a target type to define the kinds of resources the document can run
 	// on. For example, to run a document on EC2 instances, specify the following
 	// value: /AWS::EC2::Instance. If you specify a value of '/' the document can
@@ -14549,6 +15144,11 @@ type CreateDocumentInput struct {
 	// Types Reference (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html)
 	// in the AWS CloudFormation User Guide.
 	TargetType *string `type:"string"`
+
+	// An optional field specifying the version of the artifact you are creating
+	// with the document. For example, "Release 12, Update 6". This value is unique
+	// across all versions of a document, and cannot be changed.
+	VersionName *string `type:"string"`
 }
 
 // String returns the string representation
@@ -14573,11 +15173,37 @@ func (s *CreateDocumentInput) Validate() error {
 	if s.Name == nil {
 		invalidParams.Add(request.NewErrParamRequired("Name"))
 	}
+	if s.Attachments != nil {
+		for i, v := range s.Attachments {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Attachments", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+	if s.Tags != nil {
+		for i, v := range s.Tags {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Tags", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
 
 	if invalidParams.Len() > 0 {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetAttachments sets the Attachments field's value.
+func (s *CreateDocumentInput) SetAttachments(v []*AttachmentsSource) *CreateDocumentInput {
+	s.Attachments = v
+	return s
 }
 
 // SetContent sets the Content field's value.
@@ -14604,9 +15230,21 @@ func (s *CreateDocumentInput) SetName(v string) *CreateDocumentInput {
 	return s
 }
 
+// SetTags sets the Tags field's value.
+func (s *CreateDocumentInput) SetTags(v []*Tag) *CreateDocumentInput {
+	s.Tags = v
+	return s
+}
+
 // SetTargetType sets the TargetType field's value.
 func (s *CreateDocumentInput) SetTargetType(v string) *CreateDocumentInput {
 	s.TargetType = &v
+	return s
+}
+
+// SetVersionName sets the VersionName field's value.
+func (s *CreateDocumentInput) SetVersionName(v string) *CreateDocumentInput {
+	s.VersionName = &v
 	return s
 }
 
@@ -14658,7 +15296,7 @@ type CreateMaintenanceWindowInput struct {
 
 	// An optional description for the Maintenance Window. We recommend specifying
 	// a description to help you organize your Maintenance Windows.
-	Description *string `min:"1" type:"string"`
+	Description *string `min:"1" type:"string" sensitive:"true"`
 
 	// The duration of the Maintenance Window in hours.
 	//
@@ -14690,6 +15328,22 @@ type CreateMaintenanceWindowInput struct {
 	// Window to become active. StartDate allows you to delay activation of the
 	// Maintenance Window until the specified future date.
 	StartDate *string `type:"string"`
+
+	// Optional metadata that you assign to a resource. Tags enable you to categorize
+	// a resource in different ways, such as by purpose, owner, or environment.
+	// For example, you might want to tag a Maintenance Window to identify the type
+	// of tasks it will run, the types of targets, and the environment it will run
+	// in. In this case, you could specify the following key name/value pairs:
+	//
+	//    * Key=TaskType,Value=AgentUpdate
+	//
+	//    * Key=OS,Value=Windows
+	//
+	//    * Key=Environment,Value=Production
+	//
+	// To add tags to an existing Maintenance Window, use the AddTagsToResource
+	// action.
+	Tags []*Tag `type:"list"`
 }
 
 // String returns the string representation
@@ -14734,6 +15388,16 @@ func (s *CreateMaintenanceWindowInput) Validate() error {
 	}
 	if s.Schedule != nil && len(*s.Schedule) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("Schedule", 1))
+	}
+	if s.Tags != nil {
+		for i, v := range s.Tags {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Tags", i), err.(request.ErrInvalidParams))
+			}
+		}
 	}
 
 	if invalidParams.Len() > 0 {
@@ -14802,6 +15466,12 @@ func (s *CreateMaintenanceWindowInput) SetStartDate(v string) *CreateMaintenance
 	return s
 }
 
+// SetTags sets the Tags field's value.
+func (s *CreateMaintenanceWindowInput) SetTags(v []*Tag) *CreateMaintenanceWindowInput {
+	s.Tags = v
+	return s
+}
+
 type CreateMaintenanceWindowOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -14855,7 +15525,7 @@ type CreatePatchBaselineInput struct {
 	// A description of the patch baseline.
 	Description *string `min:"1" type:"string"`
 
-	// A set of global filters used to exclude patches from the baseline.
+	// A set of global filters used to include patches in the baseline.
 	GlobalFilters *PatchFilterGroup `type:"structure"`
 
 	// The name of the patch baseline.
@@ -14893,6 +15563,19 @@ type CreatePatchBaselineInput struct {
 	// Information about the patches to use to update the instances, including target
 	// operating systems and source repositories. Applies to Linux instances only.
 	Sources []*PatchSource `type:"list"`
+
+	// Optional metadata that you assign to a resource. Tags enable you to categorize
+	// a resource in different ways, such as by purpose, owner, or environment.
+	// For example, you might want to tag a patch baseline to identify the severity
+	// level of patches it specifies and the operating system family it applies
+	// to. In this case, you could specify the following key name/value pairs:
+	//
+	//    * Key=PatchSeverity,Value=Critical
+	//
+	//    * Key=OS,Value=Windows
+	//
+	// To add tags to an existing patch baseline, use the AddTagsToResource action.
+	Tags []*Tag `type:"list"`
 }
 
 // String returns the string representation
@@ -14937,6 +15620,16 @@ func (s *CreatePatchBaselineInput) Validate() error {
 			}
 			if err := v.Validate(); err != nil {
 				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Sources", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+	if s.Tags != nil {
+		for i, v := range s.Tags {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Tags", i), err.(request.ErrInvalidParams))
 			}
 		}
 	}
@@ -15016,6 +15709,12 @@ func (s *CreatePatchBaselineInput) SetRejectedPatchesAction(v string) *CreatePat
 // SetSources sets the Sources field's value.
 func (s *CreatePatchBaselineInput) SetSources(v []*PatchSource) *CreatePatchBaselineInput {
 	s.Sources = v
+	return s
+}
+
+// SetTags sets the Tags field's value.
+func (s *CreatePatchBaselineInput) SetTags(v []*Tag) *CreatePatchBaselineInput {
+	s.Tags = v
 	return s
 }
 
@@ -16443,8 +17142,8 @@ type DescribeAssociationInput struct {
 
 	// Specify the association version to retrieve. To view the latest version,
 	// either specify $LATEST for this parameter, or omit this parameter. To view
-	// a list of all associations for an instance, use ListInstanceAssociations.
-	// To get a list of versions for a specific association, use ListAssociationVersions.
+	// a list of all associations for an instance, use ListAssociations. To get
+	// a list of versions for a specific association, use ListAssociationVersions.
 	AssociationVersion *string `type:"string"`
 
 	// The instance ID.
@@ -16855,6 +17554,11 @@ type DescribeDocumentInput struct {
 	//
 	// Name is a required field
 	Name *string `type:"string" required:"true"`
+
+	// An optional field specifying the version of the artifact associated with
+	// the document. For example, "Release 12, Update 6". This value is unique across
+	// all versions of a document, and cannot be changed.
+	VersionName *string `type:"string"`
 }
 
 // String returns the string representation
@@ -16889,6 +17593,12 @@ func (s *DescribeDocumentInput) SetDocumentVersion(v string) *DescribeDocumentIn
 // SetName sets the Name field's value.
 func (s *DescribeDocumentInput) SetName(v string) *DescribeDocumentInput {
 	s.Name = &v
+	return s
+}
+
+// SetVersionName sets the VersionName field's value.
+func (s *DescribeDocumentInput) SetVersionName(v string) *DescribeDocumentInput {
+	s.VersionName = &v
 	return s
 }
 
@@ -19394,6 +20104,9 @@ type DocumentDefaultVersionDescription struct {
 	// The default version of the document.
 	DefaultVersion *string `type:"string"`
 
+	// The default version of the artifact associated with the document.
+	DefaultVersionName *string `type:"string"`
+
 	// The name of the document.
 	Name *string `type:"string"`
 }
@@ -19414,6 +20127,12 @@ func (s *DocumentDefaultVersionDescription) SetDefaultVersion(v string) *Documen
 	return s
 }
 
+// SetDefaultVersionName sets the DefaultVersionName field's value.
+func (s *DocumentDefaultVersionDescription) SetDefaultVersionName(v string) *DocumentDefaultVersionDescription {
+	s.DefaultVersionName = &v
+	return s
+}
+
 // SetName sets the Name field's value.
 func (s *DocumentDefaultVersionDescription) SetName(v string) *DocumentDefaultVersionDescription {
 	s.Name = &v
@@ -19423,6 +20142,10 @@ func (s *DocumentDefaultVersionDescription) SetName(v string) *DocumentDefaultVe
 // Describes a Systems Manager document.
 type DocumentDescription struct {
 	_ struct{} `type:"structure"`
+
+	// Details about the document attachments, including names, locations, sizes,
+	// etc.
+	AttachmentsInformation []*AttachmentInformation `type:"list"`
 
 	// The date when the document was created.
 	CreatedDate *time.Time `type:"timestamp"`
@@ -19447,7 +20170,7 @@ type DocumentDescription struct {
 	// Sha1 hashes have been deprecated.
 	Hash *string `type:"string"`
 
-	// Sha256 or Sha1.
+	// The hash type of the document. Valid values include Sha256 or Sha1.
 	//
 	// Sha1 hashes have been deprecated.
 	HashType *string `type:"string" enum:"DocumentHashType"`
@@ -19476,6 +20199,12 @@ type DocumentDescription struct {
 	// The status of the Systems Manager document.
 	Status *string `type:"string" enum:"DocumentStatus"`
 
+	// A message returned by AWS Systems Manager that explains the Status value.
+	// For example, a Failed status might be explained by the StatusInformation
+	// message, "The specified S3 bucket does not exist. Verify that the URL of
+	// the S3 bucket is correct."
+	StatusInformation *string `type:"string"`
+
 	// The tags, or metadata, that have been applied to the document.
 	Tags []*Tag `type:"list"`
 
@@ -19484,6 +20213,9 @@ type DocumentDescription struct {
 	// see AWS Resource Types Reference (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html)
 	// in the AWS CloudFormation User Guide.
 	TargetType *string `type:"string"`
+
+	// The version of the artifact associated with the document.
+	VersionName *string `type:"string"`
 }
 
 // String returns the string representation
@@ -19494,6 +20226,12 @@ func (s DocumentDescription) String() string {
 // GoString returns the string representation
 func (s DocumentDescription) GoString() string {
 	return s.String()
+}
+
+// SetAttachmentsInformation sets the AttachmentsInformation field's value.
+func (s *DocumentDescription) SetAttachmentsInformation(v []*AttachmentInformation) *DocumentDescription {
+	s.AttachmentsInformation = v
+	return s
 }
 
 // SetCreatedDate sets the CreatedDate field's value.
@@ -19592,6 +20330,12 @@ func (s *DocumentDescription) SetStatus(v string) *DocumentDescription {
 	return s
 }
 
+// SetStatusInformation sets the StatusInformation field's value.
+func (s *DocumentDescription) SetStatusInformation(v string) *DocumentDescription {
+	s.StatusInformation = &v
+	return s
+}
+
 // SetTags sets the Tags field's value.
 func (s *DocumentDescription) SetTags(v []*Tag) *DocumentDescription {
 	s.Tags = v
@@ -19601,6 +20345,12 @@ func (s *DocumentDescription) SetTags(v []*Tag) *DocumentDescription {
 // SetTargetType sets the TargetType field's value.
 func (s *DocumentDescription) SetTargetType(v string) *DocumentDescription {
 	s.TargetType = &v
+	return s
+}
+
+// SetVersionName sets the VersionName field's value.
+func (s *DocumentDescription) SetVersionName(v string) *DocumentDescription {
+	s.VersionName = &v
 	return s
 }
 
@@ -19693,6 +20443,11 @@ type DocumentIdentifier struct {
 	// see AWS Resource Types Reference (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html)
 	// in the AWS CloudFormation User Guide.
 	TargetType *string `type:"string"`
+
+	// An optional field specifying the version of the artifact associated with
+	// the document. For example, "Release 12, Update 6". This value is unique across
+	// all versions of a document, and cannot be changed.
+	VersionName *string `type:"string"`
 }
 
 // String returns the string representation
@@ -19756,6 +20511,12 @@ func (s *DocumentIdentifier) SetTags(v []*Tag) *DocumentIdentifier {
 // SetTargetType sets the TargetType field's value.
 func (s *DocumentIdentifier) SetTargetType(v string) *DocumentIdentifier {
 	s.TargetType = &v
+	return s
+}
+
+// SetVersionName sets the VersionName field's value.
+func (s *DocumentIdentifier) SetVersionName(v string) *DocumentIdentifier {
+	s.VersionName = &v
 	return s
 }
 
@@ -19901,6 +20662,21 @@ type DocumentVersionInfo struct {
 
 	// The document name.
 	Name *string `type:"string"`
+
+	// The status of the Systems Manager document, such as Creating, Active, Failed,
+	// and Deleting.
+	Status *string `type:"string" enum:"DocumentStatus"`
+
+	// A message returned by AWS Systems Manager that explains the Status value.
+	// For example, a Failed status might be explained by the StatusInformation
+	// message, "The specified S3 bucket does not exist. Verify that the URL of
+	// the S3 bucket is correct."
+	StatusInformation *string `type:"string"`
+
+	// The version of the artifact associated with the document. For example, "Release
+	// 12, Update 6". This value is unique across all versions of a document, and
+	// cannot be changed.
+	VersionName *string `type:"string"`
 }
 
 // String returns the string representation
@@ -19940,6 +20716,24 @@ func (s *DocumentVersionInfo) SetIsDefaultVersion(v bool) *DocumentVersionInfo {
 // SetName sets the Name field's value.
 func (s *DocumentVersionInfo) SetName(v string) *DocumentVersionInfo {
 	s.Name = &v
+	return s
+}
+
+// SetStatus sets the Status field's value.
+func (s *DocumentVersionInfo) SetStatus(v string) *DocumentVersionInfo {
+	s.Status = &v
+	return s
+}
+
+// SetStatusInformation sets the StatusInformation field's value.
+func (s *DocumentVersionInfo) SetStatusInformation(v string) *DocumentVersionInfo {
+	s.StatusInformation = &v
+	return s
+}
+
+// SetVersionName sets the VersionName field's value.
+func (s *DocumentVersionInfo) SetVersionName(v string) *DocumentVersionInfo {
+	s.VersionName = &v
 	return s
 }
 
@@ -20693,6 +21487,11 @@ type GetDocumentInput struct {
 	//
 	// Name is a required field
 	Name *string `type:"string" required:"true"`
+
+	// An optional field specifying the version of the artifact associated with
+	// the document. For example, "Release 12, Update 6". This value is unique across
+	// all versions of a document, and cannot be changed.
+	VersionName *string `type:"string"`
 }
 
 // String returns the string representation
@@ -20736,8 +21535,18 @@ func (s *GetDocumentInput) SetName(v string) *GetDocumentInput {
 	return s
 }
 
+// SetVersionName sets the VersionName field's value.
+func (s *GetDocumentInput) SetVersionName(v string) *GetDocumentInput {
+	s.VersionName = &v
+	return s
+}
+
 type GetDocumentOutput struct {
 	_ struct{} `type:"structure"`
+
+	// A description of the document attachments, including names, locations, sizes,
+	// etc.
+	AttachmentsContent []*AttachmentContent `type:"list"`
 
 	// The contents of the Systems Manager document.
 	Content *string `min:"1" type:"string"`
@@ -20753,6 +21562,21 @@ type GetDocumentOutput struct {
 
 	// The name of the Systems Manager document.
 	Name *string `type:"string"`
+
+	// The status of the Systems Manager document, such as Creating, Active, Updating,
+	// Failed, and Deleting.
+	Status *string `type:"string" enum:"DocumentStatus"`
+
+	// A message returned by AWS Systems Manager that explains the Status value.
+	// For example, a Failed status might be explained by the StatusInformation
+	// message, "The specified S3 bucket does not exist. Verify that the URL of
+	// the S3 bucket is correct."
+	StatusInformation *string `type:"string"`
+
+	// The version of the artifact associated with the document. For example, "Release
+	// 12, Update 6". This value is unique across all versions of a document, and
+	// cannot be changed.
+	VersionName *string `type:"string"`
 }
 
 // String returns the string representation
@@ -20763,6 +21587,12 @@ func (s GetDocumentOutput) String() string {
 // GoString returns the string representation
 func (s GetDocumentOutput) GoString() string {
 	return s.String()
+}
+
+// SetAttachmentsContent sets the AttachmentsContent field's value.
+func (s *GetDocumentOutput) SetAttachmentsContent(v []*AttachmentContent) *GetDocumentOutput {
+	s.AttachmentsContent = v
+	return s
 }
 
 // SetContent sets the Content field's value.
@@ -20792,6 +21622,24 @@ func (s *GetDocumentOutput) SetDocumentVersion(v string) *GetDocumentOutput {
 // SetName sets the Name field's value.
 func (s *GetDocumentOutput) SetName(v string) *GetDocumentOutput {
 	s.Name = &v
+	return s
+}
+
+// SetStatus sets the Status field's value.
+func (s *GetDocumentOutput) SetStatus(v string) *GetDocumentOutput {
+	s.Status = &v
+	return s
+}
+
+// SetStatusInformation sets the StatusInformation field's value.
+func (s *GetDocumentOutput) SetStatusInformation(v string) *GetDocumentOutput {
+	s.StatusInformation = &v
+	return s
+}
+
+// SetVersionName sets the VersionName field's value.
+func (s *GetDocumentOutput) SetVersionName(v string) *GetDocumentOutput {
+	s.VersionName = &v
 	return s
 }
 
@@ -21313,10 +22161,10 @@ type GetMaintenanceWindowExecutionTaskInvocationOutput struct {
 
 	// User-provided value to be included in any CloudWatch events raised while
 	// running tasks for these targets in this Maintenance Window.
-	OwnerInformation *string `min:"1" type:"string"`
+	OwnerInformation *string `min:"1" type:"string" sensitive:"true"`
 
 	// The parameters used at the time that the task executed.
-	Parameters *string `type:"string"`
+	Parameters *string `type:"string" sensitive:"true"`
 
 	// The time that the task started executing on the target.
 	StartTime *time.Time `type:"timestamp"`
@@ -21471,7 +22319,7 @@ type GetMaintenanceWindowExecutionTaskOutput struct {
 	// Key: string, between 1 and 255 characters
 	//
 	// Value: an array of strings, each string is between 1 and 255 characters
-	TaskParameters []map[string]*MaintenanceWindowTaskParameterValueExpression `type:"list"`
+	TaskParameters []map[string]*MaintenanceWindowTaskParameterValueExpression `type:"list" sensitive:"true"`
 
 	// The type of task executed.
 	Type *string `type:"string" enum:"MaintenanceWindowTaskType"`
@@ -21624,7 +22472,7 @@ type GetMaintenanceWindowOutput struct {
 	Cutoff *int64 `type:"integer"`
 
 	// The description of the Maintenance Window.
-	Description *string `min:"1" type:"string"`
+	Description *string `min:"1" type:"string" sensitive:"true"`
 
 	// The duration of the Maintenance Window in hours.
 	Duration *int64 `min:"1" type:"integer"`
@@ -21821,7 +22669,7 @@ type GetMaintenanceWindowTaskOutput struct {
 	_ struct{} `type:"structure"`
 
 	// The retrieved task description.
-	Description *string `min:"1" type:"string"`
+	Description *string `min:"1" type:"string" sensitive:"true"`
 
 	// The location in Amazon S3 where the task results are logged.
 	//
@@ -21865,7 +22713,7 @@ type GetMaintenanceWindowTaskOutput struct {
 	// when it runs, instead use the Parameters option in the TaskInvocationParameters
 	// structure. For information about how Systems Manager handles these options
 	// for the supported Maintenance Window task types, see MaintenanceWindowTaskInvocationParameters.
-	TaskParameters map[string]*MaintenanceWindowTaskParameterValueExpression `type:"map"`
+	TaskParameters map[string]*MaintenanceWindowTaskParameterValueExpression `type:"map" sensitive:"true"`
 
 	// The type of task to execute.
 	TaskType *string `type:"string" enum:"MaintenanceWindowTaskType"`
@@ -22670,6 +23518,72 @@ func (s *GetPatchBaselineOutput) SetSources(v []*PatchSource) *GetPatchBaselineO
 	return s
 }
 
+// The request body of the GetServiceSetting API action.
+type GetServiceSettingInput struct {
+	_ struct{} `type:"structure"`
+
+	// The ID of the service setting to get.
+	//
+	// SettingId is a required field
+	SettingId *string `min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s GetServiceSettingInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetServiceSettingInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetServiceSettingInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetServiceSettingInput"}
+	if s.SettingId == nil {
+		invalidParams.Add(request.NewErrParamRequired("SettingId"))
+	}
+	if s.SettingId != nil && len(*s.SettingId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SettingId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetSettingId sets the SettingId field's value.
+func (s *GetServiceSettingInput) SetSettingId(v string) *GetServiceSettingInput {
+	s.SettingId = &v
+	return s
+}
+
+// The query result body of the GetServiceSetting API action.
+type GetServiceSettingOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The query result of the current service setting.
+	ServiceSetting *ServiceSetting `type:"structure"`
+}
+
+// String returns the string representation
+func (s GetServiceSettingOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetServiceSettingOutput) GoString() string {
+	return s.String()
+}
+
+// SetServiceSetting sets the ServiceSetting field's value.
+func (s *GetServiceSettingOutput) SetServiceSetting(v *ServiceSetting) *GetServiceSettingOutput {
+	s.ServiceSetting = v
+	return s
+}
+
 // Status information about the aggregated associations.
 type InstanceAggregatedAssociationOverview struct {
 	_ struct{} `type:"structure"`
@@ -23328,7 +24242,7 @@ type InstancePatchState struct {
 
 	// Placeholder information. This field will always be empty in the current release
 	// of the service.
-	OwnerInformation *string `min:"1" type:"string"`
+	OwnerInformation *string `min:"1" type:"string" sensitive:"true"`
 
 	// The name of the patch group the managed instance belongs to.
 	//
@@ -25952,10 +26866,10 @@ type MaintenanceWindowExecutionTaskInvocationIdentity struct {
 	// User-provided value that was specified when the target was registered with
 	// the Maintenance Window. This was also included in any CloudWatch events raised
 	// during the task invocation.
-	OwnerInformation *string `min:"1" type:"string"`
+	OwnerInformation *string `min:"1" type:"string" sensitive:"true"`
 
 	// The parameters that were provided for the invocation when it was executed.
-	Parameters *string `type:"string"`
+	Parameters *string `type:"string" sensitive:"true"`
 
 	// The time the invocation started.
 	StartTime *time.Time `type:"timestamp"`
@@ -26118,7 +27032,7 @@ type MaintenanceWindowIdentity struct {
 	Cutoff *int64 `type:"integer"`
 
 	// A description of the Maintenance Window.
-	Description *string `min:"1" type:"string"`
+	Description *string `min:"1" type:"string" sensitive:"true"`
 
 	// The duration of the Maintenance Window in hours.
 	Duration *int64 `min:"1" type:"integer"`
@@ -26289,7 +27203,7 @@ type MaintenanceWindowLambdaParameters struct {
 	// JSON to provide to your Lambda function as input.
 	//
 	// Payload is automatically base64 encoded/decoded by the SDK.
-	Payload []byte `type:"blob"`
+	Payload []byte `type:"blob" sensitive:"true"`
 
 	// (Optional) Specify a Lambda function version or alias name. If you specify
 	// a function version, the action uses the qualified function ARN to invoke
@@ -26494,7 +27408,7 @@ type MaintenanceWindowStepFunctionsParameters struct {
 	_ struct{} `type:"structure"`
 
 	// The inputs for the STEP_FUNCTION task.
-	Input *string `type:"string"`
+	Input *string `type:"string" sensitive:"true"`
 
 	// The name of the STEP_FUNCTION task.
 	Name *string `min:"1" type:"string"`
@@ -26540,14 +27454,14 @@ type MaintenanceWindowTarget struct {
 	_ struct{} `type:"structure"`
 
 	// A description of the target.
-	Description *string `min:"1" type:"string"`
+	Description *string `min:"1" type:"string" sensitive:"true"`
 
 	// The target name.
 	Name *string `min:"3" type:"string"`
 
 	// User-provided value that will be included in any CloudWatch events raised
 	// while running tasks for these targets in this Maintenance Window.
-	OwnerInformation *string `min:"1" type:"string"`
+	OwnerInformation *string `min:"1" type:"string" sensitive:"true"`
 
 	// The type of target.
 	ResourceType *string `type:"string" enum:"MaintenanceWindowResourceType"`
@@ -26620,7 +27534,7 @@ type MaintenanceWindowTask struct {
 	_ struct{} `type:"structure"`
 
 	// A description of the task.
-	Description *string `min:"1" type:"string"`
+	Description *string `min:"1" type:"string" sensitive:"true"`
 
 	// Information about an Amazon S3 bucket to write task-level logs to.
 	//
@@ -26663,7 +27577,7 @@ type MaintenanceWindowTask struct {
 	// when it runs, instead use the Parameters option in the TaskInvocationParameters
 	// structure. For information about how Systems Manager handles these options
 	// for the supported Maintenance Window task types, see MaintenanceWindowTaskInvocationParameters.
-	TaskParameters map[string]*MaintenanceWindowTaskParameterValueExpression `type:"map"`
+	TaskParameters map[string]*MaintenanceWindowTaskParameterValueExpression `type:"map" sensitive:"true"`
 
 	// The type of task. The type can be one of the following: RUN_COMMAND, AUTOMATION,
 	// LAMBDA, or STEP_FUNCTION.
@@ -26847,11 +27761,11 @@ func (s *MaintenanceWindowTaskInvocationParameters) SetStepFunctions(v *Maintena
 
 // Defines the values for a task parameter.
 type MaintenanceWindowTaskParameterValueExpression struct {
-	_ struct{} `type:"structure"`
+	_ struct{} `type:"structure" sensitive:"true"`
 
 	// This field contains an array of 0 or more strings, each 1 to 255 characters
 	// in length.
-	Values []*string `type:"list"`
+	Values []*string `type:"list" sensitive:"true"`
 }
 
 // String returns the string representation
@@ -27819,6 +28733,8 @@ func (s *PatchComplianceData) SetTitle(v string) *PatchComplianceData {
 //
 //    * WindowsServer2016
 //
+//    * WindowsServer2019
+//
 //    * *
 //
 // Use a wildcard character (*) to target all supported operating system versions.
@@ -28035,6 +28951,10 @@ func (s *PatchComplianceData) SetTitle(v string) *PatchComplianceData {
 //
 //    * RedhatEnterpriseLinux7.4
 //
+//    * RedhatEnterpriseLinux7.5
+//
+//    * RedhatEnterpriseLinux7.6
+//
 //    * *
 //
 // Use a wildcard character (*) to target all supported operating system versions.
@@ -28156,6 +29076,10 @@ func (s *PatchComplianceData) SetTitle(v string) *PatchComplianceData {
 //    * CentOS7.3
 //
 //    * CentOS7.4
+//
+//    * CentOS7.5
+//
+//    * CentOS7.6
 //
 //    * *
 //
@@ -28513,16 +29437,16 @@ type PatchSource struct {
 
 	// The value of the yum repo configuration. For example:
 	//
-	// cachedir=/var/cache/yum/$basesearch
+	// [main]
 	//
-	// $releasever
+	// cachedir=/var/cache/yum/$basesearch$releasever
 	//
 	// keepcache=0
 	//
 	// debuglevel=2
 	//
 	// Configuration is a required field
-	Configuration *string `min:"1" type:"string" required:"true"`
+	Configuration *string `min:"1" type:"string" required:"true" sensitive:"true"`
 
 	// The name specified to identify the patch source.
 	//
@@ -29000,6 +29924,23 @@ type PutParameterInput struct {
 	// Overwrite an existing parameter. If not specified, will default to "false".
 	Overwrite *bool `type:"boolean"`
 
+	// Optional metadata that you assign to a resource. Tags enable you to categorize
+	// a resource in different ways, such as by purpose, owner, or environment.
+	// For example, you might want to tag a Systems Manager parameter to identify
+	// the type of resource to which it applies, the environment, or the type of
+	// configuration data referenced by the parameter. In this case, you could specify
+	// the following key name/value pairs:
+	//
+	//    * Key=Resource,Value=S3bucket
+	//
+	//    * Key=OS,Value=Windows
+	//
+	//    * Key=ParameterType,Value=LicenseKey
+	//
+	// To add tags to an existing Systems Manager parameter, use the AddTagsToResource
+	// action.
+	Tags []*Tag `type:"list"`
+
 	// The type of parameter that you want to add to the system.
 	//
 	// Items in a StringList must be separated by a comma (,). You can't use other
@@ -29049,6 +29990,16 @@ func (s *PutParameterInput) Validate() error {
 	if s.Value != nil && len(*s.Value) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("Value", 1))
 	}
+	if s.Tags != nil {
+		for i, v := range s.Tags {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Tags", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
 
 	if invalidParams.Len() > 0 {
 		return invalidParams
@@ -29083,6 +30034,12 @@ func (s *PutParameterInput) SetName(v string) *PutParameterInput {
 // SetOverwrite sets the Overwrite field's value.
 func (s *PutParameterInput) SetOverwrite(v bool) *PutParameterInput {
 	s.Overwrite = &v
+	return s
+}
+
+// SetTags sets the Tags field's value.
+func (s *PutParameterInput) SetTags(v []*Tag) *PutParameterInput {
+	s.Tags = v
 	return s
 }
 
@@ -29287,14 +30244,14 @@ type RegisterTargetWithMaintenanceWindowInput struct {
 	ClientToken *string `min:"1" type:"string" idempotencyToken:"true"`
 
 	// An optional description for the target.
-	Description *string `min:"1" type:"string"`
+	Description *string `min:"1" type:"string" sensitive:"true"`
 
 	// An optional name for the target.
 	Name *string `min:"3" type:"string"`
 
 	// User-provided value that will be included in any CloudWatch events raised
 	// while running tasks for these targets in this Maintenance Window.
-	OwnerInformation *string `min:"1" type:"string"`
+	OwnerInformation *string `min:"1" type:"string" sensitive:"true"`
 
 	// The type of target being registered with the Maintenance Window.
 	//
@@ -29448,7 +30405,7 @@ type RegisterTaskWithMaintenanceWindowInput struct {
 	ClientToken *string `min:"1" type:"string" idempotencyToken:"true"`
 
 	// An optional description for the task.
-	Description *string `min:"1" type:"string"`
+	Description *string `min:"1" type:"string" sensitive:"true"`
 
 	// A structure containing information about an Amazon S3 bucket to write instance-level
 	// logs to.
@@ -29520,7 +30477,7 @@ type RegisterTaskWithMaintenanceWindowInput struct {
 	// when it runs, instead use the Parameters option in the TaskInvocationParameters
 	// structure. For information about how Systems Manager handles these options
 	// for the supported Maintenance Window task types, see MaintenanceWindowTaskInvocationParameters.
-	TaskParameters map[string]*MaintenanceWindowTaskParameterValueExpression `type:"map"`
+	TaskParameters map[string]*MaintenanceWindowTaskParameterValueExpression `type:"map" sensitive:"true"`
 
 	// The type of task being registered.
 	//
@@ -29814,6 +30771,73 @@ func (s RemoveTagsFromResourceOutput) String() string {
 // GoString returns the string representation
 func (s RemoveTagsFromResourceOutput) GoString() string {
 	return s.String()
+}
+
+// The request body of the ResetServiceSetting API action.
+type ResetServiceSettingInput struct {
+	_ struct{} `type:"structure"`
+
+	// The ID of the service setting to reset.
+	//
+	// SettingId is a required field
+	SettingId *string `min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s ResetServiceSettingInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ResetServiceSettingInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ResetServiceSettingInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ResetServiceSettingInput"}
+	if s.SettingId == nil {
+		invalidParams.Add(request.NewErrParamRequired("SettingId"))
+	}
+	if s.SettingId != nil && len(*s.SettingId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SettingId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetSettingId sets the SettingId field's value.
+func (s *ResetServiceSettingInput) SetSettingId(v string) *ResetServiceSettingInput {
+	s.SettingId = &v
+	return s
+}
+
+// The result body of the ResetServiceSetting API action.
+type ResetServiceSettingOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The current, effective service setting after calling the ResetServiceSetting
+	// API action.
+	ServiceSetting *ServiceSetting `type:"structure"`
+}
+
+// String returns the string representation
+func (s ResetServiceSettingOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ResetServiceSettingOutput) GoString() string {
+	return s.String()
+}
+
+// SetServiceSetting sets the ServiceSetting field's value.
+func (s *ResetServiceSettingOutput) SetServiceSetting(v *ServiceSetting) *ResetServiceSettingOutput {
+	s.ServiceSetting = v
+	return s
 }
 
 // Information about targets that resolved during the Automation execution.
@@ -30734,6 +31758,100 @@ func (s SendCommandOutput) GoString() string {
 // SetCommand sets the Command field's value.
 func (s *SendCommandOutput) SetCommand(v *Command) *SendCommandOutput {
 	s.Command = v
+	return s
+}
+
+// The service setting data structure.
+//
+// ServiceSetting is an account-level setting for an AWS service. This setting
+// defines how a user interacts with or uses a service or a feature of a service.
+// For example, if an AWS service charges money to the account based on feature
+// or service usage, then the AWS service team might create a default setting
+// of "false". This means the user can't use this feature unless they change
+// the setting to "true" and intentionally opt in for a paid feature.
+//
+// Services map a SettingId object to a setting value. AWS services teams define
+// the default value for a SettingId. You can't create a new SettingId, but
+// you can overwrite the default value if you have the ssm:UpdateServiceSetting
+// permission for the setting. Use the UpdateServiceSetting API action to change
+// the default setting. Or, use the ResetServiceSetting to change the value
+// back to the original value defined by the AWS service team.
+type ServiceSetting struct {
+	_ struct{} `type:"structure"`
+
+	// The ARN of the service setting.
+	ARN *string `type:"string"`
+
+	// The last time the service setting was modified.
+	LastModifiedDate *time.Time `type:"timestamp"`
+
+	// The ARN of the last modified user. This field is populated only if the setting
+	// value was overwritten.
+	LastModifiedUser *string `type:"string"`
+
+	// The ID of the service setting.
+	SettingId *string `min:"1" type:"string"`
+
+	// The value of the service setting.
+	SettingValue *string `min:"1" type:"string"`
+
+	// The status of the service setting. The value can be Default, Customized or
+	// PendingUpdate.
+	//
+	//    * Default: The current setting uses a default value provisioned by the
+	//    AWS service team.
+	//
+	//    * Customized: The current setting use a custom value specified by the
+	//    customer.
+	//
+	//    * PendingUpdate: The current setting uses a default or custom value, but
+	//    a setting change request is pending approval.
+	Status *string `type:"string"`
+}
+
+// String returns the string representation
+func (s ServiceSetting) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ServiceSetting) GoString() string {
+	return s.String()
+}
+
+// SetARN sets the ARN field's value.
+func (s *ServiceSetting) SetARN(v string) *ServiceSetting {
+	s.ARN = &v
+	return s
+}
+
+// SetLastModifiedDate sets the LastModifiedDate field's value.
+func (s *ServiceSetting) SetLastModifiedDate(v time.Time) *ServiceSetting {
+	s.LastModifiedDate = &v
+	return s
+}
+
+// SetLastModifiedUser sets the LastModifiedUser field's value.
+func (s *ServiceSetting) SetLastModifiedUser(v string) *ServiceSetting {
+	s.LastModifiedUser = &v
+	return s
+}
+
+// SetSettingId sets the SettingId field's value.
+func (s *ServiceSetting) SetSettingId(v string) *ServiceSetting {
+	s.SettingId = &v
+	return s
+}
+
+// SetSettingValue sets the SettingValue field's value.
+func (s *ServiceSetting) SetSettingValue(v string) *ServiceSetting {
+	s.SettingValue = &v
+	return s
+}
+
+// SetStatus sets the Status field's value.
+func (s *ServiceSetting) SetStatus(v string) *ServiceSetting {
+	s.Status = &v
 	return s
 }
 
@@ -32049,6 +33167,10 @@ type UpdateAssociationInput struct {
 	// this request succeeds, either specify $LATEST, or omit this parameter.
 	AssociationVersion *string `type:"string"`
 
+	// Specify the target for the association. This target is required for associations
+	// that use an Automation document and target resources by using rate controls.
+	AutomationTargetParameterName *string `min:"1" type:"string"`
+
 	// The severity level to assign to the association.
 	ComplianceSeverity *string `type:"string" enum:"AssociationComplianceSeverity"`
 
@@ -32081,7 +33203,24 @@ type UpdateAssociationInput struct {
 	// set MaxConcurrency to 1 so that executions proceed one at a time.
 	MaxErrors *string `min:"1" type:"string"`
 
-	// The name of the association document.
+	// The name of the SSM document that contains the configuration information
+	// for the instance. You can specify Command, Policy, or Automation documents.
+	//
+	// You can specify AWS-predefined documents, documents you created, or a document
+	// that is shared with you from another account.
+	//
+	// For SSM documents that are shared with you from other AWS accounts, you must
+	// specify the complete SSM document ARN, in the following format:
+	//
+	// arn:aws:ssm:region:account-id:document/document-name
+	//
+	// For example:
+	//
+	// arn:aws:ssm:us-east-2:12345678912:document/My-Shared-Document
+	//
+	// For AWS-predefined documents and SSM documents you created in your account,
+	// you only need to specify the document name. For example, AWS-ApplyPatchBaseline
+	// or My-Document.
 	Name *string `type:"string"`
 
 	// An Amazon S3 bucket where you want to store the results of this request.
@@ -32113,6 +33252,9 @@ func (s *UpdateAssociationInput) Validate() error {
 	invalidParams := request.ErrInvalidParams{Context: "UpdateAssociationInput"}
 	if s.AssociationId == nil {
 		invalidParams.Add(request.NewErrParamRequired("AssociationId"))
+	}
+	if s.AutomationTargetParameterName != nil && len(*s.AutomationTargetParameterName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("AutomationTargetParameterName", 1))
 	}
 	if s.MaxConcurrency != nil && len(*s.MaxConcurrency) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("MaxConcurrency", 1))
@@ -32160,6 +33302,12 @@ func (s *UpdateAssociationInput) SetAssociationName(v string) *UpdateAssociation
 // SetAssociationVersion sets the AssociationVersion field's value.
 func (s *UpdateAssociationInput) SetAssociationVersion(v string) *UpdateAssociationInput {
 	s.AssociationVersion = &v
+	return s
+}
+
+// SetAutomationTargetParameterName sets the AutomationTargetParameterName field's value.
+func (s *UpdateAssociationInput) SetAutomationTargetParameterName(v string) *UpdateAssociationInput {
+	s.AutomationTargetParameterName = &v
 	return s
 }
 
@@ -32413,7 +33561,11 @@ func (s *UpdateDocumentDefaultVersionOutput) SetDescription(v *DocumentDefaultVe
 type UpdateDocumentInput struct {
 	_ struct{} `type:"structure"`
 
-	// The content in a document that you want to update.
+	// A list of key and value pairs that describe attachments to a version of a
+	// document.
+	Attachments []*AttachmentsSource `type:"list"`
+
+	// A valid JSON or YAML string.
 	//
 	// Content is a required field
 	Content *string `min:"1" type:"string" required:"true"`
@@ -32432,6 +33584,11 @@ type UpdateDocumentInput struct {
 
 	// Specify a new target type for the document.
 	TargetType *string `type:"string"`
+
+	// An optional field specifying the version of the artifact you are updating
+	// with the document. For example, "Release 12, Update 6". This value is unique
+	// across all versions of a document, and cannot be changed.
+	VersionName *string `type:"string"`
 }
 
 // String returns the string representation
@@ -32456,11 +33613,27 @@ func (s *UpdateDocumentInput) Validate() error {
 	if s.Name == nil {
 		invalidParams.Add(request.NewErrParamRequired("Name"))
 	}
+	if s.Attachments != nil {
+		for i, v := range s.Attachments {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Attachments", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
 
 	if invalidParams.Len() > 0 {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetAttachments sets the Attachments field's value.
+func (s *UpdateDocumentInput) SetAttachments(v []*AttachmentsSource) *UpdateDocumentInput {
+	s.Attachments = v
+	return s
 }
 
 // SetContent sets the Content field's value.
@@ -32490,6 +33663,12 @@ func (s *UpdateDocumentInput) SetName(v string) *UpdateDocumentInput {
 // SetTargetType sets the TargetType field's value.
 func (s *UpdateDocumentInput) SetTargetType(v string) *UpdateDocumentInput {
 	s.TargetType = &v
+	return s
+}
+
+// SetVersionName sets the VersionName field's value.
+func (s *UpdateDocumentInput) SetVersionName(v string) *UpdateDocumentInput {
+	s.VersionName = &v
 	return s
 }
 
@@ -32528,7 +33707,7 @@ type UpdateMaintenanceWindowInput struct {
 	Cutoff *int64 `type:"integer"`
 
 	// An optional description for the update request.
-	Description *string `min:"1" type:"string"`
+	Description *string `min:"1" type:"string" sensitive:"true"`
 
 	// The duration of the Maintenance Window in hours.
 	Duration *int64 `min:"1" type:"integer"`
@@ -32692,7 +33871,7 @@ type UpdateMaintenanceWindowOutput struct {
 	Cutoff *int64 `type:"integer"`
 
 	// An optional description of the update.
-	Description *string `min:"1" type:"string"`
+	Description *string `min:"1" type:"string" sensitive:"true"`
 
 	// The duration of the Maintenance Window in hours.
 	Duration *int64 `min:"1" type:"integer"`
@@ -32806,14 +33985,14 @@ type UpdateMaintenanceWindowTargetInput struct {
 	_ struct{} `type:"structure"`
 
 	// An optional description for the update.
-	Description *string `min:"1" type:"string"`
+	Description *string `min:"1" type:"string" sensitive:"true"`
 
 	// A name for the update.
 	Name *string `min:"3" type:"string"`
 
 	// User-provided value that will be included in any CloudWatch events raised
 	// while running tasks for these targets in this Maintenance Window.
-	OwnerInformation *string `min:"1" type:"string"`
+	OwnerInformation *string `min:"1" type:"string" sensitive:"true"`
 
 	// If True, then all fields that are required by the RegisterTargetWithMaintenanceWindow
 	// action are also required for this API request. Optional fields that are not
@@ -32931,13 +34110,13 @@ type UpdateMaintenanceWindowTargetOutput struct {
 	_ struct{} `type:"structure"`
 
 	// The updated description.
-	Description *string `min:"1" type:"string"`
+	Description *string `min:"1" type:"string" sensitive:"true"`
 
 	// The updated name.
 	Name *string `min:"3" type:"string"`
 
 	// The updated owner.
-	OwnerInformation *string `min:"1" type:"string"`
+	OwnerInformation *string `min:"1" type:"string" sensitive:"true"`
 
 	// The updated targets.
 	Targets []*Target `type:"list"`
@@ -32999,7 +34178,7 @@ type UpdateMaintenanceWindowTaskInput struct {
 	_ struct{} `type:"structure"`
 
 	// The new task description to specify.
-	Description *string `min:"1" type:"string"`
+	Description *string `min:"1" type:"string" sensitive:"true"`
 
 	// The new logging location in Amazon S3 to specify.
 	//
@@ -33069,7 +34248,7 @@ type UpdateMaintenanceWindowTaskInput struct {
 	// Key: string, between 1 and 255 characters
 	//
 	// Value: an array of strings, each string is between 1 and 255 characters
-	TaskParameters map[string]*MaintenanceWindowTaskParameterValueExpression `type:"map"`
+	TaskParameters map[string]*MaintenanceWindowTaskParameterValueExpression `type:"map" sensitive:"true"`
 
 	// The Maintenance Window ID that contains the task to modify.
 	//
@@ -33237,7 +34416,7 @@ type UpdateMaintenanceWindowTaskOutput struct {
 	_ struct{} `type:"structure"`
 
 	// The updated task description.
-	Description *string `min:"1" type:"string"`
+	Description *string `min:"1" type:"string" sensitive:"true"`
 
 	// The updated logging information in Amazon S3.
 	//
@@ -33277,7 +34456,7 @@ type UpdateMaintenanceWindowTaskOutput struct {
 	// when it runs, instead use the Parameters option in the TaskInvocationParameters
 	// structure. For information about how Systems Manager handles these options
 	// for the supported Maintenance Window task types, see MaintenanceWindowTaskInvocationParameters.
-	TaskParameters map[string]*MaintenanceWindowTaskParameterValueExpression `type:"map"`
+	TaskParameters map[string]*MaintenanceWindowTaskParameterValueExpression `type:"map" sensitive:"true"`
 
 	// The ID of the Maintenance Window that was updated.
 	WindowId *string `min:"20" type:"string"`
@@ -33470,7 +34649,7 @@ type UpdatePatchBaselineInput struct {
 	// A description of the patch baseline.
 	Description *string `min:"1" type:"string"`
 
-	// A set of global filters used to exclude patches from the baseline.
+	// A set of global filters used to include patches in the baseline.
 	GlobalFilters *PatchFilterGroup `type:"structure"`
 
 	// The name of the patch baseline.
@@ -33779,6 +34958,80 @@ func (s *UpdatePatchBaselineOutput) SetSources(v []*PatchSource) *UpdatePatchBas
 	return s
 }
 
+// The request body of the UpdateServiceSetting API action.
+type UpdateServiceSettingInput struct {
+	_ struct{} `type:"structure"`
+
+	// The ID of the service setting to update.
+	//
+	// SettingId is a required field
+	SettingId *string `min:"1" type:"string" required:"true"`
+
+	// The new value to specify for the service setting.
+	//
+	// SettingValue is a required field
+	SettingValue *string `min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s UpdateServiceSettingInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UpdateServiceSettingInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateServiceSettingInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateServiceSettingInput"}
+	if s.SettingId == nil {
+		invalidParams.Add(request.NewErrParamRequired("SettingId"))
+	}
+	if s.SettingId != nil && len(*s.SettingId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SettingId", 1))
+	}
+	if s.SettingValue == nil {
+		invalidParams.Add(request.NewErrParamRequired("SettingValue"))
+	}
+	if s.SettingValue != nil && len(*s.SettingValue) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SettingValue", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetSettingId sets the SettingId field's value.
+func (s *UpdateServiceSettingInput) SetSettingId(v string) *UpdateServiceSettingInput {
+	s.SettingId = &v
+	return s
+}
+
+// SetSettingValue sets the SettingValue field's value.
+func (s *UpdateServiceSettingInput) SetSettingValue(v string) *UpdateServiceSettingInput {
+	s.SettingValue = &v
+	return s
+}
+
+// The result body of the UpdateServiceSetting API action.
+type UpdateServiceSettingOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s UpdateServiceSettingOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UpdateServiceSettingOutput) GoString() string {
+	return s.String()
+}
+
 const (
 	// AssociationComplianceSeverityCritical is a AssociationComplianceSeverity enum value
 	AssociationComplianceSeverityCritical = "CRITICAL"
@@ -33861,6 +35114,16 @@ const (
 
 	// AssociationStatusNameFailed is a AssociationStatusName enum value
 	AssociationStatusNameFailed = "Failed"
+)
+
+const (
+	// AttachmentHashTypeSha256 is a AttachmentHashType enum value
+	AttachmentHashTypeSha256 = "Sha256"
+)
+
+const (
+	// AttachmentsSourceKeySourceUrl is a AttachmentsSourceKey enum value
+	AttachmentsSourceKeySourceUrl = "SourceUrl"
 )
 
 const (
@@ -34116,6 +35379,7 @@ const (
 	DocumentPermissionTypeShare = "Share"
 )
 
+// The status of a document.
 const (
 	// DocumentStatusCreating is a DocumentStatus enum value
 	DocumentStatusCreating = "Creating"
@@ -34128,6 +35392,9 @@ const (
 
 	// DocumentStatusDeleting is a DocumentStatus enum value
 	DocumentStatusDeleting = "Deleting"
+
+	// DocumentStatusFailed is a DocumentStatus enum value
+	DocumentStatusFailed = "Failed"
 )
 
 const (
@@ -34142,6 +35409,9 @@ const (
 
 	// DocumentTypeSession is a DocumentType enum value
 	DocumentTypeSession = "Session"
+
+	// DocumentTypePackage is a DocumentType enum value
+	DocumentTypePackage = "Package"
 )
 
 const (
