@@ -18,9 +18,9 @@
 package mock_ssmiface
 
 import (
+	context "context"
 	reflect "reflect"
 
-	aws "github.com/aws/aws-sdk-go/aws"
 	request "github.com/aws/aws-sdk-go/aws/request"
 	ssm "github.com/aws/aws-sdk-go/service/ssm"
 	gomock "github.com/golang/mock/gomock"
@@ -51,6 +51,7 @@ func (m *MockSSMAPI) EXPECT() *MockSSMAPIMockRecorder {
 
 // AddTagsToResource mocks base method
 func (m *MockSSMAPI) AddTagsToResource(arg0 *ssm.AddTagsToResourceInput) (*ssm.AddTagsToResourceOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddTagsToResource", arg0)
 	ret0, _ := ret[0].(*ssm.AddTagsToResourceOutput)
 	ret1, _ := ret[1].(error)
@@ -59,11 +60,13 @@ func (m *MockSSMAPI) AddTagsToResource(arg0 *ssm.AddTagsToResourceInput) (*ssm.A
 
 // AddTagsToResource indicates an expected call of AddTagsToResource
 func (mr *MockSSMAPIMockRecorder) AddTagsToResource(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTagsToResource", reflect.TypeOf((*MockSSMAPI)(nil).AddTagsToResource), arg0)
 }
 
 // AddTagsToResourceRequest mocks base method
 func (m *MockSSMAPI) AddTagsToResourceRequest(arg0 *ssm.AddTagsToResourceInput) (*request.Request, *ssm.AddTagsToResourceOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddTagsToResourceRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.AddTagsToResourceOutput)
@@ -72,11 +75,13 @@ func (m *MockSSMAPI) AddTagsToResourceRequest(arg0 *ssm.AddTagsToResourceInput) 
 
 // AddTagsToResourceRequest indicates an expected call of AddTagsToResourceRequest
 func (mr *MockSSMAPIMockRecorder) AddTagsToResourceRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTagsToResourceRequest", reflect.TypeOf((*MockSSMAPI)(nil).AddTagsToResourceRequest), arg0)
 }
 
 // AddTagsToResourceWithContext mocks base method
-func (m *MockSSMAPI) AddTagsToResourceWithContext(arg0 aws.Context, arg1 *ssm.AddTagsToResourceInput, arg2 ...request.Option) (*ssm.AddTagsToResourceOutput, error) {
+func (m *MockSSMAPI) AddTagsToResourceWithContext(arg0 context.Context, arg1 *ssm.AddTagsToResourceInput, arg2 ...request.Option) (*ssm.AddTagsToResourceOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -89,12 +94,14 @@ func (m *MockSSMAPI) AddTagsToResourceWithContext(arg0 aws.Context, arg1 *ssm.Ad
 
 // AddTagsToResourceWithContext indicates an expected call of AddTagsToResourceWithContext
 func (mr *MockSSMAPIMockRecorder) AddTagsToResourceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTagsToResourceWithContext", reflect.TypeOf((*MockSSMAPI)(nil).AddTagsToResourceWithContext), varargs...)
 }
 
 // CancelCommand mocks base method
 func (m *MockSSMAPI) CancelCommand(arg0 *ssm.CancelCommandInput) (*ssm.CancelCommandOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CancelCommand", arg0)
 	ret0, _ := ret[0].(*ssm.CancelCommandOutput)
 	ret1, _ := ret[1].(error)
@@ -103,11 +110,13 @@ func (m *MockSSMAPI) CancelCommand(arg0 *ssm.CancelCommandInput) (*ssm.CancelCom
 
 // CancelCommand indicates an expected call of CancelCommand
 func (mr *MockSSMAPIMockRecorder) CancelCommand(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelCommand", reflect.TypeOf((*MockSSMAPI)(nil).CancelCommand), arg0)
 }
 
 // CancelCommandRequest mocks base method
 func (m *MockSSMAPI) CancelCommandRequest(arg0 *ssm.CancelCommandInput) (*request.Request, *ssm.CancelCommandOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CancelCommandRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.CancelCommandOutput)
@@ -116,11 +125,13 @@ func (m *MockSSMAPI) CancelCommandRequest(arg0 *ssm.CancelCommandInput) (*reques
 
 // CancelCommandRequest indicates an expected call of CancelCommandRequest
 func (mr *MockSSMAPIMockRecorder) CancelCommandRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelCommandRequest", reflect.TypeOf((*MockSSMAPI)(nil).CancelCommandRequest), arg0)
 }
 
 // CancelCommandWithContext mocks base method
-func (m *MockSSMAPI) CancelCommandWithContext(arg0 aws.Context, arg1 *ssm.CancelCommandInput, arg2 ...request.Option) (*ssm.CancelCommandOutput, error) {
+func (m *MockSSMAPI) CancelCommandWithContext(arg0 context.Context, arg1 *ssm.CancelCommandInput, arg2 ...request.Option) (*ssm.CancelCommandOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -133,12 +144,14 @@ func (m *MockSSMAPI) CancelCommandWithContext(arg0 aws.Context, arg1 *ssm.Cancel
 
 // CancelCommandWithContext indicates an expected call of CancelCommandWithContext
 func (mr *MockSSMAPIMockRecorder) CancelCommandWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelCommandWithContext", reflect.TypeOf((*MockSSMAPI)(nil).CancelCommandWithContext), varargs...)
 }
 
 // CancelMaintenanceWindowExecution mocks base method
 func (m *MockSSMAPI) CancelMaintenanceWindowExecution(arg0 *ssm.CancelMaintenanceWindowExecutionInput) (*ssm.CancelMaintenanceWindowExecutionOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CancelMaintenanceWindowExecution", arg0)
 	ret0, _ := ret[0].(*ssm.CancelMaintenanceWindowExecutionOutput)
 	ret1, _ := ret[1].(error)
@@ -147,11 +160,13 @@ func (m *MockSSMAPI) CancelMaintenanceWindowExecution(arg0 *ssm.CancelMaintenanc
 
 // CancelMaintenanceWindowExecution indicates an expected call of CancelMaintenanceWindowExecution
 func (mr *MockSSMAPIMockRecorder) CancelMaintenanceWindowExecution(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelMaintenanceWindowExecution", reflect.TypeOf((*MockSSMAPI)(nil).CancelMaintenanceWindowExecution), arg0)
 }
 
 // CancelMaintenanceWindowExecutionRequest mocks base method
 func (m *MockSSMAPI) CancelMaintenanceWindowExecutionRequest(arg0 *ssm.CancelMaintenanceWindowExecutionInput) (*request.Request, *ssm.CancelMaintenanceWindowExecutionOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CancelMaintenanceWindowExecutionRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.CancelMaintenanceWindowExecutionOutput)
@@ -160,11 +175,13 @@ func (m *MockSSMAPI) CancelMaintenanceWindowExecutionRequest(arg0 *ssm.CancelMai
 
 // CancelMaintenanceWindowExecutionRequest indicates an expected call of CancelMaintenanceWindowExecutionRequest
 func (mr *MockSSMAPIMockRecorder) CancelMaintenanceWindowExecutionRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelMaintenanceWindowExecutionRequest", reflect.TypeOf((*MockSSMAPI)(nil).CancelMaintenanceWindowExecutionRequest), arg0)
 }
 
 // CancelMaintenanceWindowExecutionWithContext mocks base method
-func (m *MockSSMAPI) CancelMaintenanceWindowExecutionWithContext(arg0 aws.Context, arg1 *ssm.CancelMaintenanceWindowExecutionInput, arg2 ...request.Option) (*ssm.CancelMaintenanceWindowExecutionOutput, error) {
+func (m *MockSSMAPI) CancelMaintenanceWindowExecutionWithContext(arg0 context.Context, arg1 *ssm.CancelMaintenanceWindowExecutionInput, arg2 ...request.Option) (*ssm.CancelMaintenanceWindowExecutionOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -177,12 +194,14 @@ func (m *MockSSMAPI) CancelMaintenanceWindowExecutionWithContext(arg0 aws.Contex
 
 // CancelMaintenanceWindowExecutionWithContext indicates an expected call of CancelMaintenanceWindowExecutionWithContext
 func (mr *MockSSMAPIMockRecorder) CancelMaintenanceWindowExecutionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelMaintenanceWindowExecutionWithContext", reflect.TypeOf((*MockSSMAPI)(nil).CancelMaintenanceWindowExecutionWithContext), varargs...)
 }
 
 // CreateActivation mocks base method
 func (m *MockSSMAPI) CreateActivation(arg0 *ssm.CreateActivationInput) (*ssm.CreateActivationOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateActivation", arg0)
 	ret0, _ := ret[0].(*ssm.CreateActivationOutput)
 	ret1, _ := ret[1].(error)
@@ -191,11 +210,13 @@ func (m *MockSSMAPI) CreateActivation(arg0 *ssm.CreateActivationInput) (*ssm.Cre
 
 // CreateActivation indicates an expected call of CreateActivation
 func (mr *MockSSMAPIMockRecorder) CreateActivation(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateActivation", reflect.TypeOf((*MockSSMAPI)(nil).CreateActivation), arg0)
 }
 
 // CreateActivationRequest mocks base method
 func (m *MockSSMAPI) CreateActivationRequest(arg0 *ssm.CreateActivationInput) (*request.Request, *ssm.CreateActivationOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateActivationRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.CreateActivationOutput)
@@ -204,11 +225,13 @@ func (m *MockSSMAPI) CreateActivationRequest(arg0 *ssm.CreateActivationInput) (*
 
 // CreateActivationRequest indicates an expected call of CreateActivationRequest
 func (mr *MockSSMAPIMockRecorder) CreateActivationRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateActivationRequest", reflect.TypeOf((*MockSSMAPI)(nil).CreateActivationRequest), arg0)
 }
 
 // CreateActivationWithContext mocks base method
-func (m *MockSSMAPI) CreateActivationWithContext(arg0 aws.Context, arg1 *ssm.CreateActivationInput, arg2 ...request.Option) (*ssm.CreateActivationOutput, error) {
+func (m *MockSSMAPI) CreateActivationWithContext(arg0 context.Context, arg1 *ssm.CreateActivationInput, arg2 ...request.Option) (*ssm.CreateActivationOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -221,12 +244,14 @@ func (m *MockSSMAPI) CreateActivationWithContext(arg0 aws.Context, arg1 *ssm.Cre
 
 // CreateActivationWithContext indicates an expected call of CreateActivationWithContext
 func (mr *MockSSMAPIMockRecorder) CreateActivationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateActivationWithContext", reflect.TypeOf((*MockSSMAPI)(nil).CreateActivationWithContext), varargs...)
 }
 
 // CreateAssociation mocks base method
 func (m *MockSSMAPI) CreateAssociation(arg0 *ssm.CreateAssociationInput) (*ssm.CreateAssociationOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateAssociation", arg0)
 	ret0, _ := ret[0].(*ssm.CreateAssociationOutput)
 	ret1, _ := ret[1].(error)
@@ -235,11 +260,13 @@ func (m *MockSSMAPI) CreateAssociation(arg0 *ssm.CreateAssociationInput) (*ssm.C
 
 // CreateAssociation indicates an expected call of CreateAssociation
 func (mr *MockSSMAPIMockRecorder) CreateAssociation(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAssociation", reflect.TypeOf((*MockSSMAPI)(nil).CreateAssociation), arg0)
 }
 
 // CreateAssociationBatch mocks base method
 func (m *MockSSMAPI) CreateAssociationBatch(arg0 *ssm.CreateAssociationBatchInput) (*ssm.CreateAssociationBatchOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateAssociationBatch", arg0)
 	ret0, _ := ret[0].(*ssm.CreateAssociationBatchOutput)
 	ret1, _ := ret[1].(error)
@@ -248,11 +275,13 @@ func (m *MockSSMAPI) CreateAssociationBatch(arg0 *ssm.CreateAssociationBatchInpu
 
 // CreateAssociationBatch indicates an expected call of CreateAssociationBatch
 func (mr *MockSSMAPIMockRecorder) CreateAssociationBatch(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAssociationBatch", reflect.TypeOf((*MockSSMAPI)(nil).CreateAssociationBatch), arg0)
 }
 
 // CreateAssociationBatchRequest mocks base method
 func (m *MockSSMAPI) CreateAssociationBatchRequest(arg0 *ssm.CreateAssociationBatchInput) (*request.Request, *ssm.CreateAssociationBatchOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateAssociationBatchRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.CreateAssociationBatchOutput)
@@ -261,11 +290,13 @@ func (m *MockSSMAPI) CreateAssociationBatchRequest(arg0 *ssm.CreateAssociationBa
 
 // CreateAssociationBatchRequest indicates an expected call of CreateAssociationBatchRequest
 func (mr *MockSSMAPIMockRecorder) CreateAssociationBatchRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAssociationBatchRequest", reflect.TypeOf((*MockSSMAPI)(nil).CreateAssociationBatchRequest), arg0)
 }
 
 // CreateAssociationBatchWithContext mocks base method
-func (m *MockSSMAPI) CreateAssociationBatchWithContext(arg0 aws.Context, arg1 *ssm.CreateAssociationBatchInput, arg2 ...request.Option) (*ssm.CreateAssociationBatchOutput, error) {
+func (m *MockSSMAPI) CreateAssociationBatchWithContext(arg0 context.Context, arg1 *ssm.CreateAssociationBatchInput, arg2 ...request.Option) (*ssm.CreateAssociationBatchOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -278,12 +309,14 @@ func (m *MockSSMAPI) CreateAssociationBatchWithContext(arg0 aws.Context, arg1 *s
 
 // CreateAssociationBatchWithContext indicates an expected call of CreateAssociationBatchWithContext
 func (mr *MockSSMAPIMockRecorder) CreateAssociationBatchWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAssociationBatchWithContext", reflect.TypeOf((*MockSSMAPI)(nil).CreateAssociationBatchWithContext), varargs...)
 }
 
 // CreateAssociationRequest mocks base method
 func (m *MockSSMAPI) CreateAssociationRequest(arg0 *ssm.CreateAssociationInput) (*request.Request, *ssm.CreateAssociationOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateAssociationRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.CreateAssociationOutput)
@@ -292,11 +325,13 @@ func (m *MockSSMAPI) CreateAssociationRequest(arg0 *ssm.CreateAssociationInput) 
 
 // CreateAssociationRequest indicates an expected call of CreateAssociationRequest
 func (mr *MockSSMAPIMockRecorder) CreateAssociationRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAssociationRequest", reflect.TypeOf((*MockSSMAPI)(nil).CreateAssociationRequest), arg0)
 }
 
 // CreateAssociationWithContext mocks base method
-func (m *MockSSMAPI) CreateAssociationWithContext(arg0 aws.Context, arg1 *ssm.CreateAssociationInput, arg2 ...request.Option) (*ssm.CreateAssociationOutput, error) {
+func (m *MockSSMAPI) CreateAssociationWithContext(arg0 context.Context, arg1 *ssm.CreateAssociationInput, arg2 ...request.Option) (*ssm.CreateAssociationOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -309,12 +344,14 @@ func (m *MockSSMAPI) CreateAssociationWithContext(arg0 aws.Context, arg1 *ssm.Cr
 
 // CreateAssociationWithContext indicates an expected call of CreateAssociationWithContext
 func (mr *MockSSMAPIMockRecorder) CreateAssociationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAssociationWithContext", reflect.TypeOf((*MockSSMAPI)(nil).CreateAssociationWithContext), varargs...)
 }
 
 // CreateDocument mocks base method
 func (m *MockSSMAPI) CreateDocument(arg0 *ssm.CreateDocumentInput) (*ssm.CreateDocumentOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateDocument", arg0)
 	ret0, _ := ret[0].(*ssm.CreateDocumentOutput)
 	ret1, _ := ret[1].(error)
@@ -323,11 +360,13 @@ func (m *MockSSMAPI) CreateDocument(arg0 *ssm.CreateDocumentInput) (*ssm.CreateD
 
 // CreateDocument indicates an expected call of CreateDocument
 func (mr *MockSSMAPIMockRecorder) CreateDocument(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDocument", reflect.TypeOf((*MockSSMAPI)(nil).CreateDocument), arg0)
 }
 
 // CreateDocumentRequest mocks base method
 func (m *MockSSMAPI) CreateDocumentRequest(arg0 *ssm.CreateDocumentInput) (*request.Request, *ssm.CreateDocumentOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateDocumentRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.CreateDocumentOutput)
@@ -336,11 +375,13 @@ func (m *MockSSMAPI) CreateDocumentRequest(arg0 *ssm.CreateDocumentInput) (*requ
 
 // CreateDocumentRequest indicates an expected call of CreateDocumentRequest
 func (mr *MockSSMAPIMockRecorder) CreateDocumentRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDocumentRequest", reflect.TypeOf((*MockSSMAPI)(nil).CreateDocumentRequest), arg0)
 }
 
 // CreateDocumentWithContext mocks base method
-func (m *MockSSMAPI) CreateDocumentWithContext(arg0 aws.Context, arg1 *ssm.CreateDocumentInput, arg2 ...request.Option) (*ssm.CreateDocumentOutput, error) {
+func (m *MockSSMAPI) CreateDocumentWithContext(arg0 context.Context, arg1 *ssm.CreateDocumentInput, arg2 ...request.Option) (*ssm.CreateDocumentOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -353,12 +394,14 @@ func (m *MockSSMAPI) CreateDocumentWithContext(arg0 aws.Context, arg1 *ssm.Creat
 
 // CreateDocumentWithContext indicates an expected call of CreateDocumentWithContext
 func (mr *MockSSMAPIMockRecorder) CreateDocumentWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDocumentWithContext", reflect.TypeOf((*MockSSMAPI)(nil).CreateDocumentWithContext), varargs...)
 }
 
 // CreateMaintenanceWindow mocks base method
 func (m *MockSSMAPI) CreateMaintenanceWindow(arg0 *ssm.CreateMaintenanceWindowInput) (*ssm.CreateMaintenanceWindowOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateMaintenanceWindow", arg0)
 	ret0, _ := ret[0].(*ssm.CreateMaintenanceWindowOutput)
 	ret1, _ := ret[1].(error)
@@ -367,11 +410,13 @@ func (m *MockSSMAPI) CreateMaintenanceWindow(arg0 *ssm.CreateMaintenanceWindowIn
 
 // CreateMaintenanceWindow indicates an expected call of CreateMaintenanceWindow
 func (mr *MockSSMAPIMockRecorder) CreateMaintenanceWindow(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateMaintenanceWindow", reflect.TypeOf((*MockSSMAPI)(nil).CreateMaintenanceWindow), arg0)
 }
 
 // CreateMaintenanceWindowRequest mocks base method
 func (m *MockSSMAPI) CreateMaintenanceWindowRequest(arg0 *ssm.CreateMaintenanceWindowInput) (*request.Request, *ssm.CreateMaintenanceWindowOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateMaintenanceWindowRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.CreateMaintenanceWindowOutput)
@@ -380,11 +425,13 @@ func (m *MockSSMAPI) CreateMaintenanceWindowRequest(arg0 *ssm.CreateMaintenanceW
 
 // CreateMaintenanceWindowRequest indicates an expected call of CreateMaintenanceWindowRequest
 func (mr *MockSSMAPIMockRecorder) CreateMaintenanceWindowRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateMaintenanceWindowRequest", reflect.TypeOf((*MockSSMAPI)(nil).CreateMaintenanceWindowRequest), arg0)
 }
 
 // CreateMaintenanceWindowWithContext mocks base method
-func (m *MockSSMAPI) CreateMaintenanceWindowWithContext(arg0 aws.Context, arg1 *ssm.CreateMaintenanceWindowInput, arg2 ...request.Option) (*ssm.CreateMaintenanceWindowOutput, error) {
+func (m *MockSSMAPI) CreateMaintenanceWindowWithContext(arg0 context.Context, arg1 *ssm.CreateMaintenanceWindowInput, arg2 ...request.Option) (*ssm.CreateMaintenanceWindowOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -397,12 +444,14 @@ func (m *MockSSMAPI) CreateMaintenanceWindowWithContext(arg0 aws.Context, arg1 *
 
 // CreateMaintenanceWindowWithContext indicates an expected call of CreateMaintenanceWindowWithContext
 func (mr *MockSSMAPIMockRecorder) CreateMaintenanceWindowWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateMaintenanceWindowWithContext", reflect.TypeOf((*MockSSMAPI)(nil).CreateMaintenanceWindowWithContext), varargs...)
 }
 
 // CreatePatchBaseline mocks base method
 func (m *MockSSMAPI) CreatePatchBaseline(arg0 *ssm.CreatePatchBaselineInput) (*ssm.CreatePatchBaselineOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreatePatchBaseline", arg0)
 	ret0, _ := ret[0].(*ssm.CreatePatchBaselineOutput)
 	ret1, _ := ret[1].(error)
@@ -411,11 +460,13 @@ func (m *MockSSMAPI) CreatePatchBaseline(arg0 *ssm.CreatePatchBaselineInput) (*s
 
 // CreatePatchBaseline indicates an expected call of CreatePatchBaseline
 func (mr *MockSSMAPIMockRecorder) CreatePatchBaseline(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePatchBaseline", reflect.TypeOf((*MockSSMAPI)(nil).CreatePatchBaseline), arg0)
 }
 
 // CreatePatchBaselineRequest mocks base method
 func (m *MockSSMAPI) CreatePatchBaselineRequest(arg0 *ssm.CreatePatchBaselineInput) (*request.Request, *ssm.CreatePatchBaselineOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreatePatchBaselineRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.CreatePatchBaselineOutput)
@@ -424,11 +475,13 @@ func (m *MockSSMAPI) CreatePatchBaselineRequest(arg0 *ssm.CreatePatchBaselineInp
 
 // CreatePatchBaselineRequest indicates an expected call of CreatePatchBaselineRequest
 func (mr *MockSSMAPIMockRecorder) CreatePatchBaselineRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePatchBaselineRequest", reflect.TypeOf((*MockSSMAPI)(nil).CreatePatchBaselineRequest), arg0)
 }
 
 // CreatePatchBaselineWithContext mocks base method
-func (m *MockSSMAPI) CreatePatchBaselineWithContext(arg0 aws.Context, arg1 *ssm.CreatePatchBaselineInput, arg2 ...request.Option) (*ssm.CreatePatchBaselineOutput, error) {
+func (m *MockSSMAPI) CreatePatchBaselineWithContext(arg0 context.Context, arg1 *ssm.CreatePatchBaselineInput, arg2 ...request.Option) (*ssm.CreatePatchBaselineOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -441,12 +494,14 @@ func (m *MockSSMAPI) CreatePatchBaselineWithContext(arg0 aws.Context, arg1 *ssm.
 
 // CreatePatchBaselineWithContext indicates an expected call of CreatePatchBaselineWithContext
 func (mr *MockSSMAPIMockRecorder) CreatePatchBaselineWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePatchBaselineWithContext", reflect.TypeOf((*MockSSMAPI)(nil).CreatePatchBaselineWithContext), varargs...)
 }
 
 // CreateResourceDataSync mocks base method
 func (m *MockSSMAPI) CreateResourceDataSync(arg0 *ssm.CreateResourceDataSyncInput) (*ssm.CreateResourceDataSyncOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateResourceDataSync", arg0)
 	ret0, _ := ret[0].(*ssm.CreateResourceDataSyncOutput)
 	ret1, _ := ret[1].(error)
@@ -455,11 +510,13 @@ func (m *MockSSMAPI) CreateResourceDataSync(arg0 *ssm.CreateResourceDataSyncInpu
 
 // CreateResourceDataSync indicates an expected call of CreateResourceDataSync
 func (mr *MockSSMAPIMockRecorder) CreateResourceDataSync(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateResourceDataSync", reflect.TypeOf((*MockSSMAPI)(nil).CreateResourceDataSync), arg0)
 }
 
 // CreateResourceDataSyncRequest mocks base method
 func (m *MockSSMAPI) CreateResourceDataSyncRequest(arg0 *ssm.CreateResourceDataSyncInput) (*request.Request, *ssm.CreateResourceDataSyncOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateResourceDataSyncRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.CreateResourceDataSyncOutput)
@@ -468,11 +525,13 @@ func (m *MockSSMAPI) CreateResourceDataSyncRequest(arg0 *ssm.CreateResourceDataS
 
 // CreateResourceDataSyncRequest indicates an expected call of CreateResourceDataSyncRequest
 func (mr *MockSSMAPIMockRecorder) CreateResourceDataSyncRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateResourceDataSyncRequest", reflect.TypeOf((*MockSSMAPI)(nil).CreateResourceDataSyncRequest), arg0)
 }
 
 // CreateResourceDataSyncWithContext mocks base method
-func (m *MockSSMAPI) CreateResourceDataSyncWithContext(arg0 aws.Context, arg1 *ssm.CreateResourceDataSyncInput, arg2 ...request.Option) (*ssm.CreateResourceDataSyncOutput, error) {
+func (m *MockSSMAPI) CreateResourceDataSyncWithContext(arg0 context.Context, arg1 *ssm.CreateResourceDataSyncInput, arg2 ...request.Option) (*ssm.CreateResourceDataSyncOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -485,12 +544,14 @@ func (m *MockSSMAPI) CreateResourceDataSyncWithContext(arg0 aws.Context, arg1 *s
 
 // CreateResourceDataSyncWithContext indicates an expected call of CreateResourceDataSyncWithContext
 func (mr *MockSSMAPIMockRecorder) CreateResourceDataSyncWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateResourceDataSyncWithContext", reflect.TypeOf((*MockSSMAPI)(nil).CreateResourceDataSyncWithContext), varargs...)
 }
 
 // DeleteActivation mocks base method
 func (m *MockSSMAPI) DeleteActivation(arg0 *ssm.DeleteActivationInput) (*ssm.DeleteActivationOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteActivation", arg0)
 	ret0, _ := ret[0].(*ssm.DeleteActivationOutput)
 	ret1, _ := ret[1].(error)
@@ -499,11 +560,13 @@ func (m *MockSSMAPI) DeleteActivation(arg0 *ssm.DeleteActivationInput) (*ssm.Del
 
 // DeleteActivation indicates an expected call of DeleteActivation
 func (mr *MockSSMAPIMockRecorder) DeleteActivation(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteActivation", reflect.TypeOf((*MockSSMAPI)(nil).DeleteActivation), arg0)
 }
 
 // DeleteActivationRequest mocks base method
 func (m *MockSSMAPI) DeleteActivationRequest(arg0 *ssm.DeleteActivationInput) (*request.Request, *ssm.DeleteActivationOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteActivationRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DeleteActivationOutput)
@@ -512,11 +575,13 @@ func (m *MockSSMAPI) DeleteActivationRequest(arg0 *ssm.DeleteActivationInput) (*
 
 // DeleteActivationRequest indicates an expected call of DeleteActivationRequest
 func (mr *MockSSMAPIMockRecorder) DeleteActivationRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteActivationRequest", reflect.TypeOf((*MockSSMAPI)(nil).DeleteActivationRequest), arg0)
 }
 
 // DeleteActivationWithContext mocks base method
-func (m *MockSSMAPI) DeleteActivationWithContext(arg0 aws.Context, arg1 *ssm.DeleteActivationInput, arg2 ...request.Option) (*ssm.DeleteActivationOutput, error) {
+func (m *MockSSMAPI) DeleteActivationWithContext(arg0 context.Context, arg1 *ssm.DeleteActivationInput, arg2 ...request.Option) (*ssm.DeleteActivationOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -529,12 +594,14 @@ func (m *MockSSMAPI) DeleteActivationWithContext(arg0 aws.Context, arg1 *ssm.Del
 
 // DeleteActivationWithContext indicates an expected call of DeleteActivationWithContext
 func (mr *MockSSMAPIMockRecorder) DeleteActivationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteActivationWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DeleteActivationWithContext), varargs...)
 }
 
 // DeleteAssociation mocks base method
 func (m *MockSSMAPI) DeleteAssociation(arg0 *ssm.DeleteAssociationInput) (*ssm.DeleteAssociationOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteAssociation", arg0)
 	ret0, _ := ret[0].(*ssm.DeleteAssociationOutput)
 	ret1, _ := ret[1].(error)
@@ -543,11 +610,13 @@ func (m *MockSSMAPI) DeleteAssociation(arg0 *ssm.DeleteAssociationInput) (*ssm.D
 
 // DeleteAssociation indicates an expected call of DeleteAssociation
 func (mr *MockSSMAPIMockRecorder) DeleteAssociation(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAssociation", reflect.TypeOf((*MockSSMAPI)(nil).DeleteAssociation), arg0)
 }
 
 // DeleteAssociationRequest mocks base method
 func (m *MockSSMAPI) DeleteAssociationRequest(arg0 *ssm.DeleteAssociationInput) (*request.Request, *ssm.DeleteAssociationOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteAssociationRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DeleteAssociationOutput)
@@ -556,11 +625,13 @@ func (m *MockSSMAPI) DeleteAssociationRequest(arg0 *ssm.DeleteAssociationInput) 
 
 // DeleteAssociationRequest indicates an expected call of DeleteAssociationRequest
 func (mr *MockSSMAPIMockRecorder) DeleteAssociationRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAssociationRequest", reflect.TypeOf((*MockSSMAPI)(nil).DeleteAssociationRequest), arg0)
 }
 
 // DeleteAssociationWithContext mocks base method
-func (m *MockSSMAPI) DeleteAssociationWithContext(arg0 aws.Context, arg1 *ssm.DeleteAssociationInput, arg2 ...request.Option) (*ssm.DeleteAssociationOutput, error) {
+func (m *MockSSMAPI) DeleteAssociationWithContext(arg0 context.Context, arg1 *ssm.DeleteAssociationInput, arg2 ...request.Option) (*ssm.DeleteAssociationOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -573,12 +644,14 @@ func (m *MockSSMAPI) DeleteAssociationWithContext(arg0 aws.Context, arg1 *ssm.De
 
 // DeleteAssociationWithContext indicates an expected call of DeleteAssociationWithContext
 func (mr *MockSSMAPIMockRecorder) DeleteAssociationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAssociationWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DeleteAssociationWithContext), varargs...)
 }
 
 // DeleteDocument mocks base method
 func (m *MockSSMAPI) DeleteDocument(arg0 *ssm.DeleteDocumentInput) (*ssm.DeleteDocumentOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteDocument", arg0)
 	ret0, _ := ret[0].(*ssm.DeleteDocumentOutput)
 	ret1, _ := ret[1].(error)
@@ -587,11 +660,13 @@ func (m *MockSSMAPI) DeleteDocument(arg0 *ssm.DeleteDocumentInput) (*ssm.DeleteD
 
 // DeleteDocument indicates an expected call of DeleteDocument
 func (mr *MockSSMAPIMockRecorder) DeleteDocument(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDocument", reflect.TypeOf((*MockSSMAPI)(nil).DeleteDocument), arg0)
 }
 
 // DeleteDocumentRequest mocks base method
 func (m *MockSSMAPI) DeleteDocumentRequest(arg0 *ssm.DeleteDocumentInput) (*request.Request, *ssm.DeleteDocumentOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteDocumentRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DeleteDocumentOutput)
@@ -600,11 +675,13 @@ func (m *MockSSMAPI) DeleteDocumentRequest(arg0 *ssm.DeleteDocumentInput) (*requ
 
 // DeleteDocumentRequest indicates an expected call of DeleteDocumentRequest
 func (mr *MockSSMAPIMockRecorder) DeleteDocumentRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDocumentRequest", reflect.TypeOf((*MockSSMAPI)(nil).DeleteDocumentRequest), arg0)
 }
 
 // DeleteDocumentWithContext mocks base method
-func (m *MockSSMAPI) DeleteDocumentWithContext(arg0 aws.Context, arg1 *ssm.DeleteDocumentInput, arg2 ...request.Option) (*ssm.DeleteDocumentOutput, error) {
+func (m *MockSSMAPI) DeleteDocumentWithContext(arg0 context.Context, arg1 *ssm.DeleteDocumentInput, arg2 ...request.Option) (*ssm.DeleteDocumentOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -617,12 +694,14 @@ func (m *MockSSMAPI) DeleteDocumentWithContext(arg0 aws.Context, arg1 *ssm.Delet
 
 // DeleteDocumentWithContext indicates an expected call of DeleteDocumentWithContext
 func (mr *MockSSMAPIMockRecorder) DeleteDocumentWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDocumentWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DeleteDocumentWithContext), varargs...)
 }
 
 // DeleteInventory mocks base method
 func (m *MockSSMAPI) DeleteInventory(arg0 *ssm.DeleteInventoryInput) (*ssm.DeleteInventoryOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteInventory", arg0)
 	ret0, _ := ret[0].(*ssm.DeleteInventoryOutput)
 	ret1, _ := ret[1].(error)
@@ -631,11 +710,13 @@ func (m *MockSSMAPI) DeleteInventory(arg0 *ssm.DeleteInventoryInput) (*ssm.Delet
 
 // DeleteInventory indicates an expected call of DeleteInventory
 func (mr *MockSSMAPIMockRecorder) DeleteInventory(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteInventory", reflect.TypeOf((*MockSSMAPI)(nil).DeleteInventory), arg0)
 }
 
 // DeleteInventoryRequest mocks base method
 func (m *MockSSMAPI) DeleteInventoryRequest(arg0 *ssm.DeleteInventoryInput) (*request.Request, *ssm.DeleteInventoryOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteInventoryRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DeleteInventoryOutput)
@@ -644,11 +725,13 @@ func (m *MockSSMAPI) DeleteInventoryRequest(arg0 *ssm.DeleteInventoryInput) (*re
 
 // DeleteInventoryRequest indicates an expected call of DeleteInventoryRequest
 func (mr *MockSSMAPIMockRecorder) DeleteInventoryRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteInventoryRequest", reflect.TypeOf((*MockSSMAPI)(nil).DeleteInventoryRequest), arg0)
 }
 
 // DeleteInventoryWithContext mocks base method
-func (m *MockSSMAPI) DeleteInventoryWithContext(arg0 aws.Context, arg1 *ssm.DeleteInventoryInput, arg2 ...request.Option) (*ssm.DeleteInventoryOutput, error) {
+func (m *MockSSMAPI) DeleteInventoryWithContext(arg0 context.Context, arg1 *ssm.DeleteInventoryInput, arg2 ...request.Option) (*ssm.DeleteInventoryOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -661,12 +744,14 @@ func (m *MockSSMAPI) DeleteInventoryWithContext(arg0 aws.Context, arg1 *ssm.Dele
 
 // DeleteInventoryWithContext indicates an expected call of DeleteInventoryWithContext
 func (mr *MockSSMAPIMockRecorder) DeleteInventoryWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteInventoryWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DeleteInventoryWithContext), varargs...)
 }
 
 // DeleteMaintenanceWindow mocks base method
 func (m *MockSSMAPI) DeleteMaintenanceWindow(arg0 *ssm.DeleteMaintenanceWindowInput) (*ssm.DeleteMaintenanceWindowOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteMaintenanceWindow", arg0)
 	ret0, _ := ret[0].(*ssm.DeleteMaintenanceWindowOutput)
 	ret1, _ := ret[1].(error)
@@ -675,11 +760,13 @@ func (m *MockSSMAPI) DeleteMaintenanceWindow(arg0 *ssm.DeleteMaintenanceWindowIn
 
 // DeleteMaintenanceWindow indicates an expected call of DeleteMaintenanceWindow
 func (mr *MockSSMAPIMockRecorder) DeleteMaintenanceWindow(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteMaintenanceWindow", reflect.TypeOf((*MockSSMAPI)(nil).DeleteMaintenanceWindow), arg0)
 }
 
 // DeleteMaintenanceWindowRequest mocks base method
 func (m *MockSSMAPI) DeleteMaintenanceWindowRequest(arg0 *ssm.DeleteMaintenanceWindowInput) (*request.Request, *ssm.DeleteMaintenanceWindowOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteMaintenanceWindowRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DeleteMaintenanceWindowOutput)
@@ -688,11 +775,13 @@ func (m *MockSSMAPI) DeleteMaintenanceWindowRequest(arg0 *ssm.DeleteMaintenanceW
 
 // DeleteMaintenanceWindowRequest indicates an expected call of DeleteMaintenanceWindowRequest
 func (mr *MockSSMAPIMockRecorder) DeleteMaintenanceWindowRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteMaintenanceWindowRequest", reflect.TypeOf((*MockSSMAPI)(nil).DeleteMaintenanceWindowRequest), arg0)
 }
 
 // DeleteMaintenanceWindowWithContext mocks base method
-func (m *MockSSMAPI) DeleteMaintenanceWindowWithContext(arg0 aws.Context, arg1 *ssm.DeleteMaintenanceWindowInput, arg2 ...request.Option) (*ssm.DeleteMaintenanceWindowOutput, error) {
+func (m *MockSSMAPI) DeleteMaintenanceWindowWithContext(arg0 context.Context, arg1 *ssm.DeleteMaintenanceWindowInput, arg2 ...request.Option) (*ssm.DeleteMaintenanceWindowOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -705,12 +794,14 @@ func (m *MockSSMAPI) DeleteMaintenanceWindowWithContext(arg0 aws.Context, arg1 *
 
 // DeleteMaintenanceWindowWithContext indicates an expected call of DeleteMaintenanceWindowWithContext
 func (mr *MockSSMAPIMockRecorder) DeleteMaintenanceWindowWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteMaintenanceWindowWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DeleteMaintenanceWindowWithContext), varargs...)
 }
 
 // DeleteParameter mocks base method
 func (m *MockSSMAPI) DeleteParameter(arg0 *ssm.DeleteParameterInput) (*ssm.DeleteParameterOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteParameter", arg0)
 	ret0, _ := ret[0].(*ssm.DeleteParameterOutput)
 	ret1, _ := ret[1].(error)
@@ -719,11 +810,13 @@ func (m *MockSSMAPI) DeleteParameter(arg0 *ssm.DeleteParameterInput) (*ssm.Delet
 
 // DeleteParameter indicates an expected call of DeleteParameter
 func (mr *MockSSMAPIMockRecorder) DeleteParameter(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteParameter", reflect.TypeOf((*MockSSMAPI)(nil).DeleteParameter), arg0)
 }
 
 // DeleteParameterRequest mocks base method
 func (m *MockSSMAPI) DeleteParameterRequest(arg0 *ssm.DeleteParameterInput) (*request.Request, *ssm.DeleteParameterOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteParameterRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DeleteParameterOutput)
@@ -732,11 +825,13 @@ func (m *MockSSMAPI) DeleteParameterRequest(arg0 *ssm.DeleteParameterInput) (*re
 
 // DeleteParameterRequest indicates an expected call of DeleteParameterRequest
 func (mr *MockSSMAPIMockRecorder) DeleteParameterRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteParameterRequest", reflect.TypeOf((*MockSSMAPI)(nil).DeleteParameterRequest), arg0)
 }
 
 // DeleteParameterWithContext mocks base method
-func (m *MockSSMAPI) DeleteParameterWithContext(arg0 aws.Context, arg1 *ssm.DeleteParameterInput, arg2 ...request.Option) (*ssm.DeleteParameterOutput, error) {
+func (m *MockSSMAPI) DeleteParameterWithContext(arg0 context.Context, arg1 *ssm.DeleteParameterInput, arg2 ...request.Option) (*ssm.DeleteParameterOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -749,12 +844,14 @@ func (m *MockSSMAPI) DeleteParameterWithContext(arg0 aws.Context, arg1 *ssm.Dele
 
 // DeleteParameterWithContext indicates an expected call of DeleteParameterWithContext
 func (mr *MockSSMAPIMockRecorder) DeleteParameterWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteParameterWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DeleteParameterWithContext), varargs...)
 }
 
 // DeleteParameters mocks base method
 func (m *MockSSMAPI) DeleteParameters(arg0 *ssm.DeleteParametersInput) (*ssm.DeleteParametersOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteParameters", arg0)
 	ret0, _ := ret[0].(*ssm.DeleteParametersOutput)
 	ret1, _ := ret[1].(error)
@@ -763,11 +860,13 @@ func (m *MockSSMAPI) DeleteParameters(arg0 *ssm.DeleteParametersInput) (*ssm.Del
 
 // DeleteParameters indicates an expected call of DeleteParameters
 func (mr *MockSSMAPIMockRecorder) DeleteParameters(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteParameters", reflect.TypeOf((*MockSSMAPI)(nil).DeleteParameters), arg0)
 }
 
 // DeleteParametersRequest mocks base method
 func (m *MockSSMAPI) DeleteParametersRequest(arg0 *ssm.DeleteParametersInput) (*request.Request, *ssm.DeleteParametersOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteParametersRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DeleteParametersOutput)
@@ -776,11 +875,13 @@ func (m *MockSSMAPI) DeleteParametersRequest(arg0 *ssm.DeleteParametersInput) (*
 
 // DeleteParametersRequest indicates an expected call of DeleteParametersRequest
 func (mr *MockSSMAPIMockRecorder) DeleteParametersRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteParametersRequest", reflect.TypeOf((*MockSSMAPI)(nil).DeleteParametersRequest), arg0)
 }
 
 // DeleteParametersWithContext mocks base method
-func (m *MockSSMAPI) DeleteParametersWithContext(arg0 aws.Context, arg1 *ssm.DeleteParametersInput, arg2 ...request.Option) (*ssm.DeleteParametersOutput, error) {
+func (m *MockSSMAPI) DeleteParametersWithContext(arg0 context.Context, arg1 *ssm.DeleteParametersInput, arg2 ...request.Option) (*ssm.DeleteParametersOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -793,12 +894,14 @@ func (m *MockSSMAPI) DeleteParametersWithContext(arg0 aws.Context, arg1 *ssm.Del
 
 // DeleteParametersWithContext indicates an expected call of DeleteParametersWithContext
 func (mr *MockSSMAPIMockRecorder) DeleteParametersWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteParametersWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DeleteParametersWithContext), varargs...)
 }
 
 // DeletePatchBaseline mocks base method
 func (m *MockSSMAPI) DeletePatchBaseline(arg0 *ssm.DeletePatchBaselineInput) (*ssm.DeletePatchBaselineOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeletePatchBaseline", arg0)
 	ret0, _ := ret[0].(*ssm.DeletePatchBaselineOutput)
 	ret1, _ := ret[1].(error)
@@ -807,11 +910,13 @@ func (m *MockSSMAPI) DeletePatchBaseline(arg0 *ssm.DeletePatchBaselineInput) (*s
 
 // DeletePatchBaseline indicates an expected call of DeletePatchBaseline
 func (mr *MockSSMAPIMockRecorder) DeletePatchBaseline(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePatchBaseline", reflect.TypeOf((*MockSSMAPI)(nil).DeletePatchBaseline), arg0)
 }
 
 // DeletePatchBaselineRequest mocks base method
 func (m *MockSSMAPI) DeletePatchBaselineRequest(arg0 *ssm.DeletePatchBaselineInput) (*request.Request, *ssm.DeletePatchBaselineOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeletePatchBaselineRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DeletePatchBaselineOutput)
@@ -820,11 +925,13 @@ func (m *MockSSMAPI) DeletePatchBaselineRequest(arg0 *ssm.DeletePatchBaselineInp
 
 // DeletePatchBaselineRequest indicates an expected call of DeletePatchBaselineRequest
 func (mr *MockSSMAPIMockRecorder) DeletePatchBaselineRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePatchBaselineRequest", reflect.TypeOf((*MockSSMAPI)(nil).DeletePatchBaselineRequest), arg0)
 }
 
 // DeletePatchBaselineWithContext mocks base method
-func (m *MockSSMAPI) DeletePatchBaselineWithContext(arg0 aws.Context, arg1 *ssm.DeletePatchBaselineInput, arg2 ...request.Option) (*ssm.DeletePatchBaselineOutput, error) {
+func (m *MockSSMAPI) DeletePatchBaselineWithContext(arg0 context.Context, arg1 *ssm.DeletePatchBaselineInput, arg2 ...request.Option) (*ssm.DeletePatchBaselineOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -837,12 +944,14 @@ func (m *MockSSMAPI) DeletePatchBaselineWithContext(arg0 aws.Context, arg1 *ssm.
 
 // DeletePatchBaselineWithContext indicates an expected call of DeletePatchBaselineWithContext
 func (mr *MockSSMAPIMockRecorder) DeletePatchBaselineWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePatchBaselineWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DeletePatchBaselineWithContext), varargs...)
 }
 
 // DeleteResourceDataSync mocks base method
 func (m *MockSSMAPI) DeleteResourceDataSync(arg0 *ssm.DeleteResourceDataSyncInput) (*ssm.DeleteResourceDataSyncOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteResourceDataSync", arg0)
 	ret0, _ := ret[0].(*ssm.DeleteResourceDataSyncOutput)
 	ret1, _ := ret[1].(error)
@@ -851,11 +960,13 @@ func (m *MockSSMAPI) DeleteResourceDataSync(arg0 *ssm.DeleteResourceDataSyncInpu
 
 // DeleteResourceDataSync indicates an expected call of DeleteResourceDataSync
 func (mr *MockSSMAPIMockRecorder) DeleteResourceDataSync(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteResourceDataSync", reflect.TypeOf((*MockSSMAPI)(nil).DeleteResourceDataSync), arg0)
 }
 
 // DeleteResourceDataSyncRequest mocks base method
 func (m *MockSSMAPI) DeleteResourceDataSyncRequest(arg0 *ssm.DeleteResourceDataSyncInput) (*request.Request, *ssm.DeleteResourceDataSyncOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteResourceDataSyncRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DeleteResourceDataSyncOutput)
@@ -864,11 +975,13 @@ func (m *MockSSMAPI) DeleteResourceDataSyncRequest(arg0 *ssm.DeleteResourceDataS
 
 // DeleteResourceDataSyncRequest indicates an expected call of DeleteResourceDataSyncRequest
 func (mr *MockSSMAPIMockRecorder) DeleteResourceDataSyncRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteResourceDataSyncRequest", reflect.TypeOf((*MockSSMAPI)(nil).DeleteResourceDataSyncRequest), arg0)
 }
 
 // DeleteResourceDataSyncWithContext mocks base method
-func (m *MockSSMAPI) DeleteResourceDataSyncWithContext(arg0 aws.Context, arg1 *ssm.DeleteResourceDataSyncInput, arg2 ...request.Option) (*ssm.DeleteResourceDataSyncOutput, error) {
+func (m *MockSSMAPI) DeleteResourceDataSyncWithContext(arg0 context.Context, arg1 *ssm.DeleteResourceDataSyncInput, arg2 ...request.Option) (*ssm.DeleteResourceDataSyncOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -881,12 +994,14 @@ func (m *MockSSMAPI) DeleteResourceDataSyncWithContext(arg0 aws.Context, arg1 *s
 
 // DeleteResourceDataSyncWithContext indicates an expected call of DeleteResourceDataSyncWithContext
 func (mr *MockSSMAPIMockRecorder) DeleteResourceDataSyncWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteResourceDataSyncWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DeleteResourceDataSyncWithContext), varargs...)
 }
 
 // DeregisterManagedInstance mocks base method
 func (m *MockSSMAPI) DeregisterManagedInstance(arg0 *ssm.DeregisterManagedInstanceInput) (*ssm.DeregisterManagedInstanceOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeregisterManagedInstance", arg0)
 	ret0, _ := ret[0].(*ssm.DeregisterManagedInstanceOutput)
 	ret1, _ := ret[1].(error)
@@ -895,11 +1010,13 @@ func (m *MockSSMAPI) DeregisterManagedInstance(arg0 *ssm.DeregisterManagedInstan
 
 // DeregisterManagedInstance indicates an expected call of DeregisterManagedInstance
 func (mr *MockSSMAPIMockRecorder) DeregisterManagedInstance(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeregisterManagedInstance", reflect.TypeOf((*MockSSMAPI)(nil).DeregisterManagedInstance), arg0)
 }
 
 // DeregisterManagedInstanceRequest mocks base method
 func (m *MockSSMAPI) DeregisterManagedInstanceRequest(arg0 *ssm.DeregisterManagedInstanceInput) (*request.Request, *ssm.DeregisterManagedInstanceOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeregisterManagedInstanceRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DeregisterManagedInstanceOutput)
@@ -908,11 +1025,13 @@ func (m *MockSSMAPI) DeregisterManagedInstanceRequest(arg0 *ssm.DeregisterManage
 
 // DeregisterManagedInstanceRequest indicates an expected call of DeregisterManagedInstanceRequest
 func (mr *MockSSMAPIMockRecorder) DeregisterManagedInstanceRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeregisterManagedInstanceRequest", reflect.TypeOf((*MockSSMAPI)(nil).DeregisterManagedInstanceRequest), arg0)
 }
 
 // DeregisterManagedInstanceWithContext mocks base method
-func (m *MockSSMAPI) DeregisterManagedInstanceWithContext(arg0 aws.Context, arg1 *ssm.DeregisterManagedInstanceInput, arg2 ...request.Option) (*ssm.DeregisterManagedInstanceOutput, error) {
+func (m *MockSSMAPI) DeregisterManagedInstanceWithContext(arg0 context.Context, arg1 *ssm.DeregisterManagedInstanceInput, arg2 ...request.Option) (*ssm.DeregisterManagedInstanceOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -925,12 +1044,14 @@ func (m *MockSSMAPI) DeregisterManagedInstanceWithContext(arg0 aws.Context, arg1
 
 // DeregisterManagedInstanceWithContext indicates an expected call of DeregisterManagedInstanceWithContext
 func (mr *MockSSMAPIMockRecorder) DeregisterManagedInstanceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeregisterManagedInstanceWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DeregisterManagedInstanceWithContext), varargs...)
 }
 
 // DeregisterPatchBaselineForPatchGroup mocks base method
 func (m *MockSSMAPI) DeregisterPatchBaselineForPatchGroup(arg0 *ssm.DeregisterPatchBaselineForPatchGroupInput) (*ssm.DeregisterPatchBaselineForPatchGroupOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeregisterPatchBaselineForPatchGroup", arg0)
 	ret0, _ := ret[0].(*ssm.DeregisterPatchBaselineForPatchGroupOutput)
 	ret1, _ := ret[1].(error)
@@ -939,11 +1060,13 @@ func (m *MockSSMAPI) DeregisterPatchBaselineForPatchGroup(arg0 *ssm.DeregisterPa
 
 // DeregisterPatchBaselineForPatchGroup indicates an expected call of DeregisterPatchBaselineForPatchGroup
 func (mr *MockSSMAPIMockRecorder) DeregisterPatchBaselineForPatchGroup(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeregisterPatchBaselineForPatchGroup", reflect.TypeOf((*MockSSMAPI)(nil).DeregisterPatchBaselineForPatchGroup), arg0)
 }
 
 // DeregisterPatchBaselineForPatchGroupRequest mocks base method
 func (m *MockSSMAPI) DeregisterPatchBaselineForPatchGroupRequest(arg0 *ssm.DeregisterPatchBaselineForPatchGroupInput) (*request.Request, *ssm.DeregisterPatchBaselineForPatchGroupOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeregisterPatchBaselineForPatchGroupRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DeregisterPatchBaselineForPatchGroupOutput)
@@ -952,11 +1075,13 @@ func (m *MockSSMAPI) DeregisterPatchBaselineForPatchGroupRequest(arg0 *ssm.Dereg
 
 // DeregisterPatchBaselineForPatchGroupRequest indicates an expected call of DeregisterPatchBaselineForPatchGroupRequest
 func (mr *MockSSMAPIMockRecorder) DeregisterPatchBaselineForPatchGroupRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeregisterPatchBaselineForPatchGroupRequest", reflect.TypeOf((*MockSSMAPI)(nil).DeregisterPatchBaselineForPatchGroupRequest), arg0)
 }
 
 // DeregisterPatchBaselineForPatchGroupWithContext mocks base method
-func (m *MockSSMAPI) DeregisterPatchBaselineForPatchGroupWithContext(arg0 aws.Context, arg1 *ssm.DeregisterPatchBaselineForPatchGroupInput, arg2 ...request.Option) (*ssm.DeregisterPatchBaselineForPatchGroupOutput, error) {
+func (m *MockSSMAPI) DeregisterPatchBaselineForPatchGroupWithContext(arg0 context.Context, arg1 *ssm.DeregisterPatchBaselineForPatchGroupInput, arg2 ...request.Option) (*ssm.DeregisterPatchBaselineForPatchGroupOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -969,12 +1094,14 @@ func (m *MockSSMAPI) DeregisterPatchBaselineForPatchGroupWithContext(arg0 aws.Co
 
 // DeregisterPatchBaselineForPatchGroupWithContext indicates an expected call of DeregisterPatchBaselineForPatchGroupWithContext
 func (mr *MockSSMAPIMockRecorder) DeregisterPatchBaselineForPatchGroupWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeregisterPatchBaselineForPatchGroupWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DeregisterPatchBaselineForPatchGroupWithContext), varargs...)
 }
 
 // DeregisterTargetFromMaintenanceWindow mocks base method
 func (m *MockSSMAPI) DeregisterTargetFromMaintenanceWindow(arg0 *ssm.DeregisterTargetFromMaintenanceWindowInput) (*ssm.DeregisterTargetFromMaintenanceWindowOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeregisterTargetFromMaintenanceWindow", arg0)
 	ret0, _ := ret[0].(*ssm.DeregisterTargetFromMaintenanceWindowOutput)
 	ret1, _ := ret[1].(error)
@@ -983,11 +1110,13 @@ func (m *MockSSMAPI) DeregisterTargetFromMaintenanceWindow(arg0 *ssm.DeregisterT
 
 // DeregisterTargetFromMaintenanceWindow indicates an expected call of DeregisterTargetFromMaintenanceWindow
 func (mr *MockSSMAPIMockRecorder) DeregisterTargetFromMaintenanceWindow(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeregisterTargetFromMaintenanceWindow", reflect.TypeOf((*MockSSMAPI)(nil).DeregisterTargetFromMaintenanceWindow), arg0)
 }
 
 // DeregisterTargetFromMaintenanceWindowRequest mocks base method
 func (m *MockSSMAPI) DeregisterTargetFromMaintenanceWindowRequest(arg0 *ssm.DeregisterTargetFromMaintenanceWindowInput) (*request.Request, *ssm.DeregisterTargetFromMaintenanceWindowOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeregisterTargetFromMaintenanceWindowRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DeregisterTargetFromMaintenanceWindowOutput)
@@ -996,11 +1125,13 @@ func (m *MockSSMAPI) DeregisterTargetFromMaintenanceWindowRequest(arg0 *ssm.Dere
 
 // DeregisterTargetFromMaintenanceWindowRequest indicates an expected call of DeregisterTargetFromMaintenanceWindowRequest
 func (mr *MockSSMAPIMockRecorder) DeregisterTargetFromMaintenanceWindowRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeregisterTargetFromMaintenanceWindowRequest", reflect.TypeOf((*MockSSMAPI)(nil).DeregisterTargetFromMaintenanceWindowRequest), arg0)
 }
 
 // DeregisterTargetFromMaintenanceWindowWithContext mocks base method
-func (m *MockSSMAPI) DeregisterTargetFromMaintenanceWindowWithContext(arg0 aws.Context, arg1 *ssm.DeregisterTargetFromMaintenanceWindowInput, arg2 ...request.Option) (*ssm.DeregisterTargetFromMaintenanceWindowOutput, error) {
+func (m *MockSSMAPI) DeregisterTargetFromMaintenanceWindowWithContext(arg0 context.Context, arg1 *ssm.DeregisterTargetFromMaintenanceWindowInput, arg2 ...request.Option) (*ssm.DeregisterTargetFromMaintenanceWindowOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1013,12 +1144,14 @@ func (m *MockSSMAPI) DeregisterTargetFromMaintenanceWindowWithContext(arg0 aws.C
 
 // DeregisterTargetFromMaintenanceWindowWithContext indicates an expected call of DeregisterTargetFromMaintenanceWindowWithContext
 func (mr *MockSSMAPIMockRecorder) DeregisterTargetFromMaintenanceWindowWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeregisterTargetFromMaintenanceWindowWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DeregisterTargetFromMaintenanceWindowWithContext), varargs...)
 }
 
 // DeregisterTaskFromMaintenanceWindow mocks base method
 func (m *MockSSMAPI) DeregisterTaskFromMaintenanceWindow(arg0 *ssm.DeregisterTaskFromMaintenanceWindowInput) (*ssm.DeregisterTaskFromMaintenanceWindowOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeregisterTaskFromMaintenanceWindow", arg0)
 	ret0, _ := ret[0].(*ssm.DeregisterTaskFromMaintenanceWindowOutput)
 	ret1, _ := ret[1].(error)
@@ -1027,11 +1160,13 @@ func (m *MockSSMAPI) DeregisterTaskFromMaintenanceWindow(arg0 *ssm.DeregisterTas
 
 // DeregisterTaskFromMaintenanceWindow indicates an expected call of DeregisterTaskFromMaintenanceWindow
 func (mr *MockSSMAPIMockRecorder) DeregisterTaskFromMaintenanceWindow(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeregisterTaskFromMaintenanceWindow", reflect.TypeOf((*MockSSMAPI)(nil).DeregisterTaskFromMaintenanceWindow), arg0)
 }
 
 // DeregisterTaskFromMaintenanceWindowRequest mocks base method
 func (m *MockSSMAPI) DeregisterTaskFromMaintenanceWindowRequest(arg0 *ssm.DeregisterTaskFromMaintenanceWindowInput) (*request.Request, *ssm.DeregisterTaskFromMaintenanceWindowOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeregisterTaskFromMaintenanceWindowRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DeregisterTaskFromMaintenanceWindowOutput)
@@ -1040,11 +1175,13 @@ func (m *MockSSMAPI) DeregisterTaskFromMaintenanceWindowRequest(arg0 *ssm.Deregi
 
 // DeregisterTaskFromMaintenanceWindowRequest indicates an expected call of DeregisterTaskFromMaintenanceWindowRequest
 func (mr *MockSSMAPIMockRecorder) DeregisterTaskFromMaintenanceWindowRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeregisterTaskFromMaintenanceWindowRequest", reflect.TypeOf((*MockSSMAPI)(nil).DeregisterTaskFromMaintenanceWindowRequest), arg0)
 }
 
 // DeregisterTaskFromMaintenanceWindowWithContext mocks base method
-func (m *MockSSMAPI) DeregisterTaskFromMaintenanceWindowWithContext(arg0 aws.Context, arg1 *ssm.DeregisterTaskFromMaintenanceWindowInput, arg2 ...request.Option) (*ssm.DeregisterTaskFromMaintenanceWindowOutput, error) {
+func (m *MockSSMAPI) DeregisterTaskFromMaintenanceWindowWithContext(arg0 context.Context, arg1 *ssm.DeregisterTaskFromMaintenanceWindowInput, arg2 ...request.Option) (*ssm.DeregisterTaskFromMaintenanceWindowOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1057,12 +1194,14 @@ func (m *MockSSMAPI) DeregisterTaskFromMaintenanceWindowWithContext(arg0 aws.Con
 
 // DeregisterTaskFromMaintenanceWindowWithContext indicates an expected call of DeregisterTaskFromMaintenanceWindowWithContext
 func (mr *MockSSMAPIMockRecorder) DeregisterTaskFromMaintenanceWindowWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeregisterTaskFromMaintenanceWindowWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DeregisterTaskFromMaintenanceWindowWithContext), varargs...)
 }
 
 // DescribeActivations mocks base method
 func (m *MockSSMAPI) DescribeActivations(arg0 *ssm.DescribeActivationsInput) (*ssm.DescribeActivationsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeActivations", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeActivationsOutput)
 	ret1, _ := ret[1].(error)
@@ -1071,11 +1210,13 @@ func (m *MockSSMAPI) DescribeActivations(arg0 *ssm.DescribeActivationsInput) (*s
 
 // DescribeActivations indicates an expected call of DescribeActivations
 func (mr *MockSSMAPIMockRecorder) DescribeActivations(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeActivations", reflect.TypeOf((*MockSSMAPI)(nil).DescribeActivations), arg0)
 }
 
 // DescribeActivationsPages mocks base method
 func (m *MockSSMAPI) DescribeActivationsPages(arg0 *ssm.DescribeActivationsInput, arg1 func(*ssm.DescribeActivationsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeActivationsPages", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -1083,11 +1224,13 @@ func (m *MockSSMAPI) DescribeActivationsPages(arg0 *ssm.DescribeActivationsInput
 
 // DescribeActivationsPages indicates an expected call of DescribeActivationsPages
 func (mr *MockSSMAPIMockRecorder) DescribeActivationsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeActivationsPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeActivationsPages), arg0, arg1)
 }
 
 // DescribeActivationsPagesWithContext mocks base method
-func (m *MockSSMAPI) DescribeActivationsPagesWithContext(arg0 aws.Context, arg1 *ssm.DescribeActivationsInput, arg2 func(*ssm.DescribeActivationsOutput, bool) bool, arg3 ...request.Option) error {
+func (m *MockSSMAPI) DescribeActivationsPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeActivationsInput, arg2 func(*ssm.DescribeActivationsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
 	for _, a := range arg3 {
 		varargs = append(varargs, a)
@@ -1099,12 +1242,14 @@ func (m *MockSSMAPI) DescribeActivationsPagesWithContext(arg0 aws.Context, arg1 
 
 // DescribeActivationsPagesWithContext indicates an expected call of DescribeActivationsPagesWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeActivationsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeActivationsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeActivationsPagesWithContext), varargs...)
 }
 
 // DescribeActivationsRequest mocks base method
 func (m *MockSSMAPI) DescribeActivationsRequest(arg0 *ssm.DescribeActivationsInput) (*request.Request, *ssm.DescribeActivationsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeActivationsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeActivationsOutput)
@@ -1113,11 +1258,13 @@ func (m *MockSSMAPI) DescribeActivationsRequest(arg0 *ssm.DescribeActivationsInp
 
 // DescribeActivationsRequest indicates an expected call of DescribeActivationsRequest
 func (mr *MockSSMAPIMockRecorder) DescribeActivationsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeActivationsRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeActivationsRequest), arg0)
 }
 
 // DescribeActivationsWithContext mocks base method
-func (m *MockSSMAPI) DescribeActivationsWithContext(arg0 aws.Context, arg1 *ssm.DescribeActivationsInput, arg2 ...request.Option) (*ssm.DescribeActivationsOutput, error) {
+func (m *MockSSMAPI) DescribeActivationsWithContext(arg0 context.Context, arg1 *ssm.DescribeActivationsInput, arg2 ...request.Option) (*ssm.DescribeActivationsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1130,12 +1277,14 @@ func (m *MockSSMAPI) DescribeActivationsWithContext(arg0 aws.Context, arg1 *ssm.
 
 // DescribeActivationsWithContext indicates an expected call of DescribeActivationsWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeActivationsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeActivationsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeActivationsWithContext), varargs...)
 }
 
 // DescribeAssociation mocks base method
 func (m *MockSSMAPI) DescribeAssociation(arg0 *ssm.DescribeAssociationInput) (*ssm.DescribeAssociationOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeAssociation", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeAssociationOutput)
 	ret1, _ := ret[1].(error)
@@ -1144,11 +1293,13 @@ func (m *MockSSMAPI) DescribeAssociation(arg0 *ssm.DescribeAssociationInput) (*s
 
 // DescribeAssociation indicates an expected call of DescribeAssociation
 func (mr *MockSSMAPIMockRecorder) DescribeAssociation(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAssociation", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAssociation), arg0)
 }
 
 // DescribeAssociationExecutionTargets mocks base method
 func (m *MockSSMAPI) DescribeAssociationExecutionTargets(arg0 *ssm.DescribeAssociationExecutionTargetsInput) (*ssm.DescribeAssociationExecutionTargetsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeAssociationExecutionTargets", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeAssociationExecutionTargetsOutput)
 	ret1, _ := ret[1].(error)
@@ -1157,11 +1308,13 @@ func (m *MockSSMAPI) DescribeAssociationExecutionTargets(arg0 *ssm.DescribeAssoc
 
 // DescribeAssociationExecutionTargets indicates an expected call of DescribeAssociationExecutionTargets
 func (mr *MockSSMAPIMockRecorder) DescribeAssociationExecutionTargets(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAssociationExecutionTargets", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAssociationExecutionTargets), arg0)
 }
 
 // DescribeAssociationExecutionTargetsRequest mocks base method
 func (m *MockSSMAPI) DescribeAssociationExecutionTargetsRequest(arg0 *ssm.DescribeAssociationExecutionTargetsInput) (*request.Request, *ssm.DescribeAssociationExecutionTargetsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeAssociationExecutionTargetsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeAssociationExecutionTargetsOutput)
@@ -1170,11 +1323,13 @@ func (m *MockSSMAPI) DescribeAssociationExecutionTargetsRequest(arg0 *ssm.Descri
 
 // DescribeAssociationExecutionTargetsRequest indicates an expected call of DescribeAssociationExecutionTargetsRequest
 func (mr *MockSSMAPIMockRecorder) DescribeAssociationExecutionTargetsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAssociationExecutionTargetsRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAssociationExecutionTargetsRequest), arg0)
 }
 
 // DescribeAssociationExecutionTargetsWithContext mocks base method
-func (m *MockSSMAPI) DescribeAssociationExecutionTargetsWithContext(arg0 aws.Context, arg1 *ssm.DescribeAssociationExecutionTargetsInput, arg2 ...request.Option) (*ssm.DescribeAssociationExecutionTargetsOutput, error) {
+func (m *MockSSMAPI) DescribeAssociationExecutionTargetsWithContext(arg0 context.Context, arg1 *ssm.DescribeAssociationExecutionTargetsInput, arg2 ...request.Option) (*ssm.DescribeAssociationExecutionTargetsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1187,12 +1342,14 @@ func (m *MockSSMAPI) DescribeAssociationExecutionTargetsWithContext(arg0 aws.Con
 
 // DescribeAssociationExecutionTargetsWithContext indicates an expected call of DescribeAssociationExecutionTargetsWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeAssociationExecutionTargetsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAssociationExecutionTargetsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAssociationExecutionTargetsWithContext), varargs...)
 }
 
 // DescribeAssociationExecutions mocks base method
 func (m *MockSSMAPI) DescribeAssociationExecutions(arg0 *ssm.DescribeAssociationExecutionsInput) (*ssm.DescribeAssociationExecutionsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeAssociationExecutions", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeAssociationExecutionsOutput)
 	ret1, _ := ret[1].(error)
@@ -1201,11 +1358,13 @@ func (m *MockSSMAPI) DescribeAssociationExecutions(arg0 *ssm.DescribeAssociation
 
 // DescribeAssociationExecutions indicates an expected call of DescribeAssociationExecutions
 func (mr *MockSSMAPIMockRecorder) DescribeAssociationExecutions(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAssociationExecutions", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAssociationExecutions), arg0)
 }
 
 // DescribeAssociationExecutionsRequest mocks base method
 func (m *MockSSMAPI) DescribeAssociationExecutionsRequest(arg0 *ssm.DescribeAssociationExecutionsInput) (*request.Request, *ssm.DescribeAssociationExecutionsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeAssociationExecutionsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeAssociationExecutionsOutput)
@@ -1214,11 +1373,13 @@ func (m *MockSSMAPI) DescribeAssociationExecutionsRequest(arg0 *ssm.DescribeAsso
 
 // DescribeAssociationExecutionsRequest indicates an expected call of DescribeAssociationExecutionsRequest
 func (mr *MockSSMAPIMockRecorder) DescribeAssociationExecutionsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAssociationExecutionsRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAssociationExecutionsRequest), arg0)
 }
 
 // DescribeAssociationExecutionsWithContext mocks base method
-func (m *MockSSMAPI) DescribeAssociationExecutionsWithContext(arg0 aws.Context, arg1 *ssm.DescribeAssociationExecutionsInput, arg2 ...request.Option) (*ssm.DescribeAssociationExecutionsOutput, error) {
+func (m *MockSSMAPI) DescribeAssociationExecutionsWithContext(arg0 context.Context, arg1 *ssm.DescribeAssociationExecutionsInput, arg2 ...request.Option) (*ssm.DescribeAssociationExecutionsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1231,12 +1392,14 @@ func (m *MockSSMAPI) DescribeAssociationExecutionsWithContext(arg0 aws.Context, 
 
 // DescribeAssociationExecutionsWithContext indicates an expected call of DescribeAssociationExecutionsWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeAssociationExecutionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAssociationExecutionsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAssociationExecutionsWithContext), varargs...)
 }
 
 // DescribeAssociationRequest mocks base method
 func (m *MockSSMAPI) DescribeAssociationRequest(arg0 *ssm.DescribeAssociationInput) (*request.Request, *ssm.DescribeAssociationOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeAssociationRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeAssociationOutput)
@@ -1245,11 +1408,13 @@ func (m *MockSSMAPI) DescribeAssociationRequest(arg0 *ssm.DescribeAssociationInp
 
 // DescribeAssociationRequest indicates an expected call of DescribeAssociationRequest
 func (mr *MockSSMAPIMockRecorder) DescribeAssociationRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAssociationRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAssociationRequest), arg0)
 }
 
 // DescribeAssociationWithContext mocks base method
-func (m *MockSSMAPI) DescribeAssociationWithContext(arg0 aws.Context, arg1 *ssm.DescribeAssociationInput, arg2 ...request.Option) (*ssm.DescribeAssociationOutput, error) {
+func (m *MockSSMAPI) DescribeAssociationWithContext(arg0 context.Context, arg1 *ssm.DescribeAssociationInput, arg2 ...request.Option) (*ssm.DescribeAssociationOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1262,12 +1427,14 @@ func (m *MockSSMAPI) DescribeAssociationWithContext(arg0 aws.Context, arg1 *ssm.
 
 // DescribeAssociationWithContext indicates an expected call of DescribeAssociationWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeAssociationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAssociationWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAssociationWithContext), varargs...)
 }
 
 // DescribeAutomationExecutions mocks base method
 func (m *MockSSMAPI) DescribeAutomationExecutions(arg0 *ssm.DescribeAutomationExecutionsInput) (*ssm.DescribeAutomationExecutionsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeAutomationExecutions", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeAutomationExecutionsOutput)
 	ret1, _ := ret[1].(error)
@@ -1276,11 +1443,13 @@ func (m *MockSSMAPI) DescribeAutomationExecutions(arg0 *ssm.DescribeAutomationEx
 
 // DescribeAutomationExecutions indicates an expected call of DescribeAutomationExecutions
 func (mr *MockSSMAPIMockRecorder) DescribeAutomationExecutions(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAutomationExecutions", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAutomationExecutions), arg0)
 }
 
 // DescribeAutomationExecutionsRequest mocks base method
 func (m *MockSSMAPI) DescribeAutomationExecutionsRequest(arg0 *ssm.DescribeAutomationExecutionsInput) (*request.Request, *ssm.DescribeAutomationExecutionsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeAutomationExecutionsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeAutomationExecutionsOutput)
@@ -1289,11 +1458,13 @@ func (m *MockSSMAPI) DescribeAutomationExecutionsRequest(arg0 *ssm.DescribeAutom
 
 // DescribeAutomationExecutionsRequest indicates an expected call of DescribeAutomationExecutionsRequest
 func (mr *MockSSMAPIMockRecorder) DescribeAutomationExecutionsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAutomationExecutionsRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAutomationExecutionsRequest), arg0)
 }
 
 // DescribeAutomationExecutionsWithContext mocks base method
-func (m *MockSSMAPI) DescribeAutomationExecutionsWithContext(arg0 aws.Context, arg1 *ssm.DescribeAutomationExecutionsInput, arg2 ...request.Option) (*ssm.DescribeAutomationExecutionsOutput, error) {
+func (m *MockSSMAPI) DescribeAutomationExecutionsWithContext(arg0 context.Context, arg1 *ssm.DescribeAutomationExecutionsInput, arg2 ...request.Option) (*ssm.DescribeAutomationExecutionsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1306,12 +1477,14 @@ func (m *MockSSMAPI) DescribeAutomationExecutionsWithContext(arg0 aws.Context, a
 
 // DescribeAutomationExecutionsWithContext indicates an expected call of DescribeAutomationExecutionsWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeAutomationExecutionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAutomationExecutionsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAutomationExecutionsWithContext), varargs...)
 }
 
 // DescribeAutomationStepExecutions mocks base method
 func (m *MockSSMAPI) DescribeAutomationStepExecutions(arg0 *ssm.DescribeAutomationStepExecutionsInput) (*ssm.DescribeAutomationStepExecutionsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeAutomationStepExecutions", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeAutomationStepExecutionsOutput)
 	ret1, _ := ret[1].(error)
@@ -1320,11 +1493,13 @@ func (m *MockSSMAPI) DescribeAutomationStepExecutions(arg0 *ssm.DescribeAutomati
 
 // DescribeAutomationStepExecutions indicates an expected call of DescribeAutomationStepExecutions
 func (mr *MockSSMAPIMockRecorder) DescribeAutomationStepExecutions(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAutomationStepExecutions", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAutomationStepExecutions), arg0)
 }
 
 // DescribeAutomationStepExecutionsRequest mocks base method
 func (m *MockSSMAPI) DescribeAutomationStepExecutionsRequest(arg0 *ssm.DescribeAutomationStepExecutionsInput) (*request.Request, *ssm.DescribeAutomationStepExecutionsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeAutomationStepExecutionsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeAutomationStepExecutionsOutput)
@@ -1333,11 +1508,13 @@ func (m *MockSSMAPI) DescribeAutomationStepExecutionsRequest(arg0 *ssm.DescribeA
 
 // DescribeAutomationStepExecutionsRequest indicates an expected call of DescribeAutomationStepExecutionsRequest
 func (mr *MockSSMAPIMockRecorder) DescribeAutomationStepExecutionsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAutomationStepExecutionsRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAutomationStepExecutionsRequest), arg0)
 }
 
 // DescribeAutomationStepExecutionsWithContext mocks base method
-func (m *MockSSMAPI) DescribeAutomationStepExecutionsWithContext(arg0 aws.Context, arg1 *ssm.DescribeAutomationStepExecutionsInput, arg2 ...request.Option) (*ssm.DescribeAutomationStepExecutionsOutput, error) {
+func (m *MockSSMAPI) DescribeAutomationStepExecutionsWithContext(arg0 context.Context, arg1 *ssm.DescribeAutomationStepExecutionsInput, arg2 ...request.Option) (*ssm.DescribeAutomationStepExecutionsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1350,12 +1527,14 @@ func (m *MockSSMAPI) DescribeAutomationStepExecutionsWithContext(arg0 aws.Contex
 
 // DescribeAutomationStepExecutionsWithContext indicates an expected call of DescribeAutomationStepExecutionsWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeAutomationStepExecutionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAutomationStepExecutionsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAutomationStepExecutionsWithContext), varargs...)
 }
 
 // DescribeAvailablePatches mocks base method
 func (m *MockSSMAPI) DescribeAvailablePatches(arg0 *ssm.DescribeAvailablePatchesInput) (*ssm.DescribeAvailablePatchesOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeAvailablePatches", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeAvailablePatchesOutput)
 	ret1, _ := ret[1].(error)
@@ -1364,11 +1543,13 @@ func (m *MockSSMAPI) DescribeAvailablePatches(arg0 *ssm.DescribeAvailablePatches
 
 // DescribeAvailablePatches indicates an expected call of DescribeAvailablePatches
 func (mr *MockSSMAPIMockRecorder) DescribeAvailablePatches(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAvailablePatches", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAvailablePatches), arg0)
 }
 
 // DescribeAvailablePatchesRequest mocks base method
 func (m *MockSSMAPI) DescribeAvailablePatchesRequest(arg0 *ssm.DescribeAvailablePatchesInput) (*request.Request, *ssm.DescribeAvailablePatchesOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeAvailablePatchesRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeAvailablePatchesOutput)
@@ -1377,11 +1558,13 @@ func (m *MockSSMAPI) DescribeAvailablePatchesRequest(arg0 *ssm.DescribeAvailable
 
 // DescribeAvailablePatchesRequest indicates an expected call of DescribeAvailablePatchesRequest
 func (mr *MockSSMAPIMockRecorder) DescribeAvailablePatchesRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAvailablePatchesRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAvailablePatchesRequest), arg0)
 }
 
 // DescribeAvailablePatchesWithContext mocks base method
-func (m *MockSSMAPI) DescribeAvailablePatchesWithContext(arg0 aws.Context, arg1 *ssm.DescribeAvailablePatchesInput, arg2 ...request.Option) (*ssm.DescribeAvailablePatchesOutput, error) {
+func (m *MockSSMAPI) DescribeAvailablePatchesWithContext(arg0 context.Context, arg1 *ssm.DescribeAvailablePatchesInput, arg2 ...request.Option) (*ssm.DescribeAvailablePatchesOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1394,12 +1577,14 @@ func (m *MockSSMAPI) DescribeAvailablePatchesWithContext(arg0 aws.Context, arg1 
 
 // DescribeAvailablePatchesWithContext indicates an expected call of DescribeAvailablePatchesWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeAvailablePatchesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAvailablePatchesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAvailablePatchesWithContext), varargs...)
 }
 
 // DescribeDocument mocks base method
 func (m *MockSSMAPI) DescribeDocument(arg0 *ssm.DescribeDocumentInput) (*ssm.DescribeDocumentOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeDocument", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeDocumentOutput)
 	ret1, _ := ret[1].(error)
@@ -1408,11 +1593,13 @@ func (m *MockSSMAPI) DescribeDocument(arg0 *ssm.DescribeDocumentInput) (*ssm.Des
 
 // DescribeDocument indicates an expected call of DescribeDocument
 func (mr *MockSSMAPIMockRecorder) DescribeDocument(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeDocument", reflect.TypeOf((*MockSSMAPI)(nil).DescribeDocument), arg0)
 }
 
 // DescribeDocumentPermission mocks base method
 func (m *MockSSMAPI) DescribeDocumentPermission(arg0 *ssm.DescribeDocumentPermissionInput) (*ssm.DescribeDocumentPermissionOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeDocumentPermission", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeDocumentPermissionOutput)
 	ret1, _ := ret[1].(error)
@@ -1421,11 +1608,13 @@ func (m *MockSSMAPI) DescribeDocumentPermission(arg0 *ssm.DescribeDocumentPermis
 
 // DescribeDocumentPermission indicates an expected call of DescribeDocumentPermission
 func (mr *MockSSMAPIMockRecorder) DescribeDocumentPermission(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeDocumentPermission", reflect.TypeOf((*MockSSMAPI)(nil).DescribeDocumentPermission), arg0)
 }
 
 // DescribeDocumentPermissionRequest mocks base method
 func (m *MockSSMAPI) DescribeDocumentPermissionRequest(arg0 *ssm.DescribeDocumentPermissionInput) (*request.Request, *ssm.DescribeDocumentPermissionOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeDocumentPermissionRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeDocumentPermissionOutput)
@@ -1434,11 +1623,13 @@ func (m *MockSSMAPI) DescribeDocumentPermissionRequest(arg0 *ssm.DescribeDocumen
 
 // DescribeDocumentPermissionRequest indicates an expected call of DescribeDocumentPermissionRequest
 func (mr *MockSSMAPIMockRecorder) DescribeDocumentPermissionRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeDocumentPermissionRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeDocumentPermissionRequest), arg0)
 }
 
 // DescribeDocumentPermissionWithContext mocks base method
-func (m *MockSSMAPI) DescribeDocumentPermissionWithContext(arg0 aws.Context, arg1 *ssm.DescribeDocumentPermissionInput, arg2 ...request.Option) (*ssm.DescribeDocumentPermissionOutput, error) {
+func (m *MockSSMAPI) DescribeDocumentPermissionWithContext(arg0 context.Context, arg1 *ssm.DescribeDocumentPermissionInput, arg2 ...request.Option) (*ssm.DescribeDocumentPermissionOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1451,12 +1642,14 @@ func (m *MockSSMAPI) DescribeDocumentPermissionWithContext(arg0 aws.Context, arg
 
 // DescribeDocumentPermissionWithContext indicates an expected call of DescribeDocumentPermissionWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeDocumentPermissionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeDocumentPermissionWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeDocumentPermissionWithContext), varargs...)
 }
 
 // DescribeDocumentRequest mocks base method
 func (m *MockSSMAPI) DescribeDocumentRequest(arg0 *ssm.DescribeDocumentInput) (*request.Request, *ssm.DescribeDocumentOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeDocumentRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeDocumentOutput)
@@ -1465,11 +1658,13 @@ func (m *MockSSMAPI) DescribeDocumentRequest(arg0 *ssm.DescribeDocumentInput) (*
 
 // DescribeDocumentRequest indicates an expected call of DescribeDocumentRequest
 func (mr *MockSSMAPIMockRecorder) DescribeDocumentRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeDocumentRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeDocumentRequest), arg0)
 }
 
 // DescribeDocumentWithContext mocks base method
-func (m *MockSSMAPI) DescribeDocumentWithContext(arg0 aws.Context, arg1 *ssm.DescribeDocumentInput, arg2 ...request.Option) (*ssm.DescribeDocumentOutput, error) {
+func (m *MockSSMAPI) DescribeDocumentWithContext(arg0 context.Context, arg1 *ssm.DescribeDocumentInput, arg2 ...request.Option) (*ssm.DescribeDocumentOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1482,12 +1677,14 @@ func (m *MockSSMAPI) DescribeDocumentWithContext(arg0 aws.Context, arg1 *ssm.Des
 
 // DescribeDocumentWithContext indicates an expected call of DescribeDocumentWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeDocumentWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeDocumentWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeDocumentWithContext), varargs...)
 }
 
 // DescribeEffectiveInstanceAssociations mocks base method
 func (m *MockSSMAPI) DescribeEffectiveInstanceAssociations(arg0 *ssm.DescribeEffectiveInstanceAssociationsInput) (*ssm.DescribeEffectiveInstanceAssociationsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeEffectiveInstanceAssociations", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeEffectiveInstanceAssociationsOutput)
 	ret1, _ := ret[1].(error)
@@ -1496,11 +1693,13 @@ func (m *MockSSMAPI) DescribeEffectiveInstanceAssociations(arg0 *ssm.DescribeEff
 
 // DescribeEffectiveInstanceAssociations indicates an expected call of DescribeEffectiveInstanceAssociations
 func (mr *MockSSMAPIMockRecorder) DescribeEffectiveInstanceAssociations(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeEffectiveInstanceAssociations", reflect.TypeOf((*MockSSMAPI)(nil).DescribeEffectiveInstanceAssociations), arg0)
 }
 
 // DescribeEffectiveInstanceAssociationsRequest mocks base method
 func (m *MockSSMAPI) DescribeEffectiveInstanceAssociationsRequest(arg0 *ssm.DescribeEffectiveInstanceAssociationsInput) (*request.Request, *ssm.DescribeEffectiveInstanceAssociationsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeEffectiveInstanceAssociationsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeEffectiveInstanceAssociationsOutput)
@@ -1509,11 +1708,13 @@ func (m *MockSSMAPI) DescribeEffectiveInstanceAssociationsRequest(arg0 *ssm.Desc
 
 // DescribeEffectiveInstanceAssociationsRequest indicates an expected call of DescribeEffectiveInstanceAssociationsRequest
 func (mr *MockSSMAPIMockRecorder) DescribeEffectiveInstanceAssociationsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeEffectiveInstanceAssociationsRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeEffectiveInstanceAssociationsRequest), arg0)
 }
 
 // DescribeEffectiveInstanceAssociationsWithContext mocks base method
-func (m *MockSSMAPI) DescribeEffectiveInstanceAssociationsWithContext(arg0 aws.Context, arg1 *ssm.DescribeEffectiveInstanceAssociationsInput, arg2 ...request.Option) (*ssm.DescribeEffectiveInstanceAssociationsOutput, error) {
+func (m *MockSSMAPI) DescribeEffectiveInstanceAssociationsWithContext(arg0 context.Context, arg1 *ssm.DescribeEffectiveInstanceAssociationsInput, arg2 ...request.Option) (*ssm.DescribeEffectiveInstanceAssociationsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1526,12 +1727,14 @@ func (m *MockSSMAPI) DescribeEffectiveInstanceAssociationsWithContext(arg0 aws.C
 
 // DescribeEffectiveInstanceAssociationsWithContext indicates an expected call of DescribeEffectiveInstanceAssociationsWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeEffectiveInstanceAssociationsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeEffectiveInstanceAssociationsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeEffectiveInstanceAssociationsWithContext), varargs...)
 }
 
 // DescribeEffectivePatchesForPatchBaseline mocks base method
 func (m *MockSSMAPI) DescribeEffectivePatchesForPatchBaseline(arg0 *ssm.DescribeEffectivePatchesForPatchBaselineInput) (*ssm.DescribeEffectivePatchesForPatchBaselineOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeEffectivePatchesForPatchBaseline", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeEffectivePatchesForPatchBaselineOutput)
 	ret1, _ := ret[1].(error)
@@ -1540,11 +1743,13 @@ func (m *MockSSMAPI) DescribeEffectivePatchesForPatchBaseline(arg0 *ssm.Describe
 
 // DescribeEffectivePatchesForPatchBaseline indicates an expected call of DescribeEffectivePatchesForPatchBaseline
 func (mr *MockSSMAPIMockRecorder) DescribeEffectivePatchesForPatchBaseline(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeEffectivePatchesForPatchBaseline", reflect.TypeOf((*MockSSMAPI)(nil).DescribeEffectivePatchesForPatchBaseline), arg0)
 }
 
 // DescribeEffectivePatchesForPatchBaselineRequest mocks base method
 func (m *MockSSMAPI) DescribeEffectivePatchesForPatchBaselineRequest(arg0 *ssm.DescribeEffectivePatchesForPatchBaselineInput) (*request.Request, *ssm.DescribeEffectivePatchesForPatchBaselineOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeEffectivePatchesForPatchBaselineRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeEffectivePatchesForPatchBaselineOutput)
@@ -1553,11 +1758,13 @@ func (m *MockSSMAPI) DescribeEffectivePatchesForPatchBaselineRequest(arg0 *ssm.D
 
 // DescribeEffectivePatchesForPatchBaselineRequest indicates an expected call of DescribeEffectivePatchesForPatchBaselineRequest
 func (mr *MockSSMAPIMockRecorder) DescribeEffectivePatchesForPatchBaselineRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeEffectivePatchesForPatchBaselineRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeEffectivePatchesForPatchBaselineRequest), arg0)
 }
 
 // DescribeEffectivePatchesForPatchBaselineWithContext mocks base method
-func (m *MockSSMAPI) DescribeEffectivePatchesForPatchBaselineWithContext(arg0 aws.Context, arg1 *ssm.DescribeEffectivePatchesForPatchBaselineInput, arg2 ...request.Option) (*ssm.DescribeEffectivePatchesForPatchBaselineOutput, error) {
+func (m *MockSSMAPI) DescribeEffectivePatchesForPatchBaselineWithContext(arg0 context.Context, arg1 *ssm.DescribeEffectivePatchesForPatchBaselineInput, arg2 ...request.Option) (*ssm.DescribeEffectivePatchesForPatchBaselineOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1570,12 +1777,14 @@ func (m *MockSSMAPI) DescribeEffectivePatchesForPatchBaselineWithContext(arg0 aw
 
 // DescribeEffectivePatchesForPatchBaselineWithContext indicates an expected call of DescribeEffectivePatchesForPatchBaselineWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeEffectivePatchesForPatchBaselineWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeEffectivePatchesForPatchBaselineWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeEffectivePatchesForPatchBaselineWithContext), varargs...)
 }
 
 // DescribeInstanceAssociationsStatus mocks base method
 func (m *MockSSMAPI) DescribeInstanceAssociationsStatus(arg0 *ssm.DescribeInstanceAssociationsStatusInput) (*ssm.DescribeInstanceAssociationsStatusOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeInstanceAssociationsStatus", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeInstanceAssociationsStatusOutput)
 	ret1, _ := ret[1].(error)
@@ -1584,11 +1793,13 @@ func (m *MockSSMAPI) DescribeInstanceAssociationsStatus(arg0 *ssm.DescribeInstan
 
 // DescribeInstanceAssociationsStatus indicates an expected call of DescribeInstanceAssociationsStatus
 func (mr *MockSSMAPIMockRecorder) DescribeInstanceAssociationsStatus(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstanceAssociationsStatus", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstanceAssociationsStatus), arg0)
 }
 
 // DescribeInstanceAssociationsStatusRequest mocks base method
 func (m *MockSSMAPI) DescribeInstanceAssociationsStatusRequest(arg0 *ssm.DescribeInstanceAssociationsStatusInput) (*request.Request, *ssm.DescribeInstanceAssociationsStatusOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeInstanceAssociationsStatusRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeInstanceAssociationsStatusOutput)
@@ -1597,11 +1808,13 @@ func (m *MockSSMAPI) DescribeInstanceAssociationsStatusRequest(arg0 *ssm.Describ
 
 // DescribeInstanceAssociationsStatusRequest indicates an expected call of DescribeInstanceAssociationsStatusRequest
 func (mr *MockSSMAPIMockRecorder) DescribeInstanceAssociationsStatusRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstanceAssociationsStatusRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstanceAssociationsStatusRequest), arg0)
 }
 
 // DescribeInstanceAssociationsStatusWithContext mocks base method
-func (m *MockSSMAPI) DescribeInstanceAssociationsStatusWithContext(arg0 aws.Context, arg1 *ssm.DescribeInstanceAssociationsStatusInput, arg2 ...request.Option) (*ssm.DescribeInstanceAssociationsStatusOutput, error) {
+func (m *MockSSMAPI) DescribeInstanceAssociationsStatusWithContext(arg0 context.Context, arg1 *ssm.DescribeInstanceAssociationsStatusInput, arg2 ...request.Option) (*ssm.DescribeInstanceAssociationsStatusOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1614,12 +1827,14 @@ func (m *MockSSMAPI) DescribeInstanceAssociationsStatusWithContext(arg0 aws.Cont
 
 // DescribeInstanceAssociationsStatusWithContext indicates an expected call of DescribeInstanceAssociationsStatusWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeInstanceAssociationsStatusWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstanceAssociationsStatusWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstanceAssociationsStatusWithContext), varargs...)
 }
 
 // DescribeInstanceInformation mocks base method
 func (m *MockSSMAPI) DescribeInstanceInformation(arg0 *ssm.DescribeInstanceInformationInput) (*ssm.DescribeInstanceInformationOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeInstanceInformation", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeInstanceInformationOutput)
 	ret1, _ := ret[1].(error)
@@ -1628,11 +1843,13 @@ func (m *MockSSMAPI) DescribeInstanceInformation(arg0 *ssm.DescribeInstanceInfor
 
 // DescribeInstanceInformation indicates an expected call of DescribeInstanceInformation
 func (mr *MockSSMAPIMockRecorder) DescribeInstanceInformation(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstanceInformation", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstanceInformation), arg0)
 }
 
 // DescribeInstanceInformationPages mocks base method
 func (m *MockSSMAPI) DescribeInstanceInformationPages(arg0 *ssm.DescribeInstanceInformationInput, arg1 func(*ssm.DescribeInstanceInformationOutput, bool) bool) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeInstanceInformationPages", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -1640,11 +1857,13 @@ func (m *MockSSMAPI) DescribeInstanceInformationPages(arg0 *ssm.DescribeInstance
 
 // DescribeInstanceInformationPages indicates an expected call of DescribeInstanceInformationPages
 func (mr *MockSSMAPIMockRecorder) DescribeInstanceInformationPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstanceInformationPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstanceInformationPages), arg0, arg1)
 }
 
 // DescribeInstanceInformationPagesWithContext mocks base method
-func (m *MockSSMAPI) DescribeInstanceInformationPagesWithContext(arg0 aws.Context, arg1 *ssm.DescribeInstanceInformationInput, arg2 func(*ssm.DescribeInstanceInformationOutput, bool) bool, arg3 ...request.Option) error {
+func (m *MockSSMAPI) DescribeInstanceInformationPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeInstanceInformationInput, arg2 func(*ssm.DescribeInstanceInformationOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
 	for _, a := range arg3 {
 		varargs = append(varargs, a)
@@ -1656,12 +1875,14 @@ func (m *MockSSMAPI) DescribeInstanceInformationPagesWithContext(arg0 aws.Contex
 
 // DescribeInstanceInformationPagesWithContext indicates an expected call of DescribeInstanceInformationPagesWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeInstanceInformationPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstanceInformationPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstanceInformationPagesWithContext), varargs...)
 }
 
 // DescribeInstanceInformationRequest mocks base method
 func (m *MockSSMAPI) DescribeInstanceInformationRequest(arg0 *ssm.DescribeInstanceInformationInput) (*request.Request, *ssm.DescribeInstanceInformationOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeInstanceInformationRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeInstanceInformationOutput)
@@ -1670,11 +1891,13 @@ func (m *MockSSMAPI) DescribeInstanceInformationRequest(arg0 *ssm.DescribeInstan
 
 // DescribeInstanceInformationRequest indicates an expected call of DescribeInstanceInformationRequest
 func (mr *MockSSMAPIMockRecorder) DescribeInstanceInformationRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstanceInformationRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstanceInformationRequest), arg0)
 }
 
 // DescribeInstanceInformationWithContext mocks base method
-func (m *MockSSMAPI) DescribeInstanceInformationWithContext(arg0 aws.Context, arg1 *ssm.DescribeInstanceInformationInput, arg2 ...request.Option) (*ssm.DescribeInstanceInformationOutput, error) {
+func (m *MockSSMAPI) DescribeInstanceInformationWithContext(arg0 context.Context, arg1 *ssm.DescribeInstanceInformationInput, arg2 ...request.Option) (*ssm.DescribeInstanceInformationOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1687,12 +1910,14 @@ func (m *MockSSMAPI) DescribeInstanceInformationWithContext(arg0 aws.Context, ar
 
 // DescribeInstanceInformationWithContext indicates an expected call of DescribeInstanceInformationWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeInstanceInformationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstanceInformationWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstanceInformationWithContext), varargs...)
 }
 
 // DescribeInstancePatchStates mocks base method
 func (m *MockSSMAPI) DescribeInstancePatchStates(arg0 *ssm.DescribeInstancePatchStatesInput) (*ssm.DescribeInstancePatchStatesOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeInstancePatchStates", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeInstancePatchStatesOutput)
 	ret1, _ := ret[1].(error)
@@ -1701,11 +1926,13 @@ func (m *MockSSMAPI) DescribeInstancePatchStates(arg0 *ssm.DescribeInstancePatch
 
 // DescribeInstancePatchStates indicates an expected call of DescribeInstancePatchStates
 func (mr *MockSSMAPIMockRecorder) DescribeInstancePatchStates(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatchStates", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatchStates), arg0)
 }
 
 // DescribeInstancePatchStatesForPatchGroup mocks base method
 func (m *MockSSMAPI) DescribeInstancePatchStatesForPatchGroup(arg0 *ssm.DescribeInstancePatchStatesForPatchGroupInput) (*ssm.DescribeInstancePatchStatesForPatchGroupOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeInstancePatchStatesForPatchGroup", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeInstancePatchStatesForPatchGroupOutput)
 	ret1, _ := ret[1].(error)
@@ -1714,11 +1941,13 @@ func (m *MockSSMAPI) DescribeInstancePatchStatesForPatchGroup(arg0 *ssm.Describe
 
 // DescribeInstancePatchStatesForPatchGroup indicates an expected call of DescribeInstancePatchStatesForPatchGroup
 func (mr *MockSSMAPIMockRecorder) DescribeInstancePatchStatesForPatchGroup(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatchStatesForPatchGroup", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatchStatesForPatchGroup), arg0)
 }
 
 // DescribeInstancePatchStatesForPatchGroupRequest mocks base method
 func (m *MockSSMAPI) DescribeInstancePatchStatesForPatchGroupRequest(arg0 *ssm.DescribeInstancePatchStatesForPatchGroupInput) (*request.Request, *ssm.DescribeInstancePatchStatesForPatchGroupOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeInstancePatchStatesForPatchGroupRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeInstancePatchStatesForPatchGroupOutput)
@@ -1727,11 +1956,13 @@ func (m *MockSSMAPI) DescribeInstancePatchStatesForPatchGroupRequest(arg0 *ssm.D
 
 // DescribeInstancePatchStatesForPatchGroupRequest indicates an expected call of DescribeInstancePatchStatesForPatchGroupRequest
 func (mr *MockSSMAPIMockRecorder) DescribeInstancePatchStatesForPatchGroupRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatchStatesForPatchGroupRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatchStatesForPatchGroupRequest), arg0)
 }
 
 // DescribeInstancePatchStatesForPatchGroupWithContext mocks base method
-func (m *MockSSMAPI) DescribeInstancePatchStatesForPatchGroupWithContext(arg0 aws.Context, arg1 *ssm.DescribeInstancePatchStatesForPatchGroupInput, arg2 ...request.Option) (*ssm.DescribeInstancePatchStatesForPatchGroupOutput, error) {
+func (m *MockSSMAPI) DescribeInstancePatchStatesForPatchGroupWithContext(arg0 context.Context, arg1 *ssm.DescribeInstancePatchStatesForPatchGroupInput, arg2 ...request.Option) (*ssm.DescribeInstancePatchStatesForPatchGroupOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1744,12 +1975,14 @@ func (m *MockSSMAPI) DescribeInstancePatchStatesForPatchGroupWithContext(arg0 aw
 
 // DescribeInstancePatchStatesForPatchGroupWithContext indicates an expected call of DescribeInstancePatchStatesForPatchGroupWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeInstancePatchStatesForPatchGroupWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatchStatesForPatchGroupWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatchStatesForPatchGroupWithContext), varargs...)
 }
 
 // DescribeInstancePatchStatesRequest mocks base method
 func (m *MockSSMAPI) DescribeInstancePatchStatesRequest(arg0 *ssm.DescribeInstancePatchStatesInput) (*request.Request, *ssm.DescribeInstancePatchStatesOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeInstancePatchStatesRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeInstancePatchStatesOutput)
@@ -1758,11 +1991,13 @@ func (m *MockSSMAPI) DescribeInstancePatchStatesRequest(arg0 *ssm.DescribeInstan
 
 // DescribeInstancePatchStatesRequest indicates an expected call of DescribeInstancePatchStatesRequest
 func (mr *MockSSMAPIMockRecorder) DescribeInstancePatchStatesRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatchStatesRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatchStatesRequest), arg0)
 }
 
 // DescribeInstancePatchStatesWithContext mocks base method
-func (m *MockSSMAPI) DescribeInstancePatchStatesWithContext(arg0 aws.Context, arg1 *ssm.DescribeInstancePatchStatesInput, arg2 ...request.Option) (*ssm.DescribeInstancePatchStatesOutput, error) {
+func (m *MockSSMAPI) DescribeInstancePatchStatesWithContext(arg0 context.Context, arg1 *ssm.DescribeInstancePatchStatesInput, arg2 ...request.Option) (*ssm.DescribeInstancePatchStatesOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1775,12 +2010,14 @@ func (m *MockSSMAPI) DescribeInstancePatchStatesWithContext(arg0 aws.Context, ar
 
 // DescribeInstancePatchStatesWithContext indicates an expected call of DescribeInstancePatchStatesWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeInstancePatchStatesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatchStatesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatchStatesWithContext), varargs...)
 }
 
 // DescribeInstancePatches mocks base method
 func (m *MockSSMAPI) DescribeInstancePatches(arg0 *ssm.DescribeInstancePatchesInput) (*ssm.DescribeInstancePatchesOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeInstancePatches", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeInstancePatchesOutput)
 	ret1, _ := ret[1].(error)
@@ -1789,11 +2026,13 @@ func (m *MockSSMAPI) DescribeInstancePatches(arg0 *ssm.DescribeInstancePatchesIn
 
 // DescribeInstancePatches indicates an expected call of DescribeInstancePatches
 func (mr *MockSSMAPIMockRecorder) DescribeInstancePatches(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatches", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatches), arg0)
 }
 
 // DescribeInstancePatchesRequest mocks base method
 func (m *MockSSMAPI) DescribeInstancePatchesRequest(arg0 *ssm.DescribeInstancePatchesInput) (*request.Request, *ssm.DescribeInstancePatchesOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeInstancePatchesRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeInstancePatchesOutput)
@@ -1802,11 +2041,13 @@ func (m *MockSSMAPI) DescribeInstancePatchesRequest(arg0 *ssm.DescribeInstancePa
 
 // DescribeInstancePatchesRequest indicates an expected call of DescribeInstancePatchesRequest
 func (mr *MockSSMAPIMockRecorder) DescribeInstancePatchesRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatchesRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatchesRequest), arg0)
 }
 
 // DescribeInstancePatchesWithContext mocks base method
-func (m *MockSSMAPI) DescribeInstancePatchesWithContext(arg0 aws.Context, arg1 *ssm.DescribeInstancePatchesInput, arg2 ...request.Option) (*ssm.DescribeInstancePatchesOutput, error) {
+func (m *MockSSMAPI) DescribeInstancePatchesWithContext(arg0 context.Context, arg1 *ssm.DescribeInstancePatchesInput, arg2 ...request.Option) (*ssm.DescribeInstancePatchesOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1819,12 +2060,14 @@ func (m *MockSSMAPI) DescribeInstancePatchesWithContext(arg0 aws.Context, arg1 *
 
 // DescribeInstancePatchesWithContext indicates an expected call of DescribeInstancePatchesWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeInstancePatchesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatchesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatchesWithContext), varargs...)
 }
 
 // DescribeInventoryDeletions mocks base method
 func (m *MockSSMAPI) DescribeInventoryDeletions(arg0 *ssm.DescribeInventoryDeletionsInput) (*ssm.DescribeInventoryDeletionsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeInventoryDeletions", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeInventoryDeletionsOutput)
 	ret1, _ := ret[1].(error)
@@ -1833,11 +2076,13 @@ func (m *MockSSMAPI) DescribeInventoryDeletions(arg0 *ssm.DescribeInventoryDelet
 
 // DescribeInventoryDeletions indicates an expected call of DescribeInventoryDeletions
 func (mr *MockSSMAPIMockRecorder) DescribeInventoryDeletions(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInventoryDeletions", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInventoryDeletions), arg0)
 }
 
 // DescribeInventoryDeletionsRequest mocks base method
 func (m *MockSSMAPI) DescribeInventoryDeletionsRequest(arg0 *ssm.DescribeInventoryDeletionsInput) (*request.Request, *ssm.DescribeInventoryDeletionsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeInventoryDeletionsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeInventoryDeletionsOutput)
@@ -1846,11 +2091,13 @@ func (m *MockSSMAPI) DescribeInventoryDeletionsRequest(arg0 *ssm.DescribeInvento
 
 // DescribeInventoryDeletionsRequest indicates an expected call of DescribeInventoryDeletionsRequest
 func (mr *MockSSMAPIMockRecorder) DescribeInventoryDeletionsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInventoryDeletionsRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInventoryDeletionsRequest), arg0)
 }
 
 // DescribeInventoryDeletionsWithContext mocks base method
-func (m *MockSSMAPI) DescribeInventoryDeletionsWithContext(arg0 aws.Context, arg1 *ssm.DescribeInventoryDeletionsInput, arg2 ...request.Option) (*ssm.DescribeInventoryDeletionsOutput, error) {
+func (m *MockSSMAPI) DescribeInventoryDeletionsWithContext(arg0 context.Context, arg1 *ssm.DescribeInventoryDeletionsInput, arg2 ...request.Option) (*ssm.DescribeInventoryDeletionsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1863,12 +2110,14 @@ func (m *MockSSMAPI) DescribeInventoryDeletionsWithContext(arg0 aws.Context, arg
 
 // DescribeInventoryDeletionsWithContext indicates an expected call of DescribeInventoryDeletionsWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeInventoryDeletionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInventoryDeletionsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInventoryDeletionsWithContext), varargs...)
 }
 
 // DescribeMaintenanceWindowExecutionTaskInvocations mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTaskInvocations(arg0 *ssm.DescribeMaintenanceWindowExecutionTaskInvocationsInput) (*ssm.DescribeMaintenanceWindowExecutionTaskInvocationsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowExecutionTaskInvocations", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeMaintenanceWindowExecutionTaskInvocationsOutput)
 	ret1, _ := ret[1].(error)
@@ -1877,11 +2126,13 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTaskInvocations(arg0 *ssm
 
 // DescribeMaintenanceWindowExecutionTaskInvocations indicates an expected call of DescribeMaintenanceWindowExecutionTaskInvocations
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowExecutionTaskInvocations(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowExecutionTaskInvocations", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowExecutionTaskInvocations), arg0)
 }
 
 // DescribeMaintenanceWindowExecutionTaskInvocationsRequest mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTaskInvocationsRequest(arg0 *ssm.DescribeMaintenanceWindowExecutionTaskInvocationsInput) (*request.Request, *ssm.DescribeMaintenanceWindowExecutionTaskInvocationsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowExecutionTaskInvocationsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeMaintenanceWindowExecutionTaskInvocationsOutput)
@@ -1890,11 +2141,13 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTaskInvocationsRequest(ar
 
 // DescribeMaintenanceWindowExecutionTaskInvocationsRequest indicates an expected call of DescribeMaintenanceWindowExecutionTaskInvocationsRequest
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowExecutionTaskInvocationsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowExecutionTaskInvocationsRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowExecutionTaskInvocationsRequest), arg0)
 }
 
 // DescribeMaintenanceWindowExecutionTaskInvocationsWithContext mocks base method
-func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTaskInvocationsWithContext(arg0 aws.Context, arg1 *ssm.DescribeMaintenanceWindowExecutionTaskInvocationsInput, arg2 ...request.Option) (*ssm.DescribeMaintenanceWindowExecutionTaskInvocationsOutput, error) {
+func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTaskInvocationsWithContext(arg0 context.Context, arg1 *ssm.DescribeMaintenanceWindowExecutionTaskInvocationsInput, arg2 ...request.Option) (*ssm.DescribeMaintenanceWindowExecutionTaskInvocationsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1907,12 +2160,14 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTaskInvocationsWithContex
 
 // DescribeMaintenanceWindowExecutionTaskInvocationsWithContext indicates an expected call of DescribeMaintenanceWindowExecutionTaskInvocationsWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowExecutionTaskInvocationsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowExecutionTaskInvocationsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowExecutionTaskInvocationsWithContext), varargs...)
 }
 
 // DescribeMaintenanceWindowExecutionTasks mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTasks(arg0 *ssm.DescribeMaintenanceWindowExecutionTasksInput) (*ssm.DescribeMaintenanceWindowExecutionTasksOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowExecutionTasks", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeMaintenanceWindowExecutionTasksOutput)
 	ret1, _ := ret[1].(error)
@@ -1921,11 +2176,13 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTasks(arg0 *ssm.DescribeM
 
 // DescribeMaintenanceWindowExecutionTasks indicates an expected call of DescribeMaintenanceWindowExecutionTasks
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowExecutionTasks(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowExecutionTasks", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowExecutionTasks), arg0)
 }
 
 // DescribeMaintenanceWindowExecutionTasksRequest mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTasksRequest(arg0 *ssm.DescribeMaintenanceWindowExecutionTasksInput) (*request.Request, *ssm.DescribeMaintenanceWindowExecutionTasksOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowExecutionTasksRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeMaintenanceWindowExecutionTasksOutput)
@@ -1934,11 +2191,13 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTasksRequest(arg0 *ssm.De
 
 // DescribeMaintenanceWindowExecutionTasksRequest indicates an expected call of DescribeMaintenanceWindowExecutionTasksRequest
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowExecutionTasksRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowExecutionTasksRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowExecutionTasksRequest), arg0)
 }
 
 // DescribeMaintenanceWindowExecutionTasksWithContext mocks base method
-func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTasksWithContext(arg0 aws.Context, arg1 *ssm.DescribeMaintenanceWindowExecutionTasksInput, arg2 ...request.Option) (*ssm.DescribeMaintenanceWindowExecutionTasksOutput, error) {
+func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTasksWithContext(arg0 context.Context, arg1 *ssm.DescribeMaintenanceWindowExecutionTasksInput, arg2 ...request.Option) (*ssm.DescribeMaintenanceWindowExecutionTasksOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1951,12 +2210,14 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTasksWithContext(arg0 aws
 
 // DescribeMaintenanceWindowExecutionTasksWithContext indicates an expected call of DescribeMaintenanceWindowExecutionTasksWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowExecutionTasksWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowExecutionTasksWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowExecutionTasksWithContext), varargs...)
 }
 
 // DescribeMaintenanceWindowExecutions mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowExecutions(arg0 *ssm.DescribeMaintenanceWindowExecutionsInput) (*ssm.DescribeMaintenanceWindowExecutionsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowExecutions", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeMaintenanceWindowExecutionsOutput)
 	ret1, _ := ret[1].(error)
@@ -1965,11 +2226,13 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowExecutions(arg0 *ssm.DescribeMaint
 
 // DescribeMaintenanceWindowExecutions indicates an expected call of DescribeMaintenanceWindowExecutions
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowExecutions(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowExecutions", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowExecutions), arg0)
 }
 
 // DescribeMaintenanceWindowExecutionsRequest mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionsRequest(arg0 *ssm.DescribeMaintenanceWindowExecutionsInput) (*request.Request, *ssm.DescribeMaintenanceWindowExecutionsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowExecutionsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeMaintenanceWindowExecutionsOutput)
@@ -1978,11 +2241,13 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionsRequest(arg0 *ssm.Descri
 
 // DescribeMaintenanceWindowExecutionsRequest indicates an expected call of DescribeMaintenanceWindowExecutionsRequest
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowExecutionsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowExecutionsRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowExecutionsRequest), arg0)
 }
 
 // DescribeMaintenanceWindowExecutionsWithContext mocks base method
-func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionsWithContext(arg0 aws.Context, arg1 *ssm.DescribeMaintenanceWindowExecutionsInput, arg2 ...request.Option) (*ssm.DescribeMaintenanceWindowExecutionsOutput, error) {
+func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionsWithContext(arg0 context.Context, arg1 *ssm.DescribeMaintenanceWindowExecutionsInput, arg2 ...request.Option) (*ssm.DescribeMaintenanceWindowExecutionsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1995,12 +2260,14 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionsWithContext(arg0 aws.Con
 
 // DescribeMaintenanceWindowExecutionsWithContext indicates an expected call of DescribeMaintenanceWindowExecutionsWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowExecutionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowExecutionsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowExecutionsWithContext), varargs...)
 }
 
 // DescribeMaintenanceWindowSchedule mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowSchedule(arg0 *ssm.DescribeMaintenanceWindowScheduleInput) (*ssm.DescribeMaintenanceWindowScheduleOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowSchedule", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeMaintenanceWindowScheduleOutput)
 	ret1, _ := ret[1].(error)
@@ -2009,11 +2276,13 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowSchedule(arg0 *ssm.DescribeMainten
 
 // DescribeMaintenanceWindowSchedule indicates an expected call of DescribeMaintenanceWindowSchedule
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowSchedule(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowSchedule", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowSchedule), arg0)
 }
 
 // DescribeMaintenanceWindowScheduleRequest mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowScheduleRequest(arg0 *ssm.DescribeMaintenanceWindowScheduleInput) (*request.Request, *ssm.DescribeMaintenanceWindowScheduleOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowScheduleRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeMaintenanceWindowScheduleOutput)
@@ -2022,11 +2291,13 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowScheduleRequest(arg0 *ssm.Describe
 
 // DescribeMaintenanceWindowScheduleRequest indicates an expected call of DescribeMaintenanceWindowScheduleRequest
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowScheduleRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowScheduleRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowScheduleRequest), arg0)
 }
 
 // DescribeMaintenanceWindowScheduleWithContext mocks base method
-func (m *MockSSMAPI) DescribeMaintenanceWindowScheduleWithContext(arg0 aws.Context, arg1 *ssm.DescribeMaintenanceWindowScheduleInput, arg2 ...request.Option) (*ssm.DescribeMaintenanceWindowScheduleOutput, error) {
+func (m *MockSSMAPI) DescribeMaintenanceWindowScheduleWithContext(arg0 context.Context, arg1 *ssm.DescribeMaintenanceWindowScheduleInput, arg2 ...request.Option) (*ssm.DescribeMaintenanceWindowScheduleOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2039,12 +2310,14 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowScheduleWithContext(arg0 aws.Conte
 
 // DescribeMaintenanceWindowScheduleWithContext indicates an expected call of DescribeMaintenanceWindowScheduleWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowScheduleWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowScheduleWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowScheduleWithContext), varargs...)
 }
 
 // DescribeMaintenanceWindowTargets mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowTargets(arg0 *ssm.DescribeMaintenanceWindowTargetsInput) (*ssm.DescribeMaintenanceWindowTargetsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowTargets", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeMaintenanceWindowTargetsOutput)
 	ret1, _ := ret[1].(error)
@@ -2053,11 +2326,13 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowTargets(arg0 *ssm.DescribeMaintena
 
 // DescribeMaintenanceWindowTargets indicates an expected call of DescribeMaintenanceWindowTargets
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowTargets(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowTargets", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowTargets), arg0)
 }
 
 // DescribeMaintenanceWindowTargetsRequest mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowTargetsRequest(arg0 *ssm.DescribeMaintenanceWindowTargetsInput) (*request.Request, *ssm.DescribeMaintenanceWindowTargetsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowTargetsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeMaintenanceWindowTargetsOutput)
@@ -2066,11 +2341,13 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowTargetsRequest(arg0 *ssm.DescribeM
 
 // DescribeMaintenanceWindowTargetsRequest indicates an expected call of DescribeMaintenanceWindowTargetsRequest
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowTargetsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowTargetsRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowTargetsRequest), arg0)
 }
 
 // DescribeMaintenanceWindowTargetsWithContext mocks base method
-func (m *MockSSMAPI) DescribeMaintenanceWindowTargetsWithContext(arg0 aws.Context, arg1 *ssm.DescribeMaintenanceWindowTargetsInput, arg2 ...request.Option) (*ssm.DescribeMaintenanceWindowTargetsOutput, error) {
+func (m *MockSSMAPI) DescribeMaintenanceWindowTargetsWithContext(arg0 context.Context, arg1 *ssm.DescribeMaintenanceWindowTargetsInput, arg2 ...request.Option) (*ssm.DescribeMaintenanceWindowTargetsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2083,12 +2360,14 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowTargetsWithContext(arg0 aws.Contex
 
 // DescribeMaintenanceWindowTargetsWithContext indicates an expected call of DescribeMaintenanceWindowTargetsWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowTargetsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowTargetsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowTargetsWithContext), varargs...)
 }
 
 // DescribeMaintenanceWindowTasks mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowTasks(arg0 *ssm.DescribeMaintenanceWindowTasksInput) (*ssm.DescribeMaintenanceWindowTasksOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowTasks", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeMaintenanceWindowTasksOutput)
 	ret1, _ := ret[1].(error)
@@ -2097,11 +2376,13 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowTasks(arg0 *ssm.DescribeMaintenanc
 
 // DescribeMaintenanceWindowTasks indicates an expected call of DescribeMaintenanceWindowTasks
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowTasks(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowTasks", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowTasks), arg0)
 }
 
 // DescribeMaintenanceWindowTasksRequest mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowTasksRequest(arg0 *ssm.DescribeMaintenanceWindowTasksInput) (*request.Request, *ssm.DescribeMaintenanceWindowTasksOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowTasksRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeMaintenanceWindowTasksOutput)
@@ -2110,11 +2391,13 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowTasksRequest(arg0 *ssm.DescribeMai
 
 // DescribeMaintenanceWindowTasksRequest indicates an expected call of DescribeMaintenanceWindowTasksRequest
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowTasksRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowTasksRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowTasksRequest), arg0)
 }
 
 // DescribeMaintenanceWindowTasksWithContext mocks base method
-func (m *MockSSMAPI) DescribeMaintenanceWindowTasksWithContext(arg0 aws.Context, arg1 *ssm.DescribeMaintenanceWindowTasksInput, arg2 ...request.Option) (*ssm.DescribeMaintenanceWindowTasksOutput, error) {
+func (m *MockSSMAPI) DescribeMaintenanceWindowTasksWithContext(arg0 context.Context, arg1 *ssm.DescribeMaintenanceWindowTasksInput, arg2 ...request.Option) (*ssm.DescribeMaintenanceWindowTasksOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2127,12 +2410,14 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowTasksWithContext(arg0 aws.Context,
 
 // DescribeMaintenanceWindowTasksWithContext indicates an expected call of DescribeMaintenanceWindowTasksWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowTasksWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowTasksWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowTasksWithContext), varargs...)
 }
 
 // DescribeMaintenanceWindows mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindows(arg0 *ssm.DescribeMaintenanceWindowsInput) (*ssm.DescribeMaintenanceWindowsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMaintenanceWindows", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeMaintenanceWindowsOutput)
 	ret1, _ := ret[1].(error)
@@ -2141,11 +2426,13 @@ func (m *MockSSMAPI) DescribeMaintenanceWindows(arg0 *ssm.DescribeMaintenanceWin
 
 // DescribeMaintenanceWindows indicates an expected call of DescribeMaintenanceWindows
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindows(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindows", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindows), arg0)
 }
 
 // DescribeMaintenanceWindowsForTarget mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowsForTarget(arg0 *ssm.DescribeMaintenanceWindowsForTargetInput) (*ssm.DescribeMaintenanceWindowsForTargetOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowsForTarget", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeMaintenanceWindowsForTargetOutput)
 	ret1, _ := ret[1].(error)
@@ -2154,11 +2441,13 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowsForTarget(arg0 *ssm.DescribeMaint
 
 // DescribeMaintenanceWindowsForTarget indicates an expected call of DescribeMaintenanceWindowsForTarget
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowsForTarget(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowsForTarget", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowsForTarget), arg0)
 }
 
 // DescribeMaintenanceWindowsForTargetRequest mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowsForTargetRequest(arg0 *ssm.DescribeMaintenanceWindowsForTargetInput) (*request.Request, *ssm.DescribeMaintenanceWindowsForTargetOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowsForTargetRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeMaintenanceWindowsForTargetOutput)
@@ -2167,11 +2456,13 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowsForTargetRequest(arg0 *ssm.Descri
 
 // DescribeMaintenanceWindowsForTargetRequest indicates an expected call of DescribeMaintenanceWindowsForTargetRequest
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowsForTargetRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowsForTargetRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowsForTargetRequest), arg0)
 }
 
 // DescribeMaintenanceWindowsForTargetWithContext mocks base method
-func (m *MockSSMAPI) DescribeMaintenanceWindowsForTargetWithContext(arg0 aws.Context, arg1 *ssm.DescribeMaintenanceWindowsForTargetInput, arg2 ...request.Option) (*ssm.DescribeMaintenanceWindowsForTargetOutput, error) {
+func (m *MockSSMAPI) DescribeMaintenanceWindowsForTargetWithContext(arg0 context.Context, arg1 *ssm.DescribeMaintenanceWindowsForTargetInput, arg2 ...request.Option) (*ssm.DescribeMaintenanceWindowsForTargetOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2184,12 +2475,14 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowsForTargetWithContext(arg0 aws.Con
 
 // DescribeMaintenanceWindowsForTargetWithContext indicates an expected call of DescribeMaintenanceWindowsForTargetWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowsForTargetWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowsForTargetWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowsForTargetWithContext), varargs...)
 }
 
 // DescribeMaintenanceWindowsRequest mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowsRequest(arg0 *ssm.DescribeMaintenanceWindowsInput) (*request.Request, *ssm.DescribeMaintenanceWindowsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeMaintenanceWindowsOutput)
@@ -2198,11 +2491,13 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowsRequest(arg0 *ssm.DescribeMainten
 
 // DescribeMaintenanceWindowsRequest indicates an expected call of DescribeMaintenanceWindowsRequest
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowsRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowsRequest), arg0)
 }
 
 // DescribeMaintenanceWindowsWithContext mocks base method
-func (m *MockSSMAPI) DescribeMaintenanceWindowsWithContext(arg0 aws.Context, arg1 *ssm.DescribeMaintenanceWindowsInput, arg2 ...request.Option) (*ssm.DescribeMaintenanceWindowsOutput, error) {
+func (m *MockSSMAPI) DescribeMaintenanceWindowsWithContext(arg0 context.Context, arg1 *ssm.DescribeMaintenanceWindowsInput, arg2 ...request.Option) (*ssm.DescribeMaintenanceWindowsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2215,12 +2510,14 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowsWithContext(arg0 aws.Context, arg
 
 // DescribeMaintenanceWindowsWithContext indicates an expected call of DescribeMaintenanceWindowsWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowsWithContext), varargs...)
 }
 
 // DescribeParameters mocks base method
 func (m *MockSSMAPI) DescribeParameters(arg0 *ssm.DescribeParametersInput) (*ssm.DescribeParametersOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeParameters", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeParametersOutput)
 	ret1, _ := ret[1].(error)
@@ -2229,11 +2526,13 @@ func (m *MockSSMAPI) DescribeParameters(arg0 *ssm.DescribeParametersInput) (*ssm
 
 // DescribeParameters indicates an expected call of DescribeParameters
 func (mr *MockSSMAPIMockRecorder) DescribeParameters(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeParameters", reflect.TypeOf((*MockSSMAPI)(nil).DescribeParameters), arg0)
 }
 
 // DescribeParametersPages mocks base method
 func (m *MockSSMAPI) DescribeParametersPages(arg0 *ssm.DescribeParametersInput, arg1 func(*ssm.DescribeParametersOutput, bool) bool) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeParametersPages", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -2241,11 +2540,13 @@ func (m *MockSSMAPI) DescribeParametersPages(arg0 *ssm.DescribeParametersInput, 
 
 // DescribeParametersPages indicates an expected call of DescribeParametersPages
 func (mr *MockSSMAPIMockRecorder) DescribeParametersPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeParametersPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeParametersPages), arg0, arg1)
 }
 
 // DescribeParametersPagesWithContext mocks base method
-func (m *MockSSMAPI) DescribeParametersPagesWithContext(arg0 aws.Context, arg1 *ssm.DescribeParametersInput, arg2 func(*ssm.DescribeParametersOutput, bool) bool, arg3 ...request.Option) error {
+func (m *MockSSMAPI) DescribeParametersPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeParametersInput, arg2 func(*ssm.DescribeParametersOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
 	for _, a := range arg3 {
 		varargs = append(varargs, a)
@@ -2257,12 +2558,14 @@ func (m *MockSSMAPI) DescribeParametersPagesWithContext(arg0 aws.Context, arg1 *
 
 // DescribeParametersPagesWithContext indicates an expected call of DescribeParametersPagesWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeParametersPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeParametersPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeParametersPagesWithContext), varargs...)
 }
 
 // DescribeParametersRequest mocks base method
 func (m *MockSSMAPI) DescribeParametersRequest(arg0 *ssm.DescribeParametersInput) (*request.Request, *ssm.DescribeParametersOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeParametersRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeParametersOutput)
@@ -2271,11 +2574,13 @@ func (m *MockSSMAPI) DescribeParametersRequest(arg0 *ssm.DescribeParametersInput
 
 // DescribeParametersRequest indicates an expected call of DescribeParametersRequest
 func (mr *MockSSMAPIMockRecorder) DescribeParametersRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeParametersRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeParametersRequest), arg0)
 }
 
 // DescribeParametersWithContext mocks base method
-func (m *MockSSMAPI) DescribeParametersWithContext(arg0 aws.Context, arg1 *ssm.DescribeParametersInput, arg2 ...request.Option) (*ssm.DescribeParametersOutput, error) {
+func (m *MockSSMAPI) DescribeParametersWithContext(arg0 context.Context, arg1 *ssm.DescribeParametersInput, arg2 ...request.Option) (*ssm.DescribeParametersOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2288,12 +2593,14 @@ func (m *MockSSMAPI) DescribeParametersWithContext(arg0 aws.Context, arg1 *ssm.D
 
 // DescribeParametersWithContext indicates an expected call of DescribeParametersWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeParametersWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeParametersWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeParametersWithContext), varargs...)
 }
 
 // DescribePatchBaselines mocks base method
 func (m *MockSSMAPI) DescribePatchBaselines(arg0 *ssm.DescribePatchBaselinesInput) (*ssm.DescribePatchBaselinesOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribePatchBaselines", arg0)
 	ret0, _ := ret[0].(*ssm.DescribePatchBaselinesOutput)
 	ret1, _ := ret[1].(error)
@@ -2302,11 +2609,13 @@ func (m *MockSSMAPI) DescribePatchBaselines(arg0 *ssm.DescribePatchBaselinesInpu
 
 // DescribePatchBaselines indicates an expected call of DescribePatchBaselines
 func (mr *MockSSMAPIMockRecorder) DescribePatchBaselines(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribePatchBaselines", reflect.TypeOf((*MockSSMAPI)(nil).DescribePatchBaselines), arg0)
 }
 
 // DescribePatchBaselinesRequest mocks base method
 func (m *MockSSMAPI) DescribePatchBaselinesRequest(arg0 *ssm.DescribePatchBaselinesInput) (*request.Request, *ssm.DescribePatchBaselinesOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribePatchBaselinesRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribePatchBaselinesOutput)
@@ -2315,11 +2624,13 @@ func (m *MockSSMAPI) DescribePatchBaselinesRequest(arg0 *ssm.DescribePatchBaseli
 
 // DescribePatchBaselinesRequest indicates an expected call of DescribePatchBaselinesRequest
 func (mr *MockSSMAPIMockRecorder) DescribePatchBaselinesRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribePatchBaselinesRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribePatchBaselinesRequest), arg0)
 }
 
 // DescribePatchBaselinesWithContext mocks base method
-func (m *MockSSMAPI) DescribePatchBaselinesWithContext(arg0 aws.Context, arg1 *ssm.DescribePatchBaselinesInput, arg2 ...request.Option) (*ssm.DescribePatchBaselinesOutput, error) {
+func (m *MockSSMAPI) DescribePatchBaselinesWithContext(arg0 context.Context, arg1 *ssm.DescribePatchBaselinesInput, arg2 ...request.Option) (*ssm.DescribePatchBaselinesOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2332,12 +2643,14 @@ func (m *MockSSMAPI) DescribePatchBaselinesWithContext(arg0 aws.Context, arg1 *s
 
 // DescribePatchBaselinesWithContext indicates an expected call of DescribePatchBaselinesWithContext
 func (mr *MockSSMAPIMockRecorder) DescribePatchBaselinesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribePatchBaselinesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribePatchBaselinesWithContext), varargs...)
 }
 
 // DescribePatchGroupState mocks base method
 func (m *MockSSMAPI) DescribePatchGroupState(arg0 *ssm.DescribePatchGroupStateInput) (*ssm.DescribePatchGroupStateOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribePatchGroupState", arg0)
 	ret0, _ := ret[0].(*ssm.DescribePatchGroupStateOutput)
 	ret1, _ := ret[1].(error)
@@ -2346,11 +2659,13 @@ func (m *MockSSMAPI) DescribePatchGroupState(arg0 *ssm.DescribePatchGroupStateIn
 
 // DescribePatchGroupState indicates an expected call of DescribePatchGroupState
 func (mr *MockSSMAPIMockRecorder) DescribePatchGroupState(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribePatchGroupState", reflect.TypeOf((*MockSSMAPI)(nil).DescribePatchGroupState), arg0)
 }
 
 // DescribePatchGroupStateRequest mocks base method
 func (m *MockSSMAPI) DescribePatchGroupStateRequest(arg0 *ssm.DescribePatchGroupStateInput) (*request.Request, *ssm.DescribePatchGroupStateOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribePatchGroupStateRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribePatchGroupStateOutput)
@@ -2359,11 +2674,13 @@ func (m *MockSSMAPI) DescribePatchGroupStateRequest(arg0 *ssm.DescribePatchGroup
 
 // DescribePatchGroupStateRequest indicates an expected call of DescribePatchGroupStateRequest
 func (mr *MockSSMAPIMockRecorder) DescribePatchGroupStateRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribePatchGroupStateRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribePatchGroupStateRequest), arg0)
 }
 
 // DescribePatchGroupStateWithContext mocks base method
-func (m *MockSSMAPI) DescribePatchGroupStateWithContext(arg0 aws.Context, arg1 *ssm.DescribePatchGroupStateInput, arg2 ...request.Option) (*ssm.DescribePatchGroupStateOutput, error) {
+func (m *MockSSMAPI) DescribePatchGroupStateWithContext(arg0 context.Context, arg1 *ssm.DescribePatchGroupStateInput, arg2 ...request.Option) (*ssm.DescribePatchGroupStateOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2376,12 +2693,14 @@ func (m *MockSSMAPI) DescribePatchGroupStateWithContext(arg0 aws.Context, arg1 *
 
 // DescribePatchGroupStateWithContext indicates an expected call of DescribePatchGroupStateWithContext
 func (mr *MockSSMAPIMockRecorder) DescribePatchGroupStateWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribePatchGroupStateWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribePatchGroupStateWithContext), varargs...)
 }
 
 // DescribePatchGroups mocks base method
 func (m *MockSSMAPI) DescribePatchGroups(arg0 *ssm.DescribePatchGroupsInput) (*ssm.DescribePatchGroupsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribePatchGroups", arg0)
 	ret0, _ := ret[0].(*ssm.DescribePatchGroupsOutput)
 	ret1, _ := ret[1].(error)
@@ -2390,11 +2709,13 @@ func (m *MockSSMAPI) DescribePatchGroups(arg0 *ssm.DescribePatchGroupsInput) (*s
 
 // DescribePatchGroups indicates an expected call of DescribePatchGroups
 func (mr *MockSSMAPIMockRecorder) DescribePatchGroups(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribePatchGroups", reflect.TypeOf((*MockSSMAPI)(nil).DescribePatchGroups), arg0)
 }
 
 // DescribePatchGroupsRequest mocks base method
 func (m *MockSSMAPI) DescribePatchGroupsRequest(arg0 *ssm.DescribePatchGroupsInput) (*request.Request, *ssm.DescribePatchGroupsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribePatchGroupsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribePatchGroupsOutput)
@@ -2403,11 +2724,13 @@ func (m *MockSSMAPI) DescribePatchGroupsRequest(arg0 *ssm.DescribePatchGroupsInp
 
 // DescribePatchGroupsRequest indicates an expected call of DescribePatchGroupsRequest
 func (mr *MockSSMAPIMockRecorder) DescribePatchGroupsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribePatchGroupsRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribePatchGroupsRequest), arg0)
 }
 
 // DescribePatchGroupsWithContext mocks base method
-func (m *MockSSMAPI) DescribePatchGroupsWithContext(arg0 aws.Context, arg1 *ssm.DescribePatchGroupsInput, arg2 ...request.Option) (*ssm.DescribePatchGroupsOutput, error) {
+func (m *MockSSMAPI) DescribePatchGroupsWithContext(arg0 context.Context, arg1 *ssm.DescribePatchGroupsInput, arg2 ...request.Option) (*ssm.DescribePatchGroupsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2420,12 +2743,14 @@ func (m *MockSSMAPI) DescribePatchGroupsWithContext(arg0 aws.Context, arg1 *ssm.
 
 // DescribePatchGroupsWithContext indicates an expected call of DescribePatchGroupsWithContext
 func (mr *MockSSMAPIMockRecorder) DescribePatchGroupsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribePatchGroupsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribePatchGroupsWithContext), varargs...)
 }
 
 // DescribeSessions mocks base method
 func (m *MockSSMAPI) DescribeSessions(arg0 *ssm.DescribeSessionsInput) (*ssm.DescribeSessionsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeSessions", arg0)
 	ret0, _ := ret[0].(*ssm.DescribeSessionsOutput)
 	ret1, _ := ret[1].(error)
@@ -2434,11 +2759,13 @@ func (m *MockSSMAPI) DescribeSessions(arg0 *ssm.DescribeSessionsInput) (*ssm.Des
 
 // DescribeSessions indicates an expected call of DescribeSessions
 func (mr *MockSSMAPIMockRecorder) DescribeSessions(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSessions", reflect.TypeOf((*MockSSMAPI)(nil).DescribeSessions), arg0)
 }
 
 // DescribeSessionsRequest mocks base method
 func (m *MockSSMAPI) DescribeSessionsRequest(arg0 *ssm.DescribeSessionsInput) (*request.Request, *ssm.DescribeSessionsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeSessionsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.DescribeSessionsOutput)
@@ -2447,11 +2774,13 @@ func (m *MockSSMAPI) DescribeSessionsRequest(arg0 *ssm.DescribeSessionsInput) (*
 
 // DescribeSessionsRequest indicates an expected call of DescribeSessionsRequest
 func (mr *MockSSMAPIMockRecorder) DescribeSessionsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSessionsRequest", reflect.TypeOf((*MockSSMAPI)(nil).DescribeSessionsRequest), arg0)
 }
 
 // DescribeSessionsWithContext mocks base method
-func (m *MockSSMAPI) DescribeSessionsWithContext(arg0 aws.Context, arg1 *ssm.DescribeSessionsInput, arg2 ...request.Option) (*ssm.DescribeSessionsOutput, error) {
+func (m *MockSSMAPI) DescribeSessionsWithContext(arg0 context.Context, arg1 *ssm.DescribeSessionsInput, arg2 ...request.Option) (*ssm.DescribeSessionsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2464,12 +2793,14 @@ func (m *MockSSMAPI) DescribeSessionsWithContext(arg0 aws.Context, arg1 *ssm.Des
 
 // DescribeSessionsWithContext indicates an expected call of DescribeSessionsWithContext
 func (mr *MockSSMAPIMockRecorder) DescribeSessionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSessionsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeSessionsWithContext), varargs...)
 }
 
 // GetAutomationExecution mocks base method
 func (m *MockSSMAPI) GetAutomationExecution(arg0 *ssm.GetAutomationExecutionInput) (*ssm.GetAutomationExecutionOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAutomationExecution", arg0)
 	ret0, _ := ret[0].(*ssm.GetAutomationExecutionOutput)
 	ret1, _ := ret[1].(error)
@@ -2478,11 +2809,13 @@ func (m *MockSSMAPI) GetAutomationExecution(arg0 *ssm.GetAutomationExecutionInpu
 
 // GetAutomationExecution indicates an expected call of GetAutomationExecution
 func (mr *MockSSMAPIMockRecorder) GetAutomationExecution(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAutomationExecution", reflect.TypeOf((*MockSSMAPI)(nil).GetAutomationExecution), arg0)
 }
 
 // GetAutomationExecutionRequest mocks base method
 func (m *MockSSMAPI) GetAutomationExecutionRequest(arg0 *ssm.GetAutomationExecutionInput) (*request.Request, *ssm.GetAutomationExecutionOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAutomationExecutionRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetAutomationExecutionOutput)
@@ -2491,11 +2824,13 @@ func (m *MockSSMAPI) GetAutomationExecutionRequest(arg0 *ssm.GetAutomationExecut
 
 // GetAutomationExecutionRequest indicates an expected call of GetAutomationExecutionRequest
 func (mr *MockSSMAPIMockRecorder) GetAutomationExecutionRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAutomationExecutionRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetAutomationExecutionRequest), arg0)
 }
 
 // GetAutomationExecutionWithContext mocks base method
-func (m *MockSSMAPI) GetAutomationExecutionWithContext(arg0 aws.Context, arg1 *ssm.GetAutomationExecutionInput, arg2 ...request.Option) (*ssm.GetAutomationExecutionOutput, error) {
+func (m *MockSSMAPI) GetAutomationExecutionWithContext(arg0 context.Context, arg1 *ssm.GetAutomationExecutionInput, arg2 ...request.Option) (*ssm.GetAutomationExecutionOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2508,12 +2843,14 @@ func (m *MockSSMAPI) GetAutomationExecutionWithContext(arg0 aws.Context, arg1 *s
 
 // GetAutomationExecutionWithContext indicates an expected call of GetAutomationExecutionWithContext
 func (mr *MockSSMAPIMockRecorder) GetAutomationExecutionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAutomationExecutionWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetAutomationExecutionWithContext), varargs...)
 }
 
 // GetCommandInvocation mocks base method
 func (m *MockSSMAPI) GetCommandInvocation(arg0 *ssm.GetCommandInvocationInput) (*ssm.GetCommandInvocationOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCommandInvocation", arg0)
 	ret0, _ := ret[0].(*ssm.GetCommandInvocationOutput)
 	ret1, _ := ret[1].(error)
@@ -2522,11 +2859,13 @@ func (m *MockSSMAPI) GetCommandInvocation(arg0 *ssm.GetCommandInvocationInput) (
 
 // GetCommandInvocation indicates an expected call of GetCommandInvocation
 func (mr *MockSSMAPIMockRecorder) GetCommandInvocation(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCommandInvocation", reflect.TypeOf((*MockSSMAPI)(nil).GetCommandInvocation), arg0)
 }
 
 // GetCommandInvocationRequest mocks base method
 func (m *MockSSMAPI) GetCommandInvocationRequest(arg0 *ssm.GetCommandInvocationInput) (*request.Request, *ssm.GetCommandInvocationOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCommandInvocationRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetCommandInvocationOutput)
@@ -2535,11 +2874,13 @@ func (m *MockSSMAPI) GetCommandInvocationRequest(arg0 *ssm.GetCommandInvocationI
 
 // GetCommandInvocationRequest indicates an expected call of GetCommandInvocationRequest
 func (mr *MockSSMAPIMockRecorder) GetCommandInvocationRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCommandInvocationRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetCommandInvocationRequest), arg0)
 }
 
 // GetCommandInvocationWithContext mocks base method
-func (m *MockSSMAPI) GetCommandInvocationWithContext(arg0 aws.Context, arg1 *ssm.GetCommandInvocationInput, arg2 ...request.Option) (*ssm.GetCommandInvocationOutput, error) {
+func (m *MockSSMAPI) GetCommandInvocationWithContext(arg0 context.Context, arg1 *ssm.GetCommandInvocationInput, arg2 ...request.Option) (*ssm.GetCommandInvocationOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2552,12 +2893,14 @@ func (m *MockSSMAPI) GetCommandInvocationWithContext(arg0 aws.Context, arg1 *ssm
 
 // GetCommandInvocationWithContext indicates an expected call of GetCommandInvocationWithContext
 func (mr *MockSSMAPIMockRecorder) GetCommandInvocationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCommandInvocationWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetCommandInvocationWithContext), varargs...)
 }
 
 // GetConnectionStatus mocks base method
 func (m *MockSSMAPI) GetConnectionStatus(arg0 *ssm.GetConnectionStatusInput) (*ssm.GetConnectionStatusOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetConnectionStatus", arg0)
 	ret0, _ := ret[0].(*ssm.GetConnectionStatusOutput)
 	ret1, _ := ret[1].(error)
@@ -2566,11 +2909,13 @@ func (m *MockSSMAPI) GetConnectionStatus(arg0 *ssm.GetConnectionStatusInput) (*s
 
 // GetConnectionStatus indicates an expected call of GetConnectionStatus
 func (mr *MockSSMAPIMockRecorder) GetConnectionStatus(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetConnectionStatus", reflect.TypeOf((*MockSSMAPI)(nil).GetConnectionStatus), arg0)
 }
 
 // GetConnectionStatusRequest mocks base method
 func (m *MockSSMAPI) GetConnectionStatusRequest(arg0 *ssm.GetConnectionStatusInput) (*request.Request, *ssm.GetConnectionStatusOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetConnectionStatusRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetConnectionStatusOutput)
@@ -2579,11 +2924,13 @@ func (m *MockSSMAPI) GetConnectionStatusRequest(arg0 *ssm.GetConnectionStatusInp
 
 // GetConnectionStatusRequest indicates an expected call of GetConnectionStatusRequest
 func (mr *MockSSMAPIMockRecorder) GetConnectionStatusRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetConnectionStatusRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetConnectionStatusRequest), arg0)
 }
 
 // GetConnectionStatusWithContext mocks base method
-func (m *MockSSMAPI) GetConnectionStatusWithContext(arg0 aws.Context, arg1 *ssm.GetConnectionStatusInput, arg2 ...request.Option) (*ssm.GetConnectionStatusOutput, error) {
+func (m *MockSSMAPI) GetConnectionStatusWithContext(arg0 context.Context, arg1 *ssm.GetConnectionStatusInput, arg2 ...request.Option) (*ssm.GetConnectionStatusOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2596,12 +2943,14 @@ func (m *MockSSMAPI) GetConnectionStatusWithContext(arg0 aws.Context, arg1 *ssm.
 
 // GetConnectionStatusWithContext indicates an expected call of GetConnectionStatusWithContext
 func (mr *MockSSMAPIMockRecorder) GetConnectionStatusWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetConnectionStatusWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetConnectionStatusWithContext), varargs...)
 }
 
 // GetDefaultPatchBaseline mocks base method
 func (m *MockSSMAPI) GetDefaultPatchBaseline(arg0 *ssm.GetDefaultPatchBaselineInput) (*ssm.GetDefaultPatchBaselineOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetDefaultPatchBaseline", arg0)
 	ret0, _ := ret[0].(*ssm.GetDefaultPatchBaselineOutput)
 	ret1, _ := ret[1].(error)
@@ -2610,11 +2959,13 @@ func (m *MockSSMAPI) GetDefaultPatchBaseline(arg0 *ssm.GetDefaultPatchBaselineIn
 
 // GetDefaultPatchBaseline indicates an expected call of GetDefaultPatchBaseline
 func (mr *MockSSMAPIMockRecorder) GetDefaultPatchBaseline(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDefaultPatchBaseline", reflect.TypeOf((*MockSSMAPI)(nil).GetDefaultPatchBaseline), arg0)
 }
 
 // GetDefaultPatchBaselineRequest mocks base method
 func (m *MockSSMAPI) GetDefaultPatchBaselineRequest(arg0 *ssm.GetDefaultPatchBaselineInput) (*request.Request, *ssm.GetDefaultPatchBaselineOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetDefaultPatchBaselineRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetDefaultPatchBaselineOutput)
@@ -2623,11 +2974,13 @@ func (m *MockSSMAPI) GetDefaultPatchBaselineRequest(arg0 *ssm.GetDefaultPatchBas
 
 // GetDefaultPatchBaselineRequest indicates an expected call of GetDefaultPatchBaselineRequest
 func (mr *MockSSMAPIMockRecorder) GetDefaultPatchBaselineRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDefaultPatchBaselineRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetDefaultPatchBaselineRequest), arg0)
 }
 
 // GetDefaultPatchBaselineWithContext mocks base method
-func (m *MockSSMAPI) GetDefaultPatchBaselineWithContext(arg0 aws.Context, arg1 *ssm.GetDefaultPatchBaselineInput, arg2 ...request.Option) (*ssm.GetDefaultPatchBaselineOutput, error) {
+func (m *MockSSMAPI) GetDefaultPatchBaselineWithContext(arg0 context.Context, arg1 *ssm.GetDefaultPatchBaselineInput, arg2 ...request.Option) (*ssm.GetDefaultPatchBaselineOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2640,12 +2993,14 @@ func (m *MockSSMAPI) GetDefaultPatchBaselineWithContext(arg0 aws.Context, arg1 *
 
 // GetDefaultPatchBaselineWithContext indicates an expected call of GetDefaultPatchBaselineWithContext
 func (mr *MockSSMAPIMockRecorder) GetDefaultPatchBaselineWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDefaultPatchBaselineWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetDefaultPatchBaselineWithContext), varargs...)
 }
 
 // GetDeployablePatchSnapshotForInstance mocks base method
 func (m *MockSSMAPI) GetDeployablePatchSnapshotForInstance(arg0 *ssm.GetDeployablePatchSnapshotForInstanceInput) (*ssm.GetDeployablePatchSnapshotForInstanceOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetDeployablePatchSnapshotForInstance", arg0)
 	ret0, _ := ret[0].(*ssm.GetDeployablePatchSnapshotForInstanceOutput)
 	ret1, _ := ret[1].(error)
@@ -2654,11 +3009,13 @@ func (m *MockSSMAPI) GetDeployablePatchSnapshotForInstance(arg0 *ssm.GetDeployab
 
 // GetDeployablePatchSnapshotForInstance indicates an expected call of GetDeployablePatchSnapshotForInstance
 func (mr *MockSSMAPIMockRecorder) GetDeployablePatchSnapshotForInstance(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDeployablePatchSnapshotForInstance", reflect.TypeOf((*MockSSMAPI)(nil).GetDeployablePatchSnapshotForInstance), arg0)
 }
 
 // GetDeployablePatchSnapshotForInstanceRequest mocks base method
 func (m *MockSSMAPI) GetDeployablePatchSnapshotForInstanceRequest(arg0 *ssm.GetDeployablePatchSnapshotForInstanceInput) (*request.Request, *ssm.GetDeployablePatchSnapshotForInstanceOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetDeployablePatchSnapshotForInstanceRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetDeployablePatchSnapshotForInstanceOutput)
@@ -2667,11 +3024,13 @@ func (m *MockSSMAPI) GetDeployablePatchSnapshotForInstanceRequest(arg0 *ssm.GetD
 
 // GetDeployablePatchSnapshotForInstanceRequest indicates an expected call of GetDeployablePatchSnapshotForInstanceRequest
 func (mr *MockSSMAPIMockRecorder) GetDeployablePatchSnapshotForInstanceRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDeployablePatchSnapshotForInstanceRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetDeployablePatchSnapshotForInstanceRequest), arg0)
 }
 
 // GetDeployablePatchSnapshotForInstanceWithContext mocks base method
-func (m *MockSSMAPI) GetDeployablePatchSnapshotForInstanceWithContext(arg0 aws.Context, arg1 *ssm.GetDeployablePatchSnapshotForInstanceInput, arg2 ...request.Option) (*ssm.GetDeployablePatchSnapshotForInstanceOutput, error) {
+func (m *MockSSMAPI) GetDeployablePatchSnapshotForInstanceWithContext(arg0 context.Context, arg1 *ssm.GetDeployablePatchSnapshotForInstanceInput, arg2 ...request.Option) (*ssm.GetDeployablePatchSnapshotForInstanceOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2684,12 +3043,14 @@ func (m *MockSSMAPI) GetDeployablePatchSnapshotForInstanceWithContext(arg0 aws.C
 
 // GetDeployablePatchSnapshotForInstanceWithContext indicates an expected call of GetDeployablePatchSnapshotForInstanceWithContext
 func (mr *MockSSMAPIMockRecorder) GetDeployablePatchSnapshotForInstanceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDeployablePatchSnapshotForInstanceWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetDeployablePatchSnapshotForInstanceWithContext), varargs...)
 }
 
 // GetDocument mocks base method
 func (m *MockSSMAPI) GetDocument(arg0 *ssm.GetDocumentInput) (*ssm.GetDocumentOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetDocument", arg0)
 	ret0, _ := ret[0].(*ssm.GetDocumentOutput)
 	ret1, _ := ret[1].(error)
@@ -2698,11 +3059,13 @@ func (m *MockSSMAPI) GetDocument(arg0 *ssm.GetDocumentInput) (*ssm.GetDocumentOu
 
 // GetDocument indicates an expected call of GetDocument
 func (mr *MockSSMAPIMockRecorder) GetDocument(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDocument", reflect.TypeOf((*MockSSMAPI)(nil).GetDocument), arg0)
 }
 
 // GetDocumentRequest mocks base method
 func (m *MockSSMAPI) GetDocumentRequest(arg0 *ssm.GetDocumentInput) (*request.Request, *ssm.GetDocumentOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetDocumentRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetDocumentOutput)
@@ -2711,11 +3074,13 @@ func (m *MockSSMAPI) GetDocumentRequest(arg0 *ssm.GetDocumentInput) (*request.Re
 
 // GetDocumentRequest indicates an expected call of GetDocumentRequest
 func (mr *MockSSMAPIMockRecorder) GetDocumentRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDocumentRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetDocumentRequest), arg0)
 }
 
 // GetDocumentWithContext mocks base method
-func (m *MockSSMAPI) GetDocumentWithContext(arg0 aws.Context, arg1 *ssm.GetDocumentInput, arg2 ...request.Option) (*ssm.GetDocumentOutput, error) {
+func (m *MockSSMAPI) GetDocumentWithContext(arg0 context.Context, arg1 *ssm.GetDocumentInput, arg2 ...request.Option) (*ssm.GetDocumentOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2728,12 +3093,14 @@ func (m *MockSSMAPI) GetDocumentWithContext(arg0 aws.Context, arg1 *ssm.GetDocum
 
 // GetDocumentWithContext indicates an expected call of GetDocumentWithContext
 func (mr *MockSSMAPIMockRecorder) GetDocumentWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDocumentWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetDocumentWithContext), varargs...)
 }
 
 // GetInventory mocks base method
 func (m *MockSSMAPI) GetInventory(arg0 *ssm.GetInventoryInput) (*ssm.GetInventoryOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetInventory", arg0)
 	ret0, _ := ret[0].(*ssm.GetInventoryOutput)
 	ret1, _ := ret[1].(error)
@@ -2742,11 +3109,13 @@ func (m *MockSSMAPI) GetInventory(arg0 *ssm.GetInventoryInput) (*ssm.GetInventor
 
 // GetInventory indicates an expected call of GetInventory
 func (mr *MockSSMAPIMockRecorder) GetInventory(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInventory", reflect.TypeOf((*MockSSMAPI)(nil).GetInventory), arg0)
 }
 
 // GetInventoryRequest mocks base method
 func (m *MockSSMAPI) GetInventoryRequest(arg0 *ssm.GetInventoryInput) (*request.Request, *ssm.GetInventoryOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetInventoryRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetInventoryOutput)
@@ -2755,11 +3124,13 @@ func (m *MockSSMAPI) GetInventoryRequest(arg0 *ssm.GetInventoryInput) (*request.
 
 // GetInventoryRequest indicates an expected call of GetInventoryRequest
 func (mr *MockSSMAPIMockRecorder) GetInventoryRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInventoryRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetInventoryRequest), arg0)
 }
 
 // GetInventorySchema mocks base method
 func (m *MockSSMAPI) GetInventorySchema(arg0 *ssm.GetInventorySchemaInput) (*ssm.GetInventorySchemaOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetInventorySchema", arg0)
 	ret0, _ := ret[0].(*ssm.GetInventorySchemaOutput)
 	ret1, _ := ret[1].(error)
@@ -2768,11 +3139,13 @@ func (m *MockSSMAPI) GetInventorySchema(arg0 *ssm.GetInventorySchemaInput) (*ssm
 
 // GetInventorySchema indicates an expected call of GetInventorySchema
 func (mr *MockSSMAPIMockRecorder) GetInventorySchema(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInventorySchema", reflect.TypeOf((*MockSSMAPI)(nil).GetInventorySchema), arg0)
 }
 
 // GetInventorySchemaRequest mocks base method
 func (m *MockSSMAPI) GetInventorySchemaRequest(arg0 *ssm.GetInventorySchemaInput) (*request.Request, *ssm.GetInventorySchemaOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetInventorySchemaRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetInventorySchemaOutput)
@@ -2781,11 +3154,13 @@ func (m *MockSSMAPI) GetInventorySchemaRequest(arg0 *ssm.GetInventorySchemaInput
 
 // GetInventorySchemaRequest indicates an expected call of GetInventorySchemaRequest
 func (mr *MockSSMAPIMockRecorder) GetInventorySchemaRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInventorySchemaRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetInventorySchemaRequest), arg0)
 }
 
 // GetInventorySchemaWithContext mocks base method
-func (m *MockSSMAPI) GetInventorySchemaWithContext(arg0 aws.Context, arg1 *ssm.GetInventorySchemaInput, arg2 ...request.Option) (*ssm.GetInventorySchemaOutput, error) {
+func (m *MockSSMAPI) GetInventorySchemaWithContext(arg0 context.Context, arg1 *ssm.GetInventorySchemaInput, arg2 ...request.Option) (*ssm.GetInventorySchemaOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2798,12 +3173,14 @@ func (m *MockSSMAPI) GetInventorySchemaWithContext(arg0 aws.Context, arg1 *ssm.G
 
 // GetInventorySchemaWithContext indicates an expected call of GetInventorySchemaWithContext
 func (mr *MockSSMAPIMockRecorder) GetInventorySchemaWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInventorySchemaWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetInventorySchemaWithContext), varargs...)
 }
 
 // GetInventoryWithContext mocks base method
-func (m *MockSSMAPI) GetInventoryWithContext(arg0 aws.Context, arg1 *ssm.GetInventoryInput, arg2 ...request.Option) (*ssm.GetInventoryOutput, error) {
+func (m *MockSSMAPI) GetInventoryWithContext(arg0 context.Context, arg1 *ssm.GetInventoryInput, arg2 ...request.Option) (*ssm.GetInventoryOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2816,12 +3193,14 @@ func (m *MockSSMAPI) GetInventoryWithContext(arg0 aws.Context, arg1 *ssm.GetInve
 
 // GetInventoryWithContext indicates an expected call of GetInventoryWithContext
 func (mr *MockSSMAPIMockRecorder) GetInventoryWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInventoryWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetInventoryWithContext), varargs...)
 }
 
 // GetMaintenanceWindow mocks base method
 func (m *MockSSMAPI) GetMaintenanceWindow(arg0 *ssm.GetMaintenanceWindowInput) (*ssm.GetMaintenanceWindowOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMaintenanceWindow", arg0)
 	ret0, _ := ret[0].(*ssm.GetMaintenanceWindowOutput)
 	ret1, _ := ret[1].(error)
@@ -2830,11 +3209,13 @@ func (m *MockSSMAPI) GetMaintenanceWindow(arg0 *ssm.GetMaintenanceWindowInput) (
 
 // GetMaintenanceWindow indicates an expected call of GetMaintenanceWindow
 func (mr *MockSSMAPIMockRecorder) GetMaintenanceWindow(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMaintenanceWindow", reflect.TypeOf((*MockSSMAPI)(nil).GetMaintenanceWindow), arg0)
 }
 
 // GetMaintenanceWindowExecution mocks base method
 func (m *MockSSMAPI) GetMaintenanceWindowExecution(arg0 *ssm.GetMaintenanceWindowExecutionInput) (*ssm.GetMaintenanceWindowExecutionOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMaintenanceWindowExecution", arg0)
 	ret0, _ := ret[0].(*ssm.GetMaintenanceWindowExecutionOutput)
 	ret1, _ := ret[1].(error)
@@ -2843,11 +3224,13 @@ func (m *MockSSMAPI) GetMaintenanceWindowExecution(arg0 *ssm.GetMaintenanceWindo
 
 // GetMaintenanceWindowExecution indicates an expected call of GetMaintenanceWindowExecution
 func (mr *MockSSMAPIMockRecorder) GetMaintenanceWindowExecution(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMaintenanceWindowExecution", reflect.TypeOf((*MockSSMAPI)(nil).GetMaintenanceWindowExecution), arg0)
 }
 
 // GetMaintenanceWindowExecutionRequest mocks base method
 func (m *MockSSMAPI) GetMaintenanceWindowExecutionRequest(arg0 *ssm.GetMaintenanceWindowExecutionInput) (*request.Request, *ssm.GetMaintenanceWindowExecutionOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMaintenanceWindowExecutionRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetMaintenanceWindowExecutionOutput)
@@ -2856,11 +3239,13 @@ func (m *MockSSMAPI) GetMaintenanceWindowExecutionRequest(arg0 *ssm.GetMaintenan
 
 // GetMaintenanceWindowExecutionRequest indicates an expected call of GetMaintenanceWindowExecutionRequest
 func (mr *MockSSMAPIMockRecorder) GetMaintenanceWindowExecutionRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMaintenanceWindowExecutionRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetMaintenanceWindowExecutionRequest), arg0)
 }
 
 // GetMaintenanceWindowExecutionTask mocks base method
 func (m *MockSSMAPI) GetMaintenanceWindowExecutionTask(arg0 *ssm.GetMaintenanceWindowExecutionTaskInput) (*ssm.GetMaintenanceWindowExecutionTaskOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMaintenanceWindowExecutionTask", arg0)
 	ret0, _ := ret[0].(*ssm.GetMaintenanceWindowExecutionTaskOutput)
 	ret1, _ := ret[1].(error)
@@ -2869,11 +3254,13 @@ func (m *MockSSMAPI) GetMaintenanceWindowExecutionTask(arg0 *ssm.GetMaintenanceW
 
 // GetMaintenanceWindowExecutionTask indicates an expected call of GetMaintenanceWindowExecutionTask
 func (mr *MockSSMAPIMockRecorder) GetMaintenanceWindowExecutionTask(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMaintenanceWindowExecutionTask", reflect.TypeOf((*MockSSMAPI)(nil).GetMaintenanceWindowExecutionTask), arg0)
 }
 
 // GetMaintenanceWindowExecutionTaskInvocation mocks base method
 func (m *MockSSMAPI) GetMaintenanceWindowExecutionTaskInvocation(arg0 *ssm.GetMaintenanceWindowExecutionTaskInvocationInput) (*ssm.GetMaintenanceWindowExecutionTaskInvocationOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMaintenanceWindowExecutionTaskInvocation", arg0)
 	ret0, _ := ret[0].(*ssm.GetMaintenanceWindowExecutionTaskInvocationOutput)
 	ret1, _ := ret[1].(error)
@@ -2882,11 +3269,13 @@ func (m *MockSSMAPI) GetMaintenanceWindowExecutionTaskInvocation(arg0 *ssm.GetMa
 
 // GetMaintenanceWindowExecutionTaskInvocation indicates an expected call of GetMaintenanceWindowExecutionTaskInvocation
 func (mr *MockSSMAPIMockRecorder) GetMaintenanceWindowExecutionTaskInvocation(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMaintenanceWindowExecutionTaskInvocation", reflect.TypeOf((*MockSSMAPI)(nil).GetMaintenanceWindowExecutionTaskInvocation), arg0)
 }
 
 // GetMaintenanceWindowExecutionTaskInvocationRequest mocks base method
 func (m *MockSSMAPI) GetMaintenanceWindowExecutionTaskInvocationRequest(arg0 *ssm.GetMaintenanceWindowExecutionTaskInvocationInput) (*request.Request, *ssm.GetMaintenanceWindowExecutionTaskInvocationOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMaintenanceWindowExecutionTaskInvocationRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetMaintenanceWindowExecutionTaskInvocationOutput)
@@ -2895,11 +3284,13 @@ func (m *MockSSMAPI) GetMaintenanceWindowExecutionTaskInvocationRequest(arg0 *ss
 
 // GetMaintenanceWindowExecutionTaskInvocationRequest indicates an expected call of GetMaintenanceWindowExecutionTaskInvocationRequest
 func (mr *MockSSMAPIMockRecorder) GetMaintenanceWindowExecutionTaskInvocationRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMaintenanceWindowExecutionTaskInvocationRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetMaintenanceWindowExecutionTaskInvocationRequest), arg0)
 }
 
 // GetMaintenanceWindowExecutionTaskInvocationWithContext mocks base method
-func (m *MockSSMAPI) GetMaintenanceWindowExecutionTaskInvocationWithContext(arg0 aws.Context, arg1 *ssm.GetMaintenanceWindowExecutionTaskInvocationInput, arg2 ...request.Option) (*ssm.GetMaintenanceWindowExecutionTaskInvocationOutput, error) {
+func (m *MockSSMAPI) GetMaintenanceWindowExecutionTaskInvocationWithContext(arg0 context.Context, arg1 *ssm.GetMaintenanceWindowExecutionTaskInvocationInput, arg2 ...request.Option) (*ssm.GetMaintenanceWindowExecutionTaskInvocationOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2912,12 +3303,14 @@ func (m *MockSSMAPI) GetMaintenanceWindowExecutionTaskInvocationWithContext(arg0
 
 // GetMaintenanceWindowExecutionTaskInvocationWithContext indicates an expected call of GetMaintenanceWindowExecutionTaskInvocationWithContext
 func (mr *MockSSMAPIMockRecorder) GetMaintenanceWindowExecutionTaskInvocationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMaintenanceWindowExecutionTaskInvocationWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetMaintenanceWindowExecutionTaskInvocationWithContext), varargs...)
 }
 
 // GetMaintenanceWindowExecutionTaskRequest mocks base method
 func (m *MockSSMAPI) GetMaintenanceWindowExecutionTaskRequest(arg0 *ssm.GetMaintenanceWindowExecutionTaskInput) (*request.Request, *ssm.GetMaintenanceWindowExecutionTaskOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMaintenanceWindowExecutionTaskRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetMaintenanceWindowExecutionTaskOutput)
@@ -2926,11 +3319,13 @@ func (m *MockSSMAPI) GetMaintenanceWindowExecutionTaskRequest(arg0 *ssm.GetMaint
 
 // GetMaintenanceWindowExecutionTaskRequest indicates an expected call of GetMaintenanceWindowExecutionTaskRequest
 func (mr *MockSSMAPIMockRecorder) GetMaintenanceWindowExecutionTaskRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMaintenanceWindowExecutionTaskRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetMaintenanceWindowExecutionTaskRequest), arg0)
 }
 
 // GetMaintenanceWindowExecutionTaskWithContext mocks base method
-func (m *MockSSMAPI) GetMaintenanceWindowExecutionTaskWithContext(arg0 aws.Context, arg1 *ssm.GetMaintenanceWindowExecutionTaskInput, arg2 ...request.Option) (*ssm.GetMaintenanceWindowExecutionTaskOutput, error) {
+func (m *MockSSMAPI) GetMaintenanceWindowExecutionTaskWithContext(arg0 context.Context, arg1 *ssm.GetMaintenanceWindowExecutionTaskInput, arg2 ...request.Option) (*ssm.GetMaintenanceWindowExecutionTaskOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2943,12 +3338,14 @@ func (m *MockSSMAPI) GetMaintenanceWindowExecutionTaskWithContext(arg0 aws.Conte
 
 // GetMaintenanceWindowExecutionTaskWithContext indicates an expected call of GetMaintenanceWindowExecutionTaskWithContext
 func (mr *MockSSMAPIMockRecorder) GetMaintenanceWindowExecutionTaskWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMaintenanceWindowExecutionTaskWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetMaintenanceWindowExecutionTaskWithContext), varargs...)
 }
 
 // GetMaintenanceWindowExecutionWithContext mocks base method
-func (m *MockSSMAPI) GetMaintenanceWindowExecutionWithContext(arg0 aws.Context, arg1 *ssm.GetMaintenanceWindowExecutionInput, arg2 ...request.Option) (*ssm.GetMaintenanceWindowExecutionOutput, error) {
+func (m *MockSSMAPI) GetMaintenanceWindowExecutionWithContext(arg0 context.Context, arg1 *ssm.GetMaintenanceWindowExecutionInput, arg2 ...request.Option) (*ssm.GetMaintenanceWindowExecutionOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -2961,12 +3358,14 @@ func (m *MockSSMAPI) GetMaintenanceWindowExecutionWithContext(arg0 aws.Context, 
 
 // GetMaintenanceWindowExecutionWithContext indicates an expected call of GetMaintenanceWindowExecutionWithContext
 func (mr *MockSSMAPIMockRecorder) GetMaintenanceWindowExecutionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMaintenanceWindowExecutionWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetMaintenanceWindowExecutionWithContext), varargs...)
 }
 
 // GetMaintenanceWindowRequest mocks base method
 func (m *MockSSMAPI) GetMaintenanceWindowRequest(arg0 *ssm.GetMaintenanceWindowInput) (*request.Request, *ssm.GetMaintenanceWindowOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMaintenanceWindowRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetMaintenanceWindowOutput)
@@ -2975,11 +3374,13 @@ func (m *MockSSMAPI) GetMaintenanceWindowRequest(arg0 *ssm.GetMaintenanceWindowI
 
 // GetMaintenanceWindowRequest indicates an expected call of GetMaintenanceWindowRequest
 func (mr *MockSSMAPIMockRecorder) GetMaintenanceWindowRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMaintenanceWindowRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetMaintenanceWindowRequest), arg0)
 }
 
 // GetMaintenanceWindowTask mocks base method
 func (m *MockSSMAPI) GetMaintenanceWindowTask(arg0 *ssm.GetMaintenanceWindowTaskInput) (*ssm.GetMaintenanceWindowTaskOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMaintenanceWindowTask", arg0)
 	ret0, _ := ret[0].(*ssm.GetMaintenanceWindowTaskOutput)
 	ret1, _ := ret[1].(error)
@@ -2988,11 +3389,13 @@ func (m *MockSSMAPI) GetMaintenanceWindowTask(arg0 *ssm.GetMaintenanceWindowTask
 
 // GetMaintenanceWindowTask indicates an expected call of GetMaintenanceWindowTask
 func (mr *MockSSMAPIMockRecorder) GetMaintenanceWindowTask(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMaintenanceWindowTask", reflect.TypeOf((*MockSSMAPI)(nil).GetMaintenanceWindowTask), arg0)
 }
 
 // GetMaintenanceWindowTaskRequest mocks base method
 func (m *MockSSMAPI) GetMaintenanceWindowTaskRequest(arg0 *ssm.GetMaintenanceWindowTaskInput) (*request.Request, *ssm.GetMaintenanceWindowTaskOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMaintenanceWindowTaskRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetMaintenanceWindowTaskOutput)
@@ -3001,11 +3404,13 @@ func (m *MockSSMAPI) GetMaintenanceWindowTaskRequest(arg0 *ssm.GetMaintenanceWin
 
 // GetMaintenanceWindowTaskRequest indicates an expected call of GetMaintenanceWindowTaskRequest
 func (mr *MockSSMAPIMockRecorder) GetMaintenanceWindowTaskRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMaintenanceWindowTaskRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetMaintenanceWindowTaskRequest), arg0)
 }
 
 // GetMaintenanceWindowTaskWithContext mocks base method
-func (m *MockSSMAPI) GetMaintenanceWindowTaskWithContext(arg0 aws.Context, arg1 *ssm.GetMaintenanceWindowTaskInput, arg2 ...request.Option) (*ssm.GetMaintenanceWindowTaskOutput, error) {
+func (m *MockSSMAPI) GetMaintenanceWindowTaskWithContext(arg0 context.Context, arg1 *ssm.GetMaintenanceWindowTaskInput, arg2 ...request.Option) (*ssm.GetMaintenanceWindowTaskOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3018,12 +3423,14 @@ func (m *MockSSMAPI) GetMaintenanceWindowTaskWithContext(arg0 aws.Context, arg1 
 
 // GetMaintenanceWindowTaskWithContext indicates an expected call of GetMaintenanceWindowTaskWithContext
 func (mr *MockSSMAPIMockRecorder) GetMaintenanceWindowTaskWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMaintenanceWindowTaskWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetMaintenanceWindowTaskWithContext), varargs...)
 }
 
 // GetMaintenanceWindowWithContext mocks base method
-func (m *MockSSMAPI) GetMaintenanceWindowWithContext(arg0 aws.Context, arg1 *ssm.GetMaintenanceWindowInput, arg2 ...request.Option) (*ssm.GetMaintenanceWindowOutput, error) {
+func (m *MockSSMAPI) GetMaintenanceWindowWithContext(arg0 context.Context, arg1 *ssm.GetMaintenanceWindowInput, arg2 ...request.Option) (*ssm.GetMaintenanceWindowOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3036,12 +3443,14 @@ func (m *MockSSMAPI) GetMaintenanceWindowWithContext(arg0 aws.Context, arg1 *ssm
 
 // GetMaintenanceWindowWithContext indicates an expected call of GetMaintenanceWindowWithContext
 func (mr *MockSSMAPIMockRecorder) GetMaintenanceWindowWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMaintenanceWindowWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetMaintenanceWindowWithContext), varargs...)
 }
 
 // GetParameter mocks base method
 func (m *MockSSMAPI) GetParameter(arg0 *ssm.GetParameterInput) (*ssm.GetParameterOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetParameter", arg0)
 	ret0, _ := ret[0].(*ssm.GetParameterOutput)
 	ret1, _ := ret[1].(error)
@@ -3050,11 +3459,13 @@ func (m *MockSSMAPI) GetParameter(arg0 *ssm.GetParameterInput) (*ssm.GetParamete
 
 // GetParameter indicates an expected call of GetParameter
 func (mr *MockSSMAPIMockRecorder) GetParameter(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParameter", reflect.TypeOf((*MockSSMAPI)(nil).GetParameter), arg0)
 }
 
 // GetParameterHistory mocks base method
 func (m *MockSSMAPI) GetParameterHistory(arg0 *ssm.GetParameterHistoryInput) (*ssm.GetParameterHistoryOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetParameterHistory", arg0)
 	ret0, _ := ret[0].(*ssm.GetParameterHistoryOutput)
 	ret1, _ := ret[1].(error)
@@ -3063,11 +3474,13 @@ func (m *MockSSMAPI) GetParameterHistory(arg0 *ssm.GetParameterHistoryInput) (*s
 
 // GetParameterHistory indicates an expected call of GetParameterHistory
 func (mr *MockSSMAPIMockRecorder) GetParameterHistory(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParameterHistory", reflect.TypeOf((*MockSSMAPI)(nil).GetParameterHistory), arg0)
 }
 
 // GetParameterHistoryPages mocks base method
 func (m *MockSSMAPI) GetParameterHistoryPages(arg0 *ssm.GetParameterHistoryInput, arg1 func(*ssm.GetParameterHistoryOutput, bool) bool) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetParameterHistoryPages", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -3075,11 +3488,13 @@ func (m *MockSSMAPI) GetParameterHistoryPages(arg0 *ssm.GetParameterHistoryInput
 
 // GetParameterHistoryPages indicates an expected call of GetParameterHistoryPages
 func (mr *MockSSMAPIMockRecorder) GetParameterHistoryPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParameterHistoryPages", reflect.TypeOf((*MockSSMAPI)(nil).GetParameterHistoryPages), arg0, arg1)
 }
 
 // GetParameterHistoryPagesWithContext mocks base method
-func (m *MockSSMAPI) GetParameterHistoryPagesWithContext(arg0 aws.Context, arg1 *ssm.GetParameterHistoryInput, arg2 func(*ssm.GetParameterHistoryOutput, bool) bool, arg3 ...request.Option) error {
+func (m *MockSSMAPI) GetParameterHistoryPagesWithContext(arg0 context.Context, arg1 *ssm.GetParameterHistoryInput, arg2 func(*ssm.GetParameterHistoryOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
 	for _, a := range arg3 {
 		varargs = append(varargs, a)
@@ -3091,12 +3506,14 @@ func (m *MockSSMAPI) GetParameterHistoryPagesWithContext(arg0 aws.Context, arg1 
 
 // GetParameterHistoryPagesWithContext indicates an expected call of GetParameterHistoryPagesWithContext
 func (mr *MockSSMAPIMockRecorder) GetParameterHistoryPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParameterHistoryPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetParameterHistoryPagesWithContext), varargs...)
 }
 
 // GetParameterHistoryRequest mocks base method
 func (m *MockSSMAPI) GetParameterHistoryRequest(arg0 *ssm.GetParameterHistoryInput) (*request.Request, *ssm.GetParameterHistoryOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetParameterHistoryRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetParameterHistoryOutput)
@@ -3105,11 +3522,13 @@ func (m *MockSSMAPI) GetParameterHistoryRequest(arg0 *ssm.GetParameterHistoryInp
 
 // GetParameterHistoryRequest indicates an expected call of GetParameterHistoryRequest
 func (mr *MockSSMAPIMockRecorder) GetParameterHistoryRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParameterHistoryRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetParameterHistoryRequest), arg0)
 }
 
 // GetParameterHistoryWithContext mocks base method
-func (m *MockSSMAPI) GetParameterHistoryWithContext(arg0 aws.Context, arg1 *ssm.GetParameterHistoryInput, arg2 ...request.Option) (*ssm.GetParameterHistoryOutput, error) {
+func (m *MockSSMAPI) GetParameterHistoryWithContext(arg0 context.Context, arg1 *ssm.GetParameterHistoryInput, arg2 ...request.Option) (*ssm.GetParameterHistoryOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3122,12 +3541,14 @@ func (m *MockSSMAPI) GetParameterHistoryWithContext(arg0 aws.Context, arg1 *ssm.
 
 // GetParameterHistoryWithContext indicates an expected call of GetParameterHistoryWithContext
 func (mr *MockSSMAPIMockRecorder) GetParameterHistoryWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParameterHistoryWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetParameterHistoryWithContext), varargs...)
 }
 
 // GetParameterRequest mocks base method
 func (m *MockSSMAPI) GetParameterRequest(arg0 *ssm.GetParameterInput) (*request.Request, *ssm.GetParameterOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetParameterRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetParameterOutput)
@@ -3136,11 +3557,13 @@ func (m *MockSSMAPI) GetParameterRequest(arg0 *ssm.GetParameterInput) (*request.
 
 // GetParameterRequest indicates an expected call of GetParameterRequest
 func (mr *MockSSMAPIMockRecorder) GetParameterRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParameterRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetParameterRequest), arg0)
 }
 
 // GetParameterWithContext mocks base method
-func (m *MockSSMAPI) GetParameterWithContext(arg0 aws.Context, arg1 *ssm.GetParameterInput, arg2 ...request.Option) (*ssm.GetParameterOutput, error) {
+func (m *MockSSMAPI) GetParameterWithContext(arg0 context.Context, arg1 *ssm.GetParameterInput, arg2 ...request.Option) (*ssm.GetParameterOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3153,12 +3576,14 @@ func (m *MockSSMAPI) GetParameterWithContext(arg0 aws.Context, arg1 *ssm.GetPara
 
 // GetParameterWithContext indicates an expected call of GetParameterWithContext
 func (mr *MockSSMAPIMockRecorder) GetParameterWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParameterWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetParameterWithContext), varargs...)
 }
 
 // GetParameters mocks base method
 func (m *MockSSMAPI) GetParameters(arg0 *ssm.GetParametersInput) (*ssm.GetParametersOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetParameters", arg0)
 	ret0, _ := ret[0].(*ssm.GetParametersOutput)
 	ret1, _ := ret[1].(error)
@@ -3167,11 +3592,13 @@ func (m *MockSSMAPI) GetParameters(arg0 *ssm.GetParametersInput) (*ssm.GetParame
 
 // GetParameters indicates an expected call of GetParameters
 func (mr *MockSSMAPIMockRecorder) GetParameters(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParameters", reflect.TypeOf((*MockSSMAPI)(nil).GetParameters), arg0)
 }
 
 // GetParametersByPath mocks base method
 func (m *MockSSMAPI) GetParametersByPath(arg0 *ssm.GetParametersByPathInput) (*ssm.GetParametersByPathOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetParametersByPath", arg0)
 	ret0, _ := ret[0].(*ssm.GetParametersByPathOutput)
 	ret1, _ := ret[1].(error)
@@ -3180,11 +3607,13 @@ func (m *MockSSMAPI) GetParametersByPath(arg0 *ssm.GetParametersByPathInput) (*s
 
 // GetParametersByPath indicates an expected call of GetParametersByPath
 func (mr *MockSSMAPIMockRecorder) GetParametersByPath(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParametersByPath", reflect.TypeOf((*MockSSMAPI)(nil).GetParametersByPath), arg0)
 }
 
 // GetParametersByPathPages mocks base method
 func (m *MockSSMAPI) GetParametersByPathPages(arg0 *ssm.GetParametersByPathInput, arg1 func(*ssm.GetParametersByPathOutput, bool) bool) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetParametersByPathPages", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -3192,11 +3621,13 @@ func (m *MockSSMAPI) GetParametersByPathPages(arg0 *ssm.GetParametersByPathInput
 
 // GetParametersByPathPages indicates an expected call of GetParametersByPathPages
 func (mr *MockSSMAPIMockRecorder) GetParametersByPathPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParametersByPathPages", reflect.TypeOf((*MockSSMAPI)(nil).GetParametersByPathPages), arg0, arg1)
 }
 
 // GetParametersByPathPagesWithContext mocks base method
-func (m *MockSSMAPI) GetParametersByPathPagesWithContext(arg0 aws.Context, arg1 *ssm.GetParametersByPathInput, arg2 func(*ssm.GetParametersByPathOutput, bool) bool, arg3 ...request.Option) error {
+func (m *MockSSMAPI) GetParametersByPathPagesWithContext(arg0 context.Context, arg1 *ssm.GetParametersByPathInput, arg2 func(*ssm.GetParametersByPathOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
 	for _, a := range arg3 {
 		varargs = append(varargs, a)
@@ -3208,12 +3639,14 @@ func (m *MockSSMAPI) GetParametersByPathPagesWithContext(arg0 aws.Context, arg1 
 
 // GetParametersByPathPagesWithContext indicates an expected call of GetParametersByPathPagesWithContext
 func (mr *MockSSMAPIMockRecorder) GetParametersByPathPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParametersByPathPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetParametersByPathPagesWithContext), varargs...)
 }
 
 // GetParametersByPathRequest mocks base method
 func (m *MockSSMAPI) GetParametersByPathRequest(arg0 *ssm.GetParametersByPathInput) (*request.Request, *ssm.GetParametersByPathOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetParametersByPathRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetParametersByPathOutput)
@@ -3222,11 +3655,13 @@ func (m *MockSSMAPI) GetParametersByPathRequest(arg0 *ssm.GetParametersByPathInp
 
 // GetParametersByPathRequest indicates an expected call of GetParametersByPathRequest
 func (mr *MockSSMAPIMockRecorder) GetParametersByPathRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParametersByPathRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetParametersByPathRequest), arg0)
 }
 
 // GetParametersByPathWithContext mocks base method
-func (m *MockSSMAPI) GetParametersByPathWithContext(arg0 aws.Context, arg1 *ssm.GetParametersByPathInput, arg2 ...request.Option) (*ssm.GetParametersByPathOutput, error) {
+func (m *MockSSMAPI) GetParametersByPathWithContext(arg0 context.Context, arg1 *ssm.GetParametersByPathInput, arg2 ...request.Option) (*ssm.GetParametersByPathOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3239,12 +3674,14 @@ func (m *MockSSMAPI) GetParametersByPathWithContext(arg0 aws.Context, arg1 *ssm.
 
 // GetParametersByPathWithContext indicates an expected call of GetParametersByPathWithContext
 func (mr *MockSSMAPIMockRecorder) GetParametersByPathWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParametersByPathWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetParametersByPathWithContext), varargs...)
 }
 
 // GetParametersRequest mocks base method
 func (m *MockSSMAPI) GetParametersRequest(arg0 *ssm.GetParametersInput) (*request.Request, *ssm.GetParametersOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetParametersRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetParametersOutput)
@@ -3253,11 +3690,13 @@ func (m *MockSSMAPI) GetParametersRequest(arg0 *ssm.GetParametersInput) (*reques
 
 // GetParametersRequest indicates an expected call of GetParametersRequest
 func (mr *MockSSMAPIMockRecorder) GetParametersRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParametersRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetParametersRequest), arg0)
 }
 
 // GetParametersWithContext mocks base method
-func (m *MockSSMAPI) GetParametersWithContext(arg0 aws.Context, arg1 *ssm.GetParametersInput, arg2 ...request.Option) (*ssm.GetParametersOutput, error) {
+func (m *MockSSMAPI) GetParametersWithContext(arg0 context.Context, arg1 *ssm.GetParametersInput, arg2 ...request.Option) (*ssm.GetParametersOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3270,12 +3709,14 @@ func (m *MockSSMAPI) GetParametersWithContext(arg0 aws.Context, arg1 *ssm.GetPar
 
 // GetParametersWithContext indicates an expected call of GetParametersWithContext
 func (mr *MockSSMAPIMockRecorder) GetParametersWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParametersWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetParametersWithContext), varargs...)
 }
 
 // GetPatchBaseline mocks base method
 func (m *MockSSMAPI) GetPatchBaseline(arg0 *ssm.GetPatchBaselineInput) (*ssm.GetPatchBaselineOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPatchBaseline", arg0)
 	ret0, _ := ret[0].(*ssm.GetPatchBaselineOutput)
 	ret1, _ := ret[1].(error)
@@ -3284,11 +3725,13 @@ func (m *MockSSMAPI) GetPatchBaseline(arg0 *ssm.GetPatchBaselineInput) (*ssm.Get
 
 // GetPatchBaseline indicates an expected call of GetPatchBaseline
 func (mr *MockSSMAPIMockRecorder) GetPatchBaseline(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPatchBaseline", reflect.TypeOf((*MockSSMAPI)(nil).GetPatchBaseline), arg0)
 }
 
 // GetPatchBaselineForPatchGroup mocks base method
 func (m *MockSSMAPI) GetPatchBaselineForPatchGroup(arg0 *ssm.GetPatchBaselineForPatchGroupInput) (*ssm.GetPatchBaselineForPatchGroupOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPatchBaselineForPatchGroup", arg0)
 	ret0, _ := ret[0].(*ssm.GetPatchBaselineForPatchGroupOutput)
 	ret1, _ := ret[1].(error)
@@ -3297,11 +3740,13 @@ func (m *MockSSMAPI) GetPatchBaselineForPatchGroup(arg0 *ssm.GetPatchBaselineFor
 
 // GetPatchBaselineForPatchGroup indicates an expected call of GetPatchBaselineForPatchGroup
 func (mr *MockSSMAPIMockRecorder) GetPatchBaselineForPatchGroup(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPatchBaselineForPatchGroup", reflect.TypeOf((*MockSSMAPI)(nil).GetPatchBaselineForPatchGroup), arg0)
 }
 
 // GetPatchBaselineForPatchGroupRequest mocks base method
 func (m *MockSSMAPI) GetPatchBaselineForPatchGroupRequest(arg0 *ssm.GetPatchBaselineForPatchGroupInput) (*request.Request, *ssm.GetPatchBaselineForPatchGroupOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPatchBaselineForPatchGroupRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetPatchBaselineForPatchGroupOutput)
@@ -3310,11 +3755,13 @@ func (m *MockSSMAPI) GetPatchBaselineForPatchGroupRequest(arg0 *ssm.GetPatchBase
 
 // GetPatchBaselineForPatchGroupRequest indicates an expected call of GetPatchBaselineForPatchGroupRequest
 func (mr *MockSSMAPIMockRecorder) GetPatchBaselineForPatchGroupRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPatchBaselineForPatchGroupRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetPatchBaselineForPatchGroupRequest), arg0)
 }
 
 // GetPatchBaselineForPatchGroupWithContext mocks base method
-func (m *MockSSMAPI) GetPatchBaselineForPatchGroupWithContext(arg0 aws.Context, arg1 *ssm.GetPatchBaselineForPatchGroupInput, arg2 ...request.Option) (*ssm.GetPatchBaselineForPatchGroupOutput, error) {
+func (m *MockSSMAPI) GetPatchBaselineForPatchGroupWithContext(arg0 context.Context, arg1 *ssm.GetPatchBaselineForPatchGroupInput, arg2 ...request.Option) (*ssm.GetPatchBaselineForPatchGroupOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3327,12 +3774,14 @@ func (m *MockSSMAPI) GetPatchBaselineForPatchGroupWithContext(arg0 aws.Context, 
 
 // GetPatchBaselineForPatchGroupWithContext indicates an expected call of GetPatchBaselineForPatchGroupWithContext
 func (mr *MockSSMAPIMockRecorder) GetPatchBaselineForPatchGroupWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPatchBaselineForPatchGroupWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetPatchBaselineForPatchGroupWithContext), varargs...)
 }
 
 // GetPatchBaselineRequest mocks base method
 func (m *MockSSMAPI) GetPatchBaselineRequest(arg0 *ssm.GetPatchBaselineInput) (*request.Request, *ssm.GetPatchBaselineOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPatchBaselineRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.GetPatchBaselineOutput)
@@ -3341,11 +3790,13 @@ func (m *MockSSMAPI) GetPatchBaselineRequest(arg0 *ssm.GetPatchBaselineInput) (*
 
 // GetPatchBaselineRequest indicates an expected call of GetPatchBaselineRequest
 func (mr *MockSSMAPIMockRecorder) GetPatchBaselineRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPatchBaselineRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetPatchBaselineRequest), arg0)
 }
 
 // GetPatchBaselineWithContext mocks base method
-func (m *MockSSMAPI) GetPatchBaselineWithContext(arg0 aws.Context, arg1 *ssm.GetPatchBaselineInput, arg2 ...request.Option) (*ssm.GetPatchBaselineOutput, error) {
+func (m *MockSSMAPI) GetPatchBaselineWithContext(arg0 context.Context, arg1 *ssm.GetPatchBaselineInput, arg2 ...request.Option) (*ssm.GetPatchBaselineOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3358,12 +3809,64 @@ func (m *MockSSMAPI) GetPatchBaselineWithContext(arg0 aws.Context, arg1 *ssm.Get
 
 // GetPatchBaselineWithContext indicates an expected call of GetPatchBaselineWithContext
 func (mr *MockSSMAPIMockRecorder) GetPatchBaselineWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPatchBaselineWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetPatchBaselineWithContext), varargs...)
 }
 
+// GetServiceSetting mocks base method
+func (m *MockSSMAPI) GetServiceSetting(arg0 *ssm.GetServiceSettingInput) (*ssm.GetServiceSettingOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetServiceSetting", arg0)
+	ret0, _ := ret[0].(*ssm.GetServiceSettingOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetServiceSetting indicates an expected call of GetServiceSetting
+func (mr *MockSSMAPIMockRecorder) GetServiceSetting(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetServiceSetting", reflect.TypeOf((*MockSSMAPI)(nil).GetServiceSetting), arg0)
+}
+
+// GetServiceSettingRequest mocks base method
+func (m *MockSSMAPI) GetServiceSettingRequest(arg0 *ssm.GetServiceSettingInput) (*request.Request, *ssm.GetServiceSettingOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetServiceSettingRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ssm.GetServiceSettingOutput)
+	return ret0, ret1
+}
+
+// GetServiceSettingRequest indicates an expected call of GetServiceSettingRequest
+func (mr *MockSSMAPIMockRecorder) GetServiceSettingRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetServiceSettingRequest", reflect.TypeOf((*MockSSMAPI)(nil).GetServiceSettingRequest), arg0)
+}
+
+// GetServiceSettingWithContext mocks base method
+func (m *MockSSMAPI) GetServiceSettingWithContext(arg0 context.Context, arg1 *ssm.GetServiceSettingInput, arg2 ...request.Option) (*ssm.GetServiceSettingOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetServiceSettingWithContext", varargs...)
+	ret0, _ := ret[0].(*ssm.GetServiceSettingOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetServiceSettingWithContext indicates an expected call of GetServiceSettingWithContext
+func (mr *MockSSMAPIMockRecorder) GetServiceSettingWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetServiceSettingWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetServiceSettingWithContext), varargs...)
+}
+
 // LabelParameterVersion mocks base method
 func (m *MockSSMAPI) LabelParameterVersion(arg0 *ssm.LabelParameterVersionInput) (*ssm.LabelParameterVersionOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "LabelParameterVersion", arg0)
 	ret0, _ := ret[0].(*ssm.LabelParameterVersionOutput)
 	ret1, _ := ret[1].(error)
@@ -3372,11 +3875,13 @@ func (m *MockSSMAPI) LabelParameterVersion(arg0 *ssm.LabelParameterVersionInput)
 
 // LabelParameterVersion indicates an expected call of LabelParameterVersion
 func (mr *MockSSMAPIMockRecorder) LabelParameterVersion(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LabelParameterVersion", reflect.TypeOf((*MockSSMAPI)(nil).LabelParameterVersion), arg0)
 }
 
 // LabelParameterVersionRequest mocks base method
 func (m *MockSSMAPI) LabelParameterVersionRequest(arg0 *ssm.LabelParameterVersionInput) (*request.Request, *ssm.LabelParameterVersionOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "LabelParameterVersionRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.LabelParameterVersionOutput)
@@ -3385,11 +3890,13 @@ func (m *MockSSMAPI) LabelParameterVersionRequest(arg0 *ssm.LabelParameterVersio
 
 // LabelParameterVersionRequest indicates an expected call of LabelParameterVersionRequest
 func (mr *MockSSMAPIMockRecorder) LabelParameterVersionRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LabelParameterVersionRequest", reflect.TypeOf((*MockSSMAPI)(nil).LabelParameterVersionRequest), arg0)
 }
 
 // LabelParameterVersionWithContext mocks base method
-func (m *MockSSMAPI) LabelParameterVersionWithContext(arg0 aws.Context, arg1 *ssm.LabelParameterVersionInput, arg2 ...request.Option) (*ssm.LabelParameterVersionOutput, error) {
+func (m *MockSSMAPI) LabelParameterVersionWithContext(arg0 context.Context, arg1 *ssm.LabelParameterVersionInput, arg2 ...request.Option) (*ssm.LabelParameterVersionOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3402,12 +3909,14 @@ func (m *MockSSMAPI) LabelParameterVersionWithContext(arg0 aws.Context, arg1 *ss
 
 // LabelParameterVersionWithContext indicates an expected call of LabelParameterVersionWithContext
 func (mr *MockSSMAPIMockRecorder) LabelParameterVersionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LabelParameterVersionWithContext", reflect.TypeOf((*MockSSMAPI)(nil).LabelParameterVersionWithContext), varargs...)
 }
 
 // ListAssociationVersions mocks base method
 func (m *MockSSMAPI) ListAssociationVersions(arg0 *ssm.ListAssociationVersionsInput) (*ssm.ListAssociationVersionsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListAssociationVersions", arg0)
 	ret0, _ := ret[0].(*ssm.ListAssociationVersionsOutput)
 	ret1, _ := ret[1].(error)
@@ -3416,11 +3925,13 @@ func (m *MockSSMAPI) ListAssociationVersions(arg0 *ssm.ListAssociationVersionsIn
 
 // ListAssociationVersions indicates an expected call of ListAssociationVersions
 func (mr *MockSSMAPIMockRecorder) ListAssociationVersions(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAssociationVersions", reflect.TypeOf((*MockSSMAPI)(nil).ListAssociationVersions), arg0)
 }
 
 // ListAssociationVersionsRequest mocks base method
 func (m *MockSSMAPI) ListAssociationVersionsRequest(arg0 *ssm.ListAssociationVersionsInput) (*request.Request, *ssm.ListAssociationVersionsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListAssociationVersionsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.ListAssociationVersionsOutput)
@@ -3429,11 +3940,13 @@ func (m *MockSSMAPI) ListAssociationVersionsRequest(arg0 *ssm.ListAssociationVer
 
 // ListAssociationVersionsRequest indicates an expected call of ListAssociationVersionsRequest
 func (mr *MockSSMAPIMockRecorder) ListAssociationVersionsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAssociationVersionsRequest", reflect.TypeOf((*MockSSMAPI)(nil).ListAssociationVersionsRequest), arg0)
 }
 
 // ListAssociationVersionsWithContext mocks base method
-func (m *MockSSMAPI) ListAssociationVersionsWithContext(arg0 aws.Context, arg1 *ssm.ListAssociationVersionsInput, arg2 ...request.Option) (*ssm.ListAssociationVersionsOutput, error) {
+func (m *MockSSMAPI) ListAssociationVersionsWithContext(arg0 context.Context, arg1 *ssm.ListAssociationVersionsInput, arg2 ...request.Option) (*ssm.ListAssociationVersionsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3446,12 +3959,14 @@ func (m *MockSSMAPI) ListAssociationVersionsWithContext(arg0 aws.Context, arg1 *
 
 // ListAssociationVersionsWithContext indicates an expected call of ListAssociationVersionsWithContext
 func (mr *MockSSMAPIMockRecorder) ListAssociationVersionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAssociationVersionsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListAssociationVersionsWithContext), varargs...)
 }
 
 // ListAssociations mocks base method
 func (m *MockSSMAPI) ListAssociations(arg0 *ssm.ListAssociationsInput) (*ssm.ListAssociationsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListAssociations", arg0)
 	ret0, _ := ret[0].(*ssm.ListAssociationsOutput)
 	ret1, _ := ret[1].(error)
@@ -3460,11 +3975,13 @@ func (m *MockSSMAPI) ListAssociations(arg0 *ssm.ListAssociationsInput) (*ssm.Lis
 
 // ListAssociations indicates an expected call of ListAssociations
 func (mr *MockSSMAPIMockRecorder) ListAssociations(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAssociations", reflect.TypeOf((*MockSSMAPI)(nil).ListAssociations), arg0)
 }
 
 // ListAssociationsPages mocks base method
 func (m *MockSSMAPI) ListAssociationsPages(arg0 *ssm.ListAssociationsInput, arg1 func(*ssm.ListAssociationsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListAssociationsPages", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -3472,11 +3989,13 @@ func (m *MockSSMAPI) ListAssociationsPages(arg0 *ssm.ListAssociationsInput, arg1
 
 // ListAssociationsPages indicates an expected call of ListAssociationsPages
 func (mr *MockSSMAPIMockRecorder) ListAssociationsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAssociationsPages", reflect.TypeOf((*MockSSMAPI)(nil).ListAssociationsPages), arg0, arg1)
 }
 
 // ListAssociationsPagesWithContext mocks base method
-func (m *MockSSMAPI) ListAssociationsPagesWithContext(arg0 aws.Context, arg1 *ssm.ListAssociationsInput, arg2 func(*ssm.ListAssociationsOutput, bool) bool, arg3 ...request.Option) error {
+func (m *MockSSMAPI) ListAssociationsPagesWithContext(arg0 context.Context, arg1 *ssm.ListAssociationsInput, arg2 func(*ssm.ListAssociationsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
 	for _, a := range arg3 {
 		varargs = append(varargs, a)
@@ -3488,12 +4007,14 @@ func (m *MockSSMAPI) ListAssociationsPagesWithContext(arg0 aws.Context, arg1 *ss
 
 // ListAssociationsPagesWithContext indicates an expected call of ListAssociationsPagesWithContext
 func (mr *MockSSMAPIMockRecorder) ListAssociationsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAssociationsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListAssociationsPagesWithContext), varargs...)
 }
 
 // ListAssociationsRequest mocks base method
 func (m *MockSSMAPI) ListAssociationsRequest(arg0 *ssm.ListAssociationsInput) (*request.Request, *ssm.ListAssociationsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListAssociationsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.ListAssociationsOutput)
@@ -3502,11 +4023,13 @@ func (m *MockSSMAPI) ListAssociationsRequest(arg0 *ssm.ListAssociationsInput) (*
 
 // ListAssociationsRequest indicates an expected call of ListAssociationsRequest
 func (mr *MockSSMAPIMockRecorder) ListAssociationsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAssociationsRequest", reflect.TypeOf((*MockSSMAPI)(nil).ListAssociationsRequest), arg0)
 }
 
 // ListAssociationsWithContext mocks base method
-func (m *MockSSMAPI) ListAssociationsWithContext(arg0 aws.Context, arg1 *ssm.ListAssociationsInput, arg2 ...request.Option) (*ssm.ListAssociationsOutput, error) {
+func (m *MockSSMAPI) ListAssociationsWithContext(arg0 context.Context, arg1 *ssm.ListAssociationsInput, arg2 ...request.Option) (*ssm.ListAssociationsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3519,12 +4042,14 @@ func (m *MockSSMAPI) ListAssociationsWithContext(arg0 aws.Context, arg1 *ssm.Lis
 
 // ListAssociationsWithContext indicates an expected call of ListAssociationsWithContext
 func (mr *MockSSMAPIMockRecorder) ListAssociationsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAssociationsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListAssociationsWithContext), varargs...)
 }
 
 // ListCommandInvocations mocks base method
 func (m *MockSSMAPI) ListCommandInvocations(arg0 *ssm.ListCommandInvocationsInput) (*ssm.ListCommandInvocationsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListCommandInvocations", arg0)
 	ret0, _ := ret[0].(*ssm.ListCommandInvocationsOutput)
 	ret1, _ := ret[1].(error)
@@ -3533,11 +4058,13 @@ func (m *MockSSMAPI) ListCommandInvocations(arg0 *ssm.ListCommandInvocationsInpu
 
 // ListCommandInvocations indicates an expected call of ListCommandInvocations
 func (mr *MockSSMAPIMockRecorder) ListCommandInvocations(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCommandInvocations", reflect.TypeOf((*MockSSMAPI)(nil).ListCommandInvocations), arg0)
 }
 
 // ListCommandInvocationsPages mocks base method
 func (m *MockSSMAPI) ListCommandInvocationsPages(arg0 *ssm.ListCommandInvocationsInput, arg1 func(*ssm.ListCommandInvocationsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListCommandInvocationsPages", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -3545,11 +4072,13 @@ func (m *MockSSMAPI) ListCommandInvocationsPages(arg0 *ssm.ListCommandInvocation
 
 // ListCommandInvocationsPages indicates an expected call of ListCommandInvocationsPages
 func (mr *MockSSMAPIMockRecorder) ListCommandInvocationsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCommandInvocationsPages", reflect.TypeOf((*MockSSMAPI)(nil).ListCommandInvocationsPages), arg0, arg1)
 }
 
 // ListCommandInvocationsPagesWithContext mocks base method
-func (m *MockSSMAPI) ListCommandInvocationsPagesWithContext(arg0 aws.Context, arg1 *ssm.ListCommandInvocationsInput, arg2 func(*ssm.ListCommandInvocationsOutput, bool) bool, arg3 ...request.Option) error {
+func (m *MockSSMAPI) ListCommandInvocationsPagesWithContext(arg0 context.Context, arg1 *ssm.ListCommandInvocationsInput, arg2 func(*ssm.ListCommandInvocationsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
 	for _, a := range arg3 {
 		varargs = append(varargs, a)
@@ -3561,12 +4090,14 @@ func (m *MockSSMAPI) ListCommandInvocationsPagesWithContext(arg0 aws.Context, ar
 
 // ListCommandInvocationsPagesWithContext indicates an expected call of ListCommandInvocationsPagesWithContext
 func (mr *MockSSMAPIMockRecorder) ListCommandInvocationsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCommandInvocationsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListCommandInvocationsPagesWithContext), varargs...)
 }
 
 // ListCommandInvocationsRequest mocks base method
 func (m *MockSSMAPI) ListCommandInvocationsRequest(arg0 *ssm.ListCommandInvocationsInput) (*request.Request, *ssm.ListCommandInvocationsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListCommandInvocationsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.ListCommandInvocationsOutput)
@@ -3575,11 +4106,13 @@ func (m *MockSSMAPI) ListCommandInvocationsRequest(arg0 *ssm.ListCommandInvocati
 
 // ListCommandInvocationsRequest indicates an expected call of ListCommandInvocationsRequest
 func (mr *MockSSMAPIMockRecorder) ListCommandInvocationsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCommandInvocationsRequest", reflect.TypeOf((*MockSSMAPI)(nil).ListCommandInvocationsRequest), arg0)
 }
 
 // ListCommandInvocationsWithContext mocks base method
-func (m *MockSSMAPI) ListCommandInvocationsWithContext(arg0 aws.Context, arg1 *ssm.ListCommandInvocationsInput, arg2 ...request.Option) (*ssm.ListCommandInvocationsOutput, error) {
+func (m *MockSSMAPI) ListCommandInvocationsWithContext(arg0 context.Context, arg1 *ssm.ListCommandInvocationsInput, arg2 ...request.Option) (*ssm.ListCommandInvocationsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3592,12 +4125,14 @@ func (m *MockSSMAPI) ListCommandInvocationsWithContext(arg0 aws.Context, arg1 *s
 
 // ListCommandInvocationsWithContext indicates an expected call of ListCommandInvocationsWithContext
 func (mr *MockSSMAPIMockRecorder) ListCommandInvocationsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCommandInvocationsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListCommandInvocationsWithContext), varargs...)
 }
 
 // ListCommands mocks base method
 func (m *MockSSMAPI) ListCommands(arg0 *ssm.ListCommandsInput) (*ssm.ListCommandsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListCommands", arg0)
 	ret0, _ := ret[0].(*ssm.ListCommandsOutput)
 	ret1, _ := ret[1].(error)
@@ -3606,11 +4141,13 @@ func (m *MockSSMAPI) ListCommands(arg0 *ssm.ListCommandsInput) (*ssm.ListCommand
 
 // ListCommands indicates an expected call of ListCommands
 func (mr *MockSSMAPIMockRecorder) ListCommands(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCommands", reflect.TypeOf((*MockSSMAPI)(nil).ListCommands), arg0)
 }
 
 // ListCommandsPages mocks base method
 func (m *MockSSMAPI) ListCommandsPages(arg0 *ssm.ListCommandsInput, arg1 func(*ssm.ListCommandsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListCommandsPages", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -3618,11 +4155,13 @@ func (m *MockSSMAPI) ListCommandsPages(arg0 *ssm.ListCommandsInput, arg1 func(*s
 
 // ListCommandsPages indicates an expected call of ListCommandsPages
 func (mr *MockSSMAPIMockRecorder) ListCommandsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCommandsPages", reflect.TypeOf((*MockSSMAPI)(nil).ListCommandsPages), arg0, arg1)
 }
 
 // ListCommandsPagesWithContext mocks base method
-func (m *MockSSMAPI) ListCommandsPagesWithContext(arg0 aws.Context, arg1 *ssm.ListCommandsInput, arg2 func(*ssm.ListCommandsOutput, bool) bool, arg3 ...request.Option) error {
+func (m *MockSSMAPI) ListCommandsPagesWithContext(arg0 context.Context, arg1 *ssm.ListCommandsInput, arg2 func(*ssm.ListCommandsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
 	for _, a := range arg3 {
 		varargs = append(varargs, a)
@@ -3634,12 +4173,14 @@ func (m *MockSSMAPI) ListCommandsPagesWithContext(arg0 aws.Context, arg1 *ssm.Li
 
 // ListCommandsPagesWithContext indicates an expected call of ListCommandsPagesWithContext
 func (mr *MockSSMAPIMockRecorder) ListCommandsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCommandsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListCommandsPagesWithContext), varargs...)
 }
 
 // ListCommandsRequest mocks base method
 func (m *MockSSMAPI) ListCommandsRequest(arg0 *ssm.ListCommandsInput) (*request.Request, *ssm.ListCommandsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListCommandsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.ListCommandsOutput)
@@ -3648,11 +4189,13 @@ func (m *MockSSMAPI) ListCommandsRequest(arg0 *ssm.ListCommandsInput) (*request.
 
 // ListCommandsRequest indicates an expected call of ListCommandsRequest
 func (mr *MockSSMAPIMockRecorder) ListCommandsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCommandsRequest", reflect.TypeOf((*MockSSMAPI)(nil).ListCommandsRequest), arg0)
 }
 
 // ListCommandsWithContext mocks base method
-func (m *MockSSMAPI) ListCommandsWithContext(arg0 aws.Context, arg1 *ssm.ListCommandsInput, arg2 ...request.Option) (*ssm.ListCommandsOutput, error) {
+func (m *MockSSMAPI) ListCommandsWithContext(arg0 context.Context, arg1 *ssm.ListCommandsInput, arg2 ...request.Option) (*ssm.ListCommandsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3665,12 +4208,14 @@ func (m *MockSSMAPI) ListCommandsWithContext(arg0 aws.Context, arg1 *ssm.ListCom
 
 // ListCommandsWithContext indicates an expected call of ListCommandsWithContext
 func (mr *MockSSMAPIMockRecorder) ListCommandsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCommandsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListCommandsWithContext), varargs...)
 }
 
 // ListComplianceItems mocks base method
 func (m *MockSSMAPI) ListComplianceItems(arg0 *ssm.ListComplianceItemsInput) (*ssm.ListComplianceItemsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListComplianceItems", arg0)
 	ret0, _ := ret[0].(*ssm.ListComplianceItemsOutput)
 	ret1, _ := ret[1].(error)
@@ -3679,11 +4224,13 @@ func (m *MockSSMAPI) ListComplianceItems(arg0 *ssm.ListComplianceItemsInput) (*s
 
 // ListComplianceItems indicates an expected call of ListComplianceItems
 func (mr *MockSSMAPIMockRecorder) ListComplianceItems(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListComplianceItems", reflect.TypeOf((*MockSSMAPI)(nil).ListComplianceItems), arg0)
 }
 
 // ListComplianceItemsRequest mocks base method
 func (m *MockSSMAPI) ListComplianceItemsRequest(arg0 *ssm.ListComplianceItemsInput) (*request.Request, *ssm.ListComplianceItemsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListComplianceItemsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.ListComplianceItemsOutput)
@@ -3692,11 +4239,13 @@ func (m *MockSSMAPI) ListComplianceItemsRequest(arg0 *ssm.ListComplianceItemsInp
 
 // ListComplianceItemsRequest indicates an expected call of ListComplianceItemsRequest
 func (mr *MockSSMAPIMockRecorder) ListComplianceItemsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListComplianceItemsRequest", reflect.TypeOf((*MockSSMAPI)(nil).ListComplianceItemsRequest), arg0)
 }
 
 // ListComplianceItemsWithContext mocks base method
-func (m *MockSSMAPI) ListComplianceItemsWithContext(arg0 aws.Context, arg1 *ssm.ListComplianceItemsInput, arg2 ...request.Option) (*ssm.ListComplianceItemsOutput, error) {
+func (m *MockSSMAPI) ListComplianceItemsWithContext(arg0 context.Context, arg1 *ssm.ListComplianceItemsInput, arg2 ...request.Option) (*ssm.ListComplianceItemsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3709,12 +4258,14 @@ func (m *MockSSMAPI) ListComplianceItemsWithContext(arg0 aws.Context, arg1 *ssm.
 
 // ListComplianceItemsWithContext indicates an expected call of ListComplianceItemsWithContext
 func (mr *MockSSMAPIMockRecorder) ListComplianceItemsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListComplianceItemsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListComplianceItemsWithContext), varargs...)
 }
 
 // ListComplianceSummaries mocks base method
 func (m *MockSSMAPI) ListComplianceSummaries(arg0 *ssm.ListComplianceSummariesInput) (*ssm.ListComplianceSummariesOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListComplianceSummaries", arg0)
 	ret0, _ := ret[0].(*ssm.ListComplianceSummariesOutput)
 	ret1, _ := ret[1].(error)
@@ -3723,11 +4274,13 @@ func (m *MockSSMAPI) ListComplianceSummaries(arg0 *ssm.ListComplianceSummariesIn
 
 // ListComplianceSummaries indicates an expected call of ListComplianceSummaries
 func (mr *MockSSMAPIMockRecorder) ListComplianceSummaries(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListComplianceSummaries", reflect.TypeOf((*MockSSMAPI)(nil).ListComplianceSummaries), arg0)
 }
 
 // ListComplianceSummariesRequest mocks base method
 func (m *MockSSMAPI) ListComplianceSummariesRequest(arg0 *ssm.ListComplianceSummariesInput) (*request.Request, *ssm.ListComplianceSummariesOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListComplianceSummariesRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.ListComplianceSummariesOutput)
@@ -3736,11 +4289,13 @@ func (m *MockSSMAPI) ListComplianceSummariesRequest(arg0 *ssm.ListComplianceSumm
 
 // ListComplianceSummariesRequest indicates an expected call of ListComplianceSummariesRequest
 func (mr *MockSSMAPIMockRecorder) ListComplianceSummariesRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListComplianceSummariesRequest", reflect.TypeOf((*MockSSMAPI)(nil).ListComplianceSummariesRequest), arg0)
 }
 
 // ListComplianceSummariesWithContext mocks base method
-func (m *MockSSMAPI) ListComplianceSummariesWithContext(arg0 aws.Context, arg1 *ssm.ListComplianceSummariesInput, arg2 ...request.Option) (*ssm.ListComplianceSummariesOutput, error) {
+func (m *MockSSMAPI) ListComplianceSummariesWithContext(arg0 context.Context, arg1 *ssm.ListComplianceSummariesInput, arg2 ...request.Option) (*ssm.ListComplianceSummariesOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3753,12 +4308,14 @@ func (m *MockSSMAPI) ListComplianceSummariesWithContext(arg0 aws.Context, arg1 *
 
 // ListComplianceSummariesWithContext indicates an expected call of ListComplianceSummariesWithContext
 func (mr *MockSSMAPIMockRecorder) ListComplianceSummariesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListComplianceSummariesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListComplianceSummariesWithContext), varargs...)
 }
 
 // ListDocumentVersions mocks base method
 func (m *MockSSMAPI) ListDocumentVersions(arg0 *ssm.ListDocumentVersionsInput) (*ssm.ListDocumentVersionsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListDocumentVersions", arg0)
 	ret0, _ := ret[0].(*ssm.ListDocumentVersionsOutput)
 	ret1, _ := ret[1].(error)
@@ -3767,11 +4324,13 @@ func (m *MockSSMAPI) ListDocumentVersions(arg0 *ssm.ListDocumentVersionsInput) (
 
 // ListDocumentVersions indicates an expected call of ListDocumentVersions
 func (mr *MockSSMAPIMockRecorder) ListDocumentVersions(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDocumentVersions", reflect.TypeOf((*MockSSMAPI)(nil).ListDocumentVersions), arg0)
 }
 
 // ListDocumentVersionsRequest mocks base method
 func (m *MockSSMAPI) ListDocumentVersionsRequest(arg0 *ssm.ListDocumentVersionsInput) (*request.Request, *ssm.ListDocumentVersionsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListDocumentVersionsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.ListDocumentVersionsOutput)
@@ -3780,11 +4339,13 @@ func (m *MockSSMAPI) ListDocumentVersionsRequest(arg0 *ssm.ListDocumentVersionsI
 
 // ListDocumentVersionsRequest indicates an expected call of ListDocumentVersionsRequest
 func (mr *MockSSMAPIMockRecorder) ListDocumentVersionsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDocumentVersionsRequest", reflect.TypeOf((*MockSSMAPI)(nil).ListDocumentVersionsRequest), arg0)
 }
 
 // ListDocumentVersionsWithContext mocks base method
-func (m *MockSSMAPI) ListDocumentVersionsWithContext(arg0 aws.Context, arg1 *ssm.ListDocumentVersionsInput, arg2 ...request.Option) (*ssm.ListDocumentVersionsOutput, error) {
+func (m *MockSSMAPI) ListDocumentVersionsWithContext(arg0 context.Context, arg1 *ssm.ListDocumentVersionsInput, arg2 ...request.Option) (*ssm.ListDocumentVersionsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3797,12 +4358,14 @@ func (m *MockSSMAPI) ListDocumentVersionsWithContext(arg0 aws.Context, arg1 *ssm
 
 // ListDocumentVersionsWithContext indicates an expected call of ListDocumentVersionsWithContext
 func (mr *MockSSMAPIMockRecorder) ListDocumentVersionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDocumentVersionsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListDocumentVersionsWithContext), varargs...)
 }
 
 // ListDocuments mocks base method
 func (m *MockSSMAPI) ListDocuments(arg0 *ssm.ListDocumentsInput) (*ssm.ListDocumentsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListDocuments", arg0)
 	ret0, _ := ret[0].(*ssm.ListDocumentsOutput)
 	ret1, _ := ret[1].(error)
@@ -3811,11 +4374,13 @@ func (m *MockSSMAPI) ListDocuments(arg0 *ssm.ListDocumentsInput) (*ssm.ListDocum
 
 // ListDocuments indicates an expected call of ListDocuments
 func (mr *MockSSMAPIMockRecorder) ListDocuments(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDocuments", reflect.TypeOf((*MockSSMAPI)(nil).ListDocuments), arg0)
 }
 
 // ListDocumentsPages mocks base method
 func (m *MockSSMAPI) ListDocumentsPages(arg0 *ssm.ListDocumentsInput, arg1 func(*ssm.ListDocumentsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListDocumentsPages", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -3823,11 +4388,13 @@ func (m *MockSSMAPI) ListDocumentsPages(arg0 *ssm.ListDocumentsInput, arg1 func(
 
 // ListDocumentsPages indicates an expected call of ListDocumentsPages
 func (mr *MockSSMAPIMockRecorder) ListDocumentsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDocumentsPages", reflect.TypeOf((*MockSSMAPI)(nil).ListDocumentsPages), arg0, arg1)
 }
 
 // ListDocumentsPagesWithContext mocks base method
-func (m *MockSSMAPI) ListDocumentsPagesWithContext(arg0 aws.Context, arg1 *ssm.ListDocumentsInput, arg2 func(*ssm.ListDocumentsOutput, bool) bool, arg3 ...request.Option) error {
+func (m *MockSSMAPI) ListDocumentsPagesWithContext(arg0 context.Context, arg1 *ssm.ListDocumentsInput, arg2 func(*ssm.ListDocumentsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
 	for _, a := range arg3 {
 		varargs = append(varargs, a)
@@ -3839,12 +4406,14 @@ func (m *MockSSMAPI) ListDocumentsPagesWithContext(arg0 aws.Context, arg1 *ssm.L
 
 // ListDocumentsPagesWithContext indicates an expected call of ListDocumentsPagesWithContext
 func (mr *MockSSMAPIMockRecorder) ListDocumentsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDocumentsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListDocumentsPagesWithContext), varargs...)
 }
 
 // ListDocumentsRequest mocks base method
 func (m *MockSSMAPI) ListDocumentsRequest(arg0 *ssm.ListDocumentsInput) (*request.Request, *ssm.ListDocumentsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListDocumentsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.ListDocumentsOutput)
@@ -3853,11 +4422,13 @@ func (m *MockSSMAPI) ListDocumentsRequest(arg0 *ssm.ListDocumentsInput) (*reques
 
 // ListDocumentsRequest indicates an expected call of ListDocumentsRequest
 func (mr *MockSSMAPIMockRecorder) ListDocumentsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDocumentsRequest", reflect.TypeOf((*MockSSMAPI)(nil).ListDocumentsRequest), arg0)
 }
 
 // ListDocumentsWithContext mocks base method
-func (m *MockSSMAPI) ListDocumentsWithContext(arg0 aws.Context, arg1 *ssm.ListDocumentsInput, arg2 ...request.Option) (*ssm.ListDocumentsOutput, error) {
+func (m *MockSSMAPI) ListDocumentsWithContext(arg0 context.Context, arg1 *ssm.ListDocumentsInput, arg2 ...request.Option) (*ssm.ListDocumentsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3870,12 +4441,14 @@ func (m *MockSSMAPI) ListDocumentsWithContext(arg0 aws.Context, arg1 *ssm.ListDo
 
 // ListDocumentsWithContext indicates an expected call of ListDocumentsWithContext
 func (mr *MockSSMAPIMockRecorder) ListDocumentsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDocumentsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListDocumentsWithContext), varargs...)
 }
 
 // ListInventoryEntries mocks base method
 func (m *MockSSMAPI) ListInventoryEntries(arg0 *ssm.ListInventoryEntriesInput) (*ssm.ListInventoryEntriesOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListInventoryEntries", arg0)
 	ret0, _ := ret[0].(*ssm.ListInventoryEntriesOutput)
 	ret1, _ := ret[1].(error)
@@ -3884,11 +4457,13 @@ func (m *MockSSMAPI) ListInventoryEntries(arg0 *ssm.ListInventoryEntriesInput) (
 
 // ListInventoryEntries indicates an expected call of ListInventoryEntries
 func (mr *MockSSMAPIMockRecorder) ListInventoryEntries(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListInventoryEntries", reflect.TypeOf((*MockSSMAPI)(nil).ListInventoryEntries), arg0)
 }
 
 // ListInventoryEntriesRequest mocks base method
 func (m *MockSSMAPI) ListInventoryEntriesRequest(arg0 *ssm.ListInventoryEntriesInput) (*request.Request, *ssm.ListInventoryEntriesOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListInventoryEntriesRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.ListInventoryEntriesOutput)
@@ -3897,11 +4472,13 @@ func (m *MockSSMAPI) ListInventoryEntriesRequest(arg0 *ssm.ListInventoryEntriesI
 
 // ListInventoryEntriesRequest indicates an expected call of ListInventoryEntriesRequest
 func (mr *MockSSMAPIMockRecorder) ListInventoryEntriesRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListInventoryEntriesRequest", reflect.TypeOf((*MockSSMAPI)(nil).ListInventoryEntriesRequest), arg0)
 }
 
 // ListInventoryEntriesWithContext mocks base method
-func (m *MockSSMAPI) ListInventoryEntriesWithContext(arg0 aws.Context, arg1 *ssm.ListInventoryEntriesInput, arg2 ...request.Option) (*ssm.ListInventoryEntriesOutput, error) {
+func (m *MockSSMAPI) ListInventoryEntriesWithContext(arg0 context.Context, arg1 *ssm.ListInventoryEntriesInput, arg2 ...request.Option) (*ssm.ListInventoryEntriesOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3914,12 +4491,14 @@ func (m *MockSSMAPI) ListInventoryEntriesWithContext(arg0 aws.Context, arg1 *ssm
 
 // ListInventoryEntriesWithContext indicates an expected call of ListInventoryEntriesWithContext
 func (mr *MockSSMAPIMockRecorder) ListInventoryEntriesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListInventoryEntriesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListInventoryEntriesWithContext), varargs...)
 }
 
 // ListResourceComplianceSummaries mocks base method
 func (m *MockSSMAPI) ListResourceComplianceSummaries(arg0 *ssm.ListResourceComplianceSummariesInput) (*ssm.ListResourceComplianceSummariesOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListResourceComplianceSummaries", arg0)
 	ret0, _ := ret[0].(*ssm.ListResourceComplianceSummariesOutput)
 	ret1, _ := ret[1].(error)
@@ -3928,11 +4507,13 @@ func (m *MockSSMAPI) ListResourceComplianceSummaries(arg0 *ssm.ListResourceCompl
 
 // ListResourceComplianceSummaries indicates an expected call of ListResourceComplianceSummaries
 func (mr *MockSSMAPIMockRecorder) ListResourceComplianceSummaries(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListResourceComplianceSummaries", reflect.TypeOf((*MockSSMAPI)(nil).ListResourceComplianceSummaries), arg0)
 }
 
 // ListResourceComplianceSummariesRequest mocks base method
 func (m *MockSSMAPI) ListResourceComplianceSummariesRequest(arg0 *ssm.ListResourceComplianceSummariesInput) (*request.Request, *ssm.ListResourceComplianceSummariesOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListResourceComplianceSummariesRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.ListResourceComplianceSummariesOutput)
@@ -3941,11 +4522,13 @@ func (m *MockSSMAPI) ListResourceComplianceSummariesRequest(arg0 *ssm.ListResour
 
 // ListResourceComplianceSummariesRequest indicates an expected call of ListResourceComplianceSummariesRequest
 func (mr *MockSSMAPIMockRecorder) ListResourceComplianceSummariesRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListResourceComplianceSummariesRequest", reflect.TypeOf((*MockSSMAPI)(nil).ListResourceComplianceSummariesRequest), arg0)
 }
 
 // ListResourceComplianceSummariesWithContext mocks base method
-func (m *MockSSMAPI) ListResourceComplianceSummariesWithContext(arg0 aws.Context, arg1 *ssm.ListResourceComplianceSummariesInput, arg2 ...request.Option) (*ssm.ListResourceComplianceSummariesOutput, error) {
+func (m *MockSSMAPI) ListResourceComplianceSummariesWithContext(arg0 context.Context, arg1 *ssm.ListResourceComplianceSummariesInput, arg2 ...request.Option) (*ssm.ListResourceComplianceSummariesOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -3958,12 +4541,14 @@ func (m *MockSSMAPI) ListResourceComplianceSummariesWithContext(arg0 aws.Context
 
 // ListResourceComplianceSummariesWithContext indicates an expected call of ListResourceComplianceSummariesWithContext
 func (mr *MockSSMAPIMockRecorder) ListResourceComplianceSummariesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListResourceComplianceSummariesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListResourceComplianceSummariesWithContext), varargs...)
 }
 
 // ListResourceDataSync mocks base method
 func (m *MockSSMAPI) ListResourceDataSync(arg0 *ssm.ListResourceDataSyncInput) (*ssm.ListResourceDataSyncOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListResourceDataSync", arg0)
 	ret0, _ := ret[0].(*ssm.ListResourceDataSyncOutput)
 	ret1, _ := ret[1].(error)
@@ -3972,11 +4557,13 @@ func (m *MockSSMAPI) ListResourceDataSync(arg0 *ssm.ListResourceDataSyncInput) (
 
 // ListResourceDataSync indicates an expected call of ListResourceDataSync
 func (mr *MockSSMAPIMockRecorder) ListResourceDataSync(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListResourceDataSync", reflect.TypeOf((*MockSSMAPI)(nil).ListResourceDataSync), arg0)
 }
 
 // ListResourceDataSyncRequest mocks base method
 func (m *MockSSMAPI) ListResourceDataSyncRequest(arg0 *ssm.ListResourceDataSyncInput) (*request.Request, *ssm.ListResourceDataSyncOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListResourceDataSyncRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.ListResourceDataSyncOutput)
@@ -3985,11 +4572,13 @@ func (m *MockSSMAPI) ListResourceDataSyncRequest(arg0 *ssm.ListResourceDataSyncI
 
 // ListResourceDataSyncRequest indicates an expected call of ListResourceDataSyncRequest
 func (mr *MockSSMAPIMockRecorder) ListResourceDataSyncRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListResourceDataSyncRequest", reflect.TypeOf((*MockSSMAPI)(nil).ListResourceDataSyncRequest), arg0)
 }
 
 // ListResourceDataSyncWithContext mocks base method
-func (m *MockSSMAPI) ListResourceDataSyncWithContext(arg0 aws.Context, arg1 *ssm.ListResourceDataSyncInput, arg2 ...request.Option) (*ssm.ListResourceDataSyncOutput, error) {
+func (m *MockSSMAPI) ListResourceDataSyncWithContext(arg0 context.Context, arg1 *ssm.ListResourceDataSyncInput, arg2 ...request.Option) (*ssm.ListResourceDataSyncOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4002,12 +4591,14 @@ func (m *MockSSMAPI) ListResourceDataSyncWithContext(arg0 aws.Context, arg1 *ssm
 
 // ListResourceDataSyncWithContext indicates an expected call of ListResourceDataSyncWithContext
 func (mr *MockSSMAPIMockRecorder) ListResourceDataSyncWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListResourceDataSyncWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListResourceDataSyncWithContext), varargs...)
 }
 
 // ListTagsForResource mocks base method
 func (m *MockSSMAPI) ListTagsForResource(arg0 *ssm.ListTagsForResourceInput) (*ssm.ListTagsForResourceOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListTagsForResource", arg0)
 	ret0, _ := ret[0].(*ssm.ListTagsForResourceOutput)
 	ret1, _ := ret[1].(error)
@@ -4016,11 +4607,13 @@ func (m *MockSSMAPI) ListTagsForResource(arg0 *ssm.ListTagsForResourceInput) (*s
 
 // ListTagsForResource indicates an expected call of ListTagsForResource
 func (mr *MockSSMAPIMockRecorder) ListTagsForResource(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTagsForResource", reflect.TypeOf((*MockSSMAPI)(nil).ListTagsForResource), arg0)
 }
 
 // ListTagsForResourceRequest mocks base method
 func (m *MockSSMAPI) ListTagsForResourceRequest(arg0 *ssm.ListTagsForResourceInput) (*request.Request, *ssm.ListTagsForResourceOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListTagsForResourceRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.ListTagsForResourceOutput)
@@ -4029,11 +4622,13 @@ func (m *MockSSMAPI) ListTagsForResourceRequest(arg0 *ssm.ListTagsForResourceInp
 
 // ListTagsForResourceRequest indicates an expected call of ListTagsForResourceRequest
 func (mr *MockSSMAPIMockRecorder) ListTagsForResourceRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTagsForResourceRequest", reflect.TypeOf((*MockSSMAPI)(nil).ListTagsForResourceRequest), arg0)
 }
 
 // ListTagsForResourceWithContext mocks base method
-func (m *MockSSMAPI) ListTagsForResourceWithContext(arg0 aws.Context, arg1 *ssm.ListTagsForResourceInput, arg2 ...request.Option) (*ssm.ListTagsForResourceOutput, error) {
+func (m *MockSSMAPI) ListTagsForResourceWithContext(arg0 context.Context, arg1 *ssm.ListTagsForResourceInput, arg2 ...request.Option) (*ssm.ListTagsForResourceOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4046,12 +4641,14 @@ func (m *MockSSMAPI) ListTagsForResourceWithContext(arg0 aws.Context, arg1 *ssm.
 
 // ListTagsForResourceWithContext indicates an expected call of ListTagsForResourceWithContext
 func (mr *MockSSMAPIMockRecorder) ListTagsForResourceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTagsForResourceWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListTagsForResourceWithContext), varargs...)
 }
 
 // ModifyDocumentPermission mocks base method
 func (m *MockSSMAPI) ModifyDocumentPermission(arg0 *ssm.ModifyDocumentPermissionInput) (*ssm.ModifyDocumentPermissionOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ModifyDocumentPermission", arg0)
 	ret0, _ := ret[0].(*ssm.ModifyDocumentPermissionOutput)
 	ret1, _ := ret[1].(error)
@@ -4060,11 +4657,13 @@ func (m *MockSSMAPI) ModifyDocumentPermission(arg0 *ssm.ModifyDocumentPermission
 
 // ModifyDocumentPermission indicates an expected call of ModifyDocumentPermission
 func (mr *MockSSMAPIMockRecorder) ModifyDocumentPermission(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModifyDocumentPermission", reflect.TypeOf((*MockSSMAPI)(nil).ModifyDocumentPermission), arg0)
 }
 
 // ModifyDocumentPermissionRequest mocks base method
 func (m *MockSSMAPI) ModifyDocumentPermissionRequest(arg0 *ssm.ModifyDocumentPermissionInput) (*request.Request, *ssm.ModifyDocumentPermissionOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ModifyDocumentPermissionRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.ModifyDocumentPermissionOutput)
@@ -4073,11 +4672,13 @@ func (m *MockSSMAPI) ModifyDocumentPermissionRequest(arg0 *ssm.ModifyDocumentPer
 
 // ModifyDocumentPermissionRequest indicates an expected call of ModifyDocumentPermissionRequest
 func (mr *MockSSMAPIMockRecorder) ModifyDocumentPermissionRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModifyDocumentPermissionRequest", reflect.TypeOf((*MockSSMAPI)(nil).ModifyDocumentPermissionRequest), arg0)
 }
 
 // ModifyDocumentPermissionWithContext mocks base method
-func (m *MockSSMAPI) ModifyDocumentPermissionWithContext(arg0 aws.Context, arg1 *ssm.ModifyDocumentPermissionInput, arg2 ...request.Option) (*ssm.ModifyDocumentPermissionOutput, error) {
+func (m *MockSSMAPI) ModifyDocumentPermissionWithContext(arg0 context.Context, arg1 *ssm.ModifyDocumentPermissionInput, arg2 ...request.Option) (*ssm.ModifyDocumentPermissionOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4090,12 +4691,14 @@ func (m *MockSSMAPI) ModifyDocumentPermissionWithContext(arg0 aws.Context, arg1 
 
 // ModifyDocumentPermissionWithContext indicates an expected call of ModifyDocumentPermissionWithContext
 func (mr *MockSSMAPIMockRecorder) ModifyDocumentPermissionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModifyDocumentPermissionWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ModifyDocumentPermissionWithContext), varargs...)
 }
 
 // PutComplianceItems mocks base method
 func (m *MockSSMAPI) PutComplianceItems(arg0 *ssm.PutComplianceItemsInput) (*ssm.PutComplianceItemsOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutComplianceItems", arg0)
 	ret0, _ := ret[0].(*ssm.PutComplianceItemsOutput)
 	ret1, _ := ret[1].(error)
@@ -4104,11 +4707,13 @@ func (m *MockSSMAPI) PutComplianceItems(arg0 *ssm.PutComplianceItemsInput) (*ssm
 
 // PutComplianceItems indicates an expected call of PutComplianceItems
 func (mr *MockSSMAPIMockRecorder) PutComplianceItems(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutComplianceItems", reflect.TypeOf((*MockSSMAPI)(nil).PutComplianceItems), arg0)
 }
 
 // PutComplianceItemsRequest mocks base method
 func (m *MockSSMAPI) PutComplianceItemsRequest(arg0 *ssm.PutComplianceItemsInput) (*request.Request, *ssm.PutComplianceItemsOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutComplianceItemsRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.PutComplianceItemsOutput)
@@ -4117,11 +4722,13 @@ func (m *MockSSMAPI) PutComplianceItemsRequest(arg0 *ssm.PutComplianceItemsInput
 
 // PutComplianceItemsRequest indicates an expected call of PutComplianceItemsRequest
 func (mr *MockSSMAPIMockRecorder) PutComplianceItemsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutComplianceItemsRequest", reflect.TypeOf((*MockSSMAPI)(nil).PutComplianceItemsRequest), arg0)
 }
 
 // PutComplianceItemsWithContext mocks base method
-func (m *MockSSMAPI) PutComplianceItemsWithContext(arg0 aws.Context, arg1 *ssm.PutComplianceItemsInput, arg2 ...request.Option) (*ssm.PutComplianceItemsOutput, error) {
+func (m *MockSSMAPI) PutComplianceItemsWithContext(arg0 context.Context, arg1 *ssm.PutComplianceItemsInput, arg2 ...request.Option) (*ssm.PutComplianceItemsOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4134,12 +4741,14 @@ func (m *MockSSMAPI) PutComplianceItemsWithContext(arg0 aws.Context, arg1 *ssm.P
 
 // PutComplianceItemsWithContext indicates an expected call of PutComplianceItemsWithContext
 func (mr *MockSSMAPIMockRecorder) PutComplianceItemsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutComplianceItemsWithContext", reflect.TypeOf((*MockSSMAPI)(nil).PutComplianceItemsWithContext), varargs...)
 }
 
 // PutInventory mocks base method
 func (m *MockSSMAPI) PutInventory(arg0 *ssm.PutInventoryInput) (*ssm.PutInventoryOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutInventory", arg0)
 	ret0, _ := ret[0].(*ssm.PutInventoryOutput)
 	ret1, _ := ret[1].(error)
@@ -4148,11 +4757,13 @@ func (m *MockSSMAPI) PutInventory(arg0 *ssm.PutInventoryInput) (*ssm.PutInventor
 
 // PutInventory indicates an expected call of PutInventory
 func (mr *MockSSMAPIMockRecorder) PutInventory(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutInventory", reflect.TypeOf((*MockSSMAPI)(nil).PutInventory), arg0)
 }
 
 // PutInventoryRequest mocks base method
 func (m *MockSSMAPI) PutInventoryRequest(arg0 *ssm.PutInventoryInput) (*request.Request, *ssm.PutInventoryOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutInventoryRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.PutInventoryOutput)
@@ -4161,11 +4772,13 @@ func (m *MockSSMAPI) PutInventoryRequest(arg0 *ssm.PutInventoryInput) (*request.
 
 // PutInventoryRequest indicates an expected call of PutInventoryRequest
 func (mr *MockSSMAPIMockRecorder) PutInventoryRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutInventoryRequest", reflect.TypeOf((*MockSSMAPI)(nil).PutInventoryRequest), arg0)
 }
 
 // PutInventoryWithContext mocks base method
-func (m *MockSSMAPI) PutInventoryWithContext(arg0 aws.Context, arg1 *ssm.PutInventoryInput, arg2 ...request.Option) (*ssm.PutInventoryOutput, error) {
+func (m *MockSSMAPI) PutInventoryWithContext(arg0 context.Context, arg1 *ssm.PutInventoryInput, arg2 ...request.Option) (*ssm.PutInventoryOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4178,12 +4791,14 @@ func (m *MockSSMAPI) PutInventoryWithContext(arg0 aws.Context, arg1 *ssm.PutInve
 
 // PutInventoryWithContext indicates an expected call of PutInventoryWithContext
 func (mr *MockSSMAPIMockRecorder) PutInventoryWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutInventoryWithContext", reflect.TypeOf((*MockSSMAPI)(nil).PutInventoryWithContext), varargs...)
 }
 
 // PutParameter mocks base method
 func (m *MockSSMAPI) PutParameter(arg0 *ssm.PutParameterInput) (*ssm.PutParameterOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutParameter", arg0)
 	ret0, _ := ret[0].(*ssm.PutParameterOutput)
 	ret1, _ := ret[1].(error)
@@ -4192,11 +4807,13 @@ func (m *MockSSMAPI) PutParameter(arg0 *ssm.PutParameterInput) (*ssm.PutParamete
 
 // PutParameter indicates an expected call of PutParameter
 func (mr *MockSSMAPIMockRecorder) PutParameter(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutParameter", reflect.TypeOf((*MockSSMAPI)(nil).PutParameter), arg0)
 }
 
 // PutParameterRequest mocks base method
 func (m *MockSSMAPI) PutParameterRequest(arg0 *ssm.PutParameterInput) (*request.Request, *ssm.PutParameterOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutParameterRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.PutParameterOutput)
@@ -4205,11 +4822,13 @@ func (m *MockSSMAPI) PutParameterRequest(arg0 *ssm.PutParameterInput) (*request.
 
 // PutParameterRequest indicates an expected call of PutParameterRequest
 func (mr *MockSSMAPIMockRecorder) PutParameterRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutParameterRequest", reflect.TypeOf((*MockSSMAPI)(nil).PutParameterRequest), arg0)
 }
 
 // PutParameterWithContext mocks base method
-func (m *MockSSMAPI) PutParameterWithContext(arg0 aws.Context, arg1 *ssm.PutParameterInput, arg2 ...request.Option) (*ssm.PutParameterOutput, error) {
+func (m *MockSSMAPI) PutParameterWithContext(arg0 context.Context, arg1 *ssm.PutParameterInput, arg2 ...request.Option) (*ssm.PutParameterOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4222,12 +4841,14 @@ func (m *MockSSMAPI) PutParameterWithContext(arg0 aws.Context, arg1 *ssm.PutPara
 
 // PutParameterWithContext indicates an expected call of PutParameterWithContext
 func (mr *MockSSMAPIMockRecorder) PutParameterWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutParameterWithContext", reflect.TypeOf((*MockSSMAPI)(nil).PutParameterWithContext), varargs...)
 }
 
 // RegisterDefaultPatchBaseline mocks base method
 func (m *MockSSMAPI) RegisterDefaultPatchBaseline(arg0 *ssm.RegisterDefaultPatchBaselineInput) (*ssm.RegisterDefaultPatchBaselineOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RegisterDefaultPatchBaseline", arg0)
 	ret0, _ := ret[0].(*ssm.RegisterDefaultPatchBaselineOutput)
 	ret1, _ := ret[1].(error)
@@ -4236,11 +4857,13 @@ func (m *MockSSMAPI) RegisterDefaultPatchBaseline(arg0 *ssm.RegisterDefaultPatch
 
 // RegisterDefaultPatchBaseline indicates an expected call of RegisterDefaultPatchBaseline
 func (mr *MockSSMAPIMockRecorder) RegisterDefaultPatchBaseline(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterDefaultPatchBaseline", reflect.TypeOf((*MockSSMAPI)(nil).RegisterDefaultPatchBaseline), arg0)
 }
 
 // RegisterDefaultPatchBaselineRequest mocks base method
 func (m *MockSSMAPI) RegisterDefaultPatchBaselineRequest(arg0 *ssm.RegisterDefaultPatchBaselineInput) (*request.Request, *ssm.RegisterDefaultPatchBaselineOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RegisterDefaultPatchBaselineRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.RegisterDefaultPatchBaselineOutput)
@@ -4249,11 +4872,13 @@ func (m *MockSSMAPI) RegisterDefaultPatchBaselineRequest(arg0 *ssm.RegisterDefau
 
 // RegisterDefaultPatchBaselineRequest indicates an expected call of RegisterDefaultPatchBaselineRequest
 func (mr *MockSSMAPIMockRecorder) RegisterDefaultPatchBaselineRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterDefaultPatchBaselineRequest", reflect.TypeOf((*MockSSMAPI)(nil).RegisterDefaultPatchBaselineRequest), arg0)
 }
 
 // RegisterDefaultPatchBaselineWithContext mocks base method
-func (m *MockSSMAPI) RegisterDefaultPatchBaselineWithContext(arg0 aws.Context, arg1 *ssm.RegisterDefaultPatchBaselineInput, arg2 ...request.Option) (*ssm.RegisterDefaultPatchBaselineOutput, error) {
+func (m *MockSSMAPI) RegisterDefaultPatchBaselineWithContext(arg0 context.Context, arg1 *ssm.RegisterDefaultPatchBaselineInput, arg2 ...request.Option) (*ssm.RegisterDefaultPatchBaselineOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4266,12 +4891,14 @@ func (m *MockSSMAPI) RegisterDefaultPatchBaselineWithContext(arg0 aws.Context, a
 
 // RegisterDefaultPatchBaselineWithContext indicates an expected call of RegisterDefaultPatchBaselineWithContext
 func (mr *MockSSMAPIMockRecorder) RegisterDefaultPatchBaselineWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterDefaultPatchBaselineWithContext", reflect.TypeOf((*MockSSMAPI)(nil).RegisterDefaultPatchBaselineWithContext), varargs...)
 }
 
 // RegisterPatchBaselineForPatchGroup mocks base method
 func (m *MockSSMAPI) RegisterPatchBaselineForPatchGroup(arg0 *ssm.RegisterPatchBaselineForPatchGroupInput) (*ssm.RegisterPatchBaselineForPatchGroupOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RegisterPatchBaselineForPatchGroup", arg0)
 	ret0, _ := ret[0].(*ssm.RegisterPatchBaselineForPatchGroupOutput)
 	ret1, _ := ret[1].(error)
@@ -4280,11 +4907,13 @@ func (m *MockSSMAPI) RegisterPatchBaselineForPatchGroup(arg0 *ssm.RegisterPatchB
 
 // RegisterPatchBaselineForPatchGroup indicates an expected call of RegisterPatchBaselineForPatchGroup
 func (mr *MockSSMAPIMockRecorder) RegisterPatchBaselineForPatchGroup(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterPatchBaselineForPatchGroup", reflect.TypeOf((*MockSSMAPI)(nil).RegisterPatchBaselineForPatchGroup), arg0)
 }
 
 // RegisterPatchBaselineForPatchGroupRequest mocks base method
 func (m *MockSSMAPI) RegisterPatchBaselineForPatchGroupRequest(arg0 *ssm.RegisterPatchBaselineForPatchGroupInput) (*request.Request, *ssm.RegisterPatchBaselineForPatchGroupOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RegisterPatchBaselineForPatchGroupRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.RegisterPatchBaselineForPatchGroupOutput)
@@ -4293,11 +4922,13 @@ func (m *MockSSMAPI) RegisterPatchBaselineForPatchGroupRequest(arg0 *ssm.Registe
 
 // RegisterPatchBaselineForPatchGroupRequest indicates an expected call of RegisterPatchBaselineForPatchGroupRequest
 func (mr *MockSSMAPIMockRecorder) RegisterPatchBaselineForPatchGroupRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterPatchBaselineForPatchGroupRequest", reflect.TypeOf((*MockSSMAPI)(nil).RegisterPatchBaselineForPatchGroupRequest), arg0)
 }
 
 // RegisterPatchBaselineForPatchGroupWithContext mocks base method
-func (m *MockSSMAPI) RegisterPatchBaselineForPatchGroupWithContext(arg0 aws.Context, arg1 *ssm.RegisterPatchBaselineForPatchGroupInput, arg2 ...request.Option) (*ssm.RegisterPatchBaselineForPatchGroupOutput, error) {
+func (m *MockSSMAPI) RegisterPatchBaselineForPatchGroupWithContext(arg0 context.Context, arg1 *ssm.RegisterPatchBaselineForPatchGroupInput, arg2 ...request.Option) (*ssm.RegisterPatchBaselineForPatchGroupOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4310,12 +4941,14 @@ func (m *MockSSMAPI) RegisterPatchBaselineForPatchGroupWithContext(arg0 aws.Cont
 
 // RegisterPatchBaselineForPatchGroupWithContext indicates an expected call of RegisterPatchBaselineForPatchGroupWithContext
 func (mr *MockSSMAPIMockRecorder) RegisterPatchBaselineForPatchGroupWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterPatchBaselineForPatchGroupWithContext", reflect.TypeOf((*MockSSMAPI)(nil).RegisterPatchBaselineForPatchGroupWithContext), varargs...)
 }
 
 // RegisterTargetWithMaintenanceWindow mocks base method
 func (m *MockSSMAPI) RegisterTargetWithMaintenanceWindow(arg0 *ssm.RegisterTargetWithMaintenanceWindowInput) (*ssm.RegisterTargetWithMaintenanceWindowOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RegisterTargetWithMaintenanceWindow", arg0)
 	ret0, _ := ret[0].(*ssm.RegisterTargetWithMaintenanceWindowOutput)
 	ret1, _ := ret[1].(error)
@@ -4324,11 +4957,13 @@ func (m *MockSSMAPI) RegisterTargetWithMaintenanceWindow(arg0 *ssm.RegisterTarge
 
 // RegisterTargetWithMaintenanceWindow indicates an expected call of RegisterTargetWithMaintenanceWindow
 func (mr *MockSSMAPIMockRecorder) RegisterTargetWithMaintenanceWindow(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterTargetWithMaintenanceWindow", reflect.TypeOf((*MockSSMAPI)(nil).RegisterTargetWithMaintenanceWindow), arg0)
 }
 
 // RegisterTargetWithMaintenanceWindowRequest mocks base method
 func (m *MockSSMAPI) RegisterTargetWithMaintenanceWindowRequest(arg0 *ssm.RegisterTargetWithMaintenanceWindowInput) (*request.Request, *ssm.RegisterTargetWithMaintenanceWindowOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RegisterTargetWithMaintenanceWindowRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.RegisterTargetWithMaintenanceWindowOutput)
@@ -4337,11 +4972,13 @@ func (m *MockSSMAPI) RegisterTargetWithMaintenanceWindowRequest(arg0 *ssm.Regist
 
 // RegisterTargetWithMaintenanceWindowRequest indicates an expected call of RegisterTargetWithMaintenanceWindowRequest
 func (mr *MockSSMAPIMockRecorder) RegisterTargetWithMaintenanceWindowRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterTargetWithMaintenanceWindowRequest", reflect.TypeOf((*MockSSMAPI)(nil).RegisterTargetWithMaintenanceWindowRequest), arg0)
 }
 
 // RegisterTargetWithMaintenanceWindowWithContext mocks base method
-func (m *MockSSMAPI) RegisterTargetWithMaintenanceWindowWithContext(arg0 aws.Context, arg1 *ssm.RegisterTargetWithMaintenanceWindowInput, arg2 ...request.Option) (*ssm.RegisterTargetWithMaintenanceWindowOutput, error) {
+func (m *MockSSMAPI) RegisterTargetWithMaintenanceWindowWithContext(arg0 context.Context, arg1 *ssm.RegisterTargetWithMaintenanceWindowInput, arg2 ...request.Option) (*ssm.RegisterTargetWithMaintenanceWindowOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4354,12 +4991,14 @@ func (m *MockSSMAPI) RegisterTargetWithMaintenanceWindowWithContext(arg0 aws.Con
 
 // RegisterTargetWithMaintenanceWindowWithContext indicates an expected call of RegisterTargetWithMaintenanceWindowWithContext
 func (mr *MockSSMAPIMockRecorder) RegisterTargetWithMaintenanceWindowWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterTargetWithMaintenanceWindowWithContext", reflect.TypeOf((*MockSSMAPI)(nil).RegisterTargetWithMaintenanceWindowWithContext), varargs...)
 }
 
 // RegisterTaskWithMaintenanceWindow mocks base method
 func (m *MockSSMAPI) RegisterTaskWithMaintenanceWindow(arg0 *ssm.RegisterTaskWithMaintenanceWindowInput) (*ssm.RegisterTaskWithMaintenanceWindowOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RegisterTaskWithMaintenanceWindow", arg0)
 	ret0, _ := ret[0].(*ssm.RegisterTaskWithMaintenanceWindowOutput)
 	ret1, _ := ret[1].(error)
@@ -4368,11 +5007,13 @@ func (m *MockSSMAPI) RegisterTaskWithMaintenanceWindow(arg0 *ssm.RegisterTaskWit
 
 // RegisterTaskWithMaintenanceWindow indicates an expected call of RegisterTaskWithMaintenanceWindow
 func (mr *MockSSMAPIMockRecorder) RegisterTaskWithMaintenanceWindow(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterTaskWithMaintenanceWindow", reflect.TypeOf((*MockSSMAPI)(nil).RegisterTaskWithMaintenanceWindow), arg0)
 }
 
 // RegisterTaskWithMaintenanceWindowRequest mocks base method
 func (m *MockSSMAPI) RegisterTaskWithMaintenanceWindowRequest(arg0 *ssm.RegisterTaskWithMaintenanceWindowInput) (*request.Request, *ssm.RegisterTaskWithMaintenanceWindowOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RegisterTaskWithMaintenanceWindowRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.RegisterTaskWithMaintenanceWindowOutput)
@@ -4381,11 +5022,13 @@ func (m *MockSSMAPI) RegisterTaskWithMaintenanceWindowRequest(arg0 *ssm.Register
 
 // RegisterTaskWithMaintenanceWindowRequest indicates an expected call of RegisterTaskWithMaintenanceWindowRequest
 func (mr *MockSSMAPIMockRecorder) RegisterTaskWithMaintenanceWindowRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterTaskWithMaintenanceWindowRequest", reflect.TypeOf((*MockSSMAPI)(nil).RegisterTaskWithMaintenanceWindowRequest), arg0)
 }
 
 // RegisterTaskWithMaintenanceWindowWithContext mocks base method
-func (m *MockSSMAPI) RegisterTaskWithMaintenanceWindowWithContext(arg0 aws.Context, arg1 *ssm.RegisterTaskWithMaintenanceWindowInput, arg2 ...request.Option) (*ssm.RegisterTaskWithMaintenanceWindowOutput, error) {
+func (m *MockSSMAPI) RegisterTaskWithMaintenanceWindowWithContext(arg0 context.Context, arg1 *ssm.RegisterTaskWithMaintenanceWindowInput, arg2 ...request.Option) (*ssm.RegisterTaskWithMaintenanceWindowOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4398,12 +5041,14 @@ func (m *MockSSMAPI) RegisterTaskWithMaintenanceWindowWithContext(arg0 aws.Conte
 
 // RegisterTaskWithMaintenanceWindowWithContext indicates an expected call of RegisterTaskWithMaintenanceWindowWithContext
 func (mr *MockSSMAPIMockRecorder) RegisterTaskWithMaintenanceWindowWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterTaskWithMaintenanceWindowWithContext", reflect.TypeOf((*MockSSMAPI)(nil).RegisterTaskWithMaintenanceWindowWithContext), varargs...)
 }
 
 // RemoveTagsFromResource mocks base method
 func (m *MockSSMAPI) RemoveTagsFromResource(arg0 *ssm.RemoveTagsFromResourceInput) (*ssm.RemoveTagsFromResourceOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RemoveTagsFromResource", arg0)
 	ret0, _ := ret[0].(*ssm.RemoveTagsFromResourceOutput)
 	ret1, _ := ret[1].(error)
@@ -4412,11 +5057,13 @@ func (m *MockSSMAPI) RemoveTagsFromResource(arg0 *ssm.RemoveTagsFromResourceInpu
 
 // RemoveTagsFromResource indicates an expected call of RemoveTagsFromResource
 func (mr *MockSSMAPIMockRecorder) RemoveTagsFromResource(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveTagsFromResource", reflect.TypeOf((*MockSSMAPI)(nil).RemoveTagsFromResource), arg0)
 }
 
 // RemoveTagsFromResourceRequest mocks base method
 func (m *MockSSMAPI) RemoveTagsFromResourceRequest(arg0 *ssm.RemoveTagsFromResourceInput) (*request.Request, *ssm.RemoveTagsFromResourceOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RemoveTagsFromResourceRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.RemoveTagsFromResourceOutput)
@@ -4425,11 +5072,13 @@ func (m *MockSSMAPI) RemoveTagsFromResourceRequest(arg0 *ssm.RemoveTagsFromResou
 
 // RemoveTagsFromResourceRequest indicates an expected call of RemoveTagsFromResourceRequest
 func (mr *MockSSMAPIMockRecorder) RemoveTagsFromResourceRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveTagsFromResourceRequest", reflect.TypeOf((*MockSSMAPI)(nil).RemoveTagsFromResourceRequest), arg0)
 }
 
 // RemoveTagsFromResourceWithContext mocks base method
-func (m *MockSSMAPI) RemoveTagsFromResourceWithContext(arg0 aws.Context, arg1 *ssm.RemoveTagsFromResourceInput, arg2 ...request.Option) (*ssm.RemoveTagsFromResourceOutput, error) {
+func (m *MockSSMAPI) RemoveTagsFromResourceWithContext(arg0 context.Context, arg1 *ssm.RemoveTagsFromResourceInput, arg2 ...request.Option) (*ssm.RemoveTagsFromResourceOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4442,12 +5091,64 @@ func (m *MockSSMAPI) RemoveTagsFromResourceWithContext(arg0 aws.Context, arg1 *s
 
 // RemoveTagsFromResourceWithContext indicates an expected call of RemoveTagsFromResourceWithContext
 func (mr *MockSSMAPIMockRecorder) RemoveTagsFromResourceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveTagsFromResourceWithContext", reflect.TypeOf((*MockSSMAPI)(nil).RemoveTagsFromResourceWithContext), varargs...)
 }
 
+// ResetServiceSetting mocks base method
+func (m *MockSSMAPI) ResetServiceSetting(arg0 *ssm.ResetServiceSettingInput) (*ssm.ResetServiceSettingOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ResetServiceSetting", arg0)
+	ret0, _ := ret[0].(*ssm.ResetServiceSettingOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ResetServiceSetting indicates an expected call of ResetServiceSetting
+func (mr *MockSSMAPIMockRecorder) ResetServiceSetting(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResetServiceSetting", reflect.TypeOf((*MockSSMAPI)(nil).ResetServiceSetting), arg0)
+}
+
+// ResetServiceSettingRequest mocks base method
+func (m *MockSSMAPI) ResetServiceSettingRequest(arg0 *ssm.ResetServiceSettingInput) (*request.Request, *ssm.ResetServiceSettingOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ResetServiceSettingRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ssm.ResetServiceSettingOutput)
+	return ret0, ret1
+}
+
+// ResetServiceSettingRequest indicates an expected call of ResetServiceSettingRequest
+func (mr *MockSSMAPIMockRecorder) ResetServiceSettingRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResetServiceSettingRequest", reflect.TypeOf((*MockSSMAPI)(nil).ResetServiceSettingRequest), arg0)
+}
+
+// ResetServiceSettingWithContext mocks base method
+func (m *MockSSMAPI) ResetServiceSettingWithContext(arg0 context.Context, arg1 *ssm.ResetServiceSettingInput, arg2 ...request.Option) (*ssm.ResetServiceSettingOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ResetServiceSettingWithContext", varargs...)
+	ret0, _ := ret[0].(*ssm.ResetServiceSettingOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ResetServiceSettingWithContext indicates an expected call of ResetServiceSettingWithContext
+func (mr *MockSSMAPIMockRecorder) ResetServiceSettingWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResetServiceSettingWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ResetServiceSettingWithContext), varargs...)
+}
+
 // ResumeSession mocks base method
 func (m *MockSSMAPI) ResumeSession(arg0 *ssm.ResumeSessionInput) (*ssm.ResumeSessionOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ResumeSession", arg0)
 	ret0, _ := ret[0].(*ssm.ResumeSessionOutput)
 	ret1, _ := ret[1].(error)
@@ -4456,11 +5157,13 @@ func (m *MockSSMAPI) ResumeSession(arg0 *ssm.ResumeSessionInput) (*ssm.ResumeSes
 
 // ResumeSession indicates an expected call of ResumeSession
 func (mr *MockSSMAPIMockRecorder) ResumeSession(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResumeSession", reflect.TypeOf((*MockSSMAPI)(nil).ResumeSession), arg0)
 }
 
 // ResumeSessionRequest mocks base method
 func (m *MockSSMAPI) ResumeSessionRequest(arg0 *ssm.ResumeSessionInput) (*request.Request, *ssm.ResumeSessionOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ResumeSessionRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.ResumeSessionOutput)
@@ -4469,11 +5172,13 @@ func (m *MockSSMAPI) ResumeSessionRequest(arg0 *ssm.ResumeSessionInput) (*reques
 
 // ResumeSessionRequest indicates an expected call of ResumeSessionRequest
 func (mr *MockSSMAPIMockRecorder) ResumeSessionRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResumeSessionRequest", reflect.TypeOf((*MockSSMAPI)(nil).ResumeSessionRequest), arg0)
 }
 
 // ResumeSessionWithContext mocks base method
-func (m *MockSSMAPI) ResumeSessionWithContext(arg0 aws.Context, arg1 *ssm.ResumeSessionInput, arg2 ...request.Option) (*ssm.ResumeSessionOutput, error) {
+func (m *MockSSMAPI) ResumeSessionWithContext(arg0 context.Context, arg1 *ssm.ResumeSessionInput, arg2 ...request.Option) (*ssm.ResumeSessionOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4486,12 +5191,14 @@ func (m *MockSSMAPI) ResumeSessionWithContext(arg0 aws.Context, arg1 *ssm.Resume
 
 // ResumeSessionWithContext indicates an expected call of ResumeSessionWithContext
 func (mr *MockSSMAPIMockRecorder) ResumeSessionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResumeSessionWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ResumeSessionWithContext), varargs...)
 }
 
 // SendAutomationSignal mocks base method
 func (m *MockSSMAPI) SendAutomationSignal(arg0 *ssm.SendAutomationSignalInput) (*ssm.SendAutomationSignalOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SendAutomationSignal", arg0)
 	ret0, _ := ret[0].(*ssm.SendAutomationSignalOutput)
 	ret1, _ := ret[1].(error)
@@ -4500,11 +5207,13 @@ func (m *MockSSMAPI) SendAutomationSignal(arg0 *ssm.SendAutomationSignalInput) (
 
 // SendAutomationSignal indicates an expected call of SendAutomationSignal
 func (mr *MockSSMAPIMockRecorder) SendAutomationSignal(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendAutomationSignal", reflect.TypeOf((*MockSSMAPI)(nil).SendAutomationSignal), arg0)
 }
 
 // SendAutomationSignalRequest mocks base method
 func (m *MockSSMAPI) SendAutomationSignalRequest(arg0 *ssm.SendAutomationSignalInput) (*request.Request, *ssm.SendAutomationSignalOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SendAutomationSignalRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.SendAutomationSignalOutput)
@@ -4513,11 +5222,13 @@ func (m *MockSSMAPI) SendAutomationSignalRequest(arg0 *ssm.SendAutomationSignalI
 
 // SendAutomationSignalRequest indicates an expected call of SendAutomationSignalRequest
 func (mr *MockSSMAPIMockRecorder) SendAutomationSignalRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendAutomationSignalRequest", reflect.TypeOf((*MockSSMAPI)(nil).SendAutomationSignalRequest), arg0)
 }
 
 // SendAutomationSignalWithContext mocks base method
-func (m *MockSSMAPI) SendAutomationSignalWithContext(arg0 aws.Context, arg1 *ssm.SendAutomationSignalInput, arg2 ...request.Option) (*ssm.SendAutomationSignalOutput, error) {
+func (m *MockSSMAPI) SendAutomationSignalWithContext(arg0 context.Context, arg1 *ssm.SendAutomationSignalInput, arg2 ...request.Option) (*ssm.SendAutomationSignalOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4530,12 +5241,14 @@ func (m *MockSSMAPI) SendAutomationSignalWithContext(arg0 aws.Context, arg1 *ssm
 
 // SendAutomationSignalWithContext indicates an expected call of SendAutomationSignalWithContext
 func (mr *MockSSMAPIMockRecorder) SendAutomationSignalWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendAutomationSignalWithContext", reflect.TypeOf((*MockSSMAPI)(nil).SendAutomationSignalWithContext), varargs...)
 }
 
 // SendCommand mocks base method
 func (m *MockSSMAPI) SendCommand(arg0 *ssm.SendCommandInput) (*ssm.SendCommandOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SendCommand", arg0)
 	ret0, _ := ret[0].(*ssm.SendCommandOutput)
 	ret1, _ := ret[1].(error)
@@ -4544,11 +5257,13 @@ func (m *MockSSMAPI) SendCommand(arg0 *ssm.SendCommandInput) (*ssm.SendCommandOu
 
 // SendCommand indicates an expected call of SendCommand
 func (mr *MockSSMAPIMockRecorder) SendCommand(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendCommand", reflect.TypeOf((*MockSSMAPI)(nil).SendCommand), arg0)
 }
 
 // SendCommandRequest mocks base method
 func (m *MockSSMAPI) SendCommandRequest(arg0 *ssm.SendCommandInput) (*request.Request, *ssm.SendCommandOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SendCommandRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.SendCommandOutput)
@@ -4557,11 +5272,13 @@ func (m *MockSSMAPI) SendCommandRequest(arg0 *ssm.SendCommandInput) (*request.Re
 
 // SendCommandRequest indicates an expected call of SendCommandRequest
 func (mr *MockSSMAPIMockRecorder) SendCommandRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendCommandRequest", reflect.TypeOf((*MockSSMAPI)(nil).SendCommandRequest), arg0)
 }
 
 // SendCommandWithContext mocks base method
-func (m *MockSSMAPI) SendCommandWithContext(arg0 aws.Context, arg1 *ssm.SendCommandInput, arg2 ...request.Option) (*ssm.SendCommandOutput, error) {
+func (m *MockSSMAPI) SendCommandWithContext(arg0 context.Context, arg1 *ssm.SendCommandInput, arg2 ...request.Option) (*ssm.SendCommandOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4574,12 +5291,14 @@ func (m *MockSSMAPI) SendCommandWithContext(arg0 aws.Context, arg1 *ssm.SendComm
 
 // SendCommandWithContext indicates an expected call of SendCommandWithContext
 func (mr *MockSSMAPIMockRecorder) SendCommandWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendCommandWithContext", reflect.TypeOf((*MockSSMAPI)(nil).SendCommandWithContext), varargs...)
 }
 
 // StartAssociationsOnce mocks base method
 func (m *MockSSMAPI) StartAssociationsOnce(arg0 *ssm.StartAssociationsOnceInput) (*ssm.StartAssociationsOnceOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StartAssociationsOnce", arg0)
 	ret0, _ := ret[0].(*ssm.StartAssociationsOnceOutput)
 	ret1, _ := ret[1].(error)
@@ -4588,11 +5307,13 @@ func (m *MockSSMAPI) StartAssociationsOnce(arg0 *ssm.StartAssociationsOnceInput)
 
 // StartAssociationsOnce indicates an expected call of StartAssociationsOnce
 func (mr *MockSSMAPIMockRecorder) StartAssociationsOnce(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartAssociationsOnce", reflect.TypeOf((*MockSSMAPI)(nil).StartAssociationsOnce), arg0)
 }
 
 // StartAssociationsOnceRequest mocks base method
 func (m *MockSSMAPI) StartAssociationsOnceRequest(arg0 *ssm.StartAssociationsOnceInput) (*request.Request, *ssm.StartAssociationsOnceOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StartAssociationsOnceRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.StartAssociationsOnceOutput)
@@ -4601,11 +5322,13 @@ func (m *MockSSMAPI) StartAssociationsOnceRequest(arg0 *ssm.StartAssociationsOnc
 
 // StartAssociationsOnceRequest indicates an expected call of StartAssociationsOnceRequest
 func (mr *MockSSMAPIMockRecorder) StartAssociationsOnceRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartAssociationsOnceRequest", reflect.TypeOf((*MockSSMAPI)(nil).StartAssociationsOnceRequest), arg0)
 }
 
 // StartAssociationsOnceWithContext mocks base method
-func (m *MockSSMAPI) StartAssociationsOnceWithContext(arg0 aws.Context, arg1 *ssm.StartAssociationsOnceInput, arg2 ...request.Option) (*ssm.StartAssociationsOnceOutput, error) {
+func (m *MockSSMAPI) StartAssociationsOnceWithContext(arg0 context.Context, arg1 *ssm.StartAssociationsOnceInput, arg2 ...request.Option) (*ssm.StartAssociationsOnceOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4618,12 +5341,14 @@ func (m *MockSSMAPI) StartAssociationsOnceWithContext(arg0 aws.Context, arg1 *ss
 
 // StartAssociationsOnceWithContext indicates an expected call of StartAssociationsOnceWithContext
 func (mr *MockSSMAPIMockRecorder) StartAssociationsOnceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartAssociationsOnceWithContext", reflect.TypeOf((*MockSSMAPI)(nil).StartAssociationsOnceWithContext), varargs...)
 }
 
 // StartAutomationExecution mocks base method
 func (m *MockSSMAPI) StartAutomationExecution(arg0 *ssm.StartAutomationExecutionInput) (*ssm.StartAutomationExecutionOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StartAutomationExecution", arg0)
 	ret0, _ := ret[0].(*ssm.StartAutomationExecutionOutput)
 	ret1, _ := ret[1].(error)
@@ -4632,11 +5357,13 @@ func (m *MockSSMAPI) StartAutomationExecution(arg0 *ssm.StartAutomationExecution
 
 // StartAutomationExecution indicates an expected call of StartAutomationExecution
 func (mr *MockSSMAPIMockRecorder) StartAutomationExecution(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartAutomationExecution", reflect.TypeOf((*MockSSMAPI)(nil).StartAutomationExecution), arg0)
 }
 
 // StartAutomationExecutionRequest mocks base method
 func (m *MockSSMAPI) StartAutomationExecutionRequest(arg0 *ssm.StartAutomationExecutionInput) (*request.Request, *ssm.StartAutomationExecutionOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StartAutomationExecutionRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.StartAutomationExecutionOutput)
@@ -4645,11 +5372,13 @@ func (m *MockSSMAPI) StartAutomationExecutionRequest(arg0 *ssm.StartAutomationEx
 
 // StartAutomationExecutionRequest indicates an expected call of StartAutomationExecutionRequest
 func (mr *MockSSMAPIMockRecorder) StartAutomationExecutionRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartAutomationExecutionRequest", reflect.TypeOf((*MockSSMAPI)(nil).StartAutomationExecutionRequest), arg0)
 }
 
 // StartAutomationExecutionWithContext mocks base method
-func (m *MockSSMAPI) StartAutomationExecutionWithContext(arg0 aws.Context, arg1 *ssm.StartAutomationExecutionInput, arg2 ...request.Option) (*ssm.StartAutomationExecutionOutput, error) {
+func (m *MockSSMAPI) StartAutomationExecutionWithContext(arg0 context.Context, arg1 *ssm.StartAutomationExecutionInput, arg2 ...request.Option) (*ssm.StartAutomationExecutionOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4662,12 +5391,14 @@ func (m *MockSSMAPI) StartAutomationExecutionWithContext(arg0 aws.Context, arg1 
 
 // StartAutomationExecutionWithContext indicates an expected call of StartAutomationExecutionWithContext
 func (mr *MockSSMAPIMockRecorder) StartAutomationExecutionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartAutomationExecutionWithContext", reflect.TypeOf((*MockSSMAPI)(nil).StartAutomationExecutionWithContext), varargs...)
 }
 
 // StartSession mocks base method
 func (m *MockSSMAPI) StartSession(arg0 *ssm.StartSessionInput) (*ssm.StartSessionOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StartSession", arg0)
 	ret0, _ := ret[0].(*ssm.StartSessionOutput)
 	ret1, _ := ret[1].(error)
@@ -4676,11 +5407,13 @@ func (m *MockSSMAPI) StartSession(arg0 *ssm.StartSessionInput) (*ssm.StartSessio
 
 // StartSession indicates an expected call of StartSession
 func (mr *MockSSMAPIMockRecorder) StartSession(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartSession", reflect.TypeOf((*MockSSMAPI)(nil).StartSession), arg0)
 }
 
 // StartSessionRequest mocks base method
 func (m *MockSSMAPI) StartSessionRequest(arg0 *ssm.StartSessionInput) (*request.Request, *ssm.StartSessionOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StartSessionRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.StartSessionOutput)
@@ -4689,11 +5422,13 @@ func (m *MockSSMAPI) StartSessionRequest(arg0 *ssm.StartSessionInput) (*request.
 
 // StartSessionRequest indicates an expected call of StartSessionRequest
 func (mr *MockSSMAPIMockRecorder) StartSessionRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartSessionRequest", reflect.TypeOf((*MockSSMAPI)(nil).StartSessionRequest), arg0)
 }
 
 // StartSessionWithContext mocks base method
-func (m *MockSSMAPI) StartSessionWithContext(arg0 aws.Context, arg1 *ssm.StartSessionInput, arg2 ...request.Option) (*ssm.StartSessionOutput, error) {
+func (m *MockSSMAPI) StartSessionWithContext(arg0 context.Context, arg1 *ssm.StartSessionInput, arg2 ...request.Option) (*ssm.StartSessionOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4706,12 +5441,14 @@ func (m *MockSSMAPI) StartSessionWithContext(arg0 aws.Context, arg1 *ssm.StartSe
 
 // StartSessionWithContext indicates an expected call of StartSessionWithContext
 func (mr *MockSSMAPIMockRecorder) StartSessionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartSessionWithContext", reflect.TypeOf((*MockSSMAPI)(nil).StartSessionWithContext), varargs...)
 }
 
 // StopAutomationExecution mocks base method
 func (m *MockSSMAPI) StopAutomationExecution(arg0 *ssm.StopAutomationExecutionInput) (*ssm.StopAutomationExecutionOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StopAutomationExecution", arg0)
 	ret0, _ := ret[0].(*ssm.StopAutomationExecutionOutput)
 	ret1, _ := ret[1].(error)
@@ -4720,11 +5457,13 @@ func (m *MockSSMAPI) StopAutomationExecution(arg0 *ssm.StopAutomationExecutionIn
 
 // StopAutomationExecution indicates an expected call of StopAutomationExecution
 func (mr *MockSSMAPIMockRecorder) StopAutomationExecution(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StopAutomationExecution", reflect.TypeOf((*MockSSMAPI)(nil).StopAutomationExecution), arg0)
 }
 
 // StopAutomationExecutionRequest mocks base method
 func (m *MockSSMAPI) StopAutomationExecutionRequest(arg0 *ssm.StopAutomationExecutionInput) (*request.Request, *ssm.StopAutomationExecutionOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StopAutomationExecutionRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.StopAutomationExecutionOutput)
@@ -4733,11 +5472,13 @@ func (m *MockSSMAPI) StopAutomationExecutionRequest(arg0 *ssm.StopAutomationExec
 
 // StopAutomationExecutionRequest indicates an expected call of StopAutomationExecutionRequest
 func (mr *MockSSMAPIMockRecorder) StopAutomationExecutionRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StopAutomationExecutionRequest", reflect.TypeOf((*MockSSMAPI)(nil).StopAutomationExecutionRequest), arg0)
 }
 
 // StopAutomationExecutionWithContext mocks base method
-func (m *MockSSMAPI) StopAutomationExecutionWithContext(arg0 aws.Context, arg1 *ssm.StopAutomationExecutionInput, arg2 ...request.Option) (*ssm.StopAutomationExecutionOutput, error) {
+func (m *MockSSMAPI) StopAutomationExecutionWithContext(arg0 context.Context, arg1 *ssm.StopAutomationExecutionInput, arg2 ...request.Option) (*ssm.StopAutomationExecutionOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4750,12 +5491,14 @@ func (m *MockSSMAPI) StopAutomationExecutionWithContext(arg0 aws.Context, arg1 *
 
 // StopAutomationExecutionWithContext indicates an expected call of StopAutomationExecutionWithContext
 func (mr *MockSSMAPIMockRecorder) StopAutomationExecutionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StopAutomationExecutionWithContext", reflect.TypeOf((*MockSSMAPI)(nil).StopAutomationExecutionWithContext), varargs...)
 }
 
 // TerminateSession mocks base method
 func (m *MockSSMAPI) TerminateSession(arg0 *ssm.TerminateSessionInput) (*ssm.TerminateSessionOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TerminateSession", arg0)
 	ret0, _ := ret[0].(*ssm.TerminateSessionOutput)
 	ret1, _ := ret[1].(error)
@@ -4764,11 +5507,13 @@ func (m *MockSSMAPI) TerminateSession(arg0 *ssm.TerminateSessionInput) (*ssm.Ter
 
 // TerminateSession indicates an expected call of TerminateSession
 func (mr *MockSSMAPIMockRecorder) TerminateSession(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TerminateSession", reflect.TypeOf((*MockSSMAPI)(nil).TerminateSession), arg0)
 }
 
 // TerminateSessionRequest mocks base method
 func (m *MockSSMAPI) TerminateSessionRequest(arg0 *ssm.TerminateSessionInput) (*request.Request, *ssm.TerminateSessionOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TerminateSessionRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.TerminateSessionOutput)
@@ -4777,11 +5522,13 @@ func (m *MockSSMAPI) TerminateSessionRequest(arg0 *ssm.TerminateSessionInput) (*
 
 // TerminateSessionRequest indicates an expected call of TerminateSessionRequest
 func (mr *MockSSMAPIMockRecorder) TerminateSessionRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TerminateSessionRequest", reflect.TypeOf((*MockSSMAPI)(nil).TerminateSessionRequest), arg0)
 }
 
 // TerminateSessionWithContext mocks base method
-func (m *MockSSMAPI) TerminateSessionWithContext(arg0 aws.Context, arg1 *ssm.TerminateSessionInput, arg2 ...request.Option) (*ssm.TerminateSessionOutput, error) {
+func (m *MockSSMAPI) TerminateSessionWithContext(arg0 context.Context, arg1 *ssm.TerminateSessionInput, arg2 ...request.Option) (*ssm.TerminateSessionOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4794,12 +5541,14 @@ func (m *MockSSMAPI) TerminateSessionWithContext(arg0 aws.Context, arg1 *ssm.Ter
 
 // TerminateSessionWithContext indicates an expected call of TerminateSessionWithContext
 func (mr *MockSSMAPIMockRecorder) TerminateSessionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TerminateSessionWithContext", reflect.TypeOf((*MockSSMAPI)(nil).TerminateSessionWithContext), varargs...)
 }
 
 // UpdateAssociation mocks base method
 func (m *MockSSMAPI) UpdateAssociation(arg0 *ssm.UpdateAssociationInput) (*ssm.UpdateAssociationOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateAssociation", arg0)
 	ret0, _ := ret[0].(*ssm.UpdateAssociationOutput)
 	ret1, _ := ret[1].(error)
@@ -4808,11 +5557,13 @@ func (m *MockSSMAPI) UpdateAssociation(arg0 *ssm.UpdateAssociationInput) (*ssm.U
 
 // UpdateAssociation indicates an expected call of UpdateAssociation
 func (mr *MockSSMAPIMockRecorder) UpdateAssociation(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAssociation", reflect.TypeOf((*MockSSMAPI)(nil).UpdateAssociation), arg0)
 }
 
 // UpdateAssociationRequest mocks base method
 func (m *MockSSMAPI) UpdateAssociationRequest(arg0 *ssm.UpdateAssociationInput) (*request.Request, *ssm.UpdateAssociationOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateAssociationRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.UpdateAssociationOutput)
@@ -4821,11 +5572,13 @@ func (m *MockSSMAPI) UpdateAssociationRequest(arg0 *ssm.UpdateAssociationInput) 
 
 // UpdateAssociationRequest indicates an expected call of UpdateAssociationRequest
 func (mr *MockSSMAPIMockRecorder) UpdateAssociationRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAssociationRequest", reflect.TypeOf((*MockSSMAPI)(nil).UpdateAssociationRequest), arg0)
 }
 
 // UpdateAssociationStatus mocks base method
 func (m *MockSSMAPI) UpdateAssociationStatus(arg0 *ssm.UpdateAssociationStatusInput) (*ssm.UpdateAssociationStatusOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateAssociationStatus", arg0)
 	ret0, _ := ret[0].(*ssm.UpdateAssociationStatusOutput)
 	ret1, _ := ret[1].(error)
@@ -4834,11 +5587,13 @@ func (m *MockSSMAPI) UpdateAssociationStatus(arg0 *ssm.UpdateAssociationStatusIn
 
 // UpdateAssociationStatus indicates an expected call of UpdateAssociationStatus
 func (mr *MockSSMAPIMockRecorder) UpdateAssociationStatus(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAssociationStatus", reflect.TypeOf((*MockSSMAPI)(nil).UpdateAssociationStatus), arg0)
 }
 
 // UpdateAssociationStatusRequest mocks base method
 func (m *MockSSMAPI) UpdateAssociationStatusRequest(arg0 *ssm.UpdateAssociationStatusInput) (*request.Request, *ssm.UpdateAssociationStatusOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateAssociationStatusRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.UpdateAssociationStatusOutput)
@@ -4847,11 +5602,13 @@ func (m *MockSSMAPI) UpdateAssociationStatusRequest(arg0 *ssm.UpdateAssociationS
 
 // UpdateAssociationStatusRequest indicates an expected call of UpdateAssociationStatusRequest
 func (mr *MockSSMAPIMockRecorder) UpdateAssociationStatusRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAssociationStatusRequest", reflect.TypeOf((*MockSSMAPI)(nil).UpdateAssociationStatusRequest), arg0)
 }
 
 // UpdateAssociationStatusWithContext mocks base method
-func (m *MockSSMAPI) UpdateAssociationStatusWithContext(arg0 aws.Context, arg1 *ssm.UpdateAssociationStatusInput, arg2 ...request.Option) (*ssm.UpdateAssociationStatusOutput, error) {
+func (m *MockSSMAPI) UpdateAssociationStatusWithContext(arg0 context.Context, arg1 *ssm.UpdateAssociationStatusInput, arg2 ...request.Option) (*ssm.UpdateAssociationStatusOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4864,12 +5621,14 @@ func (m *MockSSMAPI) UpdateAssociationStatusWithContext(arg0 aws.Context, arg1 *
 
 // UpdateAssociationStatusWithContext indicates an expected call of UpdateAssociationStatusWithContext
 func (mr *MockSSMAPIMockRecorder) UpdateAssociationStatusWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAssociationStatusWithContext", reflect.TypeOf((*MockSSMAPI)(nil).UpdateAssociationStatusWithContext), varargs...)
 }
 
 // UpdateAssociationWithContext mocks base method
-func (m *MockSSMAPI) UpdateAssociationWithContext(arg0 aws.Context, arg1 *ssm.UpdateAssociationInput, arg2 ...request.Option) (*ssm.UpdateAssociationOutput, error) {
+func (m *MockSSMAPI) UpdateAssociationWithContext(arg0 context.Context, arg1 *ssm.UpdateAssociationInput, arg2 ...request.Option) (*ssm.UpdateAssociationOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4882,12 +5641,14 @@ func (m *MockSSMAPI) UpdateAssociationWithContext(arg0 aws.Context, arg1 *ssm.Up
 
 // UpdateAssociationWithContext indicates an expected call of UpdateAssociationWithContext
 func (mr *MockSSMAPIMockRecorder) UpdateAssociationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAssociationWithContext", reflect.TypeOf((*MockSSMAPI)(nil).UpdateAssociationWithContext), varargs...)
 }
 
 // UpdateDocument mocks base method
 func (m *MockSSMAPI) UpdateDocument(arg0 *ssm.UpdateDocumentInput) (*ssm.UpdateDocumentOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateDocument", arg0)
 	ret0, _ := ret[0].(*ssm.UpdateDocumentOutput)
 	ret1, _ := ret[1].(error)
@@ -4896,11 +5657,13 @@ func (m *MockSSMAPI) UpdateDocument(arg0 *ssm.UpdateDocumentInput) (*ssm.UpdateD
 
 // UpdateDocument indicates an expected call of UpdateDocument
 func (mr *MockSSMAPIMockRecorder) UpdateDocument(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDocument", reflect.TypeOf((*MockSSMAPI)(nil).UpdateDocument), arg0)
 }
 
 // UpdateDocumentDefaultVersion mocks base method
 func (m *MockSSMAPI) UpdateDocumentDefaultVersion(arg0 *ssm.UpdateDocumentDefaultVersionInput) (*ssm.UpdateDocumentDefaultVersionOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateDocumentDefaultVersion", arg0)
 	ret0, _ := ret[0].(*ssm.UpdateDocumentDefaultVersionOutput)
 	ret1, _ := ret[1].(error)
@@ -4909,11 +5672,13 @@ func (m *MockSSMAPI) UpdateDocumentDefaultVersion(arg0 *ssm.UpdateDocumentDefaul
 
 // UpdateDocumentDefaultVersion indicates an expected call of UpdateDocumentDefaultVersion
 func (mr *MockSSMAPIMockRecorder) UpdateDocumentDefaultVersion(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDocumentDefaultVersion", reflect.TypeOf((*MockSSMAPI)(nil).UpdateDocumentDefaultVersion), arg0)
 }
 
 // UpdateDocumentDefaultVersionRequest mocks base method
 func (m *MockSSMAPI) UpdateDocumentDefaultVersionRequest(arg0 *ssm.UpdateDocumentDefaultVersionInput) (*request.Request, *ssm.UpdateDocumentDefaultVersionOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateDocumentDefaultVersionRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.UpdateDocumentDefaultVersionOutput)
@@ -4922,11 +5687,13 @@ func (m *MockSSMAPI) UpdateDocumentDefaultVersionRequest(arg0 *ssm.UpdateDocumen
 
 // UpdateDocumentDefaultVersionRequest indicates an expected call of UpdateDocumentDefaultVersionRequest
 func (mr *MockSSMAPIMockRecorder) UpdateDocumentDefaultVersionRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDocumentDefaultVersionRequest", reflect.TypeOf((*MockSSMAPI)(nil).UpdateDocumentDefaultVersionRequest), arg0)
 }
 
 // UpdateDocumentDefaultVersionWithContext mocks base method
-func (m *MockSSMAPI) UpdateDocumentDefaultVersionWithContext(arg0 aws.Context, arg1 *ssm.UpdateDocumentDefaultVersionInput, arg2 ...request.Option) (*ssm.UpdateDocumentDefaultVersionOutput, error) {
+func (m *MockSSMAPI) UpdateDocumentDefaultVersionWithContext(arg0 context.Context, arg1 *ssm.UpdateDocumentDefaultVersionInput, arg2 ...request.Option) (*ssm.UpdateDocumentDefaultVersionOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4939,12 +5706,14 @@ func (m *MockSSMAPI) UpdateDocumentDefaultVersionWithContext(arg0 aws.Context, a
 
 // UpdateDocumentDefaultVersionWithContext indicates an expected call of UpdateDocumentDefaultVersionWithContext
 func (mr *MockSSMAPIMockRecorder) UpdateDocumentDefaultVersionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDocumentDefaultVersionWithContext", reflect.TypeOf((*MockSSMAPI)(nil).UpdateDocumentDefaultVersionWithContext), varargs...)
 }
 
 // UpdateDocumentRequest mocks base method
 func (m *MockSSMAPI) UpdateDocumentRequest(arg0 *ssm.UpdateDocumentInput) (*request.Request, *ssm.UpdateDocumentOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateDocumentRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.UpdateDocumentOutput)
@@ -4953,11 +5722,13 @@ func (m *MockSSMAPI) UpdateDocumentRequest(arg0 *ssm.UpdateDocumentInput) (*requ
 
 // UpdateDocumentRequest indicates an expected call of UpdateDocumentRequest
 func (mr *MockSSMAPIMockRecorder) UpdateDocumentRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDocumentRequest", reflect.TypeOf((*MockSSMAPI)(nil).UpdateDocumentRequest), arg0)
 }
 
 // UpdateDocumentWithContext mocks base method
-func (m *MockSSMAPI) UpdateDocumentWithContext(arg0 aws.Context, arg1 *ssm.UpdateDocumentInput, arg2 ...request.Option) (*ssm.UpdateDocumentOutput, error) {
+func (m *MockSSMAPI) UpdateDocumentWithContext(arg0 context.Context, arg1 *ssm.UpdateDocumentInput, arg2 ...request.Option) (*ssm.UpdateDocumentOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -4970,12 +5741,14 @@ func (m *MockSSMAPI) UpdateDocumentWithContext(arg0 aws.Context, arg1 *ssm.Updat
 
 // UpdateDocumentWithContext indicates an expected call of UpdateDocumentWithContext
 func (mr *MockSSMAPIMockRecorder) UpdateDocumentWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDocumentWithContext", reflect.TypeOf((*MockSSMAPI)(nil).UpdateDocumentWithContext), varargs...)
 }
 
 // UpdateMaintenanceWindow mocks base method
 func (m *MockSSMAPI) UpdateMaintenanceWindow(arg0 *ssm.UpdateMaintenanceWindowInput) (*ssm.UpdateMaintenanceWindowOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateMaintenanceWindow", arg0)
 	ret0, _ := ret[0].(*ssm.UpdateMaintenanceWindowOutput)
 	ret1, _ := ret[1].(error)
@@ -4984,11 +5757,13 @@ func (m *MockSSMAPI) UpdateMaintenanceWindow(arg0 *ssm.UpdateMaintenanceWindowIn
 
 // UpdateMaintenanceWindow indicates an expected call of UpdateMaintenanceWindow
 func (mr *MockSSMAPIMockRecorder) UpdateMaintenanceWindow(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMaintenanceWindow", reflect.TypeOf((*MockSSMAPI)(nil).UpdateMaintenanceWindow), arg0)
 }
 
 // UpdateMaintenanceWindowRequest mocks base method
 func (m *MockSSMAPI) UpdateMaintenanceWindowRequest(arg0 *ssm.UpdateMaintenanceWindowInput) (*request.Request, *ssm.UpdateMaintenanceWindowOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateMaintenanceWindowRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.UpdateMaintenanceWindowOutput)
@@ -4997,11 +5772,13 @@ func (m *MockSSMAPI) UpdateMaintenanceWindowRequest(arg0 *ssm.UpdateMaintenanceW
 
 // UpdateMaintenanceWindowRequest indicates an expected call of UpdateMaintenanceWindowRequest
 func (mr *MockSSMAPIMockRecorder) UpdateMaintenanceWindowRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMaintenanceWindowRequest", reflect.TypeOf((*MockSSMAPI)(nil).UpdateMaintenanceWindowRequest), arg0)
 }
 
 // UpdateMaintenanceWindowTarget mocks base method
 func (m *MockSSMAPI) UpdateMaintenanceWindowTarget(arg0 *ssm.UpdateMaintenanceWindowTargetInput) (*ssm.UpdateMaintenanceWindowTargetOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateMaintenanceWindowTarget", arg0)
 	ret0, _ := ret[0].(*ssm.UpdateMaintenanceWindowTargetOutput)
 	ret1, _ := ret[1].(error)
@@ -5010,11 +5787,13 @@ func (m *MockSSMAPI) UpdateMaintenanceWindowTarget(arg0 *ssm.UpdateMaintenanceWi
 
 // UpdateMaintenanceWindowTarget indicates an expected call of UpdateMaintenanceWindowTarget
 func (mr *MockSSMAPIMockRecorder) UpdateMaintenanceWindowTarget(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMaintenanceWindowTarget", reflect.TypeOf((*MockSSMAPI)(nil).UpdateMaintenanceWindowTarget), arg0)
 }
 
 // UpdateMaintenanceWindowTargetRequest mocks base method
 func (m *MockSSMAPI) UpdateMaintenanceWindowTargetRequest(arg0 *ssm.UpdateMaintenanceWindowTargetInput) (*request.Request, *ssm.UpdateMaintenanceWindowTargetOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateMaintenanceWindowTargetRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.UpdateMaintenanceWindowTargetOutput)
@@ -5023,11 +5802,13 @@ func (m *MockSSMAPI) UpdateMaintenanceWindowTargetRequest(arg0 *ssm.UpdateMainte
 
 // UpdateMaintenanceWindowTargetRequest indicates an expected call of UpdateMaintenanceWindowTargetRequest
 func (mr *MockSSMAPIMockRecorder) UpdateMaintenanceWindowTargetRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMaintenanceWindowTargetRequest", reflect.TypeOf((*MockSSMAPI)(nil).UpdateMaintenanceWindowTargetRequest), arg0)
 }
 
 // UpdateMaintenanceWindowTargetWithContext mocks base method
-func (m *MockSSMAPI) UpdateMaintenanceWindowTargetWithContext(arg0 aws.Context, arg1 *ssm.UpdateMaintenanceWindowTargetInput, arg2 ...request.Option) (*ssm.UpdateMaintenanceWindowTargetOutput, error) {
+func (m *MockSSMAPI) UpdateMaintenanceWindowTargetWithContext(arg0 context.Context, arg1 *ssm.UpdateMaintenanceWindowTargetInput, arg2 ...request.Option) (*ssm.UpdateMaintenanceWindowTargetOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -5040,12 +5821,14 @@ func (m *MockSSMAPI) UpdateMaintenanceWindowTargetWithContext(arg0 aws.Context, 
 
 // UpdateMaintenanceWindowTargetWithContext indicates an expected call of UpdateMaintenanceWindowTargetWithContext
 func (mr *MockSSMAPIMockRecorder) UpdateMaintenanceWindowTargetWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMaintenanceWindowTargetWithContext", reflect.TypeOf((*MockSSMAPI)(nil).UpdateMaintenanceWindowTargetWithContext), varargs...)
 }
 
 // UpdateMaintenanceWindowTask mocks base method
 func (m *MockSSMAPI) UpdateMaintenanceWindowTask(arg0 *ssm.UpdateMaintenanceWindowTaskInput) (*ssm.UpdateMaintenanceWindowTaskOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateMaintenanceWindowTask", arg0)
 	ret0, _ := ret[0].(*ssm.UpdateMaintenanceWindowTaskOutput)
 	ret1, _ := ret[1].(error)
@@ -5054,11 +5837,13 @@ func (m *MockSSMAPI) UpdateMaintenanceWindowTask(arg0 *ssm.UpdateMaintenanceWind
 
 // UpdateMaintenanceWindowTask indicates an expected call of UpdateMaintenanceWindowTask
 func (mr *MockSSMAPIMockRecorder) UpdateMaintenanceWindowTask(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMaintenanceWindowTask", reflect.TypeOf((*MockSSMAPI)(nil).UpdateMaintenanceWindowTask), arg0)
 }
 
 // UpdateMaintenanceWindowTaskRequest mocks base method
 func (m *MockSSMAPI) UpdateMaintenanceWindowTaskRequest(arg0 *ssm.UpdateMaintenanceWindowTaskInput) (*request.Request, *ssm.UpdateMaintenanceWindowTaskOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateMaintenanceWindowTaskRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.UpdateMaintenanceWindowTaskOutput)
@@ -5067,11 +5852,13 @@ func (m *MockSSMAPI) UpdateMaintenanceWindowTaskRequest(arg0 *ssm.UpdateMaintena
 
 // UpdateMaintenanceWindowTaskRequest indicates an expected call of UpdateMaintenanceWindowTaskRequest
 func (mr *MockSSMAPIMockRecorder) UpdateMaintenanceWindowTaskRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMaintenanceWindowTaskRequest", reflect.TypeOf((*MockSSMAPI)(nil).UpdateMaintenanceWindowTaskRequest), arg0)
 }
 
 // UpdateMaintenanceWindowTaskWithContext mocks base method
-func (m *MockSSMAPI) UpdateMaintenanceWindowTaskWithContext(arg0 aws.Context, arg1 *ssm.UpdateMaintenanceWindowTaskInput, arg2 ...request.Option) (*ssm.UpdateMaintenanceWindowTaskOutput, error) {
+func (m *MockSSMAPI) UpdateMaintenanceWindowTaskWithContext(arg0 context.Context, arg1 *ssm.UpdateMaintenanceWindowTaskInput, arg2 ...request.Option) (*ssm.UpdateMaintenanceWindowTaskOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -5084,12 +5871,14 @@ func (m *MockSSMAPI) UpdateMaintenanceWindowTaskWithContext(arg0 aws.Context, ar
 
 // UpdateMaintenanceWindowTaskWithContext indicates an expected call of UpdateMaintenanceWindowTaskWithContext
 func (mr *MockSSMAPIMockRecorder) UpdateMaintenanceWindowTaskWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMaintenanceWindowTaskWithContext", reflect.TypeOf((*MockSSMAPI)(nil).UpdateMaintenanceWindowTaskWithContext), varargs...)
 }
 
 // UpdateMaintenanceWindowWithContext mocks base method
-func (m *MockSSMAPI) UpdateMaintenanceWindowWithContext(arg0 aws.Context, arg1 *ssm.UpdateMaintenanceWindowInput, arg2 ...request.Option) (*ssm.UpdateMaintenanceWindowOutput, error) {
+func (m *MockSSMAPI) UpdateMaintenanceWindowWithContext(arg0 context.Context, arg1 *ssm.UpdateMaintenanceWindowInput, arg2 ...request.Option) (*ssm.UpdateMaintenanceWindowOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -5102,12 +5891,14 @@ func (m *MockSSMAPI) UpdateMaintenanceWindowWithContext(arg0 aws.Context, arg1 *
 
 // UpdateMaintenanceWindowWithContext indicates an expected call of UpdateMaintenanceWindowWithContext
 func (mr *MockSSMAPIMockRecorder) UpdateMaintenanceWindowWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMaintenanceWindowWithContext", reflect.TypeOf((*MockSSMAPI)(nil).UpdateMaintenanceWindowWithContext), varargs...)
 }
 
 // UpdateManagedInstanceRole mocks base method
 func (m *MockSSMAPI) UpdateManagedInstanceRole(arg0 *ssm.UpdateManagedInstanceRoleInput) (*ssm.UpdateManagedInstanceRoleOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateManagedInstanceRole", arg0)
 	ret0, _ := ret[0].(*ssm.UpdateManagedInstanceRoleOutput)
 	ret1, _ := ret[1].(error)
@@ -5116,11 +5907,13 @@ func (m *MockSSMAPI) UpdateManagedInstanceRole(arg0 *ssm.UpdateManagedInstanceRo
 
 // UpdateManagedInstanceRole indicates an expected call of UpdateManagedInstanceRole
 func (mr *MockSSMAPIMockRecorder) UpdateManagedInstanceRole(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateManagedInstanceRole", reflect.TypeOf((*MockSSMAPI)(nil).UpdateManagedInstanceRole), arg0)
 }
 
 // UpdateManagedInstanceRoleRequest mocks base method
 func (m *MockSSMAPI) UpdateManagedInstanceRoleRequest(arg0 *ssm.UpdateManagedInstanceRoleInput) (*request.Request, *ssm.UpdateManagedInstanceRoleOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateManagedInstanceRoleRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.UpdateManagedInstanceRoleOutput)
@@ -5129,11 +5922,13 @@ func (m *MockSSMAPI) UpdateManagedInstanceRoleRequest(arg0 *ssm.UpdateManagedIns
 
 // UpdateManagedInstanceRoleRequest indicates an expected call of UpdateManagedInstanceRoleRequest
 func (mr *MockSSMAPIMockRecorder) UpdateManagedInstanceRoleRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateManagedInstanceRoleRequest", reflect.TypeOf((*MockSSMAPI)(nil).UpdateManagedInstanceRoleRequest), arg0)
 }
 
 // UpdateManagedInstanceRoleWithContext mocks base method
-func (m *MockSSMAPI) UpdateManagedInstanceRoleWithContext(arg0 aws.Context, arg1 *ssm.UpdateManagedInstanceRoleInput, arg2 ...request.Option) (*ssm.UpdateManagedInstanceRoleOutput, error) {
+func (m *MockSSMAPI) UpdateManagedInstanceRoleWithContext(arg0 context.Context, arg1 *ssm.UpdateManagedInstanceRoleInput, arg2 ...request.Option) (*ssm.UpdateManagedInstanceRoleOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -5146,12 +5941,14 @@ func (m *MockSSMAPI) UpdateManagedInstanceRoleWithContext(arg0 aws.Context, arg1
 
 // UpdateManagedInstanceRoleWithContext indicates an expected call of UpdateManagedInstanceRoleWithContext
 func (mr *MockSSMAPIMockRecorder) UpdateManagedInstanceRoleWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateManagedInstanceRoleWithContext", reflect.TypeOf((*MockSSMAPI)(nil).UpdateManagedInstanceRoleWithContext), varargs...)
 }
 
 // UpdatePatchBaseline mocks base method
 func (m *MockSSMAPI) UpdatePatchBaseline(arg0 *ssm.UpdatePatchBaselineInput) (*ssm.UpdatePatchBaselineOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePatchBaseline", arg0)
 	ret0, _ := ret[0].(*ssm.UpdatePatchBaselineOutput)
 	ret1, _ := ret[1].(error)
@@ -5160,11 +5957,13 @@ func (m *MockSSMAPI) UpdatePatchBaseline(arg0 *ssm.UpdatePatchBaselineInput) (*s
 
 // UpdatePatchBaseline indicates an expected call of UpdatePatchBaseline
 func (mr *MockSSMAPIMockRecorder) UpdatePatchBaseline(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePatchBaseline", reflect.TypeOf((*MockSSMAPI)(nil).UpdatePatchBaseline), arg0)
 }
 
 // UpdatePatchBaselineRequest mocks base method
 func (m *MockSSMAPI) UpdatePatchBaselineRequest(arg0 *ssm.UpdatePatchBaselineInput) (*request.Request, *ssm.UpdatePatchBaselineOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePatchBaselineRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ssm.UpdatePatchBaselineOutput)
@@ -5173,11 +5972,13 @@ func (m *MockSSMAPI) UpdatePatchBaselineRequest(arg0 *ssm.UpdatePatchBaselineInp
 
 // UpdatePatchBaselineRequest indicates an expected call of UpdatePatchBaselineRequest
 func (mr *MockSSMAPIMockRecorder) UpdatePatchBaselineRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePatchBaselineRequest", reflect.TypeOf((*MockSSMAPI)(nil).UpdatePatchBaselineRequest), arg0)
 }
 
 // UpdatePatchBaselineWithContext mocks base method
-func (m *MockSSMAPI) UpdatePatchBaselineWithContext(arg0 aws.Context, arg1 *ssm.UpdatePatchBaselineInput, arg2 ...request.Option) (*ssm.UpdatePatchBaselineOutput, error) {
+func (m *MockSSMAPI) UpdatePatchBaselineWithContext(arg0 context.Context, arg1 *ssm.UpdatePatchBaselineInput, arg2 ...request.Option) (*ssm.UpdatePatchBaselineOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -5190,6 +5991,57 @@ func (m *MockSSMAPI) UpdatePatchBaselineWithContext(arg0 aws.Context, arg1 *ssm.
 
 // UpdatePatchBaselineWithContext indicates an expected call of UpdatePatchBaselineWithContext
 func (mr *MockSSMAPIMockRecorder) UpdatePatchBaselineWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePatchBaselineWithContext", reflect.TypeOf((*MockSSMAPI)(nil).UpdatePatchBaselineWithContext), varargs...)
+}
+
+// UpdateServiceSetting mocks base method
+func (m *MockSSMAPI) UpdateServiceSetting(arg0 *ssm.UpdateServiceSettingInput) (*ssm.UpdateServiceSettingOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateServiceSetting", arg0)
+	ret0, _ := ret[0].(*ssm.UpdateServiceSettingOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateServiceSetting indicates an expected call of UpdateServiceSetting
+func (mr *MockSSMAPIMockRecorder) UpdateServiceSetting(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateServiceSetting", reflect.TypeOf((*MockSSMAPI)(nil).UpdateServiceSetting), arg0)
+}
+
+// UpdateServiceSettingRequest mocks base method
+func (m *MockSSMAPI) UpdateServiceSettingRequest(arg0 *ssm.UpdateServiceSettingInput) (*request.Request, *ssm.UpdateServiceSettingOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateServiceSettingRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ssm.UpdateServiceSettingOutput)
+	return ret0, ret1
+}
+
+// UpdateServiceSettingRequest indicates an expected call of UpdateServiceSettingRequest
+func (mr *MockSSMAPIMockRecorder) UpdateServiceSettingRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateServiceSettingRequest", reflect.TypeOf((*MockSSMAPI)(nil).UpdateServiceSettingRequest), arg0)
+}
+
+// UpdateServiceSettingWithContext mocks base method
+func (m *MockSSMAPI) UpdateServiceSettingWithContext(arg0 context.Context, arg1 *ssm.UpdateServiceSettingInput, arg2 ...request.Option) (*ssm.UpdateServiceSettingOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateServiceSettingWithContext", varargs...)
+	ret0, _ := ret[0].(*ssm.UpdateServiceSettingOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateServiceSettingWithContext indicates an expected call of UpdateServiceSettingWithContext
+func (mr *MockSSMAPIMockRecorder) UpdateServiceSettingWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateServiceSettingWithContext", reflect.TypeOf((*MockSSMAPI)(nil).UpdateServiceSettingWithContext), varargs...)
 }

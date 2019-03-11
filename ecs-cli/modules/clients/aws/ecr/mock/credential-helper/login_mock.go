@@ -49,6 +49,7 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 
 // GetCredentials mocks base method
 func (m *MockClient) GetCredentials(arg0 string) (*api.Auth, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCredentials", arg0)
 	ret0, _ := ret[0].(*api.Auth)
 	ret1, _ := ret[1].(error)
@@ -57,11 +58,13 @@ func (m *MockClient) GetCredentials(arg0 string) (*api.Auth, error) {
 
 // GetCredentials indicates an expected call of GetCredentials
 func (mr *MockClientMockRecorder) GetCredentials(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCredentials", reflect.TypeOf((*MockClient)(nil).GetCredentials), arg0)
 }
 
 // GetCredentialsByRegistryID mocks base method
 func (m *MockClient) GetCredentialsByRegistryID(arg0 string) (*api.Auth, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCredentialsByRegistryID", arg0)
 	ret0, _ := ret[0].(*api.Auth)
 	ret1, _ := ret[1].(error)
@@ -70,11 +73,13 @@ func (m *MockClient) GetCredentialsByRegistryID(arg0 string) (*api.Auth, error) 
 
 // GetCredentialsByRegistryID indicates an expected call of GetCredentialsByRegistryID
 func (mr *MockClientMockRecorder) GetCredentialsByRegistryID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCredentialsByRegistryID", reflect.TypeOf((*MockClient)(nil).GetCredentialsByRegistryID), arg0)
 }
 
 // ListCredentials mocks base method
 func (m *MockClient) ListCredentials() ([]*api.Auth, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListCredentials")
 	ret0, _ := ret[0].([]*api.Auth)
 	ret1, _ := ret[1].(error)
@@ -83,5 +88,6 @@ func (m *MockClient) ListCredentials() ([]*api.Auth, error) {
 
 // ListCredentials indicates an expected call of ListCredentials
 func (mr *MockClientMockRecorder) ListCredentials() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCredentials", reflect.TypeOf((*MockClient)(nil).ListCredentials))
 }

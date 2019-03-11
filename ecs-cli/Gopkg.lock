@@ -234,11 +234,11 @@
   revision = "160de10b2537169b5ae3e7e221d28269ef40d311"
 
 [[projects]]
-  digest = "1:b9dd62eb71d308d6c4b44af0bae869174975b40baab2ccd65724cefcdb561d55"
+  digest = "1:07ba1bc652c063a17b0ab080ea2293eb938f8fc75b2fafd509431dfa33938b52"
   name = "github.com/golang/mock"
   packages = ["gomock"]
   pruneopts = "UT"
-  revision = "58cd061d09382b6011f84c1291ebe50ef2e25bab"
+  revision = "837231f7bb377b365da147e5ff6c031b12f0dfaa"
 
 [[projects]]
   digest = "1:3cc8d6f7489eff4cc78ce9fd6591978d270a55518bbbe66628eb7eb06cbf899b"

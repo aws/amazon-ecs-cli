@@ -48,6 +48,7 @@ func (m *MockCache) EXPECT() *MockCacheMockRecorder {
 
 // Get mocks base method
 func (m *MockCache) Get(arg0 string, arg1 interface{}) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -55,11 +56,13 @@ func (m *MockCache) Get(arg0 string, arg1 interface{}) error {
 
 // Get indicates an expected call of Get
 func (mr *MockCacheMockRecorder) Get(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockCache)(nil).Get), arg0, arg1)
 }
 
 // Put mocks base method
 func (m *MockCache) Put(arg0 string, arg1 interface{}) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Put", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -67,5 +70,6 @@ func (m *MockCache) Put(arg0 string, arg1 interface{}) error {
 
 // Put indicates an expected call of Put
 func (mr *MockCacheMockRecorder) Put(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Put", reflect.TypeOf((*MockCache)(nil).Put), arg0, arg1)
 }

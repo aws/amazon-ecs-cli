@@ -49,6 +49,7 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 
 // DescribeKey mocks base method
 func (m *MockClient) DescribeKey(arg0 string) (*kms.DescribeKeyOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeKey", arg0)
 	ret0, _ := ret[0].(*kms.DescribeKeyOutput)
 	ret1, _ := ret[1].(error)
@@ -57,11 +58,13 @@ func (m *MockClient) DescribeKey(arg0 string) (*kms.DescribeKeyOutput, error) {
 
 // DescribeKey indicates an expected call of DescribeKey
 func (mr *MockClientMockRecorder) DescribeKey(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeKey", reflect.TypeOf((*MockClient)(nil).DescribeKey), arg0)
 }
 
 // GetValidKeyARN mocks base method
 func (m *MockClient) GetValidKeyARN(arg0 string) (string, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetValidKeyARN", arg0)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
@@ -70,5 +73,6 @@ func (m *MockClient) GetValidKeyARN(arg0 string) (string, error) {
 
 // GetValidKeyARN indicates an expected call of GetValidKeyARN
 func (mr *MockClientMockRecorder) GetValidKeyARN(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetValidKeyARN", reflect.TypeOf((*MockClient)(nil).GetValidKeyARN), arg0)
 }
