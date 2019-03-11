@@ -602,6 +602,27 @@ var cluster_template = `
       "Condition": "CreateEcsInstanceRole",
       "Type": "AWS::IAM::Role",
       "Properties": {
+        "Policies": [
+           {
+             "PolicyName": {
+                "Fn::Join" : [
+                    "-", [
+                        "amazon-ecs-cli-setup",
+                        { "Ref": "EcsCluster" },
+                        "instance-tagging-policy"
+                    ]
+                ]
+             },
+             "PolicyDocument": {
+             "Version" : "2012-10-17",
+               "Statement": [ {
+                 "Effect": "Allow",
+                 "Action": "ec2:DescribeTags",
+                 "Resource": "*"
+               } ]
+             }
+          }
+        ],
         "AssumeRolePolicyDocument": {
           "Version": "2012-10-17",
           "Statement": [

@@ -315,12 +315,16 @@ In addition to EC2 Instances, other resources created by default include:
 
 You can provide your own resources (such as subnets, VPC, or security groups) via their flag options.
 
+**Note:** Unless you specify a custom EC2 instance role with `--instance-role`, the ECS CLI will create the instance role.
+This role will contain the [AmazonEC2ContainerServiceforEC2Role](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/instance_IAM_role.html) managed policy, and `ec2:DescribeTags` permissions.
+
 **Note:** The default security group created by `ecs-cli up` allows inbound traffic on port 80 by
 default. To allow inbound traffic from a different port, specify the port you wish to open with the
 `--port` option. To add more ports to the default security group, go to **EC2 Security Groups** in
 the AWS Management Console and search for the security group containing “ecs-cli”. Add a rule as
 described in the [Adding Rules to a Security Group](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html#adding-security-group-rule)
 topic.
+
 
 Alternatively, you may specify one or more existing security group IDs with the `--security-group` option.
 
