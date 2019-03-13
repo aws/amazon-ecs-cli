@@ -1,4 +1,4 @@
-// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -49,7 +49,6 @@ func (m *MockDockerAPI) EXPECT() *MockDockerAPIMockRecorder {
 
 // PullImage mocks base method
 func (m *MockDockerAPI) PullImage(arg0 go_dockerclient.PullImageOptions, arg1 go_dockerclient.AuthConfiguration) error {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PullImage", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -57,13 +56,11 @@ func (m *MockDockerAPI) PullImage(arg0 go_dockerclient.PullImageOptions, arg1 go
 
 // PullImage indicates an expected call of PullImage
 func (mr *MockDockerAPIMockRecorder) PullImage(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PullImage", reflect.TypeOf((*MockDockerAPI)(nil).PullImage), arg0, arg1)
 }
 
 // PushImage mocks base method
 func (m *MockDockerAPI) PushImage(arg0 go_dockerclient.PushImageOptions, arg1 go_dockerclient.AuthConfiguration) error {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PushImage", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -71,13 +68,11 @@ func (m *MockDockerAPI) PushImage(arg0 go_dockerclient.PushImageOptions, arg1 go
 
 // PushImage indicates an expected call of PushImage
 func (mr *MockDockerAPIMockRecorder) PushImage(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PushImage", reflect.TypeOf((*MockDockerAPI)(nil).PushImage), arg0, arg1)
 }
 
 // TagImage mocks base method
 func (m *MockDockerAPI) TagImage(arg0 string, arg1 go_dockerclient.TagImageOptions) error {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TagImage", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -85,6 +80,5 @@ func (m *MockDockerAPI) TagImage(arg0 string, arg1 go_dockerclient.TagImageOptio
 
 // TagImage indicates an expected call of TagImage
 func (mr *MockDockerAPIMockRecorder) TagImage(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TagImage", reflect.TypeOf((*MockDockerAPI)(nil).TagImage), arg0, arg1)
 }

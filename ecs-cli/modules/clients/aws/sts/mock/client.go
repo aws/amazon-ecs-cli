@@ -1,4 +1,4 @@
-// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -48,7 +48,6 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 
 // GetAWSAccountID mocks base method
 func (m *MockClient) GetAWSAccountID() (string, error) {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAWSAccountID")
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
@@ -57,6 +56,5 @@ func (m *MockClient) GetAWSAccountID() (string, error) {
 
 // GetAWSAccountID indicates an expected call of GetAWSAccountID
 func (mr *MockClientMockRecorder) GetAWSAccountID() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAWSAccountID", reflect.TypeOf((*MockClient)(nil).GetAWSAccountID))
 }

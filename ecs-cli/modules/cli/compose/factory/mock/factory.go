@@ -1,4 +1,4 @@
-// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -50,7 +50,6 @@ func (m *MockProjectFactory) EXPECT() *MockProjectFactoryMockRecorder {
 
 // Create mocks base method
 func (m *MockProjectFactory) Create(arg0 *cli.Context, arg1 bool) (project.Project, error) {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", arg0, arg1)
 	ret0, _ := ret[0].(project.Project)
 	ret1, _ := ret[1].(error)
@@ -59,6 +58,5 @@ func (m *MockProjectFactory) Create(arg0 *cli.Context, arg1 bool) (project.Proje
 
 // Create indicates an expected call of Create
 func (mr *MockProjectFactoryMockRecorder) Create(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockProjectFactory)(nil).Create), arg0, arg1)
 }

@@ -1,4 +1,4 @@
-// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -49,7 +49,6 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 
 // CreateLogGroup mocks base method
 func (m *MockClient) CreateLogGroup(arg0 *string) error {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateLogGroup", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -57,13 +56,11 @@ func (m *MockClient) CreateLogGroup(arg0 *string) error {
 
 // CreateLogGroup indicates an expected call of CreateLogGroup
 func (mr *MockClientMockRecorder) CreateLogGroup(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLogGroup", reflect.TypeOf((*MockClient)(nil).CreateLogGroup), arg0)
 }
 
 // FilterAllLogEvents mocks base method
 func (m *MockClient) FilterAllLogEvents(arg0 *cloudwatchlogs.FilterLogEventsInput, arg1 func([]*cloudwatchlogs.FilteredLogEvent)) error {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FilterAllLogEvents", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -71,6 +68,5 @@ func (m *MockClient) FilterAllLogEvents(arg0 *cloudwatchlogs.FilterLogEventsInpu
 
 // FilterAllLogEvents indicates an expected call of FilterAllLogEvents
 func (mr *MockClientMockRecorder) FilterAllLogEvents(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FilterAllLogEvents", reflect.TypeOf((*MockClient)(nil).FilterAllLogEvents), arg0, arg1)
 }
