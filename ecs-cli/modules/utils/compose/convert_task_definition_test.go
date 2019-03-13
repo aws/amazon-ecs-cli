@@ -1807,6 +1807,41 @@ task_definition:
 	}
 }
 
+func TestConvertToTaskDefinitionWithECSParams_Gpu(t *testing.T) {
+	expectedGpuValue := "2"
+	content := `version: 1
+task_definition:
+  services:
+    web:
+      gpu: ` + expectedGpuValue
+	ecsParams, err := createTempECSParamsForTest(t, content)
+
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "wordpress",
+	}
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	resourceType := ecs.ResourceTypeGpu
+	expectedResourceRequirements := []*ecs.ResourceRequirement{
+		{
+			Type:  &resourceType,
+			Value: &expectedGpuValue,
+		},
+	}
+
+	if assert.NoError(t, err) {
+		assert.ElementsMatch(t,
+			expectedResourceRequirements,
+			web.ResourceRequirements,
+			"Expected resourceRequirements to match")
+	}
+}
+
 ///////////////////////
 // helper functions //
 //////////////////////
@@ -1841,4 +1876,24 @@ func findContainerByName(name string, containerDefs []*ecs.ContainerDefinition) 
 		}
 	}
 	return nil
+}
+
+func createTempECSParamsForTest(t *testing.T, content string) (*ECSParams, error) {
+	b := []byte(content)
+
+	f, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
+
+	defer os.Remove(f.Name())
+
+	_, err = f.Write(b)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+
+	err = f.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := f.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+	return ecsParams, err
 }

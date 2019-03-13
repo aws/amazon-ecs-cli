@@ -15,7 +15,6 @@ package utils
 
 import (
 	"errors"
-
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -96,6 +95,7 @@ func reconcileContainerDef(inputCfg *adapter.ContainerConfig, ecsConDef *Contain
 	memLimit := inputCfg.Memory
 	memRes := inputCfg.MemoryReservation
 	healthCheck := inputCfg.HealthCheck
+	var resourceRequirements []*ecs.ResourceRequirement
 
 	if ecsConDef != nil {
 		outputContDef.Essential = aws.Bool(ecsConDef.Essential)
@@ -126,6 +126,15 @@ func reconcileContainerDef(inputCfg *adapter.ContainerConfig, ecsConDef *Contain
 		if err != nil {
 			return nil, err
 		}
+
+		if ecsConDef.GPU != "" {
+			resourceType := ecs.ResourceTypeGpu
+			resourceRequirement := ecs.ResourceRequirement{
+				Type:  &resourceType,
+				Value: &ecsConDef.GPU,
+			}
+			resourceRequirements = append(resourceRequirements, &resourceRequirement)
+		}
 	}
 
 	// At least one memory value is required to register a task definition.
@@ -151,6 +160,10 @@ func reconcileContainerDef(inputCfg *adapter.ContainerConfig, ecsConDef *Contain
 
 	if healthCheck != nil {
 		outputContDef.SetHealthCheck(healthCheck)
+	}
+
+	if len(resourceRequirements) > 0 {
+		outputContDef.SetResourceRequirements(resourceRequirements)
 	}
 
 	return outputContDef, nil

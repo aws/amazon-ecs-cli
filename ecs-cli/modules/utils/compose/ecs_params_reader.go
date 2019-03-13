@@ -67,6 +67,7 @@ type ContainerDef struct {
 	MemoryReservation libYaml.MemStringorInt `yaml:"mem_reservation"`
 	HealthCheck       *HealthCheck           `yaml:"healthcheck"`
 	Secrets           []Secret               `yaml:"secrets"`
+	GPU               string                 `yaml:"gpu"`
 }
 
 type DockerVolume struct {
