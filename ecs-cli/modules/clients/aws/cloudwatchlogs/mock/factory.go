@@ -1,4 +1,4 @@
-// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -49,7 +49,6 @@ func (m *MockLogClientFactory) EXPECT() *MockLogClientFactoryMockRecorder {
 
 // Get mocks base method
 func (m *MockLogClientFactory) Get(arg0 string) cloudwatchlogs.Client {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", arg0)
 	ret0, _ := ret[0].(cloudwatchlogs.Client)
 	return ret0
@@ -57,6 +56,5 @@ func (m *MockLogClientFactory) Get(arg0 string) cloudwatchlogs.Client {
 
 // Get indicates an expected call of Get
 func (mr *MockLogClientFactoryMockRecorder) Get(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockLogClientFactory)(nil).Get), arg0)
 }

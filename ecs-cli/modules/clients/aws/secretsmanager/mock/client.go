@@ -1,4 +1,4 @@
-// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -49,7 +49,6 @@ func (m *MockSMClient) EXPECT() *MockSMClientMockRecorder {
 
 // CreateSecret mocks base method
 func (m *MockSMClient) CreateSecret(arg0 secretsmanager.CreateSecretInput) (*secretsmanager.CreateSecretOutput, error) {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateSecret", arg0)
 	ret0, _ := ret[0].(*secretsmanager.CreateSecretOutput)
 	ret1, _ := ret[1].(error)
@@ -58,13 +57,11 @@ func (m *MockSMClient) CreateSecret(arg0 secretsmanager.CreateSecretInput) (*sec
 
 // CreateSecret indicates an expected call of CreateSecret
 func (mr *MockSMClientMockRecorder) CreateSecret(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSecret", reflect.TypeOf((*MockSMClient)(nil).CreateSecret), arg0)
 }
 
 // DescribeSecret mocks base method
 func (m *MockSMClient) DescribeSecret(arg0 string) (*secretsmanager.DescribeSecretOutput, error) {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeSecret", arg0)
 	ret0, _ := ret[0].(*secretsmanager.DescribeSecretOutput)
 	ret1, _ := ret[1].(error)
@@ -73,13 +70,11 @@ func (m *MockSMClient) DescribeSecret(arg0 string) (*secretsmanager.DescribeSecr
 
 // DescribeSecret indicates an expected call of DescribeSecret
 func (mr *MockSMClientMockRecorder) DescribeSecret(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSecret", reflect.TypeOf((*MockSMClient)(nil).DescribeSecret), arg0)
 }
 
 // ListSecrets mocks base method
 func (m *MockSMClient) ListSecrets(arg0 *string) (*secretsmanager.ListSecretsOutput, error) {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListSecrets", arg0)
 	ret0, _ := ret[0].(*secretsmanager.ListSecretsOutput)
 	ret1, _ := ret[1].(error)
@@ -88,13 +83,11 @@ func (m *MockSMClient) ListSecrets(arg0 *string) (*secretsmanager.ListSecretsOut
 
 // ListSecrets indicates an expected call of ListSecrets
 func (mr *MockSMClientMockRecorder) ListSecrets(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSecrets", reflect.TypeOf((*MockSMClient)(nil).ListSecrets), arg0)
 }
 
 // PutSecretValue mocks base method
 func (m *MockSMClient) PutSecretValue(arg0 secretsmanager.PutSecretValueInput) (*secretsmanager.PutSecretValueOutput, error) {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutSecretValue", arg0)
 	ret0, _ := ret[0].(*secretsmanager.PutSecretValueOutput)
 	ret1, _ := ret[1].(error)
@@ -103,6 +96,5 @@ func (m *MockSMClient) PutSecretValue(arg0 secretsmanager.PutSecretValueInput) (
 
 // PutSecretValue indicates an expected call of PutSecretValue
 func (mr *MockSMClientMockRecorder) PutSecretValue(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutSecretValue", reflect.TypeOf((*MockSMClient)(nil).PutSecretValue), arg0)
 }
