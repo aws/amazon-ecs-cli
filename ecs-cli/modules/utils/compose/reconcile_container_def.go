@@ -76,6 +76,9 @@ func reconcileContainerDef(inputCfg *adapter.ContainerConfig, ecsConDef *Contain
 	if inputCfg.Devices != nil {
 		outputContDef.LinuxParameters.SetDevices(inputCfg.Devices)
 	}
+	if ecsConDef.InitProcessEnabled != false {
+		outputContDef.LinuxParameters.SetInitProcessEnabled(ecsConDef.InitProcessEnabled)
+	}
 
 	// Only set shmSize if specified. Docker will by default allocate 64M
 	// for shared memory if shmSize is null.

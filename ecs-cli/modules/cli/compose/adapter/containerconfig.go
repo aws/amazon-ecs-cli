@@ -21,6 +21,7 @@ type ContainerConfig struct {
 	HealthCheck           *ecs.HealthCheck
 	Hostname              string
 	Image                 string
+	InitProcessEnabled    bool
 	Links                 []string
 	LogConfiguration      *ecs.LogConfiguration
 	Memory                int64
