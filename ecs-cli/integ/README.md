@@ -4,9 +4,18 @@ This directory contains tests intended to run against public Amazon Elastic Cont
 
 You may be charged for the AWS resources utilized while running these tests. It's not recommended to run these on an AWS account handling production work-loads.
 
-## Test setup
+## Local test setup
 
-Some tests assume the existance of an "ecs-cli-integ" cluster in the currently configured region. Prior to running these tests, create this cluster using the template in `/resources/ecs_cli_integ_template.json`
+1. Some tests assume the existence of an "ecs-cli-integ" cluster in the currently configured region.  
+Prior to running these tests, create this cluster using the template in `/resources/ecs_cli_integ_template.json` via the CloudFormation console.
+2. Set the following environment variables:
+    ```bash
+    # hardcode the CodeBuild ID since we're not using codebuild to run the tests
+    export CODEBUILD_BUILD_ID="local-integ-test"
+    # change this to the region you'd like to run the tests in
+    export AWS_REGION="us-east-1"
+    ```
+
 
 ## Running the tests
 

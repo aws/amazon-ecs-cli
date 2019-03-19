@@ -14,6 +14,9 @@
 package integ
 
 import (
+	"fmt"
+	"github.com/google/uuid"
+	"os"
 	"os/exec"
 	"regexp"
 	"runtime"
@@ -40,4 +43,23 @@ func GetCommand(args []string) *exec.Cmd {
 func GetRowValues(row string) []string {
 	spaces := regexp.MustCompile(`\s+`)
 	return strings.Split(spaces.ReplaceAllString(row, " "), " ")
+}
+
+// SuggestedResourceName returns a resource name matching the template "{CODEBUILD_BUILD_ID}-{IDENTIFIERS}".
+// The CODEBUILD_BUILD_ID in the name can be used to safely delete a resource if it belongs to an old test build.
+// If there are no identifiers specified, we generate a random UUID.
+func SuggestedResourceName(identifiers ...string) string {
+	if len(identifiers) > 0 {
+		return fmt.Sprintf("%s-%s", getBuildId(), strings.Join(identifiers, "-"))
+	}
+	randomId, err := uuid.NewRandom()
+	if err != nil {
+		return fmt.Sprintf("%s", getBuildId())
+	}
+	return fmt.Sprintf("%s-%s", getBuildId(), randomId.String())
+}
+
+// getBuildId returns the CodeBuild ID compatible with CloudFormation.
+func getBuildId() string {
+	return strings.Replace(os.Getenv("CODEBUILD_BUILD_ID"), ":", "-", -1) // replace all occurrences
 }
