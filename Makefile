@@ -33,7 +33,7 @@ $(LOCAL_BINARY): $(SOURCES)
 
 .PHONY: test
 test:
-	env -i PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT GOCACHE=$$HOME/.gocache go test -timeout=120s -v -cover ./ecs-cli/modules/...
+	env -i PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT GOCACHE=$$GOCACHE go test -timeout=120s -v -cover ./ecs-cli/modules/...
 
 .PHONY: generate
 generate: $(SOURCES)
