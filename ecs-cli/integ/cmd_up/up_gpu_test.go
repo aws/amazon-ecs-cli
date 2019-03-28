@@ -1,3 +1,18 @@
+// +build integ
+
+// Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License"). You may
+// not use this file except in compliance with the License. A copy of the
+// License is located at
+//
+//	http://aws.amazon.com/apache2.0/
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+
 package cmd_up
 
 import (
@@ -9,6 +24,7 @@ import (
 	"testing"
 )
 
+// TestCusterCreationWithGPUInstances runs the 'ecs-cli up -c <clusterName> --instance-type <gpuInstance> --capability-iam --force' command.
 func TestCusterCreationWithGPUInstances(t *testing.T) {
 	// Given
 	cfnClient, ecsClient, clusterName := setup(t)
@@ -22,7 +38,6 @@ func TestCusterCreationWithGPUInstances(t *testing.T) {
 	assertHasCFNStack(t, cfnClient, clusterName)
 	assertHasActiveContainerInstances(t, ecsClient, clusterName, 1) // by default we only activate 1 instance
 	assertHasGPUResources(t, ecsClient, clusterName)
-
 
 	// Cleanup the created resources
 	after(cfnClient, ecsClient, clusterName)
