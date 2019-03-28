@@ -29,9 +29,9 @@ import (
 )
 
 const (
-	// timeoutForWaitingOnActiveContainersInS is how long we are willing wait
+	// timeoutForWaitingOnActiveInstancesInS is how long we are willing wait
 	// for the container instances to become ACTIVE in the cluster.
-	timeoutForWaitingOnActiveContainersInS = 300
+	timeoutForWaitingOnActiveInstancesInS = 300
 
 	// sleepDurationInBetweenRetriesInS is how long we sleep in between retrying requests that fail.
 	sleepDurationInBetweenRetriesInS       = 30
@@ -82,7 +82,7 @@ func assertHasCFNStack(t *testing.T, client *cloudformation.CloudFormation, clus
 
 // assertHasActiveContainerInstances validates that the containers in the cluster are all eventually ACTIVE
 func assertHasActiveContainerInstances(t *testing.T, client *ecs.ECS, clusterName string, clusterSize int) {
-	maxNumRetries := timeoutForWaitingOnActiveContainersInS / sleepDurationInBetweenRetriesInS
+	maxNumRetries := timeoutForWaitingOnActiveInstancesInS / sleepDurationInBetweenRetriesInS
 	for retryCount := 0; retryCount < maxNumRetries; retryCount++ {
 		cluster, err := client.ListContainerInstances(&ecs.ListContainerInstancesInput{
 			Cluster: aws.String(clusterName),
@@ -118,7 +118,7 @@ func assertHasActiveContainerInstances(t *testing.T, client *ecs.ECS, clusterNam
 	assert.FailNow(t, "no active instances in the cluster",
 		"The cluster %s failed to get active instances after %d seconds",
 		clusterName,
-		timeoutForWaitingOnActiveContainersInS)
+		timeoutForWaitingOnActiveInstancesInS)
 }
 
 // after best-effort deletes any resources created by the test.
