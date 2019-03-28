@@ -84,7 +84,3 @@
   name = "github.com/docker/docker"
   revision = "8e435b8279f2af3e0cebd73fa9e25ca1bb26004e"
   source = "https://github.com/moby/moby.git"
-
-[[constraint]]
-  name = "github.com/google/uuid"
-  version = "1.1.1"
