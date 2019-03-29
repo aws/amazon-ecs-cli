@@ -13,8 +13,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-// Package cmd_up upTests the "ecs-cli up" command with various configurations.
-package cmd_up
+package integ
 
 import (
 	"fmt"
@@ -95,30 +94,33 @@ var upTests = []upTest{
 func TestCmd_UP(t *testing.T) {
 	cfnClient, ecsClient := setup(t)
 	for _, test := range upTests {
-		// Given
-		cmdArgs := append(test.cmdArgs, "-c", test.clusterName)
-		cmd := integ.GetCommand(cmdArgs)
+		t.Run(fmt.Sprintf("create cluster %s", test.clusterName), func( *testing.T) {
+			// Given
+			cmdArgs := append(test.cmdArgs, "-c", test.clusterName)
+			cmd := integ.GetCommand(cmdArgs)
 
-		// When
-		stdout, err := cmd.Output()
-		if err != nil {
-			assert.NoError(t, err, fmt.Sprintf("Error running %v\nStdout: %s", cmd.Args, string(stdout)))
-			continue
-		}
+			// When
+			out, err := cmd.Output()
+			if err != nil {
+				assert.NoError(t, err, fmt.Sprintf("Error running %v\nStdout: %s", cmd.Args, string(out)))
+				return
+			}
 
-		// Then
-		if ok := hasAllSnippets(t, string(stdout), test.wantedStdoutSnippets); !ok {
-			continue
-		}
-		if ok := hasCFNStackWithClusterName(t, cfnClient, test.clusterName); !ok {
-			continue
-		}
-		if ok := hasClusterWithWantedConfig(t, ecsClient, &test); !ok {
-			continue
-		}
+			// Then
+			if ok := integ.Stdout(out).HasAllSnippets(t, test.wantedStdoutSnippets); !ok {
+				// assert failures don't halt the test, to move on to the next test case on failures we return
+				return
+			}
+			if ok := hasCFNStackWithClusterName(t, cfnClient, test.clusterName); !ok {
+				return
+			}
+			if ok := hasClusterWithWantedConfig(t, ecsClient, &test); !ok {
+				return
+			}
 
-		// Cleanup the created resources
-		after(cfnClient, ecsClient, test.clusterName)
+			// Cleanup the created resources
+			after(cfnClient, ecsClient, test.clusterName)
+		})
 	}
 }
 
@@ -134,16 +136,6 @@ func setup(t *testing.T) (cfnClient *cloudformation.CloudFormation, ecsClient *e
 	cfnClient = cloudformation.New(sess, conf)
 	ecsClient = ecs.New(sess, conf)
 	return
-}
-
-// hasAllSnippets returns true if stdout contains each snippet in wantedSnippets, false otherwise.
-func hasAllSnippets(t *testing.T, stdout string, wantedSnippets []string) bool {
-	for _, snippet := range wantedSnippets {
-		if !assert.Contains(t, stdout, snippet) {
-			return false
-		}
-	}
-	return true
 }
 
 // hasCFNStackWithClusterName returns true if the CFN stack was created successfully, false otherwise.
@@ -169,7 +161,7 @@ func hasCFNStackWithClusterName(t *testing.T, client *cloudformation.CloudFormat
 // hasClusterWithWantedConfig returns true if the instances in the cluster are all active, have the required attributes
 // and resource, false otherwise.
 func hasClusterWithWantedConfig(t *testing.T, client *ecs.ECS, test *upTest) bool {
-	instances, err := containerInstances(t, client, test.clusterName, test.wantedClusterSize)
+	instances, err := getContainerInstances(t, client, test.clusterName, test.wantedClusterSize)
 	if err != nil {
 		assert.NoError(t, err)
 		return false
@@ -186,8 +178,8 @@ func hasClusterWithWantedConfig(t *testing.T, client *ecs.ECS, test *upTest) boo
 	return true
 }
 
-// containerInstances returns the list of instances in the cluster.
-func containerInstances(t *testing.T, client *ecs.ECS, clusterName string, clusterSize int) ([]*ecs.ContainerInstance, error) {
+// getContainerInstances returns the list of instances in the cluster.
+func getContainerInstances(t *testing.T, client *ecs.ECS, clusterName string, clusterSize int) ([]*ecs.ContainerInstance, error) {
 	maxNumRetries := timeoutForWaitingOnActiveInstancesInS / sleepDurationInBetweenRetriesInS
 	for retryCount := 0; retryCount < maxNumRetries; retryCount++ {
 		cluster, err := client.ListContainerInstances(&ecs.ListContainerInstancesInput{
