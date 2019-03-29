@@ -270,6 +270,18 @@ func deleteStack(client *cloudformation.CloudFormation, clusterName string) {
 }
 
 func deleteCluster(client *ecs.ECS, clusterName string) {
+	cluster, err := client.ListContainerInstances(&ecs.ListContainerInstancesInput{
+		Cluster: aws.String(clusterName),
+	})
+	if err != nil {
+		return
+	}
+	for _, arn := range cluster.ContainerInstanceArns {
+		client.DeregisterContainerInstance(&ecs.DeregisterContainerInstanceInput{
+			Cluster: aws.String(clusterName),
+			ContainerInstance: arn,
+		})
+	}
 	client.DeleteCluster(&ecs.DeleteClusterInput{
 		Cluster: aws.String(clusterName),
 	})
