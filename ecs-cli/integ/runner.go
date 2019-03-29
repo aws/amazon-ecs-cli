@@ -11,9 +11,12 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
+// Package integ contains the integration tests for the ECS CLI.
 package integ
 
 import (
+	"fmt"
+	"os"
 	"os/exec"
 	"regexp"
 	"runtime"
@@ -40,4 +43,16 @@ func GetCommand(args []string) *exec.Cmd {
 func GetRowValues(row string) []string {
 	spaces := regexp.MustCompile(`\s+`)
 	return strings.Split(spaces.ReplaceAllString(row, " "), " ")
+}
+
+// SuggestedResourceName returns a resource name matching the template "{CODEBUILD_BUILD_ID}-{identifier}".
+// The CODEBUILD_BUILD_ID in the name can be used to safely delete a resource if it belongs to an old test build.
+// The identifier can be used to give a human-friendly resource name.
+func SuggestedResourceName(identifiers ...string) string {
+	return fmt.Sprintf("%s-%s", getBuildId(), strings.Join(identifiers, "-"))
+}
+
+// getBuildId returns the CodeBuild ID compatible with CloudFormation.
+func getBuildId() string {
+	return strings.Replace(os.Getenv("CODEBUILD_BUILD_ID"), ":", "-", -1) // replace all occurrences
 }

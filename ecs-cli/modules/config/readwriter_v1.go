@@ -22,7 +22,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -169,7 +169,7 @@ func readProfileConfig(path string, profileConfigKey string, localConfig *LocalC
 // This function either reads the old single configuration file
 // Or if the new files are present, it reads from them instead
 func (rdwr *YAMLReadWriter) Get(clusterConfig string, profileConfig string) (*LocalConfig, error) {
-	localConfig := &LocalConfig{}
+	localConfig := &LocalConfig{Version: yamlConfigVersion}
 	profilePath := credentialsFilePath(rdwr.destination)
 	configPath := ConfigFilePath(rdwr.destination)
 
