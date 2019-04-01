@@ -50,6 +50,7 @@ type Service struct {
 	healthCheckGP     *int64
 	serviceRegistries []*ecs.ServiceRegistry
 	tags              []*ecs.Tag
+	desiredCount      *int64
 }
 
 const (
@@ -101,6 +102,7 @@ func (s *Service) LoadContext() error {
 	loadBalancerName := s.Context().CLIContext.String(flags.LoadBalancerNameFlag)
 	containerName := s.Context().CLIContext.String(flags.ContainerNameFlag)
 	containerPort, err := getInt64FromCLIContext(s.Context(), flags.ContainerPortFlag)
+	desiredCount ,err := getInt64FromCLIContext(s.Context(), flags.DesiredCountFlag)
 	if err != nil {
 		return err
 	}
@@ -119,7 +121,7 @@ func (s *Service) LoadContext() error {
 	// specified do not exist.
 	// TODO: Add validation on targetGroupArn or loadBalancerName being
 	// present if containerName or containerPort are specified
-	if role != "" || targetGroupArn != "" || loadBalancerName != "" || containerName != "" || containerPort != nil {
+	if role != "" || targetGroupArn != "" || loadBalancerName != "" || containerName != "" || containerPort != nil  {
 		if targetGroupArn != "" && loadBalancerName != "" {
 			return errors.Errorf("[--%s] and [--%s] flags cannot both be specified", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
 		}
@@ -136,6 +138,11 @@ func (s *Service) LoadContext() error {
 		}
 		s.role = role
 	}
+
+	if desiredCount != nil {
+		s.desiredCount = desiredCount
+	}
+
 	return nil
 }
 
@@ -358,9 +365,9 @@ func (s *Service) updateService(ecsService *ecs.Service, newTaskDefinition *ecs.
 	}
 
 	oldCount := aws.Int64Value(ecsService.DesiredCount)
-	newCount := int64(1)
+	newCount := aws.Int64Value(s.desiredCount)
 	count := &newCount
-	if oldCount != 0 {
+	if oldCount != 0 && newCount == 0 {
 		count = &oldCount // get the current non-zero count
 	}
 
@@ -527,7 +534,7 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string) (*ecs
 	}
 
 	createServiceInput := &ecs.CreateServiceInput{
-		DesiredCount:            aws.Int64(0),            // Required unless DAEMON schedulingStrategy
+		DesiredCount:            s.desiredCount,            // Required unless DAEMON schedulingStrategy
 		ServiceName:             aws.String(serviceName), // Required
 		TaskDefinition:          aws.String(taskDefName), // Required
 		Cluster:                 aws.String(cluster),
@@ -705,7 +712,7 @@ func (s *Service) startService() error {
 	}
 
 	serviceName := aws.StringValue(ecsService.ServiceName)
-	desiredCount := aws.Int64Value(ecsService.DesiredCount)
+	desiredCount := s.Context().CLIContext.Int64(flags.DesiredCountFlag)
 	forceDeployment := s.Context().CLIContext.Bool(flags.ForceDeploymentFlag)
 	schedulingStrategy := aws.StringValue(ecsService.SchedulingStrategy)
 	if desiredCount != 0 || schedulingStrategy == ecs.SchedulingStrategyDaemon {
@@ -731,7 +738,7 @@ func (s *Service) startService() error {
 
 		return waitForServiceTasks(s, serviceName)
 	}
-	return s.updateServiceCount(aws.Int64(1))
+	return s.updateServiceCount(&desiredCount)
 }
 
 // updateServiceCount calls the underlying ECS.UpdateService with the specified count
