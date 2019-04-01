@@ -141,6 +141,8 @@ func (s *Service) LoadContext() error {
 
 	if desiredCount != nil {
 		s.desiredCount = desiredCount
+	} else {
+		s.desiredCount = aws.Int64(1)
 	}
 
 	return nil
