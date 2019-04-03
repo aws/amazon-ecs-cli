@@ -384,7 +384,7 @@ For more information on using AWS Fargate, see the [ECS CLI Fargate tutorial](ht
 ### Starting/Running Tasks
 After the cluster is created, you can run tasks – groups of containers – on the ECS cluster. First,
 author a [Docker Compose configuration file](https://docs.docker.com/compose).  You can run the
-configuration file locally using Docker Compose.
+configuration file locally using Docker Compose. Information about specific compose versions and fields supported by the ecs-cli can be found [here](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cmd-ecs-cli-compose-parameters.html).
 
 Here is an example Docker Compose configuration file that creates a web page:
 
@@ -450,16 +450,16 @@ task_definition:
   task_execution_role: string            // Needed to use Cloudwatch Logs or ECR with your ECS tasks
   task_size:                             // Required for running tasks with Fargate launch type
     cpu_limit: string
-    mem_limit: string
-  pid_mode: string                            // Supported string values: task or host
-  ipc_mode: string                            // Supported string values: task, host, or none
+    mem_limit: string                    // Values specified without units default to MiB
+  pid_mode: string                       // Supported string values: task or host
+  ipc_mode: string                       // Supported string values: task, host, or none
   services:
     <service_name>:
       essential: boolean
       repository_credentials:
         credentials_parameter: string
       cpu_shares: integer
-      mem_limit: string
+      mem_limit: string                  // Values specified without units default to bytes, as in docker run
       mem_reservation: string
       gpu: string
       init_process_enabled: boolean
