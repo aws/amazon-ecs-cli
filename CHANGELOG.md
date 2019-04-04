@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.14.0
+* Feature - Add support for running tasks with GPU resources (#729)
+* Feature - Add support for init_process_enabled in container definition (#716)
+
 ## 1.13.1
 * Bug - Fix `ecs-cli up` so that container instances with tags successfully join cluster (#744)
 
