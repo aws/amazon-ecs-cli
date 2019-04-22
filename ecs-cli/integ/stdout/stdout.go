@@ -24,8 +24,8 @@ import (
 // Stdout is the standard output content from running a test.
 type Stdout []byte
 
-// HasAllSnippets returns true if stdout contains each snippet in wantedSnippets, false otherwise.
-func (b Stdout) HasAllSnippets(t *testing.T, wantedSnippets []string) bool {
+// TestHasAllSnippets returns true if stdout contains each snippet in wantedSnippets, false otherwise.
+func (b Stdout) TestHasAllSnippets(t *testing.T, wantedSnippets []string) bool {
 	s := string(b)
 	for _, snippet := range wantedSnippets {
 		if !assert.Contains(t, s, snippet) {
