@@ -39,6 +39,7 @@ func TestFargateConfig(t *testing.T) *CLIConfig {
 		ConfigName:  integ.SuggestedResourceName("fargate", "config"),
 	}
 	testConfig(t, conf.ClusterName, "FARGATE", conf.ConfigName)
+	t.Logf("Created config %s", conf.ConfigName)
 	return &conf
 }
 

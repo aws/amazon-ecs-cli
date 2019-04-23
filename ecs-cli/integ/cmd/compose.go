@@ -68,6 +68,8 @@ func TestServiceUp(t *testing.T, p *Project) {
 		"desiredCount=1",
 		"serviceName=" + p.Name,
 	})
+
+	t.Logf("Created service with name %s", p.Name)
 }
 
 // TestServicePs runs `ecs-cli compose service ps` for a project.
@@ -80,6 +82,7 @@ func TestServicePs(t *testing.T, p *Project, wantedNumOfContainers int) {
 	if ok := integ.RetryUntilTimeout(t, f, timeoutInS, sleepInS); !ok {
 		assert.Fail(t, "failed to get RUNNING containers")
 	}
+	t.Logf("Project %s has %d running containers", p.Name, wantedNumOfContainers)
 }
 
 // TestServiceScale runs `ecs-cli compose service scale` for a project.
@@ -110,6 +113,7 @@ func TestServiceScale(t *testing.T, p *Project, scale int) {
 		fmt.Sprintf("runningCount=%d", scale),
 		"serviceName=" + p.Name,
 	})
+	t.Logf("Scaled the service %s to %d tasks", p.Name, scale)
 }
 
 // TestServiceDown runs `ecs-cli compose service down` for a project.
@@ -140,6 +144,7 @@ func TestServiceDown(t *testing.T, p *Project) {
 		"runningCount=0",
 		"serviceName=" + p.Name,
 	})
+	t.Logf("Deleted service %s", p.Name)
 }
 
 func testServiceHasAllRunningContainers(t *testing.T, p *Project, wantedNumOfContainers int) bool {
