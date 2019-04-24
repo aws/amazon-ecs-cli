@@ -13,23 +13,21 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package integ
+package stdout
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 // Stdout is the standard output content from running a test.
 type Stdout []byte
 
-// HasAllSnippets returns true if stdout contains each snippet in wantedSnippets, false otherwise.
-func (b Stdout) HasAllSnippets(t *testing.T, wantedSnippets []string) bool {
+// TestHasAllSubstrings returns true if stdout contains each snippet in wantedSnippets, false otherwise.
+func (b Stdout) TestHasAllSubstrings(t *testing.T, wantedSubstrings []string) {
 	s := string(b)
-	for _, snippet := range wantedSnippets {
-		if !assert.Contains(t, s, snippet) {
-			return false
-		}
+	for _, substring := range wantedSubstrings {
+		require.Contains(t, s, substring)
 	}
-	return true
 }

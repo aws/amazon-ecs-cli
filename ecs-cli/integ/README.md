@@ -6,9 +6,7 @@ You may be charged for the AWS resources utilized while running these tests. It'
 
 ## Local test setup
 
-1. Some tests assume the existence of an "ecs-cli-integ" cluster in the currently configured region.  
-Prior to running these tests, create this cluster using the template in `/resources/ecs_cli_integ_template.json` via the CloudFormation console.
-2. Set the following environment variables:
+1. Set the following environment variables:
     ```bash
     # hardcode the CodeBuild ID since we're not using codebuild to run the tests
     export CODEBUILD_BUILD_ID="local-integ-test"

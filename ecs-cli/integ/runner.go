@@ -11,7 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-// Package integ contains the integration tests for the ECS CLI.
+// Package integ contains utility functions to run ECS CLI commands and check their outputs.
 package integ
 
 import (
@@ -21,6 +21,8 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+	"testing"
+	"time"
 )
 
 const (
@@ -55,4 +57,18 @@ func SuggestedResourceName(identifiers ...string) string {
 // getBuildId returns the CodeBuild ID compatible with CloudFormation.
 func getBuildId() string {
 	return strings.Replace(os.Getenv("CODEBUILD_BUILD_ID"), ":", "-", -1) // replace all occurrences
+}
+
+// RetryUntilTimeout retries function f every sleepInS seconds until the timeoutInS expires.
+func RetryUntilTimeout(t *testing.T, f func(t *testing.T) bool, timeoutInS time.Duration, sleepInS time.Duration) bool {
+	numRetries := int64(timeoutInS) / int64(sleepInS)
+	var i int64
+	for ; i < numRetries; i++ {
+		if ok := f(t); ok {
+			return true
+		}
+		t.Logf("Sleeping for %v", sleepInS)
+		time.Sleep(sleepInS * time.Second)
+	}
+	return false
 }
