@@ -23,7 +23,7 @@ import (
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/integ/cmd"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestCreateClusterWithFargateService runs the sequence of ecs-cli commands from
@@ -68,7 +68,7 @@ services:
         awslogs-region: us-east-1
         awslogs-stream-prefix: wordpress`
 	err := ioutil.WriteFile("./docker-compose.yml", []byte(content), os.ModePerm)
-	assert.NoError(t, err, "Failed to create docker-compose.yml")
+	require.NoError(t, err, "Failed to create docker-compose.yml")
 }
 
 func createECSParamsFile(t *testing.T, subnets []string) {
@@ -90,5 +90,5 @@ run_params:
         - "` + subnet + `"`
 	}
 	err := ioutil.WriteFile("./ecs-params.yml", []byte(content), os.ModePerm)
-	assert.NoError(t, err, "Failed to create ecs-params.yml")
+	require.NoError(t, err, "Failed to create ecs-params.yml")
 }

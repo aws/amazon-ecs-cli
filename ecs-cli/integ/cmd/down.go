@@ -17,12 +17,12 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/aws/amazon-ecs-cli/ecs-cli/integ"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/integ/cfn"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/integ/stdout"
-
-	"github.com/stretchr/testify/assert"
 )
 
 // TestDown runs `ecs-cli down` to remove a cluster.
@@ -38,12 +38,10 @@ func TestDown(t *testing.T, conf *CLIConfig) {
 
 	// When
 	out, err := cmd.Output()
-	if err != nil {
-		assert.FailNowf(t, "Failed to delete cluster", "Error %v running %v", err, args)
-	}
+	require.NoErrorf(t, err, "Failed to delete cluster", "error %v, running %v, out: %s", err, args, string(out))
 
 	// Then
-	stdout.Stdout(out).TestHasAllSnippets(t, []string{
+	stdout.Stdout(out).TestHasAllSubstrings(t, []string{
 		"Deleted cluster",
 		fmt.Sprintf("cluster=%s", conf.ClusterName),
 	})

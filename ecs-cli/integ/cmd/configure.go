@@ -19,11 +19,11 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/aws/amazon-ecs-cli/ecs-cli/integ"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/integ/stdout"
-
-	"github.com/stretchr/testify/assert"
 )
 
 // A CLIConfig holds the basic lookup information used by the ECS CLI for a cluster.
@@ -59,12 +59,10 @@ func testConfig(t *testing.T, clusterName, launchType, configName string) {
 
 	// When
 	out, err := cmd.Output()
-	if err != nil {
-		assert.FailNowf(t, "Failed to configure CLI", "Error %v running %v", err, args)
-	}
+	require.NoErrorf(t, err, "Failed to configure CLI", "error %v, running %v, out: %s", err, args, string(out))
 
 	// Then
-	stdout.Stdout(out).TestHasAllSnippets(t, []string{
+	stdout.Stdout(out).TestHasAllSubstrings(t, []string{
 		fmt.Sprintf("Saved ECS CLI cluster configuration %s", configName),
 	})
 }

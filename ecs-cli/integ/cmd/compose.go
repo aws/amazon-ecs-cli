@@ -20,11 +20,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/aws/amazon-ecs-cli/ecs-cli/integ"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/integ/stdout"
-
-	"github.com/stretchr/testify/assert"
 )
 
 // A Project is the configuration needed to create an ECS Service.
@@ -58,17 +58,14 @@ func TestServiceUp(t *testing.T, p *Project) {
 
 	// When
 	out, err := cmd.Output()
-	if err != nil {
-		assert.FailNowf(t, "Failed to create service", "Error %v running %v", err, args)
-	}
+	require.NoErrorf(t, err, "Failed to create service", "error %v, running %v, out: %s", err, args, string(out))
 
 	// Then
-	stdout.Stdout(out).TestHasAllSnippets(t, []string{
+	stdout.Stdout(out).TestHasAllSubstrings(t, []string{
 		"ECS Service has reached a stable state",
 		"desiredCount=1",
 		"serviceName=" + p.Name,
 	})
-
 	t.Logf("Created service with name %s", p.Name)
 }
 
@@ -79,9 +76,7 @@ func TestServicePs(t *testing.T, p *Project, wantedNumOfContainers int) {
 	}
 	timeoutInS := 120 * time.Second // 2 mins
 	sleepInS := 15 * time.Second
-	if ok := integ.RetryUntilTimeout(t, f, timeoutInS, sleepInS); !ok {
-		assert.Fail(t, "failed to get RUNNING containers")
-	}
+	require.True(t, integ.RetryUntilTimeout(t, f, timeoutInS, sleepInS), "Failed to get RUNNING containers")
 	t.Logf("Project %s has %d running containers", p.Name, wantedNumOfContainers)
 }
 
@@ -102,12 +97,10 @@ func TestServiceScale(t *testing.T, p *Project, scale int) {
 
 	// When
 	out, err := cmd.Output()
-	if err != nil {
-		assert.FailNowf(t, "Failed to scale service", "Error %v running %v", err, args)
-	}
+	require.NoErrorf(t, err, "Failed to scale service", "error %v, running %v, out: %s", err, args, string(out))
 
 	// Then
-	stdout.Stdout(out).TestHasAllSnippets(t, []string{
+	stdout.Stdout(out).TestHasAllSubstrings(t, []string{
 		"ECS Service has reached a stable state",
 		fmt.Sprintf("desiredCount=%d", scale),
 		fmt.Sprintf("runningCount=%d", scale),
@@ -132,12 +125,10 @@ func TestServiceDown(t *testing.T, p *Project) {
 
 	// When
 	out, err := cmd.Output()
-	if err != nil {
-		assert.FailNowf(t, "Failed to create service", "Error %v running %v", err, args)
-	}
+	require.NoErrorf(t, err, "Failed to delete service", "error %v, running %v, out: %s", err, args, string(out))
 
 	// Then
-	stdout.Stdout(out).TestHasAllSnippets(t, []string{
+	stdout.Stdout(out).TestHasAllSubstrings(t, []string{
 		"Deleted ECS service",
 		"ECS Service has reached a stable state",
 		"desiredCount=0",
@@ -162,22 +153,28 @@ func testServiceHasAllRunningContainers(t *testing.T, p *Project, wantedNumOfCon
 
 	// When
 	out, err := cmd.Output()
-	if !assert.NoErrorf(t, err, "Failed to list containers for service %v", args) {
+	if err != nil {
+		t.Logf("Failed to list containers for service %v", args)
 		return false
 	}
 
 	// Then
 	lines := strings.Split(string(out), "\n")
+	if len(lines) < 2 {
+		t.Logf("No running containers yet, out = %v", lines)
+		return false
+	}
 	if lines[len(lines)-1] == "" {
 		lines = lines[:len(lines)-1] // Drop the last new line
 	}
 	containers := lines[1:] // Drop the headers
-	if !assert.Equal(t, wantedNumOfContainers, len(containers), "Number of running containers mismatch") {
+	if wantedNumOfContainers != len(containers) {
+		t.Logf("Wanted = %d, got = %d running containers", wantedNumOfContainers, len(containers))
 		return false
 	}
 	for _, container := range containers {
 		status := integ.GetRowValues(container)[1]
-		if !assert.Equal(t, "RUNNING", status, "Unexpected container status") {
+		if status != "RUNNING" {
 			t.Logf("Container is not RUNNING: %s", container)
 			return false
 		}

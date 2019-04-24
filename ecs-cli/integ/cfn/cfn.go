@@ -22,7 +22,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestStackNameExists fails if there is no CloudFormation stack with the name stackName.
@@ -31,18 +31,10 @@ func TestStackNameExists(t *testing.T, stackName string) {
 	resp, err := client.DescribeStacks(&cloudformation.DescribeStacksInput{
 		StackName: aws.String(stackName),
 	})
-	if err != nil {
-		assert.FailNowf(t, "unexpected CloudFormation error during DescribeStacks", "wanted no errors, got %v", err)
-	}
-	if resp.Stacks == nil {
-		assert.FailNow(t, "stacks should not be nil")
-	}
-	if len(resp.Stacks) != 1 {
-		assert.FailNowf(t, "did not receive only 1 stack", "wanted only one stack, got %d", len(resp.Stacks))
-	}
-	if *resp.Stacks[0].StackName != stackName {
-		assert.FailNowf(t, "unexpected stack name", "wanted %s, got %s", stackName, *resp.Stacks[0].StackName)
-	}
+	require.NoError(t, err, "Unexpected CloudFormation error during DescribeStacks")
+	require.NotNil(t, resp.Stacks, "CloudFormation stacks should not be nil")
+	require.Equalf(t, 1, len(resp.Stacks), "Expected to receive only 1 stack", "got %v", resp.Stacks)
+	require.Equalf(t, stackName, *resp.Stacks[0].StackName, "Unexpected stack name", "wanted %s, got %s", stackName, *resp.Stacks[0].StackName)
 }
 
 // TestNoStackName fails if there is a CloudFormation stack with the name stackName.
@@ -55,24 +47,20 @@ func TestNoStackName(t *testing.T, stackName string) {
 		if aerr, ok := err.(awserr.Error); ok {
 			switch aerr.Code() {
 			case "ValidationError":
-				t.Logf("Stack %s does not exist as expected", stackName)
+				t.Logf("Success: stack %s does not exist", stackName)
 				return
 			default:
-				assert.NoError(t, err, "unexpected CloudFormation error during DescribeStacks")
+				require.NoError(t, err, "Unexpected CloudFormation error during DescribeStacks")
 			}
 		}
 	}
 
-	assert.Equalf(t, 0, len(resp.Stacks), "No stack with the name %s should exist", stackName)
+	require.Equalf(t, 0, len(resp.Stacks), "No stack with the name %s should exist", stackName)
 }
 
 func newClient(t *testing.T) *cloudformation.CloudFormation {
 	sess, err := session.NewSession()
-	if err != nil {
-		// Fail the upTest immediately if we won't be able to evaluate it
-		assert.FailNowf(t, "failed to create new session for upTest clients", "%v", err)
-	}
-
+	require.NoError(t, err, "failed to create new session for upTest clients")
 	conf := aws.NewConfig()
 	return cloudformation.New(sess, conf)
 }

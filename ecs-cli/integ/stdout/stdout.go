@@ -18,19 +18,16 @@ package stdout
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // Stdout is the standard output content from running a test.
 type Stdout []byte
 
-// TestHasAllSnippets returns true if stdout contains each snippet in wantedSnippets, false otherwise.
-func (b Stdout) TestHasAllSnippets(t *testing.T, wantedSnippets []string) bool {
+// TestHasAllSubstrings returns true if stdout contains each snippet in wantedSnippets, false otherwise.
+func (b Stdout) TestHasAllSubstrings(t *testing.T, wantedSubstrings []string) {
 	s := string(b)
-	for _, snippet := range wantedSnippets {
-		if !assert.Contains(t, s, snippet) {
-			return false
-		}
+	for _, substring := range wantedSubstrings {
+		require.Contains(t, s, substring)
 	}
-	return true
 }
