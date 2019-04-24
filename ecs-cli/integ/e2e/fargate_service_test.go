@@ -34,11 +34,13 @@ func TestCreateClusterWithFargateService(t *testing.T) {
 	vpc := cmd.TestUp(t, conf)
 
 	// Create the files for a task definition
-	createComposeFile(t)
-	createECSParamsFile(t, vpc.Subnets)
+	project := cmd.NewProject("e2e-fargate-test-service", conf.ConfigName)
+	project.ComposeFileName = createComposeFile(t)
+	project.ECSParamsFileName = createECSParamsFile(t, vpc.Subnets)
+	defer os.Remove(project.ComposeFileName)
+	defer os.Remove(project.ECSParamsFileName)
 
 	// Create a new service
-	project := cmd.NewProject("e2e-fargate-test-service", conf.ConfigName)
 	cmd.TestServiceUp(t, project)
 	cmd.TestServicePs(t, project, 1)
 
@@ -53,7 +55,7 @@ func TestCreateClusterWithFargateService(t *testing.T) {
 	cmd.TestDown(t, conf)
 }
 
-func createComposeFile(t *testing.T) {
+func createComposeFile(t *testing.T) string {
 	content := `
 version: '3'
 services:
@@ -67,11 +69,21 @@ services:
         awslogs-group: tutorial
         awslogs-region: us-east-1
         awslogs-stream-prefix: wordpress`
-	err := ioutil.WriteFile("./docker-compose.yml", []byte(content), os.ModePerm)
+
+	tmpfile, err := ioutil.TempFile("", "docker-compose-*.yml")
 	require.NoError(t, err, "Failed to create docker-compose.yml")
+
+	_, err = tmpfile.Write([]byte(content))
+	require.NoErrorf(t, err, "Failed to write to %s", tmpfile.Name())
+
+	err = tmpfile.Close()
+	require.NoErrorf(t, err, "Failed to close %s", tmpfile.Name())
+
+	t.Logf("Created %s successfully", tmpfile.Name())
+	return tmpfile.Name()
 }
 
-func createECSParamsFile(t *testing.T, subnets []string) {
+func createECSParamsFile(t *testing.T, subnets []string) string {
 	content := `
 version: 1
 task_definition:
@@ -89,6 +101,15 @@ run_params:
 		content += `
         - "` + subnet + `"`
 	}
-	err := ioutil.WriteFile("./ecs-params.yml", []byte(content), os.ModePerm)
+	tmpfile, err := ioutil.TempFile("", "ecs-params-*.yml")
 	require.NoError(t, err, "Failed to create ecs-params.yml")
+
+	_, err = tmpfile.Write([]byte(content))
+	require.NoErrorf(t, err, "Failed to write to %s", tmpfile.Name())
+
+	err = tmpfile.Close()
+	require.NoErrorf(t, err, "Failed to close %s", tmpfile.Name())
+
+	t.Logf("Created %s successfully", tmpfile.Name())
+	return tmpfile.Name()
 }

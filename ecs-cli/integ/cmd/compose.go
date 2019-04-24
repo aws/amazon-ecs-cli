@@ -29,8 +29,10 @@ import (
 
 // A Project is the configuration needed to create an ECS Service.
 type Project struct {
-	Name       string
-	ConfigName string
+	Name              string
+	ComposeFileName   string
+	ECSParamsFileName string
+	ConfigName        string
 }
 
 // NewProject creates a new Project for an ECS Service.
@@ -46,11 +48,14 @@ func TestServiceUp(t *testing.T, p *Project) {
 	// Given
 	args := []string{
 		"compose",
+		"--file",
+		p.ComposeFileName,
+		"--ecs-params",
+		p.ECSParamsFileName,
 		"--project-name",
 		p.Name,
 		"service",
 		"up",
-		"--create-log-groups",
 		"--cluster-config",
 		p.ConfigName,
 	}
@@ -85,6 +90,10 @@ func TestServiceScale(t *testing.T, p *Project, scale int) {
 	// Given
 	args := []string{
 		"compose",
+		"--file",
+		p.ComposeFileName,
+		"--ecs-params",
+		p.ECSParamsFileName,
 		"--project-name",
 		p.Name,
 		"service",
@@ -114,6 +123,10 @@ func TestServiceDown(t *testing.T, p *Project) {
 	// Given
 	args := []string{
 		"compose",
+		"--file",
+		p.ComposeFileName,
+		"--ecs-params",
+		p.ECSParamsFileName,
 		"--project-name",
 		p.Name,
 		"service",
@@ -142,6 +155,10 @@ func testServiceHasAllRunningContainers(t *testing.T, p *Project, wantedNumOfCon
 	// Given
 	args := []string{
 		"compose",
+		"--file",
+		p.ComposeFileName,
+		"--ecs-params",
+		p.ECSParamsFileName,
 		"--project-name",
 		p.Name,
 		"service",
