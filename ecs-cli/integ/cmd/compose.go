@@ -258,6 +258,7 @@ func testServiceHasAllRunningContainers(t *testing.T, p *Project, wantedNumOfCon
 
 	// Then
 	lines := strings.Split(string(out), "\n")
+	lines = lines[:len(lines)-3] // remove coverage metadata
 	if len(lines) < 2 {
 		t.Logf("No running containers yet, out = %v", lines)
 		return false

@@ -4,4 +4,4 @@ phases:
   build:
     commands:
       - make integ-test
-      - ./bin/local/ecs-cli --version
+      - ./bin/local/ecs-cli.test

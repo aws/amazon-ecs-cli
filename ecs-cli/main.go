@@ -15,22 +15,44 @@ package main
 
 import (
 	"os"
+	"strings"
+
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/factory"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/cluster"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/compose"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/configure"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/image"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/license"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/log"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/regcreds"
+	attributecheckercommand "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/attributechecker"
+	clusterCommand "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/cluster"
+	composeCommand "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/compose"
+	configureCommand "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/configure"
+	imageCommand "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/image"
+	licenseCommand "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/license"
+	logsCommand "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/log"
+	regcredsCommand "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/regcreds"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/logger"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/version"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/attributechecker"
 )
+
+// cliArgsWithoutTestFlags returns command-line arguments without "go test" testflags.
+func cliArgsWithoutTestFlags() []string {
+	if !strings.HasSuffix(os.Args[0], "ecs-cli.test") {
+		return os.Args
+	}
+	var args []string
+	for _, arg := range os.Args {
+		// Don't pass test flags used by Go to the ECS CLI. Otherwise, the ECS CLI will try to parse these
+		// flags that are not defined and error.
+		//
+		// Example flag: -test.coverprofile=coverage.out
+		// See "go help testflag" for full list.
+		if strings.HasPrefix(arg, "-test.") {
+			continue
+		}
+		args = append(args, arg)
+	}
+	return args
+}
 
 func main() {
 	// Setup logrus for amazon-ecr-credential-helper
@@ -67,7 +89,7 @@ func main() {
 		},
 	}
 
-	err := app.Run(os.Args)
+	err := app.Run(cliArgsWithoutTestFlags())
 	if err != nil {
 		logrus.Fatal(err)
 	}
