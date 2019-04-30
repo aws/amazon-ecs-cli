@@ -13,7 +13,6 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-// Package e2e contains the end-to-end integration tests for the ECS CLI.
 package e2e
 
 import (
@@ -21,41 +20,52 @@ import (
 	"os"
 	"testing"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/integ/cmd"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/integ/ecs"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/aws/amazon-ecs-cli/ecs-cli/integ/cmd"
 )
 
-// TestCreateClusterWithFargateService runs the sequence of ecs-cli commands from
-// the Fargate tutorial: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-fargate.html
-func TestCreateClusterWithFargateService(t *testing.T) {
+// TestCreateClusterWithEC2Task runs the sequence of ecs-cli commands from
+// the EC2 tutorial: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-ec2.html
+func TestCreateClusterWithEC2Task(t *testing.T) {
 	// Create the cluster
-	conf := cmd.TestFargateTutorialConfig(t)
-	vpc := cmd.TestUp(t, conf)
+	conf := cmd.TestEC2TutorialConfig(t)
+	cmd.TestUp(t,
+		conf,
+		cmd.WithCapabilityIAM(),
+		cmd.WithInstanceType("t2.medium"),
+		cmd.WithSize(2),
+	)
+	ecs.TestClusterSize(t, conf.ClusterName, 2)
 
 	// Create the files for a task definition
-	project := cmd.NewProject("e2e-fargate-test-service", conf.ConfigName)
-	project.ComposeFileName = createFargateTutorialComposeFile(t)
-	project.ECSParamsFileName = createFargateTutorialECSParamsFile(t, vpc.Subnets)
+	project := cmd.NewProject("e2e-ec2-tutorial-taskdef", conf.ConfigName)
+	project.ComposeFileName = createEC2TutorialComposeFile(t)
+	project.ECSParamsFileName = createEC2TutorialECSParamsFile(t)
 	defer os.Remove(project.ComposeFileName)
 	defer os.Remove(project.ECSParamsFileName)
 
-	// Create a new service
-	cmd.TestServiceUp(t, project)
-	cmd.TestServicePs(t, project, 1)
+	// Create a new task
+	cmd.TestTaskUp(t, project)
+	ecs.TestListTasks(t, conf.ClusterName, 1)
+	cmd.TestPsRunning(t, project, 2)
 
 	// Increase the number of running tasks
-	cmd.TestServiceScale(t, project, 2)
-	cmd.TestServicePs(t, project, 2)
+	cmd.TestTaskScale(t, project, 2)
+	ecs.TestListTasks(t, conf.ClusterName, 2)
+	cmd.TestPsRunning(t, project, 4)
 
-	// Delete the service
-	cmd.TestServiceDown(t, project)
+	// Delete the task
+	cmd.TestTaskDown(t, project)
+	ecs.TestListTasks(t, conf.ClusterName, 0)
 
 	// Delete the cluster
 	cmd.TestDown(t, conf)
 }
 
-func createFargateTutorialComposeFile(t *testing.T) string {
+func createEC2TutorialComposeFile(t *testing.T) string {
 	content := `
 version: '3'
 services:
@@ -63,12 +73,12 @@ services:
     image: wordpress
     ports:
       - "80:80"
-    logging:
-      driver: awslogs
-      options: 
-        awslogs-group: tutorial
-        awslogs-region: us-east-1
-        awslogs-stream-prefix: wordpress`
+    links:
+      - mysql
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: password`
 
 	tmpfile, err := ioutil.TempFile("", "docker-compose-*.yml")
 	require.NoError(t, err, "Failed to create docker-compose.yml")
@@ -83,24 +93,17 @@ services:
 	return tmpfile.Name()
 }
 
-func createFargateTutorialECSParamsFile(t *testing.T, subnets []string) string {
+func createEC2TutorialECSParamsFile(t *testing.T) string {
 	content := `
 version: 1
 task_definition:
-  task_execution_role: ecsTaskExecutionRole
-  ecs_network_mode: awsvpc
-  task_size:
-    mem_limit: 0.5GB
-    cpu_limit: 256
-run_params:
-  network_configuration:
-    awsvpc_configuration:
-      assign_public_ip: ENABLED
-      subnets:`
-	for _, subnet := range subnets {
-		content += `
-        - "` + subnet + `"`
-	}
+  services:
+    wordpress:
+      cpu_shares: 100
+      mem_limit: 524288000
+    mysql:
+      cpu_shares: 100
+      mem_limit: 524288000`
 	tmpfile, err := ioutil.TempFile("", "ecs-params-*.yml")
 	require.NoError(t, err, "Failed to create ecs-params.yml")
 

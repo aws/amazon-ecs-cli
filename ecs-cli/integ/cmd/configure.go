@@ -32,13 +32,24 @@ type CLIConfig struct {
 	ConfigName  string
 }
 
-// TestFargateConfig runs `ecs-cli configure` with a FARGATE launch type.
-func TestFargateConfig(t *testing.T) *CLIConfig {
+// TestFargateTutorialConfig runs `ecs-cli configure` with a FARGATE launch type.
+func TestFargateTutorialConfig(t *testing.T) *CLIConfig {
 	conf := CLIConfig{
-		ClusterName: integ.SuggestedResourceName("fargate", "cluster"),
-		ConfigName:  integ.SuggestedResourceName("fargate", "config"),
+		ClusterName: integ.SuggestedResourceName("fargate-tutorial", "cluster"),
+		ConfigName:  integ.SuggestedResourceName("fargate-tutorial", "config"),
 	}
 	testConfig(t, conf.ClusterName, "FARGATE", conf.ConfigName)
+	t.Logf("Created config %s", conf.ConfigName)
+	return &conf
+}
+
+// TestEC2TutorialConfig runs `ecs-cli configure` with a EC2 launch type.
+func TestEC2TutorialConfig(t *testing.T) *CLIConfig {
+	conf := CLIConfig{
+		ClusterName: integ.SuggestedResourceName("ec2-tutorial", "cluster"),
+		ConfigName:  integ.SuggestedResourceName("ec2-tutorial", "config"),
+	}
+	testConfig(t, conf.ClusterName, "EC2", conf.ConfigName)
 	t.Logf("Created config %s", conf.ConfigName)
 	return &conf
 }

@@ -43,6 +43,34 @@ func NewProject(name string, configName string) *Project {
 	}
 }
 
+// TestTaskUp runs `ecs-cli compose up` for a project.
+func TestTaskUp(t *testing.T, p *Project) {
+	// Given
+	args := []string{
+		"compose",
+		"--file",
+		p.ComposeFileName,
+		"--ecs-params",
+		p.ECSParamsFileName,
+		"--project-name",
+		p.Name,
+		"up",
+		"--cluster-config",
+		p.ConfigName,
+	}
+	cmd := integ.GetCommand(args)
+
+	// When
+	out, err := cmd.Output()
+	require.NoErrorf(t, err, "Failed to create task definition", "error %v, running %v, out: %s", err, args, string(out))
+
+	// Then
+	stdout.Stdout(out).TestHasAllSubstrings(t, []string{
+		"Started container",
+	})
+	t.Logf("Created containers for %s", p.Name)
+}
+
 // TestServiceUp runs `ecs-cli compose service up` for a project.
 func TestServiceUp(t *testing.T, p *Project) {
 	// Given
@@ -85,6 +113,34 @@ func TestServicePs(t *testing.T, p *Project, wantedNumOfContainers int) {
 	t.Logf("Project %s has %d running containers", p.Name, wantedNumOfContainers)
 }
 
+// TestTaskScale runs `ecs-cli compose scale` for a project.
+func TestTaskScale(t *testing.T, p *Project, scale int) {
+	args := []string{
+		"compose",
+		"--file",
+		p.ComposeFileName,
+		"--ecs-params",
+		p.ECSParamsFileName,
+		"--project-name",
+		p.Name,
+		"scale",
+		strconv.Itoa(scale),
+		"--cluster-config",
+		p.ConfigName,
+	}
+	cmd := integ.GetCommand(args)
+
+	// When
+	out, err := cmd.Output()
+	require.NoErrorf(t, err, "Failed to scale task", "error %v, running %v, out: %s", err, args, string(out))
+
+	// Then
+	stdout.Stdout(out).TestHasAllSubstrings(t, []string{
+		"Started container",
+	})
+	t.Logf("Scaled the task %s to %d", p.Name, scale)
+}
+
 // TestServiceScale runs `ecs-cli compose service scale` for a project.
 func TestServiceScale(t *testing.T, p *Project, scale int) {
 	// Given
@@ -116,6 +172,33 @@ func TestServiceScale(t *testing.T, p *Project, scale int) {
 		"serviceName=" + p.Name,
 	})
 	t.Logf("Scaled the service %s to %d tasks", p.Name, scale)
+}
+
+// TestTaskDown runs `ecs-cli compose down` for a project.
+func TestTaskDown(t *testing.T, p *Project) {
+	args := []string{
+		"compose",
+		"--file",
+		p.ComposeFileName,
+		"--ecs-params",
+		p.ECSParamsFileName,
+		"--project-name",
+		p.Name,
+		"down",
+		"--cluster-config",
+		p.ConfigName,
+	}
+	cmd := integ.GetCommand(args)
+
+	// When
+	out, err := cmd.Output()
+	require.NoErrorf(t, err, "Failed to delete task", "error %v, running %v, out: %s", err, args, string(out))
+
+	// Then
+	stdout.Stdout(out).TestHasAllSubstrings(t, []string{
+		"Stopped container",
+	})
+	t.Logf("Deleted task %s", p.Name)
 }
 
 // TestServiceDown runs `ecs-cli compose service down` for a project.
