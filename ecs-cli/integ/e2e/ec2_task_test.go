@@ -49,12 +49,12 @@ func TestCreateClusterWithEC2Task(t *testing.T) {
 	defer os.Remove(project.ComposeFileName)
 	defer os.Remove(project.ECSParamsFileName)
 
-	// Create a new task
+	// Create a new task with 2 containers.
 	cmd.TestTaskUp(t, project)
 	ecs.TestListTasks(t, conf.ClusterName, 1)
 	cmd.TestPsRunning(t, project, 2)
 
-	// Increase the number of running tasks
+	// Add an additional task to the cluster, so we expect 4 running containers.
 	cmd.TestTaskScale(t, project, 2)
 	ecs.TestListTasks(t, conf.ClusterName, 2)
 	cmd.TestPsRunning(t, project, 4)
