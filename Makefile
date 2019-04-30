@@ -38,6 +38,8 @@ test:
 .PHONY: integ-test
 integ-test: integ-test-build integ-test-run-with-coverage
 
+# Builds the ecs-cli.test binary.
+# This binary is the same as regular ecs-cli but it additionally gives coverage stats to stdout after each execution.
 .PHONY: integ-test-build
 integ-test-build:
 	@echo "Installing dependencies..."
@@ -46,15 +48,16 @@ integ-test-build:
 	env -i PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT GOCACHE=$$GOCACHE \
 	go test -coverpkg ./ecs-cli/modules/... -c -tags testrunmain -o ./bin/local/ecs-cli.test ./ecs-cli
 
+# Run our integration tests using the ecs-cli.test binary.
 .PHONY: integ-test-run
 integ-test-run:
 	@echo "Running integration tests..."
 	go test -timeout 60m -tags integ ./ecs-cli/integ/e2e/...
 
+
+# Run `integ-test-run` and merge each coverage file from our e2e tests to one file and calculate the total coverage.
 .PHONY: integ-test-run-with-coverage
 integ-test-run-with-coverage: integ-test-run
-	# Our integration tests generate a separate coverage file for each CLI command.
-	# We merge them together into a single file so that we can get our overall line coverage.
 	@echo "Code coverage"
 	gocovmerge $$TMPDIR/coverage* > $$TMPDIR/all.out
 	go tool cover -func=$$TMPDIR/all.out
