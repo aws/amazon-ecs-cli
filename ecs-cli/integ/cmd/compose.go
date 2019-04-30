@@ -168,7 +168,6 @@ func TestServiceScale(t *testing.T, p *Project, scale int) {
 	stdout.Stdout(out).TestHasAllSubstrings(t, []string{
 		"ECS Service has reached a stable state",
 		fmt.Sprintf("desiredCount=%d", scale),
-		fmt.Sprintf("runningCount=%d", scale),
 		"serviceName=" + p.Name,
 	})
 	t.Logf("Scaled the service %s to %d tasks", p.Name, scale)
@@ -228,7 +227,6 @@ func TestServiceDown(t *testing.T, p *Project) {
 		"Deleted ECS service",
 		"ECS Service has reached a stable state",
 		"desiredCount=0",
-		"runningCount=0",
 		"serviceName=" + p.Name,
 	})
 	t.Logf("Deleted service %s", p.Name)
