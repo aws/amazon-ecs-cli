@@ -45,9 +45,7 @@ func TestCreateClusterWithEC2Task(t *testing.T) {
 	// Create the files for a task definition
 	project := cmd.NewProject("e2e-ec2-tutorial-taskdef", conf.ConfigName)
 	project.ComposeFileName = createEC2TutorialComposeFile(t)
-	project.ECSParamsFileName = createEC2TutorialECSParamsFile(t)
 	defer os.Remove(project.ComposeFileName)
-	defer os.Remove(project.ECSParamsFileName)
 
 	// Create a new task with 2 containers.
 	cmd.TestTaskUp(t, project)
@@ -69,45 +67,25 @@ func TestCreateClusterWithEC2Task(t *testing.T) {
 
 func createEC2TutorialComposeFile(t *testing.T) string {
 	content := `
-version: '3'
+version: '2'
 services:
   wordpress:
     image: wordpress
+    cpu_shares: 100
+    mem_limit: 524288000
     ports:
       - "80:80"
     links:
       - mysql
   mysql:
     image: mysql:5.7
+    cpu_shares: 100
+    mem_limit: 524288000
     environment:
       MYSQL_ROOT_PASSWORD: password`
 
 	tmpfile, err := ioutil.TempFile("", "docker-compose-*.yml")
 	require.NoError(t, err, "Failed to create docker-compose.yml")
-
-	_, err = tmpfile.Write([]byte(content))
-	require.NoErrorf(t, err, "Failed to write to %s", tmpfile.Name())
-
-	err = tmpfile.Close()
-	require.NoErrorf(t, err, "Failed to close %s", tmpfile.Name())
-
-	t.Logf("Created %s successfully", tmpfile.Name())
-	return tmpfile.Name()
-}
-
-func createEC2TutorialECSParamsFile(t *testing.T) string {
-	content := `
-version: 1
-task_definition:
-  services:
-    wordpress:
-      cpu_shares: 100
-      mem_limit: 524288000
-    mysql:
-      cpu_shares: 100
-      mem_limit: 524288000`
-	tmpfile, err := ioutil.TempFile("", "ecs-params-*.yml")
-	require.NoError(t, err, "Failed to create ecs-params.yml")
 
 	_, err = tmpfile.Write([]byte(content))
 	require.NoErrorf(t, err, "Failed to write to %s", tmpfile.Name())
