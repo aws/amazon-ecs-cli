@@ -52,8 +52,7 @@ integ-test-build:
 .PHONY: integ-test-run
 integ-test-run:
 	@echo "Running integration tests..."
-	go test -timeout 60m -tags integ ./ecs-cli/integ/e2e/...
-
+	go test -timeout 60m -tags integ -v ./ecs-cli/integ/e2e/...
 
 # Run `integ-test-run` and merge each coverage file from our e2e tests to one file and calculate the total coverage.
 .PHONY: integ-test-run-with-coverage

@@ -18,6 +18,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/integ/stdout"
+
 	"github.com/aws/amazon-ecs-cli/ecs-cli/integ"
 	"github.com/stretchr/testify/require"
 )
@@ -51,7 +53,7 @@ func testClusterHasAllRunningContainers(t *testing.T, p *Project, wantedNumOfCon
 	}
 
 	// Then
-	lines := strings.Split(string(out), "\n")
+	lines := stdout.Stdout(out).Lines()
 	if len(lines) < 2 {
 		t.Logf("No running containers yet, out = %v", lines)
 		return false
