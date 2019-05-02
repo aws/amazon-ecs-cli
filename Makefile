@@ -41,7 +41,7 @@ integ-test:
 	@echo "Building ecs-cli..."
 	./scripts/build_binary.sh ./bin/local
 	@echo "Running integration tests..."
-	go test -tags integ -v ./ecs-cli/integ/e2e/...
+	go test -timeout 60m -tags integ -v ./ecs-cli/integ/e2e/...
 
 .PHONY: generate
 generate: $(SOURCES)

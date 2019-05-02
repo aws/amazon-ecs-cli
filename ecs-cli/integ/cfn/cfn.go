@@ -60,7 +60,7 @@ func TestNoStackName(t *testing.T, stackName string) {
 
 func newClient(t *testing.T) *cloudformation.CloudFormation {
 	sess, err := session.NewSession()
-	require.NoError(t, err, "failed to create new session for upTest clients")
+	require.NoError(t, err, "failed to create new session for CloudFormation")
 	conf := aws.NewConfig()
 	return cloudformation.New(sess, conf)
 }

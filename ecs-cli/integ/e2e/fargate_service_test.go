@@ -29,14 +29,16 @@ import (
 // TestCreateClusterWithFargateService runs the sequence of ecs-cli commands from
 // the Fargate tutorial: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-fargate.html
 func TestCreateClusterWithFargateService(t *testing.T) {
+	t.Parallel()
+
 	// Create the cluster
-	conf := cmd.TestFargateConfig(t)
+	conf := cmd.TestFargateTutorialConfig(t)
 	vpc := cmd.TestUp(t, conf)
 
 	// Create the files for a task definition
 	project := cmd.NewProject("e2e-fargate-test-service", conf.ConfigName)
-	project.ComposeFileName = createComposeFile(t)
-	project.ECSParamsFileName = createECSParamsFile(t, vpc.Subnets)
+	project.ComposeFileName = createFargateTutorialComposeFile(t)
+	project.ECSParamsFileName = createFargateTutorialECSParamsFile(t, vpc.Subnets)
 	defer os.Remove(project.ComposeFileName)
 	defer os.Remove(project.ECSParamsFileName)
 
@@ -55,7 +57,7 @@ func TestCreateClusterWithFargateService(t *testing.T) {
 	cmd.TestDown(t, conf)
 }
 
-func createComposeFile(t *testing.T) string {
+func createFargateTutorialComposeFile(t *testing.T) string {
 	content := `
 version: '3'
 services:
@@ -83,7 +85,7 @@ services:
 	return tmpfile.Name()
 }
 
-func createECSParamsFile(t *testing.T, subnets []string) string {
+func createFargateTutorialECSParamsFile(t *testing.T, subnets []string) string {
 	content := `
 version: 1
 task_definition:

@@ -67,8 +67,8 @@ func RetryUntilTimeout(t *testing.T, f func(t *testing.T) bool, timeoutInS time.
 		if ok := f(t); ok {
 			return true
 		}
-		t.Logf("Sleeping for %v", sleepInS)
-		time.Sleep(sleepInS * time.Second)
+		t.Logf("Current timestamp=%v, sleeping for %v", time.Now(), sleepInS)
+		time.Sleep(sleepInS)
 	}
 	return false
 }

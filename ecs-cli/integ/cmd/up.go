@@ -14,6 +14,7 @@
 package cmd
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -34,12 +35,15 @@ type VPC struct {
 }
 
 // TestUp runs `ecs-cli up` given a CLI configuration and returns the created VPC.
-func TestUp(t *testing.T, conf *CLIConfig) *VPC {
+func TestUp(t *testing.T, conf *CLIConfig, options ...func([]string) []string) *VPC {
 	// Given
 	args := []string{
 		"up",
 		"--cluster-config",
 		conf.ConfigName,
+	}
+	for _, option := range options {
+		args = option(args)
 	}
 	cmd := integ.GetCommand(args)
 
@@ -57,6 +61,32 @@ func TestUp(t *testing.T, conf *CLIConfig) *VPC {
 
 	t.Logf("Created cluster %s in stack %s", conf.ClusterName, stackName(conf.ClusterName))
 	return parseVPC(out)
+}
+
+// WithCapabilityIAM acknowledges that this command may create IAM resources.
+func WithCapabilityIAM() func(args []string) []string {
+	return func(args []string) []string {
+		args = append(args, "--capability-iam")
+		return args
+	}
+}
+
+// WithSize sets the number of instances for the cluster.
+func WithSize(size int) func(args []string) []string {
+	return func(args []string) []string {
+		args = append(args, "--size")
+		args = append(args, fmt.Sprintf("%d", size))
+		return args
+	}
+}
+
+// WithInstanceType sets the EC2 instance type for the cluster
+func WithInstanceType(instanceType string) func(args []string) []string {
+	return func(args []string) []string {
+		args = append(args, "--instance-type")
+		args = append(args, "t2.medium")
+		return args
+	}
 }
 
 func stackName(clusterName string) string {
