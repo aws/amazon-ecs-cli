@@ -6,13 +6,20 @@ You may be charged for the AWS resources utilized while running these tests. It'
 
 ## Local test setup
 
-1. Set the following environment variables:
+1. Set the following mandatory environment variables:
     ```bash
     # hardcode the CodeBuild ID since we're not using codebuild to run the tests
     export CODEBUILD_BUILD_ID="local-integ-test"
     # change this to the region you'd like to run the tests in
     export AWS_REGION="us-east-1"
     ```
+2. If your OS doesn't support the `TMPDIR` environment variable, then set it:
+    ```bash
+    # If your OS sets TMPDIR, you should get an output like /var/folders/13/y9bcvw7557d5bvlvrj8jz0k04gs5dl/T/
+    echo $TMPDIR
+    # Otherwise set the environment to a location of your choice
+    export $TMPDIR="/tmp"
+    ```   
 
 
 ## Running the tests

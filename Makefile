@@ -35,13 +35,32 @@ $(LOCAL_BINARY): $(SOURCES)
 test:
 	env -i PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT GOCACHE=$$GOCACHE go test -timeout=120s -v -cover ./ecs-cli/modules/...
 
-
 .PHONY: integ-test
-integ-test:
-	@echo "Building ecs-cli..."
-	./scripts/build_binary.sh ./bin/local
+integ-test: integ-test-build integ-test-run-with-coverage
+
+# Builds the ecs-cli.test binary.
+# This binary is the same as regular ecs-cli but it additionally gives coverage stats to stdout after each execution.
+.PHONY: integ-test-build
+integ-test-build:
+	@echo "Installing dependencies..."
+	go get github.com/wadey/gocovmerge
+	@echo "Building ecs-cli.test..."
+	env -i PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT GOCACHE=$$GOCACHE \
+	go test -coverpkg ./ecs-cli/modules/... -c -tags testrunmain -o ./bin/local/ecs-cli.test ./ecs-cli
+
+# Run our integration tests using the ecs-cli.test binary.
+.PHONY: integ-test-run
+integ-test-run:
 	@echo "Running integration tests..."
 	go test -timeout 60m -tags integ -v ./ecs-cli/integ/e2e/...
+
+# Run `integ-test-run` and merge each coverage file from our e2e tests to one file and calculate the total coverage.
+.PHONY: integ-test-run-with-coverage
+integ-test-run-with-coverage: integ-test-run
+	@echo "Code coverage"
+	gocovmerge $$TMPDIR/coverage* > $$TMPDIR/all.out
+	go tool cover -func=$$TMPDIR/all.out
+	rm $$TMPDIR/coverage* $$TMPDIR/all.out
 
 .PHONY: generate
 generate: $(SOURCES)

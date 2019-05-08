@@ -16,6 +16,7 @@ package integ
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"regexp"
@@ -26,7 +27,7 @@ import (
 )
 
 const (
-	binPath = "../../../bin/local/ecs-cli" // TODO: use abs path or env var
+	binPath = "../../../bin/local/ecs-cli.test" // TODO: use abs path or env var
 )
 
 // GetCommand returns a Cmd struct with the right binary path & arguments
@@ -37,8 +38,26 @@ func GetCommand(args []string) *exec.Cmd {
 		cmdPath = cmdPath + ".exe"
 	}
 
-	cmd := exec.Command(cmdPath, args...)
-	return cmd
+	fname, err := createTempCoverageFile()
+	if err != nil {
+		return exec.Command(cmdPath, args...)
+	}
+	args = append([]string{fmt.Sprintf("-test.coverprofile=%s", fname)}, args...)
+	return exec.Command(cmdPath, args...)
+}
+
+// createTempCoverageFile creates a coverage file for a CLI command under $TMPDIR.
+func createTempCoverageFile() (string, error) {
+	tmpfile, err := ioutil.TempFile("", "coverage-*.out")
+	if err != nil {
+		return "", err
+	}
+
+	err = tmpfile.Close()
+	if err != nil {
+		return "", err
+	}
+	return tmpfile.Name(), nil
 }
 
 // GetRowValues takes a row of stdout and returns a slice of strings split by arbirary whitespace

@@ -16,7 +16,6 @@ package cmd
 import (
 	"fmt"
 	"strconv"
-	"strings"
 	"testing"
 	"time"
 
@@ -257,7 +256,7 @@ func testServiceHasAllRunningContainers(t *testing.T, p *Project, wantedNumOfCon
 	}
 
 	// Then
-	lines := strings.Split(string(out), "\n")
+	lines := stdout.Stdout(out).Lines()
 	if len(lines) < 2 {
 		t.Logf("No running containers yet, out = %v", lines)
 		return false
