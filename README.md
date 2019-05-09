@@ -52,14 +52,14 @@ For information about installing and using the Amazon ECS CLI, see the [ECS Comm
 
 ### Latest version
 * Linux:
-  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest)
-  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest.md5)
+  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest)
+  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest.md5](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest.md5)
 * Macintosh:
-  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-latest](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-latest)
-  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-latest.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-latest.md5)
+  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-latest](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-latest)
+  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-latest.md5](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-latest.md5)
 * Windows:
-  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-latest.exe](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-latest.exe)
-  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-latest.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-latest.md5)
+  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-windows-amd64-latest.exe](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-windows-amd64-latest.exe)
+  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-windows-amd64-latest.md5](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-windows-amd64-latest.md5)
 
 ### Download Links for within China
 
@@ -67,28 +67,28 @@ As of v0.6.2 the ECS CLI supports the cn-north-1 region in China. The following 
 same binaries, but they are localized within China to provide a faster download experience.
 
 * Linux:
-  * [https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-linux-amd64-latest](https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-linux-amd64-latest)
-  * [https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-linux-amd64-latest.md5](https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-linux-amd64-latest.md5)
+  * [https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-linux-amd64-latest](https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-linux-amd64-latest)
+  * [https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-linux-amd64-latest.md5](https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-linux-amd64-latest.md5)
 * Macintosh:
-  * [https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-darwin-amd64-latest](https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-darwin-amd64-latest)
-  * [https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-darwin-amd64-latest.md5](https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-darwin-amd64-latest.md5)
+  * [https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-darwin-amd64-latest](https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-darwin-amd64-latest)
+  * [https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-darwin-amd64-latest.md5](https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-darwin-amd64-latest.md5)
 * Windows:
-  * [https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-windows-amd64-latest.exe](https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-windows-amd64-latest.exe)
-  * [https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-windows-amd64-latest.md5](https://s3.cn-north-1.amazonaws.com.cn/amazon-ecs-cli/ecs-cli-windows-amd64-latest.md5)
+  * [https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-windows-amd64-latest.exe](https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-windows-amd64-latest.exe)
+  * [https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-windows-amd64-latest.md5](https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-windows-amd64-latest.md5)
 
 ### Download specific version
 Using the URLs above, replace `latest` with the desired tag, for example `v1.0.0`. After
 downloading, remember to rename the binary file to `ecs-cli`. ***NOTE:*** Windows is only supported starting with version `v1.0.0`.
 
 * Linux:
-  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v1.0.0](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v1.0.0)
-  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v1.0.0.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v1.0.0.md5)
+  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-v1.0.0](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-v1.0.0)
+  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-v1.0.0.md5](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-v1.0.0.md5)
 * Macintosh:
-  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-v1.0.0](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-v1.0.0)
-  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-v1.0.0.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-v1.0.0.md5)
+  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-v1.0.0](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-v1.0.0)
+  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-v1.0.0.md5](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-v1.0.0.md5)
 * Windows:
-  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-v1.0.0.exe](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-v1.0.0.exe)
-  * [https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-v1.0.0.md5](https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-v1.0.0.md5)
+  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-windows-amd64-v1.0.0.exe](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-windows-amd64-v1.0.0.exe)
+  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-windows-amd64-v1.0.0.md5](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-windows-amd64-v1.0.0.md5)
 
 ### Verifying Signatures
 
@@ -135,17 +135,17 @@ ECS CLI signatures are ascii armored detached PGP signatures stored in files wit
 
 ###### Mac
 ```
-curl -o ecs-cli.asc https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-latest.asc
+curl -o ecs-cli.asc https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-latest.asc
 ```
 
 ###### Linux
 ```
-curl -o ecs-cli.asc https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest.asc
+curl -o ecs-cli.asc https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest.asc
 ```
 
 ###### Windows
 ```
-PS C:\> Invoke-WebRequest -OutFile ecs-cli.asc https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-windows-amd64-latest.exe.asc
+PS C:\> Invoke-WebRequest -OutFile ecs-cli.asc https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-windows-amd64-latest.exe.asc
 ```
 #### 4. Verifying a Signature
 
@@ -531,8 +531,8 @@ Fields listed under `task_definition` correspond to fields that will be included
   * If you are using Docker compose version 3, the `cpu_shares`, `mem_limit`, and `mem_reservation` fields are optional and must be specified in the ECS params file rather than the compose file.
   * In Docker compose version 2, the `cpu_shares`, `mem_limit`, and `mem_reservation` fields can be specified in either the compose or ECS params file. If they are specified in the ECS params file, the values will override values present in the compose file.
   * If you are using a private repository for pulling images, `repository_credentials` allows you to specify an AWS Secrets Manager secret ARN for the name of the secret containing your private repository credentials as a `credential_parameter`.
-  * `init_process_enabled` is a [Linux-specific option](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_LinuxParameters.html) that can be be set to run an init process inside the container that forwards signals and reaps processes. This parameter maps to the `--init` option to [docker run](https://docs.docker.com/engine/reference/run/). This parameter requires version 1.25 of the Docker Remote API or greater on your container instance. 
-  * `gpu` is the number of physical GPUs the Amazon ECS container agent will reserve for the container. Maps to the GPU [resource requirement](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ResourceRequirement.html) field in the task definition. For example: "1", "4", "8", "16". 
+  * `init_process_enabled` is a [Linux-specific option](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_LinuxParameters.html) that can be be set to run an init process inside the container that forwards signals and reaps processes. This parameter maps to the `--init` option to [docker run](https://docs.docker.com/engine/reference/run/). This parameter requires version 1.25 of the Docker Remote API or greater on your container instance.
+  * `gpu` is the number of physical GPUs the Amazon ECS container agent will reserve for the container. Maps to the GPU [resource requirement](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ResourceRequirement.html) field in the task definition. For example: "1", "4", "8", "16".
   * `healthcheck` This parameter maps to `healthcheck` in the [Docker compose file reference](https://docs.docker.com/compose/compose-file/#healthcheck). This field can either be used here in the ECS Params file, or it can be used in Compose File version 3 with the ECS CLI.
     * `test` can also be specified as `command` and must be either a string or a list or strings. If `test` is specified as a list of strings, the first item must be either NONE, CMD, or CMD-SHELL. If test or command is specified as a string, CMD-SHELL will be prepended and ECS will run the command in the container's default shell.
     * `interval`, `timeout`, and `start_period` are specified as durations in a string format. For example: 2.5s, 10s, 1m30s, 2h23m, or 5h34m56s.
