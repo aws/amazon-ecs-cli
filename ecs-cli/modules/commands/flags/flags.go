@@ -83,7 +83,7 @@ const (
 	LaunchTypeFlag         = "launch-type"
 	DefaultLaunchTypeFlag  = "default-launch-type"
 	SchedulingStrategyFlag = "scheduling-strategy"
-	
+
 	//attribute-checker
 	ContainerInstancesFlag = "container-instances"
 
@@ -146,6 +146,11 @@ const (
 
 	ResourceTagsFlag          = "tags"
 	DisableECSManagedTagsFlag = "disable-ecs-managed-tags"
+
+	// Local
+	TaskDefinitionFileFlag 	= "file"
+	TaskDefinitionArnFlag  	= "arn"
+	LocalOutputFlag	  	= "output"
 )
 
 // OptionalRegionAndProfileFlags provides these flags:
