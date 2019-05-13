@@ -73,11 +73,11 @@ type Config struct {
 	Filename string `yaml:"-"`
 	Version  string
 	Services Services
-	Networks map[string]NetworkConfig
-	Volumes  map[string]VolumeConfig
-	Secrets  map[string]SecretConfig
-	Configs  map[string]ConfigObjConfig
-	Extras   map[string]interface{} `yaml:",inline"`
+	Networks map[string]NetworkConfig   `yaml:",omitempty"`
+	Volumes  map[string]VolumeConfig    `yaml:",omitempty"`
+	Secrets  map[string]SecretConfig    `yaml:",omitempty"`
+	Configs  map[string]ConfigObjConfig `yaml:",omitempty"`
+	Extras   map[string]interface{}     `yaml:",inline"`
 }
 
 // Services is a list of ServiceConfig
@@ -135,13 +135,16 @@ type ServiceConfig struct {
 	Restart         string                           `yaml:",omitempty"`
 	Secrets         []ServiceSecretConfig            `yaml:",omitempty"`
 	SecurityOpt     []string                         `mapstructure:"security_opt" yaml:"security_opt,omitempty"`
+	ShmSize         string                           `mapstructure:"shm_size" yaml:"shm_size,omitempty"`
 	StdinOpen       bool                             `mapstructure:"stdin_open" yaml:"stdin_open,omitempty"`
 	StopGracePeriod *time.Duration                   `mapstructure:"stop_grace_period" yaml:"stop_grace_period,omitempty"`
 	StopSignal      string                           `mapstructure:"stop_signal" yaml:"stop_signal,omitempty"`
+	Sysctls         StringList                       `yaml:",omitempty"`
 	Tmpfs           StringList                       `yaml:",omitempty"`
 	Tty             bool                             `mapstructure:"tty" yaml:"tty,omitempty"`
 	Ulimits         map[string]*UlimitsConfig        `yaml:",omitempty"`
 	User            string                           `yaml:",omitempty"`
+	UserNSMode      string                           `mapstructure:"userns_mode" yaml:"userns_mode,omitempty"`
 	Volumes         []ServiceVolumeConfig            `yaml:",omitempty"`
 	WorkingDir      string                           `mapstructure:"working_dir" yaml:"working_dir,omitempty"`
 

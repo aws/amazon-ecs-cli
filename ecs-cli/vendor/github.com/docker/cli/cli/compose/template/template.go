@@ -14,7 +14,7 @@ var patternString = fmt.Sprintf(
 	delimiter, delimiter, substitution, substitution,
 )
 
-var pattern = regexp.MustCompile(patternString)
+var defaultPattern = regexp.MustCompile(patternString)
 
 // DefaultSubstituteFuncs contains the default SubstitueFunc used by the docker cli
 var DefaultSubstituteFuncs = []SubstituteFunc{
@@ -51,7 +51,7 @@ func SubstituteWith(template string, mapping Mapping, pattern *regexp.Regexp, su
 	var err error
 	result := pattern.ReplaceAllStringFunc(template, func(substring string) string {
 		matches := pattern.FindStringSubmatch(substring)
-		groups := matchGroups(matches)
+		groups := matchGroups(matches, pattern)
 		if escaped := groups["escaped"]; escaped != "" {
 			return escaped
 		}
@@ -90,15 +90,97 @@ func SubstituteWith(template string, mapping Mapping, pattern *regexp.Regexp, su
 
 // Substitute variables in the string with their values
 func Substitute(template string, mapping Mapping) (string, error) {
-	return SubstituteWith(template, mapping, pattern, DefaultSubstituteFuncs...)
+	return SubstituteWith(template, mapping, defaultPattern, DefaultSubstituteFuncs...)
+}
+
+// ExtractVariables returns a map of all the variables defined in the specified
+// composefile (dict representation) and their default value if any.
+func ExtractVariables(configDict map[string]interface{}, pattern *regexp.Regexp) map[string]string {
+	if pattern == nil {
+		pattern = defaultPattern
+	}
+	return recurseExtract(configDict, pattern)
+}
+
+func recurseExtract(value interface{}, pattern *regexp.Regexp) map[string]string {
+	m := map[string]string{}
+
+	switch value := value.(type) {
+	case string:
+		if values, is := extractVariable(value, pattern); is {
+			for _, v := range values {
+				m[v.name] = v.value
+			}
+		}
+	case map[string]interface{}:
+		for _, elem := range value {
+			submap := recurseExtract(elem, pattern)
+			for key, value := range submap {
+				m[key] = value
+			}
+		}
+
+	case []interface{}:
+		for _, elem := range value {
+			if values, is := extractVariable(elem, pattern); is {
+				for _, v := range values {
+					m[v.name] = v.value
+				}
+			}
+		}
+	}
+
+	return m
+}
+
+type extractedValue struct {
+	name  string
+	value string
+}
+
+func extractVariable(value interface{}, pattern *regexp.Regexp) ([]extractedValue, bool) {
+	sValue, ok := value.(string)
+	if !ok {
+		return []extractedValue{}, false
+	}
+	matches := pattern.FindAllStringSubmatch(sValue, -1)
+	if len(matches) == 0 {
+		return []extractedValue{}, false
+	}
+	values := []extractedValue{}
+	for _, match := range matches {
+		groups := matchGroups(match, pattern)
+		if escaped := groups["escaped"]; escaped != "" {
+			continue
+		}
+		val := groups["named"]
+		if val == "" {
+			val = groups["braced"]
+		}
+		name := val
+		var defaultValue string
+		switch {
+		case strings.Contains(val, ":?"):
+			name, _ = partition(val, ":?")
+		case strings.Contains(val, "?"):
+			name, _ = partition(val, "?")
+		case strings.Contains(val, ":-"):
+			name, defaultValue = partition(val, ":-")
+		case strings.Contains(val, "-"):
+			name, defaultValue = partition(val, "-")
+		}
+		values = append(values, extractedValue{name: name, value: defaultValue})
+	}
+	return values, len(values) > 0
 }
 
 // Soft default (fall back if unset or empty)
 func softDefault(substitution string, mapping Mapping) (string, bool, error) {
-	if !strings.Contains(substitution, ":-") {
+	sep := ":-"
+	if !strings.Contains(substitution, sep) {
 		return "", false, nil
 	}
-	name, defaultValue := partition(substitution, ":-")
+	name, defaultValue := partition(substitution, sep)
 	value, ok := mapping(name)
 	if !ok || value == "" {
 		return defaultValue, true, nil
@@ -108,10 +190,11 @@ func softDefault(substitution string, mapping Mapping) (string, bool, error) {
 
 // Hard default (fall back if-and-only-if empty)
 func hardDefault(substitution string, mapping Mapping) (string, bool, error) {
-	if !strings.Contains(substitution, "-") {
+	sep := "-"
+	if !strings.Contains(substitution, sep) {
 		return "", false, nil
 	}
-	name, defaultValue := partition(substitution, "-")
+	name, defaultValue := partition(substitution, sep)
 	value, ok := mapping(name)
 	if !ok {
 		return defaultValue, true, nil
@@ -120,26 +203,20 @@ func hardDefault(substitution string, mapping Mapping) (string, bool, error) {
 }
 
 func requiredNonEmpty(substitution string, mapping Mapping) (string, bool, error) {
-	if !strings.Contains(substitution, ":?") {
-		return "", false, nil
-	}
-	name, errorMessage := partition(substitution, ":?")
-	value, ok := mapping(name)
-	if !ok || value == "" {
-		return "", true, &InvalidTemplateError{
-			Template: fmt.Sprintf("required variable %s is missing a value: %s", name, errorMessage),
-		}
-	}
-	return value, true, nil
+	return withRequired(substitution, mapping, ":?", func(v string) bool { return v != "" })
 }
 
 func required(substitution string, mapping Mapping) (string, bool, error) {
-	if !strings.Contains(substitution, "?") {
+	return withRequired(substitution, mapping, "?", func(_ string) bool { return true })
+}
+
+func withRequired(substitution string, mapping Mapping, sep string, valid func(string) bool) (string, bool, error) {
+	if !strings.Contains(substitution, sep) {
 		return "", false, nil
 	}
-	name, errorMessage := partition(substitution, "?")
+	name, errorMessage := partition(substitution, sep)
 	value, ok := mapping(name)
-	if !ok {
+	if !ok || !valid(value) {
 		return "", true, &InvalidTemplateError{
 			Template: fmt.Sprintf("required variable %s is missing a value: %s", name, errorMessage),
 		}
@@ -147,7 +224,7 @@ func required(substitution string, mapping Mapping) (string, bool, error) {
 	return value, true, nil
 }
 
-func matchGroups(matches []string) map[string]string {
+func matchGroups(matches []string, pattern *regexp.Regexp) map[string]string {
 	groups := make(map[string]string)
 	for i, name := range pattern.SubexpNames()[1:] {
 		groups[name] = matches[i+1]
