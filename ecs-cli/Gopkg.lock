@@ -123,7 +123,7 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:f106fa5a2976a960cd1911bf9a51521a51834214708e5b013eab36487c2f5002"
+  digest = "1:a5ca15953ec7d39eced701d326903a1ffed0a7f1339a9b02156f6bc6b2a7cefd"
   name = "github.com/docker/cli"
   packages = [
     "cli/compose/interpolation",
@@ -134,24 +134,41 @@
     "opts",
   ]
   pruneopts = "UT"
-  revision = "7178075fdad68c953431cab5989dbe08bdcb94ac"
-  version = "v18.06.0-ce-rc3"
+  revision = "c89750f836c57ce10386e71669e1b08a54c3caeb"
+  version = "v18.09.5"
 
 [[projects]]
-  digest = "1:a047cf4f1ed5736dec666af45fc72ba2a95015bfdf7f906d941f6b74f38fb158"
+  digest = "1:4ddc17aeaa82cb18c5f0a25d7c253a10682f518f4b2558a82869506eec223d76"
+  name = "github.com/docker/distribution"
+  packages = [
+    "digestset",
+    "reference",
+  ]
+  pruneopts = "UT"
+  revision = "2461543d988979529609e8cb6fca9ca190dc48da"
+  version = "v2.7.1"
+
+[[projects]]
+  digest = "1:b335c0b8d90199b16144c1dcf80826d0cee1e8189a75649ac358e1001b94a066"
   name = "github.com/docker/docker"
   packages = [
+    "api",
     "api/types",
     "api/types/blkiodev",
     "api/types/container",
+    "api/types/events",
     "api/types/filters",
+    "api/types/image",
     "api/types/mount",
     "api/types/network",
     "api/types/registry",
     "api/types/strslice",
     "api/types/swarm",
     "api/types/swarm/runtime",
+    "api/types/time",
     "api/types/versions",
+    "api/types/volume",
+    "client",
     "opts",
     "pkg/archive",
     "pkg/fileutils",
@@ -173,11 +190,16 @@
   source = "https://github.com/moby/moby.git"
 
 [[projects]]
-  digest = "1:87dcb59127512b84097086504c16595cf8fef35b9e0bfca565dfc06e198158d7"
+  digest = "1:811c86996b1ca46729bad2724d4499014c4b9effd05ef8c71b852aad90deb0ce"
   name = "github.com/docker/go-connections"
-  packages = ["nat"]
+  packages = [
+    "nat",
+    "sockets",
+    "tlsconfig",
+  ]
   pruneopts = "UT"
-  revision = "4ccf312bf1d35e5dbda654e57a9be4c3f3cd0366"
+  revision = "7395e3f8aa162843a74ed6d48e79627d9792ac55"
+  version = "v0.4.0"
 
 [[projects]]
   digest = "1:80ac04115329909f2425543343e3b2de5b1548a4c01e94902c2c5352b0e17d95"
@@ -383,11 +405,12 @@
   revision = "5f55bce93ad2c89f411e009659bb1fd83da36e7b"
 
 [[projects]]
-  digest = "1:ac7dc2013947eefefab215bf868e0120a3d1eb9ca1866cb77b9fd820973cc739"
+  digest = "1:7381f7ed9f50730de3e3ba2086fabdf60bfade9b61c75e4f61edcf0ad4088caf"
   name = "golang.org/x/net"
   packages = [
     "context",
     "context/ctxhttp",
+    "proxy",
   ]
   pruneopts = "UT"
   revision = "a6577fac2d73be281a500b310739095313165611"
@@ -447,6 +470,9 @@
     "github.com/awslabs/amazon-ecr-credential-helper/ecr-login/api",
     "github.com/docker/cli/cli/compose/loader",
     "github.com/docker/cli/cli/compose/types",
+    "github.com/docker/docker/api/types",
+    "github.com/docker/docker/api/types/network",
+    "github.com/docker/docker/client",
     "github.com/docker/go-units",
     "github.com/docker/libcompose/cli/command",
     "github.com/docker/libcompose/config",
