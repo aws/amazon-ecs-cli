@@ -1,0 +1,62 @@
+// Copyright 2015-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License"). You may
+// not use this file except in compliance with the License. A copy of the
+// License is located at
+//
+//	http://aws.amazon.com/apache2.0/
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+
+package localCommand
+
+import (
+	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
+	"github.com/urfave/cli"
+)
+
+// LocalCommand provides a list of commands that operate on a task-definition
+// file (accepted formats: JSON, YAML, CloudFormation).
+func LocalCommand() cli.Command {
+	return cli.Command{
+		Name:   "local",
+		Usage:  "",
+		Before: ecscli.BeforeApp,
+		Flags:  flags.OptionalRegionAndProfileFlags(),
+		Subcommands: []cli.Command{
+			createCommand(),
+		},
+	}
+}
+
+func createCommand() cli.Command {
+	return cli.Command{
+		Name:   "create",
+		Usage:  "Uses a Task Definition input and converts it to a docker-compose.local.yml file that can be run locally.",
+		Before: ecscli.BeforeApp,
+		Action: local.Create,
+		Flags:  createFlags(),
+	}
+}
+
+func createFlags() []cli.Flag {
+	return []cli.Flag {
+		cli.StringFlag{
+			Name:  flags.TaskDefinitionFileFlag + ",f",
+			Usage: "The file name of the task definition to convert.",
+		},
+		cli.StringFlag{
+			Name:  flags.TaskDefinitionArnFlag + ",a",
+			Usage: "The ARN of the task definition to convert.",
+		},
+		cli.StringFlag{
+			Name:  flags.LocalOutputFlag + ",o",
+			Usage: "The name of the file to write to. If not specified, defaults to docker-compose.local.yml",
+		},
+	}
+}

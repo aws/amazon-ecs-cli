@@ -26,6 +26,7 @@ import (
 	configureCommand "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/configure"
 	imageCommand "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/image"
 	licenseCommand "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/license"
+	localCommand "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/local"
 	logsCommand "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/log"
 	regcredsCommand "github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/regcreds"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/logger"
@@ -80,6 +81,7 @@ func main() {
 		attributecheckercommand.AttributecheckerCommand(),
 		logsCommand.LogCommand(),
 		regcredsCommand.RegistryCredsCommand(),
+		localCommand.LocalCommand(),
 	}
 
 	app.Flags = []cli.Flag{
