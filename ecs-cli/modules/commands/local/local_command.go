@@ -31,6 +31,7 @@ func LocalCommand() cli.Command {
 		Flags:  flags.OptionalRegionAndProfileFlags(),
 		Subcommands: []cli.Command{
 			createCommand(),
+			upCommand(),
 		},
 	}
 }
@@ -45,8 +46,17 @@ func createCommand() cli.Command {
 	}
 }
 
+// TODO This is a placeholder function used to test the ECS local network configuration.
+func upCommand() cli.Command {
+	return cli.Command{
+		Name:   "up",
+		Usage:  "Create a Compose file from an ECS task definition and run it.",
+		Action: local.Up,
+	}
+}
+
 func createFlags() []cli.Flag {
-	return []cli.Flag {
+	return []cli.Flag{
 		cli.StringFlag{
 			Name:  flags.TaskDefinitionFileFlag + ",f",
 			Usage: "The file name of the task definition to convert.",

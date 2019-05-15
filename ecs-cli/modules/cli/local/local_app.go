@@ -17,6 +17,10 @@ package local
 
 import (
 	"fmt"
+
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/network"
+	"github.com/docker/docker/client"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
@@ -25,4 +29,18 @@ func Create(c *cli.Context) {
 	// 2. parse task def into go object
 	// 3. write to docker-compose.local.yml file
 	fmt.Println("foo") // placeholder
+}
+
+// Up creates a Compose file from an ECS task definition and runs it locally.
+//
+// The Amazon ECS Local Endpoints container needs to be running already for any local ECS task to work
+// (see https://github.com/awslabs/amazon-ecs-local-container-endpoints).
+// If the container is not running, this command creates a new network for all local ECS tasks to join
+// and communicate with the Amazon ECS Local Endpoints container.
+func Up(c *cli.Context) {
+	docker, err := client.NewEnvClient() // Temporary client created to test network.Setup()
+	if err != nil {
+		logrus.Fatal("Could not connect to docker", err)
+	}
+	network.Setup(docker)
 }
