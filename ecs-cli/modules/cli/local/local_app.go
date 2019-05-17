@@ -11,6 +11,8 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
+// Package local implements the subcommands to run ECS task definitions locally
+// (See: https://github.com/aws/containers-roadmap/issues/180).
 package local
 
 import (
@@ -19,5 +21,8 @@ import (
 )
 
 func Create(c *cli.Context) {
-	fmt.Println("foo")
+	// 1. read in task def (from file or arn)
+	// 2. parse task def into go object
+	// 3. write to docker-compose.local.yml file
+	fmt.Println("foo") // placeholder
 }
