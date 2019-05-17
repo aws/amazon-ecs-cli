@@ -11,10 +11,11 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
+// Package localCommand defines the subcommands for local workflows
 package localCommand
 
 import (
-	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules"
+	app "github.com/aws/amazon-ecs-cli/ecs-cli/modules"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/urfave/cli"
@@ -26,7 +27,7 @@ func LocalCommand() cli.Command {
 	return cli.Command{
 		Name:   "local",
 		Usage:  "",
-		Before: ecscli.BeforeApp,
+		Before: app.BeforeApp,
 		Flags:  flags.OptionalRegionAndProfileFlags(),
 		Subcommands: []cli.Command{
 			createCommand(),
@@ -38,7 +39,7 @@ func createCommand() cli.Command {
 	return cli.Command{
 		Name:   "create",
 		Usage:  "Uses a Task Definition input and converts it to a docker-compose.local.yml file that can be run locally.",
-		Before: ecscli.BeforeApp,
+		Before: app.BeforeApp,
 		Action: local.Create,
 		Flags:  createFlags(),
 	}
