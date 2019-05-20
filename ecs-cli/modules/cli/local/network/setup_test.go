@@ -93,16 +93,13 @@ func TestSetup(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			mockDocker := tc.configureCalls(newMockLocalNetworkStarter(t))
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			mockDocker := mock_network.NewMockLocalEndpointsStarter(ctrl)
+			mockDocker = tc.configureCalls(mockDocker)
 
 			Setup(mockDocker)
 		})
 	}
-}
-
-func newMockLocalNetworkStarter(t *testing.T) *mock_network.MockLocalEndpointsStarter {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	return mock_network.NewMockLocalEndpointsStarter(ctrl)
 }

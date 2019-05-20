@@ -112,6 +112,7 @@ func createLocalNetwork(dockerClient networkCreator) {
 	ctx, cancel := context.WithTimeout(context.Background(), dockerTimeout)
 	defer cancel()
 
+	logrus.Infof("Creating network: %s...", EcsLocalNetworkName)
 	resp, err := dockerClient.NetworkCreate(ctx, EcsLocalNetworkName, types.NetworkCreate{
 		IPAM: &network.IPAM{
 			Config: []network.IPAMConfig{
@@ -168,7 +169,7 @@ func createLocalEndpointsContainer(dockerClient containerStarter) string {
 	)
 	if err != nil {
 		if strings.Contains(err.Error(), "Conflict") {
-			// We already created this container before since there is a name conflict, fetch its ID and return it.
+			// We already created this container before, fetch its ID and return it.
 			containerID := localEndpointsContainerID(dockerClient)
 			logrus.Infof("The %s container already exists with ID %s", localEndpointsContainerName, containerID)
 			return containerID
