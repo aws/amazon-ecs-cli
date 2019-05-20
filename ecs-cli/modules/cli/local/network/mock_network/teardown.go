@@ -49,6 +49,20 @@ func (m *MockLocalEndpointsStopper) EXPECT() *MockLocalEndpointsStopperMockRecor
 	return m.recorder
 }
 
+// ContainerRemove mocks base method
+func (m *MockLocalEndpointsStopper) ContainerRemove(arg0 context.Context, arg1 string, arg2 types.ContainerRemoveOptions) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ContainerRemove", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ContainerRemove indicates an expected call of ContainerRemove
+func (mr *MockLocalEndpointsStopperMockRecorder) ContainerRemove(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerRemove", reflect.TypeOf((*MockLocalEndpointsStopper)(nil).ContainerRemove), arg0, arg1, arg2)
+}
+
 // ContainerStop mocks base method
 func (m *MockLocalEndpointsStopper) ContainerStop(arg0 context.Context, arg1 string, arg2 *time.Duration) error {
 	m.ctrl.T.Helper()
