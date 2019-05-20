@@ -13,4 +13,5 @@
 
 package network
 
-//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/network LocalEndpointsStarter mock_network/network.go
+//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/network LocalEndpointsStarter mock_network/setup.go
+//go:generate mockgen.sh github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/network LocalEndpointsStopper mock_network/teardown.go

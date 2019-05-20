@@ -77,7 +77,7 @@ const (
 )
 
 // Setup creates a user-defined bridge network with a running Local Container Endpoints container. If the network
-// already exists or the container is already running then the operation is a no-op.
+// already exists or the container is already running then this function does nothing.
 //
 // If there is any unexpected errors, we exit the program with a fatal log.
 func Setup(dockerClient LocalEndpointsStarter) {
