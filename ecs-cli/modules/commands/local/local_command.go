@@ -32,6 +32,7 @@ func LocalCommand() cli.Command {
 		Subcommands: []cli.Command{
 			createCommand(),
 			upCommand(),
+			stopCommand(),
 		},
 	}
 }
@@ -52,6 +53,15 @@ func upCommand() cli.Command {
 		Name:   "up",
 		Usage:  "Create a Compose file from an ECS task definition and run it.",
 		Action: local.Up,
+	}
+}
+
+// TODO This is a placeholder function used to test the teardown of the ECS local network.
+func stopCommand() cli.Command {
+	return cli.Command{
+		Name:   "stop",
+		Usage:  "Stop a running local ECS task.",
+		Action: local.Stop,
 	}
 }
 

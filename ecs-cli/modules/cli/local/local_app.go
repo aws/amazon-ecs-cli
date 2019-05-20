@@ -44,3 +44,14 @@ func Up(c *cli.Context) {
 	}
 	network.Setup(docker)
 }
+
+// Stop stops a running local ECS task.
+//
+// If the user stops the last running task in the local network then also remove the network.
+func Stop(c *cli.Context) {
+	docker, err := client.NewEnvClient() // Temporary client created to test network.Teardown()
+	if err != nil {
+		logrus.Fatal("Could not connect to docker", err)
+	}
+	defer network.Teardown(docker)
+}
