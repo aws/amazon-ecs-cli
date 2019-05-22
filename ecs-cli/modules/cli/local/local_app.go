@@ -38,7 +38,10 @@ func Create(c *cli.Context) {
 // If the container is not running, this command creates a new network for all local ECS tasks to join
 // and communicate with the Amazon ECS Local Endpoints container.
 func Up(c *cli.Context) {
-	docker, err := client.NewEnvClient() // Temporary client created to test network.Setup()
+	// TODO move these clients to a separate file leveraging the DOCKER_API_VERSION,
+	// these clients are created to test the local network for now.
+	// See https://github.com/awslabs/amazon-ecs-local-container-endpoints/blob/master/local-container-endpoints/clients/docker/client.go#L49
+	docker, err := client.NewEnvClient()
 	if err != nil {
 		logrus.Fatal("Could not connect to docker", err)
 	}
@@ -49,7 +52,10 @@ func Up(c *cli.Context) {
 //
 // If the user stops the last running task in the local network then also remove the network.
 func Stop(c *cli.Context) {
-	docker, err := client.NewEnvClient() // Temporary client created to test network.Teardown()
+	// TODO move these clients to a separate file leveraging the DOCKER_API_VERSION,
+	// these clients are created to test the local network for now.
+	// See https://github.com/awslabs/amazon-ecs-local-container-endpoints/blob/master/local-container-endpoints/clients/docker/client.go#L49
+	docker, err := client.NewEnvClient()
 	if err != nil {
 		logrus.Fatal("Could not connect to docker", err)
 	}
