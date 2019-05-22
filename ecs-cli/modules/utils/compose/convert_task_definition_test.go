@@ -1807,6 +1807,65 @@ task_definition:
 	}
 }
 
+func TestConvertToTaskDefinitionWithECSParams_LoggingSecretOptions(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "wordpress",
+		LogConfiguration: &ecs.LogConfiguration{
+			LogDriver: aws.String("json-file"),
+		},
+	}
+
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    web:
+      logging:
+        secret_options:
+          - value_from: /mysecrets/dbusername
+            name: DB_USERNAME
+          - value_from: arn:aws:ssm:eu-west-1:111111111111:parameter/mysecrets/dbpassword
+            name: DB_PASSWORD`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	expectedSecretOptions := []*ecs.Secret{
+		&ecs.Secret{
+			ValueFrom: aws.String("arn:aws:ssm:eu-west-1:111111111111:parameter/mysecrets/dbpassword"),
+			Name:      aws.String("DB_PASSWORD"),
+		},
+		&ecs.Secret{
+			ValueFrom: aws.String("/mysecrets/dbusername"),
+			Name:      aws.String("DB_USERNAME"),
+		},
+	}
+
+	if assert.NoError(t, err) {
+		assert.ElementsMatch(t, expectedSecretOptions, web.LogConfiguration.SecretOptions, "Expected secrets to match")
+	}
+}
+
 func TestConvertToTaskDefinitionWithECSParams_Gpu(t *testing.T) {
 	expectedGpuValue := "2"
 	content := `version: 1

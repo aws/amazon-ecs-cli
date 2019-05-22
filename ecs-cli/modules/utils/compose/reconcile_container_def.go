@@ -121,6 +121,11 @@ func reconcileContainerDef(inputCfg *adapter.ContainerConfig, ecsConDef *Contain
 			outputContDef.SetSecrets(convertToECSSecrets(ecsConDef.Secrets))
 		}
 
+		if len(ecsConDef.Logging.SecretOptions) > 0 {
+			convertedSecrets := convertToECSSecrets(ecsConDef.Logging.SecretOptions)
+			outputContDef.LogConfiguration.SetSecretOptions(convertedSecrets)
+		}
+
 		var err error
 		healthCheck, err = resolveHealthCheck(inputCfg.Name, healthCheck, ecsConDef.HealthCheck)
 		if err != nil {

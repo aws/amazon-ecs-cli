@@ -66,6 +66,7 @@ type ContainerDef struct {
 	Memory            libYaml.MemStringorInt `yaml:"mem_limit"`
 	MemoryReservation libYaml.MemStringorInt `yaml:"mem_reservation"`
 	HealthCheck       *HealthCheck           `yaml:"healthcheck"`
+	Logging           Logging                `yaml:"logging"`
 	Secrets           []Secret               `yaml:"secrets"`
 	GPU               string                 `yaml:"gpu"`
 }
@@ -93,6 +94,13 @@ type HealthCheck struct {
 // RepositoryCredentials holds CredentialParameters for a ContainerDef
 type RepositoryCredentials struct {
 	CredentialsParameter string `yaml:"credentials_parameter"`
+}
+
+// Logging holds a list of Secrets within SecretOptions. They are essentially
+// identical to secrets injected into the container environment by ECS, but are
+// instead injected into the Docker logging configuration.
+type Logging struct {
+	SecretOptions []Secret `yaml:"secret_options"`
 }
 
 // Secret supports the ECS Secrets integration with SSM Parameter Store
