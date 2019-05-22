@@ -76,6 +76,7 @@ func hasRunningTasksInNetwork(d networkInspector) bool {
 
 	if len(resp.Containers) > 1 {
 		// Has other containers running in the network
+		logrus.Infof("%d other task(s) running locally, skipping network removal.", len(resp.Containers)-1)
 		return true
 	}
 
@@ -99,7 +100,7 @@ func stopEndpointsContainer(d containerStopper) {
 	err := d.ContainerStop(ctx, localEndpointsContainerName, nil)
 	if err != nil {
 		if strings.Contains(strings.ToLower(err.Error()), "no such container") {
-			// The container was removed, do nothing.
+			// The containers in the network were already stopped by the user using "docker stop", do nothing.
 			return
 		}
 		logrus.Fatalf("Failed to stop %s container due to %v", localEndpointsContainerName, err)
@@ -122,7 +123,7 @@ func removeEndpointsContainer(d containerRemover) {
 	err := d.ContainerRemove(ctx, localEndpointsContainerName, types.ContainerRemoveOptions{})
 	if err != nil {
 		if strings.Contains(strings.ToLower(err.Error()), "no such container") {
-			// The container was removed, do nothing.
+			// The containers in the network were already removed by the user using "docker rm", do nothing.
 			return
 		}
 		logrus.Fatalf("Failed to remove %s container due to %v", localEndpointsContainerName, err)
