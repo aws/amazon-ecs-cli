@@ -86,6 +86,12 @@ task_definition:
       essential: true
       repository_credentials:
         credentials_parameter: arn:aws:secretsmanager:1234567890:secret:test-RT4iv
+      logging:
+        secret_options:
+          - value_from: arn:aws:ssm:eu-west-1:111111111111:parameter/mysecrets/dbpassword
+            name: DB_PASSWORD
+          - value_from: /mysecrets/dbusername
+            name: DB_USERNAME
       secrets:
         - value_from: arn:aws:ssm:eu-west-1:111111111111:parameter/mysecrets/dbpassword
           name: DB_PASSWORD
@@ -138,6 +144,7 @@ task_definition:
 		}
 
 		assert.ElementsMatch(t, expectedSecrets, wordpress.Secrets, "Expected secrets to match")
+		assert.ElementsMatch(t, expectedSecrets, wordpress.Logging.SecretOptions, "Expected secrets to match")
 	}
 }
 

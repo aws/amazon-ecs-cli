@@ -469,6 +469,10 @@ task_definition:
         timeout: string
         retries: integer
         start_period: string
+      logging:
+        secret_options:
+          - value_from: string
+            name: string
       secrets:
         - value_from: string
           name: string
@@ -537,8 +541,11 @@ Fields listed under `task_definition` correspond to fields that will be included
     * `test` can also be specified as `command` and must be either a string or a list or strings. If `test` is specified as a list of strings, the first item must be either NONE, CMD, or CMD-SHELL. If test or command is specified as a string, CMD-SHELL will be prepended and ECS will run the command in the container's default shell.
     * `interval`, `timeout`, and `start_period` are specified as durations in a string format. For example: 2.5s, 10s, 1m30s, 2h23m, or 5h34m56s.
   * `secrets` allows you to specify secrets which will be retrieved from SSM Parameter Store. See the [ECS Docs](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html) for more information, including how reference AWS Secrets Managers secrets from SSM Parameter Store.
-    * `value_from` is the SSM Parameter ARN or name (if the parameter is in the same region as your ECS Task).
+    * `value_from` is the SSM (or Secrets Manager) Parameter ARN or name (if the parameter is in the same region as your ECS Task).
     * `name` is the name of the environment variable in which the secret will be stored.
+  * If you need to inject secrets into your logging configuration, you may set `secret_options` under `logging`. For more information, See the [logging secrets section](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html#secrets-logconfig) of the ECS docs.
+    * `value_from` is the SSM (or Secrets Manager) Parameter ARN or name (if the parameter is in the same region as your ECS Task).
+    * `name` is the name of the logging option in which the secret will be stored.
 
 * `docker_volumes` allows you to create docker volumes. The name key is required, and `scope`, `autoprovision`, `driver`, `driver_opts` and `labels` correspond with the fields under [dockerVolumeConfiguration](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-volumes.html) in an ECS Task Definition. Volumes defined with the `docker_volumes` key can be referenced in your compose file by name, even if they were not also specified in the compose file.
 
