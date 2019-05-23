@@ -14,11 +14,13 @@
 package local
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 	"text/tabwriter"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
@@ -27,36 +29,88 @@ import (
 	"golang.org/x/net/context"
 )
 
-// Ps lists the status of the ECS tasks running locally.
+const (
+	// ECSLocalLabelKey is the Docker object label associated with containers created with "ecs-cli local"
+	// TODO This label should belong to local.Create
+	ECSLocalLabelKey = "ECSLocalTask"
+)
+
+// Table formatting settings used by the Docker CLI.
+// See https://github.com/docker/cli/blob/0904fbfc77dbd4b6296c56e68be573b889d049e3/cli/command/formatter/formatter.go#L74
+const (
+	cellWidthInSpaces         = 20
+	widthBetweenCellsInSpaces = 1
+	cellPaddingInSpaces       = 3
+	paddingCharacter          = ' '
+	noFormatting              = 0
+
+	maxContainerIDLength = 12
+)
+
+// Ps lists the status of the ECS task containers running locally.
+//
+// Defaults to listing the container metadata in a table format to stdout. If the --json flag is provided,
+// then output the content as JSON instead.
 func Ps(c *cli.Context) {
 	docker := newDockerClient()
 
 	containers := listECSLocalContainers(docker)
 
+	if c.Bool(flags.JsonFlag) {
+		displayAsJSON(containers)
+	} else {
+		displayAsTable(containers)
+	}
+}
+
+func listECSLocalContainers(docker *client.Client) []types.Container {
+	// ECS Task containers running locally all have an ECS local label
+	containers, err := docker.ContainerList(context.Background(), types.ContainerListOptions{
+		Filters: filters.NewArgs(
+			filters.Arg("label", ECSLocalLabelKey),
+		),
+	})
+	if err != nil {
+		logrus.Fatalf("Failed to list containers with label=%s due to %v", ECSLocalLabelKey, err)
+	}
+	return containers
+}
+
+func displayAsJSON(containers []types.Container) {
+	data, err := json.MarshalIndent(containers, "", "  ")
+	if err != nil {
+		logrus.Fatalf("Failed to marshal containers to JSON due to %v", err)
+	}
+	fmt.Fprintln(os.Stdout, string(data))
+}
+
+func displayAsTable(containers []types.Container) {
 	w := new(tabwriter.Writer)
 
-	w.Init(os.Stdout, 20, 1, 3, ' ', 0) // FIXME
-	fmt.Fprintln(w, "ID\tNAMES\tIMAGE\tTASKDEFINITIONARN\tTASKFILEPATH")
+	w.Init(os.Stdout, cellWidthInSpaces, widthBetweenCellsInSpaces, cellPaddingInSpaces, paddingCharacter, noFormatting)
+	fmt.Fprintln(w, "CONTAINER ID\tIMAGE\tSTATUS\tPORTS\tNAMES\tTASKDEFINITIONARN\tTASKFILEPATH")
 	for _, container := range containers {
-		fmt.Fprintln(w, "%s\t%s\t%s\t%s\t%s",
-			container.ID,
-			strings.Join(container.Names, ", "),
+		row := fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s",
+			container.ID[:maxContainerIDLength],
 			container.Image,
+			container.Status,
+			prettifyPorts(container.Ports),
+			prettifyNames(container.Names),
 			container.Labels["taskDefinitionARN"],
 			container.Labels["taskFilePath"])
+		fmt.Fprintln(w, row)
 	}
 	w.Flush()
 }
 
-func listECSLocalContainers(docker *client.Client) []types.Container {
-	// ECS Tasks running locally all have the label "ECSLocalTask=true"
-	containers, err := docker.ContainerList(context.Background(), types.ContainerListOptions{
-		Filters: filters.NewArgs(
-			filters.Arg("label", "ECSLocalTask"),
-		),
-	})
-	if err != nil {
-		logrus.Fatalf("Failed to list containers due to %v", err)
+func prettifyPorts(ports []types.Port) string {
+	var prettyPorts []string
+	for _, port := range ports {
+		prettyPorts = append(prettyPorts, fmt.Sprintf("%s:%d->%d/%s", port.IP, port.PublicPort, port.PrivatePort, port.Type))
 	}
-	return containers
+	return strings.Join(prettyPorts, ", ")
+}
+
+func prettifyNames(names []string) string {
+	return strings.Join(names, ", ")
 }
