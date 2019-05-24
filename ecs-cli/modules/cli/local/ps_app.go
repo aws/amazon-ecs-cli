@@ -29,13 +29,13 @@ import (
 	"golang.org/x/net/context"
 )
 
-// TODO These labels should be defined part of local.Create workflow.
-// Refactor to import the constants from there instead of re-defining them here.
+// TODO These labels should be defined part of the local.Create workflow.
+// Refactor to import these constants instead of re-defining them here.
 const (
-	// ecsLocalLabelKey is the Docker object label associated with containers created with "ecs-cli local"
+	// ecsLocalLabelKey is the Docker object label associated with containers created with "ecs-cli local".
 	ecsLocalLabelKey = "ECSLocalTask"
 
-	// taskDefinitionARNLabelKey is the Docker object label present if the container was created with an ARN.
+	// taskDefinitionARNLabelKey is the Docker object label present if the container was created with a task def ARN.
 	taskDefinitionARNLabelKey = "taskDefinitionARN"
 
 	// taskFilePathLabelKey is the Docker object label present if the container was created from a file.
@@ -68,7 +68,6 @@ func Ps(c *cli.Context) {
 	docker := newDockerClient()
 
 	containers := listECSLocalContainers(docker)
-
 	if c.Bool(flags.JsonFlag) {
 		displayAsJSON(containers)
 	} else {
