@@ -29,10 +29,17 @@ import (
 	"golang.org/x/net/context"
 )
 
+// TODO These labels should be defined part of local.Create workflow.
+// Refactor to import the constants from there instead of re-defining them here.
 const (
-	// ECSLocalLabelKey is the Docker object label associated with containers created with "ecs-cli local"
-	// TODO This label should belong to local.Create
-	ECSLocalLabelKey = "ECSLocalTask"
+	// ecsLocalLabelKey is the Docker object label associated with containers created with "ecs-cli local"
+	ecsLocalLabelKey = "ECSLocalTask"
+
+	// taskDefinitionARNLabelKey is the Docker object label present if the container was created with an ARN.
+	taskDefinitionARNLabelKey = "taskDefinitionARN"
+
+	// taskFilePathLabelKey is the Docker object label present if the container was created from a file.
+	taskFilePathLabelKey = "taskFilePath"
 )
 
 // Table formatting settings used by the Docker CLI.
@@ -67,11 +74,11 @@ func listECSLocalContainers(docker *client.Client) []types.Container {
 	// ECS Task containers running locally all have an ECS local label
 	containers, err := docker.ContainerList(context.Background(), types.ContainerListOptions{
 		Filters: filters.NewArgs(
-			filters.Arg("label", ECSLocalLabelKey),
+			filters.Arg("label", ecsLocalLabelKey),
 		),
 	})
 	if err != nil {
-		logrus.Fatalf("Failed to list containers with label=%s due to %v", ECSLocalLabelKey, err)
+		logrus.Fatalf("Failed to list containers with label=%s due to %v", ecsLocalLabelKey, err)
 	}
 	return containers
 }
@@ -96,8 +103,8 @@ func displayAsTable(containers []types.Container) {
 			container.Status,
 			prettifyPorts(container.Ports),
 			prettifyNames(container.Names),
-			container.Labels["taskDefinitionARN"],
-			container.Labels["taskFilePath"])
+			container.Labels[taskDefinitionARNLabelKey],
+			container.Labels[taskFilePathLabelKey])
 		fmt.Fprintln(w, row)
 	}
 	w.Flush()
