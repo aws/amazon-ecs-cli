@@ -54,6 +54,12 @@ const (
 	maxContainerIDLength = 12
 )
 
+// JSON formatting settings.
+const (
+	jsonPrefix = ""
+	jsonIndent = "  "
+)
+
 // Ps lists the status of the ECS task containers running locally.
 //
 // Defaults to listing the container metadata in a table format to stdout. If the --json flag is provided,
@@ -84,7 +90,7 @@ func listECSLocalContainers(docker *client.Client) []types.Container {
 }
 
 func displayAsJSON(containers []types.Container) {
-	data, err := json.MarshalIndent(containers, "", "  ")
+	data, err := json.MarshalIndent(containers, jsonPrefix, jsonIndent)
 	if err != nil {
 		logrus.Fatalf("Failed to marshal containers to JSON due to %v", err)
 	}
