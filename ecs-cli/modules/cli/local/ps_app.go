@@ -103,14 +103,15 @@ func displayAsTable(containers []types.Container) {
 	w.Flush()
 }
 
-func prettifyPorts(ports []types.Port) string {
+func prettifyPorts(containerPorts []types.Port) string {
 	var prettyPorts []string
-	for _, port := range ports {
+	for _, port := range containerPorts {
+		// See https://github.com/docker/cli/blob/0904fbfc77dbd4b6296c56e68be573b889d049e3/cli/command/formatter/container.go#L268
 		prettyPorts = append(prettyPorts, fmt.Sprintf("%s:%d->%d/%s", port.IP, port.PublicPort, port.PrivatePort, port.Type))
 	}
 	return strings.Join(prettyPorts, ", ")
 }
 
-func prettifyNames(names []string) string {
-	return strings.Join(names, ", ")
+func prettifyNames(containerNames []string) string {
+	return strings.Join(containerNames, ", ")
 }
