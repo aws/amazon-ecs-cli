@@ -43,6 +43,10 @@ Line Interface](http://aws.amazon.com/cli/) product detail page.
 - [Contributing to the CLI](#contributing-to-the-cli)
 - [License](#license)
 
+#### Security disclosures
+
+If you think you’ve found a potential security issue, please do not post it in the Issues.  Instead, please follow the instructions [here](https://aws.amazon.com/security/vulnerability-reporting/) or email AWS security directly at [aws-security@amazon.com](mailto:aws-security@amazon.com).
+
 ## Installing
 
 Download the binary archive for your platform, and install the binary on your `$PATH`.
