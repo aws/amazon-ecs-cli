@@ -21,7 +21,9 @@ import (
 )
 
 const (
-	// minDockerAPIVersion is the oldest Docker API version supporting the operations used by "local" sub-commands.
+	// minDockerAPIVersion is the minimum Docker API version that supports
+	// both the Local Endpoints container and the Docker API operations used by "local" sub-commands.
+	// See https://github.com/awslabs/amazon-ecs-local-container-endpoints/blob/3417a48b676c5b215fb9583bcbdc8a0b0e23aa8e/local-container-endpoints/clients/docker/client.go#L30.
 	minDockerAPIVersion = "1.27"
 )
 
