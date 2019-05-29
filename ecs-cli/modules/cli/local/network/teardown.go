@@ -105,7 +105,7 @@ func stopEndpointsContainer(d containerStopper) {
 		}
 		logrus.Fatalf("Failed to stop %s container due to %v", localEndpointsContainerName, err)
 	}
-	logrus.Infof("Stopped the %s container successfully, removing it...", localEndpointsContainerName)
+	logrus.Infof("Stopped container with name %s", localEndpointsContainerName)
 }
 
 // removeEndpointsContainer removes the endpoints container.
@@ -128,8 +128,7 @@ func removeEndpointsContainer(d containerRemover) {
 		}
 		logrus.Fatalf("Failed to remove %s container due to %v", localEndpointsContainerName, err)
 	}
-	logrus.Infof("Removed the %s container successfully, removing the %s network...",
-		localEndpointsContainerName, EcsLocalNetworkName)
+	logrus.Infof("Removed container with name %s", localEndpointsContainerName)
 }
 
 func removeLocalNetwork(d networkRemover) {
@@ -144,5 +143,5 @@ func removeLocalNetwork(d networkRemover) {
 		}
 		logrus.Fatalf("Failed to remove %s network due to %v", EcsLocalNetworkName, err)
 	}
-	logrus.Infof("Removed the %s network successfully", EcsLocalNetworkName)
+	logrus.Infof("Removed network with name %s", EcsLocalNetworkName)
 }
