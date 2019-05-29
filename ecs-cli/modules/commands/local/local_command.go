@@ -26,13 +26,14 @@ import (
 func LocalCommand() cli.Command {
 	return cli.Command{
 		Name:   "local",
-		Usage:  "",
+		Usage:  "Run your ECS tasks locally.",
 		Before: app.BeforeApp,
 		Flags:  flags.OptionalRegionAndProfileFlags(),
 		Subcommands: []cli.Command{
 			createCommand(),
 			upCommand(),
 			stopCommand(),
+			psCommand(),
 		},
 	}
 }
@@ -40,7 +41,7 @@ func LocalCommand() cli.Command {
 func createCommand() cli.Command {
 	return cli.Command{
 		Name:   "create",
-		Usage:  "Uses a Task Definition input and converts it to a docker-compose.local.yml file that can be run locally.",
+		Usage:  "Create a Compose file from an ECS task definition.",
 		Before: app.BeforeApp,
 		Action: local.Create,
 		Flags:  createFlags(),
@@ -62,6 +63,20 @@ func stopCommand() cli.Command {
 		Name:   "stop",
 		Usage:  "Stop a running local ECS task.",
 		Action: local.Stop,
+	}
+}
+
+func psCommand() cli.Command {
+	return cli.Command{
+		Name:   "ps",
+		Usage:  "List locally running ECS task containers.",
+		Action: local.Ps,
+		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name:  flags.JsonFlag,
+				Usage: "Output in JSON format.",
+			},
+		},
 	}
 }
 
