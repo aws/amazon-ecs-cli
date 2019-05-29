@@ -18,10 +18,9 @@ import (
 	"github.com/urfave/cli"
 )
 
-// Stop stops a running local ECS task.
-//
+// Down stops and removes a running local ECS task.
 // If the user stops the last running task in the local network then also remove the network.
-func Stop(c *cli.Context) {
+func Down(c *cli.Context) {
 	docker := newDockerClient()
 	defer network.Teardown(docker)
 }
