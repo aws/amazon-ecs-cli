@@ -38,30 +38,37 @@ const (
 )
 
 func Create(c *cli.Context) {
-	// 1. Read task definition (from file or ARN)
+	err := createLocal(c)
+	if err != nil {
+		log.Fatalf("Error with local create: %s", err.Error())
+	}
+
+	fmt.Printf("Successfully created %s\n", LocalOutFileName)
+}
+
+func createLocal(c *cli.Context) error {
+	// Read task definition (from file or ARN)
 	// returns ecs.TaskDefinition
 	taskDefinition, err := readTaskDefinition(c)
 	fmt.Printf("TASK DEF THAT I READ: %+v\n", taskDefinition)
 	if err != nil {
-		log.Fatalf("Error with local create: %s", err.Error())
+		return err
 	}
 
-	// 2. Convert to docker compose
-	// fmt.Printf("TASK DEF: %+v", taskDefinition)
-	// data, err := convertLocal()
-	// if err != nil {
-	// 	log.Fatalf("Error with local create: %s", err.Error())
-	// }
+	// Convert to docker compose
+	data, err := convertLocal(taskDefinition)
+	if err != nil {
+		return err
+	}
 
-	// 3. Write to docker-compose.local.yml file
-	data := []byte("taskDefinition") // FIXME placeholder
-
+	// Write to docker-compose.local.yml file
 	err = writeLocal(data)
 	if err != nil {
-		log.Fatalf("Error with local create: %s", err.Error())
+		return err
 	}
-}
 
+	return nil
+}
 func readTaskDefinitionFromFile(filename string) (*ecs.TaskDefinition, error) {
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -118,6 +125,12 @@ func readTaskDefinition(c *cli.Context) (*ecs.TaskDefinition, error) {
 	}
 
 	return nil, fmt.Errorf("Could not detect valid Task Definition")
+}
+
+// FIXME placeholder
+func convertLocal(taskDefinition *ecs.TaskDefinition) ([]byte, error) {
+	data := []byte("taskDefinition")
+	return data, nil
 }
 
 func writeLocal(data []byte) error {
