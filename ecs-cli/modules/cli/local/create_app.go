@@ -23,6 +23,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
+	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -31,33 +34,90 @@ import (
 const (
 	LocalOutFileName = "./docker-compose.local.yml"
 	LocalOutFileMode = os.FileMode(0644) // Owner=read/write, Other=readonly
+	LocalInFileName = "./task-definition.json"
 )
 
 func Create(c *cli.Context) {
-	// 1. Read in task definition (from file or ARN)
-	filename := "./task-definition.json" // FIXME defaults
-
-	bytes, err := ioutil.ReadFile(filename)
+	// 1. Read task definition (from file or ARN)
+	// returns ecs.TaskDefinition
+	taskDefinition, err := readTaskDefinition(c)
+	fmt.Printf("TASK DEF THAT I READ: %+v\n", taskDefinition)
 	if err != nil {
-		log.Fatalf("Error reading task definition from %v", filename)
+		log.Fatalf("Error with local create: %s", err.Error())
 	}
 
-	// 2. Parse task def into go object
-	taskDefinition := ecs.TaskDefinition{}
-	json.Unmarshal(bytes, &taskDefinition)
-
-	// 3. Convert to docker compose
+	// 2. Convert to docker compose
 	// fmt.Printf("TASK DEF: %+v", taskDefinition)
+	// data, err := convertLocal()
+	// if err != nil {
+	// 	log.Fatalf("Error with local create: %s", err.Error())
+	// }
 
-	// 4. Write to docker-compose.local.yml file
-
-	data := []byte("taskDefinition")
+	// 3. Write to docker-compose.local.yml file
+	data := []byte("taskDefinition") // FIXME placeholder
 
 	err = writeLocal(data)
 	if err != nil {
 		log.Fatalf("Error with local create: %s", err.Error())
 	}
+}
 
+func readTaskDefinitionFromFile(filename string) (*ecs.TaskDefinition, error) {
+	bytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, fmt.Errorf("Error reading task definition from %s: %s", filename, err.Error())
+	}
+
+	taskDefinition := ecs.TaskDefinition{}
+	err = json.Unmarshal(bytes, &taskDefinition)
+	if err != nil {
+		return nil, fmt.Errorf("Error parsing task definition JSON: %s", err.Error())
+	}
+
+	return &taskDefinition, nil
+}
+
+var newCommandConfig = func(context *cli.Context, rdwr config.ReadWriter) (*config.CommandConfig, error) {
+	return config.NewCommandConfig(context, rdwr)
+}
+
+// FIXME: NOTE this will actually read from either ARN or Task Definition family name
+func readTaskDefinitionFromArn(arn string, c *cli.Context) (*ecs.TaskDefinition, error) {
+	rdwr, err := config.NewReadWriter()
+	if err != nil {
+		return nil, err
+	}
+	commandConfig, err := newCommandConfig(c, rdwr)
+	if err != nil {
+		return nil, err
+	}
+
+	ecsClient := ecsclient.NewECSClient(commandConfig)
+	return ecsClient.DescribeTaskDefinition(arn)
+}
+
+func readTaskDefinition(c *cli.Context) (*ecs.TaskDefinition, error) {
+	arn := c.String(flags.TaskDefinitionArnFlag)
+	filename := c.String(flags.TaskDefinitionFileFlag)
+
+	if arn != "" && filename != "" {
+		return nil, fmt.Errorf("Cannot specify both --%s and --%s flags.", flags.TaskDefinitionArnFlag, flags.TaskDefinitionFileFlag)
+	}
+
+	if arn != "" {
+		return readTaskDefinitionFromArn(arn, c)
+	}
+
+	if filename != "" {
+		return readTaskDefinitionFromFile(filename)
+	}
+
+	// Try reading local task-definition.json file
+	if _, err := os.Stat(LocalInFileName); err == nil {
+		return readTaskDefinitionFromFile(LocalInFileName)
+	}
+
+	return nil, fmt.Errorf("Could not detect valid Task Definition")
 }
 
 func writeLocal(data []byte) error {
