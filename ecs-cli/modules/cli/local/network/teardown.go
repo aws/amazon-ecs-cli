@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 )
@@ -49,34 +50,36 @@ type networkRemover interface {
 }
 
 // Teardown removes both the Local Endpoints container and the Local network created by Setup.
-// If there are other containers running in the network besides the endpoints container, this function does nothing.
 //
-// If there is any unexpected errors, we exit the program with a fatal log.
+// If there is no network or there are other containers running in the network besides the
+// endpoints container, then do nothing. Otherwise, we exit the program with a fatal log.
 func Teardown(dockerClient LocalEndpointsStopper) {
-	if hasRunningTasksInNetwork(dockerClient) {
+	if shouldSkipTeardown(dockerClient) {
 		return
 	}
-	logrus.Infof("The network %s has no more running tasks, stopping the endpoints containers...", EcsLocalNetworkName)
-
 	stopEndpointsContainer(dockerClient)
 	removeEndpointsContainer(dockerClient)
 	removeLocalNetwork(dockerClient)
 }
 
-// hasRunningTasksInNetwork returns true if there are other containers besides the
-// endpoints container running in the local network, false otherwise.
-func hasRunningTasksInNetwork(d networkInspector) bool {
+// shouldSkipTeardown returns false if the network exists and there is no local task running, otherwise return true.
+func shouldSkipTeardown(d networkInspector) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), dockerTimeout)
 	defer cancel()
 
 	resp, err := d.NetworkInspect(ctx, EcsLocalNetworkName, types.NetworkInspectOptions{})
 	if err != nil {
+		if client.IsErrNotFound(err) {
+			// The network is gone so there are no containers running attached to it, skip teardown.
+			logrus.Warnf("Network %s not found, skipping network removal", EcsLocalNetworkName)
+			return true
+		}
 		logrus.Fatalf("Failed to inspect network %s due to %v", EcsLocalNetworkName, err)
 	}
 
 	if len(resp.Containers) > 1 {
-		// Has other containers running in the network
-		logrus.Infof("%d other task(s) running locally, skipping network removal.", len(resp.Containers)-1)
+		// Has other containers running in the network, skip teardown.
+		logrus.Infof("%d other task(s) running locally, skipping network removal", len(resp.Containers)-1)
 		return true
 	}
 
@@ -90,6 +93,7 @@ func hasRunningTasksInNetwork(d networkInspector) bool {
 		}
 	}
 
+	logrus.Infof("The network %s has no more running tasks", EcsLocalNetworkName)
 	return false
 }
 
