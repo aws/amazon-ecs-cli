@@ -45,6 +45,7 @@ func Down(c *cli.Context) error {
 	taskPath := c.String(flags.TaskDefinitionFileFlag)
 	taskARN := c.String(flags.TaskDefinitionArnFlag)
 
+	// TaskDefinitionFileFlag flag has priority over TaskDefinitionArnFlag if both are present
 	if taskPath != "" {
 		return handleDownWithFile(taskPath)
 	}
