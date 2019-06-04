@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/docker"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/sirupsen/logrus"
@@ -64,7 +65,7 @@ func Teardown(dockerClient LocalEndpointsStopper) {
 
 // shouldSkipTeardown returns false if the network exists and there is no local task running, otherwise return true.
 func shouldSkipTeardown(d networkInspector) bool {
-	ctx, cancel := context.WithTimeout(context.Background(), dockerTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
 	resp, err := d.NetworkInspect(ctx, EcsLocalNetworkName, types.NetworkInspectOptions{})
@@ -98,7 +99,7 @@ func shouldSkipTeardown(d networkInspector) bool {
 }
 
 func stopEndpointsContainer(d containerStopper) {
-	ctx, cancel := context.WithTimeout(context.Background(), dockerTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
 	err := d.ContainerStop(ctx, localEndpointsContainerName, nil)
@@ -121,7 +122,7 @@ func stopEndpointsContainer(d containerStopper) {
 // 3) User runs "local up" again and creates a new local network but re-starts the old endpoints container.
 // The old endpoints container tries to connect to the network created in step 1) and fails.
 func removeEndpointsContainer(d containerRemover) {
-	ctx, cancel := context.WithTimeout(context.Background(), dockerTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
 	err := d.ContainerRemove(ctx, localEndpointsContainerName, types.ContainerRemoveOptions{})
@@ -136,7 +137,7 @@ func removeEndpointsContainer(d containerRemover) {
 }
 
 func removeLocalNetwork(d networkRemover) {
-	ctx, cancel := context.WithTimeout(context.Background(), dockerTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
 	err := d.NetworkRemove(ctx, EcsLocalNetworkName)

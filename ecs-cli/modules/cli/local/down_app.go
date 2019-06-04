@@ -19,6 +19,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/docker"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/network"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/docker/docker/api/types"
@@ -38,8 +39,8 @@ const (
 // If the user stops the last running task in the local network then also remove the network.
 func Down(c *cli.Context) error {
 	defer func() {
-		docker := newDockerClient()
-		network.Teardown(docker)
+		client := docker.NewDockerClient()
+		network.Teardown(client)
 	}()
 
 	taskPath := c.String(flags.TaskDefinitionFileFlag)
@@ -86,9 +87,11 @@ func handleDownWithCompose() error {
 }
 
 func handleDownWithFilters(args filters.Args) error {
-	docker := newDockerClient()
+	client := docker.NewDockerClient()
+	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
+	defer cancel()
 
-	containers, err := docker.ContainerList(context.Background(), types.ContainerListOptions{
+	containers, err := client.ContainerList(ctx, types.ContainerListOptions{
 		Filters: args,
 		All:     true,
 	})
@@ -101,12 +104,12 @@ func handleDownWithFilters(args filters.Args) error {
 	}
 
 	for _, container := range containers {
-		if err = docker.ContainerStop(context.Background(), container.ID, nil); err != nil {
+		if err = client.ContainerStop(ctx, container.ID, nil); err != nil {
 			logrus.Fatalf("Failed to stop container %s due to %v", container.ID, err)
 		}
 		logrus.Infof("Stopped container with id %s", container.ID)
 
-		if err = docker.ContainerRemove(context.Background(), container.ID, types.ContainerRemoveOptions{}); err != nil {
+		if err = client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{}); err != nil {
 			logrus.Fatalf("Failed to remove container %s due to %v", container.ID, err)
 		}
 		logrus.Infof("Removed container with id %s", container.ID)
