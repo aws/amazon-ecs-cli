@@ -79,8 +79,8 @@ func shouldSkipTeardown(d networkInspector) bool {
 	}
 
 	if len(resp.Containers) > 1 {
-		// Has other containers running in the network, skip teardown.
-		logrus.Infof("%d other task(s) running locally, skipping network removal", len(resp.Containers)-1)
+		// Don't count the endpoints container part of the running containers
+		logrus.Infof("%d other task container(s) running locally, skipping network removal", len(resp.Containers)-1)
 		return true
 	}
 
