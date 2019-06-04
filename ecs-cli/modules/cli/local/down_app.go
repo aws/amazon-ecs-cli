@@ -39,7 +39,7 @@ const (
 // If the user stops the last running task in the local network then also remove the network.
 func Down(c *cli.Context) error {
 	defer func() {
-		client := docker.NewDockerClient()
+		client := docker.NewClient()
 		network.Teardown(client)
 	}()
 
@@ -87,7 +87,7 @@ func handleDownWithCompose() error {
 }
 
 func handleDownWithFilters(args filters.Args) error {
-	client := docker.NewDockerClient()
+	client := docker.NewClient()
 	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 

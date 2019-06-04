@@ -26,6 +26,6 @@ import (
 // If the container is not running, this command creates a new network for all local ECS tasks to join
 // and communicate with the Amazon ECS Local Endpoints container.
 func Up(c *cli.Context) {
-	client := docker.NewDockerClient()
+	client := docker.NewClient()
 	network.Setup(client)
 }

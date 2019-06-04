@@ -66,7 +66,7 @@ const (
 // Defaults to listing the container metadata in a table format to stdout. If the --json flag is provided,
 // then output the content as JSON instead.
 func Ps(c *cli.Context) {
-	client := docker.NewDockerClient()
+	client := docker.NewClient()
 
 	containers := listECSLocalContainers(client)
 	if c.Bool(flags.JsonFlag) {

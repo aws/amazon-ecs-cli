@@ -33,8 +33,8 @@ const (
 	minDockerAPIVersion = "1.27"
 )
 
-// NewDockerClient returns an object to communicate with the Docker Engine API.
-func NewDockerClient() *client.Client {
+// NewClient returns an object to communicate with the Docker Engine API.
+func NewClient() *client.Client {
 	if os.Getenv("DOCKER_API_VERSION") == "" {
 		// If the user does not explicitly set the API version, then the SDK can choose
 		// an API version that's too new for the user's Docker engine.
