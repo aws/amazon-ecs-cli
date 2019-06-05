@@ -70,6 +70,31 @@ func TestECSLocal(t *testing.T) {
 				},
 			},
 		},
+		"run a single local ECS task": {
+			sequence: []commandTest{
+				{
+					args: []string{"local", "up"},
+					execute: func(t *testing.T, args []string) {
+						stdout := integ.RunCmd(t, args)
+						stdout.TestHasAllSubstrings(t, []string{
+							"Created network ecs-local-network",
+							"Created the amazon-ecs-local-container-endpoints container",
+						})
+					},
+				},
+				{
+					args: []string{"local", "down"},
+					execute: func(t *testing.T, args []string) {
+						stdout := integ.RunCmd(t, args)
+						stdout.TestHasAllSubstrings(t, []string{
+							"Stopped container with name amazon-ecs-local-container-endpoints",
+							"Removed container with name amazon-ecs-local-container-endpoints",
+							"Removed network with name ecs-local-network",
+						})
+					},
+				},
+			},
+		},
 	}
 
 	for name, tc := range tests {
