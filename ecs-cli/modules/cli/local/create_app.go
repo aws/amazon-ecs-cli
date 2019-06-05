@@ -23,6 +23,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/converter"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
@@ -127,9 +128,12 @@ func readTaskDefinition(c *cli.Context) (*ecs.TaskDefinition, error) {
 	return nil, fmt.Errorf("Could not detect valid Task Definition")
 }
 
-// FIXME placeholder
 func convertLocal(taskDefinition *ecs.TaskDefinition) ([]byte, error) {
-	data := []byte("taskDefinition")
+	// data := []byte("taskDefinition")
+	data, err := converter.ConvertToDockerCompose(taskDefinition)
+	if err != nil {
+		return nil, err
+	}
 	return data, nil
 }
 
