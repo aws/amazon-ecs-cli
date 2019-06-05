@@ -60,19 +60,12 @@ func upCommand() cli.Command {
 func downCommand() cli.Command {
 	return cli.Command{
 		Name:   "down",
-		Usage:  "Stop and remove a locally running ECS task.",
+		Usage:  "Stop and remove a running local ECS task.",
 		Action: local.Down,
-		Description: `By default, stop and remove containers defined in "docker-compose.local.yml". 
-   If an option is provided, find, stop, and remove containers matching the option. 
-   When there are no more running local ECS tasks then also teardown the network created with "local up".`,
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:  flags.TaskDefinitionFileFlag + ",f",
-				Usage: "The file `path` of the task definition to stop.",
-			},
-			cli.StringFlag{
-				Name:  flags.TaskDefinitionArnFlag + ",a",
-				Usage: "The ARN of the task definition to stop.",
+			cli.BoolFlag{
+				Name:  flags.AllFlag,
+				Usage: "Stop and remove all running local ECS tasks.",
 			},
 		},
 	}

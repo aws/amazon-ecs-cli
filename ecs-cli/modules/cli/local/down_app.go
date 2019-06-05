@@ -14,7 +14,6 @@
 package local
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -35,7 +34,7 @@ const (
 	ecsLocalDockerComposeFileName = "docker-compose.local.yml"
 )
 
-// Down stops and removes a running local ECS task.
+// Down stops and removes running local ECS tasks.
 // If the user stops the last running task in the local network then also remove the network.
 func Down(c *cli.Context) error {
 	defer func() {
@@ -43,32 +42,13 @@ func Down(c *cli.Context) error {
 		network.Teardown(client)
 	}()
 
-	taskPath := c.String(flags.TaskDefinitionFileFlag)
-	taskARN := c.String(flags.TaskDefinitionArnFlag)
-
-	// TaskDefinitionFileFlag flag has priority over TaskDefinitionArnFlag if both are present
-	if taskPath != "" {
-		return handleDownWithFile(taskPath)
+	if c.Bool(flags.AllFlag) {
+		return downAllLocalContainers()
 	}
-	if taskARN != "" {
-		return handleDownWithARN(taskARN)
-	}
-	return handleDownWithCompose()
+	return downComposeLocalContainers()
 }
 
-func handleDownWithFile(path string) error {
-	return handleDownWithFilters(filters.NewArgs(
-		filters.Arg("label", fmt.Sprintf("%s=%s", taskFilePathLabelKey, path)),
-	))
-}
-
-func handleDownWithARN(value string) error {
-	return handleDownWithFilters(filters.NewArgs(
-		filters.Arg("label", fmt.Sprintf("%s=%s", taskDefinitionARNLabelKey, value)),
-	))
-}
-
-func handleDownWithCompose() error {
+func downComposeLocalContainers() error {
 	wd, _ := os.Getwd()
 	if _, err := os.Stat(filepath.Join(wd, ecsLocalDockerComposeFileName)); os.IsNotExist(err) {
 		logrus.Warnf("Compose file %s does not exist in current directory", ecsLocalDockerComposeFileName)
@@ -86,33 +66,36 @@ func handleDownWithCompose() error {
 	return nil
 }
 
-func handleDownWithFilters(args filters.Args) error {
-	client := docker.NewClient()
+func downAllLocalContainers() error {
 	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
+	client := docker.NewClient()
 	containers, err := client.ContainerList(ctx, types.ContainerListOptions{
-		Filters: args,
-		All:     true,
+		Filters: filters.NewArgs(
+			filters.Arg("label", ecsLocalLabelKey),
+		),
+		All: true,
 	})
 	if err != nil {
-		logrus.Fatalf("Failed to list containers with args %v due to %v", args, err)
+		logrus.Fatalf("Failed to list containers with label=%s due to %v", ecsLocalLabelKey, err)
 	}
 	if len(containers) == 0 {
-		logrus.Warnf("No containers found with label %v", args.Get("label"))
+		logrus.Warn("No running ECS local tasks found")
 		return nil
 	}
 
+	logrus.Infof("Stop and remove %d container(s)", len(containers))
 	for _, container := range containers {
 		if err = client.ContainerStop(ctx, container.ID, nil); err != nil {
-			logrus.Fatalf("Failed to stop container %s due to %v", container.ID, err)
+			logrus.Fatalf("Failed to stop container %s due to %v", container.ID[:maxContainerIDLength], err)
 		}
-		logrus.Infof("Stopped container with id %s", container.ID)
+		logrus.Infof("Stopped container with id %s", container.ID[:maxContainerIDLength])
 
 		if err = client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{}); err != nil {
-			logrus.Fatalf("Failed to remove container %s due to %v", container.ID, err)
+			logrus.Fatalf("Failed to remove container %s due to %v", container.ID[:maxContainerIDLength], err)
 		}
-		logrus.Infof("Removed container with id %s", container.ID)
+		logrus.Infof("Removed container with id %s", container.ID[:maxContainerIDLength])
 	}
 	return nil
 }
