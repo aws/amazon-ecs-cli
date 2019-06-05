@@ -1,6 +1,9 @@
 version: 0.2
 
 phases:
+  install:  # TODO remove this step after supporting pulling the image part of "ecs-cli local up". See ECS-8445.
+    commands:
+      - docker pull amazon/amazon-ecs-local-container-endpoints
   build:
     commands:
       - make integ-test
