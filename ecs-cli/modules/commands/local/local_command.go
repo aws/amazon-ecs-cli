@@ -32,7 +32,7 @@ func LocalCommand() cli.Command {
 		Subcommands: []cli.Command{
 			createCommand(),
 			upCommand(),
-			stopCommand(),
+			downCommand(),
 			psCommand(),
 		},
 	}
@@ -57,12 +57,17 @@ func upCommand() cli.Command {
 	}
 }
 
-// TODO This is a placeholder function used to test the teardown of the ECS local network.
-func stopCommand() cli.Command {
+func downCommand() cli.Command {
 	return cli.Command{
-		Name:   "stop",
-		Usage:  "Stop a running local ECS task.",
-		Action: local.Stop,
+		Name:   "down",
+		Usage:  "Stop and remove a running local ECS task.",
+		Action: local.Down,
+		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name:  flags.AllFlag,
+				Usage: "Stop and remove all running local ECS tasks.",
+			},
+		},
 	}
 }
 

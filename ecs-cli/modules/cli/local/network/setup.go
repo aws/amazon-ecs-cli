@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/docker"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
@@ -70,12 +70,6 @@ const (
 	localEndpointsContainerName = "amazon-ecs-local-container-endpoints"
 )
 
-// Configuration for Docker requests
-const (
-	// Wait duration for a response from the Docker daemon before returning an error to the user.
-	dockerTimeout = 30 * time.Second
-)
-
 // Setup creates a user-defined bridge network with a running Local Container Endpoints container. If the network
 // already exists or the container is already running then this function does nothing.
 //
@@ -94,7 +88,7 @@ func setupLocalNetwork(dockerClient networkCreator) {
 }
 
 func localNetworkExists(dockerClient networkCreator) bool {
-	ctx, cancel := context.WithTimeout(context.Background(), dockerTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
 	_, err := dockerClient.NetworkInspect(ctx, EcsLocalNetworkName, types.NetworkInspectOptions{})
@@ -109,7 +103,7 @@ func localNetworkExists(dockerClient networkCreator) bool {
 }
 
 func createLocalNetwork(dockerClient networkCreator) {
-	ctx, cancel := context.WithTimeout(context.Background(), dockerTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
 	logrus.Infof("Creating network: %s...", EcsLocalNetworkName)
@@ -136,7 +130,7 @@ func setupLocalEndpointsContainer(docker containerStarter) {
 // createLocalEndpointsContainer returns the ID of the newly created container.
 // If the container already exists, returns the ID of the existing container.
 func createLocalEndpointsContainer(dockerClient containerStarter) string {
-	ctx, cancel := context.WithTimeout(context.Background(), dockerTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
 	// See First Scenario in https://aws.amazon.com/blogs/compute/a-guide-to-locally-testing-containers-with-amazon-ecs-local-endpoints-and-docker-compose/
@@ -182,7 +176,7 @@ func createLocalEndpointsContainer(dockerClient containerStarter) string {
 }
 
 func localEndpointsContainerID(dockerClient containerStarter) string {
-	ctx, cancel := context.WithTimeout(context.Background(), dockerTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
 	resp, err := dockerClient.ContainerList(ctx, types.ContainerListOptions{
@@ -201,7 +195,7 @@ func localEndpointsContainerID(dockerClient containerStarter) string {
 }
 
 func startContainer(dockerClient containerStarter, containerID string) {
-	ctx, cancel := context.WithTimeout(context.Background(), dockerTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
 	// If the container is already running, Docker does not return an error response.

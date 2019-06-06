@@ -16,11 +16,9 @@
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/integ"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/integ/stdout"
 	"github.com/stretchr/testify/require"
 )
 
@@ -40,15 +38,7 @@ func TestECSLocal(t *testing.T) {
 				{
 					args: []string{"local", "ps"},
 					execute: func(t *testing.T, args []string) {
-						// Given
-						cmd := integ.GetCommand(args)
-
-						// When
-						out, err := cmd.Output()
-						require.NoErrorf(t, err, "Failed local ps", fmt.Sprintf("args=%v, stdout=%s, err=%v", args, string(out), err))
-
-						// Then
-						stdout := stdout.Stdout(out)
+						stdout := integ.RunCmd(t, args)
 						require.Equal(t, 1, len(stdout.Lines()), "Expected only the table header")
 						stdout.TestHasAllSubstrings(t, []string{
 							"CONTAINER ID",
@@ -64,16 +54,43 @@ func TestECSLocal(t *testing.T) {
 				{
 					args: []string{"local", "ps", "--json"},
 					execute: func(t *testing.T, args []string) {
-						// Given
-						cmd := integ.GetCommand(args)
-
-						// When
-						out, err := cmd.Output()
-						require.NoErrorf(t, err, "Failed local ps", fmt.Sprintf("args=%v, stdout=%s, err=%v", args, string(out), err))
-
-						// Then
-						stdout := stdout.Stdout(out)
+						stdout := integ.RunCmd(t, args)
 						stdout.TestHasAllSubstrings(t, []string{"[]"})
+					},
+				},
+				{
+					args: []string{"local", "down"},
+					execute: func(t *testing.T, args []string) {
+						stdout := integ.RunCmd(t, args)
+						stdout.TestHasAllSubstrings(t, []string{
+							"docker-compose.local.yml does not exist",
+							"ecs-local-network not found",
+						})
+					},
+				},
+			},
+		},
+		"run a single local ECS task": {
+			sequence: []commandTest{
+				{
+					args: []string{"local", "up"},
+					execute: func(t *testing.T, args []string) {
+						stdout := integ.RunCmd(t, args)
+						stdout.TestHasAllSubstrings(t, []string{
+							"Created network ecs-local-network",
+							"Created the amazon-ecs-local-container-endpoints container",
+						})
+					},
+				},
+				{
+					args: []string{"local", "down"},
+					execute: func(t *testing.T, args []string) {
+						stdout := integ.RunCmd(t, args)
+						stdout.TestHasAllSubstrings(t, []string{
+							"Stopped container with name amazon-ecs-local-container-endpoints",
+							"Removed container with name amazon-ecs-local-container-endpoints",
+							"Removed network with name ecs-local-network",
+						})
 					},
 				},
 			},

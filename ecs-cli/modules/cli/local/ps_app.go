@@ -20,6 +20,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/docker"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
@@ -65,9 +66,9 @@ const (
 // Defaults to listing the container metadata in a table format to stdout. If the --json flag is provided,
 // then output the content as JSON instead.
 func Ps(c *cli.Context) {
-	docker := newDockerClient()
+	client := docker.NewClient()
 
-	containers := listECSLocalContainers(docker)
+	containers := listECSLocalContainers(client)
 	if c.Bool(flags.JsonFlag) {
 		displayAsJSON(containers)
 	} else {
@@ -75,9 +76,12 @@ func Ps(c *cli.Context) {
 	}
 }
 
-func listECSLocalContainers(docker *client.Client) []types.Container {
+func listECSLocalContainers(client *client.Client) []types.Container {
+	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
+	defer cancel()
+
 	// ECS Task containers running locally all have an ECS local label
-	containers, err := docker.ContainerList(context.Background(), types.ContainerListOptions{
+	containers, err := client.ContainerList(ctx, types.ContainerListOptions{
 		Filters: filters.NewArgs(
 			filters.Arg("label", ecsLocalLabelKey),
 		),
