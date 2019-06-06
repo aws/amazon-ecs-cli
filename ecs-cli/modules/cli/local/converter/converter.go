@@ -44,6 +44,18 @@ import (
 // 	Configs  map[string]ConfigObjConfig `yaml:",omitempty"`
 // 	Extras   map[string]interface{}     `yaml:",inline"`
 // }
+
+// LinuxParams is a shim between members of ecs.LinuxParamters and their
+// corresponding fields in the Docker Compose V3 ServiceConfig
+type LinuxParams struct {
+		CapAdd  []string
+		CapDrop []string
+		Devices []string
+		Init    *bool
+		Tmpfs   []string
+		ShmSize string
+}
+
 // ConvertToDockerCompose creates the payload from an ECS Task Definition to be written as a docker compose file
 func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition) ([]byte, error) {
 	services := []composeV3.ServiceConfig{}
@@ -69,13 +81,16 @@ func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition) ([]byte, error) 
 }
 
 func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (composeV3.ServiceConfig, error) {
-	tmpfs := convertLinuxParameters(containerDefinition.LinuxParameters)
+	linuxParams := convertLinuxParameters(containerDefinition.LinuxParameters)
+	tmpfs := linuxParams.Tmpfs
+	init := linuxParams.Init
+	// devices := aws.StringValueSlice(containerDefinition.LinuxParameters.Devices)
+
 	ulimits, _ := convertUlimits(containerDefinition.Ulimits)
 
 	service := composeV3.ServiceConfig{
 		Name: aws.StringValue(containerDefinition.Name),
 		Image: aws.StringValue(containerDefinition.Image),
-		// Devices: aws.StringValueSlice(containerDefinition.Devices)
 		DNS: aws.StringValueSlice(containerDefinition.DnsServers),
 		DNSSearch: aws.StringValueSlice(containerDefinition.DnsSearchDomains),
 		Command: aws.StringValueSlice(containerDefinition.Command),
@@ -88,37 +103,49 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 		Tty: aws.BoolValue(containerDefinition.PseudoTerminal),
 		Privileged: aws.BoolValue(containerDefinition.Privileged),
 		ReadOnly: aws.BoolValue(containerDefinition.ReadonlyRootFilesystem),
-		Tmpfs: tmpfs,
 		Ulimits: ulimits,
 
+		Tmpfs: tmpfs,
+		Init: init,
+
+		// ShmSize: shmSize,
+		// Devices: devices,
 		// CapAdd: containerDefinition.LinuxParameters.KernalCapabilities.Add
 		// CapDrop: containerDefinition.LinuxParameters.KernalCapabilities.Drop
 		// =======
 
 		// CapAdd          []string                         `mapstructure:"cap_add" yaml:"cap_add,omitempty"`
 		// CapDrop         []string                         `mapstructure:"cap_drop" yaml:"cap_drop,omitempty"`
-
 		// Devices         []string                         `yaml:",omitempty"`
+		// Init            *bool                            `yaml:",omitempty"`
+
+
 		// Environment     MappingWithEquals                `yaml:",omitempty"`
 		// ExtraHosts      HostsList                        `mapstructure:"extra_hosts" yaml:"extra_hosts,omitempty"`
 		// HealthCheck     *HealthCheckConfig               `yaml:",omitempty"`
 		// Labels          Labels                           `yaml:",omitempty"`
 		// Logging         *LoggingConfig                   `yaml:",omitempty"`
-		// Ulimits         map[string]*UlimitsConfig        `yaml:",omitempty"`
 		// Volumes         []ServiceVolumeConfig            `yaml:",omitempty"`
 	}
 
 
+	fmt.Printf("\nCOMPOSE SERVICE: %+v\n\n", service)
 	return service, nil
 }
 
 // FIXME
-func convertLinuxParameters(params *ecs.LinuxParameters) ([]string) {
+func convertLinuxParameters(params *ecs.LinuxParameters) LinuxParams {
 	if params == nil {
-		return nil
+		return LinuxParams{}
 	}
+
 	tmpfs, _ := convertToTmpfs(params.Tmpfs)
-	return tmpfs
+	init := params.InitProcessEnabled
+
+	return LinuxParams {
+		Tmpfs: tmpfs,
+		Init: init,
+	}
 }
 
 func convertToTmpfs(mounts []*ecs.Tmpfs) ([]string, error) {

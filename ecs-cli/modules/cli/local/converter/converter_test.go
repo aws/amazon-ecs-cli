@@ -50,6 +50,7 @@ func TestConvertToComposeService(t *testing.T) {
 			Hard: 4000,
 		},
 	}
+	expectedInit := true
 
 	taskDefinition := &ecs.TaskDefinition{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
@@ -110,8 +111,10 @@ func TestConvertToComposeService(t *testing.T) {
 	assert.Equal(t, expectedTty, service.Tty, "Expected Tty to match")
 	assert.Equal(t, expectedPrivileged, service.Privileged, "Expected Privileged to match")
 	assert.Equal(t, expectedReadOnly, service.ReadOnly, "Expected ReadOnly to match")
-	assert.Equal(t, composeV3.StringList(expectedTmpfs), service.Tmpfs, "Expected Tmpfs to match")
 	assert.Equal(t, expectedUlimits, service.Ulimits, "Expected Ulimits to match")
+
+	assert.Equal(t, composeV3.StringList(expectedTmpfs), service.Tmpfs, "Expected Tmpfs to match")
+	assert.Equal(t, aws.Bool(expectedInit), service.Init, "Expected Init to match")
 }
 
 
