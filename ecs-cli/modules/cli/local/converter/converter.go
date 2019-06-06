@@ -18,11 +18,15 @@
 package converter
 
 import (
+	"fmt"
+	"strings"
+	"errors"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 
 	composeV3 "github.com/docker/cli/cli/compose/types"
+	"github.com/docker/go-units"
 	"gopkg.in/yaml.v2"
 )
 
@@ -65,6 +69,8 @@ func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition) ([]byte, error) 
 }
 
 func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (composeV3.ServiceConfig, error) {
+	tmpfs := convertLinuxParameters(containerDefinition.LinuxParameters)
+
 	service := composeV3.ServiceConfig{
 		Name: aws.StringValue(containerDefinition.Name),
 		Image: aws.StringValue(containerDefinition.Image),
@@ -81,6 +87,7 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 		Tty: aws.BoolValue(containerDefinition.PseudoTerminal),
 		Privileged: aws.BoolValue(containerDefinition.Privileged),
 		ReadOnly: aws.BoolValue(containerDefinition.ReadonlyRootFilesystem),
+		Tmpfs: tmpfs,
 
 		// CapAdd: containerDefinition.LinuxParameters.KernalCapabilities.Add
 		// CapDrop: containerDefinition.LinuxParameters.KernalCapabilities.Drop
@@ -91,15 +98,11 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 
 		// Devices         []string                         `yaml:",omitempty"`
 		// Environment     MappingWithEquals                `yaml:",omitempty"`
-		// EnvFile         StringList                       `mapstructure:"env_file" yaml:"env_file,omitempty"`
 		// ExtraHosts      HostsList                        `mapstructure:"extra_hosts" yaml:"extra_hosts,omitempty"`
 		// HealthCheck     *HealthCheckConfig               `yaml:",omitempty"`
 		// Labels          Labels                           `yaml:",omitempty"`
-		// Links           []string                         `yaml:",omitempty"`
 		// Logging         *LoggingConfig                   `yaml:",omitempty"`
 		// Ports           []ServicePortConfig              `yaml:",omitempty"`
-		// ReadOnly        bool                             `mapstructure:"read_only" yaml:"read_only,omitempty"`
-		// Tmpfs           StringList                       `yaml:",omitempty"`
 		// Ulimits         map[string]*UlimitsConfig        `yaml:",omitempty"`
 		// Volumes         []ServiceVolumeConfig            `yaml:",omitempty"`
 	}
@@ -107,3 +110,45 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 
 	return service, nil
 }
+
+// FIXME
+func convertLinuxParameters(params *ecs.LinuxParameters) ([]string) {
+	if params == nil {
+		return nil
+	}
+	tmpfs, _ := convertToTmpfs(params.Tmpfs)
+	return tmpfs
+}
+
+func convertToTmpfs(mounts []*ecs.Tmpfs) ([]string, error) {
+	if len(mounts) == 0 {
+		return nil, nil
+	}
+
+	out := []string{}
+
+	for _, mount := range mounts {
+
+		if mount.ContainerPath == nil || mount.Size == nil {
+			return nil, errors.New("You must specify the path and size for tmpfs mounts")
+		}
+
+		path := aws.StringValue(mount.ContainerPath)
+		size := aws.Int64Value(mount.Size) * units.MiB
+
+		composeSize := fmt.Sprintf("size=%s", units.BytesSize(float64(size)))
+
+		tmpfs := strings.Join([]string{path, composeSize}, ":")
+
+		if mount.MountOptions != nil {
+			opts := aws.StringValueSlice(mount.MountOptions)
+			composeOpts := strings.Join(opts, ",")
+			tmpfs = strings.Join([]string{tmpfs, composeOpts}, ",")
+		}
+
+		out = append(out, tmpfs)
+	}
+
+	return out, nil
+}
+

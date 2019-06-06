@@ -45,6 +45,7 @@ func TestConvertToComposeService(t *testing.T) {
 	expectedTty := true
 	expectedPrivileged := true
 	expectedReadOnly := true
+	expectedTmpfs := []string{"/run:size=64MiB,rw,noexec,nosuid"}
 
 	taskDefinition := &ecs.TaskDefinition{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
@@ -63,6 +64,15 @@ func TestConvertToComposeService(t *testing.T) {
 				PseudoTerminal: aws.Bool(expectedTty),
 				Privileged: aws.Bool(expectedPrivileged),
 				ReadonlyRootFilesystem: aws.Bool(expectedReadOnly),
+				LinuxParameters: &ecs.LinuxParameters{
+					Tmpfs:  []*ecs.Tmpfs{
+						{
+							ContainerPath: aws.String("/run"),
+							MountOptions: aws.StringSlice([]string{"rw", "noexec", "nosuid"}),
+							Size:          aws.Int64(64),
+						},
+					},
+				},
 			},
 		},
 	}
@@ -88,4 +98,53 @@ func TestConvertToComposeService(t *testing.T) {
 	assert.Equal(t, expectedTty, service.Tty, "Expected Tty to match")
 	assert.Equal(t, expectedPrivileged, service.Privileged, "Expected Privileged to match")
 	assert.Equal(t, expectedReadOnly, service.ReadOnly, "Expected ReadOnly to match")
+	assert.Equal(t, composeV3.StringList(expectedTmpfs), service.Tmpfs, "Expected Tmpfs to match")
+}
+
+
+func TestConvertToTmpfs(t *testing.T) {
+	expectedTmpfs := []string{
+		"/run:size=64MiB,rw,noexec,nosuid",
+		"/foo:size=1GiB",
+	}
+
+	input := []*ecs.Tmpfs{
+		{
+			ContainerPath: aws.String("/run"),
+			MountOptions:  aws.StringSlice([]string{"rw", "noexec", "nosuid"}),
+			Size:          aws.Int64(64),
+		},
+		{
+			ContainerPath: aws.String("/foo"),
+			Size:          aws.Int64(1024),
+		},
+	}
+
+	actual, err := convertToTmpfs(input)
+	assert.NoError(t, err, "Unexpected error converting Tmpfs")
+	assert.ElementsMatch(t, expectedTmpfs, actual)
+}
+
+func TestConvertToTmpfs_ErrorsIfNoSize(t *testing.T) {
+	input := []*ecs.Tmpfs{
+		{
+			ContainerPath: aws.String("/run"),
+			MountOptions:  aws.StringSlice([]string{"rw", "noexec", "nosuid"}),
+		},
+	}
+
+	_, err := convertToTmpfs(input)
+	assert.Error(t, err)
+}
+
+func TestConvertToTmpfs_ErrorsIfNoPath(t *testing.T) {
+	input := []*ecs.Tmpfs{
+		{
+			MountOptions:  aws.StringSlice([]string{"rw", "noexec", "nosuid"}),
+			Size:          aws.Int64(1024),
+		},
+	}
+
+	_, err := convertToTmpfs(input)
+	assert.Error(t, err)
 }

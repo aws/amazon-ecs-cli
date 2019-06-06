@@ -117,13 +117,14 @@ func TestConvertVolumesFrom_V2_Rw(t *testing.T) {
 }
 
 func TestConvertToTmpfs(t *testing.T) {
-	tmpfs := []string{"/run:rw,noexec,nosuid,size=65536k", "/foo:size=1gb", "/bar:size=1gb,rw,runbindable"}
+	tmpfs := []string{"/run:rw,noexec,nosuid,size=65536k", "/foo:size=1gb", "/bar:size=1gb,rw,runbindable", "/run:size=64MiB" }
 
 	tmpfsMounts, err := ConvertToTmpfs(tmpfs)
 	assert.NoError(t, err, "Unexpected error converting tmpfs")
 	mount1 := tmpfsMounts[0]
 	mount2 := tmpfsMounts[1]
 	mount3 := tmpfsMounts[2]
+	mount4 := tmpfsMounts[3]
 
 	assert.Equal(t, "/run", aws.StringValue(mount1.ContainerPath))
 	assert.Equal(t, []string{"rw", "noexec", "nosuid"}, aws.StringValueSlice(mount1.MountOptions))
@@ -136,6 +137,10 @@ func TestConvertToTmpfs(t *testing.T) {
 	assert.Equal(t, "/bar", aws.StringValue(mount3.ContainerPath))
 	assert.Equal(t, []string{"rw", "runbindable"}, aws.StringValueSlice(mount3.MountOptions))
 	assert.Equal(t, int64(1024), aws.Int64Value(mount3.Size))
+
+	assert.Equal(t, "/run", aws.StringValue(mount4.ContainerPath))
+	assert.Equal(t, []string{}, aws.StringValueSlice(mount4.MountOptions))
+	assert.Equal(t, int64(64), aws.Int64Value(mount4.Size))
 }
 
 func TestConvertToTmpfs_NoPath(t *testing.T) {
