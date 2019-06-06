@@ -112,6 +112,7 @@ var testContainerConfig = adapter.ContainerConfig{
 		},
 	},
 	Privileged: true,
+	PseudoTerminal: true,
 	ReadOnly:   true,
 	ShmSize:    int64(128), // Realistically, we expect customers to specify sizes larger than the default of 64M
 	Tmpfs: []*ecs.Tmpfs{
@@ -200,6 +201,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 		},
 	}
 	privileged := true
+	pseudoterminal := true
 	readOnly := true
 	securityOpts := []string{"label:type:test_virt"}
 	shmSize := int64(128)
@@ -266,6 +268,7 @@ func TestConvertToTaskDefinition(t *testing.T) {
 	assert.Equal(t, ports, containerDef.PortMappings, "Expected PortMappings to match")
 
 	assert.Equal(t, aws.Bool(privileged), containerDef.Privileged, "Expected container def privileged to match")
+	assert.Equal(t, aws.Bool(pseudoterminal), containerDef.PseudoTerminal, "Expected container def pseudoterminal to match")
 	assert.Equal(t, aws.Bool(readOnly), containerDef.ReadonlyRootFilesystem, "Expected container def ReadonlyRootFilesystem to match")
 	assert.Equal(t, aws.Int64(shmSize), containerDef.LinuxParameters.SharedMemorySize, "Expected sharedMemorySize to match")
 	assert.ElementsMatch(t, tmpfs, containerDef.LinuxParameters.Tmpfs, "Expected tmpfs to match")
