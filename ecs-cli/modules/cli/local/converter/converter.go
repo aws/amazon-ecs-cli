@@ -86,8 +86,11 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	init := linuxParams.Init
 	devices := linuxParams.Devices
 	shmSize := linuxParams.ShmSize
+	capAdd := linuxParams.CapAdd
+	capDrop := linuxParams.CapDrop
 
 	ulimits, _ := convertUlimits(containerDefinition.Ulimits)
+	environment := convertEnvironment(containerDefinition.Environment)
 
 	service := composeV3.ServiceConfig{
 		Name: aws.StringValue(containerDefinition.Name),
@@ -105,21 +108,14 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 		Privileged: aws.BoolValue(containerDefinition.Privileged),
 		ReadOnly: aws.BoolValue(containerDefinition.ReadonlyRootFilesystem),
 		Ulimits: ulimits,
-
 		Tmpfs: tmpfs,
 		Init: init,
 		Devices: devices,
 		ShmSize: shmSize,
+		CapAdd: capAdd,
+		CapDrop: capDrop,
+		Environment: environment,
 
-		// CapAdd: containerDefinition.LinuxParameters.KernalCapabilities.Add
-		// CapDrop: containerDefinition.LinuxParameters.KernalCapabilities.Drop
-		// =======
-
-		// CapAdd          []string                         `mapstructure:"cap_add" yaml:"cap_add,omitempty"`
-		// CapDrop         []string                         `mapstructure:"cap_drop" yaml:"cap_drop,omitempty"`
-
-
-		// Environment     MappingWithEquals                `yaml:",omitempty"`
 		// ExtraHosts      HostsList                        `mapstructure:"extra_hosts" yaml:"extra_hosts,omitempty"`
 		// HealthCheck     *HealthCheckConfig               `yaml:",omitempty"`
 		// Labels          Labels                           `yaml:",omitempty"`
@@ -132,6 +128,14 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	return service, nil
 }
 
+func convertEnvironment(env []*ecs.KeyValuePair) map[string]*string {
+	out := make(map[string]*string)
+	for _, kv := range env {
+		out[aws.StringValue(kv.Name)] = kv.Value
+	}
+	return out
+}
+
 func convertLinuxParameters(params *ecs.LinuxParameters) LinuxParams {
 	if params == nil {
 		return LinuxParams{}
@@ -141,13 +145,45 @@ func convertLinuxParameters(params *ecs.LinuxParameters) LinuxParams {
 	devices, _ := convertDevices(params.Devices)
 	shmSize := convertShmSize(params.SharedMemorySize)
 	tmpfs, _ := convertToTmpfs(params.Tmpfs)
+	capAdd := convertCapAdd(params.Capabilities)
+	capDrop := convertCapDrop(params.Capabilities)
 
 	return LinuxParams {
 		Tmpfs: tmpfs,
 		Init: init,
 		Devices: devices,
 		ShmSize: shmSize,
+		CapAdd: capAdd,
+		CapDrop: capDrop,
 	}
+}
+
+func convertCapAdd(capabilities *ecs.KernelCapabilities) []string {
+	if capabilities == nil {
+		return nil
+	}
+
+	addCapabilities := capabilities.Add
+
+	if len(addCapabilities) == 0 {
+		return nil
+	}
+
+	return aws.StringValueSlice(addCapabilities)
+}
+
+func convertCapDrop(capabilities *ecs.KernelCapabilities) []string {
+	if capabilities == nil {
+		return nil
+	}
+
+	dropCapabilities := capabilities.Drop
+
+	if len(dropCapabilities) == 0 {
+		return nil
+	}
+
+	return aws.StringValueSlice(dropCapabilities)
 }
 
 func convertShmSize(size *int64) string {

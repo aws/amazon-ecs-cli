@@ -53,6 +53,11 @@ func TestConvertToComposeService(t *testing.T) {
 	expectedDevices := []string{"/dev/sda:/dev/xvdc:r"}
 	expectedTmpfs := []string{"/run:size=64MiB,rw,noexec,nosuid"}
 	expectedShmSize := "128MiB"
+	expectedCapAdd := []string{"NET_ADMIN", "MKNOD"}
+	expectedCapDrop := []string{"KILL"}
+	expectedEnvironment := map[string]*string{
+		"rails_env": aws.String("development"),
+	}
 
 	taskDefinition := &ecs.TaskDefinition{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
@@ -78,9 +83,19 @@ func TestConvertToComposeService(t *testing.T) {
 						HardLimit: aws.Int64(4000),
 					},
 				},
+				Environment: []*ecs.KeyValuePair{
+					{
+						Name:  aws.String("rails_env"),
+						Value: aws.String("development"),
+					},
+				},
 				LinuxParameters: &ecs.LinuxParameters{
 					InitProcessEnabled: aws.Bool(true),
 					SharedMemorySize: aws.Int64(128),
+					Capabilities: &ecs.KernelCapabilities{
+						Add: aws.StringSlice(expectedCapAdd),
+						Drop: aws.StringSlice(expectedCapDrop),
+					},
 					Devices: []*ecs.Device{
 						{
 							HostPath:      aws.String("/dev/sda"),
@@ -122,12 +137,15 @@ func TestConvertToComposeService(t *testing.T) {
 	assert.Equal(t, expectedPrivileged, service.Privileged, "Expected Privileged to match")
 	assert.Equal(t, expectedReadOnly, service.ReadOnly, "Expected ReadOnly to match")
 	assert.Equal(t, expectedUlimits, service.Ulimits, "Expected Ulimits to match")
+	assert.Equal(t, composeV3.MappingWithEquals(expectedEnvironment), service.Environment, "Expected Environment to match")
 
 	// Fields from LinuxParameters
 	assert.Equal(t, composeV3.StringList(expectedTmpfs), service.Tmpfs, "Expected Tmpfs to match")
 	assert.Equal(t, aws.Bool(expectedInit), service.Init, "Expected Init to match")
 	assert.Equal(t, expectedDevices, service.Devices, "Expected Devices to match")
 	assert.Equal(t, expectedShmSize, service.ShmSize, "Expected ShmSize to match")
+	assert.Equal(t, expectedCapAdd, service.CapAdd, "Expected CapAdd to match")
+	assert.Equal(t, expectedCapDrop, service.CapDrop, "Expected CapDrop to match")
 }
 
 
@@ -247,9 +265,40 @@ func TestConvertDevices(t *testing.T) {
 
 func TestConvertShmSize(t *testing.T) {
 	input := aws.Int64(1024)
-
 	expected := "1GiB"
 	actual := convertShmSize(input)
 
 	assert.Equal(t, expected, actual)
 }
+
+func TestConvertCapAddCapDrop(t *testing.T) {
+	addCapabilities := []string{"NET_ADMIN", "MKNOD"}
+	dropCapabilities := []string{"KILL"}
+
+	input := &ecs.KernelCapabilities{
+		Add: aws.StringSlice(addCapabilities),
+		Drop: aws.StringSlice(dropCapabilities),
+	}
+	actualCapAdd := convertCapAdd(input)
+	actualCapDrop := convertCapDrop(input)
+
+	assert.ElementsMatch(t, addCapabilities, actualCapAdd)
+	assert.ElementsMatch(t, dropCapabilities, actualCapDrop)
+}
+
+func TestConvertEnvironment(t *testing.T) {
+	input := []*ecs.KeyValuePair{
+		{
+			Name:  aws.String("rails_env"),
+			Value: aws.String("development"),
+		},
+	}
+
+	expected := map[string]*string{
+		"rails_env": aws.String("development"),
+	}
+	actual := convertEnvironment(input)
+
+	assert.Equal(t, expected, actual)
+}
+
