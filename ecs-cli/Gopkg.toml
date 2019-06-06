@@ -33,7 +33,7 @@
 
 [[constraint]]
   name = "github.com/docker/go-units"
-  revision = "e30f1e79f3cd72542f2026ceec18d3bd67ab859c"
+  version = "0.4.0"
 
 [[constraint]]
   name = "github.com/docker/libcompose"
