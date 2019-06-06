@@ -43,7 +43,6 @@ func TestConvertToComposeService(t *testing.T) {
 	expectedTty := true
 	expectedPrivileged := true
 	expectedReadOnly := true
-	expectedTmpfs := []string{"/run:size=64MiB,rw,noexec,nosuid"}
 	expectedUlimits := map[string]*composeV3.UlimitsConfig{
 		"nofile": &composeV3.UlimitsConfig{
 			Soft: 2000,
@@ -51,6 +50,8 @@ func TestConvertToComposeService(t *testing.T) {
 		},
 	}
 	expectedInit := true
+	expectedDevices := []string{"/dev/sda:/dev/xvdc:r"}
+	expectedTmpfs := []string{"/run:size=64MiB,rw,noexec,nosuid"}
 
 	taskDefinition := &ecs.TaskDefinition{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
@@ -78,6 +79,13 @@ func TestConvertToComposeService(t *testing.T) {
 				},
 				LinuxParameters: &ecs.LinuxParameters{
 					InitProcessEnabled: aws.Bool(true),
+					Devices: []*ecs.Device{
+						{
+							HostPath:      aws.String("/dev/sda"),
+							ContainerPath: aws.String("/dev/xvdc"),
+							Permissions:   aws.StringSlice([]string{"read"}),
+						},
+					},
 					Tmpfs:  []*ecs.Tmpfs{
 						{
 							ContainerPath: aws.String("/run"),
@@ -115,6 +123,7 @@ func TestConvertToComposeService(t *testing.T) {
 
 	assert.Equal(t, composeV3.StringList(expectedTmpfs), service.Tmpfs, "Expected Tmpfs to match")
 	assert.Equal(t, aws.Bool(expectedInit), service.Init, "Expected Init to match")
+	assert.Equal(t, expectedDevices, service.Devices, "Expected Devices to match")
 }
 
 
@@ -196,4 +205,38 @@ func TestConvertUlimits(t *testing.T) {
 	assert.NoError(t, err, "Unexpected error converting Ulimits")
 	assert.Equal(t, expected["rss"], actual["rss"])
 	assert.Equal(t, expected["nofile"], actual["nofile"])
+}
+
+func TestConvertDevices(t *testing.T) {
+	expected := []string{
+		"/dev/sda",
+		"/dev/sda:/dev/xvdc",
+		"/dev/sda:/dev/xvdc:r",
+		"/dev/nvid:/dev/xvdc:rw",
+	}
+
+	input := []*ecs.Device{
+		{
+			HostPath: aws.String("/dev/sda"),
+		},
+		{
+			HostPath:      aws.String("/dev/sda"),
+			ContainerPath: aws.String("/dev/xvdc"),
+		},
+		{
+			HostPath:      aws.String("/dev/sda"),
+			ContainerPath: aws.String("/dev/xvdc"),
+			Permissions:   aws.StringSlice([]string{"read"}),
+		},
+		{
+			HostPath:      aws.String("/dev/nvid"),
+			ContainerPath: aws.String("/dev/xvdc"),
+			Permissions:   aws.StringSlice([]string{"read", "write"}),
+		},
+	}
+
+	actual, err := convertDevices(input)
+
+	assert.NoError(t, err, "Unexpected error converting Devices")
+	assert.ElementsMatch(t, expected, actual)
 }

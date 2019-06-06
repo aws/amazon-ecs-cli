@@ -84,7 +84,7 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	linuxParams := convertLinuxParameters(containerDefinition.LinuxParameters)
 	tmpfs := linuxParams.Tmpfs
 	init := linuxParams.Init
-	// devices := aws.StringValueSlice(containerDefinition.LinuxParameters.Devices)
+	devices := linuxParams.Devices
 
 	ulimits, _ := convertUlimits(containerDefinition.Ulimits)
 
@@ -107,9 +107,9 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 
 		Tmpfs: tmpfs,
 		Init: init,
+		Devices: devices,
 
 		// ShmSize: shmSize,
-		// Devices: devices,
 		// CapAdd: containerDefinition.LinuxParameters.KernalCapabilities.Add
 		// CapDrop: containerDefinition.LinuxParameters.KernalCapabilities.Drop
 		// =======
@@ -133,7 +133,6 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	return service, nil
 }
 
-// FIXME
 func convertLinuxParameters(params *ecs.LinuxParameters) LinuxParams {
 	if params == nil {
 		return LinuxParams{}
@@ -141,12 +140,51 @@ func convertLinuxParameters(params *ecs.LinuxParameters) LinuxParams {
 
 	tmpfs, _ := convertToTmpfs(params.Tmpfs)
 	init := params.InitProcessEnabled
+	devices, _ := convertDevices(params.Devices)
 
 	return LinuxParams {
 		Tmpfs: tmpfs,
 		Init: init,
+		Devices: devices,
 	}
 }
+
+// Note: This option is ignored when deploying a stack in swarm mode with a (version 3) Compose file.
+func convertDevices(devices []*ecs.Device) ([]string, error) {
+	if len(devices) == 0 {
+		return nil, nil
+	}
+
+	out := []string{}
+
+	for _, device := range devices {
+		if device.HostPath == nil {
+			return nil, errors.New("You must specify the host path for a device")
+		}
+
+		hostPath := aws.StringValue(device.HostPath)
+		composeDevice := hostPath
+
+		if device.ContainerPath != nil {
+			containerPath := aws.StringValue(device.ContainerPath)
+			composeDevice = strings.Join([]string{composeDevice, containerPath}, ":")
+		}
+
+		if device.Permissions != nil {
+			permissions := aws.StringValueSlice(device.Permissions)
+			composeOpts, err := convertDevicePermissions(permissions)
+			if err != nil {
+				return nil, err
+			}
+			composeDevice = strings.Join([]string{composeDevice, composeOpts}, ":")
+		}
+
+		out = append(out, composeDevice)
+	}
+
+	return out, nil
+}
+
 
 func convertToTmpfs(mounts []*ecs.Tmpfs) ([]string, error) {
 	if len(mounts) == 0 {
@@ -194,5 +232,24 @@ func convertUlimits(ulimits []*ecs.Ulimit) (map[string]*composeV3.UlimitsConfig,
 		}
 	}
 
+	return out, nil
+}
+
+
+func convertDevicePermissions(permissions []string) (string, error) {
+	devicePermissions := map[string]string{
+		"read": "r",
+		"write": "w",
+		"mknod": "m",
+	}
+
+	out := ""
+	for _, permission := range permissions {
+		opt, ok := devicePermissions[permission]
+		if !ok {
+			return "", fmt.Errorf("Invalid Device Permission: %s", permission)
+		}
+		out += opt
+	}
 	return out, nil
 }
