@@ -52,6 +52,7 @@ func TestConvertToComposeService(t *testing.T) {
 	expectedInit := true
 	expectedDevices := []string{"/dev/sda:/dev/xvdc:r"}
 	expectedTmpfs := []string{"/run:size=64MiB,rw,noexec,nosuid"}
+	expectedShmSize := "128MiB"
 
 	taskDefinition := &ecs.TaskDefinition{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
@@ -79,6 +80,7 @@ func TestConvertToComposeService(t *testing.T) {
 				},
 				LinuxParameters: &ecs.LinuxParameters{
 					InitProcessEnabled: aws.Bool(true),
+					SharedMemorySize: aws.Int64(128),
 					Devices: []*ecs.Device{
 						{
 							HostPath:      aws.String("/dev/sda"),
@@ -121,9 +123,11 @@ func TestConvertToComposeService(t *testing.T) {
 	assert.Equal(t, expectedReadOnly, service.ReadOnly, "Expected ReadOnly to match")
 	assert.Equal(t, expectedUlimits, service.Ulimits, "Expected Ulimits to match")
 
+	// Fields from LinuxParameters
 	assert.Equal(t, composeV3.StringList(expectedTmpfs), service.Tmpfs, "Expected Tmpfs to match")
 	assert.Equal(t, aws.Bool(expectedInit), service.Init, "Expected Init to match")
 	assert.Equal(t, expectedDevices, service.Devices, "Expected Devices to match")
+	assert.Equal(t, expectedShmSize, service.ShmSize, "Expected ShmSize to match")
 }
 
 
@@ -239,4 +243,13 @@ func TestConvertDevices(t *testing.T) {
 
 	assert.NoError(t, err, "Unexpected error converting Devices")
 	assert.ElementsMatch(t, expected, actual)
+}
+
+func TestConvertShmSize(t *testing.T) {
+	input := aws.Int64(1024)
+
+	expected := "1GiB"
+	actual := convertShmSize(input)
+
+	assert.Equal(t, expected, actual)
 }

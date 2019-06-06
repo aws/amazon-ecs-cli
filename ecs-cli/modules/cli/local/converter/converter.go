@@ -85,6 +85,7 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	tmpfs := linuxParams.Tmpfs
 	init := linuxParams.Init
 	devices := linuxParams.Devices
+	shmSize := linuxParams.ShmSize
 
 	ulimits, _ := convertUlimits(containerDefinition.Ulimits)
 
@@ -108,16 +109,14 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 		Tmpfs: tmpfs,
 		Init: init,
 		Devices: devices,
+		ShmSize: shmSize,
 
-		// ShmSize: shmSize,
 		// CapAdd: containerDefinition.LinuxParameters.KernalCapabilities.Add
 		// CapDrop: containerDefinition.LinuxParameters.KernalCapabilities.Drop
 		// =======
 
 		// CapAdd          []string                         `mapstructure:"cap_add" yaml:"cap_add,omitempty"`
 		// CapDrop         []string                         `mapstructure:"cap_drop" yaml:"cap_drop,omitempty"`
-		// Devices         []string                         `yaml:",omitempty"`
-		// Init            *bool                            `yaml:",omitempty"`
 
 
 		// Environment     MappingWithEquals                `yaml:",omitempty"`
@@ -138,15 +137,22 @@ func convertLinuxParameters(params *ecs.LinuxParameters) LinuxParams {
 		return LinuxParams{}
 	}
 
-	tmpfs, _ := convertToTmpfs(params.Tmpfs)
 	init := params.InitProcessEnabled
 	devices, _ := convertDevices(params.Devices)
+	shmSize := convertShmSize(params.SharedMemorySize)
+	tmpfs, _ := convertToTmpfs(params.Tmpfs)
 
 	return LinuxParams {
 		Tmpfs: tmpfs,
 		Init: init,
 		Devices: devices,
+		ShmSize: shmSize,
 	}
+}
+
+func convertShmSize(size *int64) string {
+	sizeInMiB := aws.Int64Value(size) * units.MiB
+	return units.BytesSize(float64(sizeInMiB))
 }
 
 // Note: This option is ignored when deploying a stack in swarm mode with a (version 3) Compose file.
