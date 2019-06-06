@@ -18,8 +18,6 @@
 package converter
 
 import (
-	// "errors"
-	// "os"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -46,6 +44,12 @@ func TestConvertToComposeService(t *testing.T) {
 	expectedPrivileged := true
 	expectedReadOnly := true
 	expectedTmpfs := []string{"/run:size=64MiB,rw,noexec,nosuid"}
+	expectedUlimits := map[string]*composeV3.UlimitsConfig{
+		"nofile": &composeV3.UlimitsConfig{
+			Soft: 2000,
+			Hard: 4000,
+		},
+	}
 
 	taskDefinition := &ecs.TaskDefinition{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
@@ -64,7 +68,15 @@ func TestConvertToComposeService(t *testing.T) {
 				PseudoTerminal: aws.Bool(expectedTty),
 				Privileged: aws.Bool(expectedPrivileged),
 				ReadonlyRootFilesystem: aws.Bool(expectedReadOnly),
+				Ulimits: []*ecs.Ulimit{
+					{
+						Name:      aws.String("nofile"),
+						SoftLimit: aws.Int64(2000),
+						HardLimit: aws.Int64(4000),
+					},
+				},
 				LinuxParameters: &ecs.LinuxParameters{
+					InitProcessEnabled: aws.Bool(true),
 					Tmpfs:  []*ecs.Tmpfs{
 						{
 							ContainerPath: aws.String("/run"),
@@ -99,6 +111,7 @@ func TestConvertToComposeService(t *testing.T) {
 	assert.Equal(t, expectedPrivileged, service.Privileged, "Expected Privileged to match")
 	assert.Equal(t, expectedReadOnly, service.ReadOnly, "Expected ReadOnly to match")
 	assert.Equal(t, composeV3.StringList(expectedTmpfs), service.Tmpfs, "Expected Tmpfs to match")
+	assert.Equal(t, expectedUlimits, service.Ulimits, "Expected Ulimits to match")
 }
 
 
@@ -147,4 +160,37 @@ func TestConvertToTmpfs_ErrorsIfNoPath(t *testing.T) {
 
 	_, err := convertToTmpfs(input)
 	assert.Error(t, err)
+}
+
+func TestConvertUlimits(t *testing.T) {
+	expected := map[string]*composeV3.UlimitsConfig{
+		"nofile": &composeV3.UlimitsConfig{
+			Soft: 2000,
+			Hard: 4000,
+		},
+		// Ignoring "Single" field - hack
+		"rss": &composeV3.UlimitsConfig{
+			Soft: 65535,
+			Hard: 65535,
+		},
+	}
+
+	input := []*ecs.Ulimit{
+		{
+			Name:      aws.String("nofile"),
+			HardLimit: aws.Int64(4000),
+			SoftLimit: aws.Int64(2000),
+		},
+		{
+			Name:      aws.String("rss"),
+			HardLimit: aws.Int64(65535),
+			SoftLimit: aws.Int64(65535),
+		},
+	}
+
+	actual, err := convertUlimits(input)
+
+	assert.NoError(t, err, "Unexpected error converting Ulimits")
+	assert.Equal(t, expected["rss"], actual["rss"])
+	assert.Equal(t, expected["nofile"], actual["nofile"])
 }

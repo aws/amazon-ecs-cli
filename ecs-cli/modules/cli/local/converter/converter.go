@@ -70,6 +70,7 @@ func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition) ([]byte, error) 
 
 func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (composeV3.ServiceConfig, error) {
 	tmpfs := convertLinuxParameters(containerDefinition.LinuxParameters)
+	ulimits, _ := convertUlimits(containerDefinition.Ulimits)
 
 	service := composeV3.ServiceConfig{
 		Name: aws.StringValue(containerDefinition.Name),
@@ -88,6 +89,7 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 		Privileged: aws.BoolValue(containerDefinition.Privileged),
 		ReadOnly: aws.BoolValue(containerDefinition.ReadonlyRootFilesystem),
 		Tmpfs: tmpfs,
+		Ulimits: ulimits,
 
 		// CapAdd: containerDefinition.LinuxParameters.KernalCapabilities.Add
 		// CapDrop: containerDefinition.LinuxParameters.KernalCapabilities.Drop
@@ -102,7 +104,6 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 		// HealthCheck     *HealthCheckConfig               `yaml:",omitempty"`
 		// Labels          Labels                           `yaml:",omitempty"`
 		// Logging         *LoggingConfig                   `yaml:",omitempty"`
-		// Ports           []ServicePortConfig              `yaml:",omitempty"`
 		// Ulimits         map[string]*UlimitsConfig        `yaml:",omitempty"`
 		// Volumes         []ServiceVolumeConfig            `yaml:",omitempty"`
 	}
@@ -152,3 +153,19 @@ func convertToTmpfs(mounts []*ecs.Tmpfs) ([]string, error) {
 	return out, nil
 }
 
+func convertUlimits(ulimits []*ecs.Ulimit) (map[string]*composeV3.UlimitsConfig, error) {
+	if len(ulimits) == 0 {
+		return nil, nil
+	}
+
+	out := make(map[string]*composeV3.UlimitsConfig)
+
+	for _, ulimit := range ulimits {
+		out[aws.StringValue(ulimit.Name)] = &composeV3.UlimitsConfig{
+			Soft: int(aws.Int64Value(ulimit.SoftLimit)),
+			Hard: int(aws.Int64Value(ulimit.HardLimit)),
+		}
+	}
+
+	return out, nil
+}
