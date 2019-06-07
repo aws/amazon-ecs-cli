@@ -51,8 +51,7 @@ func Down(c *cli.Context) error {
 func downComposeLocalContainers() error {
 	wd, _ := os.Getwd()
 	if _, err := os.Stat(filepath.Join(wd, ecsLocalDockerComposeFileName)); os.IsNotExist(err) {
-		logrus.Warnf("Compose file %s does not exist in current directory", ecsLocalDockerComposeFileName)
-		return nil
+		logrus.Fatalf("Compose file %s does not exist in current directory", ecsLocalDockerComposeFileName)
 	}
 
 	logrus.Infof("Running Compose down on %s", ecsLocalDockerComposeFileName)
