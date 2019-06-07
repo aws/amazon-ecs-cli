@@ -38,33 +38,46 @@ func TestECSLocal(t *testing.T) {
 				{
 					args: []string{"local", "ps"},
 					execute: func(t *testing.T, args []string) {
-						stdout := integ.RunCmd(t, args)
-						require.Equal(t, 1, len(stdout.Lines()), "Expected only the table header")
+						stdout, err := integ.RunCmd(t, args)
+						require.Error(t, err, "expected args=%v to fail", args)
+						stdout.TestHasAllSubstrings(t, []string{
+							"docker-compose.local.yml does not exist",
+						})
+					},
+				},
+				{
+					args: []string{"local", "ps", "--all"},
+					execute: func(t *testing.T, args []string) {
+						stdout, err := integ.RunCmd(t, args)
+						require.NoError(t, err)
 						stdout.TestHasAllSubstrings(t, []string{
 							"CONTAINER ID",
 							"IMAGE",
 							"STATUS",
 							"PORTS",
 							"NAMES",
-							"TASKDEFINITIONARN",
+							"TASKDEFINITION",
 							"TASKFILEPATH",
 						})
 					},
 				},
 				{
-					args: []string{"local", "ps", "--json"},
+					args: []string{"local", "ps", "--all", "--json"},
 					execute: func(t *testing.T, args []string) {
-						stdout := integ.RunCmd(t, args)
-						stdout.TestHasAllSubstrings(t, []string{"[]"})
+						stdout, err := integ.RunCmd(t, args)
+						require.NoError(t, err)
+						stdout.TestHasAllSubstrings(t, []string{
+							"[]",
+						})
 					},
 				},
 				{
 					args: []string{"local", "down"},
 					execute: func(t *testing.T, args []string) {
-						stdout := integ.RunCmd(t, args)
+						stdout, err := integ.RunCmd(t, args)
+						require.Error(t, err, "expected args=%v to fail", args)
 						stdout.TestHasAllSubstrings(t, []string{
 							"docker-compose.local.yml does not exist",
-							"ecs-local-network not found",
 						})
 					},
 				},
@@ -75,7 +88,8 @@ func TestECSLocal(t *testing.T) {
 				{
 					args: []string{"local", "up"},
 					execute: func(t *testing.T, args []string) {
-						stdout := integ.RunCmd(t, args)
+						stdout, err := integ.RunCmd(t, args)
+						require.NoError(t, err)
 						stdout.TestHasAllSubstrings(t, []string{
 							"Created network ecs-local-network",
 							"Created the amazon-ecs-local-container-endpoints container",
@@ -83,9 +97,10 @@ func TestECSLocal(t *testing.T) {
 					},
 				},
 				{
-					args: []string{"local", "down"},
+					args: []string{"local", "down", "--all"},
 					execute: func(t *testing.T, args []string) {
-						stdout := integ.RunCmd(t, args)
+						stdout, err := integ.RunCmd(t, args)
+						require.NoError(t, err)
 						stdout.TestHasAllSubstrings(t, []string{
 							"Stopped container with name amazon-ecs-local-container-endpoints",
 							"Removed container with name amazon-ecs-local-container-endpoints",

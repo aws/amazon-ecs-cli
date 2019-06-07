@@ -26,7 +26,6 @@ import (
 	"time"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/integ/stdout"
-	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -50,13 +49,10 @@ func GetCommand(args []string) *exec.Cmd {
 }
 
 // RunCmd runs a command with args and returns its Stdout.
-func RunCmd(t *testing.T, args []string) stdout.Stdout {
+func RunCmd(t *testing.T, args []string) (stdout.Stdout, error) {
 	cmd := GetCommand(args)
-
-	out, err := cmd.Output()
-	require.NoErrorf(t, err, "Failed running command", fmt.Sprintf("args=%v, stdout=%s, err=%v", args, string(out), err))
-
-	return stdout.Stdout(out)
+	out, err := cmd.CombinedOutput()
+	return stdout.Stdout(out), err
 }
 
 // createTempCoverageFile creates a coverage file for a CLI command under $TMPDIR.
