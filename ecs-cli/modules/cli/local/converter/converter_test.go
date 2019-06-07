@@ -59,36 +59,43 @@ func TestConvertToComposeService(t *testing.T) {
 	expectedEnvironment := map[string]*string{
 		"rails_env": aws.String("development"),
 	}
-	expectedExtraHosts := []string{"somehost:162.242.195.82","otherhost:50.31.209.229"}
+	expectedExtraHosts := []string{"somehost:162.242.195.82", "otherhost:50.31.209.229"}
 	expectedHealthCheck := &composeV3.HealthCheckConfig{
 		Test: []string{"CMD-SHELL", "echo hello"},
 	}
-	expectedLabels := composeV3.Labels{ "foo": "bar" }
+	expectedLabels := composeV3.Labels{"foo": "bar"}
 	expectedLogging := &composeV3.LoggingConfig{
 		Driver: "awslogs",
 		Options: map[string]string{
-			"awslogs-group" : "/ecs/fargate-task-definition",
-			"awslogs-region": "us-east-1",
+			"awslogs-group":         "/ecs/fargate-task-definition",
+			"awslogs-region":        "us-east-1",
 			"awslogs-stream-prefix": "ecs",
+		},
+	}
+	expectedVolumes := []composeV3.ServiceVolumeConfig{
+		{
+			Target:   "/tmp/cache",
+			Source:   "volume-1",
+			ReadOnly: true,
 		},
 	}
 
 	taskDefinition := &ecs.TaskDefinition{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
-				Image: aws.String(expectedImage),
-				Name: aws.String(expectedName),
-				Command: aws.StringSlice(expectedCommand),
-				EntryPoint: aws.StringSlice(expectedEntrypoint),
-				WorkingDirectory: aws.String(expectedWorkingDir),
-				Hostname: aws.String(expectedHostname),
-				Links: aws.StringSlice(expectedLinks),
-				DnsServers: aws.StringSlice(expectedDNS),
-				DnsSearchDomains: aws.StringSlice(expectedDNSSearch),
-				User: aws.String(expectedUser),
-				DockerSecurityOptions: aws.StringSlice(expectedSecurityOpt),
-				PseudoTerminal: aws.Bool(expectedTty),
-				Privileged: aws.Bool(expectedPrivileged),
+				Image:                  aws.String(expectedImage),
+				Name:                   aws.String(expectedName),
+				Command:                aws.StringSlice(expectedCommand),
+				EntryPoint:             aws.StringSlice(expectedEntrypoint),
+				WorkingDirectory:       aws.String(expectedWorkingDir),
+				Hostname:               aws.String(expectedHostname),
+				Links:                  aws.StringSlice(expectedLinks),
+				DnsServers:             aws.StringSlice(expectedDNS),
+				DnsSearchDomains:       aws.StringSlice(expectedDNSSearch),
+				User:                   aws.String(expectedUser),
+				DockerSecurityOptions:  aws.StringSlice(expectedSecurityOpt),
+				PseudoTerminal:         aws.Bool(expectedTty),
+				Privileged:             aws.Bool(expectedPrivileged),
 				ReadonlyRootFilesystem: aws.Bool(expectedReadOnly),
 				Ulimits: []*ecs.Ulimit{
 					{
@@ -116,20 +123,27 @@ func TestConvertToComposeService(t *testing.T) {
 				HealthCheck: &ecs.HealthCheck{
 					Command: aws.StringSlice([]string{"CMD-SHELL", "echo hello"}),
 				},
-				DockerLabels: map[string]*string{ "foo": aws.String("bar") },
+				DockerLabels: map[string]*string{"foo": aws.String("bar")},
 				LogConfiguration: &ecs.LogConfiguration{
 					LogDriver: aws.String("awslogs"),
 					Options: map[string]*string{
-						"awslogs-group": aws.String("/ecs/fargate-task-definition"),
-						"awslogs-region": aws.String("us-east-1"),
+						"awslogs-group":         aws.String("/ecs/fargate-task-definition"),
+						"awslogs-region":        aws.String("us-east-1"),
 						"awslogs-stream-prefix": aws.String("ecs"),
+					},
+				},
+				MountPoints: []*ecs.MountPoint{
+					{
+						ContainerPath: aws.String("/tmp/cache"),
+						ReadOnly:      aws.Bool(true),
+						SourceVolume:  aws.String("volume-1"),
 					},
 				},
 				LinuxParameters: &ecs.LinuxParameters{
 					InitProcessEnabled: aws.Bool(true),
-					SharedMemorySize: aws.Int64(128),
+					SharedMemorySize:   aws.Int64(128),
 					Capabilities: &ecs.KernelCapabilities{
-						Add: aws.StringSlice(expectedCapAdd),
+						Add:  aws.StringSlice(expectedCapAdd),
 						Drop: aws.StringSlice(expectedCapDrop),
 					},
 					Devices: []*ecs.Device{
@@ -139,10 +153,10 @@ func TestConvertToComposeService(t *testing.T) {
 							Permissions:   aws.StringSlice([]string{"read"}),
 						},
 					},
-					Tmpfs:  []*ecs.Tmpfs{
+					Tmpfs: []*ecs.Tmpfs{
 						{
 							ContainerPath: aws.String("/run"),
-							MountOptions: aws.StringSlice([]string{"rw", "noexec", "nosuid"}),
+							MountOptions:  aws.StringSlice([]string{"rw", "noexec", "nosuid"}),
 							Size:          aws.Int64(64),
 						},
 					},
@@ -178,6 +192,7 @@ func TestConvertToComposeService(t *testing.T) {
 	assert.Equal(t, expectedHealthCheck, service.HealthCheck, "Expected HealthCheck to match")
 	assert.Equal(t, expectedLabels, service.Labels, "Expected Labels to match")
 	assert.Equal(t, expectedLogging, service.Logging, "Expected Logging to match")
+	assert.Equal(t, expectedVolumes, service.Volumes, "Expected Volumes to match")
 
 	// Fields from LinuxParameters
 	assert.Equal(t, composeV3.StringList(expectedTmpfs), service.Tmpfs, "Expected Tmpfs to match")
@@ -187,7 +202,6 @@ func TestConvertToComposeService(t *testing.T) {
 	assert.Equal(t, expectedCapAdd, service.CapAdd, "Expected CapAdd to match")
 	assert.Equal(t, expectedCapDrop, service.CapDrop, "Expected CapDrop to match")
 }
-
 
 func TestConvertToTmpfs(t *testing.T) {
 	expectedTmpfs := []string{
@@ -227,8 +241,8 @@ func TestConvertToTmpfs_ErrorsIfNoSize(t *testing.T) {
 func TestConvertToTmpfs_ErrorsIfNoPath(t *testing.T) {
 	input := []*ecs.Tmpfs{
 		{
-			MountOptions:  aws.StringSlice([]string{"rw", "noexec", "nosuid"}),
-			Size:          aws.Int64(1024),
+			MountOptions: aws.StringSlice([]string{"rw", "noexec", "nosuid"}),
+			Size:         aws.Int64(1024),
 		},
 	}
 
@@ -316,7 +330,7 @@ func TestConvertCapAddCapDrop(t *testing.T) {
 	dropCapabilities := []string{"KILL"}
 
 	input := &ecs.KernelCapabilities{
-		Add: aws.StringSlice(addCapabilities),
+		Add:  aws.StringSlice(addCapabilities),
 		Drop: aws.StringSlice(dropCapabilities),
 	}
 	actualCapAdd := convertCapAdd(input)
@@ -367,7 +381,7 @@ func TestConvertExtraHosts(t *testing.T) {
 		},
 	}
 
-	expected := []string{"somehost:162.242.195.82","otherhost:50.31.209.229"}
+	expected := []string{"somehost:162.242.195.82", "otherhost:50.31.209.229"}
 	actual := convertExtraHosts(input)
 
 	assert.Equal(t, expected, actual)
@@ -376,10 +390,10 @@ func TestConvertExtraHosts(t *testing.T) {
 func TestConvertHealthCheck(t *testing.T) {
 	command := []string{"CMD", "curl", "-f", "http://localhost"}
 	input := &ecs.HealthCheck{
-		Command: aws.StringSlice(command),
-		Retries: aws.Int64(3),
-		Interval: aws.Int64(90),
-		Timeout: aws.Int64(10),
+		Command:     aws.StringSlice(command),
+		Retries:     aws.Int64(3),
+		Interval:    aws.Int64(90),
+		Timeout:     aws.Int64(10),
 		StartPeriod: aws.Int64(40),
 	}
 
@@ -389,10 +403,10 @@ func TestConvertHealthCheck(t *testing.T) {
 	retries := uint64(3)
 
 	expected := &composeV3.HealthCheckConfig{
-		Test: command,
-		Retries: &retries,
-		Interval: &interval,
-		Timeout: &timeout,
+		Test:        command,
+		Retries:     &retries,
+		Interval:    &interval,
+		Timeout:     &timeout,
 		StartPeriod: &startPeriod,
 	}
 	actual := convertHealthCheck(input)
@@ -404,8 +418,8 @@ func TestConvertLogging(t *testing.T) {
 	input := &ecs.LogConfiguration{
 		LogDriver: aws.String("awslogs"),
 		Options: map[string]*string{
-			"awslogs-group": aws.String("/ecs/fargate-task-definition"),
-			"awslogs-region": aws.String("us-east-1"),
+			"awslogs-group":         aws.String("/ecs/fargate-task-definition"),
+			"awslogs-region":        aws.String("us-east-1"),
 			"awslogs-stream-prefix": aws.String("ecs"),
 		},
 	}
@@ -413,13 +427,45 @@ func TestConvertLogging(t *testing.T) {
 	expected := &composeV3.LoggingConfig{
 		Driver: "awslogs",
 		Options: map[string]string{
-			"awslogs-group" : "/ecs/fargate-task-definition",
-			"awslogs-region": "us-east-1",
+			"awslogs-group":         "/ecs/fargate-task-definition",
+			"awslogs-region":        "us-east-1",
 			"awslogs-stream-prefix": "ecs",
 		},
 	}
 
 	actual := convertLogging(input)
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestConvertToVolumes(t *testing.T) {
+	input := []*ecs.MountPoint{
+		{
+			ContainerPath: aws.String("/tmp/cache"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("volume-1"),
+		},
+		{
+			ContainerPath: aws.String("/tmp/cache2"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("volume-2"),
+		},
+	}
+
+	expected := []composeV3.ServiceVolumeConfig{
+		{
+			Target:   "/tmp/cache",
+			ReadOnly: false,
+			Source:   "volume-1",
+		},
+		{
+			Target:   "/tmp/cache2",
+			ReadOnly: false,
+			Source:   "volume-2",
+		},
+	}
+
+	actual := convertToVolumes(input)
 
 	assert.Equal(t, expected, actual)
 }

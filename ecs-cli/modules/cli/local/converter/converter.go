@@ -45,12 +45,12 @@ import (
 // LinuxParams is a shim between members of ecs.LinuxParamters and their
 // corresponding fields in the Docker Compose V3 ServiceConfig
 type LinuxParams struct {
-		CapAdd  []string
-		CapDrop []string
-		Devices []string
-		Init    *bool
-		Tmpfs   []string
-		ShmSize string
+	CapAdd  []string
+	CapDrop []string
+	Devices []string
+	Init    *bool
+	Tmpfs   []string
+	ShmSize string
 }
 
 // ConvertToDockerCompose creates the payload from an ECS Task Definition to be written as a docker compose file
@@ -65,7 +65,7 @@ func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition) ([]byte, error) 
 
 	data, err := yaml.Marshal(&composeV3.Config{
 		Filename: "docker-compose.local.yml",
-		Version: "3.0",
+		Version:  "3.0",
 		Services: services,
 		// Volumes: taskDefinition.Volumes,
 	})
@@ -92,45 +92,54 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	healthCheck := convertHealthCheck(containerDefinition.HealthCheck)
 	labels := convertDockerLabels(containerDefinition.DockerLabels)
 	logging := convertLogging(containerDefinition.LogConfiguration)
+	volumes := convertToVolumes(containerDefinition.MountPoints)
 
 	service := composeV3.ServiceConfig{
-		Name: aws.StringValue(containerDefinition.Name),
-		Image: aws.StringValue(containerDefinition.Image),
-		DNS: aws.StringValueSlice(containerDefinition.DnsServers),
-		DNSSearch: aws.StringValueSlice(containerDefinition.DnsSearchDomains),
-		Command: aws.StringValueSlice(containerDefinition.Command),
-		Entrypoint: aws.StringValueSlice(containerDefinition.EntryPoint),
-		Links: aws.StringValueSlice(containerDefinition.Links),
-		Hostname: aws.StringValue(containerDefinition.Hostname),
+		Name:        aws.StringValue(containerDefinition.Name),
+		Image:       aws.StringValue(containerDefinition.Image),
+		DNS:         aws.StringValueSlice(containerDefinition.DnsServers),
+		DNSSearch:   aws.StringValueSlice(containerDefinition.DnsSearchDomains),
+		Command:     aws.StringValueSlice(containerDefinition.Command),
+		Entrypoint:  aws.StringValueSlice(containerDefinition.EntryPoint),
+		Links:       aws.StringValueSlice(containerDefinition.Links),
+		Hostname:    aws.StringValue(containerDefinition.Hostname),
 		SecurityOpt: aws.StringValueSlice(containerDefinition.DockerSecurityOptions),
-		WorkingDir: aws.StringValue(containerDefinition.WorkingDirectory),
-		User: aws.StringValue(containerDefinition.User),
-		Tty: aws.BoolValue(containerDefinition.PseudoTerminal),
-		Privileged: aws.BoolValue(containerDefinition.Privileged),
-		ReadOnly: aws.BoolValue(containerDefinition.ReadonlyRootFilesystem),
-		Ulimits: ulimits,
-		Tmpfs: tmpfs,
-		Init: init,
-		Devices: devices,
-		ShmSize: shmSize,
-		CapAdd: capAdd,
-		CapDrop: capDrop,
+		WorkingDir:  aws.StringValue(containerDefinition.WorkingDirectory),
+		User:        aws.StringValue(containerDefinition.User),
+		Tty:         aws.BoolValue(containerDefinition.PseudoTerminal),
+		Privileged:  aws.BoolValue(containerDefinition.Privileged),
+		ReadOnly:    aws.BoolValue(containerDefinition.ReadonlyRootFilesystem),
+		Ulimits:     ulimits,
+		Tmpfs:       tmpfs,
+		Init:        init,
+		Devices:     devices,
+		ShmSize:     shmSize,
+		CapAdd:      capAdd,
+		CapDrop:     capDrop,
 		Environment: environment,
-		ExtraHosts: extraHosts,
+		ExtraHosts:  extraHosts,
 		HealthCheck: healthCheck,
-		Labels: labels,
-		Logging: logging,
-
-		// Logging         *LoggingConfig                   `yaml:",omitempty"`
-// type LoggingConfig struct {
-// }
-
-		// Volumes         []ServiceVolumeConfig            `yaml:",omitempty"`
+		Labels:      labels,
+		Logging:     logging,
+		Volumes:     volumes,
 	}
 
-
-	// fmt.Printf("\nCOMPOSE SERVICE: %+v\n\n", service)
 	return service, nil
+}
+
+func convertToVolumes(mountPoints []*ecs.MountPoint) []composeV3.ServiceVolumeConfig {
+	out := []composeV3.ServiceVolumeConfig{}
+
+	for _, mountPoint := range mountPoints {
+		volume := composeV3.ServiceVolumeConfig{
+			Source:   aws.StringValue(mountPoint.SourceVolume),
+			Target:   aws.StringValue(mountPoint.ContainerPath),
+			ReadOnly: aws.BoolValue(mountPoint.ReadOnly),
+		}
+		out = append(out, volume)
+	}
+
+	return out
 }
 
 func convertLogging(logConfig *ecs.LogConfiguration) *composeV3.LoggingConfig {
@@ -144,7 +153,7 @@ func convertLogging(logConfig *ecs.LogConfiguration) *composeV3.LoggingConfig {
 	}
 
 	out := &composeV3.LoggingConfig{
-		Driver: driver,
+		Driver:  driver,
 		Options: opts,
 	}
 	return out
@@ -222,12 +231,12 @@ func convertLinuxParameters(params *ecs.LinuxParameters) LinuxParams {
 	capAdd := convertCapAdd(params.Capabilities)
 	capDrop := convertCapDrop(params.Capabilities)
 
-	return LinuxParams {
-		Tmpfs: tmpfs,
-		Init: init,
+	return LinuxParams{
+		Tmpfs:   tmpfs,
+		Init:    init,
 		Devices: devices,
 		ShmSize: shmSize,
-		CapAdd: capAdd,
+		CapAdd:  capAdd,
 		CapDrop: capDrop,
 	}
 }
@@ -287,7 +296,6 @@ func convertDevices(devices []*ecs.Device) ([]string, error) {
 	return out, nil
 }
 
-
 func convertToTmpfs(mounts []*ecs.Tmpfs) ([]string, error) {
 	out := []string{}
 
@@ -329,10 +337,9 @@ func convertUlimits(ulimits []*ecs.Ulimit) (map[string]*composeV3.UlimitsConfig,
 	return out, nil
 }
 
-
 func convertDevicePermissions(permissions []string) (string, error) {
 	devicePermissions := map[string]string{
-		"read": "r",
+		"read":  "r",
 		"write": "w",
 		"mknod": "m",
 	}
