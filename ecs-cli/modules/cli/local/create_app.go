@@ -51,7 +51,6 @@ func createLocal(c *cli.Context) error {
 	// Read task definition (from file or ARN)
 	// returns ecs.TaskDefinition
 	taskDefinition, err := readTaskDefinition(c)
-	fmt.Printf("TASK DEF THAT I READ: %+v\n", taskDefinition)
 	if err != nil {
 		return err
 	}
@@ -129,7 +128,6 @@ func readTaskDefinition(c *cli.Context) (*ecs.TaskDefinition, error) {
 }
 
 func convertLocal(taskDefinition *ecs.TaskDefinition) ([]byte, error) {
-	// data := []byte("taskDefinition")
 	data, err := converter.ConvertToDockerCompose(taskDefinition)
 	if err != nil {
 		return nil, err

@@ -30,10 +30,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// TODO wrap compose type?
-// type Compose struct {
-// }
-
 // type Config struct {
 // 	Filename string `yaml:"-"`
 // 	Version  string
@@ -90,6 +86,7 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	capDrop := linuxParams.CapDrop
 
 	ulimits, _ := convertUlimits(containerDefinition.Ulimits)
+	fmt.Printf("ULIMIT OUTPUT: %+v\n\n", ulimits)
 	environment := convertEnvironment(containerDefinition.Environment)
 
 	service := composeV3.ServiceConfig{
@@ -124,9 +121,12 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	}
 
 
-	fmt.Printf("\nCOMPOSE SERVICE: %+v\n\n", service)
+	// fmt.Printf("\nCOMPOSE SERVICE: %+v\n\n", service)
 	return service, nil
 }
+
+// func convertExtraHosts(hosts []*ecs.HostEntry) []string {
+// }
 
 func convertEnvironment(env []*ecs.KeyValuePair) map[string]*string {
 	out := make(map[string]*string)
@@ -162,12 +162,7 @@ func convertCapAdd(capabilities *ecs.KernelCapabilities) []string {
 	if capabilities == nil {
 		return nil
 	}
-
 	addCapabilities := capabilities.Add
-
-	if len(addCapabilities) == 0 {
-		return nil
-	}
 
 	return aws.StringValueSlice(addCapabilities)
 }
@@ -176,12 +171,7 @@ func convertCapDrop(capabilities *ecs.KernelCapabilities) []string {
 	if capabilities == nil {
 		return nil
 	}
-
 	dropCapabilities := capabilities.Drop
-
-	if len(dropCapabilities) == 0 {
-		return nil
-	}
 
 	return aws.StringValueSlice(dropCapabilities)
 }
@@ -193,10 +183,6 @@ func convertShmSize(size *int64) string {
 
 // Note: This option is ignored when deploying a stack in swarm mode with a (version 3) Compose file.
 func convertDevices(devices []*ecs.Device) ([]string, error) {
-	if len(devices) == 0 {
-		return nil, nil
-	}
-
 	out := []string{}
 
 	for _, device := range devices {
@@ -229,10 +215,6 @@ func convertDevices(devices []*ecs.Device) ([]string, error) {
 
 
 func convertToTmpfs(mounts []*ecs.Tmpfs) ([]string, error) {
-	if len(mounts) == 0 {
-		return nil, nil
-	}
-
 	out := []string{}
 
 	for _, mount := range mounts {
@@ -261,10 +243,6 @@ func convertToTmpfs(mounts []*ecs.Tmpfs) ([]string, error) {
 }
 
 func convertUlimits(ulimits []*ecs.Ulimit) (map[string]*composeV3.UlimitsConfig, error) {
-	if len(ulimits) == 0 {
-		return nil, nil
-	}
-
 	out := make(map[string]*composeV3.UlimitsConfig)
 
 	for _, ulimit := range ulimits {
