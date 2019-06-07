@@ -63,6 +63,7 @@ func TestConvertToComposeService(t *testing.T) {
 	expectedHealthCheck := &composeV3.HealthCheckConfig{
 		Test: []string{"CMD-SHELL", "echo hello"},
 	}
+	expectedLabels := composeV3.Labels{ "foo": "bar" }
 
 	taskDefinition := &ecs.TaskDefinition{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
@@ -107,6 +108,7 @@ func TestConvertToComposeService(t *testing.T) {
 				HealthCheck: &ecs.HealthCheck{
 					Command: aws.StringSlice([]string{"CMD-SHELL", "echo hello"}),
 				},
+				DockerLabels: map[string]*string{ "foo": aws.String("bar") },
 				LinuxParameters: &ecs.LinuxParameters{
 					InitProcessEnabled: aws.Bool(true),
 					SharedMemorySize: aws.Int64(128),
@@ -158,6 +160,7 @@ func TestConvertToComposeService(t *testing.T) {
 	assert.Equal(t, composeV3.MappingWithEquals(expectedEnvironment), service.Environment, "Expected Environment to match")
 	assert.Equal(t, composeV3.HostsList(expectedExtraHosts), service.ExtraHosts, "Expected ExtraHosts to match")
 	assert.Equal(t, expectedHealthCheck, service.HealthCheck, "Expected HealthCheck to match")
+	assert.Equal(t, expectedLabels, service.Labels, "Expected Labels to match")
 
 	// Fields from LinuxParameters
 	assert.Equal(t, composeV3.StringList(expectedTmpfs), service.Tmpfs, "Expected Tmpfs to match")
@@ -304,6 +307,19 @@ func TestConvertCapAddCapDrop(t *testing.T) {
 
 	assert.ElementsMatch(t, addCapabilities, actualCapAdd)
 	assert.ElementsMatch(t, dropCapabilities, actualCapDrop)
+}
+
+func TestConvertDockerLabels(t *testing.T) {
+	input := map[string]*string{
+		"foo": aws.String("bar"),
+	}
+
+	expected := composeV3.Labels{
+		"foo": "bar",
+	}
+	actual := convertDockerLabels(input)
+
+	assert.Equal(t, expected, actual)
 }
 
 func TestConvertEnvironment(t *testing.T) {
