@@ -64,6 +64,14 @@ func TestConvertToComposeService(t *testing.T) {
 		Test: []string{"CMD-SHELL", "echo hello"},
 	}
 	expectedLabels := composeV3.Labels{ "foo": "bar" }
+	expectedLogging := &composeV3.LoggingConfig{
+		Driver: "awslogs",
+		Options: map[string]string{
+			"awslogs-group" : "/ecs/fargate-task-definition",
+			"awslogs-region": "us-east-1",
+			"awslogs-stream-prefix": "ecs",
+		},
+	}
 
 	taskDefinition := &ecs.TaskDefinition{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
@@ -109,6 +117,14 @@ func TestConvertToComposeService(t *testing.T) {
 					Command: aws.StringSlice([]string{"CMD-SHELL", "echo hello"}),
 				},
 				DockerLabels: map[string]*string{ "foo": aws.String("bar") },
+				LogConfiguration: &ecs.LogConfiguration{
+					LogDriver: aws.String("awslogs"),
+					Options: map[string]*string{
+						"awslogs-group": aws.String("/ecs/fargate-task-definition"),
+						"awslogs-region": aws.String("us-east-1"),
+						"awslogs-stream-prefix": aws.String("ecs"),
+					},
+				},
 				LinuxParameters: &ecs.LinuxParameters{
 					InitProcessEnabled: aws.Bool(true),
 					SharedMemorySize: aws.Int64(128),
@@ -161,6 +177,7 @@ func TestConvertToComposeService(t *testing.T) {
 	assert.Equal(t, composeV3.HostsList(expectedExtraHosts), service.ExtraHosts, "Expected ExtraHosts to match")
 	assert.Equal(t, expectedHealthCheck, service.HealthCheck, "Expected HealthCheck to match")
 	assert.Equal(t, expectedLabels, service.Labels, "Expected Labels to match")
+	assert.Equal(t, expectedLogging, service.Logging, "Expected Logging to match")
 
 	// Fields from LinuxParameters
 	assert.Equal(t, composeV3.StringList(expectedTmpfs), service.Tmpfs, "Expected Tmpfs to match")
@@ -355,6 +372,7 @@ func TestConvertExtraHosts(t *testing.T) {
 
 	assert.Equal(t, expected, actual)
 }
+
 func TestConvertHealthCheck(t *testing.T) {
 	command := []string{"CMD", "curl", "-f", "http://localhost"}
 	input := &ecs.HealthCheck{
@@ -378,6 +396,30 @@ func TestConvertHealthCheck(t *testing.T) {
 		StartPeriod: &startPeriod,
 	}
 	actual := convertHealthCheck(input)
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestConvertLogging(t *testing.T) {
+	input := &ecs.LogConfiguration{
+		LogDriver: aws.String("awslogs"),
+		Options: map[string]*string{
+			"awslogs-group": aws.String("/ecs/fargate-task-definition"),
+			"awslogs-region": aws.String("us-east-1"),
+			"awslogs-stream-prefix": aws.String("ecs"),
+		},
+	}
+
+	expected := &composeV3.LoggingConfig{
+		Driver: "awslogs",
+		Options: map[string]string{
+			"awslogs-group" : "/ecs/fargate-task-definition",
+			"awslogs-region": "us-east-1",
+			"awslogs-stream-prefix": "ecs",
+		},
+	}
+
+	actual := convertLogging(input)
 
 	assert.Equal(t, expected, actual)
 }

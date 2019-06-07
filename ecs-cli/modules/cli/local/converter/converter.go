@@ -91,6 +91,7 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	extraHosts := convertExtraHosts(containerDefinition.ExtraHosts)
 	healthCheck := convertHealthCheck(containerDefinition.HealthCheck)
 	labels := convertDockerLabels(containerDefinition.DockerLabels)
+	logging := convertLogging(containerDefinition.LogConfiguration)
 
 	service := composeV3.ServiceConfig{
 		Name: aws.StringValue(containerDefinition.Name),
@@ -118,15 +119,35 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 		ExtraHosts: extraHosts,
 		HealthCheck: healthCheck,
 		Labels: labels,
+		Logging: logging,
 
-		// Labels          Labels                           `yaml:",omitempty"`
 		// Logging         *LoggingConfig                   `yaml:",omitempty"`
+// type LoggingConfig struct {
+// }
+
 		// Volumes         []ServiceVolumeConfig            `yaml:",omitempty"`
 	}
 
 
 	// fmt.Printf("\nCOMPOSE SERVICE: %+v\n\n", service)
 	return service, nil
+}
+
+func convertLogging(logConfig *ecs.LogConfiguration) *composeV3.LoggingConfig {
+	if logConfig == nil {
+		return nil
+	}
+	driver := aws.StringValue(logConfig.LogDriver)
+	opts := make(map[string]string)
+	for k, v := range logConfig.Options {
+		opts[k] = aws.StringValue(v)
+	}
+
+	out := &composeV3.LoggingConfig{
+		Driver: driver,
+		Options: opts,
+	}
+	return out
 }
 
 func convertDockerLabels(labels map[string]*string) composeV3.Labels {
