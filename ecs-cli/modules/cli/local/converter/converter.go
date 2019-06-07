@@ -18,9 +18,10 @@
 package converter
 
 import (
+	"errors"
 	"fmt"
 	"strings"
-	"errors"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -88,6 +89,7 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	ulimits, _ := convertUlimits(containerDefinition.Ulimits)
 	environment := convertEnvironment(containerDefinition.Environment)
 	extraHosts := convertExtraHosts(containerDefinition.ExtraHosts)
+	healthCheck := convertHealthCheck(containerDefinition.HealthCheck)
 
 	service := composeV3.ServiceConfig{
 		Name: aws.StringValue(containerDefinition.Name),
@@ -113,6 +115,7 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 		CapDrop: capDrop,
 		Environment: environment,
 		ExtraHosts: extraHosts,
+		HealthCheck: healthCheck,
 
 		// HealthCheck     *HealthCheckConfig               `yaml:",omitempty"`
 		// Labels          Labels                           `yaml:",omitempty"`
@@ -123,6 +126,35 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 
 	// fmt.Printf("\nCOMPOSE SERVICE: %+v\n\n", service)
 	return service, nil
+}
+
+func convertHealthCheck(healthCheck *ecs.HealthCheck) *composeV3.HealthCheckConfig {
+	if healthCheck == nil {
+		return nil
+	}
+	command := aws.StringValueSlice(healthCheck.Command)
+
+	out := &composeV3.HealthCheckConfig{
+		Test: command,
+	}
+	if healthCheck.Interval != nil {
+		interval := time.Duration(aws.Int64Value(healthCheck.Interval)) * time.Second
+		out.Interval = &interval
+	}
+	if healthCheck.Timeout != nil {
+		timeout := time.Duration(aws.Int64Value(healthCheck.Timeout)) * time.Second
+		out.Timeout = &timeout
+	}
+	if healthCheck.Retries != nil {
+		retries := uint64(aws.Int64Value(healthCheck.Retries))
+		out.Retries = &retries
+	}
+	if healthCheck.StartPeriod != nil {
+		startPeriod := time.Duration(aws.Int64Value(healthCheck.StartPeriod)) * time.Second
+		out.StartPeriod = &startPeriod
+	}
+
+	return out
 }
 
 func convertExtraHosts(hosts []*ecs.HostEntry) []string {

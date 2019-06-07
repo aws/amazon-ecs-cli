@@ -19,6 +19,7 @@ package converter
 
 import (
 	"testing"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -58,7 +59,10 @@ func TestConvertToComposeService(t *testing.T) {
 	expectedEnvironment := map[string]*string{
 		"rails_env": aws.String("development"),
 	}
-	expectedExtraHosts:= []string{"somehost:162.242.195.82","otherhost:50.31.209.229"}
+	expectedExtraHosts := []string{"somehost:162.242.195.82","otherhost:50.31.209.229"}
+	expectedHealthCheck := &composeV3.HealthCheckConfig{
+		Test: []string{"CMD-SHELL", "echo hello"},
+	}
 
 	taskDefinition := &ecs.TaskDefinition{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
@@ -99,6 +103,9 @@ func TestConvertToComposeService(t *testing.T) {
 						Hostname:  aws.String("otherhost"),
 						IpAddress: aws.String("50.31.209.229"),
 					},
+				},
+				HealthCheck: &ecs.HealthCheck{
+					Command: aws.StringSlice([]string{"CMD-SHELL", "echo hello"}),
 				},
 				LinuxParameters: &ecs.LinuxParameters{
 					InitProcessEnabled: aws.Bool(true),
@@ -150,6 +157,7 @@ func TestConvertToComposeService(t *testing.T) {
 	assert.Equal(t, expectedUlimits, service.Ulimits, "Expected Ulimits to match")
 	assert.Equal(t, composeV3.MappingWithEquals(expectedEnvironment), service.Environment, "Expected Environment to match")
 	assert.Equal(t, composeV3.HostsList(expectedExtraHosts), service.ExtraHosts, "Expected ExtraHosts to match")
+	assert.Equal(t, expectedHealthCheck, service.HealthCheck, "Expected HealthCheck to match")
 
 	// Fields from LinuxParameters
 	assert.Equal(t, composeV3.StringList(expectedTmpfs), service.Tmpfs, "Expected Tmpfs to match")
@@ -328,6 +336,32 @@ func TestConvertExtraHosts(t *testing.T) {
 
 	expected := []string{"somehost:162.242.195.82","otherhost:50.31.209.229"}
 	actual := convertExtraHosts(input)
+
+	assert.Equal(t, expected, actual)
+}
+func TestConvertHealthCheck(t *testing.T) {
+	command := []string{"CMD", "curl", "-f", "http://localhost"}
+	input := &ecs.HealthCheck{
+		Command: aws.StringSlice(command),
+		Retries: aws.Int64(3),
+		Interval: aws.Int64(90),
+		Timeout: aws.Int64(10),
+		StartPeriod: aws.Int64(40),
+	}
+
+	interval := time.Duration(90) * time.Second
+	timeout := time.Duration(10) * time.Second
+	startPeriod := time.Duration(40) * time.Second
+	retries := uint64(3)
+
+	expected := &composeV3.HealthCheckConfig{
+		Test: command,
+		Retries: &retries,
+		Interval: &interval,
+		Timeout: &timeout,
+		StartPeriod: &startPeriod,
+	}
+	actual := convertHealthCheck(input)
 
 	assert.Equal(t, expected, actual)
 }
