@@ -86,8 +86,8 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	capDrop := linuxParams.CapDrop
 
 	ulimits, _ := convertUlimits(containerDefinition.Ulimits)
-	fmt.Printf("ULIMIT OUTPUT: %+v\n\n", ulimits)
 	environment := convertEnvironment(containerDefinition.Environment)
+	extraHosts := convertExtraHosts(containerDefinition.ExtraHosts)
 
 	service := composeV3.ServiceConfig{
 		Name: aws.StringValue(containerDefinition.Name),
@@ -112,8 +112,8 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 		CapAdd: capAdd,
 		CapDrop: capDrop,
 		Environment: environment,
+		ExtraHosts: extraHosts,
 
-		// ExtraHosts      HostsList                        `mapstructure:"extra_hosts" yaml:"extra_hosts,omitempty"`
 		// HealthCheck     *HealthCheckConfig               `yaml:",omitempty"`
 		// Labels          Labels                           `yaml:",omitempty"`
 		// Logging         *LoggingConfig                   `yaml:",omitempty"`
@@ -125,8 +125,18 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	return service, nil
 }
 
-// func convertExtraHosts(hosts []*ecs.HostEntry) []string {
-// }
+func convertExtraHosts(hosts []*ecs.HostEntry) []string {
+	out := []string{}
+
+	for _, hostEntry := range hosts {
+		host := aws.StringValue(hostEntry.Hostname)
+		ip := aws.StringValue(hostEntry.IpAddress)
+		extraHost := strings.Join([]string{host, ip}, ":")
+		out = append(out, extraHost)
+	}
+
+	return out
+}
 
 func convertEnvironment(env []*ecs.KeyValuePair) map[string]*string {
 	out := make(map[string]*string)

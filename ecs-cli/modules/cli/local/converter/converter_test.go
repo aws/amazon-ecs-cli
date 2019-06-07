@@ -58,6 +58,7 @@ func TestConvertToComposeService(t *testing.T) {
 	expectedEnvironment := map[string]*string{
 		"rails_env": aws.String("development"),
 	}
+	expectedExtraHosts:= []string{"somehost:162.242.195.82","otherhost:50.31.209.229"}
 
 	taskDefinition := &ecs.TaskDefinition{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
@@ -87,6 +88,16 @@ func TestConvertToComposeService(t *testing.T) {
 					{
 						Name:  aws.String("rails_env"),
 						Value: aws.String("development"),
+					},
+				},
+				ExtraHosts: []*ecs.HostEntry{
+					{
+						Hostname:  aws.String("somehost"),
+						IpAddress: aws.String("162.242.195.82"),
+					},
+					{
+						Hostname:  aws.String("otherhost"),
+						IpAddress: aws.String("50.31.209.229"),
 					},
 				},
 				LinuxParameters: &ecs.LinuxParameters{
@@ -138,6 +149,7 @@ func TestConvertToComposeService(t *testing.T) {
 	assert.Equal(t, expectedReadOnly, service.ReadOnly, "Expected ReadOnly to match")
 	assert.Equal(t, expectedUlimits, service.Ulimits, "Expected Ulimits to match")
 	assert.Equal(t, composeV3.MappingWithEquals(expectedEnvironment), service.Environment, "Expected Environment to match")
+	assert.Equal(t, composeV3.HostsList(expectedExtraHosts), service.ExtraHosts, "Expected ExtraHosts to match")
 
 	// Fields from LinuxParameters
 	assert.Equal(t, composeV3.StringList(expectedTmpfs), service.Tmpfs, "Expected Tmpfs to match")
@@ -302,3 +314,20 @@ func TestConvertEnvironment(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
+func TestConvertExtraHosts(t *testing.T) {
+	input := []*ecs.HostEntry{
+		{
+			Hostname:  aws.String("somehost"),
+			IpAddress: aws.String("162.242.195.82"),
+		},
+		{
+			Hostname:  aws.String("otherhost"),
+			IpAddress: aws.String("50.31.209.229"),
+		},
+	}
+
+	expected := []string{"somehost:162.242.195.82","otherhost:50.31.209.229"}
+	actual := convertExtraHosts(input)
+
+	assert.Equal(t, expected, actual)
+}
