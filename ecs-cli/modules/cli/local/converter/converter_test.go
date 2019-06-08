@@ -87,6 +87,10 @@ func TestConvertToComposeService(t *testing.T) {
 			Protocol: "tcp",
 		},
 	}
+	expectedSysctls := []string{
+		"net.core.somaxconn=1024",
+		"net.ipv4.tcp_syncookies=0",
+	}
 
 	taskDefinition := &ecs.TaskDefinition{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
@@ -155,6 +159,16 @@ func TestConvertToComposeService(t *testing.T) {
 						Protocol:      aws.String("tcp"),
 					},
 				},
+				SystemControls: []*ecs.SystemControl{
+					{
+						Namespace: aws.String("net.core.somaxconn"),
+						Value: aws.String("1024"),
+					},
+					{
+						Namespace: aws.String("net.ipv4.tcp_syncookies"),
+						Value: aws.String("0"),
+					},
+				},
 				LinuxParameters: &ecs.LinuxParameters{
 					InitProcessEnabled: aws.Bool(true),
 					SharedMemorySize:   aws.Int64(128),
@@ -211,6 +225,7 @@ func TestConvertToComposeService(t *testing.T) {
 	assert.Equal(t, expectedLogging, service.Logging, "Expected Logging to match")
 	assert.Equal(t, expectedVolumes, service.Volumes, "Expected Volumes to match")
 	assert.Equal(t, expectedPorts, service.Ports, "Expected Ports to match")
+	assert.Equal(t, composeV3.StringList(expectedSysctls), service.Sysctls, "Expected Sysctls to match")
 
 	// Fields from LinuxParameters
 	assert.Equal(t, composeV3.StringList(expectedTmpfs), service.Tmpfs, "Expected Tmpfs to match")
@@ -506,6 +521,28 @@ func TestConvertToPorts(t *testing.T) {
 	}
 
 	actual := convertToPorts(input)
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestConvertToSysctls(t *testing.T) {
+	input := []*ecs.SystemControl{
+		{
+			Namespace: aws.String("net.core.somaxconn"),
+			Value: aws.String("1024"),
+		},
+		{
+			Namespace: aws.String("net.ipv4.tcp_syncookies"),
+			Value: aws.String("0"),
+		},
+	}
+
+	expected := []string{
+		"net.core.somaxconn=1024",
+		"net.ipv4.tcp_syncookies=0",
+	}
+
+	actual := convertToSysctls(input)
 
 	assert.Equal(t, expected, actual)
 }

@@ -97,6 +97,7 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	logging := convertLogging(containerDefinition.LogConfiguration)
 	volumes := convertToVolumes(containerDefinition.MountPoints)
 	ports := convertToPorts(containerDefinition.PortMappings)
+	sysctls := convertToSysctls(containerDefinition.SystemControls)
 
 	service := composeV3.ServiceConfig{
 		Name:        aws.StringValue(containerDefinition.Name),
@@ -128,9 +129,23 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 		Logging:     logging,
 		Volumes:     volumes,
 		Ports:       ports,
+		Sysctls:     sysctls,
 	}
 
 	return service, nil
+}
+
+func convertToSysctls(systemControls []*ecs.SystemControl) []string {
+	out := []string{}
+
+	for _, sc := range systemControls {
+		namespace := aws.StringValue(sc.Namespace)
+		value := aws.StringValue(sc.Value)
+		sysctl := fmt.Sprintf("%s=%s", namespace, value)
+		out = append(out, sysctl)
+	}
+
+	return out
 }
 
 func convertToPorts(portMappings []*ecs.PortMapping) []composeV3.ServicePortConfig {
