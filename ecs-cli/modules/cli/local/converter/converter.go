@@ -110,6 +110,7 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 		SecurityOpt: aws.StringValueSlice(containerDefinition.DockerSecurityOptions),
 		WorkingDir:  aws.StringValue(containerDefinition.WorkingDirectory),
 		User:        aws.StringValue(containerDefinition.User),
+		StdinOpen:   aws.BoolValue(containerDefinition.Interactive),
 		Tty:         aws.BoolValue(containerDefinition.PseudoTerminal),
 		Privileged:  aws.BoolValue(containerDefinition.Privileged),
 		ReadOnly:    aws.BoolValue(containerDefinition.ReadonlyRootFilesystem),

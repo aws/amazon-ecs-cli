@@ -44,6 +44,7 @@ func TestConvertToComposeService(t *testing.T) {
 	expectedTty := true
 	expectedPrivileged := true
 	expectedReadOnly := true
+	expectedStdinOpen := true
 	expectedUlimits := map[string]*composeV3.UlimitsConfig{
 		"nofile": &composeV3.UlimitsConfig{
 			Soft: 2000,
@@ -103,6 +104,7 @@ func TestConvertToComposeService(t *testing.T) {
 				DockerSecurityOptions:  aws.StringSlice(expectedSecurityOpt),
 				PseudoTerminal:         aws.Bool(expectedTty),
 				Privileged:             aws.Bool(expectedPrivileged),
+				Interactive:            aws.Bool(expectedStdinOpen),
 				ReadonlyRootFilesystem: aws.Bool(expectedReadOnly),
 				Ulimits: []*ecs.Ulimit{
 					{
@@ -199,6 +201,7 @@ func TestConvertToComposeService(t *testing.T) {
 	assert.Equal(t, expectedSecurityOpt, service.SecurityOpt, "Expected SecurityOpt to match")
 	assert.Equal(t, expectedTty, service.Tty, "Expected Tty to match")
 	assert.Equal(t, expectedPrivileged, service.Privileged, "Expected Privileged to match")
+	assert.Equal(t, expectedStdinOpen, service.StdinOpen, "Expected StdinOpen to match")
 	assert.Equal(t, expectedReadOnly, service.ReadOnly, "Expected ReadOnly to match")
 	assert.Equal(t, expectedUlimits, service.Ulimits, "Expected Ulimits to match")
 	assert.Equal(t, composeV3.MappingWithEquals(expectedEnvironment), service.Environment, "Expected Environment to match")
