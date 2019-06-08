@@ -77,6 +77,9 @@ func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition) ([]byte, error) 
 	return data, nil
 }
 
+// TODO convert top level volumes
+// TODO convert top level Neworks
+
 func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (composeV3.ServiceConfig, error) {
 	linuxParams := convertLinuxParameters(containerDefinition.LinuxParameters)
 	tmpfs := linuxParams.Tmpfs
@@ -93,6 +96,7 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	labels := convertDockerLabels(containerDefinition.DockerLabels)
 	logging := convertLogging(containerDefinition.LogConfiguration)
 	volumes := convertToVolumes(containerDefinition.MountPoints)
+	ports := convertToPorts(containerDefinition.PortMappings)
 
 	service := composeV3.ServiceConfig{
 		Name:        aws.StringValue(containerDefinition.Name),
@@ -122,9 +126,26 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 		Labels:      labels,
 		Logging:     logging,
 		Volumes:     volumes,
+		Ports:       ports,
 	}
 
 	return service, nil
+}
+
+func convertToPorts(portMappings []*ecs.PortMapping) []composeV3.ServicePortConfig {
+	out := []composeV3.ServicePortConfig{}
+
+	for _, portMapping := range portMappings {
+		port := composeV3.ServicePortConfig{
+			Published: uint32(aws.Int64Value(portMapping.HostPort)),
+			Target: uint32(aws.Int64Value(portMapping.ContainerPort)),
+			Protocol: aws.StringValue(portMapping.Protocol),
+			// Mode: "host"
+		}
+		out = append(out, port)
+	}
+
+	return out
 }
 
 func convertToVolumes(mountPoints []*ecs.MountPoint) []composeV3.ServiceVolumeConfig {

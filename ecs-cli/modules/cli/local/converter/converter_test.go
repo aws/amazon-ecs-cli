@@ -79,6 +79,13 @@ func TestConvertToComposeService(t *testing.T) {
 			ReadOnly: true,
 		},
 	}
+	expectedPorts := []composeV3.ServicePortConfig{
+		{
+			Target: uint32(3000),
+			Published: uint32(80),
+			Protocol: "tcp",
+		},
+	}
 
 	taskDefinition := &ecs.TaskDefinition{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
@@ -139,6 +146,13 @@ func TestConvertToComposeService(t *testing.T) {
 						SourceVolume:  aws.String("volume-1"),
 					},
 				},
+				PortMappings: []*ecs.PortMapping{
+					{
+						ContainerPort: aws.Int64(3000),
+						HostPort:      aws.Int64(80),
+						Protocol:      aws.String("tcp"),
+					},
+				},
 				LinuxParameters: &ecs.LinuxParameters{
 					InitProcessEnabled: aws.Bool(true),
 					SharedMemorySize:   aws.Int64(128),
@@ -193,6 +207,7 @@ func TestConvertToComposeService(t *testing.T) {
 	assert.Equal(t, expectedLabels, service.Labels, "Expected Labels to match")
 	assert.Equal(t, expectedLogging, service.Logging, "Expected Logging to match")
 	assert.Equal(t, expectedVolumes, service.Volumes, "Expected Volumes to match")
+	assert.Equal(t, expectedPorts, service.Ports, "Expected Ports to match")
 
 	// Fields from LinuxParameters
 	assert.Equal(t, composeV3.StringList(expectedTmpfs), service.Tmpfs, "Expected Tmpfs to match")
@@ -466,6 +481,28 @@ func TestConvertToVolumes(t *testing.T) {
 	}
 
 	actual := convertToVolumes(input)
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestConvertToPorts(t *testing.T) {
+	input := []*ecs.PortMapping{
+		{
+			ContainerPort: aws.Int64(3000),
+			Protocol: aws.String("tcp"),
+			HostPort: aws.Int64(80),
+		},
+	}
+
+	expected := []composeV3.ServicePortConfig{
+		{
+			Target: uint32(3000),
+			Published: uint32(80),
+			Protocol: "tcp",
+		},
+	}
+
+	actual := convertToPorts(input)
 
 	assert.Equal(t, expected, actual)
 }
