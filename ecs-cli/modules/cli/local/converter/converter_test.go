@@ -397,7 +397,7 @@ func TestConvertEnvironment(t *testing.T) {
 	expected := map[string]*string{
 		"rails_env": aws.String("development"),
 	}
-	actual := convertEnvironment(input)
+	actual := convertEnvironment(input, nil)
 
 	assert.Equal(t, expected, actual)
 }
@@ -545,4 +545,15 @@ func TestConvertToSysctls(t *testing.T) {
 	actual := convertToSysctls(input)
 
 	assert.Equal(t, expected, actual)
+}
+
+func TestGetContainerSecret(t *testing.T) {
+	secretsManagerArn := "arn:aws:secretsmanager:us-west-2:01234567:secret:mySecretSecret"
+	ssmArn := "arn:aws:ssm:us-west-2:01234567:parameter/mySecretParameter"
+
+	actual, _ := getContainerSecret(secretsManagerArn)
+	assert.Equal(t, "secretsmanager", actual)
+
+	actual, _ = getContainerSecret(ssmArn)
+	assert.Equal(t, "ssm", actual)
 }

@@ -24,10 +24,14 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/aws/aws-sdk-go/service/secretsmanager"
+	"github.com/aws/aws-sdk-go/service/ssm"
 
 	composeV3 "github.com/docker/cli/cli/compose/types"
 	"github.com/docker/go-units"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
 
@@ -90,7 +94,7 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	capDrop := linuxParams.CapDrop
 
 	ulimits, _ := convertUlimits(containerDefinition.Ulimits)
-	environment := convertEnvironment(containerDefinition.Environment)
+	environment := convertEnvironment(containerDefinition.Environment, containerDefinition.Secrets)
 	extraHosts := convertExtraHosts(containerDefinition.ExtraHosts)
 	healthCheck := convertHealthCheck(containerDefinition.HealthCheck)
 	labels := convertDockerLabels(containerDefinition.DockerLabels)
@@ -248,12 +252,43 @@ func convertExtraHosts(hosts []*ecs.HostEntry) []string {
 	return out
 }
 
-func convertEnvironment(env []*ecs.KeyValuePair) map[string]*string {
+func convertEnvironment(env []*ecs.KeyValuePair, secrets []*ecs.Secret) map[string]*string {
 	out := make(map[string]*string)
 	for _, kv := range env {
-		out[aws.StringValue(kv.Name)] = kv.Value
+		name := aws.StringValue(kv.Name)
+		out[name] = kv.Value
 	}
+
+	for _, secret := range secrets {
+		secretArn := aws.StringValue(secret.ValueFrom)
+		secretVal, err := getContainerSecret(secretArn) // FIXME
+		if err != nil {
+			logrus.Warnf("error retrieving value for secret: %s", secretArn)
+		} else {
+			name := aws.StringValue(secret.Name)
+			out[name] = aws.String(secretVal)
+		}
+	}
+
 	return out
+}
+
+func getContainerSecret(secretArn string) (string, error) {
+	arn, err := arn.Parse(secretArn)
+	if err != nil {
+		return "", err
+	}
+
+	// switch service := arn.Service; service {
+	switch  service {
+	case ssm.ServiceName:
+		fmt.Printf("SERVICE: %s\n", ssm.ServiceName)
+		// call SSM
+	case secretsmanager.ServiceName:
+		fmt.Printf("SERVICE: %s\n", secretsmanager.ServiceName)
+		// call SM
+	}
+	return service, nil
 }
 
 func convertLinuxParameters(params *ecs.LinuxParameters) LinuxParams {

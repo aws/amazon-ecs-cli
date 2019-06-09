@@ -94,12 +94,14 @@ func readTaskDefinitionFromArn(arn string, c *cli.Context) (*ecs.TaskDefinition,
 	if err != nil {
 		return nil, err
 	}
+
 	commandConfig, err := newCommandConfig(c, rdwr)
 	if err != nil {
 		return nil, err
 	}
 
 	ecsClient := ecsclient.NewECSClient(commandConfig)
+
 	return ecsClient.DescribeTaskDefinition(arn)
 }
 
