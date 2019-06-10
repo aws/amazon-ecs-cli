@@ -81,17 +81,13 @@ func (p *localProject) ReadTaskDefinition() error {
 		if err != nil {
 			return err
 		}
-	}
-
-	if filename != "" {
+	} else if filename != "" {
 		taskDefinition, err = p.readTaskDefinitionFromFile(filename)
 		if err != nil {
 			return err
 		}
-	}
-
+	} else if _, err := os.Stat(LocalInFileName); err == nil {
 	// Try reading local task-definition.json file by default
-	if _, err := os.Stat(LocalInFileName); err == nil {
 		taskDefinition, err = p.readTaskDefinitionFromFile(LocalInFileName)
 		if err != nil {
 			return err
