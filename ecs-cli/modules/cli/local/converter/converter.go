@@ -273,7 +273,7 @@ func convertEnvironment(env []*ecs.KeyValuePair, secrets []*ecs.Secret) map[stri
 	return out
 }
 
- // FIXME
+ // FIXME WIP
 func getContainerSecret(secretArn string) (string, error) {
 	arn, err := arn.Parse(secretArn)
 	if err != nil {
@@ -282,11 +282,11 @@ func getContainerSecret(secretArn string) (string, error) {
 
 	switch service := arn.Service; service {
 	case ssm.ServiceName:
-		fmt.Printf("SERVICE: %s\n", ssm.ServiceName)
 		// call SSM
+		return ssm.ServiceName, nil
 	case secretsmanager.ServiceName:
-		fmt.Printf("SERVICE: %s\n", secretsmanager.ServiceName)
-		// call SM
+		// call SecretsManager
+		return secretsmanager.ServiceName, nil
 	}
 	return "", nil
 }
