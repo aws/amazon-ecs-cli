@@ -57,7 +57,6 @@ func TestECSLocal(t *testing.T) {
 							"PORTS",
 							"NAMES",
 							"TASKDEFINITION",
-							"TASKFILEPATH",
 						})
 					},
 				},

@@ -140,16 +140,21 @@ func displayAsTable(containers []types.Container) {
 	w := new(tabwriter.Writer)
 
 	w.Init(os.Stdout, cellWidthInSpaces, widthBetweenCellsInSpaces, cellPaddingInSpaces, paddingCharacter, noFormatting)
-	fmt.Fprintln(w, "CONTAINER ID\tIMAGE\tSTATUS\tPORTS\tNAMES\tTASKDEFINITION\tTASKFILEPATH")
+	fmt.Fprintln(w, "CONTAINER ID\tIMAGE\tSTATUS\tPORTS\tNAMES\tTASKDEFINITION")
 	for _, container := range containers {
-		row := fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s",
+		// The ARN/Family and FilePath labels are mutually exclusive
+		taskDef := container.Labels[taskDefinitionLabelKey]
+		if container.Labels[taskFilePathLabelKey] != "" {
+			taskDef = container.Labels[taskFilePathLabelKey]
+		}
+
+		row := fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s",
 			container.ID[:maxContainerIDLength],
 			container.Image,
 			container.Status,
 			prettifyPorts(container.Ports),
 			prettifyNames(container.Names),
-			container.Labels[taskDefinitionLabelKey],
-			container.Labels[taskFilePathLabelKey])
+			taskDef)
 		fmt.Fprintln(w, row)
 	}
 	w.Flush()
