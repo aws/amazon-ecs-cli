@@ -16,7 +16,6 @@
 package localproject
 
 import (
-
 	"bufio"
 	"encoding/json"
 	"fmt"
@@ -25,17 +24,17 @@ import (
 	"strings"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/converter"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/urfave/cli"
 )
 
 const (
 	LocalOutDefaultFileName = "./docker-compose.local.yml"
-	LocalOutFileMode = os.FileMode(0644) // Owner=read/write, Other=readonly
-	LocalInFileName = "./task-definition.json"
+	LocalOutFileMode        = os.FileMode(0644) // Owner=read/write, Other=readonly
+	LocalInFileName         = "./task-definition.json"
 )
 
 type LocalProject interface {
@@ -46,14 +45,14 @@ type LocalProject interface {
 }
 
 type localProject struct {
-	context        *cli.Context
-	taskDefinition *ecs.TaskDefinition
-	localBytes     []byte
+	context          *cli.Context
+	taskDefinition   *ecs.TaskDefinition
+	localBytes       []byte
 	localOutFileName string
 }
 
 func New(context *cli.Context) LocalProject {
-	p := &localProject{ context: context }
+	p := &localProject{context: context}
 	return p
 }
 
@@ -142,7 +141,7 @@ func (p *localProject) readTaskDefinitionFromArn(arn string) (*ecs.TaskDefinitio
 	return ecsClient.DescribeTaskDefinition(arn)
 }
 
-func (p *localProject) Convert() (error) {
+func (p *localProject) Convert() error {
 	// get secrets here
 	data, err := converter.ConvertToDockerCompose(p.taskDefinition)
 
@@ -155,7 +154,7 @@ func (p *localProject) Convert() (error) {
 	return nil
 }
 
-func (p *localProject) Write() (error) {
+func (p *localProject) Write() error {
 	// Will error if the file already exists, otherwise create
 
 	outputFileName := p.context.String(flags.LocalOutputFlag)

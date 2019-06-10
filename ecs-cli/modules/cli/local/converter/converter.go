@@ -158,8 +158,8 @@ func convertToPorts(portMappings []*ecs.PortMapping) []composeV3.ServicePortConf
 	for _, portMapping := range portMappings {
 		port := composeV3.ServicePortConfig{
 			Published: uint32(aws.Int64Value(portMapping.HostPort)),
-			Target: uint32(aws.Int64Value(portMapping.ContainerPort)),
-			Protocol: aws.StringValue(portMapping.Protocol),
+			Target:    uint32(aws.Int64Value(portMapping.ContainerPort)),
+			Protocol:  aws.StringValue(portMapping.Protocol),
 			// Mode: "host"
 		}
 		out = append(out, port)
@@ -280,7 +280,7 @@ func getContainerSecret(secretArn string) (string, error) {
 	}
 
 	// switch service := arn.Service; service {
-	switch  service {
+	switch service {
 	case ssm.ServiceName:
 		fmt.Printf("SERVICE: %s\n", ssm.ServiceName)
 		// call SSM

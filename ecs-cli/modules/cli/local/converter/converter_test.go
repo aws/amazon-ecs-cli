@@ -82,9 +82,9 @@ func TestConvertToComposeService(t *testing.T) {
 	}
 	expectedPorts := []composeV3.ServicePortConfig{
 		{
-			Target: uint32(3000),
+			Target:    uint32(3000),
 			Published: uint32(80),
-			Protocol: "tcp",
+			Protocol:  "tcp",
 		},
 	}
 	expectedSysctls := []string{
@@ -162,11 +162,11 @@ func TestConvertToComposeService(t *testing.T) {
 				SystemControls: []*ecs.SystemControl{
 					{
 						Namespace: aws.String("net.core.somaxconn"),
-						Value: aws.String("1024"),
+						Value:     aws.String("1024"),
 					},
 					{
 						Namespace: aws.String("net.ipv4.tcp_syncookies"),
-						Value: aws.String("0"),
+						Value:     aws.String("0"),
 					},
 				},
 				LinuxParameters: &ecs.LinuxParameters{
@@ -507,16 +507,16 @@ func TestConvertToPorts(t *testing.T) {
 	input := []*ecs.PortMapping{
 		{
 			ContainerPort: aws.Int64(3000),
-			Protocol: aws.String("tcp"),
-			HostPort: aws.Int64(80),
+			Protocol:      aws.String("tcp"),
+			HostPort:      aws.Int64(80),
 		},
 	}
 
 	expected := []composeV3.ServicePortConfig{
 		{
-			Target: uint32(3000),
+			Target:    uint32(3000),
 			Published: uint32(80),
-			Protocol: "tcp",
+			Protocol:  "tcp",
 		},
 	}
 
@@ -529,11 +529,11 @@ func TestConvertToSysctls(t *testing.T) {
 	input := []*ecs.SystemControl{
 		{
 			Namespace: aws.String("net.core.somaxconn"),
-			Value: aws.String("1024"),
+			Value:     aws.String("1024"),
 		},
 		{
 			Namespace: aws.String("net.ipv4.tcp_syncookies"),
-			Value: aws.String("0"),
+			Value:     aws.String("0"),
 		},
 	}
 
