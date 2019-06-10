@@ -358,6 +358,13 @@ func TestConvertShmSize(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
+func TestConvertShmSize_Nil(t *testing.T) {
+	expected := ""
+	actual := convertShmSize(nil)
+
+	assert.Equal(t, expected, actual)
+}
+
 func TestConvertCapAddCapDrop(t *testing.T) {
 	addCapabilities := []string{"NET_ADMIN", "MKNOD"}
 	dropCapabilities := []string{"KILL"}

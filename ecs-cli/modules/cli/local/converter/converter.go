@@ -273,7 +273,7 @@ func convertEnvironment(env []*ecs.KeyValuePair, secrets []*ecs.Secret) map[stri
 	return out
 }
 
- // FIXME WIP
+// FIXME WIP
 func getContainerSecret(secretArn string) (string, error) {
 	arn, err := arn.Parse(secretArn)
 	if err != nil {
@@ -332,6 +332,9 @@ func convertCapDrop(capabilities *ecs.KernelCapabilities) []string {
 }
 
 func convertShmSize(size *int64) string {
+	if size == nil {
+		return ""
+	}
 	sizeInMiB := aws.Int64Value(size) * units.MiB
 	return units.BytesSize(float64(sizeInMiB))
 }
