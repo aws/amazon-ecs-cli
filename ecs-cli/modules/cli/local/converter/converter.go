@@ -261,7 +261,7 @@ func convertEnvironment(env []*ecs.KeyValuePair, secrets []*ecs.Secret) map[stri
 
 	for _, secret := range secrets {
 		secretArn := aws.StringValue(secret.ValueFrom)
-		secretVal, err := getContainerSecret(secretArn) // FIXME
+		secretVal, err := getContainerSecret(secretArn)
 		if err != nil {
 			logrus.Warnf("error retrieving value for secret: %s", secretArn)
 		} else {
@@ -273,14 +273,14 @@ func convertEnvironment(env []*ecs.KeyValuePair, secrets []*ecs.Secret) map[stri
 	return out
 }
 
+ // FIXME
 func getContainerSecret(secretArn string) (string, error) {
 	arn, err := arn.Parse(secretArn)
 	if err != nil {
 		return "", err
 	}
 
-	// switch service := arn.Service; service {
-	switch service {
+	switch service := arn.Service; service {
 	case ssm.ServiceName:
 		fmt.Printf("SERVICE: %s\n", ssm.ServiceName)
 		// call SSM
@@ -288,7 +288,7 @@ func getContainerSecret(secretArn string) (string, error) {
 		fmt.Printf("SERVICE: %s\n", secretsmanager.ServiceName)
 		// call SM
 	}
-	return service, nil
+	return "", nil
 }
 
 func convertLinuxParameters(params *ecs.LinuxParameters) LinuxParams {

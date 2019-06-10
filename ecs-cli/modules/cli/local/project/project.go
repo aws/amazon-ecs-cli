@@ -25,6 +25,7 @@ import (
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/converter"
 	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/secretsmanager"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -142,7 +143,7 @@ func (p *localProject) readTaskDefinitionFromArn(arn string) (*ecs.TaskDefinitio
 }
 
 func (p *localProject) Convert() error {
-	// get secrets here
+	// FIXME get secrets here, pass to converter?
 	data, err := converter.ConvertToDockerCompose(p.taskDefinition)
 
 	if err != nil {
@@ -191,4 +192,27 @@ func (p *localProject) Write() error {
 	_, err = out.Write(data)
 
 	return err
+}
+
+// Get secret value stored in AWS Secrets Manager
+// TODO apply to each container
+func (p *localProject) getSecret(secretName string) (string, error) {
+	rdwr, err := config.NewReadWriter()
+	if err != nil {
+		return "", err
+	}
+
+	commandConfig, err := newCommandConfig(p.context, rdwr)
+	if err != nil {
+		return "", err
+	}
+
+	client := secretsmanager.NewSecretsManagerClient(commandConfig)
+
+	secret, err := client.GetSecretValue(secretName)
+	if err != nil {
+		return "", err
+	}
+
+	return secret, nil
 }
