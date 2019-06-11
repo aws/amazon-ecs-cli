@@ -33,15 +33,11 @@ import (
 
 // TODO These labels should be defined part of the local.Create workflow.
 // Refactor to import these constants instead of re-defining them here.
+// Docker object labels associated with containers created with "ecs-cli local".
 const (
-	// ecsLocalLabelKey is the Docker object label associated with containers created with "ecs-cli local".
-	ecsLocalLabelKey = "ecsLocalTask"
-
-	// taskDefinitionLabelKey is the Docker object label present if the container was created with an ARN or task family.
-	taskDefinitionLabelKey = "ecsTaskDefinition"
-
-	// taskFilePathLabelKey is the Docker object label present if the container was created from a file.
-	taskFilePathLabelKey = "ecsTaskFilePath"
+	// taskDefinitionLabelKey represents the value of the option used to
+	// transform a task definition to a compose file e.g. file path, arn, family.
+	taskDefinitionLabelKey = "ecsLocalTaskDefinition"
 )
 
 // Table formatting settings used by the Docker CLI.
@@ -77,7 +73,7 @@ func listContainers(c *cli.Context) []types.Container {
 	}
 	// Task containers running locally all have a local label
 	return listContainersWithFilters(filters.NewArgs(
-		filters.Arg("label", ecsLocalLabelKey),
+		filters.Arg("label", taskDefinitionLabelKey),
 	))
 }
 
@@ -142,19 +138,13 @@ func displayAsTable(containers []types.Container) {
 	w.Init(os.Stdout, cellWidthInSpaces, widthBetweenCellsInSpaces, cellPaddingInSpaces, paddingCharacter, noFormatting)
 	fmt.Fprintln(w, "CONTAINER ID\tIMAGE\tSTATUS\tPORTS\tNAMES\tTASKDEFINITION")
 	for _, container := range containers {
-		// The ARN/Family and FilePath labels are mutually exclusive
-		taskDef := container.Labels[taskDefinitionLabelKey]
-		if container.Labels[taskFilePathLabelKey] != "" {
-			taskDef = container.Labels[taskFilePathLabelKey]
-		}
-
 		row := fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s",
 			container.ID[:maxContainerIDLength],
 			container.Image,
 			container.Status,
 			prettifyPorts(container.Ports),
 			prettifyNames(container.Names),
-			taskDef)
+			container.Labels[taskDefinitionLabelKey])
 		fmt.Fprintln(w, row)
 	}
 	w.Flush()
