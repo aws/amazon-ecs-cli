@@ -51,8 +51,7 @@ func Down(c *cli.Context) error {
 func downComposeLocalContainers() error {
 	wd, _ := os.Getwd()
 	if _, err := os.Stat(filepath.Join(wd, ecsLocalDockerComposeFileName)); os.IsNotExist(err) {
-		logrus.Warnf("Compose file %s does not exist in current directory", ecsLocalDockerComposeFileName)
-		return nil
+		logrus.Fatalf("Compose file %s does not exist in current directory", ecsLocalDockerComposeFileName)
 	}
 
 	logrus.Infof("Running Compose down on %s", ecsLocalDockerComposeFileName)
@@ -73,12 +72,12 @@ func downAllLocalContainers() error {
 	client := docker.NewClient()
 	containers, err := client.ContainerList(ctx, types.ContainerListOptions{
 		Filters: filters.NewArgs(
-			filters.Arg("label", ecsLocalLabelKey),
+			filters.Arg("label", taskDefinitionLabelKey),
 		),
 		All: true,
 	})
 	if err != nil {
-		logrus.Fatalf("Failed to list containers with label=%s due to %v", ecsLocalLabelKey, err)
+		logrus.Fatalf("Failed to list containers with label=%s due to %v", taskDefinitionLabelKey, err)
 	}
 	if len(containers) == 0 {
 		logrus.Warn("No running ECS local tasks found")

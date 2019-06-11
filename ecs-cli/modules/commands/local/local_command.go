@@ -78,6 +78,10 @@ func psCommand() cli.Command {
 		Action: local.Ps,
 		Flags: []cli.Flag{
 			cli.BoolFlag{
+				Name:  flags.AllFlag,
+				Usage: "Lists all running local ECS tasks.",
+			},
+			cli.BoolFlag{
 				Name:  flags.JsonFlag,
 				Usage: "Output in JSON format.",
 			},

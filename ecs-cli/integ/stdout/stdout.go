@@ -13,6 +13,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
+// Package stdout implements testing wrappers on the standard output stream.
 package stdout
 
 import (
@@ -40,7 +41,7 @@ func (b Stdout) Lines() []string {
 
 // TestHasAllSubstrings returns true if stdout contains each snippet in wantedSnippets, false otherwise.
 func (b Stdout) TestHasAllSubstrings(t *testing.T, wantedSubstrings []string) {
-	s := strings.Join(b.Lines(), "\n")
+	s := string(b)
 	for _, substring := range wantedSubstrings {
 		require.Contains(t, s, substring)
 	}
