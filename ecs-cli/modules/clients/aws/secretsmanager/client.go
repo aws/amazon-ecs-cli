@@ -106,7 +106,6 @@ func (c *secretsManagerClient) GetSecretValue(secretName string) (string, error)
 	output, err := c.client.GetSecretValue(input)
 
 	if err != nil {
-		// return nil, err
 		if aerr, ok := err.(awserr.Error); ok {
 			switch aerr.Code() {
 			case secretsmanager.ErrCodeDecryptionFailure:

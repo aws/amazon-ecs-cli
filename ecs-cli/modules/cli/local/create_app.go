@@ -23,6 +23,8 @@ import (
 	"github.com/urfave/cli"
 )
 
+// Create reads in an ECS task definition, converts and writes it to a local
+// Docker Compose file
 func Create(c *cli.Context) {
 	project := localproject.New(c)
 

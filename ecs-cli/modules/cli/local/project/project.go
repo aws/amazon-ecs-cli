@@ -38,6 +38,7 @@ const (
 	LocalInFileName         = "./task-definition.json"
 )
 
+// Interface for a local project, holding data needed to convert an ECS Task Definition to a Docker Compose file
 type LocalProject interface {
 	ReadTaskDefinition() error
 	Convert() error
@@ -52,19 +53,24 @@ type localProject struct {
 	localOutFileName string
 }
 
+// New instantiates a new Local Project
 func New(context *cli.Context) LocalProject {
 	p := &localProject{context: context}
 	return p
 }
 
+// TaskDefinition returns the ECS task definition to be converted
 func (p *localProject) TaskDefinition() *ecs.TaskDefinition {
 	return p.taskDefinition
 }
 
+// LocalOutFileName returns name of compose file output by local.Create
 func (p *localProject) LocalOutFileName() string {
 	return p.localOutFileName
 }
 
+// ReadTaskDefinition reads an ECS Task Definition either from a local file
+// or from retrieving one from ECS and stores it on the local project
 func (p *localProject) ReadTaskDefinition() error {
 	arn := p.context.String(flags.TaskDefinitionArnFlag)
 	filename := p.context.String(flags.TaskDefinitionFileFlag)
@@ -87,7 +93,7 @@ func (p *localProject) ReadTaskDefinition() error {
 			return err
 		}
 	} else if _, err := os.Stat(LocalInFileName); err == nil {
-	// Try reading local task-definition.json file by default
+		// Try reading local task-definition.json file by default
 		taskDefinition, err = p.readTaskDefinitionFromFile(LocalInFileName)
 		if err != nil {
 			return err
@@ -138,6 +144,8 @@ func (p *localProject) readTaskDefinitionFromArn(arn string) (*ecs.TaskDefinitio
 	return ecsClient.DescribeTaskDefinition(arn)
 }
 
+// Convert translates an ECS Task Definition into a Compose V3 schema and
+// stores the data on the project
 func (p *localProject) Convert() error {
 	// FIXME get secrets here, pass to converter?
 	data, err := converter.ConvertToDockerCompose(p.taskDefinition)
@@ -151,6 +159,7 @@ func (p *localProject) Convert() error {
 	return nil
 }
 
+// Write writes the compose data to a local compose file. The output filename is stored on the project
 func (p *localProject) Write() error {
 	// Will error if the file already exists, otherwise create
 
