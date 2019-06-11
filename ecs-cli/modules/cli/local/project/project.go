@@ -163,40 +163,52 @@ func (p *localProject) Convert() error {
 func (p *localProject) Write() error {
 	// Will error if the file already exists, otherwise create
 
-	outputFileName := p.context.String(flags.LocalOutputFlag)
-	if outputFileName == "" {
-		outputFileName = LocalOutDefaultFileName
+	p.localOutFileName = LocalOutDefaultFileName
+	if fileName := p.context.String(flags.LocalOutputFlag); fileName != "" {
+		p.localOutFileName = fileName
 	}
-	p.localOutFileName = outputFileName
 
-	out, err := os.OpenFile(outputFileName, os.O_WRONLY|os.O_CREATE|os.O_EXCL, LocalOutFileMode)
+	return p.writeFile()
+}
+
+func (p *localProject) writeFile() error {
+	out, err := openFile(p.localOutFileName)
 	defer out.Close()
 
-	data := p.localBytes
-
+	// File already exists
 	if err != nil {
-		fmt.Printf("%s file already exists. Do you want to write over this file? [y/N]\n", outputFileName)
-
-		reader := bufio.NewReader(os.Stdin)
-		input, err := reader.ReadString('\n')
-		if err != nil {
-			return fmt.Errorf("Error reading input: %s", err.Error())
-		}
-
-		formattedInput := strings.ToLower(strings.TrimSpace(input))
-
-		if formattedInput != "yes" && formattedInput != "y" {
-			return fmt.Errorf("Aborted writing compose file. To retry, rename or move %s", outputFileName) // TODO add force flag
-		}
-
-		// Overwrite local compose file
-		err = ioutil.WriteFile(outputFileName, data, LocalOutFileMode)
-		return err
+		return p.overwriteFile()
 	}
 
-	_, err = out.Write(data)
+	_, err = out.Write(p.localBytes)
 
 	return err
+}
+
+// Facilitates test mocking
+var openFile func(filename string) (*os.File, error) = func(filename string) (*os.File, error) {
+	return os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_EXCL, LocalOutFileMode)
+}
+
+func (p *localProject) overwriteFile() error {
+	filename := p.localOutFileName
+
+	fmt.Printf("%s file already exists. Do you want to write over this file? [y/N]\n", filename)
+
+	reader := bufio.NewReader(os.Stdin)
+	stdin, err := reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("Error reading stdin: %s", err.Error())
+	}
+
+	input := strings.ToLower(strings.TrimSpace(stdin))
+
+	if input != "yes" && input != "y" {
+		return fmt.Errorf("Aborted writing compose file. To retry, rename or move %s", filename) // TODO add force flag
+	}
+
+	// Overwrite local compose file
+	return ioutil.WriteFile(filename, p.localBytes, LocalOutFileMode)
 }
 
 // Get secret value stored in AWS Secrets Manager
