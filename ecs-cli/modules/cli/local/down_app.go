@@ -42,7 +42,7 @@ func Down(c *cli.Context) error {
 		network.Teardown(client)
 	}()
 
-	if err := psOptionsPreCheck(c); err != nil {
+	if err := optionsPreCheck(c); err != nil {
 		logrus.Fatalf("Tasks can be either created by local files or remote files")
 	}
 	// if c.Bool(flags.AllFlag) {
@@ -94,6 +94,7 @@ func downLocalContainersWithFilters(args filters.Args) error {
 	client := docker.NewClient()
 	containers, err := client.ContainerList(ctx, types.ContainerListOptions{
 		Filters: args,
+		All:     true,
 	})
 	if err != nil {
 		logrus.Fatalf("Failed to list containers with label=%s due to %v", taskDefinitionLabelValue, err)

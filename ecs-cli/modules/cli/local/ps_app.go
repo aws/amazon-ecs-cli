@@ -68,14 +68,14 @@ const (
 // If the --all flag is provided, then list all local ECS task containers.
 // If the --json flag is provided, then output the format as JSON instead.
 func Ps(c *cli.Context) {
-	if err := psOptionsPreCheck(c); err != nil {
+	if err := optionsPreCheck(c); err != nil {
 		logrus.Fatalf("Tasks can be either created by local files or remote files")
 	}
 	containers := listContainers(c)
 	displayContainers(c, containers)
 }
 
-func psOptionsPreCheck(c *cli.Context) error {
+func optionsPreCheck(c *cli.Context) error {
 	if (c.String(flags.TaskDefinitionFileFlag) != "") && (c.String(flags.TaskDefinitionTaskFlag) != "") {
 		return errors.New("Tasks can be either created by local files or remote files")
 	}
