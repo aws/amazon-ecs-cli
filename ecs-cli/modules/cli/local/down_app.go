@@ -42,8 +42,28 @@ func Down(c *cli.Context) error {
 		network.Teardown(client)
 	}()
 
+	if err := psOptionsPreCheck(c); err != nil {
+		logrus.Fatalf("Tasks can be either created by local files or remote files")
+	}
+	// if c.Bool(flags.AllFlag) {
+	// 	return downLocalContainersWithFilters()
+	// }
+	// return downComposeLocalContainers()
+
+	if c.String(flags.TaskDefinitionFileFlag) != "" {
+		return downLocalContainersWithFilters(filters.NewArgs(
+			filters.Arg("label", taskDefinitionLabelValue+"="+c.String(flags.TaskDefinitionFileFlag)),
+		))
+	}
+	if c.String(flags.TaskDefinitionTaskFlag) != "" {
+		return downLocalContainersWithFilters(filters.NewArgs(
+			filters.Arg("label", taskDefinitionLabelValue+"="+c.String(flags.TaskDefinitionTaskFlag)),
+		))
+	}
 	if c.Bool(flags.AllFlag) {
-		return downAllLocalContainers()
+		return downLocalContainersWithFilters(filters.NewArgs(
+			filters.Arg("label", taskDefinitionLabelValue),
+		))
 	}
 	return downComposeLocalContainers()
 }
@@ -65,19 +85,16 @@ func downComposeLocalContainers() error {
 	return nil
 }
 
-func downAllLocalContainers() error {
+func downLocalContainersWithFilters(args filters.Args) error {
 	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
 	client := docker.NewClient()
 	containers, err := client.ContainerList(ctx, types.ContainerListOptions{
-		Filters: filters.NewArgs(
-			filters.Arg("label", taskDefinitionLabelKey),
-		),
-		All: true,
+		Filters: args,
 	})
 	if err != nil {
-		logrus.Fatalf("Failed to list containers with label=%s due to %v", taskDefinitionLabelKey, err)
+		logrus.Fatalf("Failed to list containers with label=%s due to %v", taskDefinitionLabelValue, err)
 	}
 	if len(containers) == 0 {
 		logrus.Warn("No running ECS local tasks found")

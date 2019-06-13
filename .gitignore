@@ -8,3 +8,6 @@ ecs-cli/vendor/pkg
 ecs-cli/.vscode/*
 ecs-cli/.idea
 .idea/*
+*.DS_Store
+*.yml
+Dockerfile

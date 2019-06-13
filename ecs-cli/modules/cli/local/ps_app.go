@@ -15,6 +15,7 @@ package local
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -35,9 +36,13 @@ import (
 // Refactor to import these constants instead of re-defining them here.
 // Docker object labels associated with containers created with "ecs-cli local".
 const (
-	// taskDefinitionLabelKey represents the value of the option used to
-	// transform a task definition to a compose file e.g. file path, arn, family.
-	taskDefinitionLabelKey = "ecsLocalTaskDefinition"
+	// taskDefinitionLabelType represents the type of option used to
+	// transform a task definition to a compose file e.g. remoteFile, localFile.
+	// taskDefinitionLabelValue represents the value of the option
+	// e.g. file path, arn, family.
+	taskDefinitionLabelKey   = "ecsLocalTaskDefinition"
+	taskDefinitionLabelType  = "ecsLocalTaskDefType"
+	taskDefinitionLabelValue = "ecsLocalTaskDefVal"
 )
 
 // Table formatting settings used by the Docker CLI.
@@ -63,18 +68,37 @@ const (
 // If the --all flag is provided, then list all local ECS task containers.
 // If the --json flag is provided, then output the format as JSON instead.
 func Ps(c *cli.Context) {
+	if err := psOptionsPreCheck(c); err != nil {
+		logrus.Fatalf("Tasks can be either created by local files or remote files")
+	}
 	containers := listContainers(c)
 	displayContainers(c, containers)
 }
 
-func listContainers(c *cli.Context) []types.Container {
-	if !c.Bool(flags.AllFlag) {
-		return listLocalComposeContainers()
+func psOptionsPreCheck(c *cli.Context) error {
+	if (c.String(flags.TaskDefinitionFileFlag) != "") && (c.String(flags.TaskDefinitionTaskFlag) != "") {
+		return errors.New("Tasks can be either created by local files or remote files")
 	}
-	// Task containers running locally all have a local label
-	return listContainersWithFilters(filters.NewArgs(
-		filters.Arg("label", taskDefinitionLabelKey),
-	))
+	return nil
+}
+
+func listContainers(c *cli.Context) []types.Container {
+	if c.String(flags.TaskDefinitionFileFlag) != "" {
+		return listContainersWithFilters(filters.NewArgs(
+			filters.Arg("label", taskDefinitionLabelValue+"="+c.String(flags.TaskDefinitionFileFlag)),
+		))
+	}
+	if c.String(flags.TaskDefinitionTaskFlag) != "" {
+		return listContainersWithFilters(filters.NewArgs(
+			filters.Arg("label", taskDefinitionLabelValue+"="+c.String(flags.TaskDefinitionTaskFlag)),
+		))
+	}
+	if c.Bool(flags.AllFlag) {
+		return listContainersWithFilters(filters.NewArgs(
+			filters.Arg("label", taskDefinitionLabelValue),
+		))
+	}
+	return listLocalComposeContainers()
 }
 
 func listLocalComposeContainers() []types.Container {
@@ -144,7 +168,7 @@ func displayAsTable(containers []types.Container) {
 			container.Status,
 			prettifyPorts(container.Ports),
 			prettifyNames(container.Names),
-			container.Labels[taskDefinitionLabelKey])
+			container.Labels[taskDefinitionLabelValue])
 		fmt.Fprintln(w, row)
 	}
 	w.Flush()
