@@ -86,11 +86,13 @@ func listContainers(c *cli.Context) []types.Container {
 	if c.String(flags.TaskDefinitionFileFlag) != "" {
 		return listContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", taskDefinitionLabelValue+"="+c.String(flags.TaskDefinitionFileFlag)),
+			filters.Arg("label", taskDefinitionLabelType+"="+"localFile"),
 		))
 	}
 	if c.String(flags.TaskDefinitionTaskFlag) != "" {
 		return listContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", taskDefinitionLabelValue+"="+c.String(flags.TaskDefinitionTaskFlag)),
+			filters.Arg("label", taskDefinitionLabelType+"="+"remoteFile"),
 		))
 	}
 	if c.Bool(flags.AllFlag) {

@@ -53,11 +53,13 @@ func Down(c *cli.Context) error {
 	if c.String(flags.TaskDefinitionFileFlag) != "" {
 		return downLocalContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", taskDefinitionLabelValue+"="+c.String(flags.TaskDefinitionFileFlag)),
+			filters.Arg("label", taskDefinitionLabelType+"="+"localFile"),
 		))
 	}
 	if c.String(flags.TaskDefinitionTaskFlag) != "" {
 		return downLocalContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", taskDefinitionLabelValue+"="+c.String(flags.TaskDefinitionTaskFlag)),
+			filters.Arg("label", taskDefinitionLabelType+"="+"remoteFile"),
 		))
 	}
 	if c.Bool(flags.AllFlag) {
