@@ -14,6 +14,8 @@
 package network
 
 import (
+	"bytes"
+	"io/ioutil"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -45,13 +47,21 @@ func TestSetup(t *testing.T) {
 	tests := map[string]struct {
 		configureCalls mockStarterCalls
 	}{
-		"new network and new container": {
+		"new network, new image, and new container": {
 			configureCalls: func(docker *mock_network.MockLocalEndpointsStarter) *mock_network.MockLocalEndpointsStarter {
 				containerID := "1234"
+				pullImgResp := ioutil.NopCloser(bytes.NewReader([]byte("Pulled image successfully")))
 				gomock.InOrder(
 					// We expect to create the network if it doesn't exist already.
 					docker.EXPECT().NetworkInspect(gomock.Any(), EcsLocalNetworkName, gomock.Any()).Return(types.NetworkResource{}, notFoundErr{}),
 					docker.EXPECT().NetworkCreate(gomock.Any(), EcsLocalNetworkName, gomock.Any()).Return(types.NetworkCreateResponse{}, nil),
+
+					// Pull the image if it's not available locally
+					docker.EXPECT().
+						ImageList(gomock.Any(), gomock.Any()).
+						Return([]types.ImageSummary{}, nil),
+					docker.EXPECT().
+						ImagePull(gomock.Any(), localEndpointsImageName, gomock.Any()).Return(pullImgResp, nil),
 
 					// Don't fetch the ID of the Local Container endpoints if it's the first time we are creating it.
 					docker.EXPECT().
@@ -65,7 +75,7 @@ func TestSetup(t *testing.T) {
 				return docker
 			},
 		},
-		"existing network and existing container": {
+		"existing network, existing image, and existing container": {
 			configureCalls: func(docker *mock_network.MockLocalEndpointsStarter) *mock_network.MockLocalEndpointsStarter {
 				networkID := "abcd"
 				containerID := "1234"
@@ -74,6 +84,16 @@ func TestSetup(t *testing.T) {
 					docker.EXPECT().NetworkInspect(gomock.Any(), EcsLocalNetworkName, gomock.Any()).
 						Return(types.NetworkResource{ID: networkID}, nil),
 					docker.EXPECT().NetworkCreate(gomock.Any(), gomock.Any(), gomock.Any()).Times(0),
+
+					// Don't pull the image if it's downloaded
+					docker.EXPECT().
+						ImageList(gomock.Any(), gomock.Any()).
+						Return([]types.ImageSummary{
+							{
+								RepoTags: []string{"amazon/amazon-ecs-local-container-endpoints:latest"},
+							},
+						}, nil),
+					docker.EXPECT().ImagePull(gomock.Any(), gomock.Any(), gomock.Any()).Times(0),
 
 					// Retrieve the container ID if it already exists
 					docker.EXPECT().

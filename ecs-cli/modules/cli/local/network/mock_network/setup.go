@@ -18,6 +18,7 @@
 package mock_network
 
 import (
+	io "io"
 	reflect "reflect"
 
 	types "github.com/docker/docker/api/types"
@@ -92,6 +93,36 @@ func (m *MockLocalEndpointsStarter) ContainerStart(arg0 context.Context, arg1 st
 func (mr *MockLocalEndpointsStarterMockRecorder) ContainerStart(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerStart", reflect.TypeOf((*MockLocalEndpointsStarter)(nil).ContainerStart), arg0, arg1, arg2)
+}
+
+// ImageList mocks base method
+func (m *MockLocalEndpointsStarter) ImageList(arg0 context.Context, arg1 types.ImageListOptions) ([]types.ImageSummary, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ImageList", arg0, arg1)
+	ret0, _ := ret[0].([]types.ImageSummary)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ImageList indicates an expected call of ImageList
+func (mr *MockLocalEndpointsStarterMockRecorder) ImageList(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ImageList", reflect.TypeOf((*MockLocalEndpointsStarter)(nil).ImageList), arg0, arg1)
+}
+
+// ImagePull mocks base method
+func (m *MockLocalEndpointsStarter) ImagePull(arg0 context.Context, arg1 string, arg2 types.ImagePullOptions) (io.ReadCloser, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ImagePull", arg0, arg1, arg2)
+	ret0, _ := ret[0].(io.ReadCloser)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ImagePull indicates an expected call of ImagePull
+func (mr *MockLocalEndpointsStarterMockRecorder) ImagePull(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ImagePull", reflect.TypeOf((*MockLocalEndpointsStarter)(nil).ImagePull), arg0, arg1, arg2)
 }
 
 // NetworkCreate mocks base method
