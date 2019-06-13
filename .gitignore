@@ -10,4 +10,3 @@ ecs-cli/.idea
 .idea/*
 *.DS_Store
 *.yml
-Dockerfile

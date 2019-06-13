@@ -42,7 +42,7 @@ func Down(c *cli.Context) error {
 		network.Teardown(client)
 	}()
 
-	if err := optionsPreCheck(c); err != nil {
+	if err := validateOptions(c); err != nil {
 		logrus.Fatalf("Tasks can be either created by local files or remote files")
 	}
 	// if c.Bool(flags.AllFlag) {
