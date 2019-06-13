@@ -34,7 +34,7 @@ import (
 
 const (
 	LocalOutDefaultFileName = "./docker-compose.local.yml"
-	LocalOutFileMode        = os.FileMode(0644) // Owner=read/write, Other=readonly
+	LocalOutFileMode        = os.FileMode(0600) // Owner=read/write, Other=none
 	LocalInFileName         = "./task-definition.json"
 )
 
@@ -148,6 +148,8 @@ func (p *localProject) readTaskDefinitionFromArn(arn string) (*ecs.TaskDefinitio
 // stores the data on the project
 func (p *localProject) Convert() error {
 	// FIXME get secrets here, pass to converter?
+	// NOTE: Should add log message to warn user that decrypted secret
+	// will be written to local compose file
 	data, err := converter.ConvertToDockerCompose(p.taskDefinition)
 
 	if err != nil {
