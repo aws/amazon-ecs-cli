@@ -73,7 +73,7 @@ func downCommand() cli.Command {
 			},
 			cli.StringFlag{
 				Name:  flags.TaskDefinitionFileFlag,
-				Usage: "Stops and removes all running containers matching the path",
+				Usage: "Stops and removes all running containers matching the task definition file path",
 			},
 		},
 	}
@@ -95,7 +95,7 @@ func psCommand() cli.Command {
 			},
 			cli.StringFlag{
 				Name:  flags.TaskDefinitionFileFlag,
-				Usage: "Lists all running containers matching the path",
+				Usage: "Lists all running containers matching the task definition file path",
 			},
 			cli.BoolFlag{
 				Name:  flags.JsonFlag,

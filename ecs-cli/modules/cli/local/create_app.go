@@ -18,7 +18,26 @@ package local
 import (
 	"fmt"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/urfave/cli"
+)
+
+const (
+	// taskDefinitionLabelType represents the type of option used to
+	// transform a task definition to a compose file e.g. remoteFile, localFile.
+	// taskDefinitionLabelValue represents the value of the option
+	// e.g. file path, arn, family.
+	taskDefinitionLabelType  = "ecsLocalTaskDefType"
+	taskDefinitionLabelValue = "ecsLocalTaskDefVal"
+)
+
+const (
+	localTaskDefType  = "localFile"
+	remoteTaskDefType = "remoteFile"
+)
+
+const (
+	ecsLocalDockerComposeFileName = "docker-compose.local.yml"
 )
 
 func Create(c *cli.Context) {
@@ -26,4 +45,12 @@ func Create(c *cli.Context) {
 	// 2. parse task def into go object
 	// 3. write to docker-compose.local.yml file
 	fmt.Println("foo") // placeholder
+}
+
+func validateOptions(c *cli.Context) error {
+	if (c.String(flags.TaskDefinitionFileFlag) != "") && (c.String(flags.TaskDefinitionTaskFlag) != "") {
+		return fmt.Errorf("%s and %s can not be used together",
+			flags.TaskDefinitionTaskFlag, flags.TaskDefinitionFileFlag)
+	}
+	return nil
 }
