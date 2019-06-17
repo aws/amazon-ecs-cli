@@ -31,15 +31,6 @@ import (
 	"golang.org/x/net/context"
 )
 
-// TODO These labels should be defined part of the local.Create workflow.
-// Refactor to import these constants instead of re-defining them here.
-// Docker object labels associated with containers created with "ecs-cli local".
-const (
-	// taskDefinitionLabelKey represents the value of the option used to
-	// transform a task definition to a compose file e.g. file path, arn, family.
-	taskDefinitionLabelKey = "ecsLocalTaskDefinition"
-)
-
 // Table formatting settings used by the Docker CLI.
 // See https://github.com/docker/cli/blob/0904fbfc77dbd4b6296c56e68be573b889d049e3/cli/command/formatter/formatter.go#L74
 const (
@@ -63,18 +54,34 @@ const (
 // If the --all flag is provided, then list all local ECS task containers.
 // If the --json flag is provided, then output the format as JSON instead.
 func Ps(c *cli.Context) {
+	if err := validateOptions(c); err != nil {
+		logrus.Fatal(err.Error())
+	}
 	containers := listContainers(c)
 	displayContainers(c, containers)
 }
 
 func listContainers(c *cli.Context) []types.Container {
-	if !c.Bool(flags.AllFlag) {
-		return listLocalComposeContainers()
+	if c.String(flags.TaskDefinitionFileFlag) != "" {
+		return listContainersWithFilters(filters.NewArgs(
+			filters.Arg("label", fmt.Sprintf("%s=%s", taskDefinitionLabelValue,
+				c.String(flags.TaskDefinitionFileFlag))),
+			filters.Arg("label", fmt.Sprintf("%s=%s", taskDefinitionLabelType, localTaskDefType)),
+		))
 	}
-	// Task containers running locally all have a local label
-	return listContainersWithFilters(filters.NewArgs(
-		filters.Arg("label", taskDefinitionLabelKey),
-	))
+	if c.String(flags.TaskDefinitionTaskFlag) != "" {
+		return listContainersWithFilters(filters.NewArgs(
+			filters.Arg("label", fmt.Sprintf("%s=%s", taskDefinitionLabelValue,
+				c.String(flags.TaskDefinitionTaskFlag))),
+			filters.Arg("label", fmt.Sprintf("%s=%s", taskDefinitionLabelType, remoteTaskDefType)),
+		))
+	}
+	if c.Bool(flags.AllFlag) {
+		return listContainersWithFilters(filters.NewArgs(
+			filters.Arg("label", taskDefinitionLabelValue),
+		))
+	}
+	return listLocalComposeContainers()
 }
 
 func listLocalComposeContainers() []types.Container {
@@ -144,7 +151,7 @@ func displayAsTable(containers []types.Container) {
 			container.Status,
 			prettifyPorts(container.Ports),
 			prettifyNames(container.Names),
-			container.Labels[taskDefinitionLabelKey])
+			container.Labels[taskDefinitionLabelValue])
 		fmt.Fprintln(w, row)
 	}
 	w.Flush()

@@ -14,6 +14,7 @@
 package local
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -28,12 +29,6 @@ import (
 	"golang.org/x/net/context"
 )
 
-// TODO These labels should be defined part of the local.Create workflow.
-// Refactor to import these constants instead of re-defining them here.
-const (
-	ecsLocalDockerComposeFileName = "docker-compose.local.yml"
-)
-
 // Down stops and removes running local ECS tasks.
 // If the user stops the last running task in the local network then also remove the network.
 func Down(c *cli.Context) error {
@@ -42,8 +37,28 @@ func Down(c *cli.Context) error {
 		network.Teardown(client)
 	}()
 
+	if err := validateOptions(c); err != nil {
+		logrus.Fatal(err.Error())
+	}
+
+	if c.String(flags.TaskDefinitionFileFlag) != "" {
+		return downLocalContainersWithFilters(filters.NewArgs(
+			filters.Arg("label", fmt.Sprintf("%s=%s", taskDefinitionLabelValue,
+				c.String(flags.TaskDefinitionFileFlag))),
+			filters.Arg("label", fmt.Sprintf("%s=%s", taskDefinitionLabelType, localTaskDefType)),
+		))
+	}
+	if c.String(flags.TaskDefinitionTaskFlag) != "" {
+		return downLocalContainersWithFilters(filters.NewArgs(
+			filters.Arg("label", fmt.Sprintf("%s=%s", taskDefinitionLabelValue,
+				c.String(flags.TaskDefinitionTaskFlag))),
+			filters.Arg("label", fmt.Sprintf("%s=%s", taskDefinitionLabelType, remoteTaskDefType)),
+		))
+	}
 	if c.Bool(flags.AllFlag) {
-		return downAllLocalContainers()
+		return downLocalContainersWithFilters(filters.NewArgs(
+			filters.Arg("label", taskDefinitionLabelValue),
+		))
 	}
 	return downComposeLocalContainers()
 }
@@ -65,19 +80,17 @@ func downComposeLocalContainers() error {
 	return nil
 }
 
-func downAllLocalContainers() error {
+func downLocalContainersWithFilters(args filters.Args) error {
 	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
 	client := docker.NewClient()
 	containers, err := client.ContainerList(ctx, types.ContainerListOptions{
-		Filters: filters.NewArgs(
-			filters.Arg("label", taskDefinitionLabelKey),
-		),
-		All: true,
+		Filters: args,
+		All:     true,
 	})
 	if err != nil {
-		logrus.Fatalf("Failed to list containers with label=%s due to %v", taskDefinitionLabelKey, err)
+		logrus.Fatalf("Failed to list containers with filters %v due to %v", args, err)
 	}
 	if len(containers) == 0 {
 		logrus.Warn("No running ECS local tasks found")

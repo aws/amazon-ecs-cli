@@ -60,12 +60,20 @@ func upCommand() cli.Command {
 func downCommand() cli.Command {
 	return cli.Command{
 		Name:   "down",
-		Usage:  "Stop and remove a running local ECS task.",
+		Usage:  "Stop and remove a running ECS task container.",
 		Action: local.Down,
 		Flags: []cli.Flag{
 			cli.BoolFlag{
 				Name:  flags.AllFlag,
-				Usage: "Stop and remove all running local ECS tasks.",
+				Usage: "Stops and removes all running containers",
+			},
+			cli.StringFlag{
+				Name:  flags.TaskDefinitionTaskFlag,
+				Usage: "Stops and removes all running containers matching the task family or ARN",
+			},
+			cli.StringFlag{
+				Name:  flags.TaskDefinitionFileFlag,
+				Usage: "Stops and removes all running containers matching the task definition file path",
 			},
 		},
 	}
@@ -80,6 +88,14 @@ func psCommand() cli.Command {
 			cli.BoolFlag{
 				Name:  flags.AllFlag,
 				Usage: "Lists all running local ECS tasks.",
+			},
+			cli.StringFlag{
+				Name:  flags.TaskDefinitionTaskFlag,
+				Usage: "Lists all running containers matching the task family or ARN",
+			},
+			cli.StringFlag{
+				Name:  flags.TaskDefinitionFileFlag,
+				Usage: "Lists all running containers matching the task definition file path",
 			},
 			cli.BoolFlag{
 				Name:  flags.JsonFlag,
