@@ -81,8 +81,7 @@ func downComposeLocalContainers() error {
 }
 
 func downLocalContainersWithFilters(args filters.Args) error {
-	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
-	defer cancel()
+	ctx, cancel := context.WithCancel(context.Background())
 
 	client := docker.NewClient()
 	containers, err := client.ContainerList(ctx, types.ContainerListOptions{
@@ -92,6 +91,8 @@ func downLocalContainersWithFilters(args filters.Args) error {
 	if err != nil {
 		logrus.Fatalf("Failed to list containers with filters %v due to %v", args, err)
 	}
+	cancel()
+
 	if len(containers) == 0 {
 		logrus.Warn("No running ECS local tasks found")
 		return nil
@@ -99,6 +100,7 @@ func downLocalContainersWithFilters(args filters.Args) error {
 
 	logrus.Infof("Stop and remove %d container(s)", len(containers))
 	for _, container := range containers {
+		ctx, cancel = context.WithTimeout(context.Background(), docker.TimeoutInS)
 		if err = client.ContainerStop(ctx, container.ID, nil); err != nil {
 			logrus.Fatalf("Failed to stop container %s due to %v", container.ID[:maxContainerIDLength], err)
 		}
@@ -108,6 +110,7 @@ func downLocalContainersWithFilters(args filters.Args) error {
 			logrus.Fatalf("Failed to remove container %s due to %v", container.ID[:maxContainerIDLength], err)
 		}
 		logrus.Infof("Removed container with id %s", container.ID[:maxContainerIDLength])
+		cancel()
 	}
 	return nil
 }
