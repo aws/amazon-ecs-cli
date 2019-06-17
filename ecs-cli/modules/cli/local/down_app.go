@@ -81,7 +81,7 @@ func downComposeLocalContainers() error {
 }
 
 func downLocalContainersWithFilters(args filters.Args) error {
-	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
+	ctx, cancel := context.WithCancel(context.Background())
 
 	client := docker.NewClient()
 	containers, err := client.ContainerList(ctx, types.ContainerListOptions{
