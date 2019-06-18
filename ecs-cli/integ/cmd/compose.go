@@ -85,6 +85,7 @@ func TestServiceUp(t *testing.T, p *Project) {
 		"up",
 		"--cluster-config",
 		p.ConfigName,
+		"--create-log-groups",
 	}
 	cmd := integ.GetCommand(args)
 

@@ -103,6 +103,21 @@ func TestTeardown(t *testing.T) {
 				return mock
 			},
 		},
+		"no network": {
+			configureCalls: func(mock *mock_network.MockLocalEndpointsStopper) *mock_network.MockLocalEndpointsStopper {
+				gomock.InOrder(
+					mock.EXPECT().NetworkInspect(gomock.Any(), gomock.Eq(EcsLocalNetworkName), gomock.Any()).Return(
+						types.NetworkResource{},
+						notFoundErr{},
+					),
+					// Should not be invoked
+					mock.EXPECT().ContainerStop(gomock.Any(), gomock.Any(), gomock.Any()).Times(0),
+					mock.EXPECT().ContainerRemove(gomock.Any(), gomock.Any(), gomock.Any()).Times(0),
+					mock.EXPECT().NetworkRemove(gomock.Any(), gomock.Any()).Times(0),
+				)
+				return mock
+			},
+		},
 	}
 
 	for name, tc := range tests {

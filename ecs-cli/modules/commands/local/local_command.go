@@ -32,7 +32,7 @@ func LocalCommand() cli.Command {
 		Subcommands: []cli.Command{
 			createCommand(),
 			upCommand(),
-			stopCommand(),
+			downCommand(),
 			psCommand(),
 		},
 	}
@@ -57,12 +57,25 @@ func upCommand() cli.Command {
 	}
 }
 
-// TODO This is a placeholder function used to test the teardown of the ECS local network.
-func stopCommand() cli.Command {
+func downCommand() cli.Command {
 	return cli.Command{
-		Name:   "stop",
-		Usage:  "Stop a running local ECS task.",
-		Action: local.Stop,
+		Name:   "down",
+		Usage:  "Stop and remove a running ECS task container.",
+		Action: local.Down,
+		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name:  flags.AllFlag,
+				Usage: "Stops and removes all running containers",
+			},
+			cli.StringFlag{
+				Name:  flags.TaskDefinitionTaskFlag,
+				Usage: "Stops and removes all running containers matching the task family or ARN",
+			},
+			cli.StringFlag{
+				Name:  flags.TaskDefinitionFileFlag,
+				Usage: "Stops and removes all running containers matching the task definition file path",
+			},
+		},
 	}
 }
 
@@ -72,6 +85,18 @@ func psCommand() cli.Command {
 		Usage:  "List locally running ECS task containers.",
 		Action: local.Ps,
 		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name:  flags.AllFlag,
+				Usage: "Lists all running local ECS tasks.",
+			},
+			cli.StringFlag{
+				Name:  flags.TaskDefinitionTaskFlag,
+				Usage: "Lists all running containers matching the task family or ARN",
+			},
+			cli.StringFlag{
+				Name:  flags.TaskDefinitionFileFlag,
+				Usage: "Lists all running containers matching the task definition file path",
+			},
 			cli.BoolFlag{
 				Name:  flags.JsonFlag,
 				Usage: "Output in JSON format.",

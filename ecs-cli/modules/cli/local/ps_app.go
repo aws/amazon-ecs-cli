@@ -17,29 +17,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"text/tabwriter"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/docker"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
-	"github.com/docker/docker/client"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 	"golang.org/x/net/context"
-)
-
-// TODO These labels should be defined part of the local.Create workflow.
-// Refactor to import these constants instead of re-defining them here.
-const (
-	// ecsLocalLabelKey is the Docker object label associated with containers created with "ecs-cli local".
-	ecsLocalLabelKey = "ECSLocalTask"
-
-	// taskDefinitionARNLabelKey is the Docker object label present if the container was created with a task def ARN.
-	taskDefinitionARNLabelKey = "taskDefinitionARN"
-
-	// taskFilePathLabelKey is the Docker object label present if the container was created from a file.
-	taskFilePathLabelKey = "taskFilePath"
 )
 
 // Table formatting settings used by the Docker CLI.
@@ -50,8 +39,7 @@ const (
 	cellPaddingInSpaces       = 3
 	paddingCharacter          = ' '
 	noFormatting              = 0
-
-	maxContainerIDLength = 12
+	maxContainerIDLength      = 12
 )
 
 // JSON formatting settings.
@@ -60,32 +48,87 @@ const (
 	jsonIndent = "  "
 )
 
-// Ps lists the status of the ECS task containers running locally.
+// Ps lists the status of the ECS task containers running locally as a table.
 //
-// Defaults to listing the container metadata in a table format to stdout. If the --json flag is provided,
-// then output the content as JSON instead.
+// Defaults to listing containers from the local Compose file.
+// If the --all flag is provided, then list all local ECS task containers.
+// If the --json flag is provided, then output the format as JSON instead.
 func Ps(c *cli.Context) {
-	docker := newDockerClient()
+	if err := validateOptions(c); err != nil {
+		logrus.Fatal(err.Error())
+	}
+	containers := listContainers(c)
+	displayContainers(c, containers)
+}
 
-	containers := listECSLocalContainers(docker)
+func listContainers(c *cli.Context) []types.Container {
+	if c.String(flags.TaskDefinitionFileFlag) != "" {
+		return listContainersWithFilters(filters.NewArgs(
+			filters.Arg("label", fmt.Sprintf("%s=%s", taskDefinitionLabelValue,
+				c.String(flags.TaskDefinitionFileFlag))),
+			filters.Arg("label", fmt.Sprintf("%s=%s", taskDefinitionLabelType, localTaskDefType)),
+		))
+	}
+	if c.String(flags.TaskDefinitionTaskFlag) != "" {
+		return listContainersWithFilters(filters.NewArgs(
+			filters.Arg("label", fmt.Sprintf("%s=%s", taskDefinitionLabelValue,
+				c.String(flags.TaskDefinitionTaskFlag))),
+			filters.Arg("label", fmt.Sprintf("%s=%s", taskDefinitionLabelType, remoteTaskDefType)),
+		))
+	}
+	if c.Bool(flags.AllFlag) {
+		return listContainersWithFilters(filters.NewArgs(
+			filters.Arg("label", taskDefinitionLabelValue),
+		))
+	}
+	return listLocalComposeContainers()
+}
+
+func listLocalComposeContainers() []types.Container {
+	wd, _ := os.Getwd()
+	if _, err := os.Stat(filepath.Join(wd, ecsLocalDockerComposeFileName)); os.IsNotExist(err) {
+		logrus.Fatalf("Compose file %s does not exist in current directory", ecsLocalDockerComposeFileName)
+	}
+
+	// The -q flag displays the ID of the containers instead of the default "Name, Command, State, Ports" metadata.
+	cmd := exec.Command("docker-compose", "-f", ecsLocalDockerComposeFileName, "ps", "-q")
+	composeOut, err := cmd.Output()
+	if err != nil {
+		logrus.Fatalf("Failed to run docker-compose ps due to %v", err)
+	}
+
+	containerIDs := strings.Split(string(composeOut), "\n")
+	if len(containerIDs) == 0 {
+		return []types.Container{}
+	}
+
+	var args []filters.KeyValuePair
+	for _, containerID := range containerIDs {
+		args = append(args, filters.Arg("id", containerID))
+	}
+	return listContainersWithFilters(filters.NewArgs(args...))
+}
+
+func listContainersWithFilters(args filters.Args) []types.Container {
+	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
+	defer cancel()
+
+	cl := docker.NewClient()
+	containers, err := cl.ContainerList(ctx, types.ContainerListOptions{
+		Filters: args,
+	})
+	if err != nil {
+		logrus.Fatalf("Failed to list containers with args=%v due to %v", args, err)
+	}
+	return containers
+}
+
+func displayContainers(c *cli.Context, containers []types.Container) {
 	if c.Bool(flags.JsonFlag) {
 		displayAsJSON(containers)
 	} else {
 		displayAsTable(containers)
 	}
-}
-
-func listECSLocalContainers(docker *client.Client) []types.Container {
-	// ECS Task containers running locally all have an ECS local label
-	containers, err := docker.ContainerList(context.Background(), types.ContainerListOptions{
-		Filters: filters.NewArgs(
-			filters.Arg("label", ecsLocalLabelKey),
-		),
-	})
-	if err != nil {
-		logrus.Fatalf("Failed to list containers with label=%s due to %v", ecsLocalLabelKey, err)
-	}
-	return containers
 }
 
 func displayAsJSON(containers []types.Container) {
@@ -100,16 +143,15 @@ func displayAsTable(containers []types.Container) {
 	w := new(tabwriter.Writer)
 
 	w.Init(os.Stdout, cellWidthInSpaces, widthBetweenCellsInSpaces, cellPaddingInSpaces, paddingCharacter, noFormatting)
-	fmt.Fprintln(w, "CONTAINER ID\tIMAGE\tSTATUS\tPORTS\tNAMES\tTASKDEFINITIONARN\tTASKFILEPATH")
+	fmt.Fprintln(w, "CONTAINER ID\tIMAGE\tSTATUS\tPORTS\tNAMES\tTASKDEFINITION")
 	for _, container := range containers {
-		row := fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s",
+		row := fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s",
 			container.ID[:maxContainerIDLength],
 			container.Image,
 			container.Status,
 			prettifyPorts(container.Ports),
 			prettifyNames(container.Names),
-			container.Labels[taskDefinitionARNLabelKey],
-			container.Labels[taskFilePathLabelKey])
+			container.Labels[taskDefinitionLabelValue])
 		fmt.Fprintln(w, row)
 	}
 	w.Flush()

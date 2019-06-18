@@ -19,8 +19,28 @@ import (
 	"fmt"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/project"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
+)
+
+const (
+	// taskDefinitionLabelType represents the type of option used to
+	// transform a task definition to a compose file e.g. remoteFile, localFile.
+	// taskDefinitionLabelValue represents the value of the option
+	// e.g. file path, arn, family.
+	taskDefinitionLabelType  = "ecsLocalTaskDefType"
+	taskDefinitionLabelValue = "ecsLocalTaskDefVal"
+)
+
+const (
+	localTaskDefType  = "localFile"
+	remoteTaskDefType = "remoteFile"
+)
+
+const (
+	ecsLocalDockerComposeFileName = "docker-compose.local.yml"
 )
 
 // Create reads in an ECS task definition, converts and writes it to a local
@@ -55,5 +75,13 @@ func createLocal(project localproject.LocalProject) error {
 		return err
 	}
 
+	return nil
+}
+
+func validateOptions(c *cli.Context) error {
+	if (c.String(flags.TaskDefinitionFileFlag) != "") && (c.String(flags.TaskDefinitionTaskFlag) != "") {
+		return fmt.Errorf("%s and %s can not be used together",
+		flags.TaskDefinitionTaskFlag, flags.TaskDefinitionFileFlag)
+	}
 	return nil
 }

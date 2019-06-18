@@ -16,10 +16,12 @@ package network
 
 import (
 	"fmt"
+	"io"
+	"io/ioutil"
 	"os"
 	"strings"
-	"time"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/docker"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
@@ -33,12 +35,18 @@ import (
 // the Local Container Endpoints container if they don't exist.
 type LocalEndpointsStarter interface {
 	networkCreator
+	imagePuller
 	containerStarter
 }
 
 type networkCreator interface {
 	NetworkInspect(ctx context.Context, networkID string, options types.NetworkInspectOptions) (types.NetworkResource, error)
 	NetworkCreate(ctx context.Context, name string, options types.NetworkCreate) (types.NetworkCreateResponse, error)
+}
+
+type imagePuller interface {
+	ImageList(ctx context.Context, options types.ImageListOptions) ([]types.ImageSummary, error)
+	ImagePull(ctx context.Context, refStr string, options types.ImagePullOptions) (io.ReadCloser, error)
 }
 
 type containerStarter interface {
@@ -70,18 +78,14 @@ const (
 	localEndpointsContainerName = "amazon-ecs-local-container-endpoints"
 )
 
-// Configuration for Docker requests
-const (
-	// Wait duration for a response from the Docker daemon before returning an error to the user.
-	dockerTimeout = 30 * time.Second
-)
-
-// Setup creates a user-defined bridge network with a running Local Container Endpoints container. If the network
-// already exists or the container is already running then this function does nothing.
+// Setup creates a user-defined bridge network with a running Local Container Endpoints container. It will pull
+// the Local Endpoints image if it doesn't exist.
 //
+// If the network, image, and container already exist, then do nothing.
 // If there is any unexpected errors, we exit the program with a fatal log.
 func Setup(dockerClient LocalEndpointsStarter) {
 	setupLocalNetwork(dockerClient)
+	setupLocalEndpointsImage(dockerClient)
 	setupLocalEndpointsContainer(dockerClient)
 }
 
@@ -94,7 +98,7 @@ func setupLocalNetwork(dockerClient networkCreator) {
 }
 
 func localNetworkExists(dockerClient networkCreator) bool {
-	ctx, cancel := context.WithTimeout(context.Background(), dockerTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
 	_, err := dockerClient.NetworkInspect(ctx, EcsLocalNetworkName, types.NetworkInspectOptions{})
@@ -109,7 +113,7 @@ func localNetworkExists(dockerClient networkCreator) bool {
 }
 
 func createLocalNetwork(dockerClient networkCreator) {
-	ctx, cancel := context.WithTimeout(context.Background(), dockerTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
 	logrus.Infof("Creating network: %s...", EcsLocalNetworkName)
@@ -128,6 +132,53 @@ func createLocalNetwork(dockerClient networkCreator) {
 	logrus.Infof("Created network %s with ID %s", EcsLocalNetworkName, resp.ID)
 }
 
+func setupLocalEndpointsImage(dockerClient imagePuller) {
+	if localEndpointsImageExists(dockerClient) {
+		return
+	}
+	pullLocalEndpointsImage(dockerClient)
+}
+
+func localEndpointsImageExists(dockerClient imagePuller) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
+	defer cancel()
+
+	args := filters.NewArgs(filters.Arg("reference", localEndpointsImageName))
+	imgs, err := dockerClient.ImageList(ctx, types.ImageListOptions{
+		Filters: args,
+	})
+	if err != nil {
+		logrus.Fatalf("Failed to list images with filters %v due to %v", args, err)
+	}
+
+	for _, img := range imgs {
+		for _, repotag := range img.RepoTags {
+			if strings.HasPrefix(repotag, localEndpointsImageName) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func pullLocalEndpointsImage(dockerClient imagePuller) {
+	ctx, cancel := context.WithTimeout(context.Background(), docker.LongTimeoutInS)
+	defer cancel()
+
+	logrus.Infof("Pulling image %s", localEndpointsImageName)
+	rc, err := dockerClient.ImagePull(ctx, localEndpointsImageName, types.ImagePullOptions{})
+	if err != nil {
+		logrus.Fatalf("Failed to pull image %s due to %v", localEndpointsImageName, err)
+	}
+	defer rc.Close()
+
+	_, err = ioutil.ReadAll(rc)
+	if err != nil {
+		logrus.Fatalf("Failed to download the image %s due to %v", localEndpointsImageName, err)
+	}
+	logrus.Infof("Pulled image %s", localEndpointsImageName)
+}
+
 func setupLocalEndpointsContainer(docker containerStarter) {
 	containerID := createLocalEndpointsContainer(docker)
 	startContainer(docker, containerID)
@@ -136,7 +187,7 @@ func setupLocalEndpointsContainer(docker containerStarter) {
 // createLocalEndpointsContainer returns the ID of the newly created container.
 // If the container already exists, returns the ID of the existing container.
 func createLocalEndpointsContainer(dockerClient containerStarter) string {
-	ctx, cancel := context.WithTimeout(context.Background(), dockerTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
 	// See First Scenario in https://aws.amazon.com/blogs/compute/a-guide-to-locally-testing-containers-with-amazon-ecs-local-endpoints-and-docker-compose/
@@ -182,7 +233,7 @@ func createLocalEndpointsContainer(dockerClient containerStarter) string {
 }
 
 func localEndpointsContainerID(dockerClient containerStarter) string {
-	ctx, cancel := context.WithTimeout(context.Background(), dockerTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
 	resp, err := dockerClient.ContainerList(ctx, types.ContainerListOptions{
@@ -201,7 +252,7 @@ func localEndpointsContainerID(dockerClient containerStarter) string {
 }
 
 func startContainer(dockerClient containerStarter, containerID string) {
-	ctx, cancel := context.WithTimeout(context.Background(), dockerTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
 	// If the container is already running, Docker does not return an error response.

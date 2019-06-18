@@ -11,13 +11,23 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-package local
+package docker
 
 import (
 	"os"
+	"time"
 
 	"github.com/docker/docker/client"
 	"github.com/sirupsen/logrus"
+)
+
+// Wait durations for a response from the Docker daemon before returning an error to the caller.
+const (
+	// TimeoutInS is the wait duration for common operations.
+	TimeoutInS = 30 * time.Second
+
+	// LongTimeoutInS is the wait duration for long operations such as PullImage.
+	LongTimeoutInS = 120 * time.Second
 )
 
 const (
@@ -27,7 +37,8 @@ const (
 	minDockerAPIVersion = "1.27"
 )
 
-func newDockerClient() *client.Client {
+// NewClient returns an object to communicate with the Docker Engine API.
+func NewClient() *client.Client {
 	if os.Getenv("DOCKER_API_VERSION") == "" {
 		// If the user does not explicitly set the API version, then the SDK can choose
 		// an API version that's too new for the user's Docker engine.

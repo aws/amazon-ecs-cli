@@ -150,8 +150,10 @@ const (
 	// Local
 	TaskDefinitionFileFlag = "file"
 	TaskDefinitionArnFlag  = "arn"
+	TaskDefinitionTaskFlag = "task-def"
 	LocalOutputFlag        = "output"
 	JsonFlag               = "json"
+	AllFlag                = "all"
 )
 
 // OptionalRegionAndProfileFlags provides these flags:

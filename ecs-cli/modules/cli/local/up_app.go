@@ -14,6 +14,7 @@
 package local
 
 import (
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/docker"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/network"
 	"github.com/urfave/cli"
 )
@@ -25,6 +26,6 @@ import (
 // If the container is not running, this command creates a new network for all local ECS tasks to join
 // and communicate with the Amazon ECS Local Endpoints container.
 func Up(c *cli.Context) {
-	docker := newDockerClient()
-	network.Setup(docker)
+	client := docker.NewClient()
+	network.Setup(client)
 }
