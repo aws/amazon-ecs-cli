@@ -24,27 +24,11 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/aws/aws-sdk-go/service/ecs"
-	"github.com/aws/aws-sdk-go/service/secretsmanager"
-	"github.com/aws/aws-sdk-go/service/ssm"
-
 	composeV3 "github.com/docker/cli/cli/compose/types"
 	"github.com/docker/go-units"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
-
-// type Config struct {
-// 	Filename string `yaml:"-"`
-// 	Version  string
-// 	Services Services
-// 	Networks map[string]NetworkConfig   `yaml:",omitempty"`
-// 	Volumes  map[string]VolumeConfig    `yaml:",omitempty"`
-// 	Secrets  map[string]SecretConfig    `yaml:",omitempty"`
-// 	Configs  map[string]ConfigObjConfig `yaml:",omitempty"`
-// 	Extras   map[string]interface{}     `yaml:",inline"`
-// }
 
 // LinuxParams is a shim between members of ecs.LinuxParamters and their
 // corresponding fields in the Docker Compose V3 ServiceConfig
@@ -56,6 +40,11 @@ type LinuxParams struct {
 	Tmpfs   []string
 	ShmSize string
 }
+
+// SecretLabelPrefix is the prefix of Docker label keys
+// whose value is an ARN of a secret to expose to the container.
+// See https://github.com/aws/amazon-ecs-cli/issues/797
+const SecretLabelPrefix = "ecs-local.secret"
 
 // ConvertToDockerCompose creates the payload from an ECS Task Definition to be written as a docker compose file
 func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition) ([]byte, error) {
@@ -71,7 +60,6 @@ func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition) ([]byte, error) 
 		Filename: "docker-compose.local.yml",
 		Version:  "3.0",
 		Services: services,
-		// Volumes: taskDefinition.Volumes,
 	})
 
 	if err != nil {
@@ -94,10 +82,10 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	capDrop := linuxParams.CapDrop
 
 	ulimits, _ := convertUlimits(containerDefinition.Ulimits)
-	environment := convertEnvironment(containerDefinition.Environment, containerDefinition.Secrets)
+	environment := convertEnvironment(containerDefinition)
 	extraHosts := convertExtraHosts(containerDefinition.ExtraHosts)
 	healthCheck := convertHealthCheck(containerDefinition.HealthCheck)
-	labels := convertDockerLabels(containerDefinition.DockerLabels)
+	labels := convertDockerLabelsWithSecrets(containerDefinition.DockerLabels, containerDefinition.Secrets)
 	logging := convertLogging(containerDefinition.LogConfiguration)
 	volumes := convertToVolumes(containerDefinition.MountPoints)
 	ports := convertToPorts(containerDefinition.PortMappings)
@@ -200,11 +188,17 @@ func convertLogging(logConfig *ecs.LogConfiguration) *composeV3.LoggingConfig {
 	return out
 }
 
-func convertDockerLabels(labels map[string]*string) composeV3.Labels {
+func convertDockerLabelsWithSecrets(labels map[string]*string, secrets []*ecs.Secret) composeV3.Labels {
 	out := make(map[string]string)
 
 	for k, v := range labels {
 		out[k] = aws.StringValue(v)
+	}
+
+	for _, secret := range secrets {
+		name := aws.StringValue(secret.Name)
+		key := fmt.Sprintf("%s.%s", SecretLabelPrefix, name)
+		out[key] = aws.StringValue(secret.ValueFrom)
 	}
 
 	return out
@@ -252,43 +246,22 @@ func convertExtraHosts(hosts []*ecs.HostEntry) []string {
 	return out
 }
 
-func convertEnvironment(env []*ecs.KeyValuePair, secrets []*ecs.Secret) map[string]*string {
+func convertEnvironment(def *ecs.ContainerDefinition) map[string]*string {
 	out := make(map[string]*string)
-	for _, kv := range env {
+	for _, kv := range def.Environment {
 		name := aws.StringValue(kv.Name)
 		out[name] = kv.Value
 	}
 
-	for _, secret := range secrets {
-		secretArn := aws.StringValue(secret.ValueFrom)
-		secretVal, err := getContainerSecret(secretArn)
-		if err != nil {
-			logrus.Warnf("error retrieving value for secret: %s", secretArn)
-		} else {
-			name := aws.StringValue(secret.Name)
-			out[name] = aws.String(secretVal)
-		}
-	}
+	for _, secret := range def.Secrets {
+		secretName := aws.StringValue(secret.Name)
 
+		// We prefix the secret with the container name to disambiguate between
+		// containers with the same secretName but different secretValue
+		shellEnv := fmt.Sprintf("${%s_%s}", *def.Name, secretName)
+		out[secretName] = &shellEnv
+	}
 	return out
-}
-
-// FIXME WIP
-func getContainerSecret(secretArn string) (string, error) {
-	arn, err := arn.Parse(secretArn)
-	if err != nil {
-		return "", err
-	}
-
-	switch service := arn.Service; service {
-	case ssm.ServiceName:
-		// call SSM
-		return ssm.ServiceName, nil
-	case secretsmanager.ServiceName:
-		// call SecretsManager
-		return secretsmanager.ServiceName, nil
-	}
-	return "", nil
 }
 
 func convertLinuxParameters(params *ecs.LinuxParameters) LinuxParams {

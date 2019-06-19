@@ -58,13 +58,19 @@ func TestConvertToComposeService(t *testing.T) {
 	expectedCapAdd := []string{"NET_ADMIN", "MKNOD"}
 	expectedCapDrop := []string{"KILL"}
 	expectedEnvironment := map[string]*string{
-		"rails_env": aws.String("development"),
+		"rails_env":   aws.String("development"),
+		"DB_PASSWORD": aws.String("${web_DB_PASSWORD}"),
+		"API_KEY":     aws.String("${web_API_KEY}"),
 	}
 	expectedExtraHosts := []string{"somehost:162.242.195.82", "otherhost:50.31.209.229"}
 	expectedHealthCheck := &composeV3.HealthCheckConfig{
 		Test: []string{"CMD-SHELL", "echo hello"},
 	}
-	expectedLabels := composeV3.Labels{"foo": "bar"}
+	expectedLabels := composeV3.Labels{
+		"foo":                          "bar",
+		"ecs-local.secret.DB_PASSWORD": "arn:aws:secretsmanager:us-west-2:01234567:secret:mySecretSecret",
+		"ecs-local.secret.API_KEY":     "arn:aws:ssm:us-west-2:01234567:parameter/mySecretParameter",
+	}
 	expectedLogging := &composeV3.LoggingConfig{
 		Driver: "awslogs",
 		Options: map[string]string{
@@ -121,6 +127,16 @@ func TestConvertToComposeService(t *testing.T) {
 					{
 						Name:  aws.String("rails_env"),
 						Value: aws.String("development"),
+					},
+				},
+				Secrets: []*ecs.Secret{
+					{
+						Name:      aws.String("DB_PASSWORD"),
+						ValueFrom: aws.String("arn:aws:secretsmanager:us-west-2:01234567:secret:mySecretSecret"),
+					},
+					{
+						Name:      aws.String("API_KEY"),
+						ValueFrom: aws.String("arn:aws:ssm:us-west-2:01234567:parameter/mySecretParameter"),
 					},
 				},
 				ExtraHosts: []*ecs.HostEntry{
@@ -380,35 +396,6 @@ func TestConvertCapAddCapDrop(t *testing.T) {
 	assert.ElementsMatch(t, dropCapabilities, actualCapDrop)
 }
 
-func TestConvertDockerLabels(t *testing.T) {
-	input := map[string]*string{
-		"foo": aws.String("bar"),
-	}
-
-	expected := composeV3.Labels{
-		"foo": "bar",
-	}
-	actual := convertDockerLabels(input)
-
-	assert.Equal(t, expected, actual)
-}
-
-func TestConvertEnvironment(t *testing.T) {
-	input := []*ecs.KeyValuePair{
-		{
-			Name:  aws.String("rails_env"),
-			Value: aws.String("development"),
-		},
-	}
-
-	expected := map[string]*string{
-		"rails_env": aws.String("development"),
-	}
-	actual := convertEnvironment(input, nil)
-
-	assert.Equal(t, expected, actual)
-}
-
 func TestConvertExtraHosts(t *testing.T) {
 	input := []*ecs.HostEntry{
 		{
@@ -552,15 +539,4 @@ func TestConvertToSysctls(t *testing.T) {
 	actual := convertToSysctls(input)
 
 	assert.Equal(t, expected, actual)
-}
-
-func TestGetContainerSecret(t *testing.T) {
-	secretsManagerArn := "arn:aws:secretsmanager:us-west-2:01234567:secret:mySecretSecret"
-	ssmArn := "arn:aws:ssm:us-west-2:01234567:parameter/mySecretParameter"
-
-	actual, _ := getContainerSecret(secretsManagerArn)
-	assert.Equal(t, "secretsmanager", actual)
-
-	actual, _ = getContainerSecret(ssmArn)
-	assert.Equal(t, "ssm", actual)
 }
