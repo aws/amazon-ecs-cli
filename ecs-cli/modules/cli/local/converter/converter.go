@@ -1,4 +1,4 @@
-// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -11,10 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-// Package converter implements the logic to translate an ecs.TaskDefinition
-// structure to a docker compose schema, which will be written to a
-// docker-compose.local.yml file.
-
+// Package converter converts an ecs.TaskDefinition or a yaml file to a docker compose schema.
 package converter
 
 import (
@@ -58,7 +55,7 @@ const (
 
 // ConvertToDockerCompose creates the payload from an ECS Task Definition to be written as a docker compose file
 func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition, localTaskType, localTaskValue string) ([]byte, error) {
-	services := []composeV3.ServiceConfig{}
+	var services []composeV3.ServiceConfig
 	for _, containerDefinition := range taskDefinition.ContainerDefinitions {
 		service, err := convertToComposeService(containerDefinition)
 		if err != nil {
