@@ -255,6 +255,9 @@ func convertEnvironment(def *ecs.ContainerDefinition) map[string]*string {
 
 	for _, secret := range def.Secrets {
 		secretName := aws.StringValue(secret.Name)
+
+		// We prefix the secret with the container name to disambiguate between
+		// containers with the same secretName but different secretValue
 		shellEnv := fmt.Sprintf("${%s_%s}", *def.Name, secretName)
 		out[secretName] = &shellEnv
 	}
