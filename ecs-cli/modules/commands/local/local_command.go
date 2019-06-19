@@ -68,12 +68,12 @@ func downCommand() cli.Command {
 				Usage: "Stops and removes all running containers",
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionTaskFlag,
-				Usage: "Stops and removes all running containers matching the task family or ARN",
+				Name:  flags.TaskDefinitionFileFlag + ",f",
+				Usage: "Stops and removes all running containers matching the task definition file path",
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionFileFlag,
-				Usage: "Stops and removes all running containers matching the task definition file path",
+				Name:  flags.TaskDefinitionTaskFlag + ",t",
+				Usage: "Stops and removes all running containers matching the task family or ARN",
 			},
 		},
 	}
@@ -90,12 +90,12 @@ func psCommand() cli.Command {
 				Usage: "Lists all running local ECS tasks.",
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionTaskFlag,
-				Usage: "Lists all running containers matching the task family or ARN",
+				Name:  flags.TaskDefinitionFileFlag + ",f",
+				Usage: "Lists all running containers matching the task definition file path",
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionFileFlag,
-				Usage: "Lists all running containers matching the task definition file path",
+				Name:  flags.TaskDefinitionTaskFlag + ",t",
+				Usage: "Lists all running containers matching the task family or ARN",
 			},
 			cli.BoolFlag{
 				Name:  flags.JsonFlag,
@@ -109,11 +109,11 @@ func createFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
 			Name:  flags.TaskDefinitionFileFlag + ",f",
-			Usage: "The file name of the task definition to convert.",
+			Usage: "The file name of the task definition to convert",
 		},
 		cli.StringFlag{
-			Name:  flags.TaskDefinitionArnFlag + ",a",
-			Usage: "The ARN of the task definition to convert.",
+			Name:  flags.TaskDefinitionTaskFlag + ",t",
+			Usage: "The family or ARN of the task definition to convert",
 		},
 		cli.StringFlag{
 			Name:  flags.LocalOutputFlag + ",o",

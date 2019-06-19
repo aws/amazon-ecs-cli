@@ -77,18 +77,18 @@ func (p *localProject) LocalOutFileName() string {
 // ReadTaskDefinition reads an ECS Task Definition either from a local file
 // or from retrieving one from ECS and stores it on the local project
 func (p *localProject) ReadTaskDefinition() error {
-	arn := p.context.String(flags.TaskDefinitionArnFlag)
+	remote := p.context.String(flags.TaskDefinitionTaskFlag)
 	filename := p.context.String(flags.TaskDefinitionFileFlag)
 
-	if arn != "" && filename != "" {
-		return fmt.Errorf("cannot specify both --%s and --%s flags", flags.TaskDefinitionArnFlag, flags.TaskDefinitionFileFlag)
+	if remote != "" && filename != "" {
+		return fmt.Errorf("cannot specify both --%s and --%s flags", flags.TaskDefinitionTaskFlag, flags.TaskDefinitionFileFlag)
 	}
 
 	var taskDefinition *ecs.TaskDefinition
 	var err error
 
-	if arn != "" {
-		taskDefinition, err = p.readTaskDefinitionFromArn(arn)
+	if remote != "" {
+		taskDefinition, err = p.readTaskDefinitionFromRemote(remote)
 		if err != nil {
 			return err
 		}
@@ -132,8 +132,7 @@ var newCommandConfig = func(context *cli.Context, rdwr config.ReadWriter) (*conf
 	return config.NewCommandConfig(context, rdwr)
 }
 
-// FIXME: NOTE this will actually read from either ARN or Task Definition family name
-func (p *localProject) readTaskDefinitionFromArn(arn string) (*ecs.TaskDefinition, error) {
+func (p *localProject) readTaskDefinitionFromRemote(remote string) (*ecs.TaskDefinition, error) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
 		return nil, err
@@ -146,7 +145,7 @@ func (p *localProject) readTaskDefinitionFromArn(arn string) (*ecs.TaskDefinitio
 
 	ecsClient := ecsclient.NewECSClient(commandConfig)
 
-	return ecsClient.DescribeTaskDefinition(arn)
+	return ecsClient.DescribeTaskDefinition(remote)
 }
 
 // Convert translates an ECS Task Definition into a Compose V3 schema and
@@ -156,15 +155,15 @@ func (p *localProject) Convert() error {
 	// NOTE: Should add log message to warn user that decrypted secret
 	// will be written to local compose file
 
-	arn := p.context.String(flags.TaskDefinitionArnFlag)
+	remote := p.context.String(flags.TaskDefinitionTaskFlag)
 	filename := p.context.String(flags.TaskDefinitionFileFlag)
 	var (
 		data []byte
 		err  error
 	)
 
-	if arn != "" {
-		data, err = converter.ConvertToDockerCompose(p.taskDefinition, remoteTaskDefType, arn)
+	if remote != "" {
+		data, err = converter.ConvertToDockerCompose(p.taskDefinition, remoteTaskDefType, remote)
 	} else {
 		data, err = converter.ConvertToDockerCompose(p.taskDefinition, localTaskDefType, filename)
 	}
