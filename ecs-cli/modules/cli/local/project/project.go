@@ -33,9 +33,9 @@ import (
 )
 
 const (
-	LocalOutDefaultFileName = "./docker-compose.local.yml"
+	LocalOutDefaultFileName = "docker-compose.local.yml"
 	LocalOutFileMode        = os.FileMode(0600) // Owner=read/write, Other=none
-	LocalInFileName         = "./task-definition.json"
+	LocalInFileName         = "task-definition.json"
 )
 
 // Interface for a local project, holding data needed to convert an ECS Task Definition to a Docker Compose file
