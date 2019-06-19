@@ -12,7 +12,6 @@
 // permissions and limitations under the License.
 
 // Package localproject defines LocalProject interface and implements them on localProject
-
 package localproject
 
 import (

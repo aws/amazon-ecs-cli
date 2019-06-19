@@ -18,7 +18,7 @@ package local
 import (
 	"fmt"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/project"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/localproject"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 
 	log "github.com/sirupsen/logrus"
