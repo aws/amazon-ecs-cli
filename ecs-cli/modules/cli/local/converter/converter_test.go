@@ -21,6 +21,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/network"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	composeV3 "github.com/docker/cli/cli/compose/types"
@@ -79,6 +80,9 @@ func TestConvertToComposeService(t *testing.T) {
 			Source:   "volume-1",
 			ReadOnly: true,
 		},
+	}
+	expectedNetworks := map[string]*composeV3.ServiceNetworkConfig{
+		network.EcsLocalNetworkName: nil,
 	}
 	expectedPorts := []composeV3.ServicePortConfig{
 		{
@@ -224,6 +228,7 @@ func TestConvertToComposeService(t *testing.T) {
 	assert.Equal(t, expectedLabels, service.Labels, "Expected Labels to match")
 	assert.Equal(t, expectedLogging, service.Logging, "Expected Logging to match")
 	assert.Equal(t, expectedVolumes, service.Volumes, "Expected Volumes to match")
+	assert.Equal(t, expectedNetworks, service.Networks, "Expected Networks to match")
 	assert.Equal(t, expectedPorts, service.Ports, "Expected Ports to match")
 	assert.Equal(t, composeV3.StringList(expectedSysctls), service.Sysctls, "Expected Sysctls to match")
 
