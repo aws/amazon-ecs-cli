@@ -111,7 +111,9 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	volumes := convertToVolumes(containerDefinition.MountPoints)
 	ports := convertToPorts(containerDefinition.PortMappings)
 	sysctls := convertToSysctls(containerDefinition.SystemControls)
-	networks := convertToNetworks()
+	networks := map[string]*composeV3.ServiceNetworkConfig{
+		network.EcsLocalNetworkName: nil,
+	}
 
 	service := composeV3.ServiceConfig{
 		Name:        aws.StringValue(containerDefinition.Name),
@@ -148,19 +150,6 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	}
 
 	return service, nil
-}
-
-func convertToNetworks() map[string]*composeV3.ServiceNetworkConfig {
-	out := make(map[string]*composeV3.ServiceNetworkConfig)
-	aliases := []string{}
-	aliases = append(aliases, network.EcsLocalNetworkName)
-	out[network.EcsLocalNetworkName] = &composeV3.ServiceNetworkConfig{
-		Aliases:     aliases,
-		Ipv4Address: "",
-		Ipv6Address: "",
-	}
-
-	return out
 }
 
 func convertToSysctls(systemControls []*ecs.SystemControl) []string {
