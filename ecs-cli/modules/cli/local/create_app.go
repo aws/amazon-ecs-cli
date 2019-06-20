@@ -81,7 +81,7 @@ func createLocal(project localproject.LocalProject) error {
 func validateOptions(c *cli.Context) error {
 	if (c.String(flags.TaskDefinitionFileFlag) != "") && (c.String(flags.TaskDefinitionTaskFlag) != "") {
 		return fmt.Errorf("%s and %s can not be used together",
-		flags.TaskDefinitionTaskFlag, flags.TaskDefinitionFileFlag)
+			flags.TaskDefinitionTaskFlag, flags.TaskDefinitionFileFlag)
 	}
 	return nil
 }

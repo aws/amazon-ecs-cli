@@ -29,13 +29,38 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	composeV3 "github.com/docker/cli/cli/compose/types"
 	"github.com/urfave/cli"
+	yaml "gopkg.in/yaml.v2"
+)
+
+// TODO: Those three blocks of constants below should be put into another place
+const (
+	// taskDefinitionLabelType represents the type of option used to
+	// transform a task definition to a compose file e.g. remoteFile, localFile.
+	// taskDefinitionLabelValue represents the value of the option
+	// e.g. file path, arn, family.
+	taskDefinitionLabelType  = "ecsLocalTaskDefType"
+	taskDefinitionLabelValue = "ecsLocalTaskDefVal"
+)
+
+const (
+	localTaskDefType  = "localFile"
+	remoteTaskDefType = "remoteFile"
 )
 
 const (
 	LocalOutDefaultFileName = "docker-compose.local.yml"
 	LocalOutFileMode        = os.FileMode(0600) // Owner=read/write, Other=none
 	LocalInFileName         = "task-definition.json"
+)
+
+// TODO: Arn and its corresponding flags should be combined with task-def.
+var (
+	// Arn represents the task family or ARN that users assign with -arn.
+	// Filename represents the task definition file path that users assign with --file.
+	Arn      string
+	Filename string
 )
 
 // Interface for a local project, holding data needed to convert an ECS Task Definition to a Docker Compose file
@@ -72,23 +97,23 @@ func (p *localProject) LocalOutFileName() string {
 // ReadTaskDefinition reads an ECS Task Definition either from a local file
 // or from retrieving one from ECS and stores it on the local project
 func (p *localProject) ReadTaskDefinition() error {
-	arn := p.context.String(flags.TaskDefinitionArnFlag)
-	filename := p.context.String(flags.TaskDefinitionFileFlag)
+	Arn = p.context.String(flags.TaskDefinitionArnFlag)
+	Filename = p.context.String(flags.TaskDefinitionFileFlag)
 
-	if arn != "" && filename != "" {
-		return fmt.Errorf("Cannot specify both --%s and --%s flags.", flags.TaskDefinitionArnFlag, flags.TaskDefinitionFileFlag)
+	if Arn != "" && Filename != "" {
+		return fmt.Errorf("cannot specify both --%s and --%s flags", flags.TaskDefinitionArnFlag, flags.TaskDefinitionFileFlag)
 	}
 
 	var taskDefinition *ecs.TaskDefinition
 	var err error
 
-	if arn != "" {
-		taskDefinition, err = p.readTaskDefinitionFromArn(arn)
+	if Arn != "" {
+		taskDefinition, err = p.readTaskDefinitionFromArn(Arn)
 		if err != nil {
 			return err
 		}
-	} else if filename != "" {
-		taskDefinition, err = p.readTaskDefinitionFromFile(filename)
+	} else if Filename != "" {
+		taskDefinition, err = p.readTaskDefinitionFromFile(Filename)
 		if err != nil {
 			return err
 		}
@@ -150,7 +175,29 @@ func (p *localProject) Convert() error {
 	// FIXME get secrets here, pass to converter?
 	// NOTE: Should add log message to warn user that decrypted secret
 	// will be written to local compose file
-	data, err := converter.ConvertToDockerCompose(p.taskDefinition)
+	services, err := converter.ConvertToDockerCompose(p.taskDefinition)
+
+	if err != nil {
+		return err
+	}
+
+	if Arn != "" {
+		for _, service := range services {
+			service.Labels[taskDefinitionLabelType] = remoteTaskDefType
+			service.Labels[taskDefinitionLabelValue] = Arn
+		}
+	} else {
+		for _, service := range services {
+			service.Labels[taskDefinitionLabelType] = localTaskDefType
+			service.Labels[taskDefinitionLabelValue] = Filename
+		}
+	}
+
+	data, err := yaml.Marshal(&composeV3.Config{
+		Filename: "docker-compose.local.yml",
+		Version:  "3.0",
+		Services: services,
+	})
 
 	if err != nil {
 		return err

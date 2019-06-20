@@ -27,7 +27,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 	composeV3 "github.com/docker/cli/cli/compose/types"
 	"github.com/docker/go-units"
-	"gopkg.in/yaml.v2"
 )
 
 // LinuxParams is a shim between members of ecs.LinuxParamters and their
@@ -47,26 +46,17 @@ type LinuxParams struct {
 const SecretLabelPrefix = "ecs-local.secret"
 
 // ConvertToDockerCompose creates the payload from an ECS Task Definition to be written as a docker compose file
-func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition) ([]byte, error) {
+func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition) ([]composeV3.ServiceConfig, error) {
 	services := []composeV3.ServiceConfig{}
 	for _, containerDefinition := range taskDefinition.ContainerDefinitions {
 		service, err := convertToComposeService(containerDefinition)
-		if err == nil {
-			services = append(services, service)
+		if err != nil {
+			return nil, err
 		}
+		services = append(services, service)
 	}
 
-	data, err := yaml.Marshal(&composeV3.Config{
-		Filename: "docker-compose.local.yml",
-		Version:  "3.0",
-		Services: services,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
+	return services, nil
 }
 
 // TODO convert top level volumes
