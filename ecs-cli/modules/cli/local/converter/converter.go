@@ -23,6 +23,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/network"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	composeV3 "github.com/docker/cli/cli/compose/types"
@@ -56,9 +57,17 @@ func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition) ([]byte, error) 
 		}
 	}
 
+	networks := make(map[string]composeV3.NetworkConfig)
+	networks[network.EcsLocalNetworkName] = composeV3.NetworkConfig{
+		External: composeV3.External{
+			External: true,
+		},
+	}
+
 	data, err := yaml.Marshal(&composeV3.Config{
 		Filename: "docker-compose.local.yml",
 		Version:  "3.0",
+		Networks: networks,
 		Services: services,
 	})
 
@@ -90,6 +99,9 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 	volumes := convertToVolumes(containerDefinition.MountPoints)
 	ports := convertToPorts(containerDefinition.PortMappings)
 	sysctls := convertToSysctls(containerDefinition.SystemControls)
+	networks := map[string]*composeV3.ServiceNetworkConfig{
+		network.EcsLocalNetworkName: nil,
+	}
 
 	service := composeV3.ServiceConfig{
 		Name:        aws.StringValue(containerDefinition.Name),
@@ -121,6 +133,7 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 		Logging:     logging,
 		Volumes:     volumes,
 		Ports:       ports,
+		Networks:    networks,
 		Sysctls:     sysctls,
 	}
 
