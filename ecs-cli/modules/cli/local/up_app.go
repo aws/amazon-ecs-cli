@@ -25,6 +25,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/secrets"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/aws/aws-sdk-go/service/ssm"
@@ -44,8 +45,23 @@ type secretsManagerDecrypter struct {
 
 // DecryptSecret returns the decrypted parameter value from SSM.
 func (d *ssmDecrypter) DecryptSecret(arnOrName string) (string, error) {
+	defer func() {
+		// Reset the region of the client in case another SSM secret uses only the param name instead of full ARN.
+		d.client = ssm.New(session.Must(session.NewSessionWithOptions(session.Options{})))
+	}()
+
+	// If the value is an ARN we need to retrieve the parameter name and update the region of the client.
+	paramName := arnOrName
+	if parsedARN, err := arn.Parse(arnOrName); err == nil {
+		resource := strings.Split(parsedARN.Resource, "/") // Resource is formatted as parameter/{paramName}.
+		paramName = strings.Join(resource[1:], "")
+		d.client = ssm.New(session.Must(session.NewSessionWithOptions(session.Options{
+			Config: aws.Config{Region: aws.String(parsedARN.Region)},
+		})))
+	}
+
 	val, err := d.client.GetParameter(&ssm.GetParameterInput{
-		Name:           aws.String(arnOrName),
+		Name:           aws.String(paramName),
 		WithDecryption: aws.Bool(true),
 	})
 	if err != nil {
