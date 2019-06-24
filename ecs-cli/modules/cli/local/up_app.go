@@ -22,11 +22,10 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/docker"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/localproject"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/network"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/secrets"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/aws/aws-sdk-go/service/ssm"
 	composeV3 "github.com/docker/cli/cli/compose/types"
@@ -35,9 +34,35 @@ import (
 	"github.com/urfave/cli"
 )
 
-type containerSecret struct {
-	containerName string
-	ecs.Secret
+type ssmDecrypter struct {
+	client *ssm.SSM
+}
+
+type secretsManagerDecrypter struct {
+	client *secretsmanager.SecretsManager
+}
+
+// DecryptSecret returns the decrypted parameter value from SSM.
+func (d *ssmDecrypter) DecryptSecret(arnOrName string) (string, error) {
+	val, err := d.client.GetParameter(&ssm.GetParameterInput{
+		Name:           aws.String(arnOrName),
+		WithDecryption: aws.Bool(true),
+	})
+	if err != nil {
+		return "", errors.Wrapf(err, "Failed to retrieve decrypted secret from %s due to %v", arnOrName, err)
+	}
+	return *val.Parameter.Value, nil
+}
+
+// DecryptSecret returns the decrypter secret value from Secrets Manager.
+func (d *secretsManagerDecrypter) DecryptSecret(arn string) (string, error) {
+	val, err := d.client.GetSecretValue(&secretsmanager.GetSecretValueInput{
+		SecretId: aws.String(arn),
+	})
+	if err != nil {
+		return "", errors.Wrapf(err, "Failed to retrieve decrypted secret from %s due to %v", arn, err)
+	}
+	return *val.SecretString, nil
 }
 
 // Up creates a Compose file from an ECS task definition and runs it locally.
@@ -71,86 +96,50 @@ func readComposeFile(c *cli.Context) *composeV3.Config {
 	return config
 }
 
-func readSecrets(config *composeV3.Config) []containerSecret {
-	var secrets []containerSecret
+func readSecrets(config *composeV3.Config) []*secrets.ContainerSecret {
+	var containerSecrets []*secrets.ContainerSecret
 	for _, service := range config.Services {
-		for label, arn := range service.Labels {
+		for label, secretARN := range service.Labels {
 			if !strings.HasPrefix(label, converter.SecretLabelPrefix) {
 				continue
 			}
 			namespaces := strings.Split(label, ".")
-			name := namespaces[len(namespaces)-1]
-			secrets = append(secrets, containerSecret{
-				containerName: service.Name,
-				Secret: ecs.Secret{
-					Name:      aws.String(name),
-					ValueFrom: aws.String(arn),
-				},
-			})
+			secretName := namespaces[len(namespaces)-1]
+
+			containerSecrets = append(containerSecrets, secrets.NewContainerSecret(service.Name, secretName, secretARN))
 		}
 	}
-	return secrets
+	return containerSecrets
 }
 
-func decryptSecrets(secrets []containerSecret) (envVars map[string]string) {
-	sess, err := session.NewSession()
+func decryptSecrets(containerSecrets []*secrets.ContainerSecret) (envVars map[string]string) {
+	ssmClient, err := newSSMDecrypter()
+	secretsManagerClient, err := newSecretsManagerDecrypter()
 	if err != nil {
-		logrus.Fatalf("Failed to create a new AWS session due to %v", err)
+		logrus.Fatal(err.Error())
 	}
-	ssmClient := ssm.New(sess)
-	secretsManagerClient := secretsmanager.New(sess)
 
 	envVars = make(map[string]string)
-	for _, secret := range secrets {
-		service, err := serviceNameOf(aws.StringValue(secret.ValueFrom))
+	for _, containerSecret := range containerSecrets {
+		service, err := containerSecret.ServiceName()
 		if err != nil {
 			logrus.Fatalf("Failed to retrieve the service of the secret due to %v", err)
 		}
 
-		// See https://github.com/aws/amazon-ecs-cli/issues/797
-		name := fmt.Sprintf("%s_%s", secret.containerName, *secret.Name)
+		decrypted := ""
+		err = nil
 		if service == secretsmanager.ServiceName {
-			val, err := secretsManagerClient.GetSecretValue(&secretsmanager.GetSecretValueInput{
-				SecretId: secret.ValueFrom,
-			})
-			if err != nil {
-				logrus.Fatalf("Failed to retrieve secret value with ARN %s due to %v", *secret.ValueFrom, err)
-			}
-			envVars[name] = *val.SecretString
+			decrypted, err = containerSecret.Decrypt(secretsManagerClient)
 		}
 		if service == ssm.ServiceName {
-			val, err := ssmClient.GetParameter(&ssm.GetParameterInput{
-				Name:           secret.ValueFrom,
-				WithDecryption: aws.Bool(true),
-			})
-			if err != nil {
-				logrus.Fatalf("Failed to retrieve parameter value with ARN %s due to %v", *secret.ValueFrom, err)
-			}
-			envVars[name] = *val.Parameter.Value
+			decrypted, err = containerSecret.Decrypt(ssmClient)
 		}
+		if err != nil {
+			logrus.Fatal(err.Error())
+		}
+		envVars[containerSecret.Name()] = decrypted
 	}
 	return
-}
-
-// serviceNameOf returns the service name of the secret based on its ARN value.
-// It can be from either from SSM or Secrets Manager service.
-func serviceNameOf(value string) (string, error) {
-	parsedARN, err := arn.Parse(value)
-	if err != nil {
-		if strings.Contains(err.Error(), "arn: invalid prefix") {
-			// If the Systems Manager Parameter Store parameter exists in the same Region,
-			// then you can use either the full ARN or name of the parameter.
-			return ssm.ServiceName, nil
-		}
-		return "", errors.Wrapf(err, "Could not determine the service name of %s", value)
-	}
-	if parsedARN.Service == secretsmanager.ServiceName {
-		return secretsmanager.ServiceName, nil
-	}
-	if parsedARN.Service == ssm.ServiceName {
-		return ssm.ServiceName, nil
-	}
-	return "", errors.Wrapf(err, "Unexpected service %s for secret %s", parsedARN.Service, value)
 }
 
 func upComposeFile(config *composeV3.Config, envVars map[string]string) {
@@ -167,4 +156,24 @@ func upComposeFile(config *composeV3.Config, envVars map[string]string) {
 		logrus.Fatalf("Failed to run docker-compose up due to %v", err)
 	}
 	fmt.Printf("Compose out: %s\n", string(out)) // TODO logrus?
+}
+
+func newSSMDecrypter() (*ssmDecrypter, error) {
+	sess, err := session.NewSession()
+	if err != nil {
+		return nil, errors.Wrapf(err, "Failed to create a new AWS session due to %v", err)
+	}
+	return &ssmDecrypter{
+		client: ssm.New(sess),
+	}, nil
+}
+
+func newSecretsManagerDecrypter() (*secretsManagerDecrypter, error) {
+	sess, err := session.NewSession()
+	if err != nil {
+		return nil, errors.Wrapf(err, "Failed to create a new AWS session due to %v", err)
+	}
+	return &secretsManagerDecrypter{
+		client: secretsmanager.New(sess),
+	}, nil
 }
