@@ -33,6 +33,11 @@ import (
 )
 
 const (
+	localTaskDefType  = "localFile"
+	remoteTaskDefType = "remoteFile"
+)
+
+const (
 	LocalOutDefaultFileName = "docker-compose.local.yml"
 	LocalOutFileMode        = os.FileMode(0600) // Owner=read/write, Other=none
 	LocalInFileName         = "task-definition.json"
@@ -76,7 +81,7 @@ func (p *localProject) ReadTaskDefinition() error {
 	filename := p.context.String(flags.TaskDefinitionFileFlag)
 
 	if arn != "" && filename != "" {
-		return fmt.Errorf("Cannot specify both --%s and --%s flags.", flags.TaskDefinitionArnFlag, flags.TaskDefinitionFileFlag)
+		return fmt.Errorf("cannot specify both --%s and --%s flags", flags.TaskDefinitionArnFlag, flags.TaskDefinitionFileFlag)
 	}
 
 	var taskDefinition *ecs.TaskDefinition
@@ -150,7 +155,19 @@ func (p *localProject) Convert() error {
 	// FIXME get secrets here, pass to converter?
 	// NOTE: Should add log message to warn user that decrypted secret
 	// will be written to local compose file
-	data, err := converter.ConvertToDockerCompose(p.taskDefinition)
+
+	arn := p.context.String(flags.TaskDefinitionArnFlag)
+	filename := p.context.String(flags.TaskDefinitionFileFlag)
+	var (
+		data []byte
+		err  error
+	)
+
+	if arn != "" {
+		data, err = converter.ConvertToDockerCompose(p.taskDefinition, remoteTaskDefType, arn)
+	} else {
+		data, err = converter.ConvertToDockerCompose(p.taskDefinition, localTaskDefType, filename)
+	}
 
 	if err != nil {
 		return err
