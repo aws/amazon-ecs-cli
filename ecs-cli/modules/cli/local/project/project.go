@@ -43,14 +43,6 @@ const (
 	LocalInFileName         = "task-definition.json"
 )
 
-// TODO: Arn and its corresponding flags should be combined with task-def.
-var (
-	// Arn represents the task family or ARN that users assign with -arn.
-	// Filename represents the task definition file path that users assign with --file.
-	Arn      string
-	Filename string
-)
-
 // Interface for a local project, holding data needed to convert an ECS Task Definition to a Docker Compose file
 type LocalProject interface {
 	ReadTaskDefinition() error
@@ -85,23 +77,23 @@ func (p *localProject) LocalOutFileName() string {
 // ReadTaskDefinition reads an ECS Task Definition either from a local file
 // or from retrieving one from ECS and stores it on the local project
 func (p *localProject) ReadTaskDefinition() error {
-	Arn = p.context.String(flags.TaskDefinitionArnFlag)
-	Filename = p.context.String(flags.TaskDefinitionFileFlag)
+	arn := p.context.String(flags.TaskDefinitionArnFlag)
+	filename := p.context.String(flags.TaskDefinitionFileFlag)
 
-	if Arn != "" && Filename != "" {
+	if arn != "" && filename != "" {
 		return fmt.Errorf("cannot specify both --%s and --%s flags", flags.TaskDefinitionArnFlag, flags.TaskDefinitionFileFlag)
 	}
 
 	var taskDefinition *ecs.TaskDefinition
 	var err error
 
-	if Arn != "" {
-		taskDefinition, err = p.readTaskDefinitionFromArn(Arn)
+	if arn != "" {
+		taskDefinition, err = p.readTaskDefinitionFromArn(arn)
 		if err != nil {
 			return err
 		}
-	} else if Filename != "" {
-		taskDefinition, err = p.readTaskDefinitionFromFile(Filename)
+	} else if filename != "" {
+		taskDefinition, err = p.readTaskDefinitionFromFile(filename)
 		if err != nil {
 			return err
 		}
@@ -164,15 +156,17 @@ func (p *localProject) Convert() error {
 	// NOTE: Should add log message to warn user that decrypted secret
 	// will be written to local compose file
 
+	arn := p.context.String(flags.TaskDefinitionArnFlag)
+	filename := p.context.String(flags.TaskDefinitionFileFlag)
 	var (
 		data []byte
 		err  error
 	)
 
-	if Arn != "" {
-		data, err = converter.ConvertToDockerCompose(p.taskDefinition, remoteTaskDefType, Arn)
+	if arn != "" {
+		data, err = converter.ConvertToDockerCompose(p.taskDefinition, remoteTaskDefType, arn)
 	} else {
-		data, err = converter.ConvertToDockerCompose(p.taskDefinition, localTaskDefType, Filename)
+		data, err = converter.ConvertToDockerCompose(p.taskDefinition, localTaskDefType, filename)
 	}
 
 	if err != nil {
