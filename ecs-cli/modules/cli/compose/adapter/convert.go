@@ -222,6 +222,20 @@ func ConvertToTimeInSeconds(d *time.Duration) *int64 {
 	return &val
 }
 
+func ConvertDurationStrToSeconds(d string) (*int64, error) {
+	// if not set (i.e. ""), which is a valid case, then simply return
+	// nil to indicate the fact.
+	if d == "" {
+		return nil, nil
+	}
+	duration, err := time.ParseDuration(d)
+	if err != nil {
+		return nil, err
+	}
+	result := (int64)(duration.Seconds())
+	return &result, nil
+}
+
 // ConvertToMountPoints transforms the yml volumes slice to ecs compatible MountPoints slice
 // It also uses the hostPath from volumes if present, else adds one to it
 func ConvertToMountPoints(cfgVolumes *yaml.Volumes, volumes *Volumes) ([]*ecs.MountPoint, error) {

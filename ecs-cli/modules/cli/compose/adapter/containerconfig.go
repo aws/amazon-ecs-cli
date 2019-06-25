@@ -32,6 +32,7 @@ type ContainerConfig struct {
 	PseudoTerminal        bool
 	ReadOnly              bool
 	ShmSize               int64
+	StopTimeout           *int64
 	Tmpfs                 []*ecs.Tmpfs
 	Ulimits               []*ecs.Ulimit
 	VolumesFrom           []*ecs.VolumeFrom

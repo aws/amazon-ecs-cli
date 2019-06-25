@@ -15,6 +15,7 @@ package utils
 
 import (
 	"errors"
+
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -83,6 +84,11 @@ func reconcileContainerDef(inputCfg *adapter.ContainerConfig, ecsConDef *Contain
 	// for shared memory if shmSize is null.
 	if inputCfg.ShmSize != 0 {
 		outputContDef.LinuxParameters.SetSharedMemorySize(inputCfg.ShmSize)
+	}
+
+	// Only set stopTimeout if specified
+	if inputCfg.StopTimeout != nil {
+		outputContDef.SetStopTimeout(*inputCfg.StopTimeout)
 	}
 
 	// Only set tmpfs if tmpfs mounts are specified.

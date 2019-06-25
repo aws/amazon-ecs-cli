@@ -77,6 +77,7 @@ services:
       - "80:80"
     links:
       - mysql
+    stop_grace_period: "1m30s"
   mysql:
     image: mysql:5.7
     cpu_shares: 100

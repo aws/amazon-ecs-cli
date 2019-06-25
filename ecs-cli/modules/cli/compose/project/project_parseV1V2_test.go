@@ -282,6 +282,8 @@ func TestParseV1V2_Version2Files(t *testing.T) {
 		},
 	}
 	shmSize := int64(1024) // 1 gb = 1024 miB
+	stg := int64(60)
+	stopGracePeriod := &stg
 	tmpfs := []*ecs.Tmpfs{
 		{
 			ContainerPath: aws.String("/run"),
@@ -317,6 +319,7 @@ services:
     mem_reservation: 500000000
     mem_limit: 512M
     shm_size: 1gb
+    stop_grace_period: "1m"
     tmpfs:
       - /run:size=1gb
       - /tmp:size=65536k,ro,rw
@@ -371,6 +374,7 @@ volumes:
 	assert.Equal(t, memory, wordpress.Memory, "Expected Memory to match")
 	assert.Equal(t, ports, wordpress.PortMappings, "Expected ports to match")
 	assert.Equal(t, shmSize, wordpress.ShmSize, "Expected shmSize to match")
+	assert.Equal(t, stopGracePeriod, wordpress.StopTimeout, "Expected StopTimeout to match")
 	assert.ElementsMatch(t, tmpfs, wordpress.Tmpfs, "Expected tmpfs to match")
 	assert.Equal(t, volumesFrom, wordpress.VolumesFrom, "Expected VolumesFrom to match")
 
