@@ -29,19 +29,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/service/ecs"
-	composeV3 "github.com/docker/cli/cli/compose/types"
 	"github.com/urfave/cli"
-	yaml "gopkg.in/yaml.v2"
-)
-
-// TODO: Those three blocks of constants below should be put into another place
-const (
-	// taskDefinitionLabelType represents the type of option used to
-	// transform a task definition to a compose file e.g. remoteFile, localFile.
-	// taskDefinitionLabelValue represents the value of the option
-	// e.g. file path, arn, family.
-	taskDefinitionLabelType  = "ecsLocalTaskDefType"
-	taskDefinitionLabelValue = "ecsLocalTaskDefVal"
 )
 
 const (
@@ -175,29 +163,17 @@ func (p *localProject) Convert() error {
 	// FIXME get secrets here, pass to converter?
 	// NOTE: Should add log message to warn user that decrypted secret
 	// will be written to local compose file
-	services, err := converter.ConvertToDockerCompose(p.taskDefinition)
 
-	if err != nil {
-		return err
-	}
+	var (
+		data []byte
+		err  error
+	)
 
 	if Arn != "" {
-		for _, service := range services {
-			service.Labels[taskDefinitionLabelType] = remoteTaskDefType
-			service.Labels[taskDefinitionLabelValue] = Arn
-		}
+		data, err = converter.ConvertToDockerCompose(p.taskDefinition, remoteTaskDefType, Arn)
 	} else {
-		for _, service := range services {
-			service.Labels[taskDefinitionLabelType] = localTaskDefType
-			service.Labels[taskDefinitionLabelValue] = Filename
-		}
+		data, err = converter.ConvertToDockerCompose(p.taskDefinition, localTaskDefType, Filename)
 	}
-
-	data, err := yaml.Marshal(&composeV3.Config{
-		Filename: "docker-compose.local.yml",
-		Version:  "3.0",
-		Services: services,
-	})
 
 	if err != nil {
 		return err

@@ -27,6 +27,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 	composeV3 "github.com/docker/cli/cli/compose/types"
 	"github.com/docker/go-units"
+	yaml "gopkg.in/yaml.v2"
 )
 
 // LinuxParams is a shim between members of ecs.LinuxParamters and their
@@ -45,8 +46,17 @@ type LinuxParams struct {
 // See https://github.com/aws/amazon-ecs-cli/issues/797
 const SecretLabelPrefix = "ecs-local.secret"
 
+const (
+	// taskDefinitionLabelType represents the type of option used to
+	// transform a task definition to a compose file e.g. remoteFile, localFile.
+	// taskDefinitionLabelValue represents the value of the option
+	// e.g. file path, arn, family.
+	taskDefinitionLabelType  = "ecs-local.task.type"
+	taskDefinitionLabelValue = "ecs-local.task.value"
+)
+
 // ConvertToDockerCompose creates the payload from an ECS Task Definition to be written as a docker compose file
-func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition) ([]composeV3.ServiceConfig, error) {
+func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition, localTaskType, localTaskValue string) ([]byte, error) {
 	services := []composeV3.ServiceConfig{}
 	for _, containerDefinition := range taskDefinition.ContainerDefinitions {
 		service, err := convertToComposeService(containerDefinition)
@@ -56,7 +66,22 @@ func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition) ([]composeV3.Ser
 		services = append(services, service)
 	}
 
-	return services, nil
+	for _, service := range services {
+		service.Labels[taskDefinitionLabelType] = localTaskType
+		service.Labels[taskDefinitionLabelValue] = localTaskValue
+	}
+
+	data, err := yaml.Marshal(&composeV3.Config{
+		Filename: "docker-compose.local.yml",
+		Version:  "3.0",
+		Services: services,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
 
 // TODO convert top level volumes
