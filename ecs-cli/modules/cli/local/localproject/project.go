@@ -31,11 +31,17 @@ import (
 	"github.com/urfave/cli"
 )
 
+// LocalTaskDefType represents the task is defined from a local file.
+// RemoteTaskDefType re[resents the task is defined from a remote file.
 const (
-	localTaskDefType  = "localFile"
-	remoteTaskDefType = "remoteFile"
+	LocalTaskDefType  = "localFile"
+	RemoteTaskDefType = "remoteFile"
 )
 
+// LocalOutDefaultFileName represents the default name for the output Docker
+// Compose file.
+// LocalOutFileMode represents the file can be read/write by its owner.
+// LocalInFileName represents the default local file name for task definition JSON.
 const (
 	LocalOutDefaultFileName = "docker-compose.local.yml"
 	LocalOutFileMode        = os.FileMode(0600) // Owner=read/write, Other=none
@@ -162,9 +168,9 @@ func (p *localProject) Convert() error {
 	)
 
 	if remote != "" {
-		data, err = converter.ConvertToDockerCompose(p.taskDefinition, remoteTaskDefType, remote)
+		data, err = converter.ConvertToDockerCompose(p.taskDefinition, RemoteTaskDefType, remote)
 	} else {
-		data, err = converter.ConvertToDockerCompose(p.taskDefinition, localTaskDefType, filename)
+		data, err = converter.ConvertToDockerCompose(p.taskDefinition, LocalTaskDefType, filename)
 	}
 
 	if err != nil {

@@ -44,13 +44,13 @@ type LinuxParams struct {
 // See https://github.com/aws/amazon-ecs-cli/issues/797
 const SecretLabelPrefix = "ecs-local.secret"
 
+// TaskDefinitionLabelType represents the type of option used to
+// transform a task definition to a compose file e.g. remoteFile, localFile.
+// TaskDefinitionLabelValue represents the value of the option
+// e.g. file path, arn, family.
 const (
-	// taskDefinitionLabelType represents the type of option used to
-	// transform a task definition to a compose file e.g. remoteFile, localFile.
-	// taskDefinitionLabelValue represents the value of the option
-	// e.g. file path, arn, family.
-	taskDefinitionLabelType  = "ecs-local.task.type"
-	taskDefinitionLabelValue = "ecs-local.task.value"
+	TaskDefinitionLabelType  = "ecs-local.task.type"
+	TaskDefinitionLabelValue = "ecs-local.task.value"
 )
 
 // ConvertToDockerCompose creates the payload from an ECS Task Definition to be written as a docker compose file
@@ -65,8 +65,8 @@ func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition, localTaskType, l
 	}
 
 	for _, service := range services {
-		service.Labels[taskDefinitionLabelType] = localTaskType
-		service.Labels[taskDefinitionLabelValue] = localTaskValue
+		service.Labels[TaskDefinitionLabelType] = localTaskType
+		service.Labels[TaskDefinitionLabelValue] = localTaskValue
 	}
 
 	networks := make(map[string]composeV3.NetworkConfig)
