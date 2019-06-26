@@ -31,21 +31,24 @@ import (
 	"github.com/urfave/cli"
 )
 
-// LocalTaskDefType represents the task is defined from a local file.
-// RemoteTaskDefType re[resents the task is defined from a remote file.
 const (
-	LocalTaskDefType  = "localFile"
+	// LocalTaskDefType represents the task is defined from a local file.
+	LocalTaskDefType = "localFile"
+
+	// RemoteTaskDefType re[resents the task is defined from a remote file.
 	RemoteTaskDefType = "remoteFile"
 )
 
-// LocalOutDefaultFileName represents the default name for the output Docker
-// Compose file.
-// LocalOutFileMode represents the file can be read/write by its owner.
-// LocalInFileName represents the default local file name for task definition JSON.
 const (
+	// LocalOutDefaultFileName represents the default name for the output Docker
+	// Compose file.
 	LocalOutDefaultFileName = "docker-compose.local.yml"
-	LocalOutFileMode        = os.FileMode(0600) // Owner=read/write, Other=none
-	LocalInFileName         = "task-definition.json"
+
+	// LocalOutFileMode represents the file can be read/write by its owner.
+	LocalOutFileMode = os.FileMode(0600) // Owner=read/write, Other=none
+
+	// LocalInFileName represents the default local file name for task definition JSON.
+	LocalInFileName = "task-definition.json"
 )
 
 // Interface for a local project, holding data needed to convert an ECS Task Definition to a Docker Compose file

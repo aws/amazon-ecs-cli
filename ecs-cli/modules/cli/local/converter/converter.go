@@ -44,12 +44,13 @@ type LinuxParams struct {
 // See https://github.com/aws/amazon-ecs-cli/issues/797
 const SecretLabelPrefix = "ecs-local.secret"
 
-// TaskDefinitionLabelType represents the type of option used to
-// transform a task definition to a compose file e.g. remoteFile, localFile.
-// TaskDefinitionLabelValue represents the value of the option
-// e.g. file path, arn, family.
 const (
-	TaskDefinitionLabelType  = "ecs-local.task.type"
+	// TaskDefinitionLabelType represents the type of option used to
+	// transform a task definition to a compose file e.g. remoteFile, localFile.
+	TaskDefinitionLabelType = "ecs-local.task.type"
+
+	// TaskDefinitionLabelValue represents the value of the option
+	// e.g. file path, arn, family.
 	TaskDefinitionLabelValue = "ecs-local.task.value"
 )
 
