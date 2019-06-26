@@ -55,18 +55,9 @@ const (
 
 // ConvertToDockerCompose creates the payload from an ECS Task Definition to be written as a docker compose file
 func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition, localTaskType, localTaskValue string) ([]byte, error) {
-	var services []composeV3.ServiceConfig
-	for _, containerDefinition := range taskDefinition.ContainerDefinitions {
-		service, err := convertToComposeService(containerDefinition)
-		if err != nil {
-			return nil, err
-		}
-		services = append(services, service)
-	}
-
-	for _, service := range services {
-		service.Labels[taskDefinitionLabelType] = localTaskType
-		service.Labels[taskDefinitionLabelValue] = localTaskValue
+	services, err := createComposeServices(taskDefinition, localTaskType, localTaskValue)
+	if err != nil {
+		return nil, err
 	}
 
 	networks := make(map[string]composeV3.NetworkConfig)
@@ -82,6 +73,7 @@ func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition, localTaskType, l
 		Networks: networks,
 		Services: services,
 	})
+	// TODO convert top level volumes
 
 	if err != nil {
 		return nil, err
@@ -90,10 +82,35 @@ func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition, localTaskType, l
 	return data, nil
 }
 
-// TODO convert top level volumes
-// TODO convert top level Neworks
+func createComposeServices(taskDefinition *ecs.TaskDefinition, localTaskType, localTaskValue string) ([]composeV3.ServiceConfig, error) {
+	networkMode := aws.StringValue(taskDefinition.NetworkMode)
+	if networkMode == ecs.NetworkModeAwsvpc {
+		return nil, fmt.Errorf("Network mode %s is not supported", networkMode)
+	}
 
-func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (composeV3.ServiceConfig, error) {
+	if len(taskDefinition.ContainerDefinitions) < 1 {
+		return nil, fmt.Errorf("A Task Definition must include at least one container definition")
+	}
+
+	var services []composeV3.ServiceConfig
+
+	for _, containerDefinition := range taskDefinition.ContainerDefinitions {
+		service, err := convertToComposeService(containerDefinition, networkMode)
+		if err != nil {
+			return nil, err
+		}
+		services = append(services, service)
+	}
+
+	for _, service := range services {
+		service.Labels[taskDefinitionLabelType] = localTaskType
+		service.Labels[taskDefinitionLabelValue] = localTaskValue
+	}
+
+	return services, nil
+}
+
+func convertToComposeService(containerDefinition *ecs.ContainerDefinition, networkMode string) (composeV3.ServiceConfig, error) {
 	linuxParams := convertLinuxParameters(containerDefinition.LinuxParameters)
 	tmpfs := linuxParams.Tmpfs
 	init := linuxParams.Init
@@ -146,6 +163,7 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition) (comp
 		Volumes:     volumes,
 		Ports:       ports,
 		Networks:    networks,
+		NetworkMode: networkMode,
 		Sysctls:     sysctls,
 	}
 
