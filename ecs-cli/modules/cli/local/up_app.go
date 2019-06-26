@@ -23,10 +23,8 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/localproject"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/network"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/secrets"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/secrets/clients"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/arn"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/aws/aws-sdk-go/service/ssm"
 	composeV3 "github.com/docker/cli/cli/compose/types"
@@ -34,52 +32,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
-
-type ssmDecrypter struct {
-	client *ssm.SSM
-}
-
-type secretsManagerDecrypter struct {
-	client *secretsmanager.SecretsManager
-}
-
-// DecryptSecret returns the decrypted parameter value from SSM.
-func (d *ssmDecrypter) DecryptSecret(arnOrName string) (string, error) {
-	defer func() {
-		// Reset the region of the client in case another SSM secret uses only the param name instead of full ARN.
-		d.client = ssm.New(session.Must(session.NewSessionWithOptions(session.Options{})))
-	}()
-
-	// If the value is an ARN we need to retrieve the parameter name and update the region of the client.
-	paramName := arnOrName
-	if parsedARN, err := arn.Parse(arnOrName); err == nil {
-		resource := strings.Split(parsedARN.Resource, "/") // Resource is formatted as parameter/{paramName}.
-		paramName = strings.Join(resource[1:], "")
-		d.client = ssm.New(session.Must(session.NewSessionWithOptions(session.Options{
-			Config: aws.Config{Region: aws.String(parsedARN.Region)},
-		})))
-	}
-
-	val, err := d.client.GetParameter(&ssm.GetParameterInput{
-		Name:           aws.String(paramName),
-		WithDecryption: aws.Bool(true),
-	})
-	if err != nil {
-		return "", errors.Wrapf(err, "Failed to retrieve decrypted secret from %s due to %v", arnOrName, err)
-	}
-	return *val.Parameter.Value, nil
-}
-
-// DecryptSecret returns the decrypter secret value from Secrets Manager.
-func (d *secretsManagerDecrypter) DecryptSecret(arn string) (string, error) {
-	val, err := d.client.GetSecretValue(&secretsmanager.GetSecretValueInput{
-		SecretId: aws.String(arn),
-	})
-	if err != nil {
-		return "", errors.Wrapf(err, "Failed to retrieve decrypted secret from %s due to %v", arn, err)
-	}
-	return *val.SecretString, nil
-}
 
 // Up creates a Compose file from an ECS task definition and runs it locally.
 //
@@ -129,10 +81,10 @@ func readSecrets(config *composeV3.Config) []*secrets.ContainerSecret {
 }
 
 func decryptSecrets(containerSecrets []*secrets.ContainerSecret) (envVars map[string]string) {
-	ssmClient, err := newSSMDecrypter()
-	secretsManagerClient, err := newSecretsManagerDecrypter()
+	ssmClient, err := clients.NewSSMDecrypter()
+	secretsManagerClient, err := clients.NewSecretsManagerDecrypter()
 	if err != nil {
-		logrus.Fatal(err.Error())
+		logrus.Fatalf("Failed to create clients to decrypt secrets due to %v", err)
 	}
 
 	envVars = make(map[string]string)
@@ -144,20 +96,23 @@ func decryptSecrets(containerSecrets []*secrets.ContainerSecret) (envVars map[st
 
 		decrypted := ""
 		err = nil
-		if service == secretsmanager.ServiceName {
+		switch service {
+		case secretsmanager.ServiceName:
 			decrypted, err = containerSecret.Decrypt(secretsManagerClient)
-		}
-		if service == ssm.ServiceName {
+		case ssm.ServiceName:
 			decrypted, err = containerSecret.Decrypt(ssmClient)
+		default:
+			err = errors.New(fmt.Sprintf("can't decrypt secret from service %s", service))
 		}
 		if err != nil {
-			logrus.Fatal(err.Error())
+			logrus.Fatalf("Failed to decrypt secret due to %v", err)
 		}
 		envVars[containerSecret.Name()] = decrypted
 	}
 	return
 }
 
+// upComposeFile starts the containers in the Compose config with the environment variables defined in envVars.
 func upComposeFile(config *composeV3.Config, envVars map[string]string) {
 	var envs []string
 	for env, val := range envVars {
@@ -171,25 +126,5 @@ func upComposeFile(config *composeV3.Config, envVars map[string]string) {
 	if err != nil {
 		logrus.Fatalf("Failed to run docker-compose up due to %v", err)
 	}
-	fmt.Printf("Compose out: %s\n", string(out)) // TODO logrus?
-}
-
-func newSSMDecrypter() (*ssmDecrypter, error) {
-	sess, err := session.NewSession()
-	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to create a new AWS session due to %v", err)
-	}
-	return &ssmDecrypter{
-		client: ssm.New(sess),
-	}, nil
-}
-
-func newSecretsManagerDecrypter() (*secretsManagerDecrypter, error) {
-	sess, err := session.NewSession()
-	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to create a new AWS session due to %v", err)
-	}
-	return &secretsManagerDecrypter{
-		client: secretsmanager.New(sess),
-	}, nil
+	fmt.Printf("Compose out: %s\n", string(out))
 }

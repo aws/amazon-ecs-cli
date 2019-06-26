@@ -11,7 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-// Package converter converts an ecs.TaskDefinition or a yaml file to a docker compose schema.
+// Package converter translates entities to a docker compose schema and vice versa.
 package converter
 
 import (
