@@ -42,6 +42,11 @@ func TestUp(t *testing.T, conf *CLIConfig, options ...func([]string) []string) *
 		"--cluster-config",
 		conf.ConfigName,
 	}
+
+	// forces the recreation of any existing resources that match current configuration
+	// in case of a previously failed integ test
+	args = append(args, "--force")
+
 	for _, option := range options {
 		args = option(args)
 	}
