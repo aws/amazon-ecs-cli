@@ -32,14 +32,23 @@ import (
 )
 
 const (
-	localTaskDefType  = "localFile"
-	remoteTaskDefType = "remoteFile"
+	// LocalTaskDefType represents the task is defined from a local file.
+	LocalTaskDefType = "localFile"
+
+	// RemoteTaskDefType re[resents the task is defined from a remote file.
+	RemoteTaskDefType = "remoteFile"
 )
 
 const (
+	// LocalOutDefaultFileName represents the default name for the output Docker
+	// Compose file.
 	LocalOutDefaultFileName = "docker-compose.local.yml"
-	LocalOutFileMode        = os.FileMode(0600) // Owner=read/write, Other=none
-	LocalInFileName         = "task-definition.json"
+
+	// LocalOutFileMode represents the file can be read/write by its owner.
+	LocalOutFileMode = os.FileMode(0600) // Owner=read/write, Other=none
+
+	// LocalInFileName represents the default local file name for task definition JSON.
+	LocalInFileName = "task-definition.json"
 )
 
 // Interface for a local project, holding data needed to convert an ECS Task Definition to a Docker Compose file
@@ -162,9 +171,9 @@ func (p *localProject) Convert() error {
 	)
 
 	if remote != "" {
-		data, err = converter.ConvertToDockerCompose(p.taskDefinition, remoteTaskDefType, remote)
+		data, err = converter.ConvertToDockerCompose(p.taskDefinition, RemoteTaskDefType, remote)
 	} else {
-		data, err = converter.ConvertToDockerCompose(p.taskDefinition, localTaskDefType, filename)
+		data, err = converter.ConvertToDockerCompose(p.taskDefinition, LocalTaskDefType, filename)
 	}
 
 	if err != nil {

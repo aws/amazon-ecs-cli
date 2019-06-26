@@ -19,7 +19,9 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/converter"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/docker"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/localproject"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/network"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/docker/docker/api/types"
@@ -43,21 +45,21 @@ func Down(c *cli.Context) error {
 
 	if c.String(flags.TaskDefinitionFileFlag) != "" {
 		return downLocalContainersWithFilters(filters.NewArgs(
-			filters.Arg("label", fmt.Sprintf("%s=%s", taskDefinitionLabelValue,
+			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue,
 				c.String(flags.TaskDefinitionFileFlag))),
-			filters.Arg("label", fmt.Sprintf("%s=%s", taskDefinitionLabelType, localTaskDefType)),
+			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.LocalTaskDefType)),
 		))
 	}
 	if c.String(flags.TaskDefinitionTaskFlag) != "" {
 		return downLocalContainersWithFilters(filters.NewArgs(
-			filters.Arg("label", fmt.Sprintf("%s=%s", taskDefinitionLabelValue,
+			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue,
 				c.String(flags.TaskDefinitionTaskFlag))),
-			filters.Arg("label", fmt.Sprintf("%s=%s", taskDefinitionLabelType, remoteTaskDefType)),
+			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.RemoteTaskDefType)),
 		))
 	}
 	if c.Bool(flags.AllFlag) {
 		return downLocalContainersWithFilters(filters.NewArgs(
-			filters.Arg("label", taskDefinitionLabelValue),
+			filters.Arg("label", converter.TaskDefinitionLabelValue),
 		))
 	}
 	return downComposeLocalContainers()
@@ -65,12 +67,12 @@ func Down(c *cli.Context) error {
 
 func downComposeLocalContainers() error {
 	wd, _ := os.Getwd()
-	if _, err := os.Stat(filepath.Join(wd, ecsLocalDockerComposeFileName)); os.IsNotExist(err) {
-		logrus.Fatalf("Compose file %s does not exist in current directory", ecsLocalDockerComposeFileName)
+	if _, err := os.Stat(filepath.Join(wd, localproject.LocalOutDefaultFileName)); os.IsNotExist(err) {
+		logrus.Fatalf("Compose file %s does not exist in current directory", localproject.LocalOutDefaultFileName)
 	}
 
-	logrus.Infof("Running Compose down on %s", ecsLocalDockerComposeFileName)
-	cmd := exec.Command("docker-compose", "-f", ecsLocalDockerComposeFileName, "down")
+	logrus.Infof("Running Compose down on %s", localproject.LocalOutDefaultFileName)
+	cmd := exec.Command("docker-compose", "-f", localproject.LocalOutDefaultFileName, "down")
 	_, err := cmd.CombinedOutput()
 	if err != nil {
 		logrus.Fatalf("Failed to run docker-compose down due to %v", err)

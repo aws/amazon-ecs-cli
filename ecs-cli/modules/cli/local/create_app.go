@@ -25,24 +25,6 @@ import (
 	"github.com/urfave/cli"
 )
 
-const (
-	// taskDefinitionLabelType represents the type of option used to
-	// transform a task definition to a compose file e.g. remoteFile, localFile.
-	// taskDefinitionLabelValue represents the value of the option
-	// e.g. file path, arn, family.
-	taskDefinitionLabelType  = "ecsLocalTaskDefType"
-	taskDefinitionLabelValue = "ecsLocalTaskDefVal"
-)
-
-const (
-	localTaskDefType  = "localFile"
-	remoteTaskDefType = "remoteFile"
-)
-
-const (
-	ecsLocalDockerComposeFileName = "docker-compose.local.yml"
-)
-
 // Create reads in an ECS task definition, converts and writes it to a local
 // Docker Compose file
 func Create(c *cli.Context) {
