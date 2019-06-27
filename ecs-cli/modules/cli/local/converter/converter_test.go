@@ -88,6 +88,8 @@ func TestConvertToComposeService(t *testing.T) {
 		},
 	}
 	expectedNetworkMode := ecs.NetworkModeBridge
+	expectedIpc := ecs.IpcModeHost
+	expectedPid := ecs.PidModeTask
 	expectedNetworks := map[string]*composeV3.ServiceNetworkConfig{
 		network.EcsLocalNetworkName: nil,
 	}
@@ -218,8 +220,14 @@ func TestConvertToComposeService(t *testing.T) {
 
 	containerDef := taskDefinition.ContainerDefinitions[0]
 
+	commonValues := &CommonContainerValues{
+		NetworkMode: expectedNetworkMode,
+		Ipc:         expectedIpc,
+		Pid:         expectedPid,
+	}
+
 	// WHEN
-	service, err := convertToComposeService(containerDef, expectedNetworkMode)
+	service, err := convertToComposeService(containerDef, commonValues)
 
 	// THEN
 	assert.NoError(t, err, "Unexpected error converting Container Definition")
@@ -247,6 +255,8 @@ func TestConvertToComposeService(t *testing.T) {
 	assert.Equal(t, expectedVolumes, service.Volumes, "Expected Volumes to match")
 	assert.Equal(t, expectedNetworks, service.Networks, "Expected Networks to match")
 	assert.Equal(t, expectedNetworkMode, service.NetworkMode, "Expected NetworkMode to match")
+	assert.Equal(t, expectedPid, service.Pid, "Expected Pid to match")
+	assert.Equal(t, expectedIpc, service.Ipc, "Expected Ipc to match")
 	assert.Equal(t, expectedPorts, service.Ports, "Expected Ports to match")
 	assert.Equal(t, composeV3.StringList(expectedSysctls), service.Sysctls, "Expected Sysctls to match")
 

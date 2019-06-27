@@ -44,6 +44,12 @@ type LocalCreateMetadata struct {
 	Value     string
 }
 
+type CommonContainerValues struct {
+	NetworkMode string
+	Ipc         string
+	Pid         string
+}
+
 const (
 	// taskDefinitionLabelType represents the type of option used to
 	// transform a task definition to a compose file.
@@ -99,6 +105,14 @@ func createComposeServices(taskDefinition *ecs.TaskDefinition, metadata *LocalCr
 		return nil, fmt.Errorf("Network mode %s is not supported", networkMode)
 	}
 
+	pid := aws.StringValue(taskDefinition.PidMode)
+	ipc := aws.StringValue(taskDefinition.IpcMode)
+	commonValues := &CommonContainerValues{
+		NetworkMode: networkMode,
+		Pid:         pid,
+		Ipc:         ipc,
+	}
+
 	if len(taskDefinition.ContainerDefinitions) < 1 {
 		return nil, fmt.Errorf("A Task Definition must include at least one container definition")
 	}
@@ -106,7 +120,7 @@ func createComposeServices(taskDefinition *ecs.TaskDefinition, metadata *LocalCr
 	var services []composeV3.ServiceConfig
 
 	for _, containerDefinition := range taskDefinition.ContainerDefinitions {
-		service, err := convertToComposeService(containerDefinition, networkMode)
+		service, err := convertToComposeService(containerDefinition, commonValues)
 		if err != nil {
 			return nil, err
 		}
@@ -126,7 +140,7 @@ func createComposeServices(taskDefinition *ecs.TaskDefinition, metadata *LocalCr
 	return services, nil
 }
 
-func convertToComposeService(containerDefinition *ecs.ContainerDefinition, networkMode string) (composeV3.ServiceConfig, error) {
+func convertToComposeService(containerDefinition *ecs.ContainerDefinition, commonValues *CommonContainerValues) (composeV3.ServiceConfig, error) {
 	linuxParams := convertLinuxParameters(containerDefinition.LinuxParameters)
 	tmpfs := linuxParams.Tmpfs
 	init := linuxParams.Init
@@ -179,7 +193,9 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition, netwo
 		Volumes:     volumes,
 		Ports:       ports,
 		Networks:    networks,
-		NetworkMode: networkMode,
+		NetworkMode: commonValues.NetworkMode,
+		Pid:         commonValues.Pid,
+		Ipc:         commonValues.Ipc,
 		Sysctls:     sysctls,
 	}
 
