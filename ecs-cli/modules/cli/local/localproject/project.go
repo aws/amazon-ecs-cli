@@ -33,7 +33,7 @@ import (
 
 const (
 	// LocalTaskDefType indicates if the task definition is read from a local file
-	LocalTaskDefType  = "local"
+	LocalTaskDefType = "local"
 
 	// RemoteTaskDefType indicates if the task definition is retrieved from ECS via ARN or name
 	RemoteTaskDefType = "remote"
@@ -86,7 +86,7 @@ func (p *localProject) LocalOutFileName() string {
 }
 
 // InputMetadata returns the metadata on the task definition used to create the docker compose file
-func (p *localProject) InputMetadata() *converter.LocalCreateMetadata{
+func (p *localProject) InputMetadata() *converter.LocalCreateMetadata {
 	return p.inputMetadata
 }
 
@@ -130,8 +130,7 @@ func (p *localProject) ReadTaskDefinition() error {
 }
 
 var defaultInputExists = func() bool {
-	_, err := os.Stat(LocalInFileName)
-	if err == nil {
+	if _, err := os.Stat(LocalInFileName); err == nil {
 		return true
 	}
 	return false
@@ -140,7 +139,7 @@ var defaultInputExists = func() bool {
 func (p *localProject) readTaskDefinitionFromFile(filename string) (*ecs.TaskDefinition, error) {
 	p.inputMetadata = &converter.LocalCreateMetadata{
 		InputType: LocalTaskDefType,
-		Value: filename,
+		Value:     filename,
 	}
 	return readTaskDefFromLocal(filename)
 }
@@ -167,7 +166,7 @@ var newCommandConfig = func(context *cli.Context, rdwr config.ReadWriter) (*conf
 func (p *localProject) readTaskDefinitionFromRemote(remote string) (*ecs.TaskDefinition, error) {
 	p.inputMetadata = &converter.LocalCreateMetadata{
 		InputType: RemoteTaskDefType,
-		Value: remote,
+		Value:     remote,
 	}
 	return readTaskDefFromRemote(remote, p)
 }
