@@ -86,7 +86,6 @@ func reconcileContainerDef(inputCfg *adapter.ContainerConfig, ecsConDef *Contain
 		outputContDef.LinuxParameters.SetSharedMemorySize(inputCfg.ShmSize)
 	}
 
-	// Only set stopTimeout if specified
 	if inputCfg.StopTimeout != nil {
 		outputContDef.SetStopTimeout(*inputCfg.StopTimeout)
 	}

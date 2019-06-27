@@ -222,6 +222,9 @@ func ConvertToTimeInSeconds(d *time.Duration) *int64 {
 	return &val
 }
 
+// ConvertDurationStrToSeconds converts a duration string to an int64 number of seconds
+// In case of an empty string, instead of returning error like time.ParseDuration(),
+// it returns nil as the conversion result and a nil error.
 func ConvertDurationStrToSeconds(d string) (*int64, error) {
 	// if not set (i.e. ""), which is a valid case, then simply return
 	// nil to indicate the fact.

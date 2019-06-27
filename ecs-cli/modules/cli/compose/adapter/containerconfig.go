@@ -32,10 +32,16 @@ type ContainerConfig struct {
 	PseudoTerminal        bool
 	ReadOnly              bool
 	ShmSize               int64
-	StopTimeout           *int64
-	Tmpfs                 []*ecs.Tmpfs
-	Ulimits               []*ecs.Ulimit
-	VolumesFrom           []*ecs.VolumeFrom
-	User                  string
-	WorkingDirectory      string
+
+	// `ContainerConfig` contains the union of
+	// all fields supported by Docker Compose v1~v3 and some of the
+	// fields did not exist prior to certain version, so we need to
+	// to use pointer type for these field in order to distinguish
+	// between "not set" and cases like: "customer explicitly set it to 0".
+	StopTimeout      *int64
+	Tmpfs            []*ecs.Tmpfs
+	Ulimits          []*ecs.Ulimit
+	VolumesFrom      []*ecs.VolumeFrom
+	User             string
+	WorkingDirectory string
 }
