@@ -94,9 +94,9 @@ func listLocalComposeContainers() []types.Container {
 
 	// The -q flag displays the ID of the containers instead of the default "Name, Command, State, Ports" metadata.
 	cmd := exec.Command("docker-compose", "-f", localproject.LocalOutDefaultFileName, "ps", "-q")
-	composeOut, err := cmd.Output()
+	composeOut, err := cmd.CombinedOutput()
 	if err != nil {
-		logrus.Fatalf("Failed to run docker-compose ps due to %v", err)
+		logrus.Fatalf("Failed to run docker-compose ps due to %v: %v", err, string(composeOut))
 	}
 
 	containerIDs := strings.Split(string(composeOut), "\n")
