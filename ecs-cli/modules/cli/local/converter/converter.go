@@ -39,11 +39,15 @@ type LinuxParams struct {
 	ShmSize string
 }
 
+// LocalCreateMetadata houses information about what kind of task definition
+// was used to create the docker compose schema
 type LocalCreateMetadata struct {
 	InputType string
 	Value     string
 }
 
+// CommonContainerValues contains values for top-level Task Definition fields
+// that apply to all containers within the task definition
 type CommonContainerValues struct {
 	NetworkMode string
 	Ipc         string
