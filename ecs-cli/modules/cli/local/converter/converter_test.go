@@ -272,14 +272,40 @@ func TestCreateComposeService_SetsNetworkMode(t *testing.T) {
 		NetworkMode: aws.String(expectedNetworkMode),
 	}
 
-
 	// WHEN
-	services, err := createComposeServices(taskDefinition, "", "")
+	services, err := createComposeServices(taskDefinition, &LocalCreateMetadata{})
 	service := services[0]
 
 	// THEN
 	assert.NoError(t, err, "Unexpected error creating Compose services")
 	assert.Equal(t, expectedNetworkMode, service.NetworkMode, "Expected NetworkMode to match")
+}
+
+func TestCreateComposeService_SetsLabels(t *testing.T) {
+	// GIVEN
+	taskDefinition := &ecs.TaskDefinition{
+		ContainerDefinitions: []*ecs.ContainerDefinition{
+			{
+				Image: aws.String("myApp"),
+			},
+		},
+	}
+
+	expectedInputType := "remote"
+	expectedValue := "arn:aws:ecs:us-west-2:123412341234:task-definition/myTaskDef:1"
+	expectedMetadata := &LocalCreateMetadata{
+		InputType: expectedInputType,
+		Value:     expectedValue,
+	}
+
+	// WHEN
+	services, err := createComposeServices(taskDefinition, expectedMetadata)
+	service := services[0]
+
+	// THEN
+	assert.NoError(t, err, "Unexpected error creating Compose services")
+	assert.Equal(t, expectedInputType, service.Labels[taskDefinitionLabelType], "Expected Metadata Type label to match")
+	assert.Equal(t, expectedValue, service.Labels[taskDefinitionLabelValue], "Expected Metadata Value label to match")
 }
 
 func TestConvertToComposeService_ErrorsWithAwsVpcNetworkMode(t *testing.T) {
@@ -294,7 +320,7 @@ func TestConvertToComposeService_ErrorsWithAwsVpcNetworkMode(t *testing.T) {
 	}
 
 	// WHEN
-	_, err := ConvertToDockerCompose(taskDefinition, "", "")
+	_, err := ConvertToDockerCompose(taskDefinition, &LocalCreateMetadata{}) // FIXME
 
 	// THEN
 	assert.Error(t, err)

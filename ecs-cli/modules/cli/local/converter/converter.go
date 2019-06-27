@@ -39,23 +39,33 @@ type LinuxParams struct {
 	ShmSize string
 }
 
+type LocalCreateMetadata struct {
+	InputType string
+	Value     string
+}
+
+const (
+	// taskDefinitionLabelType represents the type of option used to
+	// transform a task definition to a compose file.
+	// Valid types are "remote" (for registered Task Definitions retrieved
+	// by arn or family name) or "local", for a local file containing a
+	// task definition (default task-definition.json).
+	// taskDefinitionLabelValue represents the value of the option.
+	// For "local", the value should be the path of the task definition file.
+	// For "remote", the value should be either the full arn or the family name.
+
+	taskDefinitionLabelType  = "ecs-local.task-definition-input.type"
+	taskDefinitionLabelValue = "ecs-local.task-definition-input.value"
+)
+
 // SecretLabelPrefix is the prefix of Docker label keys
 // whose value is an ARN of a secret to expose to the container.
 // See https://github.com/aws/amazon-ecs-cli/issues/797
 const SecretLabelPrefix = "ecs-local.secret"
 
-const (
-	// taskDefinitionLabelType represents the type of option used to
-	// transform a task definition to a compose file e.g. remoteFile, localFile.
-	// taskDefinitionLabelValue represents the value of the option
-	// e.g. file path, arn, family.
-	taskDefinitionLabelType  = "ecs-local.task.type"
-	taskDefinitionLabelValue = "ecs-local.task.value"
-)
-
 // ConvertToDockerCompose creates the payload from an ECS Task Definition to be written as a docker compose file
-func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition, localTaskType, localTaskValue string) ([]byte, error) {
-	services, err := createComposeServices(taskDefinition, localTaskType, localTaskValue)
+func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition, metadata *LocalCreateMetadata) ([]byte, error) {
+	services, err := createComposeServices(taskDefinition, metadata)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +92,7 @@ func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition, localTaskType, l
 	return data, nil
 }
 
-func createComposeServices(taskDefinition *ecs.TaskDefinition, localTaskType, localTaskValue string) ([]composeV3.ServiceConfig, error) {
+func createComposeServices(taskDefinition *ecs.TaskDefinition, metadata *LocalCreateMetadata) ([]composeV3.ServiceConfig, error) {
 	networkMode := aws.StringValue(taskDefinition.NetworkMode)
 	if networkMode == ecs.NetworkModeAwsvpc {
 		return nil, fmt.Errorf("Network mode %s is not supported", networkMode)
@@ -102,9 +112,14 @@ func createComposeServices(taskDefinition *ecs.TaskDefinition, localTaskType, lo
 		services = append(services, service)
 	}
 
+	// NOTE metadata should always be set on project when task definition is read
+	if metadata == nil {
+		return nil, fmt.Errorf("Unable to set service labels")
+	}
+
 	for _, service := range services {
-		service.Labels[taskDefinitionLabelType] = localTaskType
-		service.Labels[taskDefinitionLabelValue] = localTaskValue
+		service.Labels[taskDefinitionLabelType] = metadata.InputType
+		service.Labels[taskDefinitionLabelValue] = metadata.Value
 	}
 
 	return services, nil
