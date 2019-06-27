@@ -3,6 +3,7 @@ package project
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
 
@@ -507,6 +508,50 @@ func TestThrowErrorIfFileDoesNotExist(t *testing.T) {
 	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, fakeFileName)
 	_, err := project.parseV3()
 	assert.Error(t, err)
+}
+
+func TestParseV3WithDefaultDotEnvFile(t *testing.T) {
+	// Set up the .env file
+	dir, err := ioutil.TempDir("", "dotEnvTest")
+	assert.NoError(t, err, "Unexpected error in creating temp directory that will hold the .env file")
+	defer os.RemoveAll(dir)
+
+	envKey := "TAG"
+	envValue := "testValue"
+	envContents := []byte(envKey + "=" + envValue)
+
+	dotEnvFilePath := filepath.Join(dir, ".env")
+	err = ioutil.WriteFile(dotEnvFilePath, envContents, 0666)
+	assert.NoError(t, err, "Unexpected error in writing to the .env file")
+
+	expectedImage := "httpd:" + envValue
+
+	composeFileString := `version: '3'
+services:
+  web:
+    image: httpd:${` + envKey + "}"
+
+	composeFilePath := filepath.Join(dir, "test_compose")
+	err = ioutil.WriteFile(composeFilePath, []byte(composeFileString), 0666)
+	assert.NoError(t, err, "Unexpected error in writing to test Compose file")
+
+	// Set up project
+	project := setupTestProject(t)
+	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, composeFilePath)
+
+	// assert # and content of container configs matches expected services
+	actualConfigs, err := project.parseV3()
+	assert.NoError(t, err, "Unexpected error parsing file")
+	actualConfig, err := getContainerConfigByName("web", actualConfigs)
+	assert.NoError(t, err, "Unexpected error retrieving container config")
+
+	assert.Equal(t, 1, len(*actualConfigs))
+	assert.Equal(t, expectedImage, actualConfig.Image)
+	// Based on https://docs.docker.com/compose/env-file/
+	// the variables defined in .env should not automatically be visible
+	// inside containers, which means that the environment field for container
+	// should still be empty even when there's a .env file
+	assert.Equal(t, []*ecs.KeyValuePair{}, actualConfig.Environment)
 }
 
 func TestParseV3WithEnvFile(t *testing.T) {
