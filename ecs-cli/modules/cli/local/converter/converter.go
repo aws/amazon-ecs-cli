@@ -94,6 +94,7 @@ func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition, metadata *LocalC
 
 func createComposeServices(taskDefinition *ecs.TaskDefinition, metadata *LocalCreateMetadata) ([]composeV3.ServiceConfig, error) {
 	networkMode := aws.StringValue(taskDefinition.NetworkMode)
+	// TODO add log info message to indicate networkMode should be empty for Windows containers
 	if networkMode == ecs.NetworkModeAwsvpc {
 		return nil, fmt.Errorf("Network mode %s is not supported", networkMode)
 	}

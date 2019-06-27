@@ -81,7 +81,6 @@ func (p *localProject) InputMetadata() *converter.LocalCreateMetadata{
 	return p.inputMetadata
 }
 
-
 // ReadTaskDefinition reads an ECS Task Definition either from a local file
 // or from retrieving one from ECS and stores it on the local project
 func (p *localProject) ReadTaskDefinition() error {
