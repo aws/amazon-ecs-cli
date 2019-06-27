@@ -87,8 +87,8 @@ func TestConvertToComposeService(t *testing.T) {
 			ReadOnly: true,
 		},
 	}
-	expectedIpc := ecs.IpcModeHost
-	expectedPid := ecs.PidModeTask
+	expectedIpc := ecs.IpcModeNone
+	expectedPid := ecs.PidModeHost
 	expectedNetworks := map[string]*composeV3.ServiceNetworkConfig{
 		network.EcsLocalNetworkName: nil,
 	}
@@ -256,6 +256,7 @@ func TestConvertToComposeService(t *testing.T) {
 	assert.Equal(t, expectedIpc, service.Ipc, "Expected Ipc to match")
 	assert.Equal(t, expectedPorts, service.Ports, "Expected Ports to match")
 	assert.Equal(t, composeV3.StringList(expectedSysctls), service.Sysctls, "Expected Sysctls to match")
+	assert.Empty(t, service.NetworkMode, "Expected NetworkMode to be empty")
 
 	// Fields from LinuxParameters
 	assert.Equal(t, composeV3.StringList(expectedTmpfs), service.Tmpfs, "Expected Tmpfs to match")

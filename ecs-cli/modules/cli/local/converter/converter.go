@@ -112,6 +112,21 @@ func createComposeServices(taskDefinition *ecs.TaskDefinition, metadata *LocalCr
 
 	pid := aws.StringValue(taskDefinition.PidMode)
 	ipc := aws.StringValue(taskDefinition.IpcMode)
+
+	if pid != ecs.PidModeHost {
+		log.WithFields(log.Fields{
+			"pid": pid,
+		}).Info("PID mode can only be set to 'host' when running tasks locally.")
+		pid = "" // set to empty
+	}
+
+	if ipc != ecs.IpcModeHost && ipc != ecs.IpcModeNone {
+		log.WithFields(log.Fields{
+			"ipc": ipc,
+		}).Info("IPC mode can only be set to 'host' or 'none' when running tasks locally.")
+		ipc = "" // set to empty
+	}
+
 	commonValues := &CommonContainerValues{
 		Pid:         pid,
 		Ipc:         ipc,
