@@ -59,7 +59,7 @@ func readComposeFile(c *cli.Context) *composeV3.Config {
 	}
 	config, err := converter.UnmarshalComposeFile(filename)
 	if err != nil {
-		logrus.Fatalf("Failed to unmarshal Compose file %s due to %v", filename, err)
+		logrus.Fatalf("Failed to unmarshal Compose file %s due to \n%v", filename, err)
 	}
 	return config
 }
@@ -84,14 +84,14 @@ func decryptSecrets(containerSecrets []*secrets.ContainerSecret) (envVars map[st
 	ssmClient, err := clients.NewSSMDecrypter()
 	secretsManagerClient, err := clients.NewSecretsManagerDecrypter()
 	if err != nil {
-		logrus.Fatalf("Failed to create clients to decrypt secrets due to %v", err)
+		logrus.Fatalf("Failed to create clients to decrypt secrets due to \n%v", err)
 	}
 
 	envVars = make(map[string]string)
 	for _, containerSecret := range containerSecrets {
 		service, err := containerSecret.ServiceName()
 		if err != nil {
-			logrus.Fatalf("Failed to retrieve the service of the secret due to %v", err)
+			logrus.Fatalf("Failed to retrieve the service of the secret due to \n%v", err)
 		}
 
 		decrypted := ""
@@ -105,7 +105,7 @@ func decryptSecrets(containerSecrets []*secrets.ContainerSecret) (envVars map[st
 			err = errors.New(fmt.Sprintf("can't decrypt secret from service %s", service))
 		}
 		if err != nil {
-			logrus.Fatalf("Failed to decrypt secret due to %v", err)
+			logrus.Fatalf("Failed to decrypt secret due to \n%v", err)
 		}
 		envVars[containerSecret.Name()] = decrypted
 	}
@@ -124,7 +124,7 @@ func upComposeFile(config *composeV3.Config, envVars map[string]string) {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		logrus.Fatalf("Failed to run docker-compose up due to %v: %s", err, string(out))
+		logrus.Fatalf("Failed to run docker-compose up due to \n%v: %s", err, string(out))
 	}
 	fmt.Printf("Compose out: %s\n", string(out))
 }

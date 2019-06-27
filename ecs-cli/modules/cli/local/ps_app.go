@@ -96,7 +96,7 @@ func listLocalComposeContainers() []types.Container {
 	cmd := exec.Command("docker-compose", "-f", localproject.LocalOutDefaultFileName, "ps", "-q")
 	composeOut, err := cmd.CombinedOutput()
 	if err != nil {
-		logrus.Fatalf("Failed to run docker-compose ps due to %v: %s", err, string(composeOut))
+		logrus.Fatalf("Failed to run docker-compose ps due to \n%v: %s", err, string(composeOut))
 	}
 
 	containerIDs := strings.Split(string(composeOut), "\n")
@@ -120,7 +120,7 @@ func listContainersWithFilters(args filters.Args) []types.Container {
 		Filters: args,
 	})
 	if err != nil {
-		logrus.Fatalf("Failed to list containers with args=%v due to %v", args, err)
+		logrus.Fatalf("Failed to list containers with args=%v due to \n%v", args, err)
 	}
 	return containers
 }
@@ -136,7 +136,7 @@ func displayContainers(c *cli.Context, containers []types.Container) {
 func displayAsJSON(containers []types.Container) {
 	data, err := json.MarshalIndent(containers, jsonPrefix, jsonIndent)
 	if err != nil {
-		logrus.Fatalf("Failed to marshal containers to JSON due to %v", err)
+		logrus.Fatalf("Failed to marshal containers to JSON due to \n%v", err)
 	}
 	fmt.Fprintln(os.Stdout, string(data))
 }

@@ -75,7 +75,7 @@ func downComposeLocalContainers() error {
 	cmd := exec.Command("docker-compose", "-f", localproject.LocalOutDefaultFileName, "down")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		logrus.Fatalf("Failed to run docker-compose down due to %v: %s", err, string(out))
+		logrus.Fatalf("Failed to run docker-compose down due to \n%v: %s", err, string(out))
 	}
 
 	logrus.Info("Stopped and removed containers successfully")
@@ -91,7 +91,7 @@ func downLocalContainersWithFilters(args filters.Args) error {
 		All:     true,
 	})
 	if err != nil {
-		logrus.Fatalf("Failed to list containers with filters %v due to %v", args, err)
+		logrus.Fatalf("Failed to list containers with filters %v due to \n%v", args, err)
 	}
 	cancel()
 
@@ -104,12 +104,12 @@ func downLocalContainersWithFilters(args filters.Args) error {
 	for _, container := range containers {
 		ctx, cancel = context.WithTimeout(context.Background(), docker.TimeoutInS)
 		if err = client.ContainerStop(ctx, container.ID, nil); err != nil {
-			logrus.Fatalf("Failed to stop container %s due to %v", container.ID[:maxContainerIDLength], err)
+			logrus.Fatalf("Failed to stop container %s due to \n%v", container.ID[:maxContainerIDLength], err)
 		}
 		logrus.Infof("Stopped container with id %s", container.ID[:maxContainerIDLength])
 
 		if err = client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{}); err != nil {
-			logrus.Fatalf("Failed to remove container %s due to %v", container.ID[:maxContainerIDLength], err)
+			logrus.Fatalf("Failed to remove container %s due to \n%v", container.ID[:maxContainerIDLength], err)
 		}
 		logrus.Infof("Removed container with id %s", container.ID[:maxContainerIDLength])
 		cancel()
