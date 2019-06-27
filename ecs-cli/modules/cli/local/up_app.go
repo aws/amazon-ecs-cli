@@ -124,7 +124,7 @@ func upComposeFile(config *composeV3.Config, envVars map[string]string) {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		logrus.Fatalf("Failed to run docker-compose up due to %v: %v", err, string(out))
+		logrus.Fatalf("Failed to run docker-compose up due to %v: %s", err, string(out))
 	}
 	fmt.Printf("Compose out: %s\n", string(out))
 }

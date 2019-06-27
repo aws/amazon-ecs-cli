@@ -96,7 +96,7 @@ func listLocalComposeContainers() []types.Container {
 	cmd := exec.Command("docker-compose", "-f", localproject.LocalOutDefaultFileName, "ps", "-q")
 	composeOut, err := cmd.CombinedOutput()
 	if err != nil {
-		logrus.Fatalf("Failed to run docker-compose ps due to %v: %v", err, string(composeOut))
+		logrus.Fatalf("Failed to run docker-compose ps due to %v: %s", err, string(composeOut))
 	}
 
 	containerIDs := strings.Split(string(composeOut), "\n")

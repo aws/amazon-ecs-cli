@@ -75,7 +75,7 @@ func downComposeLocalContainers() error {
 	cmd := exec.Command("docker-compose", "-f", localproject.LocalOutDefaultFileName, "down")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		logrus.Fatalf("Failed to run docker-compose down due to %v: %v", err, string(out))
+		logrus.Fatalf("Failed to run docker-compose down due to %v: %s", err, string(out))
 	}
 
 	logrus.Info("Stopped and removed containers successfully")
