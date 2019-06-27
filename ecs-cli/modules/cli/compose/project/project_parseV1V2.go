@@ -107,6 +107,11 @@ func convertV1V2ToContainerConfig(context *project.Context, serviceName string, 
 		return nil, err
 	}
 
+	stopTimeout, err := adapter.ConvertDurationStrToSeconds(service.StopGracePeriod)
+	if err != nil {
+		return nil, err
+	}
+
 	outputConfig := &adapter.ContainerConfig{
 		Name:                  serviceName,
 		CapAdd:                service.CapAdd,
@@ -133,6 +138,7 @@ func convertV1V2ToContainerConfig(context *project.Context, serviceName string, 
 		Privileged:            service.Privileged,
 		ReadOnly:              service.ReadOnly,
 		ShmSize:               shmSize,
+		StopTimeout:           stopTimeout,
 		Tmpfs:                 tmpfs,
 		Ulimits:               ulimits,
 		VolumesFrom:           volumesFrom,

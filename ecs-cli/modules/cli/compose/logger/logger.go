@@ -26,6 +26,9 @@ import (
 )
 
 // supported fields/options from compose 1/2 YAML file
+// Ideally, we should have separate slices for Docker Compose v1 and v2 for more explicit warnings
+// because certain fields were introduced after v1. However, due to the lack of popularity of v1,
+// for now we combine the 2 versions.
 var supportedComposeV1V2YamlOptions = []string{
 	"cap_add",
 	"cap_drop",
@@ -53,6 +56,7 @@ var supportedComposeV1V2YamlOptions = []string{
 	"read_only",
 	"security_opt",
 	"shm_size",
+	"stop_grace_period", // v2 and above
 	"tmpfs",
 	"tty",
 	"ulimits",
@@ -64,33 +68,34 @@ var supportedComposeV1V2YamlOptions = []string{
 
 // supported fields/options from compose 3 YAML file
 var supportedFieldsInV3 = map[string]bool{
-	"CapAdd":      true,
-	"CapDrop":     true,
-	"Command":     true,
-	"Devices":     true,
-	"DNS":         true,
-	"DNSSearch":   true,
-	"Entrypoint":  true,
-	"Environment": true,
-	"EnvFile":     true,
-	"ExtraHosts":  true,
-	"Hostname":    true,
-	"HealthCheck": true,
-	"Image":       true,
-	"Labels":      true,
-	"Links":       true,
-	"Logging":     true,
-	"Name":        true,
-	"Ports":       true,
-	"Privileged":  true,
-	"ReadOnly":    true,
-	"SecurityOpt": true,
-	"Tmpfs":       true,
-	"Tty":         true,
-	"Ulimits":     true,
-	"User":        true,
-	"Volumes":     true,
-	"WorkingDir":  true,
+	"CapAdd":          true,
+	"CapDrop":         true,
+	"Command":         true,
+	"Devices":         true,
+	"DNS":             true,
+	"DNSSearch":       true,
+	"Entrypoint":      true,
+	"Environment":     true,
+	"EnvFile":         true,
+	"ExtraHosts":      true,
+	"Hostname":        true,
+	"HealthCheck":     true,
+	"Image":           true,
+	"Labels":          true,
+	"Links":           true,
+	"Logging":         true,
+	"Name":            true,
+	"Ports":           true,
+	"Privileged":      true,
+	"ReadOnly":        true,
+	"SecurityOpt":     true,
+	"StopGracePeriod": true,
+	"Tmpfs":           true,
+	"Tty":             true,
+	"Ulimits":         true,
+	"User":            true,
+	"Volumes":         true,
+	"WorkingDir":      true,
 }
 
 var supportedComposeV1V2YamlOptionsMap = getSupportedComposeV1V2YamlOptionsMap()

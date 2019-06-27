@@ -83,6 +83,8 @@ func TestParseV3WithOneFile(t *testing.T) {
 	wordpressCon.Privileged = true
 	wordpressCon.ReadOnly = true
 	wordpressCon.PseudoTerminal = true
+	stg := int64(60)
+	wordpressCon.StopTimeout = &stg
 	wordpressCon.DockerSecurityOptions = []string{"label:role:ROLE", "label:user:USER"}
 	wordpressCon.Ulimits = []*ecs.Ulimit{
 		{
@@ -169,6 +171,7 @@ services:
       - label:user:USER
     working_dir: /wrdprsdir
     privileged: true
+    stop_grace_period: "1m"
     ulimits:
       rss: 65535
       nofile:
@@ -749,6 +752,7 @@ func verifyContainerConfig(t *testing.T, expected, actual adapter.ContainerConfi
 	assert.Equal(t, expected.ReadOnly, actual.ReadOnly, "Expected ReadOnly to match")
 	assert.ElementsMatch(t, expected.Tmpfs, actual.Tmpfs, "Expected Tmpfs to match")
 	assert.Equal(t, expected.PseudoTerminal, actual.PseudoTerminal, "Expected PseuoTerminal to match")
+	assert.Equal(t, expected.StopTimeout, actual.StopTimeout, "Expected StopTimeout to match")
 	assert.ElementsMatch(t, expected.Ulimits, actual.Ulimits, "Expected Ulimits to match")
 	assert.Equal(t, expected.User, actual.User, "Expected User to match")
 	assert.Equal(t, expected.WorkingDirectory, actual.WorkingDirectory, "Expected WorkingDirectory to match")

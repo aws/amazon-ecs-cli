@@ -92,6 +92,12 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig, serviceVols *ad
 	logger.LogUnsupportedV3ServiceConfigFields(serviceConfig)
 	logWarningForDeployFields(serviceConfig.Deploy, serviceConfig.Name)
 
+	var stopTimeout *int64
+	if serviceConfig.StopGracePeriod != nil {
+		st := (int64)(serviceConfig.StopGracePeriod.Seconds())
+		stopTimeout = &st
+	}
+
 	c := &adapter.ContainerConfig{
 		CapAdd:                serviceConfig.CapAdd,
 		CapDrop:               serviceConfig.CapDrop,
@@ -105,6 +111,7 @@ func convertToContainerConfig(serviceConfig types.ServiceConfig, serviceVols *ad
 		Privileged:            serviceConfig.Privileged,
 		PseudoTerminal:        serviceConfig.Tty,
 		ReadOnly:              serviceConfig.ReadOnly,
+		StopTimeout:           stopTimeout,
 		User:                  serviceConfig.User,
 		WorkingDirectory:      serviceConfig.WorkingDir,
 	}
