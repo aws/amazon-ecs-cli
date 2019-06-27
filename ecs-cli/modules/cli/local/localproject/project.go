@@ -32,11 +32,11 @@ import (
 )
 
 const (
-	// LocalTaskDefType represents the task is defined from a local file.
-	LocalTaskDefType = "localFile"
+	// LocalTaskDefType indicates if the task definition is read from a local file
+	LocalTaskDefType  = "local"
 
-	// RemoteTaskDefType re[resents the task is defined from a remote file.
-	RemoteTaskDefType = "remoteFile"
+	// RemoteTaskDefType indicates if the task definition is retrieved from ECS via ARN or name
+	RemoteTaskDefType = "remote"
 )
 
 const (
@@ -57,6 +57,8 @@ type LocalProject interface {
 	Convert() error
 	Write() error
 	LocalOutFileName() string
+	TaskDefinition() *ecs.TaskDefinition
+	InputMetadata() *converter.LocalCreateMetadata
 }
 
 type localProject struct {
@@ -64,6 +66,7 @@ type localProject struct {
 	taskDefinition   *ecs.TaskDefinition
 	localBytes       []byte
 	localOutFileName string
+	inputMetadata    *converter.LocalCreateMetadata
 }
 
 // New instantiates a new Local Project
@@ -80,6 +83,11 @@ func (p *localProject) TaskDefinition() *ecs.TaskDefinition {
 // LocalOutFileName returns name of compose file output by local.Create
 func (p *localProject) LocalOutFileName() string {
 	return p.localOutFileName
+}
+
+// InputMetadata returns the metadata on the task definition used to create the docker compose file
+func (p *localProject) InputMetadata() *converter.LocalCreateMetadata{
+	return p.inputMetadata
 }
 
 // ReadTaskDefinition reads an ECS Task Definition either from a local file
@@ -105,8 +113,8 @@ func (p *localProject) ReadTaskDefinition() error {
 		if err != nil {
 			return err
 		}
-	} else if _, err := os.Stat(LocalInFileName); err == nil {
-		// Try reading local task-definition.json file by default
+
+	} else if defaultInputExists() {
 		taskDefinition, err = p.readTaskDefinitionFromFile(LocalInFileName)
 		if err != nil {
 			return err
@@ -121,7 +129,23 @@ func (p *localProject) ReadTaskDefinition() error {
 	return nil
 }
 
+var defaultInputExists = func() bool {
+	_, err := os.Stat(LocalInFileName)
+	if err == nil {
+		return true
+	}
+	return false
+}
+
 func (p *localProject) readTaskDefinitionFromFile(filename string) (*ecs.TaskDefinition, error) {
+	p.inputMetadata = &converter.LocalCreateMetadata{
+		InputType: LocalTaskDefType,
+		Value: filename,
+	}
+	return readTaskDefFromLocal(filename)
+}
+
+var readTaskDefFromLocal = func(filename string) (*ecs.TaskDefinition, error) {
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("Error reading task definition from %s: %s", filename, err.Error())
@@ -141,6 +165,14 @@ var newCommandConfig = func(context *cli.Context, rdwr config.ReadWriter) (*conf
 }
 
 func (p *localProject) readTaskDefinitionFromRemote(remote string) (*ecs.TaskDefinition, error) {
+	p.inputMetadata = &converter.LocalCreateMetadata{
+		InputType: RemoteTaskDefType,
+		Value: remote,
+	}
+	return readTaskDefFromRemote(remote, p)
+}
+
+var readTaskDefFromRemote = func(remote string, p *localProject) (*ecs.TaskDefinition, error) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
 		return nil, err
@@ -159,22 +191,7 @@ func (p *localProject) readTaskDefinitionFromRemote(remote string) (*ecs.TaskDef
 // Convert translates an ECS Task Definition into a Compose V3 schema and
 // stores the data on the project
 func (p *localProject) Convert() error {
-	// FIXME get secrets here, pass to converter?
-	// NOTE: Should add log message to warn user that decrypted secret
-	// will be written to local compose file
-
-	remote := p.context.String(flags.TaskDefinitionTaskFlag)
-	filename := p.context.String(flags.TaskDefinitionFileFlag)
-	var (
-		data []byte
-		err  error
-	)
-
-	if remote != "" {
-		data, err = converter.ConvertToDockerCompose(p.taskDefinition, RemoteTaskDefType, remote)
-	} else {
-		data, err = converter.ConvertToDockerCompose(p.taskDefinition, LocalTaskDefType, filename)
-	}
+	data, err := converter.ConvertToDockerCompose(p.taskDefinition, p.inputMetadata)
 
 	if err != nil {
 		return err
@@ -188,8 +205,8 @@ func (p *localProject) Convert() error {
 // Write writes the compose data to a local compose file. The output filename is stored on the project
 func (p *localProject) Write() error {
 	// Will error if the file already exists, otherwise create
-
 	p.localOutFileName = LocalOutDefaultFileName
+
 	if fileName := p.context.String(flags.LocalOutputFlag); fileName != "" {
 		p.localOutFileName = fileName
 	}

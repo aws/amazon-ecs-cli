@@ -118,10 +118,10 @@ func GetOrCreateTaskDefinition(entity ProjectEntity) (*ecs.TaskDefinition, error
 }
 
 func createRegisterTaskDefinitionRequest(taskDefinition *ecs.TaskDefinition, tags []*ecs.Tag) *ecs.RegisterTaskDefinitionInput {
-	// Valid values for network mode are none, host or bridge. If no value
-	// is passed for network mode, ECS will set it to 'bridge' on most
-	// platforms, but Windows has different network modes. Passing nil allows ECS
-	// to do the right thing for each platform.
+	// Valid values for network mode are none, host, awsvpc or bridge. If
+	// no value is passed for network mode, ECS will set it to 'bridge' on
+	// most platforms, but Windows has different network modes. Passing nil
+	// allows ECS to do the right thing for each platform.
 	request := &ecs.RegisterTaskDefinitionInput{
 		Family:                  taskDefinition.Family,
 		ContainerDefinitions:    taskDefinition.ContainerDefinitions,

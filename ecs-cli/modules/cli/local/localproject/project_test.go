@@ -21,10 +21,131 @@ import (
 	"os"
 	"testing"
 
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/converter"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
+	"github.com/aws/aws-sdk-go/service/ecs"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
 )
+
+const (
+	taskDefArn = "arn:aws:ecs:us-west-2:123412341234:task-definition/myTaskDef:1"
+)
+
+func mockTaskDef() *ecs.TaskDefinition {
+	taskDef := &ecs.TaskDefinition{}
+	taskDef.SetTaskDefinitionArn(taskDefArn)
+	return taskDef
+}
+
+func TestReadTaskDefinition_FromRemote(t *testing.T) {
+	// GIVEN
+	taskDefName := "myTaskDef"
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.String(flags.TaskDefinitionTaskFlag, taskDefName, "")
+	context := cli.NewContext(nil, flagSet, nil)
+	project := New(context)
+
+	expectedTaskDef := mockTaskDef()
+	expectedMetadata := &converter.LocalCreateMetadata{
+		InputType: RemoteTaskDefType,
+		Value:     taskDefName,
+	}
+
+	oldRead := readTaskDefFromRemote
+	readTaskDefFromRemote = func(remote string, p *localProject) (*ecs.TaskDefinition, error) {
+		return mockTaskDef(), nil
+	}
+	defer func() { readTaskDefFromRemote = oldRead }()
+
+	// WHEN
+	err := project.ReadTaskDefinition()
+
+	// THEN
+	assert.NoError(t, err, "Unexpected error reading task definition")
+	assert.Equal(t, expectedTaskDef, project.TaskDefinition())
+	assert.Equal(t, expectedMetadata, project.InputMetadata())
+}
+
+func TestReadTaskDefinition_FromLocal(t *testing.T) {
+	// GIVEN
+	taskDefFile := "some-file.json"
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.String(flags.TaskDefinitionFileFlag, taskDefFile, "")
+	context := cli.NewContext(nil, flagSet, nil)
+	project := New(context)
+
+	expectedTaskDef := mockTaskDef()
+	expectedMetadata := &converter.LocalCreateMetadata{
+		InputType: LocalTaskDefType,
+		Value:     taskDefFile,
+	}
+
+	oldRead := readTaskDefFromLocal
+	readTaskDefFromLocal = func(filename string) (*ecs.TaskDefinition, error) {
+		return mockTaskDef(), nil
+	}
+	defer func() { readTaskDefFromLocal = oldRead }()
+
+	// WHEN
+	err := project.ReadTaskDefinition()
+
+	// THEN
+	assert.NoError(t, err, "Unexpected error reading task definition")
+	assert.Equal(t, expectedTaskDef, project.TaskDefinition())
+	assert.Equal(t, expectedMetadata, project.InputMetadata())
+}
+
+func TestReadTaskDefinition_FromLocalDefault(t *testing.T) {
+	// GIVEN
+	flagSet := flag.NewFlagSet("ecs-cli", 0) // No flags specified
+	context := cli.NewContext(nil, flagSet, nil)
+	project := New(context)
+
+	oldDefaultInputExists := defaultInputExists
+	defaultInputExists = func() bool {
+		return true
+	}
+	defer func() { defaultInputExists = oldDefaultInputExists }()
+
+	expectedTaskDef := mockTaskDef()
+	expectedMetadata := &converter.LocalCreateMetadata{
+		InputType: LocalTaskDefType,
+		Value:     LocalInFileName,
+	}
+
+	oldRead := readTaskDefFromLocal
+	readTaskDefFromLocal = func(filename string) (*ecs.TaskDefinition, error) {
+		return mockTaskDef(), nil
+	}
+	defer func() { readTaskDefFromLocal = oldRead }()
+
+	// WHEN
+	err := project.ReadTaskDefinition()
+
+	// THEN
+	assert.NoError(t, err, "Unexpected error reading task definition")
+	assert.Equal(t, expectedTaskDef, project.TaskDefinition())
+	assert.Equal(t, expectedMetadata, project.InputMetadata())
+}
+
+func TestReadTaskDefinition_ErrorIfTwoInputsSpecified(t *testing.T) {
+	// GIVEN
+	taskDefName := "myTaskDef"
+	taskDefFile := "some-file.json"
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.String(flags.TaskDefinitionTaskFlag, taskDefName, "")
+	flagSet.String(flags.TaskDefinitionFileFlag, taskDefFile, "")
+	context := cli.NewContext(nil, flagSet, nil)
+	project := New(context)
+
+	// WHEN
+	err := project.ReadTaskDefinition()
+
+	// THEN
+	assert.Error(t, err, "Expected error reading task definition")
+}
 
 func TestWrite(t *testing.T) {
 	// GIVEN
