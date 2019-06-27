@@ -25,6 +25,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 	composeV3 "github.com/docker/cli/cli/compose/types"
 	"github.com/docker/go-units"
+	log "github.com/sirupsen/logrus"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -49,7 +50,6 @@ type LocalCreateMetadata struct {
 // CommonContainerValues contains values for top-level Task Definition fields
 // that apply to all containers within the task definition
 type CommonContainerValues struct {
-	NetworkMode string
 	Ipc         string
 	Pid         string
 }
@@ -104,15 +104,15 @@ func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition, metadata *LocalC
 
 func createComposeServices(taskDefinition *ecs.TaskDefinition, metadata *LocalCreateMetadata) ([]composeV3.ServiceConfig, error) {
 	networkMode := aws.StringValue(taskDefinition.NetworkMode)
-	// TODO add log info message to indicate networkMode should be empty for Windows containers
-	if networkMode == ecs.NetworkModeAwsvpc {
-		return nil, fmt.Errorf("Network mode %s is not supported locally. Containers will be run in %s mode", networkMode, ecs.NetworkModeBridge)
+	if networkMode != "" {
+		log.WithFields(log.Fields{
+			"networkMode": networkMode,
+		}).Info("Task Definition network mode is ignored when running containers locally. Tasks will be run in the ecs-local-network.")
 	}
 
 	pid := aws.StringValue(taskDefinition.PidMode)
 	ipc := aws.StringValue(taskDefinition.IpcMode)
 	commonValues := &CommonContainerValues{
-		NetworkMode: networkMode,
 		Pid:         pid,
 		Ipc:         ipc,
 	}
@@ -197,7 +197,6 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition, commo
 		Volumes:     volumes,
 		Ports:       ports,
 		Networks:    networks,
-		NetworkMode: commonValues.NetworkMode,
 		Pid:         commonValues.Pid,
 		Ipc:         commonValues.Ipc,
 		Sysctls:     sysctls,
