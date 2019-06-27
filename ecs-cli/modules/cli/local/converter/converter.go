@@ -106,7 +106,7 @@ func createComposeServices(taskDefinition *ecs.TaskDefinition, metadata *LocalCr
 	networkMode := aws.StringValue(taskDefinition.NetworkMode)
 	// TODO add log info message to indicate networkMode should be empty for Windows containers
 	if networkMode == ecs.NetworkModeAwsvpc {
-		return nil, fmt.Errorf("Network mode %s is not supported", networkMode)
+		return nil, fmt.Errorf("Network mode %s is not supported locally. Containers will be run in %s mode", networkMode, ecs.NetworkModeBridge)
 	}
 
 	pid := aws.StringValue(taskDefinition.PidMode)
