@@ -50,10 +50,10 @@ func Down(c *cli.Context) error {
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.LocalTaskDefType)),
 		))
 	}
-	if c.String(flags.TaskDefinitionTaskFlag) != "" {
+	if c.String(flags.TaskDefinitionTaskRemote) != "" {
 		return downLocalContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue,
-				c.String(flags.TaskDefinitionTaskFlag))),
+				c.String(flags.TaskDefinitionTaskRemote))),
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.RemoteTaskDefType)),
 		))
 	}

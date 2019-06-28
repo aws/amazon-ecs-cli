@@ -71,10 +71,10 @@ func listContainers(c *cli.Context) []types.Container {
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.LocalTaskDefType)),
 		))
 	}
-	if c.String(flags.TaskDefinitionTaskFlag) != "" {
+	if c.String(flags.TaskDefinitionTaskRemote) != "" {
 		return listContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue,
-				c.String(flags.TaskDefinitionTaskFlag))),
+				c.String(flags.TaskDefinitionTaskRemote))),
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.RemoteTaskDefType)),
 		))
 	}
