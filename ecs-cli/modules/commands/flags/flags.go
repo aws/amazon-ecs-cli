@@ -148,11 +148,12 @@ const (
 	DisableECSManagedTagsFlag = "disable-ecs-managed-tags"
 
 	// Local
-	TaskDefinitionFileFlag = "file"
-	TaskDefinitionTaskFlag = "task-def"
-	LocalOutputFlag        = "output"
-	JsonFlag               = "json"
-	AllFlag                = "all"
+	TaskDefinitionFileFlag    = "task-def-file"
+	TaskDefinitionTaskRemote  = "task-def-remote"
+	TaskDefinitionComposeFlag = "task-def-compose"
+	LocalOutputFlag           = "output"
+	JsonFlag                  = "json"
+	AllFlag                   = "all"
 )
 
 // OptionalRegionAndProfileFlags provides these flags:

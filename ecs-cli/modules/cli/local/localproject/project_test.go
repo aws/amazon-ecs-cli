@@ -43,7 +43,7 @@ func TestReadTaskDefinition_FromRemote(t *testing.T) {
 	// GIVEN
 	taskDefName := "myTaskDef"
 	flagSet := flag.NewFlagSet("ecs-cli", 0)
-	flagSet.String(flags.TaskDefinitionTaskFlag, taskDefName, "")
+	flagSet.String(flags.TaskDefinitionTaskRemote, taskDefName, "")
 	context := cli.NewContext(nil, flagSet, nil)
 	project := New(context)
 
@@ -135,7 +135,7 @@ func TestReadTaskDefinition_ErrorIfTwoInputsSpecified(t *testing.T) {
 	taskDefName := "myTaskDef"
 	taskDefFile := "some-file.json"
 	flagSet := flag.NewFlagSet("ecs-cli", 0)
-	flagSet.String(flags.TaskDefinitionTaskFlag, taskDefName, "")
+	flagSet.String(flags.TaskDefinitionTaskRemote, taskDefName, "")
 	flagSet.String(flags.TaskDefinitionFileFlag, taskDefFile, "")
 	context := cli.NewContext(nil, flagSet, nil)
 	project := New(context)

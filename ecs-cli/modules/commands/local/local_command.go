@@ -28,7 +28,6 @@ func LocalCommand() cli.Command {
 		Name:   "local",
 		Usage:  "Run your ECS tasks locally.",
 		Before: app.BeforeApp,
-		Flags:  flags.OptionalRegionAndProfileFlags(),
 		Subcommands: []cli.Command{
 			createCommand(),
 			upCommand(),
@@ -72,7 +71,7 @@ func downCommand() cli.Command {
 				Usage: "Stops and removes all running containers matching the task definition file path",
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionTaskFlag + ",t",
+				Name:  flags.TaskDefinitionTaskRemote + ",t",
 				Usage: "Stops and removes all running containers matching the task family or ARN",
 			},
 		},
@@ -94,7 +93,7 @@ func psCommand() cli.Command {
 				Usage: "Lists all running containers matching the task definition file path",
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionTaskFlag + ",t",
+				Name:  flags.TaskDefinitionTaskRemote + ",t",
 				Usage: "Lists all running containers matching the task family or ARN",
 			},
 			cli.BoolFlag{
@@ -109,15 +108,15 @@ func createFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
 			Name:  flags.TaskDefinitionFileFlag + ",f",
-			Usage: "The file name of the task definition to convert",
+			Usage: "The file `name` of the task definition json to convert.",
 		},
 		cli.StringFlag{
-			Name:  flags.TaskDefinitionTaskFlag + ",t",
-			Usage: "The family or ARN of the task definition to convert",
+			Name:  flags.TaskDefinitionTaskRemote + ",r",
+			Usage: "The `arnOrFamily` of the task definition to convert.",
 		},
 		cli.StringFlag{
 			Name:  flags.LocalOutputFlag + ",o",
-			Usage: "The name of the file to write to. If not specified, defaults to docker-compose.local.yml",
+			Usage: "The `name` of the file to write to. If not specified, defaults to docker-compose.local.yml.",
 		},
 	}
 }
