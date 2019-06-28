@@ -92,12 +92,6 @@ func (projectFactory projectFactory) populateContext(ecsContext *context.ECSCont
 
 // populateLibcomposeContext sets the required Libcompose lookup utilities on the ECS context
 func (projectFactory projectFactory) populateLibcomposeContext(ecsContext *context.ECSContext) error {
-	envLookup, err := utils.GetDefaultEnvironmentLookup()
-	if err != nil {
-		return err
-	}
-	ecsContext.EnvironmentLookup = envLookup
-
 	resourceLookup, err := utils.GetDefaultResourceLookup()
 	if err != nil {
 		return err
