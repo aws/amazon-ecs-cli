@@ -329,8 +329,8 @@ func setupTestProjectWithECSRegistryCreds(t *testing.T, ecsParamsFileName, credF
 	}
 }
 
-// This function mimics the implementation of `project.NewProject()` used in
-// parseV1V2() and is only used for unit testing
+// This function mimics the implementation inside `project.NewProject()` for .env file lookup.
+// The following function is only used for unit tests.
 func getDefaultEnvironmentLookup() (*lookup.ComposableEnvLookup, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
