@@ -237,6 +237,7 @@ func convertToPorts(portMappings []*ecs.PortMapping) []composeV3.ServicePortConf
 	out := []composeV3.ServicePortConfig{}
 
 	for _, portMapping := range portMappings {
+		// NOTE this uses docker compose's long syntax for ports, supported in v3.2+
 		port := composeV3.ServicePortConfig{
 			Published: uint32(aws.Int64Value(portMapping.HostPort)),
 			Target:    uint32(aws.Int64Value(portMapping.ContainerPort)),
