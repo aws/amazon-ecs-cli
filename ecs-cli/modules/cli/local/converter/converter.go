@@ -89,7 +89,7 @@ func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition, metadata *LocalC
 
 	data, err := yaml.Marshal(&composeV3.Config{
 		Filename: "docker-compose.local.yml",
-		Version:  "3.0",
+		Version:  "3.2", // Minimum Compose file version supporting TaskDefinition fields
 		Networks: networks,
 		Services: services,
 	})
