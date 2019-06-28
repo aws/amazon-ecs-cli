@@ -43,7 +43,20 @@ func createCommand() cli.Command {
 		Usage:  "Create a Compose file from an ECS task definition.",
 		Before: app.BeforeApp,
 		Action: local.Create,
-		Flags:  createFlags(),
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:  flags.TaskDefinitionFileFlag + ",f",
+				Usage: "The file `name` of a task definition json to convert. If not specified, defaults to task-definition.json.",
+			},
+			cli.StringFlag{
+				Name:  flags.TaskDefinitionTaskRemote + ",r",
+				Usage: "The `arnOrFamily` of a task definition to convert.",
+			},
+			cli.StringFlag{
+				Name:  flags.LocalOutputFlag + ",o",
+				Usage: "The Compose file `name` to write to. If not specified, defaults to docker-compose.local.yml.",
+			},
+		},
 	}
 }
 
@@ -52,19 +65,36 @@ func upCommand() cli.Command {
 		Name:   "up",
 		Usage:  "Create a Compose file from an ECS task definition and run it.",
 		Action: local.Up,
-		Flags:  createFlags(),
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:  flags.TaskDefinitionFileFlag + ",f",
+				Usage: "The file `name` of a task definition json to convert and run. If not specified, defaults to task-definition.json.",
+			},
+			cli.StringFlag{
+				Name:  flags.TaskDefinitionTaskRemote + ",r",
+				Usage: "The `arnOrFamily` of a task definition to convert and run.",
+			},
+			cli.StringFlag{
+				Name:  flags.TaskDefinitionComposeFlag + ",c",
+				Usage: "The Compose file `name` of a task definition to run.",
+			},
+			cli.StringFlag{
+				Name:  flags.LocalOutputFlag + ",o",
+				Usage: "The Compose file `name` to write to. If not specified, defaults to docker-compose.local.yml.",
+			},
+		},
 	}
 }
 
 func downCommand() cli.Command {
 	return cli.Command{
 		Name:   "down",
-		Usage:  "Stop and remove a running ECS task container.",
+		Usage:  "Stop and remove a running ECS task.",
 		Action: local.Down,
 		Flags: []cli.Flag{
 			cli.BoolFlag{
 				Name:  flags.AllFlag,
-				Usage: "Stops and removes all running containers",
+				Usage: "Stops and removes all running containers.",
 			},
 			cli.StringFlag{
 				Name:  flags.TaskDefinitionFileFlag + ",f",
@@ -100,23 +130,6 @@ func psCommand() cli.Command {
 				Name:  flags.JsonFlag,
 				Usage: "Output in JSON format.",
 			},
-		},
-	}
-}
-
-func createFlags() []cli.Flag {
-	return []cli.Flag{
-		cli.StringFlag{
-			Name:  flags.TaskDefinitionFileFlag + ",f",
-			Usage: "The file `name` of the task definition json to convert.",
-		},
-		cli.StringFlag{
-			Name:  flags.TaskDefinitionTaskRemote + ",r",
-			Usage: "The `arnOrFamily` of the task definition to convert.",
-		},
-		cli.StringFlag{
-			Name:  flags.LocalOutputFlag + ",o",
-			Usage: "The `name` of the file to write to. If not specified, defaults to docker-compose.local.yml.",
 		},
 	}
 }

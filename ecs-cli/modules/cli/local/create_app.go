@@ -19,8 +19,6 @@ import (
 	"fmt"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/localproject"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -57,13 +55,5 @@ func createLocal(project localproject.LocalProject) error {
 		return err
 	}
 
-	return nil
-}
-
-func validateOptions(c *cli.Context) error {
-	if (c.String(flags.TaskDefinitionFileFlag) != "") && (c.String(flags.TaskDefinitionTaskRemote) != "") {
-		return fmt.Errorf("%s and %s can not be used together",
-			flags.TaskDefinitionTaskRemote, flags.TaskDefinitionFileFlag)
-	}
 	return nil
 }

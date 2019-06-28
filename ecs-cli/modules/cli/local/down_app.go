@@ -23,6 +23,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/docker"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/localproject"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/network"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/options"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
@@ -39,7 +40,7 @@ func Down(c *cli.Context) error {
 		network.Teardown(client)
 	}()
 
-	if err := validateOptions(c); err != nil {
+	if err := options.ValidateCombinations(c); err != nil {
 		logrus.Fatal(err.Error())
 	}
 
