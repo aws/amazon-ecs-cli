@@ -20,6 +20,7 @@ import (
 	mock_secretsmanageriface "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/secretsmanager/mock/sdk"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
+	"github.com/aws/aws-sdk-go/service/secretsmanager/secretsmanageriface"
 	"github.com/aws/aws-sdk-go/service/ssm"
 	"github.com/aws/aws-sdk-go/service/ssm/ssmiface"
 	"github.com/golang/mock/gomock"
@@ -147,22 +148,59 @@ func TestSecretsManagerDecrypter_DecryptSecret(t *testing.T) {
 		wantedSecret   string
 		setupDecrypter func(ctrl *gomock.Controller) *SecretsManagerDecrypter
 	}{
-		"with ARN": {
+		"with ARN in IAD": {
 			input:        "arn:aws:secretsmanager:us-east-1:11111111111:secret:alpha/efe/local-j0gCbT",
 			wantedSecret: "verysafe",
 			setupDecrypter: func(ctrl *gomock.Controller) *SecretsManagerDecrypter {
-				client := mock_secretsmanageriface.NewMockSecretsManagerAPI(ctrl)
+				iadClient := mock_secretsmanageriface.NewMockSecretsManagerAPI(ctrl)
+				pdxClient := mock_secretsmanageriface.NewMockSecretsManagerAPI(ctrl)
+
+				m := make(map[region]secretsmanageriface.SecretsManagerAPI)
+				m["default"] = iadClient
+				m["us-east-1"] = iadClient
+				m["us-west-2"] = pdxClient
 
 				gomock.InOrder(
-					client.EXPECT().GetSecretValue(&secretsmanager.GetSecretValueInput{
+					iadClient.EXPECT().GetSecretValue(&secretsmanager.GetSecretValueInput{
 						SecretId: aws.String("arn:aws:secretsmanager:us-east-1:11111111111:secret:alpha/efe/local-j0gCbT"),
 					}).Return(&secretsmanager.GetSecretValueOutput{
 						SecretString: aws.String("verysafe"),
 					}, nil),
+
+					pdxClient.EXPECT().GetSecretValue(gomock.Any()).Times(0),
 				)
 
 				return &SecretsManagerDecrypter{
-					SecretsManagerAPI: client,
+					SecretsManagerAPI: iadClient,
+					clients:           m,
+				}
+			},
+		},
+		"with ARN in PDX": {
+			input:        "arn:aws:secretsmanager:us-west-2:11111111111:secret:alpha/efe/local-j0gCbT",
+			wantedSecret: "veryverysafe",
+			setupDecrypter: func(ctrl *gomock.Controller) *SecretsManagerDecrypter {
+				iadClient := mock_secretsmanageriface.NewMockSecretsManagerAPI(ctrl)
+				pdxClient := mock_secretsmanageriface.NewMockSecretsManagerAPI(ctrl)
+
+				m := make(map[region]secretsmanageriface.SecretsManagerAPI)
+				m["default"] = iadClient
+				m["us-east-1"] = iadClient
+				m["us-west-2"] = pdxClient
+
+				gomock.InOrder(
+					pdxClient.EXPECT().GetSecretValue(&secretsmanager.GetSecretValueInput{
+						SecretId: aws.String("arn:aws:secretsmanager:us-west-2:11111111111:secret:alpha/efe/local-j0gCbT"),
+					}).Return(&secretsmanager.GetSecretValueOutput{
+						SecretString: aws.String("veryverysafe"),
+					}, nil),
+
+					iadClient.EXPECT().GetSecretValue(gomock.Any()).Times(0), // Should not have called IAD
+				)
+
+				return &SecretsManagerDecrypter{
+					SecretsManagerAPI: iadClient,
+					clients:           m,
 				}
 			},
 		},

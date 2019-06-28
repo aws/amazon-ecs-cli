@@ -19,7 +19,7 @@ import (
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/arn"
+	arnParser "github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/aws/aws-sdk-go/service/secretsmanager/secretsmanageriface"
@@ -43,6 +43,10 @@ type SSMDecrypter struct {
 // SecretsManagerDecrypter represents a SecretsManager client that implements the secrets.SecretDecrypter interface.
 type SecretsManagerDecrypter struct {
 	secretsmanageriface.SecretsManagerAPI
+
+	// clients holds regional SecretsManager clients.
+	// The region "default" is always present and points to the same session as the user's default region.
+	clients map[region]secretsmanageriface.SecretsManagerAPI
 }
 
 // DecryptSecret returns the decrypted parameter value from SSM.
@@ -57,7 +61,7 @@ func (d *SSMDecrypter) DecryptSecret(arnOrName string) (string, error) {
 
 	// If the value is an ARN we need to retrieve the parameter name and update the region of the client.
 	paramName := arnOrName
-	if parsedARN, err := arn.Parse(arnOrName); err == nil {
+	if parsedARN, err := arnParser.Parse(arnOrName); err == nil {
 		resource := strings.Split(parsedARN.Resource, "/") // Resource is formatted as parameter/{paramName}.
 		paramName = strings.Join(resource[1:], "")
 		d.SSMAPI = d.getClient(region(parsedARN.Region))
@@ -68,7 +72,7 @@ func (d *SSMDecrypter) DecryptSecret(arnOrName string) (string, error) {
 		WithDecryption: aws.Bool(true),
 	})
 	if err != nil {
-		return "", errors.Wrapf(err, "Failed to retrieve decrypted secret from %s due to %v", arnOrName, err)
+		return "", errors.Wrapf(err, "failed to retrieve decrypted secret from %s due to %v", arnOrName, err)
 	}
 	return *val.Parameter.Value, nil
 }
@@ -88,20 +92,36 @@ func (d *SSMDecrypter) getClient(r region) ssmiface.SSMAPI {
 
 // DecryptSecret returns the decrypted secret value from Secrets Manager.
 func (d *SecretsManagerDecrypter) DecryptSecret(arn string) (string, error) {
+	parsedARN, err := arnParser.Parse(arn)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to parse ARN %s", arn)
+	}
+	d.SecretsManagerAPI = d.getClient(region(parsedARN.Region))
 	val, err := d.GetSecretValue(&secretsmanager.GetSecretValueInput{
 		SecretId: aws.String(arn),
 	})
 	if err != nil {
-		return "", errors.Wrapf(err, "Failed to retrieve decrypted secret from %s due to %v", arn, err)
+		return "", errors.Wrapf(err, "failed to retrieve decrypted secret from %s due to %v", arn, err)
 	}
 	return *val.SecretString, nil
+}
+
+func (d *SecretsManagerDecrypter) getClient(r region) secretsmanageriface.SecretsManagerAPI {
+	if c, ok := d.clients[r]; ok {
+		return c
+	}
+	c := secretsmanager.New(session.Must(session.NewSessionWithOptions(session.Options{
+		Config: aws.Config{Region: aws.String(string(r))},
+	})))
+	d.clients[r] = c
+	return c
 }
 
 // NewSSMDecrypter returns a new SSMDecrypter using the ECS CLI's default region.
 func NewSSMDecrypter() (*SSMDecrypter, error) {
 	sess, err := getDefaultSession()
 	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to create a new AWS session due to %v", err)
+		return nil, errors.Wrapf(err, "failed to create a new AWS session due to %v", err)
 	}
 	defaultClient := ssm.New(sess)
 
@@ -109,8 +129,8 @@ func NewSSMDecrypter() (*SSMDecrypter, error) {
 	clients["default"] = defaultClient
 	clients[region(aws.StringValue(sess.Config.Region))] = defaultClient
 	return &SSMDecrypter{
-		SSMAPI:  defaultClient,
-		clients: clients,
+		defaultClient,
+		clients,
 	}, nil
 }
 
@@ -118,10 +138,17 @@ func NewSSMDecrypter() (*SSMDecrypter, error) {
 func NewSecretsManagerDecrypter() (*SecretsManagerDecrypter, error) {
 	sess, err := getDefaultSession()
 	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to create a new AWS session due to %v", err)
+		return nil, errors.Wrapf(err, "failed to create a new AWS session due to %v", err)
 	}
+
+	defaultClient := secretsmanager.New(sess)
+
+	clients := make(map[region]secretsmanageriface.SecretsManagerAPI)
+	clients["default"] = defaultClient
+	clients[region(aws.StringValue(sess.Config.Region))] = defaultClient
 	return &SecretsManagerDecrypter{
-		secretsmanager.New(sess),
+		defaultClient,
+		clients,
 	}, nil
 }
 
