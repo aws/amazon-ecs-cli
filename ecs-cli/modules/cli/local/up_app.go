@@ -15,13 +15,16 @@ package local
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/converter"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/docker"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/localproject"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/network"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/options"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/secrets"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/secrets/clients"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
@@ -40,26 +43,45 @@ import (
 // If the container is not running, this command creates a new network for all local ECS tasks to join
 // and communicate with the Amazon ECS Local Endpoints container.
 func Up(c *cli.Context) {
-	// TODO When we don't provide any flags, Create() should just check if a "./docker-compose.local.yml" already exists.
-	// If so then Create() should do nothing else, otherwise it should error.
-	Create(c)
+	if err := options.ValidateCombinations(c); err != nil {
+		logrus.Fatalf(err.Error())
+	}
+	composePath, err := createComposeFile(c)
+	if err != nil {
+		logrus.Fatalf("Failed to create compose file due to:\n%v", err)
+	}
+	logrus.Infof("Using %s to start containers", filepath.Base(composePath))
 
+	runContainers(composePath)
+}
+
+func createComposeFile(c *cli.Context) (string, error) {
+	if name := c.String(flags.TaskDefinitionComposeFlag); name != "" {
+		return filepath.Abs(name)
+	}
+	if shouldUseDefaultComposeFile(c) {
+		return filepath.Abs(localproject.LocalOutDefaultFileName)
+	}
+
+	project := localproject.New(c)
+	if err := createLocal(project); err != nil {
+		return "", err
+	}
+	return filepath.Abs(project.LocalOutFileName())
+}
+
+func runContainers(composePath string) {
 	network.Setup(docker.NewClient())
-
-	config := readComposeFile(c)
+	config := readComposeFile(composePath)
 	secrets := readSecrets(config)
 	envVars := decryptSecrets(secrets)
 	upComposeFile(config, envVars)
 }
 
-func readComposeFile(c *cli.Context) *composeV3.Config {
-	filename := localproject.LocalOutDefaultFileName
-	if c.String(flags.LocalOutputFlag) != "" {
-		filename = c.String(flags.LocalOutputFlag)
-	}
-	config, err := converter.UnmarshalComposeFile(filename)
+func readComposeFile(composePath string) *composeV3.Config {
+	config, err := converter.UnmarshalComposeFile(composePath)
 	if err != nil {
-		logrus.Fatalf("Failed to unmarshal Compose file %s due to \n%v", filename, err)
+		logrus.Fatalf("Failed to unmarshal Compose file %s due to \n%v", composePath, err)
 	}
 	return config
 }
@@ -127,4 +149,14 @@ func upComposeFile(config *composeV3.Config, envVars map[string]string) {
 		logrus.Fatalf("Failed to run docker-compose up due to \n%v: %s", err, string(out))
 	}
 	fmt.Printf("Compose out: %s\n", string(out))
+}
+
+func shouldUseDefaultComposeFile(c *cli.Context) bool {
+	if options.HasTaskDefInputFlag(c) {
+		return false
+	}
+	if _, err := os.Stat(localproject.LocalOutDefaultFileName); err != nil {
+		return false
+	}
+	return true
 }

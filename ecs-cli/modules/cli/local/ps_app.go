@@ -25,6 +25,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/converter"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/docker"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/localproject"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/options"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
@@ -56,7 +57,7 @@ const (
 // If the --all flag is provided, then list all local ECS task containers.
 // If the --json flag is provided, then output the format as JSON instead.
 func Ps(c *cli.Context) {
-	if err := validateOptions(c); err != nil {
+	if err := options.ValidateCombinations(c); err != nil {
 		logrus.Fatal(err.Error())
 	}
 	containers := listContainers(c)
