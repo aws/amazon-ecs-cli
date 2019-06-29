@@ -43,7 +43,7 @@ func TestReadTaskDefinition_FromRemote(t *testing.T) {
 	// GIVEN
 	taskDefName := "myTaskDef"
 	flagSet := flag.NewFlagSet("ecs-cli", 0)
-	flagSet.String(flags.TaskDefinitionTaskRemote, taskDefName, "")
+	flagSet.String(flags.TaskDefinitionRemote, taskDefName, "")
 	context := cli.NewContext(nil, flagSet, nil)
 	project := New(context)
 
@@ -72,7 +72,7 @@ func TestReadTaskDefinition_FromLocal(t *testing.T) {
 	// GIVEN
 	taskDefFile := "some-file.json"
 	flagSet := flag.NewFlagSet("ecs-cli", 0)
-	flagSet.String(flags.TaskDefinitionFileFlag, taskDefFile, "")
+	flagSet.String(flags.TaskDefinitionFile, taskDefFile, "")
 	context := cli.NewContext(nil, flagSet, nil)
 	project := New(context)
 
@@ -135,8 +135,8 @@ func TestReadTaskDefinition_ErrorIfTwoInputsSpecified(t *testing.T) {
 	taskDefName := "myTaskDef"
 	taskDefFile := "some-file.json"
 	flagSet := flag.NewFlagSet("ecs-cli", 0)
-	flagSet.String(flags.TaskDefinitionTaskRemote, taskDefName, "")
-	flagSet.String(flags.TaskDefinitionFileFlag, taskDefFile, "")
+	flagSet.String(flags.TaskDefinitionRemote, taskDefName, "")
+	flagSet.String(flags.TaskDefinitionFile, taskDefFile, "")
 	context := cli.NewContext(nil, flagSet, nil)
 	project := New(context)
 
@@ -175,7 +175,7 @@ func TestWrite_WithOutputFlag(t *testing.T) {
 	// GIVEN
 	expectedOutputFile := "foo.yml"
 	flagSet := flag.NewFlagSet("ecs-cli", 0)
-	flagSet.String(flags.LocalOutputFlag, expectedOutputFile, "")
+	flagSet.String(flags.Output, expectedOutputFile, "")
 	context := cli.NewContext(nil, flagSet, nil)
 	project := New(context)
 

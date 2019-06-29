@@ -45,15 +45,15 @@ func createCommand() cli.Command {
 		Action: local.Create,
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionFileFlag + ",f",
+				Name:  flags.TaskDefinitionFile + ",f",
 				Usage: "The file `name` of a task definition json to convert. If not specified, defaults to task-definition.json.",
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionTaskRemote + ",r",
+				Name:  flags.TaskDefinitionRemote + ",r",
 				Usage: "The `arnOrFamily` of a task definition to convert.",
 			},
 			cli.StringFlag{
-				Name:  flags.LocalOutputFlag + ",o",
+				Name:  flags.Output + ",o",
 				Usage: "The Compose file `name` to write to. If not specified, defaults to docker-compose.local.yml.",
 			},
 		},
@@ -67,19 +67,19 @@ func upCommand() cli.Command {
 		Action: local.Up,
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionFileFlag + ",f",
+				Name:  flags.TaskDefinitionFile + ",f",
 				Usage: "The file `name` of a task definition json to convert and run. If not specified, defaults to task-definition.json.",
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionTaskRemote + ",r",
+				Name:  flags.TaskDefinitionRemote + ",r",
 				Usage: "The `arnOrFamily` of a task definition to convert and run.",
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionComposeFlag + ",c",
+				Name:  flags.TaskDefinitionCompose + ",c",
 				Usage: "The Compose file `name` of a task definition to run.",
 			},
 			cli.StringFlag{
-				Name:  flags.LocalOutputFlag + ",o",
+				Name:  flags.Output + ",o",
 				Usage: "The Compose file `name` to write to. If not specified, defaults to docker-compose.local.yml.",
 			},
 		},
@@ -93,15 +93,15 @@ func downCommand() cli.Command {
 		Action: local.Down,
 		Flags: []cli.Flag{
 			cli.BoolFlag{
-				Name:  flags.AllFlag,
+				Name:  flags.All,
 				Usage: "Stops and removes all running containers.",
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionFileFlag + ",f",
+				Name:  flags.TaskDefinitionFile + ",f",
 				Usage: "Stops and removes all running containers matching the task definition file path",
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionTaskRemote + ",t",
+				Name:  flags.TaskDefinitionRemote + ",t",
 				Usage: "Stops and removes all running containers matching the task family or ARN",
 			},
 		},
@@ -115,19 +115,19 @@ func psCommand() cli.Command {
 		Action: local.Ps,
 		Flags: []cli.Flag{
 			cli.BoolFlag{
-				Name:  flags.AllFlag,
+				Name:  flags.All,
 				Usage: "Lists all running local ECS tasks.",
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionFileFlag + ",f",
+				Name:  flags.TaskDefinitionFile + ",f",
 				Usage: "Lists all running containers matching the task definition file path",
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionTaskRemote + ",t",
+				Name:  flags.TaskDefinitionRemote + ",t",
 				Usage: "Lists all running containers matching the task family or ARN",
 			},
 			cli.BoolFlag{
-				Name:  flags.JsonFlag,
+				Name:  flags.JSON,
 				Usage: "Output in JSON format.",
 			},
 		},

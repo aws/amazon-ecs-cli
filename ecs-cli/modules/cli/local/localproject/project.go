@@ -95,11 +95,11 @@ func (p *localProject) InputMetadata() *converter.LocalCreateMetadata {
 // ReadTaskDefinition reads an ECS Task Definition either from a local file
 // or from retrieving one from ECS and stores it on the local project
 func (p *localProject) ReadTaskDefinition() error {
-	remote := p.context.String(flags.TaskDefinitionTaskRemote)
-	filename := p.context.String(flags.TaskDefinitionFileFlag)
+	remote := p.context.String(flags.TaskDefinitionRemote)
+	filename := p.context.String(flags.TaskDefinitionFile)
 
 	if remote != "" && filename != "" {
-		return fmt.Errorf("cannot specify both --%s and --%s flags", flags.TaskDefinitionTaskRemote, flags.TaskDefinitionFileFlag)
+		return fmt.Errorf("cannot specify both --%s and --%s flags", flags.TaskDefinitionRemote, flags.TaskDefinitionFile)
 	}
 
 	var taskDefinition *ecs.TaskDefinition
@@ -217,7 +217,7 @@ func (p *localProject) Write() error {
 	// Will error if the file already exists, otherwise create
 	p.localOutFileName = LocalOutDefaultFileName
 
-	if fileName := p.context.String(flags.LocalOutputFlag); fileName != "" {
+	if fileName := p.context.String(flags.Output); fileName != "" {
 		p.localOutFileName = fileName
 	}
 

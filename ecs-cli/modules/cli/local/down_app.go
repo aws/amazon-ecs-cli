@@ -44,21 +44,21 @@ func Down(c *cli.Context) error {
 		logrus.Fatal(err.Error())
 	}
 
-	if c.String(flags.TaskDefinitionFileFlag) != "" {
+	if c.String(flags.TaskDefinitionFile) != "" {
 		return downLocalContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue,
-				c.String(flags.TaskDefinitionFileFlag))),
+				c.String(flags.TaskDefinitionFile))),
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.LocalTaskDefType)),
 		))
 	}
-	if c.String(flags.TaskDefinitionTaskRemote) != "" {
+	if c.String(flags.TaskDefinitionRemote) != "" {
 		return downLocalContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue,
-				c.String(flags.TaskDefinitionTaskRemote))),
+				c.String(flags.TaskDefinitionRemote))),
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.RemoteTaskDefType)),
 		))
 	}
-	if c.Bool(flags.AllFlag) {
+	if c.Bool(flags.All) {
 		return downLocalContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", converter.TaskDefinitionLabelValue),
 		))
