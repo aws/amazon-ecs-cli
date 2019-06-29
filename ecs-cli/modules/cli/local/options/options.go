@@ -28,7 +28,7 @@ type flagPair struct {
 
 // ValidateCombinations returns an error if two flags can not be used together.
 func ValidateCombinations(c *cli.Context) error {
-	notTogether := []flagPair{
+	invalid := []flagPair{
 		{
 			flags.TaskDefinitionFile,
 			flags.TaskDefinitionRemote,
@@ -47,24 +47,10 @@ func ValidateCombinations(c *cli.Context) error {
 		},
 	}
 
-	for _, pair := range notTogether {
+	for _, pair := range invalid {
 		if c.String(pair.first) != "" && c.String(pair.second) != "" {
 			return fmt.Errorf("%s and %s can not be used together", pair.first, pair.second)
 		}
 	}
 	return nil
-}
-
-// HasTaskDefInputFlag returns true if any --task-def-* flag was set, false otherwise.
-func HasTaskDefInputFlag(c *cli.Context) bool {
-	if c.String(flags.TaskDefinitionFile) != "" {
-		return true
-	}
-	if c.String(flags.TaskDefinitionRemote) != "" {
-		return true
-	}
-	if c.String(flags.TaskDefinitionCompose) != "" {
-		return true
-	}
-	return false
 }
