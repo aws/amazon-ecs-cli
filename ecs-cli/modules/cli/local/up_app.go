@@ -48,13 +48,16 @@ func Up(c *cli.Context) {
 	}
 	composePath, err := createComposeFile(c)
 	if err != nil {
-		logrus.Fatalf("Failed to create compose file due to:\n%v", err)
+		logrus.Fatalf("Failed to get compose file path due to:\n%v", err)
 	}
-	logrus.Infof("Using %s to start containers", filepath.Base(composePath))
-
 	runContainers(composePath)
 }
 
+// createComposeFile returns the path of the Compose file to start the containers from.
+// The Compose file ordering priority is defined as:
+// 1. Use the --task-def-compose flag if it exists
+// 2. Use the default docker-compose.local.yml file if no flags were provided and the file exists
+// 3. Otherwise, we need to create the Compose file.
 func createComposeFile(c *cli.Context) (string, error) {
 	if name := c.String(flags.TaskDefinitionCompose); name != "" {
 		return filepath.Abs(name)
@@ -72,6 +75,8 @@ func createComposeFile(c *cli.Context) (string, error) {
 
 func runContainers(composePath string) {
 	network.Setup(docker.NewClient())
+
+	logrus.Infof("Using %s to start containers", filepath.Base(composePath))
 	config := readComposeFile(composePath)
 	secrets := readSecrets(config)
 	envVars := decryptSecrets(secrets)
@@ -152,8 +157,10 @@ func upComposeFile(config *composeV3.Config, envVars map[string]string) {
 }
 
 func shouldUseDefaultComposeFile(c *cli.Context) bool {
-	if options.HasTaskDefInputFlag(c) {
-		return false
+	for _, flagName := range c.FlagNames() {
+		if c.IsSet(flagName) {
+			return false
+		}
 	}
 	if _, err := os.Stat(localproject.LocalOutDefaultFileName); err != nil {
 		return false
