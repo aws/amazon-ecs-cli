@@ -56,7 +56,7 @@ func Up(c *cli.Context) {
 }
 
 func createComposeFile(c *cli.Context) (string, error) {
-	if name := c.String(flags.TaskDefinitionComposeFlag); name != "" {
+	if name := c.String(flags.TaskDefinitionCompose); name != "" {
 		return filepath.Abs(name)
 	}
 	if shouldUseDefaultComposeFile(c) {

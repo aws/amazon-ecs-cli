@@ -30,20 +30,20 @@ type flagPair struct {
 func ValidateCombinations(c *cli.Context) error {
 	notTogether := []flagPair{
 		{
-			flags.TaskDefinitionFileFlag,
-			flags.TaskDefinitionTaskRemote,
+			flags.TaskDefinitionFile,
+			flags.TaskDefinitionRemote,
 		},
 		{
-			flags.TaskDefinitionFileFlag,
-			flags.TaskDefinitionComposeFlag,
+			flags.TaskDefinitionFile,
+			flags.TaskDefinitionCompose,
 		},
 		{
-			flags.TaskDefinitionTaskRemote,
-			flags.TaskDefinitionComposeFlag,
+			flags.TaskDefinitionRemote,
+			flags.TaskDefinitionCompose,
 		},
 		{
-			flags.LocalOutputFlag,
-			flags.TaskDefinitionComposeFlag,
+			flags.Output,
+			flags.TaskDefinitionCompose,
 		},
 	}
 
@@ -57,13 +57,13 @@ func ValidateCombinations(c *cli.Context) error {
 
 // HasTaskDefInputFlag returns true if any --task-def-* flag was set, false otherwise.
 func HasTaskDefInputFlag(c *cli.Context) bool {
-	if c.String(flags.TaskDefinitionFileFlag) != "" {
+	if c.String(flags.TaskDefinitionFile) != "" {
 		return true
 	}
-	if c.String(flags.TaskDefinitionTaskRemote) != "" {
+	if c.String(flags.TaskDefinitionRemote) != "" {
 		return true
 	}
-	if c.String(flags.TaskDefinitionComposeFlag) != "" {
+	if c.String(flags.TaskDefinitionCompose) != "" {
 		return true
 	}
 	return false
