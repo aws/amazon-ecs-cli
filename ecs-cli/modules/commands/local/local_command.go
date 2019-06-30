@@ -21,6 +21,13 @@ import (
 	"github.com/urfave/cli"
 )
 
+const (
+	createCmdName = "create"
+	upCmdName     = "up"
+	psCmdName     = "ps"
+	downCmdName   = "down"
+)
+
 // LocalCommand provides a list of commands that operate on a task-definition
 // file (accepted formats: JSON, YAML, CloudFormation).
 func LocalCommand() cli.Command {
@@ -39,22 +46,22 @@ func LocalCommand() cli.Command {
 
 func createCommand() cli.Command {
 	return cli.Command{
-		Name:   "create",
+		Name:   createCmdName,
 		Usage:  "Create a Compose file from an ECS task definition.",
 		Before: app.BeforeApp,
 		Action: local.Create,
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionFile + ",f",
-				Usage: "The file `name` of a task definition json to convert. If not specified, defaults to task-definition.json.",
+				Name:  flagName(flags.TaskDefinitionFile),
+				Usage: flagDescription(flags.TaskDefinitionFile, createCmdName),
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionRemote + ",r",
-				Usage: "The `arnOrFamily` of a task definition to convert.",
+				Name:  flagName(flags.TaskDefinitionRemote),
+				Usage: flagDescription(flags.TaskDefinitionRemote, createCmdName),
 			},
 			cli.StringFlag{
-				Name:  flags.Output + ",o",
-				Usage: "The Compose file `name` to write to. If not specified, defaults to docker-compose.local.yml.",
+				Name:  flagName(flags.Output),
+				Usage: flagDescription(flags.Output, createCmdName),
 			},
 		},
 	}
@@ -62,51 +69,25 @@ func createCommand() cli.Command {
 
 func upCommand() cli.Command {
 	return cli.Command{
-		Name:   "up",
+		Name:   upCmdName,
 		Usage:  "Create a Compose file from an ECS task definition and run it.",
 		Action: local.Up,
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionCompose + ",c",
-				Usage: "The Compose file `name` of a task definition to run.",
+				Name:  flagName(flags.TaskDefinitionCompose),
+				Usage: flagDescription(flags.TaskDefinitionCompose, upCmdName),
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionFile + ",f",
-				Usage: "The file `name` of a task definition json to convert and run. If not specified, defaults to task-definition.json.",
+				Name:  flagName(flags.TaskDefinitionFile),
+				Usage: flagDescription(flags.TaskDefinitionFile, upCmdName),
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionRemote + ",r",
-				Usage: "The `arnOrFamily` of a task definition to convert and run.",
+				Name:  flagName(flags.TaskDefinitionRemote),
+				Usage: flagDescription(flags.TaskDefinitionRemote, upCmdName),
 			},
 			cli.StringFlag{
-				Name:  flags.Output + ",o",
-				Usage: "The Compose file `name` to write to. If not specified, defaults to docker-compose.local.yml.",
-			},
-		},
-	}
-}
-
-func downCommand() cli.Command {
-	return cli.Command{
-		Name:   "down",
-		Usage:  "Stop and remove a running ECS task.",
-		Action: local.Down,
-		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:  flags.TaskDefinitionCompose + ",c",
-				Usage: "Stop and remove containers from the Compose file `name`.",
-			},
-			cli.StringFlag{
-				Name:  flags.TaskDefinitionFile + ",f",
-				Usage: "Stop and remove all running containers matching the task definition file `name`.",
-			},
-			cli.StringFlag{
-				Name:  flags.TaskDefinitionRemote + ",r",
-				Usage: "Stop and remove all running containers matching the task definition `arnOrFamily`.",
-			},
-			cli.BoolFlag{
-				Name:  flags.All,
-				Usage: "Stop and remove all running containers.",
+				Name:  flagName(flags.Output),
+				Usage: flagDescription(flags.Output, upCmdName),
 			},
 		},
 	}
@@ -114,30 +95,102 @@ func downCommand() cli.Command {
 
 func psCommand() cli.Command {
 	return cli.Command{
-		Name:   "ps",
+		Name:   psCmdName,
 		Usage:  "List locally running ECS task containers.",
 		Action: local.Ps,
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionCompose + ",c",
-				Usage: "List containers created from the Compose file `name`.",
+				Name:  flagName(flags.TaskDefinitionCompose),
+				Usage: flagDescription(flags.TaskDefinitionCompose, psCmdName),
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionFile + ",f",
-				Usage: "List all running containers matching the task definition file `name`.",
+				Name:  flagName(flags.TaskDefinitionFile),
+				Usage: flagDescription(flags.TaskDefinitionFile, psCmdName),
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionRemote + ",r",
-				Usage: "List all running containers matching the task definition `arnOrFamily`.",
+				Name:  flagName(flags.TaskDefinitionRemote),
+				Usage: flagDescription(flags.TaskDefinitionRemote, psCmdName),
 			},
 			cli.BoolFlag{
-				Name:  flags.All,
-				Usage: "List all running local ECS task containers.",
+				Name:  flagName(flags.All),
+				Usage: flagDescription(flags.All, psCmdName),
 			},
 			cli.BoolFlag{
-				Name:  flags.JSON,
-				Usage: "Output in JSON format.",
+				Name:  flagName(flags.JSON),
+				Usage: flagDescription(flags.JSON, psCmdName),
 			},
 		},
 	}
+}
+
+func downCommand() cli.Command {
+	return cli.Command{
+		Name:   downCmdName,
+		Usage:  "Stop and remove a running ECS task.",
+		Action: local.Down,
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:  flagName(flags.TaskDefinitionCompose),
+				Usage: flagDescription(flags.TaskDefinitionCompose, downCmdName),
+			},
+			cli.StringFlag{
+				Name:  flagName(flags.TaskDefinitionFile),
+				Usage: flagDescription(flags.TaskDefinitionFile, downCmdName),
+			},
+			cli.StringFlag{
+				Name:  flagName(flags.TaskDefinitionRemote),
+				Usage: flagDescription(flags.TaskDefinitionRemote, downCmdName),
+			},
+			cli.BoolFlag{
+				Name:  flagName(flags.All),
+				Usage: flagDescription(flags.All, downCmdName),
+			},
+		},
+	}
+}
+
+func flagName(longName string) string {
+	m := map[string]string{
+		flags.TaskDefinitionCompose: flags.TaskDefinitionCompose + ",c",
+		flags.TaskDefinitionFile:    flags.TaskDefinitionFile + ",f",
+		flags.TaskDefinitionRemote:  flags.TaskDefinitionRemote + ",r",
+		flags.Output:                flags.Output + ",o",
+		flags.JSON:                  flags.JSON,
+		flags.All:                   flags.All,
+	}
+	return m[longName]
+}
+
+func flagDescription(longName, cmdName string) string {
+	m := map[string]map[string]string{
+		flags.TaskDefinitionCompose: {
+			upCmdName:   "The Compose file `name` of a task definition to run.",
+			psCmdName:   "List containers created from the Compose file `name`.",
+			downCmdName: "Stop and remove containers from the Compose file `name`.",
+		},
+		flags.TaskDefinitionFile: {
+			createCmdName: "The file `name` of a task definition json to convert. If not specified, defaults to task-definition.json.",
+			upCmdName:     "The file `name` of a task definition json to convert and run. If not specified, defaults to task-definition.json.",
+			psCmdName:     "List all running containers matching the task definition file `name`.",
+			downCmdName:   "Stop and remove all running containers matching the task definition file `name`.",
+		},
+		flags.TaskDefinitionRemote: {
+			createCmdName: "The `arnOrFamily` of a task definition to convert.",
+			upCmdName:     "The `arnOrFamily` of a task definition to convert and run.",
+			psCmdName:     "List all running containers matching the task definition `arnOrFamily`.",
+			downCmdName:   "Stop and remove all running containers matching the task definition `arnOrFamily`.",
+		},
+		flags.Output: {
+			createCmdName: "The Compose file `name` to write to. If not specified, defaults to docker-compose.local.yml.",
+			upCmdName:     "The Compose file `name` to write to. If not specified, defaults to docker-compose.local.yml.",
+		},
+		flags.JSON: {
+			psCmdName: "Output in JSON format.",
+		},
+		flags.All: {
+			psCmdName:   "List all running local ECS task containers.",
+			downCmdName: "Stop and remove all running containers.",
+		},
+	}
+	return m[longName][cmdName]
 }
