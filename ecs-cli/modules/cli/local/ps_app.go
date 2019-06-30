@@ -29,6 +29,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 	"golang.org/x/net/context"
@@ -60,11 +61,23 @@ func Ps(c *cli.Context) {
 	if err := options.ValidateCombinations(c); err != nil {
 		logrus.Fatal(err.Error())
 	}
-	containers := listContainers(c)
-	displayContainers(c, containers)
+	containers, err := listContainers(c)
+	if err != nil {
+		logrus.Fatalf("Failed to list containers due to:\n%v", err)
+	}
+	if err = displayContainers(c, containers); err != nil {
+		logrus.Fatalf("Failed to display containers due to:\n%v", err)
+	}
 }
 
-func listContainers(c *cli.Context) []types.Container {
+func listContainers(c *cli.Context) ([]types.Container, error) {
+	if name := c.String(flags.TaskDefinitionCompose); name != "" {
+		path, err := filepath.Abs(name)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to get absolute path of %s", name)
+		}
+		return listLocalComposeContainers(path)
+	}
 	if c.String(flags.TaskDefinitionFile) != "" {
 		return listContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue,
@@ -84,25 +97,25 @@ func listContainers(c *cli.Context) []types.Container {
 			filters.Arg("label", converter.TaskDefinitionLabelValue),
 		))
 	}
-	return listLocalComposeContainers()
+	return listLocalComposeContainers(localproject.LocalOutDefaultFileName)
 }
 
-func listLocalComposeContainers() []types.Container {
+func listLocalComposeContainers(composePath string) ([]types.Container, error) {
 	wd, _ := os.Getwd()
 	if _, err := os.Stat(filepath.Join(wd, localproject.LocalOutDefaultFileName)); os.IsNotExist(err) {
 		logrus.Fatalf("Compose file %s does not exist in current directory", localproject.LocalOutDefaultFileName)
 	}
 
 	// The -q flag displays the ID of the containers instead of the default "Name, Command, State, Ports" metadata.
-	cmd := exec.Command("docker-compose", "-f", localproject.LocalOutDefaultFileName, "ps", "-q")
+	cmd := exec.Command("docker-compose", "-f", composePath, "ps", "-q")
 	composeOut, err := cmd.CombinedOutput()
 	if err != nil {
-		logrus.Fatalf("Failed to run docker-compose ps due to \n%v: %s", err, string(composeOut))
+		return nil, errors.Wrapf(err, "failed to docker-compose ps on %s with stdout %s", composePath, string(composeOut))
 	}
 
 	containerIDs := strings.Split(string(composeOut), "\n")
 	if len(containerIDs) == 0 {
-		return []types.Container{}
+		return []types.Container{}, nil
 	}
 
 	var args []filters.KeyValuePair
@@ -112,7 +125,7 @@ func listLocalComposeContainers() []types.Container {
 	return listContainersWithFilters(filters.NewArgs(args...))
 }
 
-func listContainersWithFilters(args filters.Args) []types.Container {
+func listContainersWithFilters(args filters.Args) ([]types.Container, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
@@ -121,28 +134,29 @@ func listContainersWithFilters(args filters.Args) []types.Container {
 		Filters: args,
 	})
 	if err != nil {
-		logrus.Fatalf("Failed to list containers with args=%v due to \n%v", args, err)
+		return nil, errors.Wrapf(err, "failed to list containers with args=%v", args)
 	}
-	return containers
+	return containers, nil
 }
 
-func displayContainers(c *cli.Context, containers []types.Container) {
+func displayContainers(c *cli.Context, containers []types.Container) error {
 	if c.Bool(flags.JSON) {
-		displayAsJSON(containers)
+		return displayAsJSON(containers)
 	} else {
-		displayAsTable(containers)
+		return displayAsTable(containers)
 	}
 }
 
-func displayAsJSON(containers []types.Container) {
+func displayAsJSON(containers []types.Container) error {
 	data, err := json.MarshalIndent(containers, jsonPrefix, jsonIndent)
 	if err != nil {
-		logrus.Fatalf("Failed to marshal containers to JSON due to \n%v", err)
+		return errors.Wrap(err, "failed to marshal containers to JSON")
 	}
 	fmt.Fprintln(os.Stdout, string(data))
+	return nil
 }
 
-func displayAsTable(containers []types.Container) {
+func displayAsTable(containers []types.Container) error {
 	w := new(tabwriter.Writer)
 
 	w.Init(os.Stdout, cellWidthInSpaces, widthBetweenCellsInSpaces, cellPaddingInSpaces, paddingCharacter, noFormatting)
@@ -157,7 +171,7 @@ func displayAsTable(containers []types.Container) {
 			container.Labels[converter.TaskDefinitionLabelValue])
 		fmt.Fprintln(w, row)
 	}
-	w.Flush()
+	return w.Flush()
 }
 
 func prettifyPorts(containerPorts []types.Port) string {

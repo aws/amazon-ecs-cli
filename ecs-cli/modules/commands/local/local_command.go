@@ -67,16 +67,16 @@ func upCommand() cli.Command {
 		Action: local.Up,
 		Flags: []cli.Flag{
 			cli.StringFlag{
+				Name:  flags.TaskDefinitionCompose + ",c",
+				Usage: "The Compose file `name` of a task definition to run.",
+			},
+			cli.StringFlag{
 				Name:  flags.TaskDefinitionFile + ",f",
 				Usage: "The file `name` of a task definition json to convert and run. If not specified, defaults to task-definition.json.",
 			},
 			cli.StringFlag{
 				Name:  flags.TaskDefinitionRemote + ",r",
 				Usage: "The `arnOrFamily` of a task definition to convert and run.",
-			},
-			cli.StringFlag{
-				Name:  flags.TaskDefinitionCompose + ",c",
-				Usage: "The Compose file `name` of a task definition to run.",
 			},
 			cli.StringFlag{
 				Name:  flags.Output + ",o",
@@ -114,17 +114,21 @@ func psCommand() cli.Command {
 		Usage:  "List locally running ECS task containers.",
 		Action: local.Ps,
 		Flags: []cli.Flag{
-			cli.BoolFlag{
-				Name:  flags.All,
-				Usage: "Lists all running local ECS tasks.",
+			cli.StringFlag{
+				Name:  flags.TaskDefinitionCompose + ",c",
+				Usage: "List containers created from the Compose file `name`.",
 			},
 			cli.StringFlag{
 				Name:  flags.TaskDefinitionFile + ",f",
-				Usage: "Lists all running containers matching the task definition file path",
+				Usage: "Lists all running containers matching the task definition file path.",
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionRemote + ",t",
-				Usage: "Lists all running containers matching the task family or ARN",
+				Name:  flags.TaskDefinitionRemote + ",r",
+				Usage: "Lists all running containers matching the task definition `arnOrFamily`.",
+			},
+			cli.BoolFlag{
+				Name:  flags.All,
+				Usage: "List all running local ECS task containers.",
 			},
 			cli.BoolFlag{
 				Name:  flags.JSON,
