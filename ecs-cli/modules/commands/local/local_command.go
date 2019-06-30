@@ -92,17 +92,21 @@ func downCommand() cli.Command {
 		Usage:  "Stop and remove a running ECS task.",
 		Action: local.Down,
 		Flags: []cli.Flag{
-			cli.BoolFlag{
-				Name:  flags.All,
-				Usage: "Stops and removes all running containers.",
+			cli.StringFlag{
+				Name:  flags.TaskDefinitionCompose + ",c",
+				Usage: "Stop and remove containers from the Compose file `name`.",
 			},
 			cli.StringFlag{
 				Name:  flags.TaskDefinitionFile + ",f",
-				Usage: "Stops and removes all running containers matching the task definition file path",
+				Usage: "Stop and remove all running containers matching the task definition file `name`.",
 			},
 			cli.StringFlag{
-				Name:  flags.TaskDefinitionRemote + ",t",
-				Usage: "Stops and removes all running containers matching the task family or ARN",
+				Name:  flags.TaskDefinitionRemote + ",r",
+				Usage: "Stop and remove all running containers matching the task definition `arnOrFamily`.",
+			},
+			cli.BoolFlag{
+				Name:  flags.All,
+				Usage: "Stop and remove all running containers.",
 			},
 		},
 	}
@@ -120,11 +124,11 @@ func psCommand() cli.Command {
 			},
 			cli.StringFlag{
 				Name:  flags.TaskDefinitionFile + ",f",
-				Usage: "Lists all running containers matching the task definition file path.",
+				Usage: "List all running containers matching the task definition file `name`.",
 			},
 			cli.StringFlag{
 				Name:  flags.TaskDefinitionRemote + ",r",
-				Usage: "Lists all running containers matching the task definition `arnOrFamily`.",
+				Usage: "List all running containers matching the task definition `arnOrFamily`.",
 			},
 			cli.BoolFlag{
 				Name:  flags.All,
