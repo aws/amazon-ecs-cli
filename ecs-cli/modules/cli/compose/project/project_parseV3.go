@@ -16,8 +16,11 @@ import (
 
 	"github.com/docker/cli/cli/compose/loader"
 	"github.com/docker/cli/cli/compose/types"
+	"github.com/docker/cli/opts"
 	"github.com/docker/libcompose/yaml"
 )
+
+const dotEnvFileName = ".env"
 
 func (p *ecsProject) parseV3() (*[]adapter.ContainerConfig, error) {
 	log.Debug("Parsing v3 project...")
@@ -71,7 +74,7 @@ func getV3Config(composeFiles []string) (*types.Config, error) {
 		return nil, err
 	}
 
-	localEnv := getEnvironment()
+	localEnv := getEnvironment(wrkDir)
 
 	configDetails := types.ConfigDetails{
 		WorkingDir:  wrkDir,
@@ -270,8 +273,21 @@ func logWarningForDeployFields(d types.DeployConfig, serviceName string) {
 	}
 }
 
-func getEnvironment() map[string]string {
-	env := os.Environ()
+func getEnvironment(wrkDir string) map[string]string {
+	env, err := opts.ParseEnvFile(filepath.Join(wrkDir, dotEnvFileName))
+	if err == nil {
+		env = append(env, os.Environ()...)
+	} else {
+		env = os.Environ()
+	}
+
+	if err != nil && !os.IsNotExist(err) {
+		// we are not even sure whether .env file is there
+		log.WithFields(log.Fields{
+			"cause": err.Error(),
+		}).Warn("failed to access .env")
+	}
+
 	envMap := make(map[string]string, len(env))
 	for _, s := range env {
 		varParts := strings.SplitN(s, "=", 2)
