@@ -26,7 +26,7 @@ import (
 	composeV3 "github.com/docker/cli/cli/compose/types"
 	"github.com/docker/go-units"
 	log "github.com/sirupsen/logrus"
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 // LinuxParams is a shim between members of ecs.LinuxParamters and their
@@ -50,8 +50,8 @@ type LocalCreateMetadata struct {
 // CommonContainerValues contains values for top-level Task Definition fields
 // that apply to all containers within the task definition
 type CommonContainerValues struct {
-	Ipc         string
-	Pid         string
+	Ipc string
+	Pid string
 }
 
 const (
@@ -60,12 +60,26 @@ const (
 	// Valid types are "remote" (for registered Task Definitions retrieved
 	// by arn or family name) or "local", for a local file containing a
 	// task definition (default task-definition.json).
-	TaskDefinitionLabelType  = "ecs-local.task-definition-input.type"
+	TaskDefinitionLabelType = "ecs-local.task-definition-input.type"
 
 	// TaskDefinitionLabelValue represents the value of the option.
 	// For "local", the value should be the path of the task definition file.
 	// For "remote", the value should be either the full arn or the family name.
 	TaskDefinitionLabelValue = "ecs-local.task-definition-input.value"
+)
+
+// Environment variables used by the AWS SDK to communicate with the Endpoints container for credentials.
+// See https://github.com/awslabs/amazon-ecs-local-container-endpoints/blob/master/docs/features.md#vend-credentials-to-containers
+const (
+	ecsCredsProviderEnvName = "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI"
+	endpointsTempCredsPath  = "/creds"
+)
+
+// Environment variables used by the AWS SDK to communicate with the Endpoints container for container metadata information.
+// See https://github.com/awslabs/amazon-ecs-local-container-endpoints/blob/master/docs/features.md#task-metadata-v3
+const (
+	ecsMetadataURIEnvName  = "ECS_CONTAINER_METADATA_URI"
+	endpointsMetadataV3URI = "http://169.254.170.2/v3"
 )
 
 // SecretLabelPrefix is the prefix of Docker label keys
@@ -128,8 +142,8 @@ func createComposeServices(taskDefinition *ecs.TaskDefinition, metadata *LocalCr
 	}
 
 	commonValues := &CommonContainerValues{
-		Pid:         pid,
-		Ipc:         ipc,
+		Pid: pid,
+		Ipc: ipc,
 	}
 
 	if len(taskDefinition.ContainerDefinitions) < 1 {
@@ -355,6 +369,9 @@ func convertEnvironment(def *ecs.ContainerDefinition) map[string]*string {
 		shellEnv := fmt.Sprintf("${%s_%s}", *def.Name, secretName)
 		out[secretName] = &shellEnv
 	}
+
+	out[ecsCredsProviderEnvName] = aws.String(endpointsTempCredsPath)
+	out[ecsMetadataURIEnvName] = aws.String(endpointsMetadataV3URI)
 	return out
 }
 

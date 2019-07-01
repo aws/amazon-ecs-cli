@@ -59,9 +59,11 @@ func TestConvertToComposeService(t *testing.T) {
 	expectedCapAdd := []string{"NET_ADMIN", "MKNOD"}
 	expectedCapDrop := []string{"KILL"}
 	expectedEnvironment := map[string]*string{
-		"rails_env":   aws.String("development"),
-		"DB_PASSWORD": aws.String("${web_DB_PASSWORD}"),
-		"API_KEY":     aws.String("${web_API_KEY}"),
+		"rails_env":             aws.String("development"),
+		"DB_PASSWORD":           aws.String("${web_DB_PASSWORD}"),
+		"API_KEY":               aws.String("${web_API_KEY}"),
+		ecsCredsProviderEnvName: aws.String(endpointsTempCredsPath),
+		ecsMetadataURIEnvName:   aws.String(endpointsMetadataV3URI),
 	}
 	expectedExtraHosts := []string{"somehost:162.242.195.82", "otherhost:50.31.209.229"}
 	expectedHealthCheck := &composeV3.HealthCheckConfig{
@@ -220,8 +222,8 @@ func TestConvertToComposeService(t *testing.T) {
 	containerDef := taskDefinition.ContainerDefinitions[0]
 
 	commonValues := &CommonContainerValues{
-		Ipc:         expectedIpc,
-		Pid:         expectedPid,
+		Ipc: expectedIpc,
+		Pid: expectedPid,
 	}
 
 	// WHEN
