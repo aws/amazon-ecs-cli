@@ -26,8 +26,8 @@ type flagPair struct {
 	second string
 }
 
-// ValidateCombinations returns an error if two flags can not be used together.
-func ValidateCombinations(c *cli.Context) error {
+// ValidateFlagPairs returns an error if two flags can not be used together.
+func ValidateFlagPairs(c *cli.Context) error {
 	invalid := []flagPair{
 		{
 			flags.TaskDefinitionFile,

@@ -31,7 +31,7 @@ func Down(c *cli.Context) {
 		network.Teardown(client)
 	}()
 
-	if err := options.ValidateCombinations(c); err != nil {
+	if err := options.ValidateFlagPairs(c); err != nil {
 		logrus.Fatal(err.Error())
 	}
 	containers, err := listContainers(c)
