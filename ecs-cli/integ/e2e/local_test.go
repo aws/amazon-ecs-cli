@@ -16,9 +16,11 @@
 package e2e
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/integ"
+	project "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/localproject"
 	"github.com/stretchr/testify/require"
 )
 
@@ -41,7 +43,7 @@ func TestECSLocal(t *testing.T) {
 						stdout, err := integ.RunCmd(t, args)
 						require.Error(t, err, "expected args=%v to fail", args)
 						stdout.TestHasAllSubstrings(t, []string{
-							"docker-compose.local.yml does not exist",
+							fmt.Sprintf("%s does not exist", project.LocalOutDefaultFileName),
 						})
 					},
 				},
@@ -76,7 +78,7 @@ func TestECSLocal(t *testing.T) {
 						stdout, err := integ.RunCmd(t, args)
 						require.Error(t, err, "expected args=%v to fail", args)
 						stdout.TestHasAllSubstrings(t, []string{
-							"docker-compose.local.yml does not exist",
+							fmt.Sprintf("%s does not exist", project.LocalOutDefaultFileName),
 						})
 					},
 				},

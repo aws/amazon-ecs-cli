@@ -20,6 +20,7 @@ import (
 	"strings"
 	"time"
 
+	project "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/localproject"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/network"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -102,7 +103,7 @@ func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition, metadata *LocalC
 	}
 
 	data, err := yaml.Marshal(&composeV3.Config{
-		Filename: "docker-compose.local.yml",
+		Filename: project.LocalOutDefaultFileName,
 		Version:  "3.2", // Minimum Compose file version supporting TaskDefinition fields
 		Networks: networks,
 		Services: services,

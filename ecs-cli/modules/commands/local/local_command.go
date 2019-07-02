@@ -15,8 +15,11 @@
 package localCommand
 
 import (
+	"fmt"
+
 	app "github.com/aws/amazon-ecs-cli/ecs-cli/modules"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local"
+	project "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/localproject"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/urfave/cli"
 )
@@ -70,7 +73,7 @@ func createCommand() cli.Command {
 func upCommand() cli.Command {
 	return cli.Command{
 		Name:   upCmdName,
-		Usage:  "Create a Compose file from an ECS task definition and run it.",
+		Usage:  "Run containers locally from an ECS Task Definition. NOTE: Creates a docker-compose file in current directory.",
 		Action: local.Up,
 		Flags: []cli.Flag{
 			cli.StringFlag{
@@ -169,8 +172,8 @@ func flagDescription(longName, cmdName string) string {
 			downCmdName: "Stop and remove containers from the Compose file `name`.",
 		},
 		flags.TaskDefinitionFile: {
-			createCmdName: "The file `name` of a task definition json to convert. If not specified, defaults to task-definition.json.",
-			upCmdName:     "The file `name` of a task definition json to convert and run. If not specified, defaults to task-definition.json.",
+			createCmdName: fmt.Sprintf("The file `name` of a task definition json to convert. If not specified, defaults to %s", project.LocalInFileName),
+			upCmdName:     fmt.Sprintf("The file `name` of a task definition json to convert and run. If not specified, defaults to %s", project.LocalInFileName),
 			psCmdName:     "List all running containers matching the task definition file `name`.",
 			downCmdName:   "Stop and remove all running containers matching the task definition file `name`.",
 		},
@@ -181,8 +184,8 @@ func flagDescription(longName, cmdName string) string {
 			downCmdName:   "Stop and remove all running containers matching the task definition `arnOrFamily`.",
 		},
 		flags.Output: {
-			createCmdName: "The Compose file `name` to write to. If not specified, defaults to docker-compose.local.yml.",
-			upCmdName:     "The Compose file `name` to write to. If not specified, defaults to docker-compose.local.yml.",
+			createCmdName: fmt.Sprintf("The Compose file `name` to write to. If not specified, defaults to %s", project.LocalOutDefaultFileName),
+			upCmdName:     fmt.Sprintf("The Compose file `name` to write to. If not specified, defaults to %s", project.LocalOutDefaultFileName),
 		},
 		flags.JSON: {
 			psCmdName: "Output in JSON format.",

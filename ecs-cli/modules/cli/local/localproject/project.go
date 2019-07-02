@@ -44,7 +44,7 @@ const (
 const (
 	// LocalOutDefaultFileName represents the default name for the output Docker
 	// Compose file.
-	LocalOutDefaultFileName = "docker-compose.local.yml"
+	LocalOutDefaultFileName = "docker-compose.ecs-local.yml"
 
 	// LocalOutFileMode represents the file can be read/write by its owner.
 	LocalOutFileMode = os.FileMode(0600) // Owner=read/write, Other=none

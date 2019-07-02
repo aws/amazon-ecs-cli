@@ -13,7 +13,7 @@
 
 // Package converter implements the logic to translate an ecs.TaskDefinition
 // structure to a docker compose schema, which will be written to a
-// docker-compose.local.yml file.
+// docker-compose.ecs-local.yml file.
 
 package converter
 
