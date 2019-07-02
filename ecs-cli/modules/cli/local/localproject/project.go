@@ -28,6 +28,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
+	arnParser "github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -162,7 +163,10 @@ var readTaskDefFromLocal = func(filename string) (*ecs.TaskDefinition, error) {
 	return &taskDefinition, nil
 }
 
-var newCommandConfig = func(context *cli.Context, rdwr config.ReadWriter) (*config.CommandConfig, error) {
+var newCommandConfig = func(context *cli.Context, rdwr config.ReadWriter, region string) (*config.CommandConfig, error) {
+	if region != "" {
+		return config.NewCommandConfigWithRegion(context, rdwr, region)
+	}
 	return config.NewCommandConfig(context, rdwr)
 }
 
@@ -180,7 +184,12 @@ var readTaskDefFromRemote = func(remote string, p *localProject) (*ecs.TaskDefin
 		return nil, err
 	}
 
-	commandConfig, err := newCommandConfig(p.context, rdwr)
+	region := ""
+	if parsedArn, err := arnParser.Parse(remote); err == nil {
+		region = parsedArn.Region
+	}
+
+	commandConfig, err := newCommandConfig(p.context, rdwr, region)
 	if err != nil {
 		return nil, err
 	}
@@ -264,7 +273,7 @@ func (p *localProject) getSecret(secretName string) (string, error) {
 		return "", err
 	}
 
-	commandConfig, err := newCommandConfig(p.context, rdwr)
+	commandConfig, err := newCommandConfig(p.context, rdwr, "")
 	if err != nil {
 		return "", err
 	}

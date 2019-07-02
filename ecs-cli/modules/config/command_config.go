@@ -94,3 +94,46 @@ func NewCommandConfig(context *cli.Context, rdwr ReadWriter) (*CommandConfig, er
 		LaunchType:               ecsConfig.DefaultLaunchType,
 	}, nil
 }
+
+// NewCommandConfig creates a new CommandConfig object from the local ECS
+// config file and flags and custom region
+func NewCommandConfigWithRegion(context *cli.Context, rdwr ReadWriter, region string) (*CommandConfig, error) {
+	clusterConfig := RecursiveFlagSearch(context, flags.ClusterConfigFlag)
+	profileConfig := RecursiveFlagSearch(context, flags.ECSProfileFlag)
+	ecsConfig, err := rdwr.Get(clusterConfig, profileConfig)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "Error loading config")
+	}
+
+	// Configuration passed in via flags take precedence over stored config
+	err = ecsConfig.applyFlags(context)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error reading flags")
+	}
+
+	ecsConfig.Region = region
+
+	// Instantiate AWS Session
+	svcSession, err := ecsConfig.ToAWSSession(context)
+	if err != nil {
+		return nil, err
+	}
+
+	// Determine Cloudformation StackName
+	if ecsConfig.Version == iniConfigVersion {
+		ecsConfig.CFNStackName = ecsConfig.CFNStackNamePrefix + ecsConfig.Cluster
+	}
+	if ecsConfig.CFNStackName == "" {
+		ecsConfig.CFNStackName = flags.CFNStackNamePrefixDefaultValue + ecsConfig.Cluster
+	}
+
+	return &CommandConfig{
+		Cluster:                  ecsConfig.Cluster,
+		Session:                  svcSession,
+		ComposeServiceNamePrefix: ecsConfig.ComposeServiceNamePrefix,
+		ComposeProjectNamePrefix: ecsConfig.ComposeProjectNamePrefix, // deprecated; remains for backwards compatibility
+		CFNStackName:             ecsConfig.CFNStackName,
+		LaunchType:               ecsConfig.DefaultLaunchType,
+	}, nil
+}
