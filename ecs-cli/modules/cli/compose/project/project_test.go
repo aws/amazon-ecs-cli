@@ -24,7 +24,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcredio"
-	lConfig "github.com/docker/libcompose/config"
+	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/lookup"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
@@ -304,7 +304,7 @@ func setupTestProjectWithEcsParams(t *testing.T, ecsParamsFileName string) *ecsP
 
 // TODO: refactor into all-purpose 'setupTestProject' func
 func setupTestProjectWithECSRegistryCreds(t *testing.T, ecsParamsFileName, credFileName string) *ecsProject {
-	envLookup, err := getDefaultEnvironmentLookup()
+	envLookup, err := mockGetDefaultEnvironment()
 	assert.NoError(t, err, "Unexpected error setting up environment lookup")
 
 	resourceLookup, err := utils.GetDefaultResourceLookup()
@@ -331,13 +331,13 @@ func setupTestProjectWithECSRegistryCreds(t *testing.T, ecsParamsFileName, credF
 
 // This function mimics the implementation inside `project.NewProject()` for .env file lookup.
 // The following function is only used for unit tests.
-func getDefaultEnvironmentLookup() (*lookup.ComposableEnvLookup, error) {
+func mockGetDefaultEnvironment() (*lookup.ComposableEnvLookup, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
 	return &lookup.ComposableEnvLookup{
-		Lookups: []lConfig.EnvironmentLookup{
+		Lookups: []config.EnvironmentLookup{
 			&lookup.EnvfileLookup{
 				Path: filepath.Join(cwd, ".env"),
 			},
