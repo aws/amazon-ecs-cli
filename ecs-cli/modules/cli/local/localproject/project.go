@@ -24,7 +24,6 @@ import (
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/converter"
 	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/secretsmanager"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
@@ -263,27 +262,4 @@ func (p *localProject) overwriteFile() error {
 
 	// Overwrite local compose file
 	return ioutil.WriteFile(filename, p.localBytes, LocalOutFileMode)
-}
-
-// Get secret value stored in AWS Secrets Manager
-// TODO apply to each container
-func (p *localProject) getSecret(secretName string) (string, error) {
-	rdwr, err := config.NewReadWriter()
-	if err != nil {
-		return "", err
-	}
-
-	commandConfig, err := newCommandConfig(p.context, rdwr, "")
-	if err != nil {
-		return "", err
-	}
-
-	client := secretsmanager.NewSecretsManagerClient(commandConfig)
-
-	secret, err := client.GetSecretValue(secretName)
-	if err != nil {
-		return "", err
-	}
-
-	return secret, nil
 }
