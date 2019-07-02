@@ -29,6 +29,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
@@ -106,7 +107,7 @@ func (p *localProject) ReadTaskDefinition() error {
 
 	if remote != "" {
 		taskDefinition, err = p.readTaskDefinitionFromRemote(remote)
-		fmt.Printf("Reading task definition from %s:%v\n", aws.StringValue(taskDefinition.Family), aws.Int64Value(taskDefinition.Revision))
+		logrus.Infof("Reading task definition from %s:%v\n", aws.StringValue(taskDefinition.Family), aws.Int64Value(taskDefinition.Revision))
 		if err != nil {
 			return err
 		}
