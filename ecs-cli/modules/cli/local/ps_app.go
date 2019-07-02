@@ -58,7 +58,7 @@ const (
 // If the --all flag is provided, then list all local ECS task containers.
 // If the --json flag is provided, then output the format as JSON instead.
 func Ps(c *cli.Context) {
-	if err := options.ValidateCombinations(c); err != nil {
+	if err := options.ValidateFlagPairs(c); err != nil {
 		logrus.Fatal(err.Error())
 	}
 	containers, err := listContainers(c)
@@ -71,21 +71,21 @@ func Ps(c *cli.Context) {
 }
 
 func listContainers(c *cli.Context) ([]types.Container, error) {
-	if name := c.String(flags.TaskDefinitionCompose); name != "" {
-		path, err := filepath.Abs(name)
+	if c.IsSet(flags.TaskDefinitionCompose) {
+		path, err := filepath.Abs(c.String(flags.TaskDefinitionCompose))
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to get absolute path of %s", name)
+			return nil, errors.Wrapf(err, "failed to get absolute path of %s", c.String(flags.TaskDefinitionCompose))
 		}
 		return listLocalComposeContainers(path)
 	}
-	if c.String(flags.TaskDefinitionFile) != "" {
+	if c.IsSet(flags.TaskDefinitionFile) {
 		return listContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue,
 				c.String(flags.TaskDefinitionFile))),
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.LocalTaskDefType)),
 		))
 	}
-	if c.String(flags.TaskDefinitionRemote) != "" {
+	if c.IsSet(flags.TaskDefinitionRemote) {
 		return listContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue,
 				c.String(flags.TaskDefinitionRemote))),

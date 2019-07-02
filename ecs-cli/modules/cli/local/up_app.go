@@ -43,29 +43,49 @@ import (
 // If the container is not running, this command creates a new network for all local ECS tasks to join
 // and communicate with the Amazon ECS Local Endpoints container.
 func Up(c *cli.Context) {
-	if err := options.ValidateCombinations(c); err != nil {
+	if err := options.ValidateFlagPairs(c); err != nil {
 		logrus.Fatalf(err.Error())
 	}
-	composePath, err := createComposeFile(c)
+	composePath, err := composeProjectPath(c)
 	if err != nil {
-		logrus.Fatalf("Failed to get compose file path due to:\n%v", err)
+		logrus.Fatalf("Failed to create Compose file due to:\n%v", err)
 	}
+
 	runContainers(composePath)
 }
 
-// createComposeFile returns the path of the Compose file to start the containers from.
-// The Compose file ordering priority is defined as:
-// 1. Use the --task-def-compose flag if it exists
-// 2. Use the default docker-compose.local.yml file if no flags were provided and the file exists
-// 3. Otherwise, we need to create the Compose file.
-func createComposeFile(c *cli.Context) (string, error) {
-	if name := c.String(flags.TaskDefinitionCompose); name != "" {
-		return filepath.Abs(name)
+// composeProjectPath creates a new Compose file if necessary and returns its path.
+//
+// If the user set the TaskDefinitionCompose flag, then return that Compose file path.
+// If the user doesn't have any flags set, and doesn't have LocalInFileName but has a LocalOutDefaultFileName,
+// then we use the LocalOutDefaultFileName file.
+// Otherwise, we create a new Compose file from the user's flags and return its path.
+func composeProjectPath(c *cli.Context) (string, error) {
+	if c.IsSet(flags.TaskDefinitionFile) {
+		return createNewComposeProject(c)
 	}
-	if shouldUseDefaultComposeFile(c) {
-		return filepath.Abs(localproject.LocalOutDefaultFileName)
+	if c.IsSet(flags.TaskDefinitionRemote) {
+		return createNewComposeProject(c)
+	}
+	if c.IsSet(flags.TaskDefinitionCompose) {
+		return filepath.Abs(c.String(flags.TaskDefinitionCompose))
 	}
 
+	// No input flags were provided, prioritize LocalInFileName over LocalOutDefaultFileName.
+	if _, err := os.Stat(localproject.LocalInFileName); err == nil {
+		return createNewComposeProject(c)
+	} else if !os.IsNotExist(err) {
+		return "", errors.Wrapf(err, "could not check if file %s exists", localproject.LocalInFileName)
+	}
+	if _, err := os.Stat(localproject.LocalOutDefaultFileName); err == nil {
+		return filepath.Abs(localproject.LocalOutDefaultFileName)
+	} else if !os.IsNotExist(err) {
+		return "", errors.Wrapf(err, "could not check if file %s exists", localproject.LocalOutDefaultFileName)
+	}
+	return "", errors.New(fmt.Sprintf("need to provide one of %s or %s", localproject.LocalInFileName, localproject.LocalOutDefaultFileName))
+}
+
+func createNewComposeProject(c *cli.Context) (string, error) {
 	project := localproject.New(c)
 	if err := createLocal(project); err != nil {
 		return "", err
@@ -154,16 +174,4 @@ func upComposeFile(config *composeV3.Config, envVars map[string]string) {
 		logrus.Fatalf("Failed to run docker-compose up due to \n%v: %s", err, string(out))
 	}
 	fmt.Printf("Compose out: %s\n", string(out))
-}
-
-func shouldUseDefaultComposeFile(c *cli.Context) bool {
-	for _, flagName := range c.FlagNames() {
-		if c.IsSet(flagName) {
-			return false
-		}
-	}
-	if _, err := os.Stat(localproject.LocalOutDefaultFileName); err != nil {
-		return false
-	}
-	return true
 }
