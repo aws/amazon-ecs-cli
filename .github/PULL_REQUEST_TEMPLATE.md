@@ -1,18 +1,18 @@
-**Issue #, if available**:
+<!-- Provide summary of changes -->
 
-**Description of changes**:
+<!-- Issue number, if available. E.g. "Fixes #31", "Addresses #42, 77" -->
 
 ----
 Enter `[N/A]` in the box, if an item is not applicable to your change.
 
-**Testing**  
+**Testing**
 - [ ] Unit tests passed
 - [ ] Integration tests passed
 - [ ] Unit tests added for new functionality
 - [ ] Listed manual checks and their outputs in the comments ([example](https://github.com/aws/amazon-ecs-cli/pull/750#issuecomment-472623042))
-- [ ] Link to issue or PR for the integration tests: 
+- [ ] Link to issue or PR for the integration tests:
 
-**Documentation**  
+**Documentation**
 - [ ] Contacted our doc writer
 - [ ] Updated our README
 ----

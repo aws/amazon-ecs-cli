@@ -690,3 +690,20 @@ func TestConvertToHealthCheck(t *testing.T) {
 	assert.Equal(t, aws.Int64(3), output.Retries)
 	assert.Equal(t, aws.Int64(120), output.StartPeriod)
 }
+
+func TestConvertDurationStrToSecondsEmptyString(t *testing.T) {
+	res, err := ConvertDurationStrToSeconds("")
+	assert.NoError(t, err, "empty string should not result in conversion error")
+	assert.Nil(t, res, "conversion result should be nil to indicate that the input duration string is empty")
+}
+
+func TestConvertDurationStrToSeconds(t *testing.T) {
+	res, err := ConvertDurationStrToSeconds("1m15s")
+	assert.NoError(t, err, "valid duration string should not result in conversion error")
+	assert.Equal(t, int64(75), *res)
+}
+
+func TestConvertDurationStrToSecondsInvalidDurationStr(t *testing.T) {
+	_, err := ConvertDurationStrToSeconds("chickenWings")
+	assert.Error(t, err, "invalid duration string should result in conversion error")
+}

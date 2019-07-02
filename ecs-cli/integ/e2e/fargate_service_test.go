@@ -63,11 +63,12 @@ version: '3'
 services:
   wordpress:
     image: wordpress
+    stop_grace_period: "1m30s"
     ports:
       - "80:80"
     logging:
       driver: awslogs
-      options: 
+      options:
         awslogs-group: tutorial
         awslogs-region: us-east-1
         awslogs-stream-prefix: wordpress`
