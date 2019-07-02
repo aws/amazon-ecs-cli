@@ -104,7 +104,7 @@ func (c *ecsClient) CreateCluster(clusterName string, tags []*ecs.Tag) (string, 
 	}
 	log.WithFields(log.Fields{
 		"cluster": aws.StringValue(resp.Cluster.ClusterName),
-		"region":  aws.StringValue(c.config.Session.Config.Region),
+		"region":  c.config.Region(),
 	}).Info("Created cluster")
 
 	return *resp.Cluster.ClusterName, nil
@@ -248,7 +248,7 @@ func cachedTaskDefinitionRevisionIsActive(cachedTaskDefinition *ecs.TaskDefiniti
 
 func (c *ecsClient) constructTaskDefinitionCacheHash(taskDefinition *ecs.TaskDefinition, request *ecs.RegisterTaskDefinitionInput) string {
 	// Get the region from the ecsClient configuration
-	region := aws.StringValue(c.config.Session.Config.Region)
+	region := c.config.Region()
 	awsUserAccountId := utils.GetAwsAccountIdFromArn(aws.StringValue(taskDefinition.TaskDefinitionArn))
 	sortedRequestString, err := adapter.SortedGoString(adapter.SortedContainerDefinitionsByName(request))
 	if err != nil {

@@ -19,6 +19,7 @@ import (
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 )
@@ -38,6 +39,10 @@ type CommandConfig struct {
 	ComposeProjectNamePrefix string // Deprecated; remains for backwards compatibility
 	CFNStackName             string
 	LaunchType               string
+}
+
+func (c *CommandConfig) Region() string {
+	return aws.StringValue(c.Session.Config.Region)
 }
 
 // Searches as far up the context as necessary. This function works no matter

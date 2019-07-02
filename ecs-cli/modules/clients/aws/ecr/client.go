@@ -68,7 +68,7 @@ func NewClient(config *config.CommandConfig) Client {
 
 // NewFipsClient Creates a new ECR client that will communicate with a FIPS endpoint.
 func NewFipsClient(config *config.CommandConfig) (Client, error) {
-	region := aws.StringValue(config.Session.Config.Region)
+	region := config.Region()
 	resolver := endpoints.DefaultResolver()
 
 	// The convention for FIPS endpoints is to add "-fips" to the official

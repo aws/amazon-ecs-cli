@@ -20,7 +20,6 @@ import (
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
 )
@@ -99,7 +98,7 @@ func TestNewCommandConfigFromEnvVarsWithRegionSpecifiedAsEnvVariable(t *testing.
 	config, err := NewCommandConfig(context, rdwr)
 	assert.NoError(t, err, "Unexpected error when region is specified using environment variable AWS_REGION")
 
-	configRegion := aws.StringValue(config.Session.Config.Region)
+	configRegion := config.Region()
 	assert.Equal(t, region, configRegion, "Region should match")
 }
 
@@ -115,7 +114,7 @@ func TestNewCommandConfigFromEnvVarsWithRegionSpecifiedinAwsDefaultEnvVariable(t
 	config, err := NewCommandConfig(context, rdwr)
 	assert.NoError(t, err, "Unexpected error when region is specified using environment variable AWS_DEFAULT_REGION")
 
-	configRegion := aws.StringValue(config.Session.Config.Region)
+	configRegion := config.Region()
 	assert.Equal(t, region, configRegion, "Region should match")
 }
 
@@ -136,7 +135,7 @@ func TestNewCommandConfigFromConfig(t *testing.T) {
 	config, err := NewCommandConfig(context, rdwr)
 	assert.NoError(t, err, "Unexpected error when region is specified")
 
-	configRegion := aws.StringValue(config.Session.Config.Region)
+	configRegion := config.Region()
 	assert.Equal(t, region, configRegion, "Region should match")
 }
 

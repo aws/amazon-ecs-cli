@@ -121,7 +121,7 @@ func getTaskDefArn(context *cli.Context, ecsClient ecsclient.ECSClient, config *
 		return "", errors.Wrap(err, "Failed to Describe Task")
 	}
 	if len(tasks) == 0 {
-		return "", fmt.Errorf("Failed to describe Task: Could Not Find Task %s in cluster %s in region %s. If the task has been stopped, use --%s to specify the Task Definition.", taskID, config.Cluster, aws.StringValue(config.Session.Config.Region), flags.TaskDefinitionFlag)
+		return "", fmt.Errorf("Failed to describe Task: Could Not Find Task %s in cluster %s in region %s. If the task has been stopped, use --%s to specify the Task Definition.", taskID, config.Cluster, config.Region(), flags.TaskDefinitionFlag)
 	}
 
 	return aws.StringValue(tasks[0].TaskDefinitionArn), nil

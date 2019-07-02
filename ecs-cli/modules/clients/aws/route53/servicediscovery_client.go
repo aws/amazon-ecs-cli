@@ -47,7 +47,7 @@ type WaitUntilSDSDeletableFunc func(id string, config *config.CommandConfig) err
 func FindPrivateNamespace(name, vpc string, config *config.CommandConfig) (*string, error) {
 	r53Client := newRoute53Client(config)
 	sdClient := newSDClient(config)
-	return findPrivateNamespace(name, vpc, aws.StringValue(config.Session.Config.Region), r53Client, sdClient)
+	return findPrivateNamespace(name, vpc, config.Region(), r53Client, sdClient)
 }
 
 // private function findPrivateNamespace can accept mock client objects, allowing it to be unit tested
