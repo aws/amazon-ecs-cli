@@ -14,12 +14,9 @@
 package config
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 )
@@ -68,41 +65,10 @@ func NewCommandConfig(context *cli.Context, rdwr ReadWriter) (*CommandConfig, er
 		return nil, errors.Wrap(err, "Error loading config")
 	}
 
-	// Determine Launch Type
-	// The launch type flag overrides default launch type stored in the local config
-	if launchTypeFromFlag := RecursiveFlagSearch(context, flags.LaunchTypeFlag); launchTypeFromFlag != "" {
-		ecsConfig.DefaultLaunchType = launchTypeFromFlag
-	}
-
-	if err = ValidateLaunchType(ecsConfig.DefaultLaunchType); err != nil {
-		return nil, err
-	}
-
-	// Determine cluster
-	// Order of cluster resolution:
-	//  1) Inline flag
-	//  2) Environment Variable
-	//  3) ECS Config
-	if clusterFromEnv := os.Getenv(flags.ClusterEnvVar); clusterFromEnv != "" {
-		ecsConfig.Cluster = clusterFromEnv
-	}
-	if clusterFromFlag := RecursiveFlagSearch(context, flags.ClusterFlag); clusterFromFlag != "" {
-		ecsConfig.Cluster = clusterFromFlag
-	}
-
-	// Determine region
-	// The --region flag takes highest precedence
-	if regionFromFlag := RecursiveFlagSearch(context, flags.RegionFlag); regionFromFlag != "" {
-		ecsConfig.Region = regionFromFlag
-	}
-
-	// Determine profile
-	// The --profile flag takes highest precedence
-	if awsProfileFromFlag := RecursiveFlagSearch(context, flags.AWSProfileFlag); awsProfileFromFlag != "" {
-		ecsConfig.AWSProfile = awsProfileFromFlag
-		// unset Access Key and Secret Key, otherwise they will take precedence
-		ecsConfig.AWSAccessKey = ""
-		ecsConfig.AWSSecretKey = ""
+	// Configuration passed in via flags take precedence over stored config
+	err = ecsConfig.applyFlags(context)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error reading flags")
 	}
 
 	// Instantiate AWS Session
@@ -127,12 +93,4 @@ func NewCommandConfig(context *cli.Context, rdwr ReadWriter) (*CommandConfig, er
 		CFNStackName:             ecsConfig.CFNStackName,
 		LaunchType:               ecsConfig.DefaultLaunchType,
 	}, nil
-}
-
-// ValidateLaunchType checks that the launch type specified was an allowed value
-func ValidateLaunchType(launchType string) error {
-	if (launchType != "") && (launchType != LaunchTypeEC2) && (launchType != LaunchTypeFargate) {
-		return fmt.Errorf("Supported launch types are '%s' and '%s'; %s is not a valid launch type.", LaunchTypeEC2, LaunchTypeFargate, launchType)
-	}
-	return nil
 }

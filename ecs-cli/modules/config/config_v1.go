@@ -161,6 +161,47 @@ func (cfg *LocalConfig) toAWSSessionWithConfig(context *cli.Context, svcConfig *
 	return sessionFromProfile("", region, svcConfig)
 }
 
+func (cfg *LocalConfig) applyFlags(context *cli.Context) error {
+	// Determine Launch Type
+	// The launch type flag overrides default launch type stored in the local config
+	if launchTypeFromFlag := RecursiveFlagSearch(context, flags.LaunchTypeFlag); launchTypeFromFlag != "" {
+		cfg.DefaultLaunchType = launchTypeFromFlag
+	}
+
+	if err := ValidateLaunchType(cfg.DefaultLaunchType); err != nil {
+		return err
+	}
+
+	// Determine cluster
+	// Order of cluster resolution:
+	//  1) Inline flag
+	//  2) Environment Variable
+	//  3) ECS Config
+	if clusterFromEnv := os.Getenv(flags.ClusterEnvVar); clusterFromEnv != "" {
+		cfg.Cluster = clusterFromEnv
+	}
+	if clusterFromFlag := RecursiveFlagSearch(context, flags.ClusterFlag); clusterFromFlag != "" {
+		cfg.Cluster = clusterFromFlag
+	}
+
+	// Determine region
+	// The --region flag takes highest precedence
+	if regionFromFlag := RecursiveFlagSearch(context, flags.RegionFlag); regionFromFlag != "" {
+		cfg.Region = regionFromFlag
+	}
+
+	// Determine profile
+	// The --profile flag takes highest precedence
+	if awsProfileFromFlag := RecursiveFlagSearch(context, flags.AWSProfileFlag); awsProfileFromFlag != "" {
+		cfg.AWSProfile = awsProfileFromFlag
+		// unset Access Key and Secret Key, otherwise they will take precedence
+		cfg.AWSAccessKey = ""
+		cfg.AWSSecretKey = ""
+	}
+
+	return nil
+}
+
 func hasProfileFlags(context *cli.Context) bool {
 	return (RecursiveFlagSearch(context, flags.ECSProfileFlag) != "" || RecursiveFlagSearch(context, flags.AWSProfileFlag) != "")
 }
@@ -261,4 +302,12 @@ func (cfg *LocalConfig) getRegionFromAWSProfile() (string, error) {
 	}
 
 	return aws.StringValue(s.Config.Region), nil
+}
+
+// ValidateLaunchType checks that the launch type specified was an allowed value
+func ValidateLaunchType(launchType string) error {
+	if (launchType != "") && (launchType != LaunchTypeEC2) && (launchType != LaunchTypeFargate) {
+		return fmt.Errorf("Supported launch types are '%s' and '%s'; %s is not a valid launch type.", LaunchTypeEC2, LaunchTypeFargate, launchType)
+	}
+	return nil
 }
