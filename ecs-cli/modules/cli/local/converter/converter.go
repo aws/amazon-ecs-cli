@@ -26,7 +26,6 @@ import (
 	composeV3 "github.com/docker/cli/cli/compose/types"
 	"github.com/docker/go-units"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v2"
 )
 
 // LinuxParams is a shim between members of ecs.LinuxParamters and their
@@ -82,13 +81,16 @@ const (
 	endpointsMetadataV3URI = "http://169.254.170.2/v3"
 )
 
+// composeVersion is the minimum Compose file version supporting task definition fields.
+const composeVersion = "3.2"
+
 // SecretLabelPrefix is the prefix of Docker label keys
 // whose value is an ARN of a secret to expose to the container.
 // See https://github.com/aws/amazon-ecs-cli/issues/797
 const SecretLabelPrefix = "ecs-local.secret"
 
-// ConvertToDockerCompose creates the payload from an ECS Task Definition to be written as a docker compose file
-func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition, metadata *LocalCreateMetadata) ([]byte, error) {
+// ConvertToCompose creates the payload from an ECS Task Definition to be written as a docker compose file
+func ConvertToCompose(taskDefinition *ecs.TaskDefinition, metadata *LocalCreateMetadata) (*composeV3.Config, error) {
 	services, err := createComposeServices(taskDefinition, metadata)
 	if err != nil {
 		return nil, err
@@ -101,19 +103,11 @@ func ConvertToDockerCompose(taskDefinition *ecs.TaskDefinition, metadata *LocalC
 		},
 	}
 
-	data, err := yaml.Marshal(&composeV3.Config{
-		Filename: "docker-compose.ecs-local.yml",
-		Version:  "3.2", // Minimum Compose file version supporting TaskDefinition fields
+	return &composeV3.Config{
+		Version:  composeVersion,
 		Networks: networks,
 		Services: services,
-	})
-	// TODO convert top level volumes
-
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
+	}, nil
 }
 
 func createComposeServices(taskDefinition *ecs.TaskDefinition, metadata *LocalCreateMetadata) ([]composeV3.ServiceConfig, error) {
