@@ -55,11 +55,10 @@ const (
 
 // LocalProject holds data needed to convert an ECS Task Definition to a Docker Compose file.
 type LocalProject struct {
-	context          *cli.Context
-	taskDefinition   *ecs.TaskDefinition
-	localBytes       []byte
-	localOutFileName string
-	inputMetadata    *converter.LocalCreateMetadata
+	context        *cli.Context
+	taskDefinition *ecs.TaskDefinition
+	localBytes     []byte
+	inputMetadata  *converter.LocalCreateMetadata
 }
 
 // New instantiates a new Local Project
@@ -74,7 +73,10 @@ func (p *LocalProject) TaskDefinition() *ecs.TaskDefinition {
 
 // LocalOutFileName returns name of compose file output by local.Create
 func (p *LocalProject) LocalOutFileName() string {
-	return p.localOutFileName
+	if customName := p.context.String(flags.Output); customName != "" {
+		return customName
+	}
+	return LocalOutDefaultFileName
 }
 
 // InputMetadata returns the metadata on the task definition used to create the docker compose file
@@ -206,18 +208,11 @@ func (p *LocalProject) Convert() error {
 
 // Write writes the compose data to a local compose file. The output filename is stored on the project
 func (p *LocalProject) Write() error {
-	// Will error if the file already exists, otherwise create
-	p.localOutFileName = LocalOutDefaultFileName
-
-	if fileName := p.context.String(flags.Output); fileName != "" {
-		p.localOutFileName = fileName
-	}
-
 	return p.writeFile()
 }
 
 func (p *LocalProject) writeFile() error {
-	out, err := openFile(p.localOutFileName)
+	out, err := openFile(p.LocalOutFileName())
 	defer out.Close()
 
 	// File already exists
@@ -231,25 +226,25 @@ func (p *LocalProject) writeFile() error {
 }
 
 // Facilitates test mocking
-var openFile func(filename string) (*os.File, error) = func(filename string) (*os.File, error) {
+var openFile = func(filename string) (*os.File, error) {
 	return os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_EXCL, LocalOutFileMode)
 }
 
 func (p *LocalProject) overwriteFile() error {
-	filename := p.localOutFileName
+	filename := p.LocalOutFileName()
 
 	fmt.Printf("%s file already exists. Do you want to write over this file? [y/N]\n", filename)
 
 	reader := bufio.NewReader(os.Stdin)
 	stdin, err := reader.ReadString('\n')
 	if err != nil {
-		return fmt.Errorf("Error reading stdin: %s", err.Error())
+		return fmt.Errorf("failed reading stdin: %s", err.Error())
 	}
 
 	input := strings.ToLower(strings.TrimSpace(stdin))
 
 	if input != "yes" && input != "y" {
-		return fmt.Errorf("Aborted writing compose file. To retry, rename or move %s", filename) // TODO add force flag
+		return fmt.Errorf("aborted writing compose file. To retry, rename or move %s", filename) // TODO add force flag
 	}
 
 	// Overwrite local compose file
