@@ -283,7 +283,7 @@ func convertLogging(logConfig *ecs.LogConfiguration) *composeV3.LoggingConfig {
 	if logConfig == nil {
 		return nil
 	}
-	log.Warning("AWS logging will not be supported")
+	log.Warningf("%s will not be supported", ecs.LogDriverAwslogs)
 	driver := aws.StringValue(logConfig.LogDriver)
 	opts := make(map[string]string)
 	for k, v := range logConfig.Options {
