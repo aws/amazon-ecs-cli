@@ -23,6 +23,13 @@ import (
 	"github.com/urfave/cli"
 )
 
+// TaskReadConvertWriter is the interface that groups the ReadTaskDefinition, Convert, and Write methods.
+type TaskReadConvertWriter interface {
+	ReadTaskDefinition() error
+	Convert() error
+	Write() error
+}
+
 // Create reads in an ECS task definition, converts and writes it to a local
 // Docker Compose file
 func Create(c *cli.Context) {
@@ -36,7 +43,7 @@ func Create(c *cli.Context) {
 	fmt.Printf("Successfully wrote %s\n", project.LocalOutFileName())
 }
 
-func createLocal(project localproject.LocalProject) error {
+func createLocal(project TaskReadConvertWriter) error {
 	// Reads task definition and loads it onto project
 	err := project.ReadTaskDefinition()
 	if err != nil {
