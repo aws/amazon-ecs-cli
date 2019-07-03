@@ -11,7 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-// Package localproject defines LocalProject interface and implements them on localProject
+// Package localproject defines LocalProject interface and implements them on LocalProject
 
 package localproject
 
@@ -54,7 +54,7 @@ func TestReadTaskDefinition_FromRemote(t *testing.T) {
 	}
 
 	oldRead := readTaskDefFromRemote
-	readTaskDefFromRemote = func(remote string, p *localProject) (*ecs.TaskDefinition, error) {
+	readTaskDefFromRemote = func(remote string, p *LocalProject) (*ecs.TaskDefinition, error) {
 		return mockTaskDef(), nil
 	}
 	defer func() { readTaskDefFromRemote = oldRead }()

@@ -11,7 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-// Package localproject defines LocalProject interface and implements them on localProject
+// Package localproject defines LocalProject interface and implements them on LocalProject
 package localproject
 
 import (
@@ -53,17 +53,8 @@ const (
 	LocalInFileName = "task-definition.json"
 )
 
-// Interface for a local project, holding data needed to convert an ECS Task Definition to a Docker Compose file
-type LocalProject interface {
-	ReadTaskDefinition() error
-	Convert() error
-	Write() error
-	LocalOutFileName() string
-	TaskDefinition() *ecs.TaskDefinition
-	InputMetadata() *converter.LocalCreateMetadata
-}
-
-type localProject struct {
+// LocalProject holds data needed to convert an ECS Task Definition to a Docker Compose file.
+type LocalProject struct {
 	context          *cli.Context
 	taskDefinition   *ecs.TaskDefinition
 	localBytes       []byte
@@ -72,29 +63,28 @@ type localProject struct {
 }
 
 // New instantiates a new Local Project
-func New(context *cli.Context) LocalProject {
-	p := &localProject{context: context}
-	return p
+func New(context *cli.Context) *LocalProject {
+	return &LocalProject{context: context}
 }
 
 // TaskDefinition returns the ECS task definition to be converted
-func (p *localProject) TaskDefinition() *ecs.TaskDefinition {
+func (p *LocalProject) TaskDefinition() *ecs.TaskDefinition {
 	return p.taskDefinition
 }
 
 // LocalOutFileName returns name of compose file output by local.Create
-func (p *localProject) LocalOutFileName() string {
+func (p *LocalProject) LocalOutFileName() string {
 	return p.localOutFileName
 }
 
 // InputMetadata returns the metadata on the task definition used to create the docker compose file
-func (p *localProject) InputMetadata() *converter.LocalCreateMetadata {
+func (p *LocalProject) InputMetadata() *converter.LocalCreateMetadata {
 	return p.inputMetadata
 }
 
 // ReadTaskDefinition reads an ECS Task Definition either from a local file
 // or from retrieving one from ECS and stores it on the local project
-func (p *localProject) ReadTaskDefinition() error {
+func (p *LocalProject) ReadTaskDefinition() error {
 	remote := p.context.String(flags.TaskDefinitionRemote)
 	filename := p.context.String(flags.TaskDefinitionFile)
 
@@ -139,7 +129,7 @@ var defaultInputExists = func() bool {
 	return false
 }
 
-func (p *localProject) readTaskDefinitionFromFile(filename string) (*ecs.TaskDefinition, error) {
+func (p *LocalProject) readTaskDefinitionFromFile(filename string) (*ecs.TaskDefinition, error) {
 	p.inputMetadata = &converter.LocalCreateMetadata{
 		InputType: LocalTaskDefType,
 		Value:     filename,
@@ -169,7 +159,7 @@ var newCommandConfig = func(context *cli.Context, rdwr config.ReadWriter, region
 	return config.NewCommandConfig(context, rdwr)
 }
 
-func (p *localProject) readTaskDefinitionFromRemote(remote string) (*ecs.TaskDefinition, error) {
+func (p *LocalProject) readTaskDefinitionFromRemote(remote string) (*ecs.TaskDefinition, error) {
 	p.inputMetadata = &converter.LocalCreateMetadata{
 		InputType: RemoteTaskDefType,
 		Value:     remote,
@@ -177,7 +167,7 @@ func (p *localProject) readTaskDefinitionFromRemote(remote string) (*ecs.TaskDef
 	return readTaskDefFromRemote(remote, p)
 }
 
-var readTaskDefFromRemote = func(remote string, p *localProject) (*ecs.TaskDefinition, error) {
+var readTaskDefFromRemote = func(remote string, p *LocalProject) (*ecs.TaskDefinition, error) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
 		return nil, err
@@ -200,7 +190,7 @@ var readTaskDefFromRemote = func(remote string, p *localProject) (*ecs.TaskDefin
 
 // Convert translates an ECS Task Definition into a Compose V3 schema and
 // stores the data on the project
-func (p *localProject) Convert() error {
+func (p *LocalProject) Convert() error {
 	conf, err := converter.ConvertToComposeConfig(p.taskDefinition, p.inputMetadata)
 	if err != nil {
 		return err
@@ -215,7 +205,7 @@ func (p *localProject) Convert() error {
 }
 
 // Write writes the compose data to a local compose file. The output filename is stored on the project
-func (p *localProject) Write() error {
+func (p *LocalProject) Write() error {
 	// Will error if the file already exists, otherwise create
 	p.localOutFileName = LocalOutDefaultFileName
 
@@ -226,7 +216,7 @@ func (p *localProject) Write() error {
 	return p.writeFile()
 }
 
-func (p *localProject) writeFile() error {
+func (p *LocalProject) writeFile() error {
 	out, err := openFile(p.localOutFileName)
 	defer out.Close()
 
@@ -245,7 +235,7 @@ var openFile func(filename string) (*os.File, error) = func(filename string) (*o
 	return os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_EXCL, LocalOutFileMode)
 }
 
-func (p *localProject) overwriteFile() error {
+func (p *LocalProject) overwriteFile() error {
 	filename := p.localOutFileName
 
 	fmt.Printf("%s file already exists. Do you want to write over this file? [y/N]\n", filename)
