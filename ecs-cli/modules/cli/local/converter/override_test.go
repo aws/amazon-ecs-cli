@@ -72,7 +72,7 @@ func TestConvertToCompose(t *testing.T) {
 						Name: aws.String("app"),
 					},
 					{
-						Name: aws.String("db"),
+						Name: aws.String("envoyproxy"),
 					},
 				},
 			},
@@ -89,7 +89,7 @@ func TestConvertToCompose(t *testing.T) {
 						},
 					},
 					{
-						Name: "db",
+						Name: "envoyproxy",
 						Environment: composeV3.MappingWithEquals{
 							ecsCredsProviderEnvName: aws.String(endpointsTempCredsPath),
 						},

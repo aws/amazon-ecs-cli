@@ -19,7 +19,7 @@ import (
 )
 
 // MarshalComposeConfig serializes a Docker Compose object into a YAML document.
-func MarshalComposeConfig(conf composeV3.Config, filename string) ([]byte, error) {
-	conf.Filename = filename
-	return yaml.Marshal(conf)
+func MarshalComposeConfig(config composeV3.Config, filename string) ([]byte, error) {
+	config.Filename = filename
+	return yaml.Marshal(config)
 }

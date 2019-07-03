@@ -40,7 +40,7 @@ func ConvertToComposeOverride(taskDefinition *ecs.TaskDefinition) (*composeV3.Co
 
 	var services []composeV3.ServiceConfig
 	for _, container := range taskDefinition.ContainerDefinitions {
-		conf := composeV3.ServiceConfig{
+		config := composeV3.ServiceConfig{
 			Name: aws.StringValue(container.Name),
 			Environment: composeV3.MappingWithEquals{
 				ecsCredsProviderEnvName: aws.String(endpointsTempCredsPath),
@@ -49,7 +49,7 @@ func ConvertToComposeOverride(taskDefinition *ecs.TaskDefinition) (*composeV3.Co
 				Driver: jsonFileLogDriver,
 			},
 		}
-		services = append(services, conf)
+		services = append(services, config)
 	}
 
 	return &composeV3.Config{
