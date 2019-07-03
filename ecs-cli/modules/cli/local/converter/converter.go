@@ -89,8 +89,8 @@ const composeVersion = "3.2"
 // See https://github.com/aws/amazon-ecs-cli/issues/797
 const SecretLabelPrefix = "ecs-local.secret"
 
-// ConvertToCompose creates the payload from an ECS Task Definition to be written as a docker compose file
-func ConvertToCompose(taskDefinition *ecs.TaskDefinition, metadata *LocalCreateMetadata) (*composeV3.Config, error) {
+// ConvertToComposeConfig translates an ECS Task Definition to a the Docker Compose config and returns it.
+func ConvertToComposeConfig(taskDefinition *ecs.TaskDefinition, metadata *LocalCreateMetadata) (*composeV3.Config, error) {
 	services, err := createComposeServices(taskDefinition, metadata)
 	if err != nil {
 		return nil, err

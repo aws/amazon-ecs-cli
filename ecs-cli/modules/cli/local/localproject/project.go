@@ -201,7 +201,7 @@ var readTaskDefFromRemote = func(remote string, p *localProject) (*ecs.TaskDefin
 // Convert translates an ECS Task Definition into a Compose V3 schema and
 // stores the data on the project
 func (p *localProject) Convert() error {
-	conf, err := converter.ConvertToCompose(p.taskDefinition, p.inputMetadata)
+	conf, err := converter.ConvertToComposeConfig(p.taskDefinition, p.inputMetadata)
 	if err != nil {
 		return err
 	}
