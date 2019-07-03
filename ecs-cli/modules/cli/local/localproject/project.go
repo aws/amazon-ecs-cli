@@ -11,7 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-// Package localproject defines LocalProject interface and implements them on LocalProject
+// Package localproject provides functionality to retrieve a task definition, convert it to a Docker Compose config, and write it to a file.
 package localproject
 
 import (
@@ -54,7 +54,7 @@ const (
 	LocalInFileName = "task-definition.json"
 )
 
-// LocalProject holds data needed to convert an ECS Task Definition to a Docker Compose file.
+// LocalProject holds data needed to convert an ECS Task Definition to Docker Compose files.
 type LocalProject struct {
 	context         *cli.Context
 	taskDefinition  *ecs.TaskDefinition

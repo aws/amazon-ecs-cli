@@ -33,8 +33,7 @@ type TaskReadConvertWriter interface {
 func Create(c *cli.Context) {
 	project := localproject.New(c)
 
-	err := createLocal(project)
-	if err != nil {
+	if err := createLocal(project); err != nil {
 		log.Fatalf("Error with local create: %s", err.Error())
 	}
 }
