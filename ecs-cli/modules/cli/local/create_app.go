@@ -16,8 +16,6 @@
 package local
 
 import (
-	"fmt"
-
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/localproject"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -39,8 +37,6 @@ func Create(c *cli.Context) {
 	if err != nil {
 		log.Fatalf("Error with local create: %s", err.Error())
 	}
-
-	fmt.Printf("Successfully wrote %s\n", project.LocalOutFileName())
 }
 
 func createLocal(project TaskReadConvertWriter) error {
