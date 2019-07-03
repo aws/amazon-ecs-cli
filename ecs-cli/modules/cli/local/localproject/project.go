@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/converter"
@@ -55,10 +56,11 @@ const (
 
 // LocalProject holds data needed to convert an ECS Task Definition to a Docker Compose file.
 type LocalProject struct {
-	context        *cli.Context
-	taskDefinition *ecs.TaskDefinition
-	localBytes     []byte
-	inputMetadata  *converter.LocalCreateMetadata
+	context         *cli.Context
+	taskDefinition  *ecs.TaskDefinition
+	baseCompose     []byte
+	overrideCompose []byte
+	inputMetadata   *converter.LocalCreateMetadata
 }
 
 // New instantiates a new Local Project
@@ -77,6 +79,13 @@ func (p *LocalProject) LocalOutFileName() string {
 		return customName
 	}
 	return LocalOutDefaultFileName
+}
+
+// OverrideFileName returns the name of the override Compose file.
+func (p *LocalProject) OverrideFileName() string {
+	baseName := p.LocalOutFileName()
+	baseExt := filepath.Ext(baseName)
+	return baseName[:len(baseName)-len(baseExt)] + ".override.yml"
 }
 
 // InputMetadata returns the metadata on the task definition used to create the docker compose file
@@ -117,7 +126,8 @@ func (p *LocalProject) ReadTaskDefinition() error {
 	}
 
 	if taskDefinition == nil {
-		return fmt.Errorf("Could not detect valid Task Definition")
+		return fmt.Errorf(fmt.Sprintf("could not detect valid task definition.\nEither set one of --%s or --%s flags, or define a %s file.",
+			flags.TaskDefinitionFile, flags.TaskDefinitionRemote, LocalInFileName))
 	}
 
 	p.taskDefinition = taskDefinition
@@ -193,34 +203,66 @@ var readTaskDefFromRemote = func(remote string, p *LocalProject) (*ecs.TaskDefin
 // Convert translates an ECS Task Definition into a Compose V3 schema and
 // stores the data on the project
 func (p *LocalProject) Convert() error {
+	if err := p.convertBaseCompose(); err != nil {
+		return err
+	}
+	if err := p.convertOverrideCompose(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *LocalProject) convertBaseCompose() error {
 	conf, err := converter.ConvertToComposeConfig(p.taskDefinition, p.inputMetadata)
 	if err != nil {
 		return err
 	}
-	data, err := converter.MarshalComposeConfig(*conf, LocalOutDefaultFileName)
+	data, err := converter.MarshalComposeConfig(*conf, p.LocalOutFileName())
 	if err != nil {
 		return err
 	}
+	p.baseCompose = data
+	return nil
+}
 
-	p.localBytes = data
+func (p *LocalProject) convertOverrideCompose() error {
+	conf, err := converter.ConvertToComposeOverride(p.taskDefinition)
+	if err != nil {
+		return err
+	}
+	data, err := converter.MarshalComposeConfig(*conf, p.OverrideFileName())
+	if err != nil {
+		return err
+	}
+	p.overrideCompose = data
 	return nil
 }
 
 // Write writes the compose data to a local compose file. The output filename is stored on the project
 func (p *LocalProject) Write() error {
-	return p.writeFile()
+	if err := p.writeFile(p.LocalOutFileName(), p.baseCompose); err != nil {
+		return err
+	}
+	logrus.Infof("Successfully wrote %s", p.LocalOutFileName())
+
+	if err := p.writeFile(p.OverrideFileName(), p.overrideCompose); err != nil {
+		return err
+	}
+	logrus.Infof("Successfully wrote %s", p.OverrideFileName())
+
+	return nil
 }
 
-func (p *LocalProject) writeFile() error {
-	out, err := openFile(p.LocalOutFileName())
+func (p *LocalProject) writeFile(filename string, content []byte) error {
+	out, err := openFile(filename)
 	defer out.Close()
 
 	// File already exists
 	if err != nil {
-		return p.overwriteFile()
+		return p.overwriteFile(filename, content)
 	}
 
-	_, err = out.Write(p.localBytes)
+	_, err = out.Write(content)
 
 	return err
 }
@@ -230,9 +272,7 @@ var openFile = func(filename string) (*os.File, error) {
 	return os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_EXCL, LocalOutFileMode)
 }
 
-func (p *LocalProject) overwriteFile() error {
-	filename := p.LocalOutFileName()
-
+func (p *LocalProject) overwriteFile(filename string, content []byte) error {
 	fmt.Printf("%s file already exists. Do you want to write over this file? [y/N]\n", filename)
 
 	reader := bufio.NewReader(os.Stdin)
@@ -248,5 +288,5 @@ func (p *LocalProject) overwriteFile() error {
 	}
 
 	// Overwrite local compose file
-	return ioutil.WriteFile(filename, p.localBytes, LocalOutFileMode)
+	return ioutil.WriteFile(filename, content, LocalOutFileMode)
 }
