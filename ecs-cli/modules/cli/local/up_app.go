@@ -50,7 +50,7 @@ func Up(c *cli.Context) {
 	if err != nil {
 		logrus.Fatalf("Failed to create Compose files due to:\n%v", err)
 	}
-	overridePaths, err := composeOverridePaths(basePath, c)
+	overridePaths, err := composeOverridePaths(basePath, c.StringSlice(flags.AddOverrides))
 	if err != nil {
 		logrus.Fatalf("Failed to get the path of override Compose files due to:\n%v", err)
 	}
@@ -97,9 +97,18 @@ func createNewComposeProject(c *cli.Context) (string, error) {
 	return filepath.Abs(project.LocalOutFileName())
 }
 
-func composeOverridePaths(basePath string, c *cli.Context) ([]string, error) {
+func composeOverridePaths(basePath string, additionalRelPaths []string) ([]string, error) {
 	defaultPath := basePath[:len(basePath)-len(filepath.Ext(basePath))] + ".override.yml"
 	paths := []string{defaultPath}
+	if len(additionalRelPaths) > 0 {
+		for _, relPath := range additionalRelPaths {
+			p, err := filepath.Abs(relPath)
+			if err != nil {
+				return nil, errors.Wrapf(err, "cannot get absolute path of %s", relPath)
+			}
+			paths = append(paths, p)
+		}
+	}
 
 	// Prune paths that don't exist
 	var overridePaths []string

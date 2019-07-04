@@ -151,6 +151,7 @@ const (
 	TaskDefinitionFile    = "task-def-file"
 	TaskDefinitionRemote  = "task-def-remote"
 	TaskDefinitionCompose = "task-def-compose"
+	AddOverrides          = "add-overrides"
 	Output                = "output"
 	JSON                  = "json"
 	All                   = "all"
