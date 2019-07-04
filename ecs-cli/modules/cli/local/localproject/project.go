@@ -54,18 +54,29 @@ const (
 	LocalInFileName = "task-definition.json"
 )
 
+// Indexes of Compose files
+const (
+	baseComposeIndex = iota
+	overrideComposeIndex
+)
+
 // LocalProject holds data needed to convert an ECS Task Definition to Docker Compose files.
 type LocalProject struct {
-	context         *cli.Context
-	taskDefinition  *ecs.TaskDefinition
-	baseCompose     []byte
-	overrideCompose []byte
-	inputMetadata   *converter.LocalCreateMetadata
+	context        *cli.Context
+	taskDefinition *ecs.TaskDefinition
+	composeBytes   [][]byte
+	inputMetadata  *converter.LocalCreateMetadata
 }
 
 // New instantiates a new Local Project
 func New(context *cli.Context) *LocalProject {
-	return &LocalProject{context: context}
+	return &LocalProject{
+		context: context,
+		composeBytes: [][]byte{
+			nil,
+			nil,
+		},
+	}
 }
 
 // TaskDefinition returns the ECS task definition to be converted
@@ -221,7 +232,7 @@ func (p *LocalProject) convertBaseCompose() error {
 	if err != nil {
 		return err
 	}
-	p.baseCompose = data
+	p.composeBytes[baseComposeIndex] = data
 	return nil
 }
 
@@ -234,18 +245,18 @@ func (p *LocalProject) convertOverrideCompose() error {
 	if err != nil {
 		return err
 	}
-	p.overrideCompose = data
+	p.composeBytes[overrideComposeIndex] = data
 	return nil
 }
 
 // Write writes the compose data to a local compose file. The output filename is stored on the project
 func (p *LocalProject) Write() error {
-	if err := p.writeFile(p.LocalOutFileName(), p.baseCompose); err != nil {
+	if err := writeFile(p.LocalOutFileName(), p.composeBytes[baseComposeIndex]); err != nil {
 		return err
 	}
 	logrus.Infof("Successfully wrote %s", p.LocalOutFileName())
 
-	if err := p.writeFile(p.OverrideFileName(), p.overrideCompose); err != nil {
+	if err := writeFile(p.OverrideFileName(), p.composeBytes[overrideComposeIndex]); err != nil {
 		return err
 	}
 	logrus.Infof("Successfully wrote %s", p.OverrideFileName())
@@ -253,13 +264,13 @@ func (p *LocalProject) Write() error {
 	return nil
 }
 
-func (p *LocalProject) writeFile(filename string, content []byte) error {
+func writeFile(filename string, content []byte) error {
 	out, err := openFile(filename)
 	defer out.Close()
 
 	// File already exists
 	if err != nil {
-		return p.overwriteFile(filename, content)
+		return overwriteFile(filename, content)
 	}
 
 	_, err = out.Write(content)
@@ -272,7 +283,7 @@ var openFile = func(filename string) (*os.File, error) {
 	return os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_EXCL, LocalOutFileMode)
 }
 
-func (p *LocalProject) overwriteFile(filename string, content []byte) error {
+func overwriteFile(filename string, content []byte) error {
 	fmt.Printf("%s file already exists. Do you want to write over this file? [y/N]\n", filename)
 
 	reader := bufio.NewReader(os.Stdin)
