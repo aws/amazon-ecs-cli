@@ -88,6 +88,10 @@ func upCommand() cli.Command {
 				Name:  flagName(flags.TaskDefinitionRemote),
 				Usage: flagDescription(flags.TaskDefinitionRemote, upCmdName),
 			},
+			cli.StringSliceFlag{
+				Name:  flagName(flags.AddOverrides),
+				Usage: flagDescription(flags.AddOverrides, upCmdName),
+			},
 			cli.StringFlag{
 				Name:  flagName(flags.Output),
 				Usage: flagDescription(flags.Output, upCmdName),
@@ -149,6 +153,7 @@ func flagName(longName string) string {
 		flags.TaskDefinitionCompose: flags.TaskDefinitionCompose + ",c",
 		flags.TaskDefinitionFile:    flags.TaskDefinitionFile + ",f",
 		flags.TaskDefinitionRemote:  flags.TaskDefinitionRemote + ",r",
+		flags.AddOverrides:          flags.AddOverrides + ", a",
 		flags.Output:                flags.Output + ",o",
 		flags.JSON:                  flags.JSON,
 		flags.All:                   flags.All,
@@ -172,6 +177,9 @@ func flagDescription(longName, cmdName string) string {
 			upCmdName:     "The `arnOrFamily` of a task definition to convert and run.",
 			psCmdName:     "List all running containers matching the task definition `arnOrFamily`.",
 			downCmdName:   "Stop and remove all running containers matching the task definition `arnOrFamily`.",
+		},
+		flags.AddOverrides: {
+			upCmdName: "The file `name` of an additional Compose override file.",
 		},
 		flags.Output: {
 			createCmdName: fmt.Sprintf("The Compose file `name` to write to. If not specified, defaults to %s", project.LocalOutDefaultFileName),
