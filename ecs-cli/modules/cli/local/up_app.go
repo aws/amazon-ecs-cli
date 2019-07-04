@@ -46,15 +46,19 @@ func Up(c *cli.Context) {
 	if err := options.ValidateFlagPairs(c); err != nil {
 		logrus.Fatalf(err.Error())
 	}
-	composePath, err := composeProjectPath(c)
+	basePath, err := composeProjectPath(c)
 	if err != nil {
-		logrus.Fatalf("Failed to create Compose file due to:\n%v", err)
+		logrus.Fatalf("Failed to create Compose files due to:\n%v", err)
+	}
+	overridePaths, err := composeOverridePaths(basePath, c)
+	if err != nil {
+		logrus.Fatalf("Failed to get the path of override Compose files due to:\n%v", err)
 	}
 
-	runContainers(composePath)
+	runContainers(basePath, overridePaths)
 }
 
-// composeProjectPath creates a new Compose file if necessary and returns its path.
+// composeProjectPath creates Compose files if necessary and returns the path of the base Compose file.
 //
 // If the user set the TaskDefinitionCompose flag, then return that Compose file path.
 // If the user doesn't have any flags set, and doesn't have LocalInFileName but has a LocalOutDefaultFileName,
@@ -93,14 +97,29 @@ func createNewComposeProject(c *cli.Context) (string, error) {
 	return filepath.Abs(project.LocalOutFileName())
 }
 
-func runContainers(composePath string) {
+func composeOverridePaths(basePath string, c *cli.Context) ([]string, error) {
+	defaultPath := basePath[:len(basePath)-len(filepath.Ext(basePath))] + ".override.yml"
+	paths := []string{defaultPath}
+
+	// Prune paths that don't exist
+	var overridePaths []string
+	for _, p := range paths {
+		if _, err := os.Stat(p); err == nil {
+			overridePaths = append(overridePaths, p)
+		} else {
+			logrus.Warnf("Skipping Compose file %s due to:\n%v", filepath.Base(p), err)
+		}
+	}
+	return overridePaths, nil
+}
+
+func runContainers(basePath string, overridePaths []string) {
 	network.Setup(docker.NewClient())
 
-	logrus.Infof("Using %s to start containers", filepath.Base(composePath))
-	config := readComposeFile(composePath)
+	config := readComposeFile(basePath)
 	secrets := readSecrets(config)
 	envVars := decryptSecrets(secrets)
-	upComposeFile(config, envVars)
+	upCompose(envVars, basePath, overridePaths)
 }
 
 func readComposeFile(composePath string) *composeV3.Config {
@@ -159,14 +178,29 @@ func decryptSecrets(containerSecrets []*secrets.ContainerSecret) (envVars map[st
 	return
 }
 
-// upComposeFile starts the containers in the Compose config with the environment variables defined in envVars.
-func upComposeFile(config *composeV3.Config, envVars map[string]string) {
+// upCompose starts the containers in the Compose files with the environment variables defined in envVars.
+func upCompose(envVars map[string]string, basePath string, overridePaths []string) {
+	// Gather environment variables
 	var envs []string
 	for env, val := range envVars {
 		envs = append(envs, fmt.Sprintf("%s=%s", env, val))
 	}
+	// Need to add $PATH because of --build, see https://stackoverflow.com/a/55371721/1201381
+	envs = append(envs, fmt.Sprintf("PATH=%s", os.Getenv("PATH")))
 
-	cmd := exec.Command("docker-compose", "-f", config.Filename, "up", "-d")
+	// Gather command arguments
+	var b strings.Builder
+	b.WriteString(filepath.Base(basePath))
+	args := []string{"-f", basePath}
+	for _, p := range overridePaths {
+		b.WriteString(fmt.Sprintf(", %s", filepath.Base(p)))
+		args = append(args, "-f", p)
+	}
+	args = append(args, "up", "--build", "-d")
+
+	// Run the command with the environment variables and arguments
+	logrus.Infof("Using %s files to start containers", b.String())
+	cmd := exec.Command("docker-compose", args...)
 	cmd.Env = envs
 
 	out, err := cmd.CombinedOutput()
