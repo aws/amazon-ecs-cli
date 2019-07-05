@@ -17,8 +17,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
-	"path/filepath"
 	"strings"
 	"text/tabwriter"
 
@@ -71,13 +69,6 @@ func Ps(c *cli.Context) {
 }
 
 func listContainers(c *cli.Context) ([]types.Container, error) {
-	if c.IsSet(flags.TaskDefinitionCompose) {
-		path, err := filepath.Abs(c.String(flags.TaskDefinitionCompose))
-		if err != nil {
-			return nil, errors.Wrapf(err, "failed to get absolute path of %s", c.String(flags.TaskDefinitionCompose))
-		}
-		return listLocalComposeContainers(path)
-	}
 	if c.IsSet(flags.TaskDefinitionFile) {
 		return listContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue,
@@ -97,32 +88,10 @@ func listContainers(c *cli.Context) ([]types.Container, error) {
 			filters.Arg("label", converter.TaskDefinitionLabelValue),
 		))
 	}
-	return listLocalComposeContainers(localproject.LocalOutDefaultFileName)
-}
-
-func listLocalComposeContainers(composePath string) ([]types.Container, error) {
-	wd, _ := os.Getwd()
-	if _, err := os.Stat(filepath.Join(wd, localproject.LocalOutDefaultFileName)); os.IsNotExist(err) {
-		logrus.Fatalf("Compose file %s does not exist in current directory", localproject.LocalOutDefaultFileName)
-	}
-
-	// The -q flag displays the ID of the containers instead of the default "Name, Command, State, Ports" metadata.
-	cmd := exec.Command("docker-compose", "-f", composePath, "ps", "-q")
-	composeOut, err := cmd.CombinedOutput()
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to docker-compose ps on %s with stdout %s", composePath, string(composeOut))
-	}
-
-	containerIDs := strings.Split(string(composeOut), "\n")
-	if len(containerIDs) == 0 {
-		return []types.Container{}, nil
-	}
-
-	var args []filters.KeyValuePair
-	for _, containerID := range containerIDs {
-		args = append(args, filters.Arg("id", containerID))
-	}
-	return listContainersWithFilters(filters.NewArgs(args...))
+	return listContainersWithFilters(filters.NewArgs(
+		filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue, localproject.LocalInFileName)),
+		filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.LocalTaskDefType)),
+	))
 }
 
 func listContainersWithFilters(args filters.Args) ([]types.Container, error) {

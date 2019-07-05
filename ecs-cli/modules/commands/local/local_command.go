@@ -103,10 +103,6 @@ func psCommand() cli.Command {
 		Action: local.Ps,
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:  flagName(flags.TaskDefinitionCompose),
-				Usage: flagDescription(flags.TaskDefinitionCompose, psCmdName),
-			},
-			cli.StringFlag{
 				Name:  flagName(flags.TaskDefinitionFile),
 				Usage: flagDescription(flags.TaskDefinitionFile, psCmdName),
 			},
@@ -132,10 +128,6 @@ func downCommand() cli.Command {
 		Usage:  "Stop and remove a running ECS task.",
 		Action: local.Down,
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:  flagName(flags.TaskDefinitionCompose),
-				Usage: flagDescription(flags.TaskDefinitionCompose, downCmdName),
-			},
 			cli.StringFlag{
 				Name:  flagName(flags.TaskDefinitionFile),
 				Usage: flagDescription(flags.TaskDefinitionFile, downCmdName),
@@ -167,9 +159,7 @@ func flagName(longName string) string {
 func flagDescription(longName, cmdName string) string {
 	m := map[string]map[string]string{
 		flags.TaskDefinitionCompose: {
-			upCmdName:   "The Compose file `name` of a task definition to run.",
-			psCmdName:   "List containers created from the Compose file `name`.",
-			downCmdName: "Stop and remove containers from the Compose file `name`.",
+			upCmdName: "The Compose file `name` of a task definition to run.",
 		},
 		flags.TaskDefinitionFile: {
 			createCmdName: fmt.Sprintf("The file `name` of a task definition json to convert. If not specified, defaults to %s", project.LocalInFileName),
