@@ -14,6 +14,7 @@
 package local
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
@@ -198,7 +199,7 @@ func upCompose(envVars map[string]string, basePath string, overridePaths []strin
 	envs = append(envs, fmt.Sprintf("PATH=%s", os.Getenv("PATH")))
 
 	// Gather command arguments
-	var b strings.Builder
+	var b bytes.Buffer
 	b.WriteString(filepath.Base(basePath))
 	args := []string{"-f", basePath}
 	for _, p := range overridePaths {
