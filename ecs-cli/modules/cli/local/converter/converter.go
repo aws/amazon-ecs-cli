@@ -283,8 +283,13 @@ func convertLogging(logConfig *ecs.LogConfiguration) *composeV3.LoggingConfig {
 	if logConfig == nil {
 		return nil
 	}
-	log.Warningf("%s will not be supported", ecs.LogDriverAwslogs)
+	unsupportedDrivers := []string{ecs.LogDriverAwslogs}
 	driver := aws.StringValue(logConfig.LogDriver)
+	for _, unsupported := range unsupportedDrivers {
+		if driver == unsupported {
+			log.Warningf("%s will not be supported", unsupported)
+		}
+	}
 	opts := make(map[string]string)
 	for k, v := range logConfig.Options {
 		opts[k] = aws.StringValue(v)
