@@ -24,6 +24,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/converter"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/stretchr/testify/require"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
@@ -37,6 +38,86 @@ func mockTaskDef() *ecs.TaskDefinition {
 	taskDef := &ecs.TaskDefinition{}
 	taskDef.SetTaskDefinitionArn(taskDefArn)
 	return taskDef
+}
+
+func TestLocalOutFileName(t *testing.T) {
+	testCases := map[string]struct {
+		inputContext *cli.Context
+		wantedName   string
+	}{
+		"without output flag": {
+			inputContext: func() *cli.Context {
+				flagSet := flag.NewFlagSet("ecs-cli", 0)
+				return cli.NewContext(nil, flagSet, nil)
+			}(),
+			wantedName: LocalOutDefaultFileName,
+		},
+		"with output flag": {
+			inputContext: func() *cli.Context {
+				flagSet := flag.NewFlagSet("ecs-cli", 0)
+				flagSet.String(flags.Output, "hello", "")
+				return cli.NewContext(nil, flagSet, nil)
+			}(),
+			wantedName: "hello",
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			// GIVEN
+			p := New(tc.inputContext)
+
+			// WHEN
+			actualName := p.LocalOutFileName()
+
+			// THEN
+			require.Equal(t, tc.wantedName, actualName)
+		})
+	}
+}
+
+func TestOverrideFileName(t *testing.T) {
+	testCases := map[string]struct {
+		inputContext *cli.Context
+		wantedName   string
+	}{
+		"without output flag": {
+			inputContext: func() *cli.Context {
+				flagSet := flag.NewFlagSet("ecs-cli", 0)
+				return cli.NewContext(nil, flagSet, nil)
+			}(),
+			wantedName: "docker-compose.ecs-local.override.yml",
+		},
+		"with output flag": {
+			inputContext: func() *cli.Context {
+				flagSet := flag.NewFlagSet("ecs-cli", 0)
+				flagSet.String(flags.Output, "hello", "")
+				return cli.NewContext(nil, flagSet, nil)
+			}(),
+			wantedName: "hello.override.yml",
+		},
+		"with extension": {
+			inputContext: func() *cli.Context {
+				flagSet := flag.NewFlagSet("ecs-cli", 0)
+				flagSet.String(flags.Output, "hello.yml", "")
+				return cli.NewContext(nil, flagSet, nil)
+			}(),
+			wantedName: "hello.override.yml",
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			// GIVEN
+			p := New(tc.inputContext)
+
+			// WHEN
+			actualName := p.OverrideFileName()
+
+			// THEN
+			require.Equal(t, tc.wantedName, actualName)
+		})
+	}
 }
 
 func TestReadTaskDefinition_FromRemote(t *testing.T) {
