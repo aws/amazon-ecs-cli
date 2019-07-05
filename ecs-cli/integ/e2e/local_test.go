@@ -16,11 +16,9 @@
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/integ"
-	project "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/localproject"
 	"github.com/stretchr/testify/require"
 )
 
@@ -41,9 +39,14 @@ func TestECSLocal(t *testing.T) {
 					args: []string{"local", "ps"},
 					execute: func(t *testing.T, args []string) {
 						stdout, err := integ.RunCmd(t, args)
-						require.Error(t, err, "expected args=%v to fail", args)
+						require.NoError(t, err)
 						stdout.TestHasAllSubstrings(t, []string{
-							fmt.Sprintf("%s does not exist", project.LocalOutDefaultFileName),
+							"CONTAINER ID",
+							"IMAGE",
+							"STATUS",
+							"PORTS",
+							"NAMES",
+							"TASKDEFINITION",
 						})
 					},
 				},
@@ -76,9 +79,9 @@ func TestECSLocal(t *testing.T) {
 					args: []string{"local", "down"},
 					execute: func(t *testing.T, args []string) {
 						stdout, err := integ.RunCmd(t, args)
-						require.Error(t, err, "expected args=%v to fail", args)
+						require.NoError(t, err)
 						stdout.TestHasAllSubstrings(t, []string{
-							fmt.Sprintf("%s does not exist", project.LocalOutDefaultFileName),
+							"No running ECS local tasks found",
 						})
 					},
 				},
