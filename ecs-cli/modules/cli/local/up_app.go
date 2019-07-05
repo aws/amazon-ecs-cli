@@ -51,7 +51,7 @@ func Up(c *cli.Context) {
 	if err != nil {
 		logrus.Fatalf("Failed to create Compose files due to:\n%v", err)
 	}
-	overridePaths, err := composeOverridePaths(basePath, c.StringSlice(flags.AddOverrides))
+	overridePaths, err := composeOverridePaths(basePath, c.StringSlice(flags.ComposeOverride))
 	if err != nil {
 		logrus.Fatalf("Failed to get the path of override Compose files due to:\n%v", err)
 	}
