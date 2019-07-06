@@ -39,10 +39,12 @@ import (
 
 // Up creates a Compose file from an ECS task definition and runs it locally.
 //
-// The Amazon ECS Local Endpoints container needs to be running already for any local ECS task to work
-// (see https://github.com/awslabs/amazon-ecs-local-container-endpoints).
-// If the container is not running, this command creates a new network for all local ECS tasks to join
-// and communicate with the Amazon ECS Local Endpoints container.
+// The Amazon ECS Local Endpoints container needs to be running already for any
+// local ECS task to work (see
+// https://github.com/awslabs/amazon-ecs-local-container-endpoints). If the
+// container is not running, this command creates a new network for all local
+// ECS tasks to join and communicate with the Amazon ECS Local Endpoints
+// container.
 func Up(c *cli.Context) {
 	if err := options.ValidateFlagPairs(c); err != nil {
 		logrus.Fatalf(err.Error())
@@ -61,10 +63,11 @@ func Up(c *cli.Context) {
 
 // composeProjectPath creates Compose files if necessary and returns the path of the base Compose file.
 //
-// If the user set the TaskDefinitionCompose flag, then return that Compose file path.
-// If the user doesn't have any flags set, and doesn't have LocalInFileName but has a LocalOutDefaultFileName,
-// then we use the LocalOutDefaultFileName file.
-// Otherwise, we create a new Compose file from the user's flags and return its path.
+// If the user set the TaskDefinitionCompose flag, then return that Compose
+// file path.  If the user doesn't have any flags set, and doesn't have
+// LocalInFileName but has a LocalOutDefaultFileName, then we use the
+// LocalOutDefaultFileName file.  Otherwise, we create a new Compose file from
+// the user's flags and return its path.
 func composeProjectPath(c *cli.Context) (string, error) {
 	if c.IsSet(flags.TaskDefinitionFile) {
 		return createNewComposeProject(c)
@@ -95,7 +98,7 @@ func createNewComposeProject(c *cli.Context) (string, error) {
 	if err := createLocal(project); err != nil {
 		return "", err
 	}
-	return filepath.Abs(project.LocalOutFileName())
+	return project.LocalOutFileFullPath()
 }
 
 func composeOverridePaths(basePath string, additionalRelPaths []string) ([]string, error) {

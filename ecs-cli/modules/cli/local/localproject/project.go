@@ -92,6 +92,10 @@ func (p *LocalProject) LocalOutFileName() string {
 	return LocalOutDefaultFileName
 }
 
+func (p *LocalProject) LocalOutFileFullPath() (string, error) {
+	return filepath.Abs(p.LocalOutFileName())
+}
+
 // OverrideFileName returns the name of the override Compose file.
 func (p *LocalProject) OverrideFileName() string {
 	baseName := p.LocalOutFileName()
