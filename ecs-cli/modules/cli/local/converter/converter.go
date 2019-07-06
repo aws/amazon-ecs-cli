@@ -49,8 +49,9 @@ type LocalCreateMetadata struct {
 // CommonContainerValues contains values for top-level Task Definition fields
 // that apply to all containers within the task definition
 type CommonContainerValues struct {
-	Ipc string
-	Pid string
+	Ipc     string
+	Pid     string
+	Volumes []*ecs.Volume
 }
 
 const (
@@ -89,7 +90,14 @@ const composeVersion = "3.2"
 // See https://github.com/aws/amazon-ecs-cli/issues/797
 const SecretLabelPrefix = "ecs-local.secret"
 
-// ConvertToComposeConfig translates an ECS Task Definition to a the Docker Compose config and returns it.
+// ConvertToComposeConfig translates an ECS Task Definition to a the Docker
+// Compose config and returns it.
+
+// NOTE: Top-level Volumes are not converted since these translate as named
+// volumes in docker compose. Since ECS only supports bind mounts locally, each
+// container would need to know the soucePath of the host machine, so the
+// sourcePath of the top level volumes are resolved when converting mountPoints
+// on a container definition.
 func ConvertToComposeConfig(taskDefinition *ecs.TaskDefinition, metadata *LocalCreateMetadata) (*composeV3.Config, error) {
 	services, err := createComposeServices(taskDefinition, metadata)
 	if err != nil {
@@ -136,8 +144,9 @@ func createComposeServices(taskDefinition *ecs.TaskDefinition, metadata *LocalCr
 	}
 
 	commonValues := &CommonContainerValues{
-		Pid: pid,
-		Ipc: ipc,
+		Pid:     pid,
+		Ipc:     ipc,
+		Volumes: taskDefinition.Volumes,
 	}
 
 	if len(taskDefinition.ContainerDefinitions) < 1 {
@@ -182,7 +191,7 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition, commo
 	healthCheck := convertHealthCheck(containerDefinition.HealthCheck)
 	labels := convertDockerLabelsWithSecrets(containerDefinition.DockerLabels, containerDefinition.Secrets)
 	logging := convertLogging(containerDefinition.LogConfiguration)
-	volumes := convertToVolumes(containerDefinition.MountPoints)
+	volumes := convertToVolumes(containerDefinition.MountPoints, commonValues.Volumes)
 	ports := convertToPorts(containerDefinition.PortMappings)
 	sysctls := convertToSysctls(containerDefinition.SystemControls)
 	networks := map[string]*composeV3.ServiceNetworkConfig{
@@ -258,14 +267,42 @@ func convertToPorts(portMappings []*ecs.PortMapping) []composeV3.ServicePortConf
 	return out
 }
 
-func convertToVolumes(mountPoints []*ecs.MountPoint) []composeV3.ServiceVolumeConfig {
+// namedVolumesMap maps a named top-level volume to the host source path. Used
+// to resolve container mount points to correct host for creating bind mounts
+func namedVolumesMap(volumes []*ecs.Volume) map[string]string {
+	hostPaths := make(map[string]string)
+	for _, vol := range volumes {
+		name := aws.StringValue(vol.Name)
+		host := vol.Host
+		// NOTE: Host *shouldn't* ever be nil, as ECS should return an
+		// empty host as an empty object {}. In this case, the
+		// sourcePath will be an empty string.
+		if host != nil {
+			sourcePath := aws.StringValue(host.SourcePath)
+			hostPaths[name] = sourcePath
+		}
+	}
+
+	return hostPaths
+}
+
+// Resolves any named volumes to a bind mount source path
+func convertToVolumes(mountPoints []*ecs.MountPoint, volumes []*ecs.Volume) []composeV3.ServiceVolumeConfig {
 	out := []composeV3.ServiceVolumeConfig{}
+	mapping := namedVolumesMap(volumes)
 
 	for _, mountPoint := range mountPoints {
+		volumeName := aws.StringValue(mountPoint.SourceVolume)
+		if sourcePath, ok := mapping[volumeName]; ok {
+			if sourcePath != "" { // FIXME might need to use named volumes after all?
+				volumeName = sourcePath
+			}
+		}
 		volume := composeV3.ServiceVolumeConfig{
-			Source:   aws.StringValue(mountPoint.SourceVolume),
+			Source:   volumeName,
 			Target:   aws.StringValue(mountPoint.ContainerPath),
 			ReadOnly: aws.BoolValue(mountPoint.ReadOnly),
+			Type:     "bind",
 		}
 		out = append(out, volume)
 	}

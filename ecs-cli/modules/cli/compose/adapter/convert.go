@@ -240,8 +240,9 @@ func ConvertDurationStrToSeconds(d string) (*int64, error) {
 	return &result, nil
 }
 
-// ConvertToMountPoints transforms the yml volumes slice to ecs compatible MountPoints slice
-// It also uses the hostPath from volumes if present, else adds one to it
+// ConvertToMountPoints transforms the YAML volumes slice on a libcompose
+// service to ECS compatible MountPoints slice. It also uses the hostPath from
+// the top-level Volume Config if present, otherwise adds one to it
 func ConvertToMountPoints(cfgVolumes *yaml.Volumes, volumes *Volumes) ([]*ecs.MountPoint, error) {
 	mountPoints := []*ecs.MountPoint{}
 	if cfgVolumes == nil {
@@ -443,7 +444,7 @@ func ConvertToVolumes(volumeConfigs map[string]*config.VolumeConfig) (*Volumes, 
 }
 
 // ConvertToV3Volumes converts the VolumesConfig map in a docker/cli config into a
-// Volumes struct and populates the VolumesEmptyHost field with any names volumes
+// Volumes struct and populates the VolumesEmptyHost field with any named volumes
 func ConvertToV3Volumes(volConfig map[string]types.VolumeConfig) (*Volumes, error) {
 	volumes := NewVolumes()
 

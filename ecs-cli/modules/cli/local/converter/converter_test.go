@@ -87,6 +87,7 @@ func TestConvertToComposeService(t *testing.T) {
 			Target:   "/tmp/cache",
 			Source:   "volume-1",
 			ReadOnly: true,
+			Type:     "bind",
 		},
 	}
 	expectedIpc := ecs.IpcModeNone
@@ -510,7 +511,7 @@ func TestConvertLogging(t *testing.T) {
 }
 
 func TestConvertToVolumes(t *testing.T) {
-	input := []*ecs.MountPoint{
+	inputMountPoints := []*ecs.MountPoint{
 		{
 			ContainerPath: aws.String("/tmp/cache"),
 			ReadOnly:      aws.Bool(false),
@@ -521,6 +522,29 @@ func TestConvertToVolumes(t *testing.T) {
 			ReadOnly:      aws.Bool(false),
 			SourceVolume:  aws.String("volume-2"),
 		},
+		{
+			ContainerPath: aws.String("/tmp/cache3"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("covfefe"),
+		},
+	}
+	inputVolumes := []*ecs.Volume{
+		{
+			Host: &ecs.HostVolumeProperties{},
+			Name: aws.String("volume-1"),
+		},
+		{
+			Host: &ecs.HostVolumeProperties{
+				SourcePath: aws.String("/tmp/foo"),
+			},
+			Name: aws.String("volume-2"),
+		},
+		{
+			Host: &ecs.HostVolumeProperties{
+				SourcePath: aws.String("/tmp/bar"),
+			},
+			Name: aws.String("covfefe"),
+		},
 	}
 
 	expected := []composeV3.ServiceVolumeConfig{
@@ -528,15 +552,23 @@ func TestConvertToVolumes(t *testing.T) {
 			Target:   "/tmp/cache",
 			ReadOnly: false,
 			Source:   "volume-1",
+			Type:     "bind",
 		},
 		{
 			Target:   "/tmp/cache2",
 			ReadOnly: false,
-			Source:   "volume-2",
+			Source:   "/tmp/foo",
+			Type:     "bind",
+		},
+		{
+			Target:   "/tmp/cache3",
+			ReadOnly: false,
+			Source:   "/tmp/bar",
+			Type:     "bind",
 		},
 	}
 
-	actual := convertToVolumes(input)
+	actual := convertToVolumes(inputMountPoints, inputVolumes)
 
 	assert.Equal(t, expected, actual)
 }
@@ -581,6 +613,37 @@ func TestConvertToSysctls(t *testing.T) {
 	}
 
 	actual := convertToSysctls(input)
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestNamedVolumesMap(t *testing.T) {
+	input := []*ecs.Volume{
+		{
+			Host: &ecs.HostVolumeProperties{
+				SourcePath: aws.String("/tmp/bar"),
+			},
+			Name: aws.String("volume-0"),
+		},
+		{
+			Host: &ecs.HostVolumeProperties{
+				SourcePath: aws.String("/tmp/foo"),
+			},
+			Name: aws.String("volume-1"),
+		},
+		{
+			Host: &ecs.HostVolumeProperties{},
+			Name: aws.String("volume-2"),
+		},
+	}
+
+	expected := map[string]string{
+		"volume-0": "/tmp/bar",
+		"volume-1": "/tmp/foo",
+		"volume-2": "",
+	}
+
+	actual := namedVolumesMap(input)
 
 	assert.Equal(t, expected, actual)
 }
