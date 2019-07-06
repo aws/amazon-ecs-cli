@@ -19,6 +19,7 @@ import (
 	"flag"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/converter"
@@ -158,9 +159,10 @@ func TestReadTaskDefinition_FromLocal(t *testing.T) {
 	project := New(context)
 
 	expectedTaskDef := mockTaskDef()
+	expectedLabelValue, _ := filepath.Abs(taskDefFile)
 	expectedMetadata := &converter.LocalCreateMetadata{
 		InputType: LocalTaskDefType,
-		Value:     taskDefFile,
+		Value:     expectedLabelValue,
 	}
 
 	oldRead := readTaskDefFromLocal
@@ -191,9 +193,10 @@ func TestReadTaskDefinition_FromLocalDefault(t *testing.T) {
 	defer func() { defaultInputExists = oldDefaultInputExists }()
 
 	expectedTaskDef := mockTaskDef()
+	expectedLabelValue, _ := filepath.Abs(LocalInFileName)
 	expectedMetadata := &converter.LocalCreateMetadata{
 		InputType: LocalTaskDefType,
-		Value:     LocalInFileName,
+		Value:     expectedLabelValue,
 	}
 
 	oldRead := readTaskDefFromLocal

@@ -128,13 +128,23 @@ func (p *LocalProject) ReadTaskDefinition() error {
 			return err
 		}
 	} else if filename != "" {
+		filename, err = filepath.Abs(filename)
+		if err != nil {
+			return err
+		}
+
 		taskDefinition, err = p.readTaskDefinitionFromFile(filename)
 		if err != nil {
 			return err
 		}
 
 	} else if defaultInputExists() {
-		taskDefinition, err = p.readTaskDefinitionFromFile(LocalInFileName)
+		filename, err = filepath.Abs(LocalInFileName)
+		if err != nil {
+			return err
+		}
+
+		taskDefinition, err = p.readTaskDefinitionFromFile(filename)
 		if err != nil {
 			return err
 		}
