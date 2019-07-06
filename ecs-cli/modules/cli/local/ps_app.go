@@ -92,8 +92,14 @@ func listContainers(c *cli.Context) ([]types.Container, error) {
 			filters.Arg("label", converter.TaskDefinitionLabelValue),
 		))
 	}
+
+	defaultFile, err := filepath.Abs(localproject.LocalInFileName)
+	if err != nil {
+		return nil, err
+	}
+
 	return listContainersWithFilters(filters.NewArgs(
-		filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue, localproject.LocalInFileName)),
+		filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue, defaultFile)),
 		filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.LocalTaskDefType)),
 	))
 }
