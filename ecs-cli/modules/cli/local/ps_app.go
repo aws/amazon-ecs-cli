@@ -15,6 +15,7 @@ package local
 
 import (
 	"encoding/json"
+	"path/filepath"
 	"fmt"
 	"os"
 	"strings"
@@ -70,9 +71,12 @@ func Ps(c *cli.Context) {
 
 func listContainers(c *cli.Context) ([]types.Container, error) {
 	if c.IsSet(flags.TaskDefinitionFile) {
+		file, err := filepath.Abs(c.String(flags.TaskDefinitionFile))
+		if err != nil {
+			return nil, err
+		}
 		return listContainersWithFilters(filters.NewArgs(
-			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue,
-				c.String(flags.TaskDefinitionFile))),
+			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue, file)),
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.LocalTaskDefType)),
 		))
 	}
