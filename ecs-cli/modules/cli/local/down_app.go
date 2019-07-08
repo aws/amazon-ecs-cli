@@ -14,6 +14,8 @@
 package local
 
 import (
+	"fmt"
+
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/docker"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/localproject"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/network"
@@ -36,7 +38,7 @@ func Down(c *cli.Context) {
 	if err := options.ValidateFlagPairs(c); err != nil {
 		logrus.Fatal(err.Error())
 	}
-	ContainerSearchInfo(c)
+	logrus.Info(ContainerDownSourceMessage(c))
 	containers, err := listContainers(c)
 	if err != nil {
 		logrus.Fatalf("Failed to list containers due to:\n%v", err)
@@ -66,20 +68,16 @@ func downContainers(containers []types.Container) {
 	}
 }
 
-// ContainerSearchInfo show the task definition filepath or arn/family message on local down.
-func ContainerSearchInfo(c *cli.Context) {
+// ContainerDownSourceMessage show the task definition filepath or arn/family message on local down.
+func ContainerDownSourceMessage(c *cli.Context) string {
 	if c.IsSet(flags.TaskDefinitionFile) {
-		logrus.Infof("Searching for containers matching --%s=%s", flags.TaskDefinitionFile, c.String(flags.TaskDefinitionFile))
-		return
+		return fmt.Sprintf("Searching for containers from local file %s", c.String(flags.TaskDefinitionFile))
 	}
 	if c.IsSet(flags.TaskDefinitionRemote) {
-		logrus.Infof("Searching for containers matching --%s=%s", flags.TaskDefinitionRemote, c.String(flags.TaskDefinitionRemote))
-		return
+		return fmt.Sprintf("Searching for containers from remote task definition %s", c.String(flags.TaskDefinitionRemote))
 	}
 	if c.Bool(flags.All) {
-		logrus.Info("Searching for all running containers")
-		return
+		return fmt.Sprint("Searching for all running containers")
 	}
-	logrus.Infof("Searching for containers matching --%s=%s", flags.TaskDefinitionFile, localproject.LocalInFileName)
-	return
+	return fmt.Sprintf("Searching for containers from default local file %s", localproject.LocalInFileName)
 }
