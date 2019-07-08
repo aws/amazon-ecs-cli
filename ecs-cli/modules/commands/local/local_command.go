@@ -20,6 +20,7 @@ import (
 	app "github.com/aws/amazon-ecs-cli/ecs-cli/modules"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local"
 	project "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/localproject"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/network"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/urfave/cli"
 )
@@ -73,7 +74,7 @@ func createCommand() cli.Command {
 func upCommand() cli.Command {
 	return cli.Command{
 		Name:   upCmdName,
-		Usage:  "Run containers locally from an ECS Task Definition. NOTE: Creates a docker-compose file in current directory.",
+		Usage:  fmt.Sprintf("Run containers locally from an ECS Task Definition. NOTE: Creates a docker-compose file in current directory and a %s if one doesn't exist. ", network.EcsLocalNetworkName),
 		Action: local.Up,
 		Flags: []cli.Flag{
 			cli.StringFlag{
@@ -129,7 +130,7 @@ func psCommand() cli.Command {
 func downCommand() cli.Command {
 	return cli.Command{
 		Name:   downCmdName,
-		Usage:  "Stop and remove a running ECS task.",
+		Usage:  fmt.Sprintf("Stop and remove a running ECS task. NOTE: Removes the %s if it has no more running tasks. ", network.EcsLocalNetworkName),
 		Action: local.Down,
 		Flags: []cli.Flag{
 			cli.StringFlag{
@@ -164,33 +165,33 @@ func flagName(longName string) string {
 func flagDescription(longName, cmdName string) string {
 	m := map[string]map[string]string{
 		flags.TaskDefinitionCompose: {
-			upCmdName: "The Compose file `name` of a task definition to run.",
+			upCmdName: "Specifies the filename `value` that contains the Docker Compose content to run locally.",
 		},
 		flags.TaskDefinitionFile: {
-			createCmdName: fmt.Sprintf("The file `name` of a task definition json to convert. If not specified, defaults to %s", project.LocalInFileName),
-			upCmdName:     fmt.Sprintf("The file `name` of a task definition json to convert and run. If not specified, defaults to %s", project.LocalInFileName),
-			psCmdName:     "List all running containers matching the task definition file `name`.",
-			downCmdName:   "Stop and remove all running containers matching the task definition file `name`.",
+			createCmdName: fmt.Sprintf("Specifies the filename `value` that contains the task definition JSON to convert to a Docker Compose file. If one is not specified, the ECS CLI will look for %s.", project.LocalInFileName),
+			upCmdName:     fmt.Sprintf("Specifies the filename `value` containing the task definition JSON to convert and run locally.  If one is not specified, the ECS CLI will look for %s.", project.LocalInFileName),
+			psCmdName:     fmt.Sprintf("Lists all running containers matching the task definition filename `value`. If one is not specified, the ECS CLI will list containers started with the task definition filename %s.", project.LocalInFileName),
+			downCmdName:   fmt.Sprintf("Stops and removes all running containers matching the task definition filename `value`. If one is not specified, the ECS CLI removes all running containers matching the task definition filename %s.", project.LocalInFileName),
 		},
 		flags.TaskDefinitionRemote: {
-			createCmdName: "The `arnOrFamily` of a task definition to convert.",
-			upCmdName:     "The `arnOrFamily` of a task definition to convert and run.",
-			psCmdName:     "List all running containers matching the task definition `arnOrFamily`.",
-			downCmdName:   "Stop and remove all running containers matching the task definition `arnOrFamily`.",
+			createCmdName: "Specifies the full Amazon Resource Name (ARN) or family:revision `value` of the task definition to convert to a Docker Compose file. If you specify a task definition family without a revision, the latest revision is used.",
+			upCmdName:     "Specifies the full Amazon Resource Name (ARN) or family:revision `value` of the task definition to convert and run locally. If you specify a task definition family without a revision, the latest revision is used.",
+			psCmdName:     "Lists all running containers matching the task definition Amazon Resource Name (ARN) or family:revision `value`. If you specify a task definition family without a revision, the latest revision is used.",
+			downCmdName:   "Stops and removes all running containers matching the task definition Amazon Resource Name (ARN) or family:revision `value`. If you specify a task definition family without a revision, the latest revision is used.",
 		},
 		flags.ComposeOverride: {
-			upCmdName: "The file `name` of an additional Compose override file.",
+			upCmdName: "Specifies the local Docker Compose override filename `value` to use.",
 		},
 		flags.Output: {
-			createCmdName: fmt.Sprintf("The Compose file `name` to write to. If not specified, defaults to %s", project.LocalOutDefaultFileName),
-			upCmdName:     fmt.Sprintf("The Compose file `name` to write to. If not specified, defaults to %s", project.LocalOutDefaultFileName),
+			createCmdName: fmt.Sprintf("Specifies the local filename `value` to write the Docker Compose file to. If one is not specified, the default is %s.", project.LocalOutDefaultFileName),
+			upCmdName:     fmt.Sprintf("Specifies the local filename `value` to write the Docker Compose file to. If one is not specified, the default is %s.", project.LocalOutDefaultFileName),
 		},
 		flags.JSON: {
-			psCmdName: "Output in JSON format.",
+			psCmdName: "Sets the output to JSON format.",
 		},
 		flags.All: {
-			psCmdName:   "List all running local ECS task containers.",
-			downCmdName: "Stop and remove all running containers.",
+			psCmdName:   "Lists all locally running containers.",
+			downCmdName: "Stops and removes all locally running containers.",
 		},
 	}
 	return m[longName][cmdName]
