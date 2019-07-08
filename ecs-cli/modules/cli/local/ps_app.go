@@ -15,9 +15,9 @@ package local
 
 import (
 	"encoding/json"
-	"path/filepath"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/tabwriter"
 
@@ -60,48 +60,55 @@ func Ps(c *cli.Context) {
 	if err := options.ValidateFlagPairs(c); err != nil {
 		logrus.Fatal(err.Error())
 	}
-	containers, err := listContainers(c)
+	containers, pathname, err := listContainers(c)
 	if err != nil {
-		logrus.Fatalf("Failed to list containers due to:\n%v", err)
+		logrus.Fatalf("Failed to list containers for %s due to:\n%v", pathname, err)
 	}
-	if err = displayContainers(c, containers); err != nil {
-		logrus.Fatalf("Failed to display containers due to:\n%v", err)
+	if err = displayContainers(c, pathname, containers); err != nil {
+		logrus.Fatalf("Failed to display containers for %s due to:\n%v", pathname, err)
 	}
 }
 
-func listContainers(c *cli.Context) ([]types.Container, error) {
+func listContainers(c *cli.Context) ([]types.Container, string, error) {
 	if c.IsSet(flags.TaskDefinitionFile) {
 		file, err := filepath.Abs(c.String(flags.TaskDefinitionFile))
 		if err != nil {
-			return nil, err
+			return nil, "", err
 		}
-		return listContainersWithFilters(filters.NewArgs(
+		containers, err := listContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue, file)),
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.LocalTaskDefType)),
 		))
+		return containers, file, err
 	}
 	if c.IsSet(flags.TaskDefinitionRemote) {
-		return listContainersWithFilters(filters.NewArgs(
+		file := c.String(flags.TaskDefinitionRemote)
+		containers, err := listContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue,
 				c.String(flags.TaskDefinitionRemote))),
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.RemoteTaskDefType)),
 		))
+		return containers, file, err
 	}
 	if c.Bool(flags.All) {
-		return listContainersWithFilters(filters.NewArgs(
+		file := "ALL containers"
+		containers, err := listContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", converter.TaskDefinitionLabelValue),
 		))
+		return containers, file, err
 	}
 
 	defaultFile, err := filepath.Abs(localproject.LocalInFileName)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	return listContainersWithFilters(filters.NewArgs(
+	containers, err := listContainersWithFilters(filters.NewArgs(
 		filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue, defaultFile)),
 		filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.LocalTaskDefType)),
 	))
+
+	return containers, defaultFile, err
 }
 
 func listContainersWithFilters(args filters.Args) ([]types.Container, error) {
@@ -118,7 +125,8 @@ func listContainersWithFilters(args filters.Args) ([]types.Container, error) {
 	return containers, nil
 }
 
-func displayContainers(c *cli.Context, containers []types.Container) error {
+func displayContainers(c *cli.Context, pathname string, containers []types.Container) error {
+	logrus.Infof("Displaying containers for %s", pathname)
 	if c.Bool(flags.JSON) {
 		return displayAsJSON(containers)
 	} else {

@@ -34,20 +34,20 @@ func Down(c *cli.Context) {
 	if err := options.ValidateFlagPairs(c); err != nil {
 		logrus.Fatal(err.Error())
 	}
-	containers, err := listContainers(c)
+	containers, pathname, err := listContainers(c)
 	if err != nil {
-		logrus.Fatalf("Failed to list containers due to:\n%v", err)
+		logrus.Fatalf("Failed to list containers for %s due to:\n%v", pathname, err)
 	}
-	downContainers(containers)
+	downContainers(pathname, containers)
 }
 
-func downContainers(containers []types.Container) {
+func downContainers(pathname string, containers []types.Container) {
 	if len(containers) == 0 {
-		logrus.Warn("No running ECS local tasks found")
+		logrus.Warnf("No running ECS local tasks found for %s", pathname)
 		return
 	}
 	client := docker.NewClient()
-	logrus.Infof("Stop and remove %d container(s)", len(containers))
+	logrus.Infof("Stop and remove %d container(s) for %s", len(containers), pathname)
 	for _, container := range containers {
 		ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 		if err := client.ContainerStop(ctx, container.ID, nil); err != nil {
