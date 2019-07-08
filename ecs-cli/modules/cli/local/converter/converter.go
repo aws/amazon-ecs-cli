@@ -318,7 +318,7 @@ func convertLogging(logConfig *ecs.LogConfiguration) *composeV3.LoggingConfig {
 	driver := aws.StringValue(logConfig.LogDriver)
 	for _, unsupported := range unsupportedDrivers {
 		if driver == unsupported {
-			log.Warningf("%s will not be supported", unsupported)
+			log.Infof("%s log driver is ignored when running locally. Tasks will default to %s instead. This can be changed in your compose override file.", unsupported, jsonFileLogDriver)
 		}
 	}
 	opts := make(map[string]string)
