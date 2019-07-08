@@ -83,7 +83,7 @@ const (
 )
 
 // composeVersion is the minimum Compose file version supporting task definition fields.
-const composeVersion = "3.2"
+const composeVersion = "3.4"
 
 // SecretLabelPrefix is the prefix of Docker label keys
 // whose value is an ARN of a secret to expose to the container.
@@ -371,7 +371,8 @@ func convertHealthCheck(healthCheck *ecs.HealthCheck) *composeV3.HealthCheckConf
 		out.Retries = &retries
 	}
 	if healthCheck.StartPeriod != nil {
-		log.Warn("startPeriod will be ignored and not be supported in the initial release.")
+		startPeriod := time.Duration(aws.Int64Value(healthCheck.StartPeriod)) * time.Second
+		out.StartPeriod = &startPeriod
 	}
 
 	return out
