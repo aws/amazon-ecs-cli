@@ -1093,8 +1093,41 @@ The ECS CLI supports creating, running, inspecting and stopping tasks defined by
 #### ecs-cli local up
 
 #### ecs-cli local ps
+Once you have your task running locally, the basic command to list your task's containers is:
+ ```
+$ ecs-cli local ps
+```
+This will search for containers created from the `./task-definition.json` file (to see all available options, run `ecs-cli local ps --help`).  
+
+For example, if you'd like to list containers created from a specific task definition file, use the following command:
+```
+$ ecs-cli local ps -f ./app-task-definition.json
+CONTAINER ID        IMAGE               STATUS              PORTS               NAMES                 TASKDEFINITION
+84ff8e68e613        nginx               Up 15 seconds                           /local-cmds_nginx_1   /path/to/app-task-definition.json
+```
 
 #### ecs-cli local down
+If you want to stop and remove a task's containers, you can run:
+```
+$ ecs-cli local down
+```
+This will stop and remove all the containers started from the `./task-definition.json` file  (to see all available options, run `ecs-cli local down --help`).
+
+For example, you can stop and remove all tasks running locally using the `--all` flag:
+```
+$ ecs-cli local down --all
+INFO[0000] Searching for all running containers         
+INFO[0000] Stop and remove 1 container(s)               
+INFO[0000] Stopped container with id 84ff8e68e613       
+INFO[0000] Removed container with id 84ff8e68e613       
+INFO[0000] The network ecs-local-network has no more running tasks 
+INFO[0001] Stopped container with name amazon-ecs-local-container-endpoints 
+INFO[0001] Removed container with name amazon-ecs-local-container-endpoints 
+INFO[0001] Removed network with name ecs-local-network 
+```
+
+If you have no more tasks running, then this command will also stop and remove the [Amazon ECS Local Container Endpoints](https://github.com/awslabs/amazon-ecs-local-container-endpoints) 
+and finally remove the `ecs-local-network` as well. 
 
 ## Amazon ECS CLI Commands
 
