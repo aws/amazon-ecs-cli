@@ -152,7 +152,7 @@ func flagName(longName string) string {
 	m := map[string]string{
 		flags.TaskDefinitionCompose: flags.TaskDefinitionCompose + ",c",
 		flags.TaskDefinitionFile:    flags.TaskDefinitionFile + ",f",
-		flags.TaskDefinitionRemote:  flags.TaskDefinitionRemote + ",r",
+		flags.TaskDefinitionRemote:  flags.TaskDefinitionRemote + ",t",
 		flags.Output:                flags.Output + ",o",
 		flags.ComposeOverride:       flags.ComposeOverride,
 		flags.JSON:                  flags.JSON,
