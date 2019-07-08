@@ -38,6 +38,7 @@ func LocalCommand() cli.Command {
 		Name:   "local",
 		Usage:  "Run your ECS tasks locally.",
 		Before: app.BeforeApp,
+		Flags:  flags.AppendFlags(flags.OptECSProfileFlag(), flags.OptAWSProfileFlag(), flags.OptRegionFlag()),
 		Subcommands: []cli.Command{
 			createCommand(),
 			upCommand(),
