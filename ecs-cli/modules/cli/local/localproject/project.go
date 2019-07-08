@@ -269,13 +269,14 @@ func (p *LocalProject) Write() error {
 		return err
 	}
 
-	if err := writeFileIfNotExist(p.OverrideFileName(), p.composeBytes[overrideComposeIndex]); err != nil {
+	if err := writeNewFile(p.OverrideFileName(), p.composeBytes[overrideComposeIndex]); err != nil {
 		return err
 	}
 
 	return nil
 }
 
+// writeFile writes the content to a filename. If the file already exists, then prompts the user for overwrite.
 func writeFile(filename string, content []byte) error {
 	f, err := openFile(filename)
 	defer f.Close()
@@ -290,7 +291,8 @@ func writeFile(filename string, content []byte) error {
 	return err
 }
 
-func writeFileIfNotExist(filename string, content []byte) error {
+// writeNewFile writes the content to a filename only if the file does not already exist.
+func writeNewFile(filename string, content []byte) error {
 	f, err := openFile(filename)
 	defer f.Close()
 
