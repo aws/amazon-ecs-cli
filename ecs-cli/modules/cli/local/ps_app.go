@@ -75,28 +75,22 @@ func listContainers(c *cli.Context) ([]types.Container, error) {
 		if err != nil {
 			return nil, err
 		}
-		containers, err := listContainersWithFilters(filters.NewArgs(
+		return listContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue, file)),
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.LocalTaskDefType)),
 		))
-		logrus.Infof("Searching for containers matching --%s=%s", flags.TaskDefinitionFile, c.String(flags.TaskDefinitionFile))
-		return containers, err
 	}
 	if c.IsSet(flags.TaskDefinitionRemote) {
-		containers, err := listContainersWithFilters(filters.NewArgs(
+		return listContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue,
 				c.String(flags.TaskDefinitionRemote))),
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.RemoteTaskDefType)),
 		))
-		logrus.Infof("Searching for containers matching --%s=%s", flags.TaskDefinitionRemote, c.String(flags.TaskDefinitionRemote))
-		return containers, err
 	}
 	if c.Bool(flags.All) {
-		containers, err := listContainersWithFilters(filters.NewArgs(
+		return listContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", converter.TaskDefinitionLabelValue),
 		))
-		logrus.Info("Searching for all running containers")
-		return containers, err
 	}
 
 	defaultFile, err := filepath.Abs(localproject.LocalInFileName)
@@ -104,13 +98,10 @@ func listContainers(c *cli.Context) ([]types.Container, error) {
 		return nil, err
 	}
 
-	containers, err := listContainersWithFilters(filters.NewArgs(
+	return listContainersWithFilters(filters.NewArgs(
 		filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue, defaultFile)),
 		filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.LocalTaskDefType)),
 	))
-
-	logrus.Infof("Searching for containers matching --%s=%s", flags.TaskDefinitionFile, localproject.LocalInFileName)
-	return containers, err
 }
 
 func listContainersWithFilters(args filters.Args) ([]types.Container, error) {

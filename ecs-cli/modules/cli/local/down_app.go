@@ -34,6 +34,7 @@ func Down(c *cli.Context) {
 	if err := options.ValidateFlagPairs(c); err != nil {
 		logrus.Fatal(err.Error())
 	}
+	options.ContainerSearchInfo(c)
 	containers, err := listContainers(c)
 	if err != nil {
 		logrus.Fatalf("Failed to list containers due to:\n%v", err)
