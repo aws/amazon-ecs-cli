@@ -60,47 +60,48 @@ func Ps(c *cli.Context) {
 	if err := options.ValidateFlagPairs(c); err != nil {
 		logrus.Fatal(err.Error())
 	}
-	containers, pathname, err := listContainers(c)
+	containers, err := listContainers(c)
 	if err != nil {
-		logrus.Fatalf("Failed to list containers for %s due to:\n%v", pathname, err)
+		logrus.Fatalf("Failed to list containers due to:\n%v", err)
 	}
-	if err = displayContainers(c, pathname, containers); err != nil {
-		logrus.Fatalf("Failed to display containers for %s due to:\n%v", pathname, err)
+	if err = displayContainers(c, containers); err != nil {
+		logrus.Fatalf("Failed to display containers due to:\n%v", err)
 	}
 }
 
-func listContainers(c *cli.Context) ([]types.Container, string, error) {
+func listContainers(c *cli.Context) ([]types.Container, error) {
 	if c.IsSet(flags.TaskDefinitionFile) {
 		file, err := filepath.Abs(c.String(flags.TaskDefinitionFile))
 		if err != nil {
-			return nil, "", err
+			return nil, err
 		}
 		containers, err := listContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue, file)),
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.LocalTaskDefType)),
 		))
-		return containers, file, err
+		logrus.Infof("Searching for containers matching --%s=%s", flags.TaskDefinitionFile, c.String(flags.TaskDefinitionFile))
+		return containers, err
 	}
 	if c.IsSet(flags.TaskDefinitionRemote) {
-		file := c.String(flags.TaskDefinitionRemote)
 		containers, err := listContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelValue,
 				c.String(flags.TaskDefinitionRemote))),
 			filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.RemoteTaskDefType)),
 		))
-		return containers, file, err
+		logrus.Infof("Searching for containers matching --%s=%s", flags.TaskDefinitionRemote, c.String(flags.TaskDefinitionRemote))
+		return containers, err
 	}
 	if c.Bool(flags.All) {
-		file := "ALL containers"
 		containers, err := listContainersWithFilters(filters.NewArgs(
 			filters.Arg("label", converter.TaskDefinitionLabelValue),
 		))
-		return containers, file, err
+		logrus.Info("Searching for all running containers")
+		return containers, err
 	}
 
 	defaultFile, err := filepath.Abs(localproject.LocalInFileName)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
 	containers, err := listContainersWithFilters(filters.NewArgs(
@@ -108,7 +109,8 @@ func listContainers(c *cli.Context) ([]types.Container, string, error) {
 		filters.Arg("label", fmt.Sprintf("%s=%s", converter.TaskDefinitionLabelType, localproject.LocalTaskDefType)),
 	))
 
-	return containers, defaultFile, err
+	logrus.Infof("Searching for containers matching --%s=%s", flags.TaskDefinitionFile, localproject.LocalInFileName)
+	return containers, err
 }
 
 func listContainersWithFilters(args filters.Args) ([]types.Container, error) {
@@ -125,8 +127,7 @@ func listContainersWithFilters(args filters.Args) ([]types.Container, error) {
 	return containers, nil
 }
 
-func displayContainers(c *cli.Context, pathname string, containers []types.Container) error {
-	logrus.Infof("Displaying containers for %s", pathname)
+func displayContainers(c *cli.Context, containers []types.Container) error {
 	if c.Bool(flags.JSON) {
 		return displayAsJSON(containers)
 	} else {
