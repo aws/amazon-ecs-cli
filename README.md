@@ -39,6 +39,7 @@ Line Interface](http://aws.amazon.com/cli/) product detail page.
 	- [Checking for Missing Attributes and Debugging Reason Attribute Errors](#checking-for-missing-attributes-and-debugging-reason-attribute-errors)
 	- [Tagging Resources](#tagging-resources)
 		- [ARN Formats](#arn-formats)
+	- [Running Tasks Locally](#running-tasks-locally)
 - [Amazon ECS CLI Commands](#amazon-ecs-cli-commands)
 - [Contributing to the CLI](#contributing-to-the-cli)
 - [License](#license)
@@ -1083,6 +1084,17 @@ Resource tags specified with `--tags` will be added to your ECR repository.
 #### ecs-cli registry-creds up
 
 Resource tags specified with `--tags` will be added to new IAM Roles and new or existing AWS Secrets Manager Secrets. (Existing IAM Roles cannot be tagged.)
+
+### Running Tasks Locally
+The ECS CLI supports creating, running, inspecting and stopping tasks defined by an ECS Task Definition through its `local` subcommands. You can run an ECS Task Definition specified in a local JSON file or pulled from a registered ECS Task Definition.
+
+#### ecs-cli local create
+
+#### ecs-cli local up
+
+#### ecs-cli local ps
+
+#### ecs-cli local down
 
 ## Amazon ECS CLI Commands
 
