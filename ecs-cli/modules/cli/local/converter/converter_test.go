@@ -85,7 +85,7 @@ func TestConvertToComposeService(t *testing.T) {
 	expectedVolumes := []composeV3.ServiceVolumeConfig{
 		{
 			Target:   "/tmp/cache",
-			Source:   "volume-1",
+			Source:   "",
 			ReadOnly: true,
 			Type:     "bind",
 		},
@@ -514,7 +514,7 @@ func TestConvertToVolumes(t *testing.T) {
 	inputMountPoints := []*ecs.MountPoint{
 		{
 			ContainerPath: aws.String("/tmp/cache"),
-			ReadOnly:      aws.Bool(false),
+			ReadOnly:      aws.Bool(true),
 			SourceVolume:  aws.String("volume-1"),
 		},
 		{
@@ -550,8 +550,8 @@ func TestConvertToVolumes(t *testing.T) {
 	expected := []composeV3.ServiceVolumeConfig{
 		{
 			Target:   "/tmp/cache",
-			ReadOnly: false,
-			Source:   "volume-1",
+			ReadOnly: true,
+			Source:   "",
 			Type:     "bind",
 		},
 		{
@@ -570,7 +570,7 @@ func TestConvertToVolumes(t *testing.T) {
 
 	actual := convertToVolumes(inputMountPoints, inputVolumes)
 
-	assert.Equal(t, expected, actual)
+	assert.ElementsMatch(t, expected, actual)
 }
 
 func TestConvertToPorts(t *testing.T) {

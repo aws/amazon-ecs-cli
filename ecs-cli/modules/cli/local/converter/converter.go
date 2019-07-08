@@ -293,13 +293,13 @@ func convertToVolumes(mountPoints []*ecs.MountPoint, volumes []*ecs.Volume) []co
 
 	for _, mountPoint := range mountPoints {
 		volumeName := aws.StringValue(mountPoint.SourceVolume)
-		if sourcePath, ok := mapping[volumeName]; ok {
-			if sourcePath != "" { // FIXME might need to use named volumes after all?
-				volumeName = sourcePath
-			}
-		}
+		// We expect sourcePath to be set as an empty string to
+		//allow Docker to assign a path on the host automatically if no
+		//sourcePath is specified in the ECS Task Definition
+		sourcePath := mapping[volumeName]
+
 		volume := composeV3.ServiceVolumeConfig{
-			Source:   volumeName,
+			Source:   sourcePath,
 			Target:   aws.StringValue(mountPoint.ContainerPath),
 			ReadOnly: aws.BoolValue(mountPoint.ReadOnly),
 			Type:     "bind",
