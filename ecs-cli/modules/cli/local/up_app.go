@@ -201,6 +201,9 @@ func upCompose(envVars map[string]string, basePath string, overridePaths []strin
 	// Need to add $PATH because of --build, see https://stackoverflow.com/a/55371721/1201381
 	envs = append(envs, fmt.Sprintf("PATH=%s", os.Getenv("PATH")))
 
+	// Disable orphaned containers checking
+	envs = append(envs, fmt.Sprint("COMPOSE_IGNORE_ORPHANS=true"))
+
 	// Gather command arguments
 	var b bytes.Buffer
 	b.WriteString(filepath.Base(basePath))
