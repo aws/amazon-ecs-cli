@@ -15,8 +15,10 @@ package local
 
 import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/docker"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/localproject"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/network"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/options"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/docker/docker/api/types"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -34,7 +36,7 @@ func Down(c *cli.Context) {
 	if err := options.ValidateFlagPairs(c); err != nil {
 		logrus.Fatal(err.Error())
 	}
-	options.ContainerSearchInfo(c)
+	ContainerSearchInfo(c)
 	containers, err := listContainers(c)
 	if err != nil {
 		logrus.Fatalf("Failed to list containers due to:\n%v", err)
@@ -62,4 +64,22 @@ func downContainers(containers []types.Container) {
 		logrus.Infof("Removed container with id %s", container.ID[:maxContainerIDLength])
 		cancel()
 	}
+}
+
+// ContainerSearchInfo show the task definition filepath or arn/family message on local down.
+func ContainerSearchInfo(c *cli.Context) {
+	if c.IsSet(flags.TaskDefinitionFile) {
+		logrus.Infof("Searching for containers matching --%s=%s", flags.TaskDefinitionFile, c.String(flags.TaskDefinitionFile))
+		return
+	}
+	if c.IsSet(flags.TaskDefinitionRemote) {
+		logrus.Infof("Searching for containers matching --%s=%s", flags.TaskDefinitionRemote, c.String(flags.TaskDefinitionRemote))
+		return
+	}
+	if c.Bool(flags.All) {
+		logrus.Info("Searching for all running containers")
+		return
+	}
+	logrus.Infof("Searching for containers matching --%s=%s", flags.TaskDefinitionFile, localproject.LocalInFileName)
+	return
 }
