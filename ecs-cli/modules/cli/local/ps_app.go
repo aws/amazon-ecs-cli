@@ -15,9 +15,9 @@ package local
 
 import (
 	"encoding/json"
-	"path/filepath"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/tabwriter"
 
@@ -110,6 +110,7 @@ func listContainersWithFilters(args filters.Args) ([]types.Container, error) {
 
 	cl := docker.NewClient()
 	containers, err := cl.ContainerList(ctx, types.ContainerListOptions{
+		All:     true, // Include containers that are not running so that they can be removed with local down.
 		Filters: args,
 	})
 	if err != nil {
