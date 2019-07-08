@@ -371,8 +371,7 @@ func convertHealthCheck(healthCheck *ecs.HealthCheck) *composeV3.HealthCheckConf
 		out.Retries = &retries
 	}
 	if healthCheck.StartPeriod != nil {
-		startPeriod := time.Duration(aws.Int64Value(healthCheck.StartPeriod)) * time.Second
-		out.StartPeriod = &startPeriod
+		log.Warn("startPeriod will be ignored and not be supported in the initial release.")
 	}
 
 	return out

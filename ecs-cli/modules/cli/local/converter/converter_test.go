@@ -471,7 +471,6 @@ func TestConvertHealthCheck(t *testing.T) {
 
 	interval := time.Duration(90) * time.Second
 	timeout := time.Duration(10) * time.Second
-	startPeriod := time.Duration(40) * time.Second
 	retries := uint64(3)
 
 	expected := &composeV3.HealthCheckConfig{
@@ -479,7 +478,7 @@ func TestConvertHealthCheck(t *testing.T) {
 		Retries:     &retries,
 		Interval:    &interval,
 		Timeout:     &timeout,
-		StartPeriod: &startPeriod,
+		StartPeriod: nil,
 	}
 	actual := convertHealthCheck(input)
 
