@@ -83,7 +83,7 @@ const (
 )
 
 // composeVersion is the minimum Compose file version supporting task definition fields.
-const composeVersion = "3.2"
+const composeVersion = "3.4"
 
 // SecretLabelPrefix is the prefix of Docker label keys
 // whose value is an ARN of a secret to expose to the container.
