@@ -268,27 +268,39 @@ func (p *LocalProject) Write() error {
 	if err := writeFile(p.LocalOutFileName(), p.composeBytes[baseComposeIndex]); err != nil {
 		return err
 	}
-	logrus.Infof("Successfully wrote %s", p.LocalOutFileName())
 
-	if err := writeFile(p.OverrideFileName(), p.composeBytes[overrideComposeIndex]); err != nil {
+	if err := writeFileIfNotExist(p.OverrideFileName(), p.composeBytes[overrideComposeIndex]); err != nil {
 		return err
 	}
-	logrus.Infof("Successfully wrote %s", p.OverrideFileName())
 
 	return nil
 }
 
 func writeFile(filename string, content []byte) error {
-	out, err := openFile(filename)
-	defer out.Close()
+	f, err := openFile(filename)
+	defer f.Close()
 
 	// File already exists
 	if err != nil {
 		return overwriteFile(filename, content)
 	}
 
-	_, err = out.Write(content)
+	_, err = f.Write(content)
+	logrus.Infof("Successfully wrote %s", filename)
+	return err
+}
 
+func writeFileIfNotExist(filename string, content []byte) error {
+	f, err := openFile(filename)
+	defer f.Close()
+
+	if err != nil {
+		// File already exists, skip writing it.
+		logrus.Infof("%s already exists, skipping write.", filename)
+		return nil
+	}
+	_, err = f.Write(content)
+	logrus.Infof("Successfully wrote %s", filename)
 	return err
 }
 
