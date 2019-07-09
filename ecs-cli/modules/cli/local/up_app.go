@@ -218,10 +218,13 @@ func upCompose(envVars map[string]string, basePath string, overridePaths []strin
 	logrus.Infof("Using %s files to start containers", b.String())
 	cmd := exec.Command("docker-compose", args...)
 	cmd.Env = envs
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		logrus.Fatalf("Failed to run docker-compose up due to \n%v: %s", err, string(out))
+	if err := cmd.Start(); err != nil {
+		logrus.Fatalf("Failed to start docker-compose due to:\n%v", err)
 	}
-	fmt.Printf("Compose out: %s\n", string(out))
+	if err := cmd.Wait(); err != nil {
+		logrus.Fatalf("Failed to exit docker-compose up successfully due to \n%v", err)
+	}
 }
