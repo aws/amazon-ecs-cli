@@ -1089,8 +1089,30 @@ Resource tags specified with `--tags` will be added to new IAM Roles and new or 
 The ECS CLI supports creating, running, inspecting and stopping tasks defined by an ECS Task Definition through its `local` subcommands. You can run an ECS Task Definition specified in a local JSON file or pulled from a registered ECS Task Definition.
 
 #### ecs-cli local create
+If you want to convert an ECS Task Definition to a Docker Compose file, you can run:
+
+```
+$ ecs-cli local create
+```
+Without arguments, this will try to read an ECS Task Definition from local a file named `task-definition.json` located in the current directory and generate both a compose file, by default named `docker-compose.ecs-local.yml`, as well as a compose override file, by default named `docker-compose.ecs-local.override.yml`. This command is equivalent to a dry-run of `local up`.
+**NOTE** Using these Compose files as input to `ecs-cli compose` subcommands may not translate back to the same ECS Task Definition used as input to `local create`.
+
+To run an ECS Task Definition specified in a different file, you can use the `--task-def-file` or `-f` flag with the name of the file.
+To run an ECS Task Definition already registered with ECS, you can use the `--task-def-remote` or `-t` flag with the ARN or family name of the Task Definition.
+You can also specify a different output file using the `--output` or `-o` flag.
+
 
 #### ecs-cli local up
+To run an ECS Task Definition locally, you can run:
+
+```
+$ ecs-cli local up
+```
+
+This command takes the same flags as `local create`. You can also specify compose override files using the `--override` flag.
+
+This command will also create the local end [Amazon ECS Local Endpoints Container](https://github.com/awslabs/amazon-ecs-local-container-endpoints) and the network, `ecs-local-network` that your containers will be run in.
+
 
 #### ecs-cli local ps
 Once you have your task running locally, the basic command to list your task's containers is:
