@@ -220,6 +220,7 @@ var readTaskDefFromRemote = func(remote string, p *LocalProject) (*ecs.TaskDefin
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"error": err,
+			"region": region, // Useful for debugging region resolution across partitions, e.g.
 		}).Error("Unable to create an instance of CommandConfig given the cli context")
 
 		return nil, err
