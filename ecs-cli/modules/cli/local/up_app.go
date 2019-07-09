@@ -90,7 +90,7 @@ func composeProjectPath(c *cli.Context) (string, error) {
 	} else if !os.IsNotExist(err) {
 		return "", errors.Wrapf(err, "could not check if file %s exists", localproject.LocalOutDefaultFileName)
 	}
-	return "", errors.New(fmt.Sprintf("need to provide one of %s or %s", localproject.LocalInFileName, localproject.LocalOutDefaultFileName))
+	return "", fmt.Errorf("need to provide one of %s or %s", localproject.LocalInFileName, localproject.LocalOutDefaultFileName)
 }
 
 func createNewComposeProject(c *cli.Context) (string, error) {
@@ -161,9 +161,12 @@ func readSecrets(config *composeV3.Config) []*secrets.ContainerSecret {
 
 func decryptSecrets(containerSecrets []*secrets.ContainerSecret) (envVars map[string]string) {
 	ssmClient, err := clients.NewSSMDecrypter()
+	if err != nil {
+		logrus.Fatalf("Failed to create a SSM client to decrypt secrets due to \n%v", err)
+	}
 	secretsManagerClient, err := clients.NewSecretsManagerDecrypter()
 	if err != nil {
-		logrus.Fatalf("Failed to create clients to decrypt secrets due to \n%v", err)
+		logrus.Fatalf("Failed to create a SecretsManager client to decrypt secrets due to \n%v", err)
 	}
 
 	envVars = make(map[string]string)
@@ -174,14 +177,13 @@ func decryptSecrets(containerSecrets []*secrets.ContainerSecret) (envVars map[st
 		}
 
 		decrypted := ""
-		err = nil
 		switch service {
 		case secretsmanager.ServiceName:
 			decrypted, err = containerSecret.Decrypt(secretsManagerClient)
 		case ssm.ServiceName:
 			decrypted, err = containerSecret.Decrypt(ssmClient)
 		default:
-			err = errors.New(fmt.Sprintf("can't decrypt secret from service %s", service))
+			err = fmt.Errorf("can't decrypt secret from service %s", service)
 		}
 		if err != nil {
 			logrus.Fatalf("Failed to decrypt secret due to \n%v", err)
@@ -202,7 +204,7 @@ func upCompose(envVars map[string]string, basePath string, overridePaths []strin
 	envs = append(envs, fmt.Sprintf("PATH=%s", os.Getenv("PATH")))
 
 	// Disable orphaned containers checking
-	envs = append(envs, fmt.Sprint("COMPOSE_IGNORE_ORPHANS=true"))
+	envs = append(envs, "COMPOSE_IGNORE_ORPHANS=true")
 
 	// Gather command arguments
 	var b bytes.Buffer

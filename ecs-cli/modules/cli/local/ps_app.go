@@ -122,9 +122,8 @@ func listContainersWithFilters(args filters.Args) ([]types.Container, error) {
 func displayContainers(c *cli.Context, containers []types.Container) error {
 	if c.Bool(flags.JSON) {
 		return displayAsJSON(containers)
-	} else {
-		return displayAsTable(containers)
 	}
+	return displayAsTable(containers)
 }
 
 func displayAsJSON(containers []types.Container) error {
