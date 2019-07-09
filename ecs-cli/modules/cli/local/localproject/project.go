@@ -123,10 +123,11 @@ func (p *LocalProject) ReadTaskDefinition() error {
 
 	if remote != "" {
 		taskDefinition, err = p.readTaskDefinitionFromRemote(remote)
-		logrus.Infof("Reading task definition from %s:%v\n", aws.StringValue(taskDefinition.Family), aws.Int64Value(taskDefinition.Revision))
 		if err != nil {
 			return err
 		}
+		logrus.Infof("Reading task definition from %s:%v\n", aws.StringValue(taskDefinition.Family), aws.Int64Value(taskDefinition.Revision))
+
 	} else if filename != "" {
 		filename, err = filepath.Abs(filename)
 		if err != nil {
@@ -217,6 +218,10 @@ var readTaskDefFromRemote = func(remote string, p *LocalProject) (*ecs.TaskDefin
 
 	commandConfig, err := newCommandConfig(p.context, rdwr, region)
 	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("Unable to create an instance of CommandConfig given the cli context")
+
 		return nil, err
 	}
 
