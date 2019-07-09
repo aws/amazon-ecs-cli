@@ -35,16 +35,15 @@ import (
 )
 
 const (
-	// LocalTaskDefType indicates if the task definition is read from a local file
+	// LocalTaskDefType indicates if the task definition is read from a local file.
 	LocalTaskDefType = "local"
 
-	// RemoteTaskDefType indicates if the task definition is retrieved from ECS via ARN or name
+	// RemoteTaskDefType indicates if the task definition is retrieved from ECS via ARN or name.
 	RemoteTaskDefType = "remote"
 )
 
 const (
-	// LocalOutDefaultFileName represents the default name for the output Docker
-	// Compose file.
+	// LocalOutDefaultFileName represents the default name for the output Docker Compose file.
 	LocalOutDefaultFileName = "docker-compose.ecs-local.yml"
 
 	// LocalOutFileMode represents the file can be read/write by its owner.
@@ -68,7 +67,7 @@ type LocalProject struct {
 	inputMetadata  *converter.LocalCreateMetadata
 }
 
-// New instantiates a new Local Project
+// New instantiates a new Local Project.
 func New(context *cli.Context) *LocalProject {
 	return &LocalProject{
 		context: context,
@@ -79,7 +78,7 @@ func New(context *cli.Context) *LocalProject {
 	}
 }
 
-// TaskDefinition returns the ECS task definition to be converted
+// TaskDefinition returns the ECS task definition to be converted.
 func (p *LocalProject) TaskDefinition() *ecs.TaskDefinition {
 	return p.taskDefinition
 }
@@ -92,6 +91,7 @@ func (p *LocalProject) LocalOutFileName() string {
 	return LocalOutDefaultFileName
 }
 
+// LocalOutFileFullPath returns the absolute path of the local task definition file.
 func (p *LocalProject) LocalOutFileFullPath() (string, error) {
 	return filepath.Abs(p.LocalOutFileName())
 }
@@ -103,13 +103,13 @@ func (p *LocalProject) OverrideFileName() string {
 	return baseName[:len(baseName)-len(baseExt)] + ".override.yml"
 }
 
-// InputMetadata returns the metadata on the task definition used to create the docker compose file
+// InputMetadata returns the metadata on the task definition used to create the docker compose file.
 func (p *LocalProject) InputMetadata() *converter.LocalCreateMetadata {
 	return p.inputMetadata
 }
 
 // ReadTaskDefinition reads an ECS Task Definition either from a local file
-// or from retrieving one from ECS and stores it on the local project
+// or from retrieving one from ECS and stores it on the local project.
 func (p *LocalProject) ReadTaskDefinition() error {
 	remote := p.context.String(flags.TaskDefinitionRemote)
 	filename := p.context.String(flags.TaskDefinitionFile)
@@ -152,8 +152,8 @@ func (p *LocalProject) ReadTaskDefinition() error {
 	}
 
 	if taskDefinition == nil {
-		return fmt.Errorf(fmt.Sprintf("could not detect valid task definition.\nEither set one of --%s or --%s flags, or define a %s file.",
-			flags.TaskDefinitionFile, flags.TaskDefinitionRemote, LocalInFileName))
+		return fmt.Errorf("could not detect valid task definition (either set one of --%s or --%s flags, or define a %s file)",
+			flags.TaskDefinitionFile, flags.TaskDefinitionRemote, LocalInFileName)
 	}
 
 	p.taskDefinition = taskDefinition

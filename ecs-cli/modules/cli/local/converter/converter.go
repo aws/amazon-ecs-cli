@@ -92,7 +92,6 @@ const SecretLabelPrefix = "ecs-local.secret"
 
 // ConvertToComposeConfig translates an ECS Task Definition to a the Docker
 // Compose config and returns it.
-
 // NOTE: Top-level Volumes are not converted since these translate as named
 // volumes in docker compose. Since ECS only supports bind mounts locally, each
 // container would need to know the soucePath of the host machine, so the
@@ -150,7 +149,7 @@ func createComposeServices(taskDefinition *ecs.TaskDefinition, metadata *LocalCr
 	}
 
 	if len(taskDefinition.ContainerDefinitions) < 1 {
-		return nil, fmt.Errorf("A Task Definition must include at least one container definition")
+		return nil, fmt.Errorf("task definition must include at least one container definition")
 	}
 
 	var services []composeV3.ServiceConfig
@@ -318,7 +317,7 @@ func convertLogging(logConfig *ecs.LogConfiguration) *composeV3.LoggingConfig {
 	driver := aws.StringValue(logConfig.LogDriver)
 	for _, unsupported := range unsupportedDrivers {
 		if driver == unsupported {
-			log.Infof("%s log driver is ignored when running locally. Tasks will default to %s instead. This can be changed in your compose override file.", unsupported, jsonFileLogDriver)
+			log.Warnf("%s log driver is ignored when running locally. Tasks will default to %s instead. This can be changed in your compose override file.", unsupported, jsonFileLogDriver)
 		}
 	}
 	opts := make(map[string]string)
@@ -402,7 +401,7 @@ func convertEnvironment(def *ecs.ContainerDefinition) map[string]*string {
 		secretName := aws.StringValue(secret.Name)
 
 		// We prefix the secret with the container name to disambiguate between
-		// containers with the same secretName but different secretValue
+		// containers with the same secretName but different secretValue.
 		shellEnv := fmt.Sprintf("${%s_%s}", *def.Name, secretName)
 		out[secretName] = &shellEnv
 	}
@@ -466,7 +465,8 @@ func convertDevices(devices []*ecs.Device) ([]string, error) {
 
 	for _, device := range devices {
 		if device.HostPath == nil {
-			return nil, errors.New("You must specify the host path for a device")
+
+			return nil, errors.New("host path for a device must be specified")
 		}
 
 		hostPath := aws.StringValue(device.HostPath)
@@ -498,7 +498,7 @@ func convertToTmpfs(mounts []*ecs.Tmpfs) ([]string, error) {
 	for _, mount := range mounts {
 
 		if mount.ContainerPath == nil || mount.Size == nil {
-			return nil, errors.New("You must specify the path and size for tmpfs mounts")
+			return nil, errors.New("path and size for tmpfs mounts must be specified")
 		}
 
 		path := aws.StringValue(mount.ContainerPath)
@@ -544,7 +544,7 @@ func convertDevicePermissions(permissions []string) (string, error) {
 	for _, permission := range permissions {
 		opt, ok := devicePermissions[permission]
 		if !ok {
-			return "", fmt.Errorf("Invalid Device Permission: %s", permission)
+			return "", fmt.Errorf("invalid device permission: %s", permission)
 		}
 		out += opt
 	}
