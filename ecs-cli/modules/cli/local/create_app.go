@@ -34,7 +34,7 @@ func Create(c *cli.Context) {
 	project := localproject.New(c)
 
 	if err := createLocal(project); err != nil {
-		log.Fatalf("Error with local create: %s", err.Error())
+		log.Fatalf("Error with local create: \n%s", err.Error())
 	}
 }
 

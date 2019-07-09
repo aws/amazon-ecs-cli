@@ -151,7 +151,7 @@ func (p *LocalProject) ReadTaskDefinition() error {
 	}
 
 	if taskDefinition == nil {
-		return fmt.Errorf("could not detect valid task definition.\neither set one of --%s or --%s flags, or define a %s file",
+		return fmt.Errorf("could not detect valid task definition (either set one of --%s or --%s flags, or define a %s file)",
 			flags.TaskDefinitionFile, flags.TaskDefinitionRemote, LocalInFileName)
 	}
 
