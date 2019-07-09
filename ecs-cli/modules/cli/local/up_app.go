@@ -222,9 +222,9 @@ func upCompose(envVars map[string]string, basePath string, overridePaths []strin
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Start(); err != nil {
-		logrus.Fatalf("Failed to start docker-compose due to:\n%v", err)
+		logrus.Fatalf("docker-compose up failed to start due to:\n%v", err)
 	}
 	if err := cmd.Wait(); err != nil {
-		logrus.Fatalf("Failed to exit docker-compose up successfully due to \n%v", err)
+		logrus.Fatalf("docker-compose up failed to exit successfully due to:\n%v", err)
 	}
 }
