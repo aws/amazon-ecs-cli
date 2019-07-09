@@ -157,12 +157,7 @@ const (
 	All                   = "all"
 )
 
-// OptionalRegionAndProfileFlags provides these flags:
-// OptionalRegionFlag inline overrides region
-// OptionalClusterConfigFlag specifies the cluster profile to read from config
-// OptionalProfileConfigFlag specifies the credentials profile to read from the config
-// OptionalAWSProfileFlag specifies the AWS Profile to use for credential information
-func OptionalRegionAndProfileFlags() []cli.Flag {
+func OptRegionFlag() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
 			Name: RegionFlag + ", r",
@@ -170,12 +165,11 @@ func OptionalRegionAndProfileFlags() []cli.Flag {
 				"[Optional] Specifies the AWS region to use. Defaults to the region configured using the configure command",
 			),
 		},
-		cli.StringFlag{
-			Name: ClusterConfigFlag,
-			Usage: fmt.Sprintf(
-				"[Optional] Specifies the name of the ECS cluster configuration to use. Defaults to the default cluster configuration.",
-			),
-		},
+	}
+}
+
+func OptECSProfileFlag() []cli.Flag {
+	return []cli.Flag{
 		cli.StringFlag{
 			Name:   ECSProfileFlag,
 			EnvVar: ECSProfileEnvVar,
@@ -183,6 +177,11 @@ func OptionalRegionAndProfileFlags() []cli.Flag {
 				"[Optional] Specifies the name of the ECS profile configuration to use. Defaults to the default profile configuration.",
 			),
 		},
+	}
+}
+
+func OptAWSProfileFlag() []cli.Flag {
+	return []cli.Flag{
 		cli.StringFlag{
 			Name:   AWSProfileFlag,
 			EnvVar: AWSProfileEnvVar,
@@ -191,6 +190,26 @@ func OptionalRegionAndProfileFlags() []cli.Flag {
 			),
 		},
 	}
+}
+
+func OptClusterConfigFlag() []cli.Flag {
+	return []cli.Flag{
+		cli.StringFlag{
+			Name: ClusterConfigFlag,
+			Usage: fmt.Sprintf(
+				"[Optional] Specifies the name of the ECS cluster configuration to use. Defaults to the default cluster configuration.",
+			),
+		},
+	}
+}
+
+// OptionalRegionAndProfileFlags provides these flags:
+// - OptRegionFlag inline overrides region
+// - OptClusterConfigFlag specifies the cluster profile to read from config
+// - OptECSProfileEnvVar specifies the credentials profile to read from the config
+// - OptAWSProfileFlag specifies the AWS Profile to use for credential information
+func OptionalRegionAndProfileFlags() []cli.Flag {
+	return AppendFlags(OptRegionFlag(), OptECSProfileFlag(), OptAWSProfileFlag(), OptClusterConfigFlag())
 }
 
 // OptionalClusterFlag inline overrides cluster
