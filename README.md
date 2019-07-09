@@ -1097,7 +1097,7 @@ Once you have your task running locally, the basic command to list your task's c
  ```
 $ ecs-cli local ps
 ```
-This will search for containers created from the `./task-definition.json` file (to see all available options, run `ecs-cli local ps --help`).  
+This will search for containers created from the `./task-definition.json` file (to see all available options, run `ecs-cli local ps --help`).
 
 For example, if you'd like to list containers created from a specific task definition file, use the following command:
 ```
@@ -1116,18 +1116,18 @@ This will stop and remove all the containers started from the `./task-definition
 For example, you can stop and remove all tasks running locally using the `--all` flag:
 ```
 $ ecs-cli local down --all
-INFO[0000] Searching for all running containers         
-INFO[0000] Stop and remove 1 container(s)               
-INFO[0000] Stopped container with id 84ff8e68e613       
-INFO[0000] Removed container with id 84ff8e68e613       
-INFO[0000] The network ecs-local-network has no more running tasks 
-INFO[0001] Stopped container with name amazon-ecs-local-container-endpoints 
-INFO[0001] Removed container with name amazon-ecs-local-container-endpoints 
-INFO[0001] Removed network with name ecs-local-network 
+INFO[0000] Searching for all running containers
+INFO[0000] Stop and remove 1 container(s)
+INFO[0000] Stopped container with id 84ff8e68e613
+INFO[0000] Removed container with id 84ff8e68e613
+INFO[0000] The network ecs-local-network has no more running tasks
+INFO[0001] Stopped container with name amazon-ecs-local-container-endpoints
+INFO[0001] Removed container with name amazon-ecs-local-container-endpoints
+INFO[0001] Removed network with name ecs-local-network
 ```
 
-If you have no more tasks running, then this command will also stop and remove the [Amazon ECS Local Container Endpoints](https://github.com/awslabs/amazon-ecs-local-container-endpoints) 
-and finally remove the `ecs-local-network` as well. 
+If you have no more tasks running, then this command will also stop and remove the [Amazon ECS Local Container Endpoints](https://github.com/awslabs/amazon-ecs-local-container-endpoints)
+and finally remove the `ecs-local-network` as well.
 
 ## Amazon ECS CLI Commands
 
