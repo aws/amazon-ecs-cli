@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.15.0
+* Feature - Add support for local subcommands (#885)
+* Feature - Support stop_timeout field (#787)
+* Feature - Support logConfiguration secretOption (#777)
+* Enhancement - Update CloudFormation template with all available instance types (#770)
+* Bug - Allow reading .env file in compose v3 (#726)
+
 ## 1.14.1
 * Enhancement - Add support for new EC2 Instance types (#763)
 
