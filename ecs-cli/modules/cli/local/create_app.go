@@ -34,13 +34,7 @@ func Create(c *cli.Context) {
 	project := localproject.New(c)
 
 	if err := createLocal(project); err != nil {
-<<<<<<< HEAD
 		log.Fatalf("Error with local create: \n%s", err.Error())
-=======
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Fatal("Unable to create local project")
->>>>>>> 1d726b20dd4a1e6844ded10939008a3fd0af77e5
 	}
 }
 
