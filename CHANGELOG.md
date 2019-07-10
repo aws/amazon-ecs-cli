@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.15.1
+* Bug - Fix go statement coverage results in our integration tests
+
 ## 1.15.0
 * Feature - Add support for local subcommands (#885)
 * Feature - Support stop_timeout field (#787)
