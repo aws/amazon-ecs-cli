@@ -58,7 +58,7 @@ integ-test-run:
 .PHONY: integ-test-run-with-coverage
 integ-test-run-with-coverage: integ-test-run
 	@echo "Code coverage"
-	$$GOPATH/bin/gocovmerge $$TMPDIR/coverage* > $$TMPDIR/all.out
+	gocovmerge $$TMPDIR/coverage* > $$TMPDIR/all.out
 	go tool cover -func=$$TMPDIR/all.out
 	rm $$TMPDIR/coverage* $$TMPDIR/all.out
 
