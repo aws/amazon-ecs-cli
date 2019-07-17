@@ -3,6 +3,7 @@ package attributecheckercommand
 import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/attributechecker"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/usage"
 	"github.com/urfave/cli"
 )
 
@@ -10,7 +11,7 @@ import (
 func AttributecheckerCommand() cli.Command {
 	return cli.Command{
 		Name:         "check-attributes",
-		Usage:        "Checks if a given list of container instances can run a given task definition by checking their attributes. Outputs attributes that are required by the task definition but not present on the container instances.",
+		Usage:        usage.Attributechecker,
 		Flags:        append(flags.OptionalConfigFlags(), attributecheckerFlags()...),
 		Action:       attributechecker.AttributeChecker,
 		OnUsageError: flags.UsageErrorFactory("attribute-checker"),
