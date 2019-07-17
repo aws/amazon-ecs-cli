@@ -58,4 +58,9 @@ const (
 	ConfigureMigrate        = "Migrates a legacy ECS CLI configuration file to the current YAML format."
 	ConfigureProfile        = "Stores a single profile."
 	ConfigureProfileDefault = "Sets the default profile."
+
+	// Image
+	Push   = "Push an image to an Amazon ECR repository."
+	Pull   = "Pull an image from an Amazon ECR repository."
+	Images = "List images an Amazon ECR repository."
 )
