@@ -63,4 +63,7 @@ const (
 	Push   = "Push an image to an Amazon ECR repository."
 	Pull   = "Pull an image from an Amazon ECR repository."
 	Images = "List images an Amazon ECR repository."
+
+	// License
+	License = "Prints the LICENSE files for the ECS CLI and its dependencies."
 )
