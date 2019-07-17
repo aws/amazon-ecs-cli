@@ -1,4 +1,4 @@
-// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -11,6 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
+// Package composeCommand contains the subcommands for compose workflows
 package composeCommand
 
 import (
@@ -19,6 +20,7 @@ import (
 	composeFactory "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/factory"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/compose/service"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/usage"
 	"github.com/urfave/cli"
 )
 
@@ -56,7 +58,7 @@ const (
 func ComposeCommand(factory composeFactory.ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:   "compose",
-		Usage:  "Executes docker-compose-style commands on an ECS cluster.",
+		Usage:  usage.Compose,
 		Before: ecscli.BeforeApp,
 		Flags:  flags.AppendFlags(composeFlags(), flags.DebugFlag(), flags.OptionalConfigFlags()),
 		Subcommands: []cli.Command{
@@ -109,7 +111,7 @@ func composeFlags() []cli.Flag {
 func createCommand(factory composeFactory.ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:         "create",
-		Usage:        "Creates an ECS task definition from your compose file. Note that we do not recommend using plain text environment variables for sensitive information, such as credential data.",
+		Usage:        usage.ComposeCreate,
 		Action:       compose.WithProject(factory, compose.ProjectCreate, false),
 		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), resourceTagsFlag(false)),
 		OnUsageError: flags.UsageErrorFactory("create"),
@@ -120,7 +122,7 @@ func psCommand(factory composeFactory.ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:         "ps",
 		Aliases:      []string{"list"},
-		Usage:        "Lists all the containers in your cluster that were started by the compose project.",
+		Usage:        usage.ComposePs,
 		Action:       compose.WithProject(factory, compose.ProjectPs, false),
 		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalDesiredStatusFlag()),
 		OnUsageError: flags.UsageErrorFactory("ps"),
@@ -130,7 +132,7 @@ func psCommand(factory composeFactory.ProjectFactory) cli.Command {
 func upCommand(factory composeFactory.ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:         "up",
-		Usage:        "Creates an ECS task definition from your compose file (if it does not already exist) and runs one instance of that task on your cluster (a combination of create and start).",
+		Usage:        usage.ComposeUp,
 		Action:       compose.WithProject(factory, compose.ProjectUp, false),
 		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), flags.OptionalForceUpdateFlag(), resourceTagsFlag(true), disableECSManagedTagsFlag()),
 		OnUsageError: flags.UsageErrorFactory("up"),
@@ -140,7 +142,7 @@ func upCommand(factory composeFactory.ProjectFactory) cli.Command {
 func startCommand(factory composeFactory.ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:         "start",
-		Usage:        "Starts a single task from the task definition created from your compose file.",
+		Usage:        usage.ComposeStart,
 		Action:       compose.WithProject(factory, compose.ProjectStart, false),
 		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), resourceTagsFlag(true), disableECSManagedTagsFlag()),
 		OnUsageError: flags.UsageErrorFactory("start"),
@@ -150,7 +152,7 @@ func startCommand(factory composeFactory.ProjectFactory) cli.Command {
 func runCommand(factory composeFactory.ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:         "run",
-		Usage:        "Starts all containers overriding commands with the supplied one-off commands for the containers.",
+		Usage:        usage.ComposeRun,
 		ArgsUsage:    "[CONTAINER_NAME] [\"COMMAND ...\"] [CONTAINER_NAME] [\"COMMAND ...\"] ...",
 		Action:       compose.WithProject(factory, compose.ProjectRun, false),
 		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), resourceTagsFlag(true), disableECSManagedTagsFlag()),
@@ -162,7 +164,7 @@ func stopCommand(factory composeFactory.ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:         "stop",
 		Aliases:      []string{"down"},
-		Usage:        "Stops all the running tasks created by the compose project.",
+		Usage:        usage.ComposeStop,
 		Action:       compose.WithProject(factory, compose.ProjectStop, false),
 		Flags:        flags.OptionalConfigFlags(),
 		OnUsageError: flags.UsageErrorFactory("stop"),
@@ -172,7 +174,7 @@ func stopCommand(factory composeFactory.ProjectFactory) cli.Command {
 func scaleCommand(factory composeFactory.ProjectFactory) cli.Command {
 	return cli.Command{
 		Name:         "scale",
-		Usage:        "ecs-cli compose scale [count] - scales the number of running tasks to the specified count.",
+		Usage:        usage.ComposeScale,
 		Action:       compose.WithProject(factory, compose.ProjectScale, false),
 		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), resourceTagsFlag(true), disableECSManagedTagsFlag()),
 		OnUsageError: flags.UsageErrorFactory("scale"),
