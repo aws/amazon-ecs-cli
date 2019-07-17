@@ -50,7 +50,6 @@ const (
 	composeFileNameDefaultValue         = "docker-compose.yml"
 	composeOverrideFileNameDefaultValue = "docker-compose.override.yml"
 	ecsParamsFileNameDefaultValue       = "ecs-params.yml"
-	containerNameFlag                   = "name"
 )
 
 // ComposeCommand provides a list of commands that operate on docker-compose.yml file and are integrated to run on ECS.
