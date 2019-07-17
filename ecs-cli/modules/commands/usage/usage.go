@@ -41,4 +41,14 @@ const (
 	ComposeRun    = "Starts all containers overriding commands with the supplied one-off commands for the containers."
 	ComposeStop   = "Stops all the running tasks created by the compose project."
 	ComposeScale  = "Scales the number of running tasks to the specified count."
+
+	// Compose Service
+	Service       = "Manage Amazon ECS services with docker-compose-style commands on an ECS cluster."
+	ServiceCreate = "Creates an ECS service from your compose file. The service is created with a desired count of 0, so no containers are started by this command. Note that we do not recommend using plain text environment variables for sensitive information, such as credential data."
+	ServiceStart  = "Starts one copy of each of the containers on an existing ECS service by setting the desired count to 1 (only if the current desired count is 0)."
+	ServiceUp     = "Creates a new ECS service or updates an existing one according to your compose file. For new services or existing services with a current desired count of 0, the desired count for the service is set to 1. For existing services with non-zero desired counts, a new task definition is created to reflect any changes to the compose file and the service is updated to use that task definition. In this case, the desired count does not change."
+	ServicePs     = "Lists all the containers in your cluster that belong to the service created with the compose project."
+	ServiceScale  = "Scales the desired count of the service to the specified count."
+	ServiceStop   = "Stops the running tasks that belong to the service created with the compose project. This command updates the desired count of the service to 0."
+	ServiceRm     = "Updates the desired count of the service to 0 and then deletes the service."
 )
