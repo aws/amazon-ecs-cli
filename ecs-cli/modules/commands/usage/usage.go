@@ -90,3 +90,8 @@ var (
 	LocalPs     = "Lists locally running ECS task containers."
 	LocalDown   = fmt.Sprintf("Stops and removes a running ECS task. NOTE: Removes the %s if it has no more running tasks. ", network.EcsLocalNetworkName)
 )
+
+// Logs
+const (
+	Logs = "Retrieves container logs from CloudWatch logs. Assumes your Task Definition uses the awslogs driver and has a log stream prefix specified."
+)
