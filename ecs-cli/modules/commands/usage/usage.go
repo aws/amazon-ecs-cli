@@ -51,4 +51,11 @@ const (
 	ServiceScale  = "Scales the desired count of the service to the specified count."
 	ServiceStop   = "Stops the running tasks that belong to the service created with the compose project. This command updates the desired count of the service to 0."
 	ServiceRm     = "Updates the desired count of the service to 0 and then deletes the service."
+
+	// Configure
+	Configure               = "Stores a single cluster configuration."
+	ConfigureDefault        = "Sets the default cluster config."
+	ConfigureMigrate        = "Migrates a legacy ECS CLI configuration file to the current YAML format."
+	ConfigureProfile        = "Stores a single profile."
+	ConfigureProfileDefault = "Sets the default profile."
 )

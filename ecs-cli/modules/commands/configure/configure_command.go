@@ -1,4 +1,4 @@
-// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -11,6 +11,7 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
+// package configureCommand defines commands for configuring ECS profiles and clusters
 package configureCommand
 
 import (
@@ -18,6 +19,7 @@ import (
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/configure"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/usage"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -34,10 +36,36 @@ func errorLogger(action configureAction) func(context *cli.Context) {
 	}
 }
 
+// ConfigureCommand configure command help
+func ConfigureCommand() cli.Command {
+	return cli.Command{
+		Name:   "configure",
+		Usage:  usage.Configure,
+		Action: errorLogger(configure.Cluster),
+		Flags:  configureFlags(),
+		Subcommands: []cli.Command{
+			configureProfileCommand(),
+			defaultClusterCommand(),
+			migrateCommand(),
+		},
+		OnUsageError: flags.UsageErrorFactory("configure"),
+	}
+}
+
+func defaultClusterCommand() cli.Command {
+	return cli.Command{
+		Name:         "default",
+		Usage:        usage.ConfigureDefault,
+		Action:       errorLogger(configure.DefaultCluster),
+		Flags:        configureDefaultClusterFlags(),
+		OnUsageError: flags.UsageErrorFactory("default"),
+	}
+}
+
 func configureProfileCommand() cli.Command {
 	return cli.Command{
 		Name:         "profile",
-		Usage:        "Stores a single profile.",
+		Usage:        usage.ConfigureProfile,
 		Action:       errorLogger(configure.Profile),
 		Flags:        configureProfileFlags(),
 		OnUsageError: flags.UsageErrorFactory("profile"),
@@ -50,53 +78,10 @@ func configureProfileCommand() cli.Command {
 func defaultProfileCommand() cli.Command {
 	return cli.Command{
 		Name:         "default",
-		Usage:        "Sets the default profile.",
+		Usage:        usage.ConfigureProfileDefault,
 		Action:       errorLogger(configure.DefaultProfile),
 		Flags:        configureDefaultProfileFlags(),
 		OnUsageError: flags.UsageErrorFactory("default"),
-	}
-}
-
-func defaultClusterCommand() cli.Command {
-	return cli.Command{
-		Name:         "default",
-		Usage:        "Sets the default cluster config.",
-		Action:       errorLogger(configure.DefaultCluster),
-		Flags:        configureDefaultClusterFlags(),
-		OnUsageError: flags.UsageErrorFactory("default"),
-	}
-}
-
-func migrateCommand() cli.Command {
-	return cli.Command{
-		Name:   "migrate",
-		Usage:  "Migrates a legacy ECS CLI configuration file to the current YAML format.",
-		Action: errorLogger(configure.Migrate),
-		Flags: []cli.Flag{
-			cli.BoolFlag{
-				Name: flags.ForceFlag,
-				Usage: fmt.Sprintf(
-					"[Optional] Omits the interactive description and confirmation step that normally occurs during the configuration file migration process.",
-				),
-			},
-		},
-		OnUsageError: flags.UsageErrorFactory("migrate"),
-	}
-}
-
-// ConfigureCommand configure command help
-func ConfigureCommand() cli.Command {
-	return cli.Command{
-		Name:   "configure",
-		Usage:  "Stores a single cluster configuration.",
-		Action: errorLogger(configure.Cluster),
-		Flags:  configureFlags(),
-		Subcommands: []cli.Command{
-			configureProfileCommand(),
-			defaultClusterCommand(),
-			migrateCommand(),
-		},
-		OnUsageError: flags.UsageErrorFactory("configure"),
 	}
 }
 
@@ -108,6 +93,23 @@ func configureDefaultClusterFlags() []cli.Flag {
 				"Specifies the name of the cluster configuration to use by default.",
 			),
 		},
+	}
+}
+
+func migrateCommand() cli.Command {
+	return cli.Command{
+		Name:   "migrate",
+		Usage:  usage.ConfigureMigrate,
+		Action: errorLogger(configure.Migrate),
+		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name: flags.ForceFlag,
+				Usage: fmt.Sprintf(
+					"[Optional] Omits the interactive description and confirmation step that normally occurs during the configuration file migration process.",
+				),
+			},
+		},
+		OnUsageError: flags.UsageErrorFactory("migrate"),
 	}
 }
 
