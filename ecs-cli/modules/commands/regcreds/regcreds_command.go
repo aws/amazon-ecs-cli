@@ -1,4 +1,4 @@
-// Copyright 2015-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -11,12 +11,14 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
+// Package regcredsCommand defines the command for registry credential workflows
 package regcredsCommand
 
 import (
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/regcreds"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/usage"
 	"github.com/urfave/cli"
 )
 
@@ -24,7 +26,7 @@ import (
 func RegistryCredsCommand() cli.Command {
 	return cli.Command{
 		Name:   "registry-creds",
-		Usage:  "Facilitates the creation and use of private registry credentials within ECS.",
+		Usage:  usage.RegistryCreds,
 		Before: ecscli.BeforeApp,
 		Flags:  flags.OptionalRegionAndProfileFlags(),
 		Subcommands: []cli.Command{
@@ -36,7 +38,7 @@ func RegistryCredsCommand() cli.Command {
 func upCommand() cli.Command {
 	return cli.Command{
 		Name:         "up",
-		Usage:        "Uses a YAML input file to generate AWS Secrets Manager secrets and an IAM Task Execution Role for use in an ECS Task Definition.",
+		Usage:        usage.RegistryCredsUp,
 		Action:       regcreds.Up,
 		Flags:        flags.AppendFlags(flags.OptionalRegionAndProfileFlags(), regcredsUpFlags()),
 		OnUsageError: flags.UsageErrorFactory("up"),

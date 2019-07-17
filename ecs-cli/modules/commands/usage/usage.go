@@ -95,3 +95,9 @@ var (
 const (
 	Logs = "Retrieves container logs from CloudWatch logs. Assumes your Task Definition uses the awslogs driver and has a log stream prefix specified."
 )
+
+// Regcreds
+const (
+	RegistryCreds   = "Facilitates the creation and use of private registry credentials within ECS."
+	RegistryCredsUp = "Uses a YAML input file to generate AWS Secrets Manager secrets and an IAM Task Execution Role for use in an ECS Task Definition."
+)
