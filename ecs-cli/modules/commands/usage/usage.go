@@ -11,11 +11,11 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-// Package usage contains the usage documentation for all ECS-CLI commands and subcommands
+// Package usage aggregates the usage documentation for all ECS-CLI commands and subcommands
 package usage
 
 import (
-	// "fmt"
+// "fmt"
 )
 
 // String displayed as usage for command. Constant should match the command
@@ -23,5 +23,12 @@ import (
 // const Local contains the docstring for the `local` command; `LocalUp`
 // contains the docstring for `local up`.
 const (
+	// AttributeChecker
 	Attributechecker = "Checks if a given list of container instances can run a given task definition by checking their attributes. Outputs attributes that are required by the task definition but not present on the container instances."
+
+	// Cluster
+	ClusterUp    = "Creates the ECS cluster (if it does not already exist) and the AWS resources required to set up the cluster."
+	ClusterDown  = "Deletes the CloudFormation stack that was created by ecs-cli up and the associated resources."
+	ClusterScale = "Modifies the number of container instances in your cluster. This command changes the desired and maximum instance count in the Auto Scaling group created by the ecs-cli up command. You can use this command to scale up (increase the number of instances) or scale down (decrease the number of instances) your cluster."
+	ClusterPs    = "Lists all of the running containers in your ECS cluster"
 )
