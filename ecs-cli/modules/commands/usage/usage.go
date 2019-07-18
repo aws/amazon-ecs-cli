@@ -74,7 +74,7 @@ const (
 const (
 	Push   = "Pushes an image to an Amazon ECR repository."
 	Pull   = "Pulls an image from an Amazon ECR repository."
-	Images = "Lists images an Amazon ECR repository."
+	Images = "Lists images from an Amazon ECR repository. Lists all images in all repositories by default."
 )
 
 // License
