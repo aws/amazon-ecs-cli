@@ -34,7 +34,7 @@ const (
 	ClusterUp    = "Creates the ECS cluster (if it does not already exist) and the AWS resources required to set up the cluster."
 	ClusterDown  = "Deletes the CloudFormation stack that was created by ecs-cli up and the associated resources."
 	ClusterScale = "Modifies the number of container instances in your cluster. This command changes the desired and maximum instance count in the Auto Scaling group created by the ecs-cli up command. You can use this command to scale up (increase the number of instances) or scale down (decrease the number of instances) your cluster."
-	ClusterPs    = "Lists all of the running containers in your ECS cluster"
+	ClusterPs    = "Lists all of the running containers in your ECS cluster."
 )
 
 // Compose
