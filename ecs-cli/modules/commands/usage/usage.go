@@ -86,9 +86,9 @@ const (
 var (
 	Local       = "Runs your ECS tasks locally."
 	LocalCreate = "Creates a Compose file from an ECS task definition."
-	LocalUp     = fmt.Sprintf("Runs containers locally from an ECS Task Definition. NOTE: Creates a docker-compose file in current directory and a %s if one doesn't exist. ", network.EcsLocalNetworkName)
+	LocalUp     = fmt.Sprintf("Runs containers locally from an ECS Task Definition. NOTE: Creates a docker-compose file in current directory and a %s if one doesn't exist.", network.EcsLocalNetworkName)
 	LocalPs     = "Lists locally running ECS task containers."
-	LocalDown   = fmt.Sprintf("Stops and removes a running ECS task. NOTE: Removes the %s if it has no more running tasks. ", network.EcsLocalNetworkName)
+	LocalDown   = fmt.Sprintf("Stops and removes a running ECS task. NOTE: Removes the %s if it has no more running tasks.", network.EcsLocalNetworkName)
 )
 
 // Logs
