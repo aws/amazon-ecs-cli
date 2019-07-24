@@ -126,7 +126,6 @@ func (p *LocalProject) ReadTaskDefinition() error {
 		if err != nil {
 			return err
 		}
-		logrus.Infof("Reading task definition from %s:%v\n", aws.StringValue(taskDefinition.Family), aws.Int64Value(taskDefinition.Revision))
 
 	} else if filename != "" {
 		filename, err = filepath.Abs(filename)
@@ -187,6 +186,7 @@ var readTaskDefFromLocal = func(filename string) (*ecs.TaskDefinition, error) {
 		return nil, fmt.Errorf("Error parsing task definition JSON: %s", err.Error())
 	}
 
+	logrus.Infof("Reading task definition from %s\n", filename)
 	return &taskDefinition, nil
 }
 
@@ -219,7 +219,7 @@ var readTaskDefFromRemote = func(remote string, p *LocalProject) (*ecs.TaskDefin
 	commandConfig, err := newCommandConfig(p.context, rdwr, region)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
-			"error": err,
+			"error":  err,
 			"region": region, // Useful for debugging region resolution across partitions, e.g.
 		}).Error("Unable to create an instance of CommandConfig given the cli context")
 
@@ -228,7 +228,17 @@ var readTaskDefFromRemote = func(remote string, p *LocalProject) (*ecs.TaskDefin
 
 	ecsClient := ecsclient.NewECSClient(commandConfig)
 
-	return ecsClient.DescribeTaskDefinition(remote)
+	taskDefinition, err := ecsClient.DescribeTaskDefinition(remote)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"taskDefinition": remote,
+		}).Error("Unable to Describe TaskDefinition")
+		return nil, err
+	}
+
+	logrus.Infof("Reading task definition from %s:%v\n", aws.StringValue(taskDefinition.Family), aws.Int64Value(taskDefinition.Revision))
+
+	return taskDefinition, nil
 }
 
 // Convert translates an ECS Task Definition into a Compose V3 schema and
