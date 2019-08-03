@@ -196,12 +196,13 @@ func decryptSecrets(containerSecrets []*secrets.ContainerSecret) (envVars map[st
 // upCompose starts the containers in the Compose files with the environment variables defined in envVars.
 func upCompose(envVars map[string]string, basePath string, overridePaths []string) {
 	// Gather environment variables
-	var envs []string
+
+	// Pass in $PATH and other env vars needed by docker-compose.
+	// See https://stackoverflow.com/a/55371721/1201381, https://github.com/aws/amazon-ecs-cli/issues/892
+	envs := os.Environ()
 	for env, val := range envVars {
 		envs = append(envs, fmt.Sprintf("%s=%s", env, val))
 	}
-	// Need to add $PATH because of --build, see https://stackoverflow.com/a/55371721/1201381
-	envs = append(envs, fmt.Sprintf("PATH=%s", os.Getenv("PATH")))
 
 	// Disable orphaned containers checking
 	envs = append(envs, "COMPOSE_IGNORE_ORPHANS=true")

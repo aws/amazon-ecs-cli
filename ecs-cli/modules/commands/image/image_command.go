@@ -1,4 +1,4 @@
-// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -11,12 +11,14 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
+// Package imageCommand defines the commands for image workflows
 package imageCommand
 
 import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/image"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/usage"
 	"github.com/urfave/cli"
 )
 
@@ -24,7 +26,7 @@ import (
 func PushCommand() cli.Command {
 	return cli.Command{
 		Name:         "push",
-		Usage:        "Push an image to an Amazon ECR repository.",
+		Usage:        usage.Push,
 		ArgsUsage:    image.PushImageFormat,
 		Before:       app.BeforeApp,
 		Action:       image.ImagePush,
@@ -37,7 +39,7 @@ func PushCommand() cli.Command {
 func PullCommand() cli.Command {
 	return cli.Command{
 		Name:         "pull",
-		Usage:        "Pull an image from an Amazon ECR repository.",
+		Usage:        usage.Pull,
 		ArgsUsage:    image.PullImageFormat,
 		Before:       app.BeforeApp,
 		Action:       image.ImagePull,
@@ -50,7 +52,7 @@ func PullCommand() cli.Command {
 func ImagesCommand() cli.Command {
 	return cli.Command{
 		Name:         "images",
-		Usage:        "List images an Amazon ECR repository.",
+		Usage:        usage.Images,
 		ArgsUsage:    image.ListImageFormat,
 		Before:       app.BeforeApp,
 		Action:       image.ImageList,
