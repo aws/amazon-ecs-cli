@@ -204,9 +204,8 @@ func flagDescription(longName, cmdName string) string {
 			downCmdName: "Stops and removes all locally running containers.",
 		},
 		flags.ForceFlag: {
-			// also does not prompt for override?
-			createCmdName: fmt.Sprintf("Creates Docker Compose file without confirmation for overwriting to an existing docker compose file. Default compose file is %s.", project.LocalOutDefaultFileName),
-			upCmdName:     fmt.Sprintf("Runs Task Definition file without confirmation for overwriting to an existing docker compose file. Default compose file is %s.", project.LocalOutDefaultFileName),
+			createCmdName: fmt.Sprintf("Overwrite output docker compose file if it exists. Default compose file is %s.", project.LocalOutDefaultFileName),
+			upCmdName:     fmt.Sprintf("Overwrite output docker compose file if it exists. Default compose file is %s.", project.LocalOutDefaultFileName),
 		},
 	}
 	return m[longName][cmdName]
