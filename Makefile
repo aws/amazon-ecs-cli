@@ -33,7 +33,7 @@ $(LOCAL_BINARY): $(SOURCES)
 
 .PHONY: test
 test:
-	env -i PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT GOCACHE=$$GOCACHE go test -race -timeout=120s -v -cover ./ecs-cli/modules/...
+	env -i PATH=$$PATH GOPATH=$$(go env GOPATH) GOROOT=$$GOROOT GOCACHE=$$(go env GOCACHE) go test -race -timeout=120s -v -cover ./ecs-cli/modules/...
 
 .PHONY: integ-test
 integ-test: integ-test-build integ-test-run-with-coverage
@@ -45,7 +45,7 @@ integ-test-build:
 	@echo "Installing dependencies..."
 	go get github.com/wadey/gocovmerge
 	@echo "Building ecs-cli.test..."
-	env -i PATH=$$PATH GOPATH=$$GOPATH GOROOT=$$GOROOT GOCACHE=$$GOCACHE \
+	env -i PATH=$$PATH GOPATH=$$(go env GOPATH) GOROOT=$$GOROOT GOCACHE=$$(go env GOCACHE) \
 	go test -coverpkg ./ecs-cli/modules/... -c -tags testrunmain -o ./bin/local/ecs-cli.test ./ecs-cli
 
 # Run our integration tests using the ecs-cli.test binary.
