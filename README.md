@@ -1100,6 +1100,7 @@ Without arguments, this will try to read an ECS Task Definition from local a fil
 To run an ECS Task Definition specified in a different file, you can use the `--task-def-file` or `-f` flag with the name of the file.
 To run an ECS Task Definition already registered with ECS, you can use the `--task-def-remote` or `-t` flag with the ARN or family name of the Task Definition.
 You can also specify a different output file using the `--output` or `-o` flag.
+To skip the overwrite confirmation prompt, use the `--force` flag.
 
 
 #### ecs-cli local up
