@@ -21,10 +21,11 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/service"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/task"
+	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/sirupsen/logrus"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
+	utils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcredio"
 	"github.com/docker/libcompose/project"
 )
@@ -216,10 +217,26 @@ func (p *ecsProject) transformTaskDefinition() error {
 	}
 
 	taskDefinition, err := utils.ConvertToTaskDefinition(convertParams)
-
 	if err != nil {
 		return err
 	}
+
+	placementConstraints, err := utils.ConvertToECSPlacementConstraints(ecsContext.ECSParams)
+	if err != nil {
+		return err
+	}
+
+	if len(placementConstraints) > 0 {
+		tdPcs := make([]*ecs.TaskDefinitionPlacementConstraint, len(placementConstraints))
+		for i, pc := range placementConstraints {
+			tdPcs[i] = &ecs.TaskDefinitionPlacementConstraint{
+				Type:       pc.Type,
+				Expression: pc.Expression,
+			}
+		}
+		taskDefinition.SetPlacementConstraints(tdPcs)
+	}
+
 	p.entity.SetTaskDefinition(taskDefinition)
 	return nil
 }

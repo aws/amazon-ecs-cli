@@ -23,7 +23,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
+	utils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/docker/libcompose/project"
@@ -131,6 +131,7 @@ func createRegisterTaskDefinitionRequest(taskDefinition *ecs.TaskDefinition, tag
 		ExecutionRoleArn:        taskDefinition.ExecutionRoleArn,
 		PidMode:                 taskDefinition.PidMode,
 		IpcMode:                 taskDefinition.IpcMode,
+		PlacementConstraints:    taskDefinition.PlacementConstraints,
 	}
 
 	if networkMode := taskDefinition.NetworkMode; aws.StringValue(networkMode) != "" {
