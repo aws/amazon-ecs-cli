@@ -4,7 +4,6 @@ phases:
   install:
     runtime-versions:
       golang: 1.12
-      docker: 18
   build:
     commands:
       - make integ-test
