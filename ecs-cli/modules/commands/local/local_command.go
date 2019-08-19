@@ -68,6 +68,10 @@ func createCommand() cli.Command {
 				Name:  flagName(flags.Output),
 				Usage: flagDescription(flags.Output, createCmdName),
 			},
+			cli.BoolFlag{
+				Name:  flagName(flags.ForceFlag),
+				Usage: flagDescription(flags.ForceFlag, createCmdName),
+			},
 		},
 	}
 }
@@ -97,6 +101,10 @@ func upCommand() cli.Command {
 			cli.StringSliceFlag{
 				Name:  flagName(flags.ComposeOverride),
 				Usage: flagDescription(flags.ComposeOverride, upCmdName),
+			},
+			cli.BoolFlag{
+				Name:  flagName(flags.ForceFlag),
+				Usage: flagDescription(flags.ForceFlag, upCmdName),
 			},
 		},
 	}
@@ -159,6 +167,7 @@ func flagName(longName string) string {
 		flags.ComposeOverride:       flags.ComposeOverride,
 		flags.JSON:                  flags.JSON,
 		flags.All:                   flags.All,
+		flags.ForceFlag:             flags.ForceFlag,
 	}
 	return m[longName]
 }
@@ -193,6 +202,10 @@ func flagDescription(longName, cmdName string) string {
 		flags.All: {
 			psCmdName:   "Lists all locally running containers.",
 			downCmdName: "Stops and removes all locally running containers.",
+		},
+		flags.ForceFlag: {
+			createCmdName: fmt.Sprintf("Overwrite output docker compose file if it exists. Default compose file is %s.", project.LocalOutDefaultFileName),
+			upCmdName:     fmt.Sprintf("Overwrite output docker compose file if it exists. Default compose file is %s.", project.LocalOutDefaultFileName),
 		},
 	}
 	return m[longName][cmdName]

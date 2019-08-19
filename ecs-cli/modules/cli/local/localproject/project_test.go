@@ -25,9 +25,10 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/converter"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/aws-sdk-go/service/ecs"
-	"github.com/stretchr/testify/require"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/urfave/cli"
 )
 
@@ -231,31 +232,37 @@ func TestReadTaskDefinition_ErrorIfTwoInputsSpecified(t *testing.T) {
 	assert.Error(t, err, "Expected error reading task definition")
 }
 
-func TestWrite(t *testing.T) {
+func TestWrite_New(t *testing.T) {
 	// GIVEN
 	flagSet := flag.NewFlagSet("ecs-cli", 0) // No flags specified
 	context := cli.NewContext(nil, flagSet, nil)
 	project := New(context)
 
-	oldOpenFile := openFile
-	openFile = func(filename string) (*os.File, error) {
+	oldFileExists := fileExists
+	fileExists = func(filename string) bool {
+		return false
+	}
+	defer func() { fileExists = oldFileExists }()
+
+	oldWrite := write
+	write = func(filename string, content []byte) error {
 		tmpfile, err := ioutil.TempFile("", filename)
 		assert.NoError(t, err, "Unexpected error in creating temp compose file")
 		defer os.Remove(tmpfile.Name())
-
-		return tmpfile, nil
+		return nil
 	}
-	defer func() { openFile = oldOpenFile }()
+
+	defer func() { write = oldWrite }()
 
 	// WHEN
 	err := project.Write()
 
 	// THEN
-	assert.NoError(t, err, "Unexpected error in writing local compose file")
+	assert.NoError(t, err, "Unexpected error in writing test local compose file")
 	assert.Equal(t, LocalOutDefaultFileName, project.LocalOutFileName())
 }
 
-func TestWrite_WithOutputFlag(t *testing.T) {
+func TestWrite_New_WithOutputFlag(t *testing.T) {
 	// GIVEN
 	expectedOutputFile := "foo.yml"
 	flagSet := flag.NewFlagSet("ecs-cli", 0)
@@ -263,16 +270,25 @@ func TestWrite_WithOutputFlag(t *testing.T) {
 	context := cli.NewContext(nil, flagSet, nil)
 	project := New(context)
 
-	oldOpenFile := openFile
-	openFile = func(filename string) (*os.File, error) {
+	oldFileExists := fileExists
+	fileExists = func(filename string) bool {
+		return false
+	}
+	defer func() { fileExists = oldFileExists }()
+
+	oldWrite := write
+	write = func(filename string, content []byte) error {
 		tmpfile, err := ioutil.TempFile("", filename)
 		assert.NoError(t, err, "Unexpected error in creating temp compose file")
-		defer os.Remove(tmpfile.Name())
 
-		return tmpfile, nil
+		_, err = tmpfile.Write(content)
+		assert.NoError(t, err, "Unexpected error in writing temp compose file")
+
+		defer os.Remove(tmpfile.Name())
+		return nil
 	}
 
-	defer func() { openFile = oldOpenFile }()
+	defer func() { write = oldWrite }()
 
 	// WHEN
 	err := project.Write()
@@ -280,4 +296,79 @@ func TestWrite_WithOutputFlag(t *testing.T) {
 	// THEN
 	assert.NoError(t, err, "Unexpected error in writing local compose file")
 	assert.Equal(t, expectedOutputFile, project.LocalOutFileName())
+}
+
+func TestWrite_Existing(t *testing.T) {
+	// GIVEN
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	context := cli.NewContext(nil, flagSet, nil)
+	project := New(context)
+
+	oldFileExists := fileExists
+	fileExists = func(filename string) bool {
+		return true
+	}
+	defer func() { fileExists = oldFileExists }()
+
+	called := false
+	oldOverwrite := overwriteFile
+	overwriteFile = func(filename string, content []byte) error {
+		called = true
+		return nil
+	}
+
+	defer func() { overwriteFile = oldOverwrite }()
+
+	// WHEN
+	err := project.Write()
+
+	// THEN
+	assert.NoError(t, err, "Unexpected error in writing local compose file")
+	assert.Equal(t, LocalOutDefaultFileName, project.LocalOutFileName())
+	assert.True(t, called)
+}
+
+func TestWrite_ExistingFile_WithForce(t *testing.T) {
+	// GIVEN
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.Bool(flags.ForceFlag, true, "")
+	context := cli.NewContext(nil, flagSet, nil)
+	project := New(context)
+
+	oldFileExists := fileExists
+	fileExists = func(filename string) bool {
+		return true
+	}
+	defer func() { fileExists = oldFileExists }()
+
+	called := false
+	oldOverwrite := overwriteFile
+	overwriteFile = func(filename string, content []byte) error {
+		called = true
+		return nil
+	}
+
+	defer func() { overwriteFile = oldOverwrite }()
+
+	oldWrite := write
+	write = func(filename string, content []byte) error {
+		tmpfile, err := ioutil.TempFile("", filename)
+		assert.NoError(t, err, "Unexpected error in creating temp compose file")
+
+		_, err = tmpfile.Write(content)
+		assert.NoError(t, err, "Unexpected error in writing temp compose file")
+
+		defer os.Remove(tmpfile.Name())
+		return nil
+	}
+
+	defer func() { write = oldWrite }()
+
+	// WHEN
+	err := project.Write()
+
+	// THEN
+	assert.NoError(t, err, "Unexpected error in writing local compose file")
+	assert.Equal(t, LocalOutDefaultFileName, project.LocalOutFileName())
+	assert.False(t, called)
 }

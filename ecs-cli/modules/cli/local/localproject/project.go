@@ -126,7 +126,6 @@ func (p *LocalProject) ReadTaskDefinition() error {
 		if err != nil {
 			return err
 		}
-		logrus.Infof("Reading task definition from %s:%v\n", aws.StringValue(taskDefinition.Family), aws.Int64Value(taskDefinition.Revision))
 
 	} else if filename != "" {
 		filename, err = filepath.Abs(filename)
@@ -187,6 +186,7 @@ var readTaskDefFromLocal = func(filename string) (*ecs.TaskDefinition, error) {
 		return nil, fmt.Errorf("Error parsing task definition JSON: %s", err.Error())
 	}
 
+	logrus.Infof("Reading task definition from %s\n", filename)
 	return &taskDefinition, nil
 }
 
@@ -219,7 +219,7 @@ var readTaskDefFromRemote = func(remote string, p *LocalProject) (*ecs.TaskDefin
 	commandConfig, err := newCommandConfig(p.context, rdwr, region)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
-			"error": err,
+			"error":  err,
 			"region": region, // Useful for debugging region resolution across partitions, e.g.
 		}).Error("Unable to create an instance of CommandConfig given the cli context")
 
@@ -228,7 +228,17 @@ var readTaskDefFromRemote = func(remote string, p *LocalProject) (*ecs.TaskDefin
 
 	ecsClient := ecsclient.NewECSClient(commandConfig)
 
-	return ecsClient.DescribeTaskDefinition(remote)
+	taskDefinition, err := ecsClient.DescribeTaskDefinition(remote)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"taskDefinition": remote,
+		}).Error("Unable to Describe TaskDefinition")
+		return nil, err
+	}
+
+	logrus.Infof("Reading task definition from %s:%v\n", aws.StringValue(taskDefinition.Family), aws.Int64Value(taskDefinition.Revision))
+
+	return taskDefinition, nil
 }
 
 // Convert translates an ECS Task Definition into a Compose V3 schema and
@@ -269,55 +279,47 @@ func (p *LocalProject) convertOverrideCompose() error {
 	return nil
 }
 
-// Write writes the compose data to a local compose file. The output filename is stored on the project
+// Write writes the compose data to a local compose file. The output filename
+// is stored on the project
 func (p *LocalProject) Write() error {
-	if err := writeFile(p.LocalOutFileName(), p.composeBytes[baseComposeIndex]); err != nil {
+	// write compose file
+	if err := p.writeFile(p.LocalOutFileName(), p.composeBytes[baseComposeIndex], false); err != nil {
 		return err
 	}
 
-	if err := writeNewFile(p.OverrideFileName(), p.composeBytes[overrideComposeIndex]); err != nil {
+	// write override file
+	if err := p.writeFile(p.OverrideFileName(), p.composeBytes[overrideComposeIndex], true); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// writeFile writes the content to a filename. If the file already exists, then prompts the user for overwrite.
-func writeFile(filename string, content []byte) error {
-	f, err := openFile(filename)
-	defer f.Close()
+// writeFile writes the content to a filename. If the file already exists, user is
+// prompted to overwrite unless force flag specified.
+func (p *LocalProject) writeFile(filename string, content []byte, skipOverwrite bool) error {
+	forceWrite := p.context.Bool(flags.ForceFlag)
 
-	// File already exists
-	if err != nil {
-		return overwriteFile(filename, content)
+	// File does not exist or force flag specified; create and write file
+	if !fileExists(filename) || forceWrite {
+		return write(filename, content)
 	}
 
-	_, err = f.Write(content)
-	logrus.Infof("Successfully wrote %s", filename)
-	return err
-}
-
-// writeNewFile writes the content to a filename only if the file does not already exist.
-func writeNewFile(filename string, content []byte) error {
-	f, err := openFile(filename)
-	defer f.Close()
-
-	if err != nil {
-		// File already exists, skip writing it.
+	// File exists
+	if skipOverwrite {
 		logrus.Infof("%s already exists, skipping write.", filename)
 		return nil
 	}
-	_, err = f.Write(content)
-	logrus.Infof("Successfully wrote %s", filename)
-	return err
+
+	return overwriteFile(filename, content)
 }
 
-// Facilitates test mocking
-var openFile = func(filename string) (*os.File, error) {
-	return os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_EXCL, LocalOutFileMode)
+var fileExists = func(filename string) bool {
+	_, err := os.Stat(filename)
+	return err == nil
 }
 
-func overwriteFile(filename string, content []byte) error {
+var overwriteFile = func(filename string, content []byte) error {
 	fmt.Printf("%s file already exists. Do you want to write over this file? [y/N]\n", filename)
 
 	reader := bufio.NewReader(os.Stdin)
@@ -327,11 +329,19 @@ func overwriteFile(filename string, content []byte) error {
 	}
 
 	input := strings.ToLower(strings.TrimSpace(stdin))
-
 	if input != "yes" && input != "y" {
-		return fmt.Errorf("aborted writing compose file. To retry, rename or move %s", filename) // TODO add force flag
+		return fmt.Errorf("aborted writing file. To retry, rename or move %s", filename)
 	}
 
 	// Overwrite local compose file
-	return ioutil.WriteFile(filename, content, LocalOutFileMode)
+	return write(filename, content)
+}
+
+var write = func(filename string, content []byte) error {
+	err := ioutil.WriteFile(filename, content, LocalOutFileMode)
+	if err == nil {
+		logrus.Infof("Successfully wrote %s", filename)
+	}
+
+	return err
 }
