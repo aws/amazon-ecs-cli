@@ -24,7 +24,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/service"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	cliconfig "github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
-	utils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
+	composeutils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcredio"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/docker/libcompose/config"
@@ -253,7 +253,7 @@ run_params:
 		networkConfig := ecsParams.RunParams.NetworkConfiguration.AwsVpcConfiguration
 		assert.Equal(t, []string{"subnet-feedface", "subnet-deadbeef"}, networkConfig.Subnets, "Expected Subnets to match")
 		assert.Equal(t, []string{"sg-bafff1ed", "sg-c0ffeefe"}, networkConfig.SecurityGroups, "Expected SecurityGroups to match")
-		assert.Equal(t, utils.Enabled, networkConfig.AssignPublicIp, "Expected AssignPublicIp to match")
+		assert.Equal(t, composeutils.Enabled, networkConfig.AssignPublicIp, "Expected AssignPublicIp to match")
 
 	}
 
@@ -310,7 +310,7 @@ func setupTestProjectWithECSRegistryCreds(t *testing.T, ecsParamsFileName, credF
 	envLookup, err := mockGetDefaultEnvironment()
 	assert.NoError(t, err, "Unexpected error setting up environment lookup")
 
-	resourceLookup, err := utils.GetDefaultResourceLookup()
+	resourceLookup, err := composeutils.GetDefaultResourceLookup()
 	assert.NoError(t, err, "Unexpected error setting up resource lookup")
 
 	flagSet := flag.NewFlagSet("ecs-cli", 0)
