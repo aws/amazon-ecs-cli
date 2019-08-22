@@ -21,9 +21,12 @@ import (
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/service"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
+	cliconfig "github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
+	composeutils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcredio"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/lookup"
 	"github.com/stretchr/testify/assert"
@@ -250,7 +253,7 @@ run_params:
 		networkConfig := ecsParams.RunParams.NetworkConfiguration.AwsVpcConfiguration
 		assert.Equal(t, []string{"subnet-feedface", "subnet-deadbeef"}, networkConfig.Subnets, "Expected Subnets to match")
 		assert.Equal(t, []string{"sg-bafff1ed", "sg-c0ffeefe"}, networkConfig.SecurityGroups, "Expected SecurityGroups to match")
-		assert.Equal(t, utils.Enabled, networkConfig.AssignPublicIp, "Expected AssignPublicIp to match")
+		assert.Equal(t, composeutils.Enabled, networkConfig.AssignPublicIp, "Expected AssignPublicIp to match")
 
 	}
 
@@ -307,7 +310,7 @@ func setupTestProjectWithECSRegistryCreds(t *testing.T, ecsParamsFileName, credF
 	envLookup, err := mockGetDefaultEnvironment()
 	assert.NoError(t, err, "Unexpected error setting up environment lookup")
 
-	resourceLookup, err := utils.GetDefaultResourceLookup()
+	resourceLookup, err := composeutils.GetDefaultResourceLookup()
 	assert.NoError(t, err, "Unexpected error setting up resource lookup")
 
 	flagSet := flag.NewFlagSet("ecs-cli", 0)
@@ -406,4 +409,60 @@ func TestParseECSRegistryCreds_NoFile(t *testing.T) {
 	if assert.NoError(t, err) {
 		assert.Nil(t, project.ecsRegistryCreds)
 	}
+}
+
+func TestParseCompose_V2_WithPlacementConstraint(t *testing.T) {
+	// Setup docker-compose file
+	composeFileString := `version: '2'
+services:
+  mysql:
+    image: mysql`
+
+	tmpfile, err := ioutil.TempFile("", "test")
+	assert.NoError(t, err, "Unexpected error in creating test file")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write([]byte(composeFileString))
+	assert.NoError(t, err, "Unexpected error in writing to test file")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Unexpected error closing file")
+
+	ecsParamsString := `version: 1
+run_params:
+  task_placement:
+    constraints:
+      - type: memberOf
+        expression: "attribute:name == value"`
+
+	content := []byte(ecsParamsString)
+
+	ecsParamsTmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs fields tempfile")
+
+	ecsParamsFileName := ecsParamsTmpfile.Name()
+	defer os.Remove(ecsParamsFileName)
+
+	_, err = ecsParamsTmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs fields tempfile")
+
+	project := setupTestProjectWithEcsParams(t, ecsParamsFileName)
+	project.ecsContext.CommandConfig = &cliconfig.CommandConfig{}
+	project.ecsContext.ComposeFiles = append(project.ecsContext.ComposeFiles, tmpfile.Name())
+
+	err = project.parseCompose()
+	assert.NoError(t, err, "Could not parse compose")
+
+	err = project.parseECSParams()
+	assert.NoError(t, err, "Could not parse ecs params")
+
+	project.entity = service.NewService(project.ecsContext)
+	err = project.transformTaskDefinition()
+	assert.NoError(t, err, "Could not transform task definition")
+
+	placementConstraints := project.entity.TaskDefinition().PlacementConstraints
+	assert.NotEmpty(t, placementConstraints, "Expected PlacementConstraints to not be empty")
+	assert.Equal(t, "memberOf", aws.StringValue(placementConstraints[0].Type), "Expected Type to match")
+	assert.Equal(t, "attribute:name == value", aws.StringValue(placementConstraints[0].Expression), "Expected Expression to match")
 }
