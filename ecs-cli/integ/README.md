@@ -7,25 +7,36 @@ You may be charged for the AWS resources utilized while running these tests. It'
 ## Local test setup
 
 1. Set the following mandatory environment variables:
+
     ```bash
     # hardcode the CodeBuild ID since we're not using codebuild to run the tests
     export CODEBUILD_BUILD_ID="local-integ-test"
     # change this to the region you'd like to run the tests in
     export AWS_REGION="us-east-1"
     ```
+
 2. If your OS doesn't support the `TMPDIR` environment variable, then set it:
+
     ```bash
     # If your OS sets TMPDIR, you should get an output like /var/folders/13/y9bcvw7557d5bvlvrj8jz0k04gs5dl/T/
     echo $TMPDIR
     # Otherwise set the environment to a location of your choice
     export $TMPDIR="/tmp"
-    ```   
-
+    ```
 
 ## Running the tests
 
+### Linux
+
 The best way to run them on Linux is via the `make integ-test` target.
 
+A full example including setting necessary environment variables inline:
+
+`CODEBUILD_BUILD_ID=local-integ-test AWS_REGION=us-east-1 TMPDIR=/tmp make integ-test`
+
+### Windows
+
 The best way to run them on Windows is by building and running the tests with `go` from the project root:
- * `go build -installsuffix cgo -a -ldflags '-s' -o ./bin/local/ecs-cli.exe ./ecs-cli/`
- * `go test -tags integ -v ./ecs-cli/integ/...`
+
+* `go build -installsuffix cgo -a -ldflags '-s' -o ./bin/local/ecs-cli.exe ./ecs-cli/`
+* `go test -tags integ -v ./ecs-cli/integ/...`

@@ -54,7 +54,7 @@ func TestUp(t *testing.T, conf *CLIConfig, options ...func([]string) []string) *
 
 	// When
 	out, err := cmd.Output()
-	require.NoErrorf(t, err, "Failed to create cluster", "error %v, running %v, out: %s", err, args, string(out))
+	require.NoErrorf(t, err, "Failed to create cluster: error %v, running %v, out: %s", err, args, string(out))
 
 	// Then
 	stdout.Stdout(out).TestHasAllSubstrings(t, []string{

@@ -3,8 +3,6 @@ sudo: false
 os:
     - linux
     - osx
-env:
-  - GOCACHE=$HOME/.cache/go-build
 go_import_path: github.com/aws/amazon-ecs-cli
 go:
     - 1.10.x

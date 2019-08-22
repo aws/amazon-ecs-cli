@@ -1,21 +1,35 @@
 # Contributing to the CLI
 
 - [Development Setup](#development-setup)
-  * [Environment](#environment)
-  * [Building](#building)
-  * [Adding/updating new dependencies](#adding-updating-new-dependencies)
-  * [Generating mocks/licenses](#generating-mocks-licenses)
-  * [Cross-compiling](#cross-compiling)
-  * [Testing](#testing)
+  - [Environment](#environment)
+    - [Set upstream](#set-upstream)
+  - [Building](#building)
+  - [Adding/updating new dependencies](#adding-updating-new-dependencies)
+  - [Generating mocks/licenses](#generating-mocks-licenses)
+  - [Cross-compiling](#cross-compiling)
+  - [Testing](#testing)
 - [Contributing code](#contributing-code)
 - [Amazon Open Source Code of Conduct](#amazon-open-source-code-of-conduct)
 - [Licensing](#licensing)
 
 ## Development Setup
+
 ### Environment
-* Make sure you are using Go 1.12 (`go version`).
-* Copy the source code (`go get github.com/aws/amazon-ecs-cli`).
-* We use [dep](https://github.com/golang/dep) to manage dependencies. Make sure you have version 0.4.1 of [dep](https://github.com/golang/dep/releases/tag/v0.4.1) (installation instructions [here](https://golang.github.io/dep/docs/installation.html)). You can also run `make generate-deps` to install the latest version of dep as well as other tools.
+
+- Make sure you are using Go 1.12 (`go version`).
+- Fork the repository.
+- Clone your forked repository into your `$GOPATH`
+  - `git clone git@github.com:<user>/aws/amazon-ecs-cli $GOPATH/src/github.com/aws/amazon-ecs-cli`
+  - **NOTE:** replace `<user>` with your Github username.
+- We use [dep](https://github.com/golang/dep) to manage dependencies. Make sure you have version 0.4.1 of [dep](https://github.com/golang/dep/releases/tag/v0.4.1) (installation instructions [here](https://golang.github.io/dep/docs/installation.html)). You can also run `make generate-deps` to install the latest version of dep as well as other tools.
+
+#### Set upstream
+
+From the repository root run:
+
+`git remote add upstream git@github.com:aws/amazon-ecs-cli`
+
+`git fetch upstream`
 
 ### Building
 From `$GOPATH/src/github.com/aws/amazon-ecs-cli`:
