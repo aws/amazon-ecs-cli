@@ -75,7 +75,7 @@ func clusterUpFlags() []cli.Flag {
 		},
 		cli.StringFlag{
 			Name:  flags.InstanceRoleFlag,
-			Usage: "[Optional] Specifies a custom IAM Role for instances in your cluster. Required if --capability-iam is not specified. NOTE: Not applicable for launch type FARGATE.",
+			Usage: "[Optional] Specifies a custom IAM Role for instances in your cluster. A new instance profile will be created and attached to this role. Required if --capability-iam is not specified. NOTE: Not applicable for launch type FARGATE.",
 		},
 		cli.StringFlag{
 			Name:  flags.KeypairNameFlag,
