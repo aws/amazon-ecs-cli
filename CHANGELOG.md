@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.16.0
+* Feature - Add force flag to local up and create (#907)
+* Feature - Add placement constraints to task definition (#909, #913)
+* Bug - Fix 'local up' on Windows (#892)
+* Enhancement - Update issues templates
+
 ## 1.15.1
 * Bug - Fix go statement coverage results in our integration tests
 
