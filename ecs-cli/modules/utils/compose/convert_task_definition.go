@@ -100,6 +100,8 @@ func ConvertToTaskDefinition(params ConvertTaskDefParams) (*ecs.TaskDefinition, 
 
 	executionRoleArn := taskDefParams.executionRoleArn
 
+	placementConstraints := convertToTaskDefinitionConstraints(params.ECSParams)
+
 	// Check for and apply provided ecs-registry-creds values
 	if params.ECSRegistryCreds != nil {
 		err := addRegistryCredsToContainerDefs(containerDefinitions, params.ECSRegistryCreds.CredentialResources.ContainerCredentials)
@@ -135,6 +137,7 @@ func ConvertToTaskDefinition(params ConvertTaskDefParams) (*ecs.TaskDefinition, 
 		Cpu:                  aws.String(taskDefParams.cpu),
 		Memory:               aws.String(taskDefParams.memory),
 		ExecutionRoleArn:     aws.String(executionRoleArn),
+		PlacementConstraints: placementConstraints,
 	}
 
 	// Set launch type
@@ -398,4 +401,24 @@ func getContainersToCredsMap(containerCreds map[string]regcredio.CredsOutputEntr
 		}
 	}
 	return containerToCredMap, nil
+}
+
+func convertToTaskDefinitionConstraints(ecsParams *ECSParams) []*ecs.TaskDefinitionPlacementConstraint {
+	if ecsParams == nil {
+		return nil
+	}
+
+	placementConstraints := ecsParams.TaskDefinition.PlacementConstraints
+	if len(placementConstraints) > 0 {
+		tdPcs := make([]*ecs.TaskDefinitionPlacementConstraint, len(placementConstraints))
+		for i, pc := range placementConstraints {
+			tdPcs[i] = &ecs.TaskDefinitionPlacementConstraint{
+				Type:       aws.String(pc.Type),
+				Expression: aws.String(pc.Expression),
+			}
+		}
+		return tdPcs
+	}
+
+	return nil
 }

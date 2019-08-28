@@ -490,6 +490,9 @@ task_definition:
         string: string
       labels:
         string: string
+  placement_constraints:
+    - type: string                      // Valid values: "memberOf"
+      expression: string
 
 run_params:
   network_configuration:
@@ -557,6 +560,8 @@ Fields listed under `task_definition` correspond to fields that will be included
 * `task_execution_role` should be the ARN of an IAM role. **NOTE**: This field is required to enable ECS Tasks to be configured with Cloudwatch Logs, or to pull images from ECR for your tasks.
 
 * `task_size` Contains two fields, CPU and Memory. These fields are required for launching tasks with Fargate launch type. See [the documentation on ECS Task Definition Parameters](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html) for more information.
+
+* `placement_constraints` allows you to specify a list of constraints on task placement within the task definition. Not supported with the `FARGATE` launch type.
 
 * `pid_mode` allows you to control the process namespace in which your containers run. Valid values are `task` or `host`. See the [ECS documentation](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_definition_pidmode) for more information.
 

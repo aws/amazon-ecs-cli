@@ -411,7 +411,7 @@ func TestParseECSRegistryCreds_NoFile(t *testing.T) {
 	}
 }
 
-func TestParseCompose_V2_WithPlacementConstraint(t *testing.T) {
+func TestParseCompose_V2_WithTaskDefinitionPlacementConstraint(t *testing.T) {
 	// Setup docker-compose file
 	composeFileString := `version: '2'
 services:
@@ -430,11 +430,10 @@ services:
 	assert.NoError(t, err, "Unexpected error closing file")
 
 	ecsParamsString := `version: 1
-run_params:
-  task_placement:
-    constraints:
-      - type: memberOf
-        expression: "attribute:name == value"`
+task_definition:
+  placement_constraints:
+    - type: memberOf
+      expression: "attribute:name == value"`
 
 	content := []byte(ecsParamsString)
 

@@ -51,6 +51,7 @@ type EcsTaskDef struct {
 	ExecutionRole        string         `yaml:"task_execution_role"`
 	TaskSize             TaskSize       `yaml:"task_size"` // Needed to run FARGATE tasks
 	DockerVolumes        []DockerVolume `yaml:"docker_volumes"`
+	PlacementConstraints []Constraint   `yaml:"placement_constraints"`
 }
 
 // ContainerDefs is a map of ContainerDefs within a task definition

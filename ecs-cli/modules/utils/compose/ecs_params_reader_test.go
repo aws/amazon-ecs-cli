@@ -241,6 +241,10 @@ run_params:
 
 func TestReadECSParams_WithTaskPlacement(t *testing.T) {
 	ecsParamsString := `version: 1
+task_definition:
+  placement_constraints:
+    - type: memberOf
+      expression: attribute:ecs.os-type == linux
 run_params:
   task_placement:
     strategy:
@@ -288,6 +292,13 @@ run_params:
 		},
 	}
 
+	expectedTaskDefConstraints := []Constraint{
+		{
+			Expression: "attribute:ecs.os-type == linux",
+			Type:       ecs.PlacementConstraintTypeMemberOf,
+		},
+	}
+
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 
 	if assert.NoError(t, err) {
@@ -298,6 +309,9 @@ run_params:
 		assert.Len(t, constraints, 2)
 		assert.ElementsMatch(t, expectedStrategies, strategies)
 		assert.ElementsMatch(t, expectedConstraints, constraints)
+
+		taskDefConstraints := ecsParams.TaskDefinition.PlacementConstraints
+		assert.ElementsMatch(t, expectedTaskDefConstraints, taskDefConstraints)
 	}
 }
 
