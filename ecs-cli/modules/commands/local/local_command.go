@@ -20,8 +20,8 @@ import (
 	app "github.com/aws/amazon-ecs-cli/ecs-cli/modules"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local"
 	project "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/localproject"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/local/network"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/usage"
 	"github.com/urfave/cli"
 )
 
@@ -37,7 +37,7 @@ const (
 func LocalCommand() cli.Command {
 	return cli.Command{
 		Name:   "local",
-		Usage:  "Run your ECS tasks locally.",
+		Usage:  usage.Local,
 		Before: app.BeforeApp,
 		Flags:  flags.AppendFlags(flags.OptECSProfileFlag(), flags.OptAWSProfileFlag(), flags.OptRegionFlag()),
 		Subcommands: []cli.Command{
@@ -52,7 +52,7 @@ func LocalCommand() cli.Command {
 func createCommand() cli.Command {
 	return cli.Command{
 		Name:   createCmdName,
-		Usage:  "Create a Compose file from an ECS task definition.",
+		Usage:  usage.LocalCreate,
 		Before: app.BeforeApp,
 		Action: local.Create,
 		Flags: []cli.Flag{
@@ -68,6 +68,10 @@ func createCommand() cli.Command {
 				Name:  flagName(flags.Output),
 				Usage: flagDescription(flags.Output, createCmdName),
 			},
+			cli.BoolFlag{
+				Name:  flagName(flags.ForceFlag),
+				Usage: flagDescription(flags.ForceFlag, createCmdName),
+			},
 		},
 	}
 }
@@ -75,7 +79,7 @@ func createCommand() cli.Command {
 func upCommand() cli.Command {
 	return cli.Command{
 		Name:   upCmdName,
-		Usage:  fmt.Sprintf("Run containers locally from an ECS Task Definition. NOTE: Creates a docker-compose file in current directory and a %s if one doesn't exist. ", network.EcsLocalNetworkName),
+		Usage:  usage.LocalUp,
 		Action: local.Up,
 		Flags: []cli.Flag{
 			cli.StringFlag{
@@ -98,6 +102,10 @@ func upCommand() cli.Command {
 				Name:  flagName(flags.ComposeOverride),
 				Usage: flagDescription(flags.ComposeOverride, upCmdName),
 			},
+			cli.BoolFlag{
+				Name:  flagName(flags.ForceFlag),
+				Usage: flagDescription(flags.ForceFlag, upCmdName),
+			},
 		},
 	}
 }
@@ -105,7 +113,7 @@ func upCommand() cli.Command {
 func psCommand() cli.Command {
 	return cli.Command{
 		Name:   psCmdName,
-		Usage:  "List locally running ECS task containers.",
+		Usage:  usage.LocalPs,
 		Action: local.Ps,
 		Flags: []cli.Flag{
 			cli.StringFlag{
@@ -131,7 +139,7 @@ func psCommand() cli.Command {
 func downCommand() cli.Command {
 	return cli.Command{
 		Name:   downCmdName,
-		Usage:  fmt.Sprintf("Stop and remove a running ECS task. NOTE: Removes the %s if it has no more running tasks. ", network.EcsLocalNetworkName),
+		Usage:  usage.LocalDown,
 		Action: local.Down,
 		Flags: []cli.Flag{
 			cli.StringFlag{
@@ -159,6 +167,7 @@ func flagName(longName string) string {
 		flags.ComposeOverride:       flags.ComposeOverride,
 		flags.JSON:                  flags.JSON,
 		flags.All:                   flags.All,
+		flags.ForceFlag:             flags.ForceFlag,
 	}
 	return m[longName]
 }
@@ -193,6 +202,10 @@ func flagDescription(longName, cmdName string) string {
 		flags.All: {
 			psCmdName:   "Lists all locally running containers.",
 			downCmdName: "Stops and removes all locally running containers.",
+		},
+		flags.ForceFlag: {
+			createCmdName: fmt.Sprintf("Overwrite output docker compose file if it exists. Default compose file is %s.", project.LocalOutDefaultFileName),
+			upCmdName:     fmt.Sprintf("Overwrite output docker compose file if it exists. Default compose file is %s.", project.LocalOutDefaultFileName),
 		},
 	}
 	return m[longName][cmdName]

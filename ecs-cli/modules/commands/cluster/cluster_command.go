@@ -1,4 +1,4 @@
-// Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may
 // not use this file except in compliance with the License. A copy of the
@@ -11,19 +11,21 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
+// package clusterCommand defines all the commands for cluster workflows
 package clusterCommand
 
 import (
 	ecscli "github.com/aws/amazon-ecs-cli/ecs-cli/modules"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/cluster"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/usage"
 	"github.com/urfave/cli"
 )
 
 func UpCommand() cli.Command {
 	return cli.Command{
 		Name:         "up",
-		Usage:        "Creates the ECS cluster (if it does not already exist) and the AWS resources required to set up the cluster.",
+		Usage:        usage.ClusterUp,
 		Before:       ecscli.BeforeApp,
 		Action:       cluster.ClusterUp,
 		Flags:        flags.AppendFlags(clusterUpFlags(), flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.DebugFlag()),
@@ -34,7 +36,7 @@ func UpCommand() cli.Command {
 func DownCommand() cli.Command {
 	return cli.Command{
 		Name:         "down",
-		Usage:        "Deletes the CloudFormation stack that was created by ecs-cli up and the associated resources.",
+		Usage:        usage.ClusterDown,
 		Action:       cluster.ClusterDown,
 		Flags:        flags.AppendFlags(clusterDownFlags(), flags.OptionalConfigFlags()),
 		OnUsageError: flags.UsageErrorFactory("down"),
@@ -44,7 +46,7 @@ func DownCommand() cli.Command {
 func ScaleCommand() cli.Command {
 	return cli.Command{
 		Name:         "scale",
-		Usage:        "Modifies the number of container instances in your cluster. This command changes the desired and maximum instance count in the Auto Scaling group created by the ecs-cli up command. You can use this command to scale up (increase the number of instances) or scale down (decrease the number of instances) your cluster.",
+		Usage:        usage.ClusterScale,
 		Action:       cluster.ClusterScale,
 		Flags:        flags.AppendFlags(clusterScaleFlags(), flags.OptionalConfigFlags()),
 		OnUsageError: flags.UsageErrorFactory("scale"),
@@ -54,7 +56,7 @@ func ScaleCommand() cli.Command {
 func PsCommand() cli.Command {
 	return cli.Command{
 		Name:         "ps",
-		Usage:        "Lists all of the running containers in your ECS cluster",
+		Usage:        usage.ClusterPs,
 		Action:       cluster.ClusterPS,
 		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), flags.OptionalDesiredStatusFlag()),
 		OnUsageError: flags.UsageErrorFactory("ps"),
@@ -73,7 +75,7 @@ func clusterUpFlags() []cli.Flag {
 		},
 		cli.StringFlag{
 			Name:  flags.InstanceRoleFlag,
-			Usage: "[Optional] Specifies a custom IAM Role for instances in your cluster. Required if --capability-iam is not specified. NOTE: Not applicable for launch type FARGATE.",
+			Usage: "[Optional] Specifies a custom IAM Role for instances in your cluster. A new instance profile will be created and attached to this role. Required if --capability-iam is not specified. NOTE: Not applicable for launch type FARGATE.",
 		},
 		cli.StringFlag{
 			Name:  flags.KeypairNameFlag,

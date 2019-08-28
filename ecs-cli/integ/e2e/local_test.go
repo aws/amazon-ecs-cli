@@ -16,6 +16,8 @@
 package e2e
 
 import (
+	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/integ"
@@ -23,7 +25,6 @@ import (
 )
 
 func TestECSLocal(t *testing.T) {
-	t.Parallel()
 
 	type commandTest struct {
 		args    []string
@@ -85,6 +86,85 @@ func TestECSLocal(t *testing.T) {
 						})
 					},
 				},
+				{
+					args: []string{"local", "down", "--all"},
+					execute: func(t *testing.T, args []string) {
+
+						stdout, err := integ.RunCmd(t, args)
+						require.NoError(t, err)
+						stdout.TestHasAllSubstrings(t, []string{
+							"No running ECS local tasks found",
+						})
+					},
+				},
+				{
+					args: []string{"local", "down", "-f", "task-definition.json"},
+					execute: func(t *testing.T, args []string) {
+						stdout, err := integ.RunCmd(t, args)
+						require.NoError(t, err)
+						stdout.TestHasAllSubstrings(t, []string{
+							"Searching for containers from local file task-definition.json",
+							"No running ECS local tasks found",
+						})
+					},
+				},
+			},
+		},
+		"from task def": {
+			sequence: []commandTest{
+				{
+					args: []string{"local", "create", "-f", ""},
+					execute: func(t *testing.T, args []string) {
+						tempFileName := createLocalTaskDefFile(t)
+						defer os.Remove(tempFileName)
+						defer os.Remove("docker-compose.ecs-local.yml")
+						defer os.Remove("docker-compose.ecs-local.override.yml")
+						args[3] = tempFileName
+						stdout, err := integ.RunCmd(t, args)
+						require.NoError(t, err)
+						stdout.TestHasAllSubstrings(t, []string{
+							"Successfully wrote docker-compose",
+						})
+					},
+				},
+				{
+					args: []string{"local", "up", "-f", ""},
+					execute: func(t *testing.T, args []string) {
+						tempFileName := createLocalTaskDefFile(t)
+						defer os.Remove(tempFileName)
+						defer os.Remove("docker-compose.ecs-local.yml")
+						defer os.Remove("docker-compose.ecs-local.override.yml")
+
+						args[3] = tempFileName
+						stdout, err := integ.RunCmd(t, args)
+						require.NoError(t, err)
+						stdout.TestHasAllSubstrings(t, []string{
+							"Started container with ID",
+						})
+						downArgs := []string{"local", "down", "-f", tempFileName}
+						stdout, err = integ.RunCmd(t, downArgs)
+
+					},
+				},
+				{
+					args: []string{"local", "up", "-c", "docker-compose.ecs-local.yml"},
+					execute: func(t *testing.T, args []string) {
+						tempFileName := createLocalTaskDefFile(t)
+						defer os.Remove(tempFileName)
+						defer os.Remove("docker-compose.ecs-local.yml")
+						defer os.Remove("docker-compose.ecs-local.override.yml")
+
+						createArgs := []string{"local", "create", "-f", tempFileName}
+						stdout, err := integ.RunCmd(t, createArgs)
+						stdout, err = integ.RunCmd(t, args)
+						require.NoError(t, err)
+						stdout.TestHasAllSubstrings(t, []string{
+							"Created the amazon-ecs-local-container-endpoints container",
+						})
+						downArgs := []string{"local", "down", "-f", tempFileName}
+						stdout, err = integ.RunCmd(t, downArgs)
+					},
+				},
 			},
 		},
 	}
@@ -96,4 +176,41 @@ func TestECSLocal(t *testing.T) {
 			}
 		})
 	}
+}
+
+func createLocalTaskDefFile(t *testing.T) string {
+	content := `
+{
+	"containerDefinitions": [
+		{
+			"entryPoint": [
+				"sh",
+				"-c"
+			],
+			"essential": true,
+			"image": "httpd:2.4",
+			"name": "simple-test-app",
+			"portMappings": [
+				{
+				"containerPort": 80,
+				"hostPort": 80,
+				"protocol": "tcp"
+				}
+			]
+		}
+	],
+	"cpu": "256",
+	"memory": "512",
+	"networkMode": "bridge"
+	}`
+	tmpfile, err := ioutil.TempFile(".", "task-definition-*.json")
+	require.NoError(t, err, "Failed to create task-definition.json")
+
+	_, err = tmpfile.Write([]byte(content))
+	require.NoError(t, err, "Failed to write to %s", tmpfile.Name())
+
+	err = tmpfile.Close()
+	require.NoError(t, err, "Failed to close %s", tmpfile.Name())
+
+	return tmpfile.Name()
 }

@@ -21,10 +21,11 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/service"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/task"
+	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/sirupsen/logrus"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
+	composeutils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/regcredio"
 	"github.com/docker/libcompose/project"
 )
@@ -169,7 +170,7 @@ func (p *ecsProject) parseCompose() error {
 func (p *ecsProject) parseECSParams() error {
 	logrus.Debug("Parsing the ecs-params yaml...")
 	ecsParamsFileName := p.ecsContext.CLIContext.GlobalString(flags.ECSParamsFileNameFlag)
-	ecsParams, err := utils.ReadECSParams(ecsParamsFileName)
+	ecsParams, err := composeutils.ReadECSParams(ecsParamsFileName)
 
 	if err != nil {
 		return err
@@ -205,7 +206,7 @@ func (p *ecsProject) transformTaskDefinition() error {
 	requiredCompatibilities := ecsContext.CommandConfig.LaunchType
 	taskDefinitionName := ecsContext.ProjectName
 
-	convertParams := utils.ConvertTaskDefParams{
+	convertParams := composeutils.ConvertTaskDefParams{
 		TaskDefName:            taskDefinitionName,
 		TaskRoleArn:            taskRoleArn,
 		RequiredCompatibilites: requiredCompatibilities,
@@ -215,11 +216,27 @@ func (p *ecsProject) transformTaskDefinition() error {
 		ECSRegistryCreds:       p.ecsRegistryCreds,
 	}
 
-	taskDefinition, err := utils.ConvertToTaskDefinition(convertParams)
-
+	taskDefinition, err := composeutils.ConvertToTaskDefinition(convertParams)
 	if err != nil {
 		return err
 	}
+
+	placementConstraints, err := composeutils.ConvertToECSPlacementConstraints(ecsContext.ECSParams)
+	if err != nil {
+		return err
+	}
+
+	if len(placementConstraints) > 0 {
+		tdPcs := make([]*ecs.TaskDefinitionPlacementConstraint, len(placementConstraints))
+		for i, pc := range placementConstraints {
+			tdPcs[i] = &ecs.TaskDefinitionPlacementConstraint{
+				Type:       pc.Type,
+				Expression: pc.Expression,
+			}
+		}
+		taskDefinition.SetPlacementConstraints(tdPcs)
+	}
+
 	p.entity.SetTaskDefinition(taskDefinition)
 	return nil
 }
