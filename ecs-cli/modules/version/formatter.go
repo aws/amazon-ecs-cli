@@ -15,9 +15,5 @@ package version
 
 // String produces a human-readable string showing the ecs-cli version.
 func String() string {
-	ret := Version + " ("
-	if GitDirty {
-		ret += "*"
-	}
-	return ret + GitShortHash + ")"
+	return Version + " (" + gitShortHash + ")"
 }

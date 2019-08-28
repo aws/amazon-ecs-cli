@@ -1,7 +1,66 @@
 version: 0.2
 
 phases:
+  install:
+    runtime-versions:
+      golang: 1.12
+  pre_build:
+    commands:
+      # GOPATH is setup like the following in Codebuild standard 2.0 image
+      # /go:/codebuild/output/src<some numbers>
+      # so we copy all the source code to the appropriate location before
+      # invoking any go command
+      - echo "cd into $CODEBUILD_SRC_DIR"
+      - cd $CODEBUILD_SRC_DIR
+      - mkdir -p /go/src/github.com/aws/amazon-ecs-cli
+      - cp -R ./* /go/src/github.com/aws/amazon-ecs-cli/
+      - ls -lah /go/src
+      # skip unit tests during PoC
+      # - |
+      #   env -i PATH=$PATH GOPATH=`go env GOPATH` GOROOT=`go env GOROOT` GOCACHE=`go env GOCACHE` \
+      #   go test -race -v -cover github.com/aws/amazon-ecs-cli/ecs-cli/modules/...
   build:
     commands:
-      - make integ-test
-      - ./bin/local/ecs-cli.test
+      - echo "Compilation context:"
+      - echo "CODEBUILD_SOURCE_VERSION=$CODEBUILD_SOURCE_VERSION"
+      # set the version number to the tag on HEAD or "development" if HEAD is
+      # not tagged
+      - VERSION=`git tag --points-at HEAD`
+      - |
+        if [ -z "$VERSION" ]; then
+          VERSION='development'
+        fi
+      - echo "VERSION=$VERSION"
+      - GIT_COMMIT_ID=`git rev-parse HEAD`
+      - echo "GIT_COMMIT_ID=$GIT_COMMIT_ID"
+      - GIT_SHORT_HASH=`git rev-parse --short=7 HEAD`
+      - echo "GIT_SHORT_HASH=$GIT_SHORT_HASH"
+      - echo "GOPATH=$GOPATH"
+
+      - GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s -X github.com/aws/amazon-ecs-cli/ecs-cli/modules/version.Version=$VERSION -X github.com/aws/amazon-ecs-cli/ecs-cli/modules/version.gitShortHash=$GIT_SHORT_HASH" -o aws/amazon-ecs-cli/ecs-cli-windows-amd64-$VERSION.exe github.com/aws/amazon-ecs-cli/ecs-cli/
+      - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s -X github.com/aws/amazon-ecs-cli/ecs-cli/modules/version.Version=$VERSION -X github.com/aws/amazon-ecs-cli/ecs-cli/modules/version.gitShortHash=$GIT_SHORT_HASH" -o aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION github.com/aws/amazon-ecs-cli/ecs-cli/
+      - GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s -X github.com/aws/amazon-ecs-cli/ecs-cli/modules/version.Version=$VERSION -X github.com/aws/amazon-ecs-cli/ecs-cli/modules/version.gitShortHash=$GIT_SHORT_HASH" -o aws/amazon-ecs-cli/ecs-cli-darwin-amd64-$VERSION github.com/aws/amazon-ecs-cli/ecs-cli/
+    finally:
+      - echo "built artifacts:"
+      - ls -lah aws/amazon-ecs-cli/
+      - ./aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION --version
+  post_build:
+    commands:
+      - echo "Creating latest artifacts..."
+      - cp aws/amazon-ecs-cli/ecs-cli-windows-amd64-$VERSION.exe aws/amazon-ecs-cli/ecs-cli-windows-amd64-latest.exe
+      - cp aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION aws/amazon-ecs-cli/ecs-cli-linux-amd64-latest
+      - cp aws/amazon-ecs-cli/ecs-cli-darwin-amd64-$VERSION aws/amazon-ecs-cli/ecs-cli-darwin-amd64-latest
+      - MANIFESTFILE="$GIT_COMMIT_ID.manifest"
+      - echo "aws/amazon-ecs-cli/ecs-cli-windows-amd64-$VERSION.exe" >> $MANIFESTFILE
+      - echo "aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION" >> $MANIFESTFILE
+      - echo "aws/amazon-ecs-cli/ecs-cli-darwin-amd64-$VERSION" >> $MANIFESTFILE
+      - echo "aws/amazon-ecs-cli/ecs-cli-windows-amd64-latest.exe" >> $MANIFESTFILE
+      - echo "aws/amazon-ecs-cli/ecs-cli-linux-amd64-latest" >> $MANIFESTFILE
+      - echo "aws/amazon-ecs-cli/ecs-cli-darwin-amd64-latest" >> $MANIFESTFILE
+    finally:
+      - ls -lah aws/amazon-ecs-cli/
+artifacts:
+  files:
+    - '**/*'
+
+
