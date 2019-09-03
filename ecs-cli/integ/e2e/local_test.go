@@ -355,7 +355,7 @@ func getContainerNames(t *testing.T, containers []types.Container) []string {
 func getDockerClient(t *testing.T) *client.Client {
 	t.Helper()
 	dockerCli, err := client.NewClientWithOpts(
-		client.WithVersion("1.40"),
+		client.WithVersion("1.39"),
 	)
 	require.NoError(t, err)
 	return dockerCli
