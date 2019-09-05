@@ -63,13 +63,14 @@ type ContainerDef struct {
 	InitProcessEnabled    bool                  `yaml:"init_process_enabled"`
 	RepositoryCredentials RepositoryCredentials `yaml:"repository_credentials"`
 	// resource field yaml names correspond to equivalent docker-compose field
-	Cpu               int64                  `yaml:"cpu_shares"`
-	Memory            libYaml.MemStringorInt `yaml:"mem_limit"`
-	MemoryReservation libYaml.MemStringorInt `yaml:"mem_reservation"`
-	HealthCheck       *HealthCheck           `yaml:"healthcheck"`
-	Logging           Logging                `yaml:"logging"`
-	Secrets           []Secret               `yaml:"secrets"`
-	GPU               string                 `yaml:"gpu"`
+	Cpu                   int64                  `yaml:"cpu_shares"`
+	Memory                libYaml.MemStringorInt `yaml:"mem_limit"`
+	MemoryReservation     libYaml.MemStringorInt `yaml:"mem_reservation"`
+	HealthCheck           *HealthCheck           `yaml:"healthcheck"`
+	Logging               Logging                `yaml:"logging"`
+	FirelensConfiguration FirelensConfiguration  `yaml:"firelensConfiguration"`  
+	Secrets               []Secret               `yaml:"secrets"`
+	GPU                   string                 `yaml:"gpu"`
 }
 
 type DockerVolume struct {
@@ -79,6 +80,12 @@ type DockerVolume struct {
 	Driver        string            `yaml:"driver"`
 	DriverOptions map[string]string `yaml:"driver_opts"`
 	Labels        map[string]string `yaml:"labels"`
+}
+
+// Firelens holds all possible fields for logging via Firelens
+// https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_FirelensConfiguration.html
+type FirelensConfiguration struct {
+	Type:	    string `yaml:"type,omitempty"`
 }
 
 // HealthCheck holds all possible fields for HealthCheck, including fields
