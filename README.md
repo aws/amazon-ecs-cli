@@ -464,6 +464,8 @@ task_definition:
       repository_credentials:
         credentials_parameter: string
       cpu_shares: integer
+      firelens_configuration:
+        type: string                     // Supported string values: fluentd or fluentbit
       mem_limit: string                  // Values specified without units default to bytes, as in docker run
       mem_reservation: string
       gpu: string
