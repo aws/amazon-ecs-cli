@@ -68,7 +68,7 @@ type ContainerDef struct {
 	MemoryReservation     libYaml.MemStringorInt `yaml:"mem_reservation"`
 	HealthCheck           *HealthCheck           `yaml:"healthcheck"`
 	Logging               Logging                `yaml:"logging"`
-	FirelensConfiguration FirelensConfiguration  `yaml:"firelensConfiguration"`  
+	FirelensConfiguration FirelensConfiguration  `yaml:"firelens_configuration"`  
 	Secrets               []Secret               `yaml:"secrets"`
 	GPU                   string                 `yaml:"gpu"`
 }
