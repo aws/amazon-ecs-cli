@@ -85,7 +85,7 @@ type DockerVolume struct {
 // Firelens holds all possible fields for logging via Firelens
 // https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_FirelensConfiguration.html
 type FirelensConfiguration struct {
-	Type:	    string `yaml:"type,omitempty"`
+	Type:	    string `yaml:"type"`
 }
 
 // HealthCheck holds all possible fields for HealthCheck, including fields
