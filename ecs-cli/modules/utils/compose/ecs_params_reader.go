@@ -68,7 +68,7 @@ type ContainerDef struct {
 	MemoryReservation     libYaml.MemStringorInt `yaml:"mem_reservation"`
 	HealthCheck           *HealthCheck           `yaml:"healthcheck"`
 	Logging               Logging                `yaml:"logging"`
-	FirelensConfiguration FirelensConfiguration  `yaml:"firelens_configuration"`  
+	FirelensConfiguration FirelensConfiguration  `yaml:"firelens_configuration"`
 	Secrets               []Secret               `yaml:"secrets"`
 	GPU                   string                 `yaml:"gpu"`
 }
@@ -85,7 +85,8 @@ type DockerVolume struct {
 // Firelens holds all possible fields for logging via Firelens
 // https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_FirelensConfiguration.html
 type FirelensConfiguration struct {
-	Type:	    string `yaml:"type"`
+	Type    string            `yaml:"type"`
+	Options map[string]string `yaml:"options"`
 }
 
 // HealthCheck holds all possible fields for HealthCheck, including fields

@@ -111,10 +111,10 @@ var testContainerConfig = adapter.ContainerConfig{
 			Protocol:      aws.String("tcp"),
 		},
 	},
-	Privileged: true,
+	Privileged:     true,
 	PseudoTerminal: true,
-	ReadOnly:   true,
-	ShmSize:    int64(128), // Realistically, we expect customers to specify sizes larger than the default of 64M
+	ReadOnly:       true,
+	ShmSize:        int64(128), // Realistically, we expect customers to specify sizes larger than the default of 64M
 	Tmpfs: []*ecs.Tmpfs{
 		{
 			ContainerPath: aws.String("/tmp"),
@@ -1753,6 +1753,56 @@ registry_credential_outputs:
 
 	_, err = convertToTaskDefinitionForTest(t, containerConfigs, "", "", nil, regCreds)
 	assert.Error(t, err, "Expected error when converting task definition")
+}
+
+func TestConvertToTaskDefinitionWithECSParams_FirelensConfiguration(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "log_router",
+		Image: "amazon/aws-for-fluent-bit",
+	}
+
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    log_router:
+      firelens_configuration:
+        type: fluentbit
+        options:
+          enable-ecs-log-metadata: "true"`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	log_router := findContainerByName("log_router", containerDefs)
+
+	expectedFirelensConfiguration := &ecs.FirelensConfiguration{
+		Type: aws.String("fluentbit"),
+		Options: aws.StringMap(map[string]string{
+			"enable-ecs-log-metadata": "true",
+		}),
+	}
+
+	if assert.NoError(t, err) {
+		assert.ElementsMatch(t, expectedFirelensConfiguration, log_router.FirelensConfiguration, "Expected Firelens configuration to match")
+	}
 }
 
 func TestConvertToTaskDefinitionWithECSParams_Secrets(t *testing.T) {

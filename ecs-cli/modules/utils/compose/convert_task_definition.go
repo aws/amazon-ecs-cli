@@ -241,6 +241,14 @@ func convertToECSVolumes(hostPaths *adapter.Volumes, ecsParams *ECSParams) ([]*e
 	return output, nil
 }
 
+func convertToECSFirelensConfiguration(firelensConfiguration FirelensConfiguration) *ecs.FirelensConfiguration {
+	ecsFirelensConfiguration := &ecs.FirelensConfiguration{
+		Type:    aws.String(firelensConfiguration.Type),
+		Options: aws.StringMap(firelensConfiguration.Options),
+	}
+	return ecsFirelensConfiguration
+}
+
 func convertToECSSecrets(secrets []Secret) []*ecs.Secret {
 	var ecsSecrets []*ecs.Secret
 	for _, secret := range secrets {
