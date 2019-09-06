@@ -1755,58 +1755,48 @@ registry_credential_outputs:
 	assert.Error(t, err, "Expected error when converting task definition")
 }
 
-// func TestConvertToTaskDefinitionWithECSParams_FirelensConfiguration(t *testing.T) {
-// 	containerConfig := &adapter.ContainerConfig{
-// 		Name:  "log_router",
-// 		Image: "amazon/aws-for-fluent-bit",
-// 	}
+func TestConvertToTaskDefinitionWithECSParams_FirelensConfiguration(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "log_router",
+		Image: "amazon/aws-for-fluent-bit",
+	}
 
-// 	ecsParamsString := `version: 1
-// task_definition:
-//   services:
-//     log_router:
-//       firelens_configuration:
-//         type: fluentbit
-//         options:
-//           enable-ecs-log-metadata: "true"`
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    log_router:
+      firelens_configuration:
+        type: fluentbit
+        options:
+           enable-ecs-log-metadata: "true"`
 
-// 	content := []byte(ecsParamsString)
+	content := []byte(ecsParamsString)
 
-// 	tmpfile, err := ioutil.TempFile("", "ecs-params")
-// 	assert.NoError(t, err, "Could not create ecs params tempfile")
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
 
-// 	defer os.Remove(tmpfile.Name())
+	defer os.Remove(tmpfile.Name())
 
-// 	_, err = tmpfile.Write(content)
-// 	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
 
-// 	err = tmpfile.Close()
-// 	assert.NoError(t, err, "Could not close tempfile")
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
 
-// 	ecsParamsFileName := tmpfile.Name()
-// 	ecsParams, err := ReadECSParams(ecsParamsFileName)
-// 	assert.NoError(t, err, "Could not read ECS Params file")
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
 
-// 	containerConfigs := []adapter.ContainerConfig{*containerConfig}
-// 	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
-// 	containerDefs := taskDefinition.ContainerDefinitions
-// 	log_router := findContainerByName("log_router", containerDefs)
+	containerDefs := taskDefinition.ContainerDefinitions
+	log_router := findContainerByName("log_router", containerDefs)
 
-// 	if assert.NoError(t, err) {
-// 		// assert.ElementsMatch(t, expectedFirelensConfiguration, log_router.FirelensConfiguration, "Expected Firelens configuration to match")
-
-// 		/*
-// 			causes:
-// 			--- FAIL: TestConvertToTaskDefinitionWithECSParams_FirelensConfiguration (0.00s)
-// 			convert_task_definition_test.go:1804:
-// 					Error Trace:	convert_task_definition_test.go:1804
-// 					Error:      	"{\n  Options: {\n    enable-ecs-log-metadata: \"true\"\n  },\n  Type: \"fluentbit\"\n}" has an unsupported type ptr
-// 					Test:       	TestConvertToTaskDefinitionWithECSParams_FirelensConfiguration
-// 					Messages:   	Expected Firelens configuration to match
-// 		*/
-// 	}
-// }
+	if assert.NoError(t, err) {
+		assert.Equal(t, aws.String("fluentbit"), log_router.FirelensConfiguration.Type)
+	}
+}
 
 func TestConvertToTaskDefinitionWithECSParams_Secrets(t *testing.T) {
 	containerConfig := &adapter.ContainerConfig{
