@@ -77,6 +77,11 @@ task_definition:
   ecs_network_mode: host
   task_role_arn: arn:aws:iam::123456789012:role/my_role
   services:
+    log_router:
+      firelens_configuration:
+        type: fluentbit
+        options:
+          enable-ecs-log-metadata: "true"
     mysql:
       essential: false
       cpu_shares: 100
@@ -120,10 +125,11 @@ task_definition:
 		assert.Equal(t, "arn:aws:iam::123456789012:role/my_role", taskDef.TaskRoleArn, "Expected TaskRoleArn to match")
 
 		containerDefs := taskDef.ContainerDefinitions
-		assert.Equal(t, 2, len(containerDefs), "Expected 2 containers")
+		assert.Equal(t, 3, len(containerDefs), "Expected 3 containers")
 
 		mysql := containerDefs["mysql"]
 		wordpress := containerDefs["wordpress"]
+		log_router := containerDefs["log_router"]
 
 		assert.False(t, mysql.Essential, "Expected container to not be essential")
 		assert.Equal(t, int64(100), mysql.Cpu)
@@ -145,6 +151,9 @@ task_definition:
 
 		assert.ElementsMatch(t, expectedSecrets, wordpress.Secrets, "Expected secrets to match")
 		assert.ElementsMatch(t, expectedSecrets, wordpress.Logging.SecretOptions, "Expected secrets to match")
+
+		assert.Equal(t, "fluentbit", log_router.FirelensConfiguration.Type, "Exception firelens_configuration to be fluentbit")
+		assert.Equal(t, "true", log_router.FirelensConfiguration.Options["enable-ecs-log-metadata"], "Exception firelens_configuration to be fluentbit")
 	}
 }
 

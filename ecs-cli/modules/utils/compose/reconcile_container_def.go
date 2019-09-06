@@ -117,6 +117,10 @@ func reconcileContainerDef(inputCfg *adapter.ContainerConfig, ecsConDef *Contain
 
 		credParam := ecsConDef.RepositoryCredentials.CredentialsParameter
 
+		if ecsConDef.FirelensConfiguration.Type != "" {
+			outputContDef.SetFirelensConfiguration(convertToECSFirelensConfiguration(ecsConDef.FirelensConfiguration))
+		}
+
 		if credParam != "" {
 			outputContDef.RepositoryCredentials = &ecs.RepositoryCredentials{}
 			outputContDef.RepositoryCredentials.SetCredentialsParameter(credParam)
