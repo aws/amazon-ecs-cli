@@ -466,6 +466,7 @@ task_definition:
       cpu_shares: integer
       firelens_configuration:
         type: string                     // Supported string values: fluentd or fluentbit
+        options: list of strings
       mem_limit: string                  // Values specified without units default to bytes, as in docker run
       mem_reservation: string
       gpu: string
