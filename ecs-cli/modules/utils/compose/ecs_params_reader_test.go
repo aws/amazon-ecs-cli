@@ -152,8 +152,8 @@ task_definition:
 		assert.ElementsMatch(t, expectedSecrets, wordpress.Secrets, "Expected secrets to match")
 		assert.ElementsMatch(t, expectedSecrets, wordpress.Logging.SecretOptions, "Expected secrets to match")
 
-		assert.Equal(t, "fluentbit", log_router.FirelensConfiguration.Type, "Exception firelens_configuration to be fluentbit")
-		assert.Equal(t, "true", log_router.FirelensConfiguration.Options["enable-ecs-log-metadata"], "Exception firelens_configuration to be fluentbit")
+		assert.Equal(t, "fluentbit", log_router.FirelensConfiguration.Type, "Except firelens_configuration type to be fluentbit")
+		assert.Equal(t, "true", log_router.FirelensConfiguration.Options["enable-ecs-log-metadata"], "Expected Firelens 'enable-ecs-log-metadata' to be 'true'")
 	}
 }
 
