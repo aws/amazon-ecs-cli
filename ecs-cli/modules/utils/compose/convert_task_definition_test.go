@@ -1794,7 +1794,8 @@ task_definition:
 	log_router := findContainerByName("log_router", containerDefs)
 
 	if assert.NoError(t, err) {
-		assert.Equal(t, aws.String("fluentbit"), log_router.FirelensConfiguration.Type)
+		assert.Equal(t, "fluentbit", aws.StringValue(log_router.FirelensConfiguration.Type))
+		assert.Equal(t, "true", aws.StringValue(log_router.FirelensConfiguration.Options["enable-ecs-log-metadata"]))
 	}
 }
 
