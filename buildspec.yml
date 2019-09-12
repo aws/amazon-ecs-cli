@@ -15,10 +15,9 @@ phases:
       - mkdir -p /go/src/github.com/aws/amazon-ecs-cli
       - cp -R ./* /go/src/github.com/aws/amazon-ecs-cli/
       - ls -lah /go/src
-      # skip unit tests during PoC
-      # - |
-      #   env -i PATH=$PATH GOPATH=`go env GOPATH` GOROOT=`go env GOROOT` GOCACHE=`go env GOCACHE` \
-      #   go test -race -v -cover github.com/aws/amazon-ecs-cli/ecs-cli/modules/...
+      - |
+        env -i PATH=$PATH GOPATH=`go env GOPATH` GOROOT=`go env GOROOT` GOCACHE=`go env GOCACHE` \
+        go test -race -v -cover github.com/aws/amazon-ecs-cli/ecs-cli/modules/...
   build:
     commands:
       - echo "Compilation context:"

@@ -19,15 +19,7 @@ cd "${ROOT}"
 # Builds the ecs-cli binary from source in the specified destination paths.
 mkdir -p $1
 
-# Versioning stuff. We run the generator to setup the version and then always
-# restore ourselves to a clean state
-cp ecs-cli/modules/version/version.go ecs-cli/modules/version/_version.go
-trap "cd \"${ROOT}\"; mv ecs-cli/modules/version/_version.go ecs-cli/modules/version/version.go" EXIT SIGHUP SIGINT SIGTERM
-
-cd ./ecs-cli/modules/version/
-go run gen/version-gen.go
-
-cd "${ROOT}"
-
-GOOS=$TARGET_GOOS CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags '-s' -o $1/ecs-cli ./ecs-cli/
+GIT_DIRTY=`git diff --quiet || echo '*'`
+GIT_SHORT_HASH="$GIT_DIRTY"`git rev-parse --short=7 HEAD`
+GOOS=$TARGET_GOOS CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s -X github.com/aws/amazon-ecs-cli/ecs-cli/modules/version.Version=development -X github.com/aws/amazon-ecs-cli/ecs-cli/modules/version.gitShortHash=$GIT_SHORT_HASH" -o $1/ecs-cli ./ecs-cli/
 
