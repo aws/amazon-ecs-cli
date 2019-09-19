@@ -51,6 +51,7 @@ func (m *MockECRAPI) EXPECT() *MockECRAPIMockRecorder {
 
 // BatchCheckLayerAvailability mocks base method
 func (m *MockECRAPI) BatchCheckLayerAvailability(arg0 *ecr.BatchCheckLayerAvailabilityInput) (*ecr.BatchCheckLayerAvailabilityOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BatchCheckLayerAvailability", arg0)
 	ret0, _ := ret[0].(*ecr.BatchCheckLayerAvailabilityOutput)
 	ret1, _ := ret[1].(error)
@@ -59,11 +60,13 @@ func (m *MockECRAPI) BatchCheckLayerAvailability(arg0 *ecr.BatchCheckLayerAvaila
 
 // BatchCheckLayerAvailability indicates an expected call of BatchCheckLayerAvailability
 func (mr *MockECRAPIMockRecorder) BatchCheckLayerAvailability(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BatchCheckLayerAvailability", reflect.TypeOf((*MockECRAPI)(nil).BatchCheckLayerAvailability), arg0)
 }
 
 // BatchCheckLayerAvailabilityRequest mocks base method
 func (m *MockECRAPI) BatchCheckLayerAvailabilityRequest(arg0 *ecr.BatchCheckLayerAvailabilityInput) (*request.Request, *ecr.BatchCheckLayerAvailabilityOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BatchCheckLayerAvailabilityRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.BatchCheckLayerAvailabilityOutput)
@@ -72,11 +75,13 @@ func (m *MockECRAPI) BatchCheckLayerAvailabilityRequest(arg0 *ecr.BatchCheckLaye
 
 // BatchCheckLayerAvailabilityRequest indicates an expected call of BatchCheckLayerAvailabilityRequest
 func (mr *MockECRAPIMockRecorder) BatchCheckLayerAvailabilityRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BatchCheckLayerAvailabilityRequest", reflect.TypeOf((*MockECRAPI)(nil).BatchCheckLayerAvailabilityRequest), arg0)
 }
 
 // BatchCheckLayerAvailabilityWithContext mocks base method
 func (m *MockECRAPI) BatchCheckLayerAvailabilityWithContext(arg0 context.Context, arg1 *ecr.BatchCheckLayerAvailabilityInput, arg2 ...request.Option) (*ecr.BatchCheckLayerAvailabilityOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -89,12 +94,14 @@ func (m *MockECRAPI) BatchCheckLayerAvailabilityWithContext(arg0 context.Context
 
 // BatchCheckLayerAvailabilityWithContext indicates an expected call of BatchCheckLayerAvailabilityWithContext
 func (mr *MockECRAPIMockRecorder) BatchCheckLayerAvailabilityWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BatchCheckLayerAvailabilityWithContext", reflect.TypeOf((*MockECRAPI)(nil).BatchCheckLayerAvailabilityWithContext), varargs...)
 }
 
 // BatchDeleteImage mocks base method
 func (m *MockECRAPI) BatchDeleteImage(arg0 *ecr.BatchDeleteImageInput) (*ecr.BatchDeleteImageOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BatchDeleteImage", arg0)
 	ret0, _ := ret[0].(*ecr.BatchDeleteImageOutput)
 	ret1, _ := ret[1].(error)
@@ -103,11 +110,13 @@ func (m *MockECRAPI) BatchDeleteImage(arg0 *ecr.BatchDeleteImageInput) (*ecr.Bat
 
 // BatchDeleteImage indicates an expected call of BatchDeleteImage
 func (mr *MockECRAPIMockRecorder) BatchDeleteImage(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BatchDeleteImage", reflect.TypeOf((*MockECRAPI)(nil).BatchDeleteImage), arg0)
 }
 
 // BatchDeleteImageRequest mocks base method
 func (m *MockECRAPI) BatchDeleteImageRequest(arg0 *ecr.BatchDeleteImageInput) (*request.Request, *ecr.BatchDeleteImageOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BatchDeleteImageRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.BatchDeleteImageOutput)
@@ -116,11 +125,13 @@ func (m *MockECRAPI) BatchDeleteImageRequest(arg0 *ecr.BatchDeleteImageInput) (*
 
 // BatchDeleteImageRequest indicates an expected call of BatchDeleteImageRequest
 func (mr *MockECRAPIMockRecorder) BatchDeleteImageRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BatchDeleteImageRequest", reflect.TypeOf((*MockECRAPI)(nil).BatchDeleteImageRequest), arg0)
 }
 
 // BatchDeleteImageWithContext mocks base method
 func (m *MockECRAPI) BatchDeleteImageWithContext(arg0 context.Context, arg1 *ecr.BatchDeleteImageInput, arg2 ...request.Option) (*ecr.BatchDeleteImageOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -133,12 +144,14 @@ func (m *MockECRAPI) BatchDeleteImageWithContext(arg0 context.Context, arg1 *ecr
 
 // BatchDeleteImageWithContext indicates an expected call of BatchDeleteImageWithContext
 func (mr *MockECRAPIMockRecorder) BatchDeleteImageWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BatchDeleteImageWithContext", reflect.TypeOf((*MockECRAPI)(nil).BatchDeleteImageWithContext), varargs...)
 }
 
 // BatchGetImage mocks base method
 func (m *MockECRAPI) BatchGetImage(arg0 *ecr.BatchGetImageInput) (*ecr.BatchGetImageOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BatchGetImage", arg0)
 	ret0, _ := ret[0].(*ecr.BatchGetImageOutput)
 	ret1, _ := ret[1].(error)
@@ -147,11 +160,13 @@ func (m *MockECRAPI) BatchGetImage(arg0 *ecr.BatchGetImageInput) (*ecr.BatchGetI
 
 // BatchGetImage indicates an expected call of BatchGetImage
 func (mr *MockECRAPIMockRecorder) BatchGetImage(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BatchGetImage", reflect.TypeOf((*MockECRAPI)(nil).BatchGetImage), arg0)
 }
 
 // BatchGetImageRequest mocks base method
 func (m *MockECRAPI) BatchGetImageRequest(arg0 *ecr.BatchGetImageInput) (*request.Request, *ecr.BatchGetImageOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BatchGetImageRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.BatchGetImageOutput)
@@ -160,11 +175,13 @@ func (m *MockECRAPI) BatchGetImageRequest(arg0 *ecr.BatchGetImageInput) (*reques
 
 // BatchGetImageRequest indicates an expected call of BatchGetImageRequest
 func (mr *MockECRAPIMockRecorder) BatchGetImageRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BatchGetImageRequest", reflect.TypeOf((*MockECRAPI)(nil).BatchGetImageRequest), arg0)
 }
 
 // BatchGetImageWithContext mocks base method
 func (m *MockECRAPI) BatchGetImageWithContext(arg0 context.Context, arg1 *ecr.BatchGetImageInput, arg2 ...request.Option) (*ecr.BatchGetImageOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -177,12 +194,14 @@ func (m *MockECRAPI) BatchGetImageWithContext(arg0 context.Context, arg1 *ecr.Ba
 
 // BatchGetImageWithContext indicates an expected call of BatchGetImageWithContext
 func (mr *MockECRAPIMockRecorder) BatchGetImageWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BatchGetImageWithContext", reflect.TypeOf((*MockECRAPI)(nil).BatchGetImageWithContext), varargs...)
 }
 
 // CompleteLayerUpload mocks base method
 func (m *MockECRAPI) CompleteLayerUpload(arg0 *ecr.CompleteLayerUploadInput) (*ecr.CompleteLayerUploadOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CompleteLayerUpload", arg0)
 	ret0, _ := ret[0].(*ecr.CompleteLayerUploadOutput)
 	ret1, _ := ret[1].(error)
@@ -191,11 +210,13 @@ func (m *MockECRAPI) CompleteLayerUpload(arg0 *ecr.CompleteLayerUploadInput) (*e
 
 // CompleteLayerUpload indicates an expected call of CompleteLayerUpload
 func (mr *MockECRAPIMockRecorder) CompleteLayerUpload(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompleteLayerUpload", reflect.TypeOf((*MockECRAPI)(nil).CompleteLayerUpload), arg0)
 }
 
 // CompleteLayerUploadRequest mocks base method
 func (m *MockECRAPI) CompleteLayerUploadRequest(arg0 *ecr.CompleteLayerUploadInput) (*request.Request, *ecr.CompleteLayerUploadOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CompleteLayerUploadRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.CompleteLayerUploadOutput)
@@ -204,11 +225,13 @@ func (m *MockECRAPI) CompleteLayerUploadRequest(arg0 *ecr.CompleteLayerUploadInp
 
 // CompleteLayerUploadRequest indicates an expected call of CompleteLayerUploadRequest
 func (mr *MockECRAPIMockRecorder) CompleteLayerUploadRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompleteLayerUploadRequest", reflect.TypeOf((*MockECRAPI)(nil).CompleteLayerUploadRequest), arg0)
 }
 
 // CompleteLayerUploadWithContext mocks base method
 func (m *MockECRAPI) CompleteLayerUploadWithContext(arg0 context.Context, arg1 *ecr.CompleteLayerUploadInput, arg2 ...request.Option) (*ecr.CompleteLayerUploadOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -221,12 +244,14 @@ func (m *MockECRAPI) CompleteLayerUploadWithContext(arg0 context.Context, arg1 *
 
 // CompleteLayerUploadWithContext indicates an expected call of CompleteLayerUploadWithContext
 func (mr *MockECRAPIMockRecorder) CompleteLayerUploadWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompleteLayerUploadWithContext", reflect.TypeOf((*MockECRAPI)(nil).CompleteLayerUploadWithContext), varargs...)
 }
 
 // CreateRepository mocks base method
 func (m *MockECRAPI) CreateRepository(arg0 *ecr.CreateRepositoryInput) (*ecr.CreateRepositoryOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateRepository", arg0)
 	ret0, _ := ret[0].(*ecr.CreateRepositoryOutput)
 	ret1, _ := ret[1].(error)
@@ -235,11 +260,13 @@ func (m *MockECRAPI) CreateRepository(arg0 *ecr.CreateRepositoryInput) (*ecr.Cre
 
 // CreateRepository indicates an expected call of CreateRepository
 func (mr *MockECRAPIMockRecorder) CreateRepository(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRepository", reflect.TypeOf((*MockECRAPI)(nil).CreateRepository), arg0)
 }
 
 // CreateRepositoryRequest mocks base method
 func (m *MockECRAPI) CreateRepositoryRequest(arg0 *ecr.CreateRepositoryInput) (*request.Request, *ecr.CreateRepositoryOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateRepositoryRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.CreateRepositoryOutput)
@@ -248,11 +275,13 @@ func (m *MockECRAPI) CreateRepositoryRequest(arg0 *ecr.CreateRepositoryInput) (*
 
 // CreateRepositoryRequest indicates an expected call of CreateRepositoryRequest
 func (mr *MockECRAPIMockRecorder) CreateRepositoryRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRepositoryRequest", reflect.TypeOf((*MockECRAPI)(nil).CreateRepositoryRequest), arg0)
 }
 
 // CreateRepositoryWithContext mocks base method
 func (m *MockECRAPI) CreateRepositoryWithContext(arg0 context.Context, arg1 *ecr.CreateRepositoryInput, arg2 ...request.Option) (*ecr.CreateRepositoryOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -265,12 +294,14 @@ func (m *MockECRAPI) CreateRepositoryWithContext(arg0 context.Context, arg1 *ecr
 
 // CreateRepositoryWithContext indicates an expected call of CreateRepositoryWithContext
 func (mr *MockECRAPIMockRecorder) CreateRepositoryWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRepositoryWithContext", reflect.TypeOf((*MockECRAPI)(nil).CreateRepositoryWithContext), varargs...)
 }
 
 // DeleteLifecyclePolicy mocks base method
 func (m *MockECRAPI) DeleteLifecyclePolicy(arg0 *ecr.DeleteLifecyclePolicyInput) (*ecr.DeleteLifecyclePolicyOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteLifecyclePolicy", arg0)
 	ret0, _ := ret[0].(*ecr.DeleteLifecyclePolicyOutput)
 	ret1, _ := ret[1].(error)
@@ -279,11 +310,13 @@ func (m *MockECRAPI) DeleteLifecyclePolicy(arg0 *ecr.DeleteLifecyclePolicyInput)
 
 // DeleteLifecyclePolicy indicates an expected call of DeleteLifecyclePolicy
 func (mr *MockECRAPIMockRecorder) DeleteLifecyclePolicy(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLifecyclePolicy", reflect.TypeOf((*MockECRAPI)(nil).DeleteLifecyclePolicy), arg0)
 }
 
 // DeleteLifecyclePolicyRequest mocks base method
 func (m *MockECRAPI) DeleteLifecyclePolicyRequest(arg0 *ecr.DeleteLifecyclePolicyInput) (*request.Request, *ecr.DeleteLifecyclePolicyOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteLifecyclePolicyRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.DeleteLifecyclePolicyOutput)
@@ -292,11 +325,13 @@ func (m *MockECRAPI) DeleteLifecyclePolicyRequest(arg0 *ecr.DeleteLifecyclePolic
 
 // DeleteLifecyclePolicyRequest indicates an expected call of DeleteLifecyclePolicyRequest
 func (mr *MockECRAPIMockRecorder) DeleteLifecyclePolicyRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLifecyclePolicyRequest", reflect.TypeOf((*MockECRAPI)(nil).DeleteLifecyclePolicyRequest), arg0)
 }
 
 // DeleteLifecyclePolicyWithContext mocks base method
 func (m *MockECRAPI) DeleteLifecyclePolicyWithContext(arg0 context.Context, arg1 *ecr.DeleteLifecyclePolicyInput, arg2 ...request.Option) (*ecr.DeleteLifecyclePolicyOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -309,12 +344,14 @@ func (m *MockECRAPI) DeleteLifecyclePolicyWithContext(arg0 context.Context, arg1
 
 // DeleteLifecyclePolicyWithContext indicates an expected call of DeleteLifecyclePolicyWithContext
 func (mr *MockECRAPIMockRecorder) DeleteLifecyclePolicyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLifecyclePolicyWithContext", reflect.TypeOf((*MockECRAPI)(nil).DeleteLifecyclePolicyWithContext), varargs...)
 }
 
 // DeleteRepository mocks base method
 func (m *MockECRAPI) DeleteRepository(arg0 *ecr.DeleteRepositoryInput) (*ecr.DeleteRepositoryOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteRepository", arg0)
 	ret0, _ := ret[0].(*ecr.DeleteRepositoryOutput)
 	ret1, _ := ret[1].(error)
@@ -323,11 +360,13 @@ func (m *MockECRAPI) DeleteRepository(arg0 *ecr.DeleteRepositoryInput) (*ecr.Del
 
 // DeleteRepository indicates an expected call of DeleteRepository
 func (mr *MockECRAPIMockRecorder) DeleteRepository(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRepository", reflect.TypeOf((*MockECRAPI)(nil).DeleteRepository), arg0)
 }
 
 // DeleteRepositoryPolicy mocks base method
 func (m *MockECRAPI) DeleteRepositoryPolicy(arg0 *ecr.DeleteRepositoryPolicyInput) (*ecr.DeleteRepositoryPolicyOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteRepositoryPolicy", arg0)
 	ret0, _ := ret[0].(*ecr.DeleteRepositoryPolicyOutput)
 	ret1, _ := ret[1].(error)
@@ -336,11 +375,13 @@ func (m *MockECRAPI) DeleteRepositoryPolicy(arg0 *ecr.DeleteRepositoryPolicyInpu
 
 // DeleteRepositoryPolicy indicates an expected call of DeleteRepositoryPolicy
 func (mr *MockECRAPIMockRecorder) DeleteRepositoryPolicy(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRepositoryPolicy", reflect.TypeOf((*MockECRAPI)(nil).DeleteRepositoryPolicy), arg0)
 }
 
 // DeleteRepositoryPolicyRequest mocks base method
 func (m *MockECRAPI) DeleteRepositoryPolicyRequest(arg0 *ecr.DeleteRepositoryPolicyInput) (*request.Request, *ecr.DeleteRepositoryPolicyOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteRepositoryPolicyRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.DeleteRepositoryPolicyOutput)
@@ -349,11 +390,13 @@ func (m *MockECRAPI) DeleteRepositoryPolicyRequest(arg0 *ecr.DeleteRepositoryPol
 
 // DeleteRepositoryPolicyRequest indicates an expected call of DeleteRepositoryPolicyRequest
 func (mr *MockECRAPIMockRecorder) DeleteRepositoryPolicyRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRepositoryPolicyRequest", reflect.TypeOf((*MockECRAPI)(nil).DeleteRepositoryPolicyRequest), arg0)
 }
 
 // DeleteRepositoryPolicyWithContext mocks base method
 func (m *MockECRAPI) DeleteRepositoryPolicyWithContext(arg0 context.Context, arg1 *ecr.DeleteRepositoryPolicyInput, arg2 ...request.Option) (*ecr.DeleteRepositoryPolicyOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -366,12 +409,14 @@ func (m *MockECRAPI) DeleteRepositoryPolicyWithContext(arg0 context.Context, arg
 
 // DeleteRepositoryPolicyWithContext indicates an expected call of DeleteRepositoryPolicyWithContext
 func (mr *MockECRAPIMockRecorder) DeleteRepositoryPolicyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRepositoryPolicyWithContext", reflect.TypeOf((*MockECRAPI)(nil).DeleteRepositoryPolicyWithContext), varargs...)
 }
 
 // DeleteRepositoryRequest mocks base method
 func (m *MockECRAPI) DeleteRepositoryRequest(arg0 *ecr.DeleteRepositoryInput) (*request.Request, *ecr.DeleteRepositoryOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteRepositoryRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.DeleteRepositoryOutput)
@@ -380,11 +425,13 @@ func (m *MockECRAPI) DeleteRepositoryRequest(arg0 *ecr.DeleteRepositoryInput) (*
 
 // DeleteRepositoryRequest indicates an expected call of DeleteRepositoryRequest
 func (mr *MockECRAPIMockRecorder) DeleteRepositoryRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRepositoryRequest", reflect.TypeOf((*MockECRAPI)(nil).DeleteRepositoryRequest), arg0)
 }
 
 // DeleteRepositoryWithContext mocks base method
 func (m *MockECRAPI) DeleteRepositoryWithContext(arg0 context.Context, arg1 *ecr.DeleteRepositoryInput, arg2 ...request.Option) (*ecr.DeleteRepositoryOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -397,12 +444,14 @@ func (m *MockECRAPI) DeleteRepositoryWithContext(arg0 context.Context, arg1 *ecr
 
 // DeleteRepositoryWithContext indicates an expected call of DeleteRepositoryWithContext
 func (mr *MockECRAPIMockRecorder) DeleteRepositoryWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRepositoryWithContext", reflect.TypeOf((*MockECRAPI)(nil).DeleteRepositoryWithContext), varargs...)
 }
 
 // DescribeImages mocks base method
 func (m *MockECRAPI) DescribeImages(arg0 *ecr.DescribeImagesInput) (*ecr.DescribeImagesOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeImages", arg0)
 	ret0, _ := ret[0].(*ecr.DescribeImagesOutput)
 	ret1, _ := ret[1].(error)
@@ -411,11 +460,13 @@ func (m *MockECRAPI) DescribeImages(arg0 *ecr.DescribeImagesInput) (*ecr.Describ
 
 // DescribeImages indicates an expected call of DescribeImages
 func (mr *MockECRAPIMockRecorder) DescribeImages(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeImages", reflect.TypeOf((*MockECRAPI)(nil).DescribeImages), arg0)
 }
 
 // DescribeImagesPages mocks base method
 func (m *MockECRAPI) DescribeImagesPages(arg0 *ecr.DescribeImagesInput, arg1 func(*ecr.DescribeImagesOutput, bool) bool) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeImagesPages", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -423,11 +474,13 @@ func (m *MockECRAPI) DescribeImagesPages(arg0 *ecr.DescribeImagesInput, arg1 fun
 
 // DescribeImagesPages indicates an expected call of DescribeImagesPages
 func (mr *MockECRAPIMockRecorder) DescribeImagesPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeImagesPages", reflect.TypeOf((*MockECRAPI)(nil).DescribeImagesPages), arg0, arg1)
 }
 
 // DescribeImagesPagesWithContext mocks base method
 func (m *MockECRAPI) DescribeImagesPagesWithContext(arg0 context.Context, arg1 *ecr.DescribeImagesInput, arg2 func(*ecr.DescribeImagesOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
 	for _, a := range arg3 {
 		varargs = append(varargs, a)
@@ -439,12 +492,14 @@ func (m *MockECRAPI) DescribeImagesPagesWithContext(arg0 context.Context, arg1 *
 
 // DescribeImagesPagesWithContext indicates an expected call of DescribeImagesPagesWithContext
 func (mr *MockECRAPIMockRecorder) DescribeImagesPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeImagesPagesWithContext", reflect.TypeOf((*MockECRAPI)(nil).DescribeImagesPagesWithContext), varargs...)
 }
 
 // DescribeImagesRequest mocks base method
 func (m *MockECRAPI) DescribeImagesRequest(arg0 *ecr.DescribeImagesInput) (*request.Request, *ecr.DescribeImagesOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeImagesRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.DescribeImagesOutput)
@@ -453,11 +508,13 @@ func (m *MockECRAPI) DescribeImagesRequest(arg0 *ecr.DescribeImagesInput) (*requ
 
 // DescribeImagesRequest indicates an expected call of DescribeImagesRequest
 func (mr *MockECRAPIMockRecorder) DescribeImagesRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeImagesRequest", reflect.TypeOf((*MockECRAPI)(nil).DescribeImagesRequest), arg0)
 }
 
 // DescribeImagesWithContext mocks base method
 func (m *MockECRAPI) DescribeImagesWithContext(arg0 context.Context, arg1 *ecr.DescribeImagesInput, arg2 ...request.Option) (*ecr.DescribeImagesOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -470,12 +527,14 @@ func (m *MockECRAPI) DescribeImagesWithContext(arg0 context.Context, arg1 *ecr.D
 
 // DescribeImagesWithContext indicates an expected call of DescribeImagesWithContext
 func (mr *MockECRAPIMockRecorder) DescribeImagesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeImagesWithContext", reflect.TypeOf((*MockECRAPI)(nil).DescribeImagesWithContext), varargs...)
 }
 
 // DescribeRepositories mocks base method
 func (m *MockECRAPI) DescribeRepositories(arg0 *ecr.DescribeRepositoriesInput) (*ecr.DescribeRepositoriesOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeRepositories", arg0)
 	ret0, _ := ret[0].(*ecr.DescribeRepositoriesOutput)
 	ret1, _ := ret[1].(error)
@@ -484,11 +543,13 @@ func (m *MockECRAPI) DescribeRepositories(arg0 *ecr.DescribeRepositoriesInput) (
 
 // DescribeRepositories indicates an expected call of DescribeRepositories
 func (mr *MockECRAPIMockRecorder) DescribeRepositories(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeRepositories", reflect.TypeOf((*MockECRAPI)(nil).DescribeRepositories), arg0)
 }
 
 // DescribeRepositoriesPages mocks base method
 func (m *MockECRAPI) DescribeRepositoriesPages(arg0 *ecr.DescribeRepositoriesInput, arg1 func(*ecr.DescribeRepositoriesOutput, bool) bool) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeRepositoriesPages", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -496,11 +557,13 @@ func (m *MockECRAPI) DescribeRepositoriesPages(arg0 *ecr.DescribeRepositoriesInp
 
 // DescribeRepositoriesPages indicates an expected call of DescribeRepositoriesPages
 func (mr *MockECRAPIMockRecorder) DescribeRepositoriesPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeRepositoriesPages", reflect.TypeOf((*MockECRAPI)(nil).DescribeRepositoriesPages), arg0, arg1)
 }
 
 // DescribeRepositoriesPagesWithContext mocks base method
 func (m *MockECRAPI) DescribeRepositoriesPagesWithContext(arg0 context.Context, arg1 *ecr.DescribeRepositoriesInput, arg2 func(*ecr.DescribeRepositoriesOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
 	for _, a := range arg3 {
 		varargs = append(varargs, a)
@@ -512,12 +575,14 @@ func (m *MockECRAPI) DescribeRepositoriesPagesWithContext(arg0 context.Context, 
 
 // DescribeRepositoriesPagesWithContext indicates an expected call of DescribeRepositoriesPagesWithContext
 func (mr *MockECRAPIMockRecorder) DescribeRepositoriesPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeRepositoriesPagesWithContext", reflect.TypeOf((*MockECRAPI)(nil).DescribeRepositoriesPagesWithContext), varargs...)
 }
 
 // DescribeRepositoriesRequest mocks base method
 func (m *MockECRAPI) DescribeRepositoriesRequest(arg0 *ecr.DescribeRepositoriesInput) (*request.Request, *ecr.DescribeRepositoriesOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeRepositoriesRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.DescribeRepositoriesOutput)
@@ -526,11 +591,13 @@ func (m *MockECRAPI) DescribeRepositoriesRequest(arg0 *ecr.DescribeRepositoriesI
 
 // DescribeRepositoriesRequest indicates an expected call of DescribeRepositoriesRequest
 func (mr *MockECRAPIMockRecorder) DescribeRepositoriesRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeRepositoriesRequest", reflect.TypeOf((*MockECRAPI)(nil).DescribeRepositoriesRequest), arg0)
 }
 
 // DescribeRepositoriesWithContext mocks base method
 func (m *MockECRAPI) DescribeRepositoriesWithContext(arg0 context.Context, arg1 *ecr.DescribeRepositoriesInput, arg2 ...request.Option) (*ecr.DescribeRepositoriesOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -543,12 +610,14 @@ func (m *MockECRAPI) DescribeRepositoriesWithContext(arg0 context.Context, arg1 
 
 // DescribeRepositoriesWithContext indicates an expected call of DescribeRepositoriesWithContext
 func (mr *MockECRAPIMockRecorder) DescribeRepositoriesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeRepositoriesWithContext", reflect.TypeOf((*MockECRAPI)(nil).DescribeRepositoriesWithContext), varargs...)
 }
 
 // GetAuthorizationToken mocks base method
 func (m *MockECRAPI) GetAuthorizationToken(arg0 *ecr.GetAuthorizationTokenInput) (*ecr.GetAuthorizationTokenOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAuthorizationToken", arg0)
 	ret0, _ := ret[0].(*ecr.GetAuthorizationTokenOutput)
 	ret1, _ := ret[1].(error)
@@ -557,11 +626,13 @@ func (m *MockECRAPI) GetAuthorizationToken(arg0 *ecr.GetAuthorizationTokenInput)
 
 // GetAuthorizationToken indicates an expected call of GetAuthorizationToken
 func (mr *MockECRAPIMockRecorder) GetAuthorizationToken(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAuthorizationToken", reflect.TypeOf((*MockECRAPI)(nil).GetAuthorizationToken), arg0)
 }
 
 // GetAuthorizationTokenRequest mocks base method
 func (m *MockECRAPI) GetAuthorizationTokenRequest(arg0 *ecr.GetAuthorizationTokenInput) (*request.Request, *ecr.GetAuthorizationTokenOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAuthorizationTokenRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.GetAuthorizationTokenOutput)
@@ -570,11 +641,13 @@ func (m *MockECRAPI) GetAuthorizationTokenRequest(arg0 *ecr.GetAuthorizationToke
 
 // GetAuthorizationTokenRequest indicates an expected call of GetAuthorizationTokenRequest
 func (mr *MockECRAPIMockRecorder) GetAuthorizationTokenRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAuthorizationTokenRequest", reflect.TypeOf((*MockECRAPI)(nil).GetAuthorizationTokenRequest), arg0)
 }
 
 // GetAuthorizationTokenWithContext mocks base method
 func (m *MockECRAPI) GetAuthorizationTokenWithContext(arg0 context.Context, arg1 *ecr.GetAuthorizationTokenInput, arg2 ...request.Option) (*ecr.GetAuthorizationTokenOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -587,12 +660,14 @@ func (m *MockECRAPI) GetAuthorizationTokenWithContext(arg0 context.Context, arg1
 
 // GetAuthorizationTokenWithContext indicates an expected call of GetAuthorizationTokenWithContext
 func (mr *MockECRAPIMockRecorder) GetAuthorizationTokenWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAuthorizationTokenWithContext", reflect.TypeOf((*MockECRAPI)(nil).GetAuthorizationTokenWithContext), varargs...)
 }
 
 // GetDownloadUrlForLayer mocks base method
 func (m *MockECRAPI) GetDownloadUrlForLayer(arg0 *ecr.GetDownloadUrlForLayerInput) (*ecr.GetDownloadUrlForLayerOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetDownloadUrlForLayer", arg0)
 	ret0, _ := ret[0].(*ecr.GetDownloadUrlForLayerOutput)
 	ret1, _ := ret[1].(error)
@@ -601,11 +676,13 @@ func (m *MockECRAPI) GetDownloadUrlForLayer(arg0 *ecr.GetDownloadUrlForLayerInpu
 
 // GetDownloadUrlForLayer indicates an expected call of GetDownloadUrlForLayer
 func (mr *MockECRAPIMockRecorder) GetDownloadUrlForLayer(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDownloadUrlForLayer", reflect.TypeOf((*MockECRAPI)(nil).GetDownloadUrlForLayer), arg0)
 }
 
 // GetDownloadUrlForLayerRequest mocks base method
 func (m *MockECRAPI) GetDownloadUrlForLayerRequest(arg0 *ecr.GetDownloadUrlForLayerInput) (*request.Request, *ecr.GetDownloadUrlForLayerOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetDownloadUrlForLayerRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.GetDownloadUrlForLayerOutput)
@@ -614,11 +691,13 @@ func (m *MockECRAPI) GetDownloadUrlForLayerRequest(arg0 *ecr.GetDownloadUrlForLa
 
 // GetDownloadUrlForLayerRequest indicates an expected call of GetDownloadUrlForLayerRequest
 func (mr *MockECRAPIMockRecorder) GetDownloadUrlForLayerRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDownloadUrlForLayerRequest", reflect.TypeOf((*MockECRAPI)(nil).GetDownloadUrlForLayerRequest), arg0)
 }
 
 // GetDownloadUrlForLayerWithContext mocks base method
 func (m *MockECRAPI) GetDownloadUrlForLayerWithContext(arg0 context.Context, arg1 *ecr.GetDownloadUrlForLayerInput, arg2 ...request.Option) (*ecr.GetDownloadUrlForLayerOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -631,12 +710,14 @@ func (m *MockECRAPI) GetDownloadUrlForLayerWithContext(arg0 context.Context, arg
 
 // GetDownloadUrlForLayerWithContext indicates an expected call of GetDownloadUrlForLayerWithContext
 func (mr *MockECRAPIMockRecorder) GetDownloadUrlForLayerWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDownloadUrlForLayerWithContext", reflect.TypeOf((*MockECRAPI)(nil).GetDownloadUrlForLayerWithContext), varargs...)
 }
 
 // GetLifecyclePolicy mocks base method
 func (m *MockECRAPI) GetLifecyclePolicy(arg0 *ecr.GetLifecyclePolicyInput) (*ecr.GetLifecyclePolicyOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLifecyclePolicy", arg0)
 	ret0, _ := ret[0].(*ecr.GetLifecyclePolicyOutput)
 	ret1, _ := ret[1].(error)
@@ -645,11 +726,13 @@ func (m *MockECRAPI) GetLifecyclePolicy(arg0 *ecr.GetLifecyclePolicyInput) (*ecr
 
 // GetLifecyclePolicy indicates an expected call of GetLifecyclePolicy
 func (mr *MockECRAPIMockRecorder) GetLifecyclePolicy(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLifecyclePolicy", reflect.TypeOf((*MockECRAPI)(nil).GetLifecyclePolicy), arg0)
 }
 
 // GetLifecyclePolicyPreview mocks base method
 func (m *MockECRAPI) GetLifecyclePolicyPreview(arg0 *ecr.GetLifecyclePolicyPreviewInput) (*ecr.GetLifecyclePolicyPreviewOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLifecyclePolicyPreview", arg0)
 	ret0, _ := ret[0].(*ecr.GetLifecyclePolicyPreviewOutput)
 	ret1, _ := ret[1].(error)
@@ -658,11 +741,13 @@ func (m *MockECRAPI) GetLifecyclePolicyPreview(arg0 *ecr.GetLifecyclePolicyPrevi
 
 // GetLifecyclePolicyPreview indicates an expected call of GetLifecyclePolicyPreview
 func (mr *MockECRAPIMockRecorder) GetLifecyclePolicyPreview(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLifecyclePolicyPreview", reflect.TypeOf((*MockECRAPI)(nil).GetLifecyclePolicyPreview), arg0)
 }
 
 // GetLifecyclePolicyPreviewRequest mocks base method
 func (m *MockECRAPI) GetLifecyclePolicyPreviewRequest(arg0 *ecr.GetLifecyclePolicyPreviewInput) (*request.Request, *ecr.GetLifecyclePolicyPreviewOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLifecyclePolicyPreviewRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.GetLifecyclePolicyPreviewOutput)
@@ -671,11 +756,13 @@ func (m *MockECRAPI) GetLifecyclePolicyPreviewRequest(arg0 *ecr.GetLifecyclePoli
 
 // GetLifecyclePolicyPreviewRequest indicates an expected call of GetLifecyclePolicyPreviewRequest
 func (mr *MockECRAPIMockRecorder) GetLifecyclePolicyPreviewRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLifecyclePolicyPreviewRequest", reflect.TypeOf((*MockECRAPI)(nil).GetLifecyclePolicyPreviewRequest), arg0)
 }
 
 // GetLifecyclePolicyPreviewWithContext mocks base method
 func (m *MockECRAPI) GetLifecyclePolicyPreviewWithContext(arg0 context.Context, arg1 *ecr.GetLifecyclePolicyPreviewInput, arg2 ...request.Option) (*ecr.GetLifecyclePolicyPreviewOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -688,12 +775,14 @@ func (m *MockECRAPI) GetLifecyclePolicyPreviewWithContext(arg0 context.Context, 
 
 // GetLifecyclePolicyPreviewWithContext indicates an expected call of GetLifecyclePolicyPreviewWithContext
 func (mr *MockECRAPIMockRecorder) GetLifecyclePolicyPreviewWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLifecyclePolicyPreviewWithContext", reflect.TypeOf((*MockECRAPI)(nil).GetLifecyclePolicyPreviewWithContext), varargs...)
 }
 
 // GetLifecyclePolicyRequest mocks base method
 func (m *MockECRAPI) GetLifecyclePolicyRequest(arg0 *ecr.GetLifecyclePolicyInput) (*request.Request, *ecr.GetLifecyclePolicyOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLifecyclePolicyRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.GetLifecyclePolicyOutput)
@@ -702,11 +791,13 @@ func (m *MockECRAPI) GetLifecyclePolicyRequest(arg0 *ecr.GetLifecyclePolicyInput
 
 // GetLifecyclePolicyRequest indicates an expected call of GetLifecyclePolicyRequest
 func (mr *MockECRAPIMockRecorder) GetLifecyclePolicyRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLifecyclePolicyRequest", reflect.TypeOf((*MockECRAPI)(nil).GetLifecyclePolicyRequest), arg0)
 }
 
 // GetLifecyclePolicyWithContext mocks base method
 func (m *MockECRAPI) GetLifecyclePolicyWithContext(arg0 context.Context, arg1 *ecr.GetLifecyclePolicyInput, arg2 ...request.Option) (*ecr.GetLifecyclePolicyOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -719,12 +810,14 @@ func (m *MockECRAPI) GetLifecyclePolicyWithContext(arg0 context.Context, arg1 *e
 
 // GetLifecyclePolicyWithContext indicates an expected call of GetLifecyclePolicyWithContext
 func (mr *MockECRAPIMockRecorder) GetLifecyclePolicyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLifecyclePolicyWithContext", reflect.TypeOf((*MockECRAPI)(nil).GetLifecyclePolicyWithContext), varargs...)
 }
 
 // GetRepositoryPolicy mocks base method
 func (m *MockECRAPI) GetRepositoryPolicy(arg0 *ecr.GetRepositoryPolicyInput) (*ecr.GetRepositoryPolicyOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetRepositoryPolicy", arg0)
 	ret0, _ := ret[0].(*ecr.GetRepositoryPolicyOutput)
 	ret1, _ := ret[1].(error)
@@ -733,11 +826,13 @@ func (m *MockECRAPI) GetRepositoryPolicy(arg0 *ecr.GetRepositoryPolicyInput) (*e
 
 // GetRepositoryPolicy indicates an expected call of GetRepositoryPolicy
 func (mr *MockECRAPIMockRecorder) GetRepositoryPolicy(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRepositoryPolicy", reflect.TypeOf((*MockECRAPI)(nil).GetRepositoryPolicy), arg0)
 }
 
 // GetRepositoryPolicyRequest mocks base method
 func (m *MockECRAPI) GetRepositoryPolicyRequest(arg0 *ecr.GetRepositoryPolicyInput) (*request.Request, *ecr.GetRepositoryPolicyOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetRepositoryPolicyRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.GetRepositoryPolicyOutput)
@@ -746,11 +841,13 @@ func (m *MockECRAPI) GetRepositoryPolicyRequest(arg0 *ecr.GetRepositoryPolicyInp
 
 // GetRepositoryPolicyRequest indicates an expected call of GetRepositoryPolicyRequest
 func (mr *MockECRAPIMockRecorder) GetRepositoryPolicyRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRepositoryPolicyRequest", reflect.TypeOf((*MockECRAPI)(nil).GetRepositoryPolicyRequest), arg0)
 }
 
 // GetRepositoryPolicyWithContext mocks base method
 func (m *MockECRAPI) GetRepositoryPolicyWithContext(arg0 context.Context, arg1 *ecr.GetRepositoryPolicyInput, arg2 ...request.Option) (*ecr.GetRepositoryPolicyOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -763,12 +860,14 @@ func (m *MockECRAPI) GetRepositoryPolicyWithContext(arg0 context.Context, arg1 *
 
 // GetRepositoryPolicyWithContext indicates an expected call of GetRepositoryPolicyWithContext
 func (mr *MockECRAPIMockRecorder) GetRepositoryPolicyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRepositoryPolicyWithContext", reflect.TypeOf((*MockECRAPI)(nil).GetRepositoryPolicyWithContext), varargs...)
 }
 
 // InitiateLayerUpload mocks base method
 func (m *MockECRAPI) InitiateLayerUpload(arg0 *ecr.InitiateLayerUploadInput) (*ecr.InitiateLayerUploadOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "InitiateLayerUpload", arg0)
 	ret0, _ := ret[0].(*ecr.InitiateLayerUploadOutput)
 	ret1, _ := ret[1].(error)
@@ -777,11 +876,13 @@ func (m *MockECRAPI) InitiateLayerUpload(arg0 *ecr.InitiateLayerUploadInput) (*e
 
 // InitiateLayerUpload indicates an expected call of InitiateLayerUpload
 func (mr *MockECRAPIMockRecorder) InitiateLayerUpload(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InitiateLayerUpload", reflect.TypeOf((*MockECRAPI)(nil).InitiateLayerUpload), arg0)
 }
 
 // InitiateLayerUploadRequest mocks base method
 func (m *MockECRAPI) InitiateLayerUploadRequest(arg0 *ecr.InitiateLayerUploadInput) (*request.Request, *ecr.InitiateLayerUploadOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "InitiateLayerUploadRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.InitiateLayerUploadOutput)
@@ -790,11 +891,13 @@ func (m *MockECRAPI) InitiateLayerUploadRequest(arg0 *ecr.InitiateLayerUploadInp
 
 // InitiateLayerUploadRequest indicates an expected call of InitiateLayerUploadRequest
 func (mr *MockECRAPIMockRecorder) InitiateLayerUploadRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InitiateLayerUploadRequest", reflect.TypeOf((*MockECRAPI)(nil).InitiateLayerUploadRequest), arg0)
 }
 
 // InitiateLayerUploadWithContext mocks base method
 func (m *MockECRAPI) InitiateLayerUploadWithContext(arg0 context.Context, arg1 *ecr.InitiateLayerUploadInput, arg2 ...request.Option) (*ecr.InitiateLayerUploadOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -807,12 +910,14 @@ func (m *MockECRAPI) InitiateLayerUploadWithContext(arg0 context.Context, arg1 *
 
 // InitiateLayerUploadWithContext indicates an expected call of InitiateLayerUploadWithContext
 func (mr *MockECRAPIMockRecorder) InitiateLayerUploadWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InitiateLayerUploadWithContext", reflect.TypeOf((*MockECRAPI)(nil).InitiateLayerUploadWithContext), varargs...)
 }
 
 // ListImages mocks base method
 func (m *MockECRAPI) ListImages(arg0 *ecr.ListImagesInput) (*ecr.ListImagesOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListImages", arg0)
 	ret0, _ := ret[0].(*ecr.ListImagesOutput)
 	ret1, _ := ret[1].(error)
@@ -821,11 +926,13 @@ func (m *MockECRAPI) ListImages(arg0 *ecr.ListImagesInput) (*ecr.ListImagesOutpu
 
 // ListImages indicates an expected call of ListImages
 func (mr *MockECRAPIMockRecorder) ListImages(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListImages", reflect.TypeOf((*MockECRAPI)(nil).ListImages), arg0)
 }
 
 // ListImagesPages mocks base method
 func (m *MockECRAPI) ListImagesPages(arg0 *ecr.ListImagesInput, arg1 func(*ecr.ListImagesOutput, bool) bool) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListImagesPages", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -833,11 +940,13 @@ func (m *MockECRAPI) ListImagesPages(arg0 *ecr.ListImagesInput, arg1 func(*ecr.L
 
 // ListImagesPages indicates an expected call of ListImagesPages
 func (mr *MockECRAPIMockRecorder) ListImagesPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListImagesPages", reflect.TypeOf((*MockECRAPI)(nil).ListImagesPages), arg0, arg1)
 }
 
 // ListImagesPagesWithContext mocks base method
 func (m *MockECRAPI) ListImagesPagesWithContext(arg0 context.Context, arg1 *ecr.ListImagesInput, arg2 func(*ecr.ListImagesOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
 	for _, a := range arg3 {
 		varargs = append(varargs, a)
@@ -849,12 +958,14 @@ func (m *MockECRAPI) ListImagesPagesWithContext(arg0 context.Context, arg1 *ecr.
 
 // ListImagesPagesWithContext indicates an expected call of ListImagesPagesWithContext
 func (mr *MockECRAPIMockRecorder) ListImagesPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListImagesPagesWithContext", reflect.TypeOf((*MockECRAPI)(nil).ListImagesPagesWithContext), varargs...)
 }
 
 // ListImagesRequest mocks base method
 func (m *MockECRAPI) ListImagesRequest(arg0 *ecr.ListImagesInput) (*request.Request, *ecr.ListImagesOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListImagesRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.ListImagesOutput)
@@ -863,11 +974,13 @@ func (m *MockECRAPI) ListImagesRequest(arg0 *ecr.ListImagesInput) (*request.Requ
 
 // ListImagesRequest indicates an expected call of ListImagesRequest
 func (mr *MockECRAPIMockRecorder) ListImagesRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListImagesRequest", reflect.TypeOf((*MockECRAPI)(nil).ListImagesRequest), arg0)
 }
 
 // ListImagesWithContext mocks base method
 func (m *MockECRAPI) ListImagesWithContext(arg0 context.Context, arg1 *ecr.ListImagesInput, arg2 ...request.Option) (*ecr.ListImagesOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -880,12 +993,14 @@ func (m *MockECRAPI) ListImagesWithContext(arg0 context.Context, arg1 *ecr.ListI
 
 // ListImagesWithContext indicates an expected call of ListImagesWithContext
 func (mr *MockECRAPIMockRecorder) ListImagesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListImagesWithContext", reflect.TypeOf((*MockECRAPI)(nil).ListImagesWithContext), varargs...)
 }
 
 // ListTagsForResource mocks base method
 func (m *MockECRAPI) ListTagsForResource(arg0 *ecr.ListTagsForResourceInput) (*ecr.ListTagsForResourceOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListTagsForResource", arg0)
 	ret0, _ := ret[0].(*ecr.ListTagsForResourceOutput)
 	ret1, _ := ret[1].(error)
@@ -894,11 +1009,13 @@ func (m *MockECRAPI) ListTagsForResource(arg0 *ecr.ListTagsForResourceInput) (*e
 
 // ListTagsForResource indicates an expected call of ListTagsForResource
 func (mr *MockECRAPIMockRecorder) ListTagsForResource(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTagsForResource", reflect.TypeOf((*MockECRAPI)(nil).ListTagsForResource), arg0)
 }
 
 // ListTagsForResourceRequest mocks base method
 func (m *MockECRAPI) ListTagsForResourceRequest(arg0 *ecr.ListTagsForResourceInput) (*request.Request, *ecr.ListTagsForResourceOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListTagsForResourceRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.ListTagsForResourceOutput)
@@ -907,11 +1024,13 @@ func (m *MockECRAPI) ListTagsForResourceRequest(arg0 *ecr.ListTagsForResourceInp
 
 // ListTagsForResourceRequest indicates an expected call of ListTagsForResourceRequest
 func (mr *MockECRAPIMockRecorder) ListTagsForResourceRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTagsForResourceRequest", reflect.TypeOf((*MockECRAPI)(nil).ListTagsForResourceRequest), arg0)
 }
 
 // ListTagsForResourceWithContext mocks base method
 func (m *MockECRAPI) ListTagsForResourceWithContext(arg0 context.Context, arg1 *ecr.ListTagsForResourceInput, arg2 ...request.Option) (*ecr.ListTagsForResourceOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -924,12 +1043,14 @@ func (m *MockECRAPI) ListTagsForResourceWithContext(arg0 context.Context, arg1 *
 
 // ListTagsForResourceWithContext indicates an expected call of ListTagsForResourceWithContext
 func (mr *MockECRAPIMockRecorder) ListTagsForResourceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTagsForResourceWithContext", reflect.TypeOf((*MockECRAPI)(nil).ListTagsForResourceWithContext), varargs...)
 }
 
 // PutImage mocks base method
 func (m *MockECRAPI) PutImage(arg0 *ecr.PutImageInput) (*ecr.PutImageOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutImage", arg0)
 	ret0, _ := ret[0].(*ecr.PutImageOutput)
 	ret1, _ := ret[1].(error)
@@ -938,11 +1059,13 @@ func (m *MockECRAPI) PutImage(arg0 *ecr.PutImageInput) (*ecr.PutImageOutput, err
 
 // PutImage indicates an expected call of PutImage
 func (mr *MockECRAPIMockRecorder) PutImage(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutImage", reflect.TypeOf((*MockECRAPI)(nil).PutImage), arg0)
 }
 
 // PutImageRequest mocks base method
 func (m *MockECRAPI) PutImageRequest(arg0 *ecr.PutImageInput) (*request.Request, *ecr.PutImageOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutImageRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.PutImageOutput)
@@ -951,11 +1074,63 @@ func (m *MockECRAPI) PutImageRequest(arg0 *ecr.PutImageInput) (*request.Request,
 
 // PutImageRequest indicates an expected call of PutImageRequest
 func (mr *MockECRAPIMockRecorder) PutImageRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutImageRequest", reflect.TypeOf((*MockECRAPI)(nil).PutImageRequest), arg0)
+}
+
+// PutImageTagMutability mocks base method
+func (m *MockECRAPI) PutImageTagMutability(arg0 *ecr.PutImageTagMutabilityInput) (*ecr.PutImageTagMutabilityOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PutImageTagMutability", arg0)
+	ret0, _ := ret[0].(*ecr.PutImageTagMutabilityOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutImageTagMutability indicates an expected call of PutImageTagMutability
+func (mr *MockECRAPIMockRecorder) PutImageTagMutability(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutImageTagMutability", reflect.TypeOf((*MockECRAPI)(nil).PutImageTagMutability), arg0)
+}
+
+// PutImageTagMutabilityRequest mocks base method
+func (m *MockECRAPI) PutImageTagMutabilityRequest(arg0 *ecr.PutImageTagMutabilityInput) (*request.Request, *ecr.PutImageTagMutabilityOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PutImageTagMutabilityRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ecr.PutImageTagMutabilityOutput)
+	return ret0, ret1
+}
+
+// PutImageTagMutabilityRequest indicates an expected call of PutImageTagMutabilityRequest
+func (mr *MockECRAPIMockRecorder) PutImageTagMutabilityRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutImageTagMutabilityRequest", reflect.TypeOf((*MockECRAPI)(nil).PutImageTagMutabilityRequest), arg0)
+}
+
+// PutImageTagMutabilityWithContext mocks base method
+func (m *MockECRAPI) PutImageTagMutabilityWithContext(arg0 context.Context, arg1 *ecr.PutImageTagMutabilityInput, arg2 ...request.Option) (*ecr.PutImageTagMutabilityOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PutImageTagMutabilityWithContext", varargs...)
+	ret0, _ := ret[0].(*ecr.PutImageTagMutabilityOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutImageTagMutabilityWithContext indicates an expected call of PutImageTagMutabilityWithContext
+func (mr *MockECRAPIMockRecorder) PutImageTagMutabilityWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutImageTagMutabilityWithContext", reflect.TypeOf((*MockECRAPI)(nil).PutImageTagMutabilityWithContext), varargs...)
 }
 
 // PutImageWithContext mocks base method
 func (m *MockECRAPI) PutImageWithContext(arg0 context.Context, arg1 *ecr.PutImageInput, arg2 ...request.Option) (*ecr.PutImageOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -968,12 +1143,14 @@ func (m *MockECRAPI) PutImageWithContext(arg0 context.Context, arg1 *ecr.PutImag
 
 // PutImageWithContext indicates an expected call of PutImageWithContext
 func (mr *MockECRAPIMockRecorder) PutImageWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutImageWithContext", reflect.TypeOf((*MockECRAPI)(nil).PutImageWithContext), varargs...)
 }
 
 // PutLifecyclePolicy mocks base method
 func (m *MockECRAPI) PutLifecyclePolicy(arg0 *ecr.PutLifecyclePolicyInput) (*ecr.PutLifecyclePolicyOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutLifecyclePolicy", arg0)
 	ret0, _ := ret[0].(*ecr.PutLifecyclePolicyOutput)
 	ret1, _ := ret[1].(error)
@@ -982,11 +1159,13 @@ func (m *MockECRAPI) PutLifecyclePolicy(arg0 *ecr.PutLifecyclePolicyInput) (*ecr
 
 // PutLifecyclePolicy indicates an expected call of PutLifecyclePolicy
 func (mr *MockECRAPIMockRecorder) PutLifecyclePolicy(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutLifecyclePolicy", reflect.TypeOf((*MockECRAPI)(nil).PutLifecyclePolicy), arg0)
 }
 
 // PutLifecyclePolicyRequest mocks base method
 func (m *MockECRAPI) PutLifecyclePolicyRequest(arg0 *ecr.PutLifecyclePolicyInput) (*request.Request, *ecr.PutLifecyclePolicyOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutLifecyclePolicyRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.PutLifecyclePolicyOutput)
@@ -995,11 +1174,13 @@ func (m *MockECRAPI) PutLifecyclePolicyRequest(arg0 *ecr.PutLifecyclePolicyInput
 
 // PutLifecyclePolicyRequest indicates an expected call of PutLifecyclePolicyRequest
 func (mr *MockECRAPIMockRecorder) PutLifecyclePolicyRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutLifecyclePolicyRequest", reflect.TypeOf((*MockECRAPI)(nil).PutLifecyclePolicyRequest), arg0)
 }
 
 // PutLifecyclePolicyWithContext mocks base method
 func (m *MockECRAPI) PutLifecyclePolicyWithContext(arg0 context.Context, arg1 *ecr.PutLifecyclePolicyInput, arg2 ...request.Option) (*ecr.PutLifecyclePolicyOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1012,12 +1193,14 @@ func (m *MockECRAPI) PutLifecyclePolicyWithContext(arg0 context.Context, arg1 *e
 
 // PutLifecyclePolicyWithContext indicates an expected call of PutLifecyclePolicyWithContext
 func (mr *MockECRAPIMockRecorder) PutLifecyclePolicyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutLifecyclePolicyWithContext", reflect.TypeOf((*MockECRAPI)(nil).PutLifecyclePolicyWithContext), varargs...)
 }
 
 // SetRepositoryPolicy mocks base method
 func (m *MockECRAPI) SetRepositoryPolicy(arg0 *ecr.SetRepositoryPolicyInput) (*ecr.SetRepositoryPolicyOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetRepositoryPolicy", arg0)
 	ret0, _ := ret[0].(*ecr.SetRepositoryPolicyOutput)
 	ret1, _ := ret[1].(error)
@@ -1026,11 +1209,13 @@ func (m *MockECRAPI) SetRepositoryPolicy(arg0 *ecr.SetRepositoryPolicyInput) (*e
 
 // SetRepositoryPolicy indicates an expected call of SetRepositoryPolicy
 func (mr *MockECRAPIMockRecorder) SetRepositoryPolicy(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetRepositoryPolicy", reflect.TypeOf((*MockECRAPI)(nil).SetRepositoryPolicy), arg0)
 }
 
 // SetRepositoryPolicyRequest mocks base method
 func (m *MockECRAPI) SetRepositoryPolicyRequest(arg0 *ecr.SetRepositoryPolicyInput) (*request.Request, *ecr.SetRepositoryPolicyOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetRepositoryPolicyRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.SetRepositoryPolicyOutput)
@@ -1039,11 +1224,13 @@ func (m *MockECRAPI) SetRepositoryPolicyRequest(arg0 *ecr.SetRepositoryPolicyInp
 
 // SetRepositoryPolicyRequest indicates an expected call of SetRepositoryPolicyRequest
 func (mr *MockECRAPIMockRecorder) SetRepositoryPolicyRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetRepositoryPolicyRequest", reflect.TypeOf((*MockECRAPI)(nil).SetRepositoryPolicyRequest), arg0)
 }
 
 // SetRepositoryPolicyWithContext mocks base method
 func (m *MockECRAPI) SetRepositoryPolicyWithContext(arg0 context.Context, arg1 *ecr.SetRepositoryPolicyInput, arg2 ...request.Option) (*ecr.SetRepositoryPolicyOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1056,12 +1243,14 @@ func (m *MockECRAPI) SetRepositoryPolicyWithContext(arg0 context.Context, arg1 *
 
 // SetRepositoryPolicyWithContext indicates an expected call of SetRepositoryPolicyWithContext
 func (mr *MockECRAPIMockRecorder) SetRepositoryPolicyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetRepositoryPolicyWithContext", reflect.TypeOf((*MockECRAPI)(nil).SetRepositoryPolicyWithContext), varargs...)
 }
 
 // StartLifecyclePolicyPreview mocks base method
 func (m *MockECRAPI) StartLifecyclePolicyPreview(arg0 *ecr.StartLifecyclePolicyPreviewInput) (*ecr.StartLifecyclePolicyPreviewOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StartLifecyclePolicyPreview", arg0)
 	ret0, _ := ret[0].(*ecr.StartLifecyclePolicyPreviewOutput)
 	ret1, _ := ret[1].(error)
@@ -1070,11 +1259,13 @@ func (m *MockECRAPI) StartLifecyclePolicyPreview(arg0 *ecr.StartLifecyclePolicyP
 
 // StartLifecyclePolicyPreview indicates an expected call of StartLifecyclePolicyPreview
 func (mr *MockECRAPIMockRecorder) StartLifecyclePolicyPreview(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartLifecyclePolicyPreview", reflect.TypeOf((*MockECRAPI)(nil).StartLifecyclePolicyPreview), arg0)
 }
 
 // StartLifecyclePolicyPreviewRequest mocks base method
 func (m *MockECRAPI) StartLifecyclePolicyPreviewRequest(arg0 *ecr.StartLifecyclePolicyPreviewInput) (*request.Request, *ecr.StartLifecyclePolicyPreviewOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StartLifecyclePolicyPreviewRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.StartLifecyclePolicyPreviewOutput)
@@ -1083,11 +1274,13 @@ func (m *MockECRAPI) StartLifecyclePolicyPreviewRequest(arg0 *ecr.StartLifecycle
 
 // StartLifecyclePolicyPreviewRequest indicates an expected call of StartLifecyclePolicyPreviewRequest
 func (mr *MockECRAPIMockRecorder) StartLifecyclePolicyPreviewRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartLifecyclePolicyPreviewRequest", reflect.TypeOf((*MockECRAPI)(nil).StartLifecyclePolicyPreviewRequest), arg0)
 }
 
 // StartLifecyclePolicyPreviewWithContext mocks base method
 func (m *MockECRAPI) StartLifecyclePolicyPreviewWithContext(arg0 context.Context, arg1 *ecr.StartLifecyclePolicyPreviewInput, arg2 ...request.Option) (*ecr.StartLifecyclePolicyPreviewOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1100,12 +1293,14 @@ func (m *MockECRAPI) StartLifecyclePolicyPreviewWithContext(arg0 context.Context
 
 // StartLifecyclePolicyPreviewWithContext indicates an expected call of StartLifecyclePolicyPreviewWithContext
 func (mr *MockECRAPIMockRecorder) StartLifecyclePolicyPreviewWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartLifecyclePolicyPreviewWithContext", reflect.TypeOf((*MockECRAPI)(nil).StartLifecyclePolicyPreviewWithContext), varargs...)
 }
 
 // TagResource mocks base method
 func (m *MockECRAPI) TagResource(arg0 *ecr.TagResourceInput) (*ecr.TagResourceOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TagResource", arg0)
 	ret0, _ := ret[0].(*ecr.TagResourceOutput)
 	ret1, _ := ret[1].(error)
@@ -1114,11 +1309,13 @@ func (m *MockECRAPI) TagResource(arg0 *ecr.TagResourceInput) (*ecr.TagResourceOu
 
 // TagResource indicates an expected call of TagResource
 func (mr *MockECRAPIMockRecorder) TagResource(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TagResource", reflect.TypeOf((*MockECRAPI)(nil).TagResource), arg0)
 }
 
 // TagResourceRequest mocks base method
 func (m *MockECRAPI) TagResourceRequest(arg0 *ecr.TagResourceInput) (*request.Request, *ecr.TagResourceOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TagResourceRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.TagResourceOutput)
@@ -1127,11 +1324,13 @@ func (m *MockECRAPI) TagResourceRequest(arg0 *ecr.TagResourceInput) (*request.Re
 
 // TagResourceRequest indicates an expected call of TagResourceRequest
 func (mr *MockECRAPIMockRecorder) TagResourceRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TagResourceRequest", reflect.TypeOf((*MockECRAPI)(nil).TagResourceRequest), arg0)
 }
 
 // TagResourceWithContext mocks base method
 func (m *MockECRAPI) TagResourceWithContext(arg0 context.Context, arg1 *ecr.TagResourceInput, arg2 ...request.Option) (*ecr.TagResourceOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1144,12 +1343,14 @@ func (m *MockECRAPI) TagResourceWithContext(arg0 context.Context, arg1 *ecr.TagR
 
 // TagResourceWithContext indicates an expected call of TagResourceWithContext
 func (mr *MockECRAPIMockRecorder) TagResourceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TagResourceWithContext", reflect.TypeOf((*MockECRAPI)(nil).TagResourceWithContext), varargs...)
 }
 
 // UntagResource mocks base method
 func (m *MockECRAPI) UntagResource(arg0 *ecr.UntagResourceInput) (*ecr.UntagResourceOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UntagResource", arg0)
 	ret0, _ := ret[0].(*ecr.UntagResourceOutput)
 	ret1, _ := ret[1].(error)
@@ -1158,11 +1359,13 @@ func (m *MockECRAPI) UntagResource(arg0 *ecr.UntagResourceInput) (*ecr.UntagReso
 
 // UntagResource indicates an expected call of UntagResource
 func (mr *MockECRAPIMockRecorder) UntagResource(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UntagResource", reflect.TypeOf((*MockECRAPI)(nil).UntagResource), arg0)
 }
 
 // UntagResourceRequest mocks base method
 func (m *MockECRAPI) UntagResourceRequest(arg0 *ecr.UntagResourceInput) (*request.Request, *ecr.UntagResourceOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UntagResourceRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.UntagResourceOutput)
@@ -1171,11 +1374,13 @@ func (m *MockECRAPI) UntagResourceRequest(arg0 *ecr.UntagResourceInput) (*reques
 
 // UntagResourceRequest indicates an expected call of UntagResourceRequest
 func (mr *MockECRAPIMockRecorder) UntagResourceRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UntagResourceRequest", reflect.TypeOf((*MockECRAPI)(nil).UntagResourceRequest), arg0)
 }
 
 // UntagResourceWithContext mocks base method
 func (m *MockECRAPI) UntagResourceWithContext(arg0 context.Context, arg1 *ecr.UntagResourceInput, arg2 ...request.Option) (*ecr.UntagResourceOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1188,12 +1393,14 @@ func (m *MockECRAPI) UntagResourceWithContext(arg0 context.Context, arg1 *ecr.Un
 
 // UntagResourceWithContext indicates an expected call of UntagResourceWithContext
 func (mr *MockECRAPIMockRecorder) UntagResourceWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UntagResourceWithContext", reflect.TypeOf((*MockECRAPI)(nil).UntagResourceWithContext), varargs...)
 }
 
 // UploadLayerPart mocks base method
 func (m *MockECRAPI) UploadLayerPart(arg0 *ecr.UploadLayerPartInput) (*ecr.UploadLayerPartOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UploadLayerPart", arg0)
 	ret0, _ := ret[0].(*ecr.UploadLayerPartOutput)
 	ret1, _ := ret[1].(error)
@@ -1202,11 +1409,13 @@ func (m *MockECRAPI) UploadLayerPart(arg0 *ecr.UploadLayerPartInput) (*ecr.Uploa
 
 // UploadLayerPart indicates an expected call of UploadLayerPart
 func (mr *MockECRAPIMockRecorder) UploadLayerPart(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadLayerPart", reflect.TypeOf((*MockECRAPI)(nil).UploadLayerPart), arg0)
 }
 
 // UploadLayerPartRequest mocks base method
 func (m *MockECRAPI) UploadLayerPartRequest(arg0 *ecr.UploadLayerPartInput) (*request.Request, *ecr.UploadLayerPartOutput) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UploadLayerPartRequest", arg0)
 	ret0, _ := ret[0].(*request.Request)
 	ret1, _ := ret[1].(*ecr.UploadLayerPartOutput)
@@ -1215,11 +1424,13 @@ func (m *MockECRAPI) UploadLayerPartRequest(arg0 *ecr.UploadLayerPartInput) (*re
 
 // UploadLayerPartRequest indicates an expected call of UploadLayerPartRequest
 func (mr *MockECRAPIMockRecorder) UploadLayerPartRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadLayerPartRequest", reflect.TypeOf((*MockECRAPI)(nil).UploadLayerPartRequest), arg0)
 }
 
 // UploadLayerPartWithContext mocks base method
 func (m *MockECRAPI) UploadLayerPartWithContext(arg0 context.Context, arg1 *ecr.UploadLayerPartInput, arg2 ...request.Option) (*ecr.UploadLayerPartOutput, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -1232,6 +1443,7 @@ func (m *MockECRAPI) UploadLayerPartWithContext(arg0 context.Context, arg1 *ecr.
 
 // UploadLayerPartWithContext indicates an expected call of UploadLayerPartWithContext
 func (mr *MockECRAPIMockRecorder) UploadLayerPartWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadLayerPartWithContext", reflect.TypeOf((*MockECRAPI)(nil).UploadLayerPartWithContext), varargs...)
 }
