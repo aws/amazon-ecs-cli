@@ -51,6 +51,7 @@ func (m *MockLocalEndpointsStopper) EXPECT() *MockLocalEndpointsStopperMockRecor
 
 // ContainerRemove mocks base method
 func (m *MockLocalEndpointsStopper) ContainerRemove(arg0 context.Context, arg1 string, arg2 types.ContainerRemoveOptions) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ContainerRemove", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -58,11 +59,13 @@ func (m *MockLocalEndpointsStopper) ContainerRemove(arg0 context.Context, arg1 s
 
 // ContainerRemove indicates an expected call of ContainerRemove
 func (mr *MockLocalEndpointsStopperMockRecorder) ContainerRemove(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerRemove", reflect.TypeOf((*MockLocalEndpointsStopper)(nil).ContainerRemove), arg0, arg1, arg2)
 }
 
 // ContainerStop mocks base method
 func (m *MockLocalEndpointsStopper) ContainerStop(arg0 context.Context, arg1 string, arg2 *time.Duration) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ContainerStop", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -70,11 +73,13 @@ func (m *MockLocalEndpointsStopper) ContainerStop(arg0 context.Context, arg1 str
 
 // ContainerStop indicates an expected call of ContainerStop
 func (mr *MockLocalEndpointsStopperMockRecorder) ContainerStop(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerStop", reflect.TypeOf((*MockLocalEndpointsStopper)(nil).ContainerStop), arg0, arg1, arg2)
 }
 
 // NetworkInspect mocks base method
 func (m *MockLocalEndpointsStopper) NetworkInspect(arg0 context.Context, arg1 string, arg2 types.NetworkInspectOptions) (types.NetworkResource, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "NetworkInspect", arg0, arg1, arg2)
 	ret0, _ := ret[0].(types.NetworkResource)
 	ret1, _ := ret[1].(error)
@@ -83,11 +88,13 @@ func (m *MockLocalEndpointsStopper) NetworkInspect(arg0 context.Context, arg1 st
 
 // NetworkInspect indicates an expected call of NetworkInspect
 func (mr *MockLocalEndpointsStopperMockRecorder) NetworkInspect(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NetworkInspect", reflect.TypeOf((*MockLocalEndpointsStopper)(nil).NetworkInspect), arg0, arg1, arg2)
 }
 
 // NetworkRemove mocks base method
 func (m *MockLocalEndpointsStopper) NetworkRemove(arg0 context.Context, arg1 string) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "NetworkRemove", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -95,5 +102,6 @@ func (m *MockLocalEndpointsStopper) NetworkRemove(arg0 context.Context, arg1 str
 
 // NetworkRemove indicates an expected call of NetworkRemove
 func (mr *MockLocalEndpointsStopperMockRecorder) NetworkRemove(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NetworkRemove", reflect.TypeOf((*MockLocalEndpointsStopper)(nil).NetworkRemove), arg0, arg1)
 }
