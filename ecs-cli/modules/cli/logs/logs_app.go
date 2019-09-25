@@ -325,6 +325,7 @@ func CreateLogGroups(taskDef *ecs.TaskDefinition, logClientFactory cwlogsclient.
 				if aerr.Code() == cloudwatchlogs.ErrCodeResourceAlreadyExistsException {
 					// If the log group already exists warn the user but don't fail the command
 					logrus.Warnf("Failed to create log group %s in %s: %s", aws.StringValue(logConfig.logGroup), region, aerr.Message())
+					logGroupsCreated = true
 					continue
 				}
 			}
