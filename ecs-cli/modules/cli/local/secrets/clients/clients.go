@@ -62,7 +62,7 @@ func (d *SSMDecrypter) DecryptSecret(arnOrName string) (string, error) {
 	// If the value is an ARN we need to retrieve the parameter name and update the region of the client.
 	paramName := arnOrName
 	if parsedARN, err := arnParser.Parse(arnOrName); err == nil {
-		resource := strings.Split(parsedARN.Resource, "/") // Resource is formatted as parameter/{paramName}.			paramName = parsedARN.Resource[strings.Index(parsedARN.Resource, "/"):] // paramName is formatted as arn:parameter/{paramName}
+		resource := strings.Split(parsedARN.Resource, "/") // Resource is formatted as parameter/{paramName}.
 		paramName = strings.Join(resource[1:], "/")        // Put any extra slashes back in
 		d.SSMAPI = d.getClient(region(parsedARN.Region))
 	}
