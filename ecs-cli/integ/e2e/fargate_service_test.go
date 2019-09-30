@@ -29,7 +29,6 @@ import (
 // TestCreateClusterWithFargateService runs the sequence of ecs-cli commands from
 // the Fargate tutorial: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-fargate.html
 func TestCreateClusterWithFargateService(t *testing.T) {
-	t.Parallel()
 
 	// Create the cluster
 	conf := cmd.TestFargateTutorialConfig(t)
