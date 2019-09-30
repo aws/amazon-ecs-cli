@@ -12,7 +12,7 @@ Guide](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html).
 
 The AWS Command Line Interface (AWS CLI) is a unified client for AWS services that provides commands
 for all public API operations. These commands are lower level than those provided by the Amazon ECS
-CLI. For more information about supported services and to download the AWS CLI, see the [AWS Command
+CLI. For more information about supported services and to download the AWS CLI, see the [AWS Command
 Line Interface](http://aws.amazon.com/cli/) product detail page.
 
 - [Installing](#installing)
@@ -464,6 +464,9 @@ task_definition:
       repository_credentials:
         credentials_parameter: string
       cpu_shares: integer
+      firelens_configuration:
+        type: string                     // Supported string values: fluentd or fluentbit
+        options: list of strings
       mem_limit: string                  // Values specified without units default to bytes, as in docker run
       mem_reservation: string
       gpu: string
@@ -544,6 +547,9 @@ Fields listed under `task_definition` correspond to fields that will be included
   * In Docker compose version 2, the `cpu_shares`, `mem_limit`, and `mem_reservation` fields can be specified in either the compose or ECS params file. If they are specified in the ECS params file, the values will override values present in the compose file.
   * If you are using a private repository for pulling images, `repository_credentials` allows you to specify an AWS Secrets Manager secret ARN for the name of the secret containing your private repository credentials as a `credential_parameter`.
   * `init_process_enabled` is a [Linux-specific option](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_LinuxParameters.html) that can be be set to run an init process inside the container that forwards signals and reaps processes. This parameter maps to the `--init` option to [docker run](https://docs.docker.com/engine/reference/run/). This parameter requires version 1.25 of the Docker Remote API or greater on your container instance.
+  * `firelens_configuration` contains configuration parameters for [Firelens](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_FirelensConfiguration.html).
+    * `type` Valid options are fluentbit or fluentd
+    * `options` Please see the [AWS docs for Firelens](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_FirelensConfiguration.html)
   * `gpu` is the number of physical GPUs the Amazon ECS container agent will reserve for the container. Maps to the GPU [resource requirement](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ResourceRequirement.html) field in the task definition. For example: "1", "4", "8", "16".
   * `healthcheck` This parameter maps to `healthcheck` in the [Docker compose file reference](https://docs.docker.com/compose/compose-file/#healthcheck). This field can either be used here in the ECS Params file, or it can be used in Compose File version 3 with the ECS CLI.
     * `test` can also be specified as `command` and must be either a string or a list or strings. If `test` is specified as a list of strings, the first item must be either NONE, CMD, or CMD-SHELL. If test or command is specified as a string, CMD-SHELL will be prepended and ECS will run the command in the container's default shell.

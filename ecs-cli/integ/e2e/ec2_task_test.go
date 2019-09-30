@@ -30,7 +30,6 @@ import (
 // TestCreateClusterWithEC2Task runs the sequence of ecs-cli commands from
 // the EC2 tutorial: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-ec2.html
 func TestCreateClusterWithEC2Task(t *testing.T) {
-	t.Parallel()
 
 	// Create the cluster
 	conf := cmd.TestEC2TutorialConfig(t)

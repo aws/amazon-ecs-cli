@@ -49,6 +49,7 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 
 // TagResources mocks base method
 func (m *MockClient) TagResources(arg0 *resourcegroupstaggingapi.TagResourcesInput) (*resourcegroupstaggingapi.TagResourcesOutput, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TagResources", arg0)
 	ret0, _ := ret[0].(*resourcegroupstaggingapi.TagResourcesOutput)
 	ret1, _ := ret[1].(error)
@@ -57,5 +58,6 @@ func (m *MockClient) TagResources(arg0 *resourcegroupstaggingapi.TagResourcesInp
 
 // TagResources indicates an expected call of TagResources
 func (mr *MockClientMockRecorder) TagResources(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TagResources", reflect.TypeOf((*MockClient)(nil).TagResources), arg0)
 }
