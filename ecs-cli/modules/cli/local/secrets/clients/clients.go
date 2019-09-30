@@ -15,8 +15,6 @@
 package clients
 
 import (
-	"strings"
-
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
 	arnParser "github.com/aws/aws-sdk-go/aws/arn"
@@ -62,8 +60,7 @@ func (d *SSMDecrypter) DecryptSecret(arnOrName string) (string, error) {
 	// If the value is an ARN we need to retrieve the parameter name and update the region of the client.
 	paramName := arnOrName
 	if parsedARN, err := arnParser.Parse(arnOrName); err == nil {
-		resource := strings.Split(parsedARN.Resource, "/") // Resource is formatted as parameter/{paramName}.
-		paramName = strings.Join(resource[1:], "/")        // Put any extra slashes back in
+		paramName = parsedARN.Resource[len("parameter/"):] // Resource is formatted as parameter/{paramName}.
 		d.SSMAPI = d.getClient(region(parsedARN.Region))
 	}
 
