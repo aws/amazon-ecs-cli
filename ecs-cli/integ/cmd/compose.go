@@ -268,6 +268,7 @@ func testServiceHasAllRunningContainers(t *testing.T, p *Project, wantedNumOfCon
 	containers := lines[1:] // Drop the headers
 	if wantedNumOfContainers != len(containers) {
 		t.Logf("Wanted = %d, got = %d running containers", wantedNumOfContainers, len(containers))
+		t.Logf("Current running containers = %v", containers)
 		return false
 	}
 	for _, container := range containers {
@@ -276,6 +277,7 @@ func testServiceHasAllRunningContainers(t *testing.T, p *Project, wantedNumOfCon
 			t.Logf("Container is not RUNNING: %s", container)
 			return false
 		}
+		t.Logf("Container is RUNNING: %s", container)
 	}
 	return true
 }
