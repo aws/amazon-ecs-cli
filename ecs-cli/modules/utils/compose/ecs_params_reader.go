@@ -75,9 +75,9 @@ type ContainerDef struct {
 
 type DockerVolume struct {
 	Name          string            `yaml:"name"`
-	Scope         string            `yaml:"scope"`
+	Scope         *string           `yaml:"scope"`
 	Autoprovision *bool             `yaml:"autoprovision"`
-	Driver        string            `yaml:"driver"`
+	Driver        *string           `yaml:"driver"`
 	DriverOptions map[string]string `yaml:"driver_opts"`
 	Labels        map[string]string `yaml:"labels"`
 }
