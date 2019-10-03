@@ -81,7 +81,10 @@ func (d *SSMDecrypter) getClient(r region) ssmiface.SSMAPI {
 		return c
 	}
 	c := ssm.New(session.Must(session.NewSessionWithOptions(session.Options{
-		Config: aws.Config{Region: aws.String(string(r))},
+		Config: aws.Config{
+			Region:                        aws.String(string(r)),
+			CredentialsChainVerboseErrors: aws.Bool(true),
+		},
 	})))
 	d.clients[r] = c
 	return c
@@ -108,7 +111,10 @@ func (d *SecretsManagerDecrypter) getClient(r region) secretsmanageriface.Secret
 		return c
 	}
 	c := secretsmanager.New(session.Must(session.NewSessionWithOptions(session.Options{
-		Config: aws.Config{Region: aws.String(string(r))},
+		Config: aws.Config{
+			Region:                        aws.String(string(r)),
+			CredentialsChainVerboseErrors: aws.Bool(true),
+		},
 	})))
 	d.clients[r] = c
 	return c

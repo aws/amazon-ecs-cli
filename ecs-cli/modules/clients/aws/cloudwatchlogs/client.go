@@ -34,7 +34,10 @@ type cwLogsClient struct {
 
 // NewCloudWatchLogsClient creates an instance of ec2Client object.
 func NewCloudWatchLogsClient(params *config.CommandConfig, logRegion string) Client {
-	newSession := params.Session.Copy(&aws.Config{Region: aws.String(logRegion)})
+	newSession := params.Session.Copy(&aws.Config{
+		Region: aws.String(logRegion),
+		CredentialsChainVerboseErrors: aws.Bool(true),
+	})
 	client := cloudwatchlogs.New(newSession)
 	client.Handlers.Build.PushBackNamed(clients.CustomUserAgentHandler())
 	return &cwLogsClient{
