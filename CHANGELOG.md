@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.17.0
+* Feature - Add support for Firelens (#924)
+* Bug - Remove spurious log warning (#926)
+
 ## 1.16.0
 * Feature - Add force flag to local up and create (#907)
 * Feature - Add placement constraints to task definition (#909, #913)
