@@ -118,7 +118,9 @@ func NewLocalConfig(cluster string) *LocalConfig {
 //    a) AWS_DEFAULT_PROFILE environment variable (defaults to 'default')
 //  5) EC2 Instance role
 func (cfg *LocalConfig) ToAWSSession(context *cli.Context) (*session.Session, error) {
-	svcConfig := aws.Config{}
+	svcConfig := aws.Config{
+		CredentialsChainVerboseErrors: aws.Bool(true),
+	}
 	if ecsEndpoint := RecursiveFlagSearch(context, flags.EndpointFlag); ecsEndpoint != "" {
 		defaultResolver := endpoints.DefaultResolver()
 		ecsCustomResolverFn := func(service, region string, optFns ...func(*endpoints.Options)) (endpoints.ResolvedEndpoint, error) {
