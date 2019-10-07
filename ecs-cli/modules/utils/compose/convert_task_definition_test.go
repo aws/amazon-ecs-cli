@@ -1383,8 +1383,8 @@ func TestConvertToTaskDefinitionWithECSParamsVolumeWithoutNameError(t *testing.T
 			DockerVolumes: []DockerVolume{
 				DockerVolume{
 					Autoprovision: aws.Bool(true),
-					Scope:         "shared",
-					Driver:        "local",
+					Scope:         aws.String("shared"),
+					Driver:        nil,
 					DriverOptions: options,
 					Labels:        labels,
 				},
