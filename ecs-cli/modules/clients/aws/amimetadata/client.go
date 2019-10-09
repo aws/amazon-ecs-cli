@@ -111,15 +111,21 @@ func isARM64Instance(instanceType string) bool {
 	return false
 }
 
+// See: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-gpu.html
 func isGPUInstance(instanceType string) bool {
-	if strings.HasPrefix(instanceType, "p2.") {
-		return true
+	var gpuInstanceClasses = []string{
+		"p2.",
+		"p3.",
+		"p3dn.",
+		"g3.",
+		"g3s.",
+		"g4dn.",
 	}
-	if strings.HasPrefix(instanceType, "p3.") {
-		return true
-	}
-	if strings.HasPrefix(instanceType, "p3dn.") {
-		return true
+	for _, instanceClass := range gpuInstanceClasses {
+
+		if strings.HasPrefix(instanceType, instanceClass) {
+			return true
+		}
 	}
 	return false
 }

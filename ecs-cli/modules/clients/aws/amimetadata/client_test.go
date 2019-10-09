@@ -42,6 +42,17 @@ func TestMetadataClient_GetRecommendedECSLinuxAMI(t *testing.T) {
 			nil,
 		},
 		{
+			// validate that we use GPU optimized AMI for GPU instances
+			"g4dn.xlarge",
+			func(ssmClient *mock_ssmiface.MockSSMAPI) *mock_ssmiface.MockSSMAPI {
+				ssmClient.EXPECT().GetParameter(gomock.Any()).Do(func(input *ssm.GetParameterInput) {
+					assert.Equal(t, amazonLinux2X86GPURecommendedParameterName, *input.Name)
+				}).Return(emptySSMParameterOutput(), nil)
+				return ssmClient
+			},
+			nil,
+		},
+		{
 			// validate that we use the generic AMI for other instances
 			"t2.micro",
 			func(ssmClient *mock_ssmiface.MockSSMAPI) *mock_ssmiface.MockSSMAPI {
