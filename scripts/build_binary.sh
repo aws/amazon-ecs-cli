@@ -20,6 +20,10 @@ cd "${ROOT}"
 mkdir -p $1
 
 GIT_DIRTY=`git diff --quiet || echo '*'`
+VERSION=`git tag --points-at HEAD`
 GIT_SHORT_HASH="$GIT_DIRTY"`git rev-parse --short=7 HEAD`
-GOOS=$TARGET_GOOS CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s -X github.com/aws/amazon-ecs-cli/ecs-cli/modules/version.Version=development -X github.com/aws/amazon-ecs-cli/ecs-cli/modules/version.gitShortHash=$GIT_SHORT_HASH" -o $1/ecs-cli ./ecs-cli/
+GOOS=$TARGET_GOOS CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags \
+"-s -X github.com/aws/amazon-ecs-cli/ecs-cli/modules/version.Version=$VERSION \
+-X github.com/aws/amazon-ecs-cli/ecs-cli/modules/version.gitShortHash=$GIT_SHORT_HASH" \
+-o $1/ecs-cli ./ecs-cli/
 

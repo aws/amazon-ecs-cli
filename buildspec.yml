@@ -22,13 +22,7 @@ phases:
     commands:
       - echo "Compilation context:"
       - echo "CODEBUILD_SOURCE_VERSION=$CODEBUILD_SOURCE_VERSION"
-      # set the version number to the tag on HEAD or "development" if HEAD is
-      # not tagged
       - VERSION=`git tag --points-at HEAD`
-      - |
-        if [ -z "$VERSION" ]; then
-          VERSION='development'
-        fi
       - echo "VERSION=$VERSION"
       - GIT_COMMIT_ID=`git rev-parse HEAD`
       - echo "GIT_COMMIT_ID=$GIT_COMMIT_ID"

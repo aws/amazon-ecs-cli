@@ -15,5 +15,9 @@ package version
 
 // String produces a human-readable string showing the ecs-cli version.
 func String() string {
+	if Version == "" {
+		// This can only happen when the CLI is built locally
+		return "(" + gitShortHash + ")" 
+	}
 	return Version + " (" + gitShortHash + ")"
 }
