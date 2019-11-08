@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.18.0
+* Enhancement - Print verbose messages for credential chain errors (#937)
+* Enhancement - Add G4 instance support (#940)
+* Enhancement - Add more descriptive logging to integ tests (#931)
+* Bug - Pull correct AMI type for G3 instance types. (#940)
+* Bug - Send optional fields as nil instead of "" to ECS (#938)
+* Bug - ecs-cli local up can now read from parameter store when forward slashes exist in parameter name (#935)
+
 ## 1.17.0
 * Feature - Add support for Firelens (#924)
 * Bug - Remove spurious log warning (#926)
