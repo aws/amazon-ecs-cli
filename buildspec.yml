@@ -1,7 +1,73 @@
 version: 0.2
 
 phases:
+  install:
+    runtime-versions:
+      golang: 1.13
+  pre_build:
+    commands:
+      # GOPATH is setup like the following in Codebuild standard 2.0 image
+      # /go:/codebuild/output/src<some numbers>
+      # so we copy all the source code to the appropriate location before
+      # invoking any go command
+      - ls -lah
+      - mkdir -p /go/src/github.com/aws/amazon-ecs-cli
+      - cp -R . /go/src/github.com/aws/amazon-ecs-cli/
+      # - |
+      #   env -i PATH=$PATH GOPATH=`go env GOPATH` GOROOT=`go env GOROOT` GOCACHE=`go env GOCACHE` \
+      #   go test -race -v -cover github.com/aws/amazon-ecs-cli/ecs-cli/modules/...
+      # make a copy of the version.go because `go run gen/version-gen.go` will
+      # modify it.
+      - cp /go/src/github.com/aws/amazon-ecs-cli/ecs-cli/modules/version/version.go /go/src/github.com/aws/amazon-ecs-cli/ecs-cli/modules/version/_version.go
+      # need to cd into the version package because version-gen.go assumes the relative
+      # location of the VERSION file.
+      - cd /go/src/github.com/aws/amazon-ecs-cli/ecs-cli/modules/version/
+      # since we are running the go program inside a Linux container, has to hardcode
+      # the GOOS and GOARCH correspondinly regardless of what the host OS is.
+      - GOOS=linux GOARCH=amd64 ECS_RELEASE=cleanbuild go run gen/version-gen.go
   build:
     commands:
-      - make integ-test
-      - ./bin/local/ecs-cli.test
+      - echo "cd into $CODEBUILD_SRC_DIR"
+      - cd $CODEBUILD_SRC_DIR
+      - echo "Compilation context:"
+      - echo "CODEBUILD_SOURCE_VERSION=$CODEBUILD_SOURCE_VERSION"
+      - VERSION=`git tag --points-at HEAD`
+      - echo "VERSION=$VERSION"
+      - GIT_COMMIT_ID=`git rev-parse HEAD`
+      - echo "GIT_COMMIT_ID=$GIT_COMMIT_ID"
+      # TODO: Get rid of the VERSION file after we fully switch to the new CI/CD
+      - CHECKED_IN_VERSION=`cat /go/src/github.com/aws/amazon-ecs-cli/VERSION`
+      - echo "VERSION_FILE=$CHECKED_IN_VERSION"
+      - echo "GOPATH=$GOPATH"
+      - |
+        # $CHECKED_IN_VERSION is not prefixed with "v", only the semantic version number,
+        # such as 1.17.0 instead of v1.17.0, which is what normal version tags look like.
+        if [ "$VERSION" != "v$CHECKED_IN_VERSION" ]; then
+          echo "the VERSION file contains a version number that is different from the git tag. file: $CHECKED_IN_VERSION, tag: $VERSION"  
+          exit 1
+        fi
+      - GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o aws/amazon-ecs-cli/ecs-cli-windows-amd64-$VERSION.exe github.com/aws/amazon-ecs-cli/ecs-cli/
+      - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION github.com/aws/amazon-ecs-cli/ecs-cli/
+      - GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o aws/amazon-ecs-cli/ecs-cli-darwin-amd64-$VERSION github.com/aws/amazon-ecs-cli/ecs-cli/
+    finally:
+      - echo "built artifacts:"
+      - ls -lah aws/amazon-ecs-cli/
+      - ./aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION --version
+  post_build:
+    commands:
+      # restore the version file
+      - mv /go/src/github.com/aws/amazon-ecs-cli/ecs-cli/modules/version/_version.go /go/src/github.com/aws/amazon-ecs-cli/ecs-cli/modules/version/version.go
+      - echo "Creating latest artifacts..."
+      - cp aws/amazon-ecs-cli/ecs-cli-windows-amd64-$VERSION.exe aws/amazon-ecs-cli/ecs-cli-windows-amd64-latest.exe
+      - cp aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION aws/amazon-ecs-cli/ecs-cli-linux-amd64-latest
+      - cp aws/amazon-ecs-cli/ecs-cli-darwin-amd64-$VERSION aws/amazon-ecs-cli/ecs-cli-darwin-amd64-latest
+      - MANIFESTFILE="$GIT_COMMIT_ID.manifest"
+      - echo "aws/amazon-ecs-cli/ecs-cli-windows-amd64-$VERSION.exe" >> $MANIFESTFILE
+      - echo "aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION" >> $MANIFESTFILE
+      - echo "aws/amazon-ecs-cli/ecs-cli-darwin-amd64-$VERSION" >> $MANIFESTFILE
+      - echo "aws/amazon-ecs-cli/ecs-cli-windows-amd64-latest.exe" >> $MANIFESTFILE
+      - echo "aws/amazon-ecs-cli/ecs-cli-linux-amd64-latest" >> $MANIFESTFILE
+      - echo "aws/amazon-ecs-cli/ecs-cli-darwin-amd64-latest" >> $MANIFESTFILE
+artifacts:
+  files:
+    - '**/*'
