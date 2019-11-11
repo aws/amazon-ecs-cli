@@ -13,9 +13,9 @@ phases:
       - ls -lah
       - mkdir -p /go/src/github.com/aws/amazon-ecs-cli
       - cp -R . /go/src/github.com/aws/amazon-ecs-cli/
-      # - |
-      #   env -i PATH=$PATH GOPATH=`go env GOPATH` GOROOT=`go env GOROOT` GOCACHE=`go env GOCACHE` \
-      #   go test -race -v -cover github.com/aws/amazon-ecs-cli/ecs-cli/modules/...
+      - |
+        env -i PATH=$PATH GOPATH=`go env GOPATH` GOROOT=`go env GOROOT` GOCACHE=`go env GOCACHE` \
+        go test -race -v -cover github.com/aws/amazon-ecs-cli/ecs-cli/modules/...
       # make a copy of the version.go because `go run gen/version-gen.go` will
       # modify it.
       - cp /go/src/github.com/aws/amazon-ecs-cli/ecs-cli/modules/version/version.go /go/src/github.com/aws/amazon-ecs-cli/ecs-cli/modules/version/_version.go
