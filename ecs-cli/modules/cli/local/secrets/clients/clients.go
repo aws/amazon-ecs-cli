@@ -15,8 +15,6 @@
 package clients
 
 import (
-	"strings"
-
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
 	arnParser "github.com/aws/aws-sdk-go/aws/arn"
@@ -62,8 +60,7 @@ func (d *SSMDecrypter) DecryptSecret(arnOrName string) (string, error) {
 	// If the value is an ARN we need to retrieve the parameter name and update the region of the client.
 	paramName := arnOrName
 	if parsedARN, err := arnParser.Parse(arnOrName); err == nil {
-		resource := strings.Split(parsedARN.Resource, "/") // Resource is formatted as parameter/{paramName}.
-		paramName = strings.Join(resource[1:], "")
+		paramName = parsedARN.Resource[len("parameter/"):] // Resource is formatted as parameter/{paramName}.
 		d.SSMAPI = d.getClient(region(parsedARN.Region))
 	}
 
@@ -84,7 +81,10 @@ func (d *SSMDecrypter) getClient(r region) ssmiface.SSMAPI {
 		return c
 	}
 	c := ssm.New(session.Must(session.NewSessionWithOptions(session.Options{
-		Config: aws.Config{Region: aws.String(string(r))},
+		Config: aws.Config{
+			Region:                        aws.String(string(r)),
+			CredentialsChainVerboseErrors: aws.Bool(true),
+		},
 	})))
 	d.clients[r] = c
 	return c
@@ -111,7 +111,10 @@ func (d *SecretsManagerDecrypter) getClient(r region) secretsmanageriface.Secret
 		return c
 	}
 	c := secretsmanager.New(session.Must(session.NewSessionWithOptions(session.Options{
-		Config: aws.Config{Region: aws.String(string(r))},
+		Config: aws.Config{
+			Region:                        aws.String(string(r)),
+			CredentialsChainVerboseErrors: aws.Bool(true),
+		},
 	})))
 	d.clients[r] = c
 	return c

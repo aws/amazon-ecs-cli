@@ -122,6 +122,37 @@ func TestSSMDecrypter_DecryptSecret(t *testing.T) {
 				}
 			},
 		},
+		"with forward slash": {
+			input:        "/TEST/DB/PASSWORD",
+			wantedSecret: "hello",
+			setupDecrypter: func(ctrl *gomock.Controller) *SSMDecrypter {
+				iadClient := mock_ssmiface.NewMockSSMAPI(ctrl)
+				pdxClient := mock_ssmiface.NewMockSSMAPI(ctrl)
+
+				m := make(map[region]ssmiface.SSMAPI)
+				m["default"] = iadClient
+				m["us-east-1"] = iadClient
+				m["us-west-2"] = pdxClient
+
+				gomock.InOrder(
+					iadClient.EXPECT().GetParameter(&ssm.GetParameterInput{
+						Name:           aws.String("/TEST/DB/PASSWORD"),
+						WithDecryption: aws.Bool(true),
+					}).Return(&ssm.GetParameterOutput{
+						Parameter: &ssm.Parameter{
+							Value: aws.String("hello"),
+						},
+					}, nil),
+
+					pdxClient.EXPECT().GetParameter(gomock.Any()).Times(0), // Should not have called PDX
+				)
+
+				return &SSMDecrypter{
+					SSMAPI:  iadClient,
+					clients: m,
+				}
+			},
+		},
 	}
 
 	for name, tc := range testCases {

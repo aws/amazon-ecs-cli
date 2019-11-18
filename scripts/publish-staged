@@ -43,7 +43,7 @@ usage() {
 }
 
 publish_s3() {
-	for tag in ${ARTIFACT_TAG_VERSION} ${ARTIFACT_TAG_SHA} ${ARTIFACT_TAG_LATEST}; do
+	for tag in ${ARTIFACT_TAG_VERSION} ${ARTIFACT_TAG_LATEST}; do
 		echo "Publishing as ecs-cli-linux-amd64-${tag}"
 		dexec s3_pull_push "s3://${STAGE_S3_BUCKET}/ecs-cli-linux-amd64-${tag}" "s3://${PUBLISH_S3_BUCKET}/ecs-cli-linux-amd64-${tag}"
 		dexec s3_pull_push "s3://${STAGE_S3_BUCKET}/ecs-cli-linux-amd64-${tag}.md5" "s3://${PUBLISH_S3_BUCKET}/ecs-cli-linux-amd64-${tag}.md5"

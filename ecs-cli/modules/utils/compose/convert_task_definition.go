@@ -286,8 +286,12 @@ func mergeVolumesWithoutHost(composeVolumes []string, ecsParams *ECSParams) ([]*
 		if dVol.Name != "" {
 			ecsVolume.DockerVolumeConfiguration = &ecs.DockerVolumeConfiguration{
 				Autoprovision: dVol.Autoprovision,
-				Driver:        aws.String(dVol.Driver),
-				Scope:         aws.String(dVol.Scope),
+			}
+			if dVol.Driver != nil {
+				ecsVolume.DockerVolumeConfiguration.Driver = dVol.Driver
+			}
+			if dVol.Scope != nil {
+				ecsVolume.DockerVolumeConfiguration.Scope = dVol.Scope
 			}
 			if dVol.DriverOptions != nil {
 				ecsVolume.DockerVolumeConfiguration.DriverOpts = aws.StringMap(dVol.DriverOptions)

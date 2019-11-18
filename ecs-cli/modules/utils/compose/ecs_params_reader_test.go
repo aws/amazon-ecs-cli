@@ -647,9 +647,9 @@ task_definition:
 	expectedVolumes := []DockerVolume{
 		DockerVolume{
 			Name:          "my_volume",
-			Scope:         "shared",
+			Scope:         aws.String("shared"),
 			Autoprovision: aws.Bool(true),
-			Driver:        "doggyromcom",
+			Driver:        aws.String("doggyromcom"),
 			DriverOptions: map[string]string{
 				"pudding": "is-engaged-to-marry-Tum-Tum",
 				"clyde":   "professes-his-love-at-the-ceremony",
