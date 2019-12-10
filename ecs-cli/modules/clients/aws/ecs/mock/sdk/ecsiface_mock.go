@@ -49,6 +49,56 @@ func (m *MockECSAPI) EXPECT() *MockECSAPIMockRecorder {
 	return m.recorder
 }
 
+// CreateCapacityProvider mocks base method
+func (m *MockECSAPI) CreateCapacityProvider(arg0 *ecs.CreateCapacityProviderInput) (*ecs.CreateCapacityProviderOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateCapacityProvider", arg0)
+	ret0, _ := ret[0].(*ecs.CreateCapacityProviderOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateCapacityProvider indicates an expected call of CreateCapacityProvider
+func (mr *MockECSAPIMockRecorder) CreateCapacityProvider(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCapacityProvider", reflect.TypeOf((*MockECSAPI)(nil).CreateCapacityProvider), arg0)
+}
+
+// CreateCapacityProviderRequest mocks base method
+func (m *MockECSAPI) CreateCapacityProviderRequest(arg0 *ecs.CreateCapacityProviderInput) (*request.Request, *ecs.CreateCapacityProviderOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateCapacityProviderRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ecs.CreateCapacityProviderOutput)
+	return ret0, ret1
+}
+
+// CreateCapacityProviderRequest indicates an expected call of CreateCapacityProviderRequest
+func (mr *MockECSAPIMockRecorder) CreateCapacityProviderRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCapacityProviderRequest", reflect.TypeOf((*MockECSAPI)(nil).CreateCapacityProviderRequest), arg0)
+}
+
+// CreateCapacityProviderWithContext mocks base method
+func (m *MockECSAPI) CreateCapacityProviderWithContext(arg0 context.Context, arg1 *ecs.CreateCapacityProviderInput, arg2 ...request.Option) (*ecs.CreateCapacityProviderOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateCapacityProviderWithContext", varargs...)
+	ret0, _ := ret[0].(*ecs.CreateCapacityProviderOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateCapacityProviderWithContext indicates an expected call of CreateCapacityProviderWithContext
+func (mr *MockECSAPIMockRecorder) CreateCapacityProviderWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCapacityProviderWithContext", reflect.TypeOf((*MockECSAPI)(nil).CreateCapacityProviderWithContext), varargs...)
+}
+
 // CreateCluster mocks base method
 func (m *MockECSAPI) CreateCluster(arg0 *ecs.CreateClusterInput) (*ecs.CreateClusterOutput, error) {
 	m.ctrl.T.Helper()
@@ -549,6 +599,56 @@ func (mr *MockECSAPIMockRecorder) DeregisterTaskDefinitionWithContext(arg0, arg1
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeregisterTaskDefinitionWithContext", reflect.TypeOf((*MockECSAPI)(nil).DeregisterTaskDefinitionWithContext), varargs...)
 }
 
+// DescribeCapacityProviders mocks base method
+func (m *MockECSAPI) DescribeCapacityProviders(arg0 *ecs.DescribeCapacityProvidersInput) (*ecs.DescribeCapacityProvidersOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeCapacityProviders", arg0)
+	ret0, _ := ret[0].(*ecs.DescribeCapacityProvidersOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeCapacityProviders indicates an expected call of DescribeCapacityProviders
+func (mr *MockECSAPIMockRecorder) DescribeCapacityProviders(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeCapacityProviders", reflect.TypeOf((*MockECSAPI)(nil).DescribeCapacityProviders), arg0)
+}
+
+// DescribeCapacityProvidersRequest mocks base method
+func (m *MockECSAPI) DescribeCapacityProvidersRequest(arg0 *ecs.DescribeCapacityProvidersInput) (*request.Request, *ecs.DescribeCapacityProvidersOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeCapacityProvidersRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ecs.DescribeCapacityProvidersOutput)
+	return ret0, ret1
+}
+
+// DescribeCapacityProvidersRequest indicates an expected call of DescribeCapacityProvidersRequest
+func (mr *MockECSAPIMockRecorder) DescribeCapacityProvidersRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeCapacityProvidersRequest", reflect.TypeOf((*MockECSAPI)(nil).DescribeCapacityProvidersRequest), arg0)
+}
+
+// DescribeCapacityProvidersWithContext mocks base method
+func (m *MockECSAPI) DescribeCapacityProvidersWithContext(arg0 context.Context, arg1 *ecs.DescribeCapacityProvidersInput, arg2 ...request.Option) (*ecs.DescribeCapacityProvidersOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeCapacityProvidersWithContext", varargs...)
+	ret0, _ := ret[0].(*ecs.DescribeCapacityProvidersOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeCapacityProvidersWithContext indicates an expected call of DescribeCapacityProvidersWithContext
+func (mr *MockECSAPIMockRecorder) DescribeCapacityProvidersWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeCapacityProvidersWithContext", reflect.TypeOf((*MockECSAPI)(nil).DescribeCapacityProvidersWithContext), varargs...)
+}
+
 // DescribeClusters mocks base method
 func (m *MockECSAPI) DescribeClusters(arg0 *ecs.DescribeClustersInput) (*ecs.DescribeClustersOutput, error) {
 	m.ctrl.T.Helper()
@@ -962,6 +1062,39 @@ func (m *MockECSAPI) ListAttributes(arg0 *ecs.ListAttributesInput) (*ecs.ListAtt
 func (mr *MockECSAPIMockRecorder) ListAttributes(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAttributes", reflect.TypeOf((*MockECSAPI)(nil).ListAttributes), arg0)
+}
+
+// ListAttributesPages mocks base method
+func (m *MockECSAPI) ListAttributesPages(arg0 *ecs.ListAttributesInput, arg1 func(*ecs.ListAttributesOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListAttributesPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ListAttributesPages indicates an expected call of ListAttributesPages
+func (mr *MockECSAPIMockRecorder) ListAttributesPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAttributesPages", reflect.TypeOf((*MockECSAPI)(nil).ListAttributesPages), arg0, arg1)
+}
+
+// ListAttributesPagesWithContext mocks base method
+func (m *MockECSAPI) ListAttributesPagesWithContext(arg0 context.Context, arg1 *ecs.ListAttributesInput, arg2 func(*ecs.ListAttributesOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListAttributesPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ListAttributesPagesWithContext indicates an expected call of ListAttributesPagesWithContext
+func (mr *MockECSAPIMockRecorder) ListAttributesPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAttributesPagesWithContext", reflect.TypeOf((*MockECSAPI)(nil).ListAttributesPagesWithContext), varargs...)
 }
 
 // ListAttributesRequest mocks base method
@@ -1695,6 +1828,56 @@ func (mr *MockECSAPIMockRecorder) PutAttributesWithContext(arg0, arg1 interface{
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutAttributesWithContext", reflect.TypeOf((*MockECSAPI)(nil).PutAttributesWithContext), varargs...)
+}
+
+// PutClusterCapacityProviders mocks base method
+func (m *MockECSAPI) PutClusterCapacityProviders(arg0 *ecs.PutClusterCapacityProvidersInput) (*ecs.PutClusterCapacityProvidersOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PutClusterCapacityProviders", arg0)
+	ret0, _ := ret[0].(*ecs.PutClusterCapacityProvidersOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutClusterCapacityProviders indicates an expected call of PutClusterCapacityProviders
+func (mr *MockECSAPIMockRecorder) PutClusterCapacityProviders(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutClusterCapacityProviders", reflect.TypeOf((*MockECSAPI)(nil).PutClusterCapacityProviders), arg0)
+}
+
+// PutClusterCapacityProvidersRequest mocks base method
+func (m *MockECSAPI) PutClusterCapacityProvidersRequest(arg0 *ecs.PutClusterCapacityProvidersInput) (*request.Request, *ecs.PutClusterCapacityProvidersOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PutClusterCapacityProvidersRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ecs.PutClusterCapacityProvidersOutput)
+	return ret0, ret1
+}
+
+// PutClusterCapacityProvidersRequest indicates an expected call of PutClusterCapacityProvidersRequest
+func (mr *MockECSAPIMockRecorder) PutClusterCapacityProvidersRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutClusterCapacityProvidersRequest", reflect.TypeOf((*MockECSAPI)(nil).PutClusterCapacityProvidersRequest), arg0)
+}
+
+// PutClusterCapacityProvidersWithContext mocks base method
+func (m *MockECSAPI) PutClusterCapacityProvidersWithContext(arg0 context.Context, arg1 *ecs.PutClusterCapacityProvidersInput, arg2 ...request.Option) (*ecs.PutClusterCapacityProvidersOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PutClusterCapacityProvidersWithContext", varargs...)
+	ret0, _ := ret[0].(*ecs.PutClusterCapacityProvidersOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutClusterCapacityProvidersWithContext indicates an expected call of PutClusterCapacityProvidersWithContext
+func (mr *MockECSAPIMockRecorder) PutClusterCapacityProvidersWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutClusterCapacityProvidersWithContext", reflect.TypeOf((*MockECSAPI)(nil).PutClusterCapacityProvidersWithContext), varargs...)
 }
 
 // RegisterContainerInstance mocks base method
