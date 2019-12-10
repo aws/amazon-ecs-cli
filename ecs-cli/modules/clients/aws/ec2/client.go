@@ -15,6 +15,7 @@ package ec2
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
@@ -27,6 +28,7 @@ import (
 type EC2Client interface {
 	DescribeInstances(ec2InstanceIds []*string) (map[string]*ec2.Instance, error)
 	DescribeNetworkInterfaces(networkInterfaceIDs []*string) ([]*ec2.NetworkInterface, error)
+	DescribeInstanceTypeOfferings(location string) ([]string, error)
 }
 
 // ec2Client implements EC2Client
@@ -84,4 +86,30 @@ func (c *ec2Client) DescribeNetworkInterfaces(networkInterfaceIDs []*string) ([]
 		return nil, err
 	}
 	return response.NetworkInterfaces, nil
+}
+
+func (c *ec2Client) DescribeInstanceTypeOfferings(location string) ([]string, error) {
+	request := &ec2.DescribeInstanceTypeOfferingsInput{
+		LocationType: aws.String("region"),
+		Filters: []*ec2.Filter{
+			&ec2.Filter{
+				Name: aws.String("location"),
+				Values: []*string{
+					aws.String(location),
+				},
+			},
+		},
+	}
+	response, err := c.client.DescribeInstanceTypeOfferings(request)
+	if err != nil {
+		return nil, err
+	}
+	var instanceTypes []string
+	for _, instanceTypeOffering := range response.InstanceTypeOfferings {
+		instanceTypes = append(instanceTypes, aws.StringValue(instanceTypeOffering.InstanceType))
+	}
+	if len(instanceTypes) == 0 {
+		return nil, fmt.Errorf("No instance found in region %s", location)
+	}
+	return instanceTypes, nil
 }

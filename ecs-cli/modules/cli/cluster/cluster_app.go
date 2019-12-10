@@ -95,14 +95,16 @@ type AWSClients struct {
 	ECSClient         ecsclient.ECSClient
 	CFNClient         cloudformation.CloudformationClient
 	AMIMetadataClient amimetadata.Client
+	EC2Client         ec2client.EC2Client
 }
 
 func newAWSClients(commandConfig *config.CommandConfig) *AWSClients {
 	ecsClient := ecsclient.NewECSClient(commandConfig)
 	cfnClient := cloudformation.NewCloudformationClient(commandConfig)
 	metadataClient := amimetadata.NewMetadataClient(commandConfig)
+	ec2Client := ec2client.NewEC2Client(commandConfig)
 
-	return &AWSClients{ecsClient, cfnClient, metadataClient}
+	return &AWSClients{ecsClient, cfnClient, metadataClient, ec2Client}
 }
 
 ///////////////////////
@@ -343,7 +345,11 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 		}
 	}
 	// Create cfn stack
-	template, err := cloudformation.GetClusterTemplate(tags, stackName)
+	instanceTypes, err := awsClients.EC2Client.DescribeInstanceTypeOfferings(commandConfig.Region())
+	if err != nil {
+		return errors.Wrapf(err, "No instance type found in region %s", commandConfig.Region())
+	}
+	template, err := cloudformation.GetClusterTemplate(tags, stackName, instanceTypes)
 	if err != nil {
 		return errors.Wrapf(err, "Error building cloudformation template")
 	}

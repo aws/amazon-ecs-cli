@@ -23,10 +23,11 @@ import (
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/cluster/userdata"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/amimetadata"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/amimetadata/mock"
+	mock_amimetadata "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/amimetadata/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudformation"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudformation/mock"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"
+	mock_cloudformation "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/cloudformation/mock"
+	mock_ec2 "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ec2/mock"
+	mock_ecs "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
@@ -96,18 +97,19 @@ func (b *mockUserDataBuilder) Build() (string, error) {
 	return b.userdata, nil
 }
 
-func setupTest(t *testing.T) (*mock_ecs.MockECSClient, *mock_cloudformation.MockCloudformationClient, *mock_amimetadata.MockClient) {
+func setupTest(t *testing.T) (*mock_ecs.MockECSClient, *mock_cloudformation.MockCloudformationClient, *mock_amimetadata.MockClient, *mock_ec2.MockEC2Client) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockECS := mock_ecs.NewMockECSClient(ctrl)
 	mockCloudformation := mock_cloudformation.NewMockCloudformationClient(ctrl)
 	mockSSM := mock_amimetadata.NewMockClient(ctrl)
+	mockEC2 := mock_ec2.NewMockEC2Client(ctrl)
 
 	os.Setenv("AWS_ACCESS_KEY", "AKIDEXAMPLE")
 	os.Setenv("AWS_SECRET_KEY", "secret")
 	os.Setenv("AWS_REGION", "us-west-1")
 
-	return mockECS, mockCloudformation, mockSSM
+	return mockECS, mockCloudformation, mockSSM, mockEC2
 }
 
 /////////////////
@@ -116,10 +118,10 @@ func setupTest(t *testing.T) (*mock_ecs.MockECSClient, *mock_cloudformation.Mock
 
 func TestClusterUp(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	mocksForSuccessfulClusterUp(mockECS, mockCloudformation, mockSSM)
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	mocksForSuccessfulClusterUp(mockECS, mockCloudformation, mockSSM, mockEC2)
 
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
@@ -136,8 +138,8 @@ func TestClusterUp(t *testing.T) {
 
 func TestClusterUpWithForce(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	gomock.InOrder(
 		mockECS.EXPECT().CreateCluster(clusterName, gomock.Any()).Return(clusterName, nil),
@@ -153,6 +155,10 @@ func TestClusterUpWithForce(t *testing.T) {
 		mockCloudformation.EXPECT().WaitUntilDeleteComplete(stackName).Return(nil),
 		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any(), gomock.Any()).Return("", nil),
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
+	)
+
+	gomock.InOrder(
+		mockEC2.EXPECT().DescribeInstanceTypeOfferings("us-west-1").Return([]string{"t2.micro"}, nil),
 	)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
@@ -171,8 +177,8 @@ func TestClusterUpWithForce(t *testing.T) {
 
 func TestClusterUpWithoutPublicIP(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	gomock.InOrder(
 		mockECS.EXPECT().CreateCluster(clusterName, gomock.Any()).Return(clusterName, nil),
@@ -195,6 +201,10 @@ func TestClusterUpWithoutPublicIP(t *testing.T) {
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
 
+	gomock.InOrder(
+		mockEC2.EXPECT().DescribeInstanceTypeOfferings("us-west-1").Return([]string{"t2.micro"}, nil),
+	)
+
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)
 
@@ -214,8 +224,8 @@ func TestClusterUpWithoutPublicIP(t *testing.T) {
 
 func TestClusterUpWithUserData(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	oldNewUserDataBuilder := newUserDataBuilder
 	defer func() { newUserDataBuilder = oldNewUserDataBuilder }()
@@ -247,6 +257,10 @@ func TestClusterUpWithUserData(t *testing.T) {
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
 
+	gomock.InOrder(
+		mockEC2.EXPECT().DescribeInstanceTypeOfferings("us-west-1").Return([]string{"t2.micro"}, nil),
+	)
+
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)
 
@@ -271,8 +285,8 @@ func TestClusterUpWithUserData(t *testing.T) {
 
 func TestClusterUpWithSpotPrice(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	spotPrice := "0.03"
 
@@ -295,6 +309,10 @@ func TestClusterUpWithSpotPrice(t *testing.T) {
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
 
+	gomock.InOrder(
+		mockEC2.EXPECT().DescribeInstanceTypeOfferings("us-west-1").Return([]string{"t2.micro"}, nil),
+	)
+
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)
 
@@ -314,13 +332,13 @@ func TestClusterUpWithSpotPrice(t *testing.T) {
 
 func TestClusterUpWithVPC(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	vpcID := "vpc-02dd3038"
 	subnetIds := "subnet-04726b21,subnet-04346b21"
 
-	mocksForSuccessfulClusterUp(mockECS, mockCloudformation, mockSSM)
+	mocksForSuccessfulClusterUp(mockECS, mockCloudformation, mockSSM, mockEC2)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
@@ -339,12 +357,12 @@ func TestClusterUpWithVPC(t *testing.T) {
 
 func TestClusterUpWithAvailabilityZones(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	vpcAZs := "us-west-2c,us-west-2a"
 
-	mocksForSuccessfulClusterUp(mockECS, mockCloudformation, mockSSM)
+	mocksForSuccessfulClusterUp(mockECS, mockCloudformation, mockSSM, mockEC2)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
@@ -362,12 +380,12 @@ func TestClusterUpWithAvailabilityZones(t *testing.T) {
 
 func TestClusterUpWithCustomRole(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	instanceRole := "sparklepony"
 
-	mocksForSuccessfulClusterUp(mockECS, mockCloudformation, mockSSM)
+	mocksForSuccessfulClusterUp(mockECS, mockCloudformation, mockSSM, mockEC2)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.String(flags.KeypairNameFlag, "default", "")
@@ -384,8 +402,8 @@ func TestClusterUpWithCustomRole(t *testing.T) {
 
 func TestClusterUpWithTwoCustomRoles(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	instanceRole := "sparklepony, sparkleunicorn"
 
@@ -405,8 +423,8 @@ func TestClusterUpWithTwoCustomRoles(t *testing.T) {
 
 func TestClusterUpWithDefaultAndCustomRoles(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	instanceRole := "sparklepony"
 
@@ -426,8 +444,8 @@ func TestClusterUpWithDefaultAndCustomRoles(t *testing.T) {
 
 func TestClusterUpWithNoRoles(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(flags.CapabilityIAMFlag, false, "")
@@ -444,10 +462,10 @@ func TestClusterUpWithNoRoles(t *testing.T) {
 
 func TestClusterUpWithoutKeyPair(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
-	mocksForSuccessfulClusterUp(mockECS, mockCloudformation, mockSSM)
+	mocksForSuccessfulClusterUp(mockECS, mockCloudformation, mockSSM, mockEC2)
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
@@ -464,8 +482,8 @@ func TestClusterUpWithoutKeyPair(t *testing.T) {
 
 func TestClusterUpWithSecurityGroupWithoutVPC(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	securityGroupID := "sg-eeaabc8d"
 
@@ -490,10 +508,10 @@ func TestClusterUpWithSecurityGroupWithoutVPC(t *testing.T) {
 
 func TestClusterUpWith2SecurityGroups(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
 
-	mocksForSuccessfulClusterUp(mockECS, mockCloudformation, mockSSM)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mocksForSuccessfulClusterUp(mockECS, mockCloudformation, mockSSM, mockEC2)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	securityGroupIds := "sg-eeaabc8d,sg-eaaebc8d"
 	vpcId := "vpc-02dd3038"
@@ -518,8 +536,8 @@ func TestClusterUpWith2SecurityGroups(t *testing.T) {
 
 func TestClusterUpWithSubnetsWithoutVPC(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	subnetID := "subnet-72f52e32"
 
@@ -544,8 +562,8 @@ func TestClusterUpWithSubnetsWithoutVPC(t *testing.T) {
 
 func TestClusterUpWithVPCWithoutSubnets(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	vpcID := "vpc-02dd3038"
 
@@ -570,8 +588,8 @@ func TestClusterUpWithVPCWithoutSubnets(t *testing.T) {
 
 func TestClusterUpWithAvailabilityZonesWithVPC(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	vpcID := "vpc-02dd3038"
 	vpcAZs := "us-west-2c,us-west-2a"
@@ -598,8 +616,8 @@ func TestClusterUpWithAvailabilityZonesWithVPC(t *testing.T) {
 
 func TestClusterUpWithout2AvailabilityZones(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	vpcAZs := "us-west-2c"
 
@@ -646,8 +664,8 @@ func TestCliFlagsToCfnStackParams(t *testing.T) {
 
 func TestClusterUpForImageIdInput(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	imageID := "ami-12345"
 
@@ -672,6 +690,10 @@ func TestClusterUpForImageIdInput(t *testing.T) {
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
 
+	gomock.InOrder(
+		mockEC2.EXPECT().DescribeInstanceTypeOfferings("us-west-1").Return([]string{"t2.micro"}, nil),
+	)
+
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
 	flagSet.String(flags.KeypairNameFlag, "default", "")
@@ -688,8 +710,8 @@ func TestClusterUpForImageIdInput(t *testing.T) {
 
 func TestClusterUpWithClusterNameEmpty(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)
@@ -721,8 +743,8 @@ func TestClusterUpWithoutRegion(t *testing.T) {
 
 func TestClusterUpWithFargateLaunchTypeFlag(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	gomock.InOrder(
 		mockECS.EXPECT().CreateCluster(clusterName, gomock.Any()).Return(clusterName, nil),
@@ -740,6 +762,9 @@ func TestClusterUpWithFargateLaunchTypeFlag(t *testing.T) {
 		}).Return("", nil),
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 		mockCloudformation.EXPECT().DescribeNetworkResources(stackName).Return(nil),
+	)
+	gomock.InOrder(
+		mockEC2.EXPECT().DescribeInstanceTypeOfferings("us-west-1").Return([]string{"t2.micro"}, nil),
 	)
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)
@@ -765,8 +790,8 @@ func TestClusterUpWithFargateDefaultLaunchTypeConfig(t *testing.T) {
 	}
 
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	gomock.InOrder(
 		mockECS.EXPECT().CreateCluster(clusterName, gomock.Any()).Return(clusterName, nil),
@@ -783,6 +808,9 @@ func TestClusterUpWithFargateDefaultLaunchTypeConfig(t *testing.T) {
 		}).Return("", nil),
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 		mockCloudformation.EXPECT().DescribeNetworkResources(stackName).Return(nil),
+	)
+	gomock.InOrder(
+		mockEC2.EXPECT().DescribeInstanceTypeOfferings("us-west-1").Return([]string{"t2.micro"}, nil),
 	)
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)
@@ -807,8 +835,8 @@ func TestClusterUpWithFargateLaunchTypeFlagOverride(t *testing.T) {
 	}
 
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	gomock.InOrder(
 		mockECS.EXPECT().CreateCluster(clusterName, gomock.Any()).Return(clusterName, nil),
@@ -828,6 +856,9 @@ func TestClusterUpWithFargateLaunchTypeFlagOverride(t *testing.T) {
 		}).Return("", nil),
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 		mockCloudformation.EXPECT().DescribeNetworkResources(stackName).Return(nil),
+	)
+	gomock.InOrder(
+		mockEC2.EXPECT().DescribeInstanceTypeOfferings("us-west-1").Return([]string{"t2.micro"}, nil),
 	)
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)
@@ -852,8 +883,8 @@ func TestClusterUpWithEC2LaunchTypeFlagOverride(t *testing.T) {
 	}
 
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	gomock.InOrder(
 		mockECS.EXPECT().CreateCluster(clusterName, gomock.Any()).Return(clusterName, nil),
@@ -889,8 +920,8 @@ func TestClusterUpWithBlankDefaultLaunchTypeConfig(t *testing.T) {
 	}
 
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	gomock.InOrder(
 		mockECS.EXPECT().CreateCluster(clusterName, gomock.Any()).Return(clusterName, nil),
@@ -917,8 +948,8 @@ func TestClusterUpWithBlankDefaultLaunchTypeConfig(t *testing.T) {
 }
 
 func TestClusterUpWithEmptyCluster(t *testing.T) {
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	gomock.InOrder(
 		mockECS.EXPECT().CreateCluster(clusterName, gomock.Any()).Return(clusterName, nil),
@@ -942,8 +973,8 @@ func TestClusterUpWithEmptyCluster(t *testing.T) {
 }
 
 func TestClusterUpWithEmptyClusterWithExistingStack(t *testing.T) {
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	gomock.InOrder(
 		mockECS.EXPECT().CreateCluster(clusterName, gomock.Any()).Return(clusterName, nil),
@@ -968,8 +999,8 @@ func TestClusterUpWithEmptyClusterWithExistingStack(t *testing.T) {
 
 func TestClusterUpARM64(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	gomock.InOrder(
 		mockECS.EXPECT().CreateCluster(clusterName, gomock.Any()).Return(clusterName, nil),
@@ -992,6 +1023,10 @@ func TestClusterUpARM64(t *testing.T) {
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
 
+	gomock.InOrder(
+		mockEC2.EXPECT().DescribeInstanceTypeOfferings("us-west-1").Return([]string{"t2.micro"}, nil),
+	)
+
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
 	flagSet.String(flags.KeypairNameFlag, "default", "")
@@ -1008,8 +1043,8 @@ func TestClusterUpARM64(t *testing.T) {
 
 func TestClusterUpWithTags(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	expectedCFNTags := []*sdkCFN.Tag{
 		&sdkCFN.Tag{
@@ -1061,6 +1096,9 @@ func TestClusterUpWithTags(t *testing.T) {
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 		mockCloudformation.EXPECT().DescribeNetworkResources(stackName).Return(nil),
 	)
+	gomock.InOrder(
+		mockEC2.EXPECT().DescribeInstanceTypeOfferings("us-west-1").Return([]string{"t2.micro"}, nil),
+	)
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)
 
@@ -1079,8 +1117,8 @@ func TestClusterUpWithTags(t *testing.T) {
 
 func TestClusterUpWithTagsContainerInstanceTaggingEnabled(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	oldNewUserDataBuilder := newUserDataBuilder
 	defer func() { newUserDataBuilder = oldNewUserDataBuilder }()
@@ -1147,6 +1185,9 @@ func TestClusterUpWithTagsContainerInstanceTaggingEnabled(t *testing.T) {
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 		mockCloudformation.EXPECT().DescribeNetworkResources(stackName).Return(nil),
 	)
+	gomock.InOrder(
+		mockEC2.EXPECT().DescribeInstanceTypeOfferings("us-west-1").Return([]string{"t2.micro"}, nil),
+	)
 	globalSet := flag.NewFlagSet("ecs-cli", 0)
 	globalContext := cli.NewContext(nil, globalSet, nil)
 
@@ -1169,8 +1210,8 @@ func TestClusterUpWithTagsContainerInstanceTaggingEnabled(t *testing.T) {
 // Cluster Down //
 //////////////////
 func TestClusterDown(t *testing.T) {
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 	defer os.Clearenv()
 
 	gomock.InOrder(
@@ -1194,8 +1235,8 @@ func TestClusterDown(t *testing.T) {
 
 func TestClusterDownWithoutForce(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	flagSet := flag.NewFlagSet("ecs-cli-down", 0)
 	context := cli.NewContext(nil, flagSet, nil)
@@ -1208,8 +1249,8 @@ func TestClusterDownWithoutForce(t *testing.T) {
 }
 
 func TestClusterDownForEmptyCluster(t *testing.T) {
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 	defer os.Clearenv()
 
 	gomock.InOrder(
@@ -1247,8 +1288,8 @@ func TestDeleteClusterPrompt(t *testing.T) {
 //////////////////
 
 func TestClusterScale(t *testing.T) {
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 	defer os.Clearenv()
 
 	mockECS.EXPECT().IsActiveCluster(gomock.Any()).Return(true, nil)
@@ -1292,8 +1333,8 @@ func TestClusterScale(t *testing.T) {
 
 func TestClusterScaleWithoutIamCapability(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.String(flags.AsgMaxSizeFlag, "1", "")
@@ -1309,8 +1350,8 @@ func TestClusterScaleWithoutIamCapability(t *testing.T) {
 
 func TestClusterScaleWithoutSize(t *testing.T) {
 	defer os.Clearenv()
-	mockECS, mockCloudformation, mockSSM := setupTest(t)
-	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM}
+	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
+	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
@@ -1339,7 +1380,7 @@ func TestClusterPSTaskGetInfoFail(t *testing.T) {
 		}, nil
 	}
 	defer os.Clearenv()
-	mockECS, _, _ := setupTest(t)
+	mockECS, _, _, _ := setupTest(t)
 
 	mockECS.EXPECT().IsActiveCluster(gomock.Any()).Return(true, nil)
 	mockECS.EXPECT().GetTasksPages(gomock.Any(), gomock.Any()).Do(func(x, y interface{}) {
@@ -1365,7 +1406,7 @@ func amiMetadata(imageID string) *amimetadata.AMIMetadata {
 	}
 }
 
-func mocksForSuccessfulClusterUp(mockECS *mock_ecs.MockECSClient, mockCloudformation *mock_cloudformation.MockCloudformationClient, mockSSM *mock_amimetadata.MockClient) {
+func mocksForSuccessfulClusterUp(mockECS *mock_ecs.MockECSClient, mockCloudformation *mock_cloudformation.MockCloudformationClient, mockSSM *mock_amimetadata.MockClient, mockEC2 *mock_ec2.MockEC2Client) {
 	gomock.InOrder(
 		mockECS.EXPECT().CreateCluster(clusterName, gomock.Any()).Return(clusterName, nil),
 	)
@@ -1376,5 +1417,8 @@ func mocksForSuccessfulClusterUp(mockECS *mock_ecs.MockECSClient, mockCloudforma
 		mockCloudformation.EXPECT().ValidateStackExists(stackName).Return(errors.New("error")),
 		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any(), gomock.Any()).Return("", nil),
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
+	)
+	gomock.InOrder(
+		mockEC2.EXPECT().DescribeInstanceTypeOfferings("us-west-1").Return([]string{"t2.micro"}, nil),
 	)
 }

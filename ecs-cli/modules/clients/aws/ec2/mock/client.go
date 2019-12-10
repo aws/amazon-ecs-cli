@@ -47,6 +47,21 @@ func (m *MockEC2Client) EXPECT() *MockEC2ClientMockRecorder {
 	return m.recorder
 }
 
+// DescribeInstanceTypeOfferings mocks base method
+func (m *MockEC2Client) DescribeInstanceTypeOfferings(arg0 string) ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeInstanceTypeOfferings", arg0)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeInstanceTypeOfferings indicates an expected call of DescribeInstanceTypeOfferings
+func (mr *MockEC2ClientMockRecorder) DescribeInstanceTypeOfferings(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstanceTypeOfferings", reflect.TypeOf((*MockEC2Client)(nil).DescribeInstanceTypeOfferings), arg0)
+}
+
 // DescribeInstances mocks base method
 func (m *MockEC2Client) DescribeInstances(arg0 []*string) (map[string]*ec2.Instance, error) {
 	m.ctrl.T.Helper()
