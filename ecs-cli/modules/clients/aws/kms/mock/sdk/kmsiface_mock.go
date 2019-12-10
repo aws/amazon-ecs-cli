@@ -964,6 +964,106 @@ func (mr *MockKMSAPIMockRecorder) GenerateDataKey(arg0 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateDataKey", reflect.TypeOf((*MockKMSAPI)(nil).GenerateDataKey), arg0)
 }
 
+// GenerateDataKeyPair mocks base method
+func (m *MockKMSAPI) GenerateDataKeyPair(arg0 *kms.GenerateDataKeyPairInput) (*kms.GenerateDataKeyPairOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenerateDataKeyPair", arg0)
+	ret0, _ := ret[0].(*kms.GenerateDataKeyPairOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GenerateDataKeyPair indicates an expected call of GenerateDataKeyPair
+func (mr *MockKMSAPIMockRecorder) GenerateDataKeyPair(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateDataKeyPair", reflect.TypeOf((*MockKMSAPI)(nil).GenerateDataKeyPair), arg0)
+}
+
+// GenerateDataKeyPairRequest mocks base method
+func (m *MockKMSAPI) GenerateDataKeyPairRequest(arg0 *kms.GenerateDataKeyPairInput) (*request.Request, *kms.GenerateDataKeyPairOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenerateDataKeyPairRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*kms.GenerateDataKeyPairOutput)
+	return ret0, ret1
+}
+
+// GenerateDataKeyPairRequest indicates an expected call of GenerateDataKeyPairRequest
+func (mr *MockKMSAPIMockRecorder) GenerateDataKeyPairRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateDataKeyPairRequest", reflect.TypeOf((*MockKMSAPI)(nil).GenerateDataKeyPairRequest), arg0)
+}
+
+// GenerateDataKeyPairWithContext mocks base method
+func (m *MockKMSAPI) GenerateDataKeyPairWithContext(arg0 context.Context, arg1 *kms.GenerateDataKeyPairInput, arg2 ...request.Option) (*kms.GenerateDataKeyPairOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GenerateDataKeyPairWithContext", varargs...)
+	ret0, _ := ret[0].(*kms.GenerateDataKeyPairOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GenerateDataKeyPairWithContext indicates an expected call of GenerateDataKeyPairWithContext
+func (mr *MockKMSAPIMockRecorder) GenerateDataKeyPairWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateDataKeyPairWithContext", reflect.TypeOf((*MockKMSAPI)(nil).GenerateDataKeyPairWithContext), varargs...)
+}
+
+// GenerateDataKeyPairWithoutPlaintext mocks base method
+func (m *MockKMSAPI) GenerateDataKeyPairWithoutPlaintext(arg0 *kms.GenerateDataKeyPairWithoutPlaintextInput) (*kms.GenerateDataKeyPairWithoutPlaintextOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenerateDataKeyPairWithoutPlaintext", arg0)
+	ret0, _ := ret[0].(*kms.GenerateDataKeyPairWithoutPlaintextOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GenerateDataKeyPairWithoutPlaintext indicates an expected call of GenerateDataKeyPairWithoutPlaintext
+func (mr *MockKMSAPIMockRecorder) GenerateDataKeyPairWithoutPlaintext(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateDataKeyPairWithoutPlaintext", reflect.TypeOf((*MockKMSAPI)(nil).GenerateDataKeyPairWithoutPlaintext), arg0)
+}
+
+// GenerateDataKeyPairWithoutPlaintextRequest mocks base method
+func (m *MockKMSAPI) GenerateDataKeyPairWithoutPlaintextRequest(arg0 *kms.GenerateDataKeyPairWithoutPlaintextInput) (*request.Request, *kms.GenerateDataKeyPairWithoutPlaintextOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenerateDataKeyPairWithoutPlaintextRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*kms.GenerateDataKeyPairWithoutPlaintextOutput)
+	return ret0, ret1
+}
+
+// GenerateDataKeyPairWithoutPlaintextRequest indicates an expected call of GenerateDataKeyPairWithoutPlaintextRequest
+func (mr *MockKMSAPIMockRecorder) GenerateDataKeyPairWithoutPlaintextRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateDataKeyPairWithoutPlaintextRequest", reflect.TypeOf((*MockKMSAPI)(nil).GenerateDataKeyPairWithoutPlaintextRequest), arg0)
+}
+
+// GenerateDataKeyPairWithoutPlaintextWithContext mocks base method
+func (m *MockKMSAPI) GenerateDataKeyPairWithoutPlaintextWithContext(arg0 context.Context, arg1 *kms.GenerateDataKeyPairWithoutPlaintextInput, arg2 ...request.Option) (*kms.GenerateDataKeyPairWithoutPlaintextOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GenerateDataKeyPairWithoutPlaintextWithContext", varargs...)
+	ret0, _ := ret[0].(*kms.GenerateDataKeyPairWithoutPlaintextOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GenerateDataKeyPairWithoutPlaintextWithContext indicates an expected call of GenerateDataKeyPairWithoutPlaintextWithContext
+func (mr *MockKMSAPIMockRecorder) GenerateDataKeyPairWithoutPlaintextWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateDataKeyPairWithoutPlaintextWithContext", reflect.TypeOf((*MockKMSAPI)(nil).GenerateDataKeyPairWithoutPlaintextWithContext), varargs...)
+}
+
 // GenerateDataKeyRequest mocks base method
 func (m *MockKMSAPI) GenerateDataKeyRequest(arg0 *kms.GenerateDataKeyInput) (*request.Request, *kms.GenerateDataKeyOutput) {
 	m.ctrl.T.Helper()
@@ -1247,6 +1347,56 @@ func (mr *MockKMSAPIMockRecorder) GetParametersForImportWithContext(arg0, arg1 i
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParametersForImportWithContext", reflect.TypeOf((*MockKMSAPI)(nil).GetParametersForImportWithContext), varargs...)
+}
+
+// GetPublicKey mocks base method
+func (m *MockKMSAPI) GetPublicKey(arg0 *kms.GetPublicKeyInput) (*kms.GetPublicKeyOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPublicKey", arg0)
+	ret0, _ := ret[0].(*kms.GetPublicKeyOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPublicKey indicates an expected call of GetPublicKey
+func (mr *MockKMSAPIMockRecorder) GetPublicKey(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPublicKey", reflect.TypeOf((*MockKMSAPI)(nil).GetPublicKey), arg0)
+}
+
+// GetPublicKeyRequest mocks base method
+func (m *MockKMSAPI) GetPublicKeyRequest(arg0 *kms.GetPublicKeyInput) (*request.Request, *kms.GetPublicKeyOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPublicKeyRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*kms.GetPublicKeyOutput)
+	return ret0, ret1
+}
+
+// GetPublicKeyRequest indicates an expected call of GetPublicKeyRequest
+func (mr *MockKMSAPIMockRecorder) GetPublicKeyRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPublicKeyRequest", reflect.TypeOf((*MockKMSAPI)(nil).GetPublicKeyRequest), arg0)
+}
+
+// GetPublicKeyWithContext mocks base method
+func (m *MockKMSAPI) GetPublicKeyWithContext(arg0 context.Context, arg1 *kms.GetPublicKeyInput, arg2 ...request.Option) (*kms.GetPublicKeyOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetPublicKeyWithContext", varargs...)
+	ret0, _ := ret[0].(*kms.GetPublicKeyOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPublicKeyWithContext indicates an expected call of GetPublicKeyWithContext
+func (mr *MockKMSAPIMockRecorder) GetPublicKeyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPublicKeyWithContext", reflect.TypeOf((*MockKMSAPI)(nil).GetPublicKeyWithContext), varargs...)
 }
 
 // ImportKeyMaterial mocks base method
@@ -1981,6 +2131,56 @@ func (mr *MockKMSAPIMockRecorder) ScheduleKeyDeletionWithContext(arg0, arg1 inte
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ScheduleKeyDeletionWithContext", reflect.TypeOf((*MockKMSAPI)(nil).ScheduleKeyDeletionWithContext), varargs...)
 }
 
+// Sign mocks base method
+func (m *MockKMSAPI) Sign(arg0 *kms.SignInput) (*kms.SignOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Sign", arg0)
+	ret0, _ := ret[0].(*kms.SignOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Sign indicates an expected call of Sign
+func (mr *MockKMSAPIMockRecorder) Sign(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Sign", reflect.TypeOf((*MockKMSAPI)(nil).Sign), arg0)
+}
+
+// SignRequest mocks base method
+func (m *MockKMSAPI) SignRequest(arg0 *kms.SignInput) (*request.Request, *kms.SignOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SignRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*kms.SignOutput)
+	return ret0, ret1
+}
+
+// SignRequest indicates an expected call of SignRequest
+func (mr *MockKMSAPIMockRecorder) SignRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SignRequest", reflect.TypeOf((*MockKMSAPI)(nil).SignRequest), arg0)
+}
+
+// SignWithContext mocks base method
+func (m *MockKMSAPI) SignWithContext(arg0 context.Context, arg1 *kms.SignInput, arg2 ...request.Option) (*kms.SignOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "SignWithContext", varargs...)
+	ret0, _ := ret[0].(*kms.SignOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SignWithContext indicates an expected call of SignWithContext
+func (mr *MockKMSAPIMockRecorder) SignWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SignWithContext", reflect.TypeOf((*MockKMSAPI)(nil).SignWithContext), varargs...)
+}
+
 // TagResource mocks base method
 func (m *MockKMSAPI) TagResource(arg0 *kms.TagResourceInput) (*kms.TagResourceOutput, error) {
 	m.ctrl.T.Helper()
@@ -2229,4 +2429,54 @@ func (mr *MockKMSAPIMockRecorder) UpdateKeyDescriptionWithContext(arg0, arg1 int
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateKeyDescriptionWithContext", reflect.TypeOf((*MockKMSAPI)(nil).UpdateKeyDescriptionWithContext), varargs...)
+}
+
+// Verify mocks base method
+func (m *MockKMSAPI) Verify(arg0 *kms.VerifyInput) (*kms.VerifyOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Verify", arg0)
+	ret0, _ := ret[0].(*kms.VerifyOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Verify indicates an expected call of Verify
+func (mr *MockKMSAPIMockRecorder) Verify(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Verify", reflect.TypeOf((*MockKMSAPI)(nil).Verify), arg0)
+}
+
+// VerifyRequest mocks base method
+func (m *MockKMSAPI) VerifyRequest(arg0 *kms.VerifyInput) (*request.Request, *kms.VerifyOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*kms.VerifyOutput)
+	return ret0, ret1
+}
+
+// VerifyRequest indicates an expected call of VerifyRequest
+func (mr *MockKMSAPIMockRecorder) VerifyRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyRequest", reflect.TypeOf((*MockKMSAPI)(nil).VerifyRequest), arg0)
+}
+
+// VerifyWithContext mocks base method
+func (m *MockKMSAPI) VerifyWithContext(arg0 context.Context, arg1 *kms.VerifyInput, arg2 ...request.Option) (*kms.VerifyOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "VerifyWithContext", varargs...)
+	ret0, _ := ret[0].(*kms.VerifyOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// VerifyWithContext indicates an expected call of VerifyWithContext
+func (mr *MockKMSAPIMockRecorder) VerifyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyWithContext", reflect.TypeOf((*MockKMSAPI)(nil).VerifyWithContext), varargs...)
 }

@@ -430,7 +430,7 @@ func TestCredentialsWhenUsingEC2InstanceRole(t *testing.T) {
 		} else if r.URL.Path == "/latest/meta-data/iam/security-credentials/"+ec2InstanceRoleName {
 			fmt.Fprintf(w, ec2Creds, "2014-12-16T01:51:37Z")
 		} else {
-			http.Error(w, "bad request", http.StatusBadRequest)
+			http.Error(w, "Not found", http.StatusNotFound)
 		}
 	}))
 
