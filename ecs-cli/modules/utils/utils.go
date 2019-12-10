@@ -67,7 +67,7 @@ func EntityAlreadyExists(err error) bool {
 func ParseTags(flagValue string, tags []*ecs.Tag) ([]*ecs.Tag, error) {
 	keyValPairs := strings.Split(flagValue, ",")
 	for _, kv := range keyValPairs {
-		pair := strings.Split(kv, "=")
+		pair := strings.SplitN(kv, "=", 2)
 		if len(pair) != 2 {
 			return nil, fmt.Errorf("Tag input not formatted correctly: %s", kv)
 		}
@@ -86,7 +86,7 @@ func GetTagsMap(flagValue string) (map[string]*string, error) {
 	tags := make(map[string]*string)
 	keyValPairs := strings.Split(flagValue, ",")
 	for _, pair := range keyValPairs {
-		split := strings.Split(pair, "=")
+		split := strings.SplitN(pair, "=", 2)
 		if len(split) != 2 {
 			return nil, fmt.Errorf("Tag input not formatted correctly: %s", pair)
 		}
