@@ -83,17 +83,17 @@ docker-build:
 		--workdir=/usr/src/app/src/github.com/aws/amazon-ecs-cli \
 		--env GOPATH=/usr/src/app \
 		--env ECS_RELEASE=$(ECS_RELEASE) \
-		golang:1.11 make $(LINUX_BINARY)
+		golang:1.12 make $(LINUX_BINARY)
 	docker run -v $(shell pwd):/usr/src/app/src/github.com/aws/amazon-ecs-cli \
 		--workdir=/usr/src/app/src/github.com/aws/amazon-ecs-cli \
 		--env GOPATH=/usr/src/app \
 		--env ECS_RELEASE=$(ECS_RELEASE) \
-		golang:1.11 make $(DARWIN_BINARY)
+		golang:1.12 make $(DARWIN_BINARY)
 	docker run -v $(shell pwd):/usr/src/app/src/github.com/aws/amazon-ecs-cli \
 		--workdir=/usr/src/app/src/github.com/aws/amazon-ecs-cli \
 		--env GOPATH=/usr/src/app \
 		--env ECS_RELEASE=$(ECS_RELEASE) \
-		golang:1.11 make $(WINDOWS_BINARY)
+		golang:1.12 make $(WINDOWS_BINARY)
 
 .PHONY: docker-test
 docker-test:
@@ -101,7 +101,7 @@ docker-test:
 		--workdir=/usr/src/app/src/github.com/aws/amazon-ecs-cli \
 		--env GOPATH=/usr/src/app \
 		--env ECS_RELEASE=$(ECS_RELEASE) \
-		golang:1.11 make test
+		golang:1.12 make test
 
 .PHONY: supported-platforms
 supported-platforms: $(LINUX_BINARY) $(DARWIN_BINARY) $(WINDOWS_BINARY)
