@@ -73,6 +73,26 @@ func TestParseTags(t *testing.T) {
 
 }
 
+func TestParseTagsSpaceAndSymbols(t *testing.T) {
+	actualTags := make([]*ecs.Tag, 0)
+	expectedTags := []*ecs.Tag{
+		&ecs.Tag{
+			Key:   aws.String("IRobot"),
+			Value: aws.String("The=Alan Parsons=Project"),
+		},
+		&ecs.Tag{
+			Key:   aws.String("Sirius"),
+			Value: aws.String("+-=._:/@"),
+		},
+	}
+
+	var err error
+	actualTags, err = ParseTags("IRobot=The=Alan Parsons=Project,Sirius=+-=._:/@", actualTags)
+	assert.NoError(t, err, "Unexpected error calling ParseTags")
+	assert.ElementsMatch(t, actualTags, expectedTags, "Expected tags to match")
+
+}
+
 func TestParseTagsEmptyValue(t *testing.T) {
 	actualTags := make([]*ecs.Tag, 0)
 	expectedTags := []*ecs.Tag{
