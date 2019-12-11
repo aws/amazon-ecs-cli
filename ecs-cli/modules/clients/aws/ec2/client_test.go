@@ -17,7 +17,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ec2/mock/sdk"
+	mock_ec2iface "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ec2/mock/sdk"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/golang/mock/gomock"
@@ -105,6 +105,68 @@ func TestDescribeInstancesErrorCaseWithEmptyReservation(t *testing.T) {
 	_, err := client.DescribeInstances(expectedIds)
 
 	assert.Error(t, err, "Expected error for empty reservations")
+}
+
+func TestDescribeInstanceTypeOfferings(t *testing.T) {
+	mockEC2, client := setupTest(t)
+
+	region := "us-west-2"
+	result := &ec2.DescribeInstanceTypeOfferingsOutput{
+		InstanceTypeOfferings: []*ec2.InstanceTypeOffering{
+			&ec2.InstanceTypeOffering{
+				InstanceType: aws.String("t1.micro"),
+			},
+		},
+	}
+
+	mockEC2.EXPECT().DescribeInstanceTypeOfferings(gomock.Any()).Do(func(input interface{}) {
+		instanceTypesInput := input.(*ec2.DescribeInstanceTypeOfferingsInput)
+		assert.Equal(t, "region", aws.StringValue(instanceTypesInput.LocationType), "Expected request to have LocationType set")
+		assert.NotEmpty(t, instanceTypesInput.Filters)
+		assert.Equal(t, aws.StringValue(instanceTypesInput.Filters[0].Name), "location")
+		assert.Equal(t, aws.StringValue(instanceTypesInput.Filters[0].Values[0]), "us-west-2")
+	}).Return(result, nil)
+
+	outputs, err := client.DescribeInstanceTypeOfferings(region)
+	assert.NoError(t, err, "Expected no error while Describing EC2 Instance types")
+	assert.NotEmpty(t, outputs, "Expected output to be of length")
+}
+
+func TestDescribeInstanceTypeOfferingsWithError(t *testing.T) {
+	mockEC2, client := setupTest(t)
+
+	region := "us-west-2"
+
+	mockEC2.EXPECT().DescribeInstanceTypeOfferings(gomock.Any()).Do(func(input interface{}) {
+		instanceTypesInput := input.(*ec2.DescribeInstanceTypeOfferingsInput)
+		assert.Equal(t, "region", aws.StringValue(instanceTypesInput.LocationType), "Expected request to have LocationType set")
+		assert.NotEmpty(t, instanceTypesInput.Filters)
+		assert.Equal(t, aws.StringValue(instanceTypesInput.Filters[0].Name), "location")
+		assert.Equal(t, aws.StringValue(instanceTypesInput.Filters[0].Values[0]), "us-west-2")
+	}).Return(nil, errors.New("some error"))
+
+	_, err := client.DescribeInstanceTypeOfferings(region)
+	assert.Error(t, err, "Expected error while no region found")
+}
+
+func TestDescribeInstanceTypeOfferingsWithEmptyResult(t *testing.T) {
+	mockEC2, client := setupTest(t)
+
+	region := "us-west-2"
+	result := &ec2.DescribeInstanceTypeOfferingsOutput{
+		InstanceTypeOfferings: []*ec2.InstanceTypeOffering{},
+	}
+
+	mockEC2.EXPECT().DescribeInstanceTypeOfferings(gomock.Any()).Do(func(input interface{}) {
+		instanceTypesInput := input.(*ec2.DescribeInstanceTypeOfferingsInput)
+		assert.Equal(t, "region", aws.StringValue(instanceTypesInput.LocationType), "Expected request to have LocationType set")
+		assert.NotEmpty(t, instanceTypesInput.Filters)
+		assert.Equal(t, aws.StringValue(instanceTypesInput.Filters[0].Name), "location")
+		assert.Equal(t, aws.StringValue(instanceTypesInput.Filters[0].Values[0]), "us-west-2")
+	}).Return(result, nil)
+
+	_, err := client.DescribeInstanceTypeOfferings(region)
+	assert.Error(t, err, "Expected error while no region found")
 }
 
 func setupTest(t *testing.T) (*mock_ec2iface.MockEC2API, EC2Client) {
