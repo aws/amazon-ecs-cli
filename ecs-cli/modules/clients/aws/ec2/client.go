@@ -88,14 +88,14 @@ func (c *ec2Client) DescribeNetworkInterfaces(networkInterfaceIDs []*string) ([]
 	return response.NetworkInterfaces, nil
 }
 
-func (c *ec2Client) DescribeInstanceTypeOfferings(location string) ([]string, error) {
+func (c *ec2Client) DescribeInstanceTypeOfferings(region string) ([]string, error) {
 	request := &ec2.DescribeInstanceTypeOfferingsInput{
 		LocationType: aws.String("region"),
 		Filters: []*ec2.Filter{
 			&ec2.Filter{
 				Name: aws.String("location"),
 				Values: []*string{
-					aws.String(location),
+					aws.String(region),
 				},
 			},
 		},
@@ -109,7 +109,7 @@ func (c *ec2Client) DescribeInstanceTypeOfferings(location string) ([]string, er
 		instanceTypes = append(instanceTypes, aws.StringValue(instanceTypeOffering.InstanceType))
 	}
 	if len(instanceTypes) == 0 {
-		return nil, fmt.Errorf("No instance found in region %s", location)
+		return nil, fmt.Errorf("No instance found in region %s", region)
 	}
 	return instanceTypes, nil
 }
