@@ -76,6 +76,8 @@ const (
 
 	// Name of the container, we need to give it a name so that we don't re-create a container every time we setup.
 	localEndpointsContainerName = "amazon-ecs-local-container-endpoints"
+
+
 )
 
 // Setup creates a user-defined bridge network with a running Local Container Endpoints container. It will pull
@@ -190,13 +192,18 @@ func createLocalEndpointsContainer(dockerClient containerStarter) string {
 	ctx, cancel := context.WithTimeout(context.Background(), docker.TimeoutInS)
 	defer cancel()
 
+	profile, profile_set := os.LookupEnv("AWS_PROFILE")
+	if !profile_set {
+		profile = "default"
+	}
+
 	// See First Scenario in https://aws.amazon.com/blogs/compute/a-guide-to-locally-testing-containers-with-amazon-ecs-local-endpoints-and-docker-compose/
 	// for an explanation of these fields.
 	resp, err := dockerClient.ContainerCreate(ctx,
 		&container.Config{
 			Image: localEndpointsImageName,
 			Env: []string{
-				"AWS_PROFILE=default",
+				fmt.Sprintf("AWS_PROFILE=%s", profile),
 				"HOME=/home",
 			},
 		},
