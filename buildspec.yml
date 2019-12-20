@@ -42,7 +42,7 @@ phases:
       - |
         # $CHECKED_IN_VERSION is not prefixed with "v", only the semantic version number,
         # such as 1.17.0 instead of v1.17.0, which is what normal version tags look like.
-        if [ "$VERSION" != "v$CHECKED_IN_VERSION" ]; then
+        if [ -n "$VERSION" ] && [ "$VERSION" != "v$CHECKED_IN_VERSION" ]; then
           echo "the VERSION file contains a version number that is different from the git tag. file: $CHECKED_IN_VERSION, tag: $VERSION"  
           exit 1
         fi
