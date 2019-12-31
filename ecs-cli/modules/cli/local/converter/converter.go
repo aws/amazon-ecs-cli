@@ -26,6 +26,7 @@ import (
 	composeV3 "github.com/docker/cli/cli/compose/types"
 	"github.com/docker/go-units"
 	log "github.com/sirupsen/logrus"
+	arnParser "github.com/aws/aws-sdk-go/aws/arn"
 )
 
 // LinuxParams is a shim between members of ecs.LinuxParamters and their
@@ -49,9 +50,10 @@ type LocalCreateMetadata struct {
 // CommonContainerValues contains values for top-level Task Definition fields
 // that apply to all containers within the task definition
 type CommonContainerValues struct {
-	Ipc     string
-	Pid     string
-	Volumes []*ecs.Volume
+	Ipc         string
+	Pid         string
+	Volumes     []*ecs.Volume
+	TaskRoleArn string
 }
 
 const (
@@ -143,9 +145,10 @@ func createComposeServices(taskDefinition *ecs.TaskDefinition, metadata *LocalCr
 	}
 
 	commonValues := &CommonContainerValues{
-		Pid:     pid,
-		Ipc:     ipc,
-		Volumes: taskDefinition.Volumes,
+		Pid:         pid,
+		Ipc:         ipc,
+		Volumes:     taskDefinition.Volumes,
+		TaskRoleArn: aws.StringValue(taskDefinition.TaskRoleArn),
 	}
 
 	if len(taskDefinition.ContainerDefinitions) < 1 {
@@ -185,7 +188,7 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition, commo
 	capDrop := linuxParams.CapDrop
 
 	ulimits, _ := convertUlimits(containerDefinition.Ulimits)
-	environment := convertEnvironment(containerDefinition)
+	environment := convertEnvironment(containerDefinition, commonValues.TaskRoleArn)
 	extraHosts := convertExtraHosts(containerDefinition.ExtraHosts)
 	healthCheck := convertHealthCheck(containerDefinition.HealthCheck)
 	labels := convertDockerLabelsWithSecrets(containerDefinition.DockerLabels, containerDefinition.Secrets)
@@ -390,7 +393,7 @@ func convertExtraHosts(hosts []*ecs.HostEntry) []string {
 	return out
 }
 
-func convertEnvironment(def *ecs.ContainerDefinition) map[string]*string {
+func convertEnvironment(def *ecs.ContainerDefinition, taskRoleARN string) map[string]*string {
 	out := make(map[string]*string)
 	for _, kv := range def.Environment {
 		name := aws.StringValue(kv.Name)
@@ -406,7 +409,12 @@ func convertEnvironment(def *ecs.ContainerDefinition) map[string]*string {
 		out[secretName] = &shellEnv
 	}
 
-	out[ecsCredsProviderEnvName] = aws.String(endpointsTempCredsPath)
+    credsName := endpointsTempCredsPath
+    if parsedRoleARN, err := arnParser.Parse(taskRoleARN); taskRoleARN != "" && err == nil {
+        credsName = "/" + parsedRoleARN.Resource
+    }
+
+	out[ecsCredsProviderEnvName] = aws.String(credsName)
 	out[ecsMetadataURIEnvName] = aws.String(endpointsMetadataV3URI)
 	return out
 }
