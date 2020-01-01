@@ -26,7 +26,7 @@ import (
 	composeV3 "github.com/docker/cli/cli/compose/types"
 	"github.com/docker/go-units"
 	log "github.com/sirupsen/logrus"
-	arnParser "github.com/aws/aws-sdk-go/aws/arn"
+	arnparser "github.com/aws/aws-sdk-go/aws/arn"
 )
 
 // LinuxParams is a shim between members of ecs.LinuxParamters and their
@@ -410,8 +410,8 @@ func convertEnvironment(def *ecs.ContainerDefinition, taskRoleARN string) map[st
 	}
 
     credsName := endpointsTempCredsPath
-    if parsedRoleARN, err := arnParser.Parse(taskRoleARN); taskRoleARN != "" && err == nil {
-        credsName = "/" + parsedRoleARN.Resource
+    if parsedRoleARN, err := arnparser.Parse(taskRoleARN); taskRoleARN != "" && err == nil {
+        credsName = "/" + parsedRoleARN.Resource // The parsed resource is formatted as "role/{roleName}"
     }
 
 	out[ecsCredsProviderEnvName] = aws.String(credsName)
