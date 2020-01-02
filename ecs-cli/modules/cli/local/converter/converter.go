@@ -45,15 +45,16 @@ type LinuxParams struct {
 type LocalCreateMetadata struct {
 	InputType string
 	Value     string
+	UseRole   bool
 }
 
 // CommonContainerValues contains values for top-level Task Definition fields
 // that apply to all containers within the task definition
 type CommonContainerValues struct {
-	Ipc         string
-	Pid         string
-	Volumes     []*ecs.Volume
-	TaskRoleArn string
+	Ipc     string
+	Pid     string
+	Volumes []*ecs.Volume
+	Creds   string
 }
 
 const (
@@ -145,10 +146,10 @@ func createComposeServices(taskDefinition *ecs.TaskDefinition, metadata *LocalCr
 	}
 
 	commonValues := &CommonContainerValues{
-		Pid:         pid,
-		Ipc:         ipc,
-		Volumes:     taskDefinition.Volumes,
-		TaskRoleArn: aws.StringValue(taskDefinition.TaskRoleArn),
+		Pid:     pid,
+		Ipc:     ipc,
+		Volumes: taskDefinition.Volumes,
+		Creds:   resolveCredentials(aws.StringValue(taskDefinition.TaskRoleArn), metadata.UseRole),
 	}
 
 	if len(taskDefinition.ContainerDefinitions) < 1 {
@@ -178,6 +179,14 @@ func createComposeServices(taskDefinition *ecs.TaskDefinition, metadata *LocalCr
 	return services, nil
 }
 
+func resolveCredentials(taskRoleARN string, useRole bool) string {
+    credsName := endpointsTempCredsPath
+    if parsedRoleARN, err := arnparser.Parse(taskRoleARN); useRole && taskRoleARN != "" && err == nil {
+        credsName = "/" + parsedRoleARN.Resource // The parsed resource is formatted as "role/{roleName}"
+    }
+    return credsName
+}
+
 func convertToComposeService(containerDefinition *ecs.ContainerDefinition, commonValues *CommonContainerValues) (composeV3.ServiceConfig, error) {
 	linuxParams := convertLinuxParameters(containerDefinition.LinuxParameters)
 	tmpfs := linuxParams.Tmpfs
@@ -188,7 +197,7 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition, commo
 	capDrop := linuxParams.CapDrop
 
 	ulimits, _ := convertUlimits(containerDefinition.Ulimits)
-	environment := convertEnvironment(containerDefinition, commonValues.TaskRoleArn)
+	environment := convertEnvironment(containerDefinition, commonValues.Creds)
 	extraHosts := convertExtraHosts(containerDefinition.ExtraHosts)
 	healthCheck := convertHealthCheck(containerDefinition.HealthCheck)
 	labels := convertDockerLabelsWithSecrets(containerDefinition.DockerLabels, containerDefinition.Secrets)
@@ -393,7 +402,7 @@ func convertExtraHosts(hosts []*ecs.HostEntry) []string {
 	return out
 }
 
-func convertEnvironment(def *ecs.ContainerDefinition, taskRoleARN string) map[string]*string {
+func convertEnvironment(def *ecs.ContainerDefinition, credsName string) map[string]*string {
 	out := make(map[string]*string)
 	for _, kv := range def.Environment {
 		name := aws.StringValue(kv.Name)
@@ -408,11 +417,6 @@ func convertEnvironment(def *ecs.ContainerDefinition, taskRoleARN string) map[st
 		shellEnv := fmt.Sprintf("${%s_%s}", *def.Name, secretName)
 		out[secretName] = &shellEnv
 	}
-
-    credsName := endpointsTempCredsPath
-    if parsedRoleARN, err := arnparser.Parse(taskRoleARN); taskRoleARN != "" && err == nil {
-        credsName = "/" + parsedRoleARN.Resource // The parsed resource is formatted as "role/{roleName}"
-    }
 
 	out[ecsCredsProviderEnvName] = aws.String(credsName)
 	out[ecsMetadataURIEnvName] = aws.String(endpointsMetadataV3URI)

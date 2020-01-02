@@ -170,6 +170,7 @@ func (p *LocalProject) readTaskDefinitionFromFile(filename string) (*ecs.TaskDef
 	p.inputMetadata = &converter.LocalCreateMetadata{
 		InputType: LocalTaskDefType,
 		Value:     filename,
+		UseRole:   p.context.Bool(flags.UseRole),
 	}
 	return readTaskDefFromLocal(filename)
 }
@@ -201,6 +202,7 @@ func (p *LocalProject) readTaskDefinitionFromRemote(remote string) (*ecs.TaskDef
 	p.inputMetadata = &converter.LocalCreateMetadata{
 		InputType: RemoteTaskDefType,
 		Value:     remote,
+		UseRole:   p.context.Bool(flags.UseRole),
 	}
 	return readTaskDefFromRemote(remote, p)
 }

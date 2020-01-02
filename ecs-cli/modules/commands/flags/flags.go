@@ -155,6 +155,7 @@ const (
 	Output                = "output"
 	JSON                  = "json"
 	All                   = "all"
+	UseRole               = "use-role"
 )
 
 func OptRegionFlag() []cli.Flag {

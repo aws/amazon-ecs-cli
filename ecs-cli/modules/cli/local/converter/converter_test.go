@@ -223,9 +223,9 @@ func TestConvertToComposeService(t *testing.T) {
 	containerDef := taskDefinition.ContainerDefinitions[0]
 
 	commonValues := &CommonContainerValues{
-		Ipc:         expectedIpc,
-		Pid:         expectedPid,
-		TaskRoleArn: "",
+		Ipc:     expectedIpc,
+		Pid:     expectedPid,
+		Creds:   endpointsTempCredsPath,
 	}
 
 	// WHEN
@@ -649,37 +649,16 @@ func TestNamedVolumesMap(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
-func TestTaskRoles(t *testing.T) {
-    input := &ecs.ContainerDefinition{
-        Name: aws.String("testTaskRole"),
-        Environment: []*ecs.KeyValuePair{
-            {
-                Name:  aws.String("rails_env"),
-                Value: aws.String("development"),
-            },
-        },
-        Secrets: []*ecs.Secret{
-            {
-                Name:      aws.String("DB_PASSWORD"),
-                ValueFrom: aws.String("arn:aws:secretsmanager:us-west-2:01234567:secret:mySecretSecret"),
-            },
-            {
-                Name:      aws.String("API_KEY"),
-                ValueFrom: aws.String("arn:aws:ssm:us-west-2:01234567:parameter/mySecretParameter"),
-            },
-        },
-	}
-	taskRoleARN := "arn:aws:iam:us-west-2:01234567:role/myTaskRole"
+func TestResolveCredentials(t *testing.T) {
+    taskRoleARN := "arn:aws:iam:us-west-2:01234567:role/myTaskRole"
 
-	expected := map[string]*string{
-		"rails_env":             aws.String("development"),
-		"DB_PASSWORD":           aws.String("${testTaskRole_DB_PASSWORD}"),
-		"API_KEY":               aws.String("${testTaskRole_API_KEY}"),
-		ecsCredsProviderEnvName: aws.String("/role/myTaskRole"),
-		ecsMetadataURIEnvName:   aws.String(endpointsMetadataV3URI),
-	}
+    expected := "/role/myTaskRole"
+    actual := resolveCredentials(taskRoleARN, true)
 
-    actual := convertEnvironment(input, taskRoleARN)
+    assert.Equal(t, expected, actual)
+
+    expected = endpointsTempCredsPath
+    actual = resolveCredentials(taskRoleARN, false)
 
     assert.Equal(t, expected, actual)
 }

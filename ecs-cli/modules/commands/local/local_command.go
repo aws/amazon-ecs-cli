@@ -72,6 +72,10 @@ func createCommand() cli.Command {
 				Name:  flagName(flags.ForceFlag),
 				Usage: flagDescription(flags.ForceFlag, createCmdName),
 			},
+			cli.BoolFlag{
+				Name:  flagName(flags.UseRole),
+				Usage: flagDescription(flags.UseRole, createCmdName),
+			},
 		},
 	}
 }
@@ -168,6 +172,7 @@ func flagName(longName string) string {
 		flags.JSON:                  flags.JSON,
 		flags.All:                   flags.All,
 		flags.ForceFlag:             flags.ForceFlag,
+		flags.UseRole:               flags.UseRole,
 	}
 	return m[longName]
 }
@@ -206,6 +211,9 @@ func flagDescription(longName, cmdName string) string {
 		flags.ForceFlag: {
 			createCmdName: fmt.Sprintf("Overwrite output docker compose file if it exists. Default compose file is %s.", project.LocalOutDefaultFileName),
 			upCmdName:     fmt.Sprintf("Overwrite output docker compose file if it exists. Default compose file is %s.", project.LocalOutDefaultFileName),
+		},
+		flags.UseRole: {
+		    createCmdName: "Uses the task role ARN instead of temporary credentials.",
 		},
 	}
 	return m[longName][cmdName]
