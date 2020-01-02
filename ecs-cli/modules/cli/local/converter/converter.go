@@ -180,11 +180,14 @@ func createComposeServices(taskDefinition *ecs.TaskDefinition, metadata *LocalCr
 }
 
 func resolveCredentials(taskRoleARN string, useRole bool) string {
-    credsName := endpointsTempCredsPath
-    if parsedRoleARN, err := arnparser.Parse(taskRoleARN); useRole && taskRoleARN != "" && err == nil {
-        credsName = "/" + parsedRoleARN.Resource // The parsed resource is formatted as "role/{roleName}"
+    if !useRole {
+      return endpointsTempCredsPath
     }
-    return credsName
+    parsedARN, err := arnparser.Parse(taskRoleARN)
+    if err != nil {
+      return endpointsTempCredsPath
+    }
+    return "/" + parsedARN.Resource // The parsed resource is formatted as "role/{roleName}"
 }
 
 func convertToComposeService(containerDefinition *ecs.ContainerDefinition, commonValues *CommonContainerValues) (composeV3.ServiceConfig, error) {
