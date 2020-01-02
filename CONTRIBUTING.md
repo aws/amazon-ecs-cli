@@ -16,7 +16,7 @@
 
 ### Environment
 
-- Make sure you are using Go 1.12 (`go version`).
+- Make sure you are using the latest major version of Go (run `go version` to check).
 - Fork the repository.
 - Clone your forked repository into your `$GOPATH`
   - `git clone git@github.com:<user>/aws/amazon-ecs-cli $GOPATH/src/github.com/aws/amazon-ecs-cli`
