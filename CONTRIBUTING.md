@@ -80,7 +80,7 @@ more easily and increases the chances that your feature request will be accepted
   use GitHub pull requests for this purpose. Consult GitHub Help for more
 information on using pull requests.
 
-* Please submit any PRs against the `dev` branch.
+* Please submit any PRs against the `master` branch.
 
 * For any PR where you're updating `Gopkg.toml`, make sure to run `dep ensure
   && dep prune` and commit all changes to vendor as a separate commit.
