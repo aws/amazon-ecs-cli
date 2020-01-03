@@ -26,6 +26,7 @@ import (
 	composeV3 "github.com/docker/cli/cli/compose/types"
 	"github.com/docker/go-units"
 	log "github.com/sirupsen/logrus"
+	arnparser "github.com/aws/aws-sdk-go/aws/arn"
 )
 
 // LinuxParams is a shim between members of ecs.LinuxParamters and their
@@ -44,6 +45,7 @@ type LinuxParams struct {
 type LocalCreateMetadata struct {
 	InputType string
 	Value     string
+	UseRole   bool
 }
 
 // CommonContainerValues contains values for top-level Task Definition fields
@@ -52,6 +54,7 @@ type CommonContainerValues struct {
 	Ipc     string
 	Pid     string
 	Volumes []*ecs.Volume
+	Creds   string
 }
 
 const (
@@ -146,6 +149,7 @@ func createComposeServices(taskDefinition *ecs.TaskDefinition, metadata *LocalCr
 		Pid:     pid,
 		Ipc:     ipc,
 		Volumes: taskDefinition.Volumes,
+		Creds:   resolveCredentials(aws.StringValue(taskDefinition.TaskRoleArn), metadata.UseRole),
 	}
 
 	if len(taskDefinition.ContainerDefinitions) < 1 {
@@ -175,6 +179,17 @@ func createComposeServices(taskDefinition *ecs.TaskDefinition, metadata *LocalCr
 	return services, nil
 }
 
+func resolveCredentials(taskRoleARN string, useRole bool) string {
+    if !useRole {
+      return endpointsTempCredsPath
+    }
+    parsedARN, err := arnparser.Parse(taskRoleARN)
+    if err != nil {
+      return endpointsTempCredsPath
+    }
+    return "/" + parsedARN.Resource // The parsed resource is formatted as "role/{roleName}"
+}
+
 func convertToComposeService(containerDefinition *ecs.ContainerDefinition, commonValues *CommonContainerValues) (composeV3.ServiceConfig, error) {
 	linuxParams := convertLinuxParameters(containerDefinition.LinuxParameters)
 	tmpfs := linuxParams.Tmpfs
@@ -185,7 +200,7 @@ func convertToComposeService(containerDefinition *ecs.ContainerDefinition, commo
 	capDrop := linuxParams.CapDrop
 
 	ulimits, _ := convertUlimits(containerDefinition.Ulimits)
-	environment := convertEnvironment(containerDefinition)
+	environment := convertEnvironment(containerDefinition, commonValues.Creds)
 	extraHosts := convertExtraHosts(containerDefinition.ExtraHosts)
 	healthCheck := convertHealthCheck(containerDefinition.HealthCheck)
 	labels := convertDockerLabelsWithSecrets(containerDefinition.DockerLabels, containerDefinition.Secrets)
@@ -390,7 +405,7 @@ func convertExtraHosts(hosts []*ecs.HostEntry) []string {
 	return out
 }
 
-func convertEnvironment(def *ecs.ContainerDefinition) map[string]*string {
+func convertEnvironment(def *ecs.ContainerDefinition, credsName string) map[string]*string {
 	out := make(map[string]*string)
 	for _, kv := range def.Environment {
 		name := aws.StringValue(kv.Name)
@@ -406,7 +421,7 @@ func convertEnvironment(def *ecs.ContainerDefinition) map[string]*string {
 		out[secretName] = &shellEnv
 	}
 
-	out[ecsCredsProviderEnvName] = aws.String(endpointsTempCredsPath)
+	out[ecsCredsProviderEnvName] = aws.String(credsName)
 	out[ecsMetadataURIEnvName] = aws.String(endpointsMetadataV3URI)
 	return out
 }

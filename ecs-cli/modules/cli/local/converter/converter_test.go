@@ -223,8 +223,9 @@ func TestConvertToComposeService(t *testing.T) {
 	containerDef := taskDefinition.ContainerDefinitions[0]
 
 	commonValues := &CommonContainerValues{
-		Ipc: expectedIpc,
-		Pid: expectedPid,
+		Ipc:     expectedIpc,
+		Pid:     expectedPid,
+		Creds:   endpointsTempCredsPath,
 	}
 
 	// WHEN
@@ -646,4 +647,18 @@ func TestNamedVolumesMap(t *testing.T) {
 	actual := namedVolumesMap(input)
 
 	assert.Equal(t, expected, actual)
+}
+
+func TestResolveCredentials(t *testing.T) {
+    taskRoleARN := "arn:aws:iam:us-west-2:01234567:role/myTaskRole"
+
+    expected := "/role/myTaskRole"
+    actual := resolveCredentials(taskRoleARN, true)
+
+    assert.Equal(t, expected, actual)
+
+    expected = endpointsTempCredsPath
+    actual = resolveCredentials(taskRoleARN, false)
+
+    assert.Equal(t, expected, actual)
 }

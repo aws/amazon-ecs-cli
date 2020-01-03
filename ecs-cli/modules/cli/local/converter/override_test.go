@@ -54,9 +54,6 @@ func TestConvertToCompose(t *testing.T) {
 				Services: composeV3.Services{
 					{
 						Name: "app",
-						Environment: composeV3.MappingWithEquals{
-							ecsCredsProviderEnvName: aws.String(endpointsTempCredsPath),
-						},
 						Logging: &composeV3.LoggingConfig{
 							Driver: jsonFileLogDriver,
 						},
@@ -81,18 +78,12 @@ func TestConvertToCompose(t *testing.T) {
 				Services: composeV3.Services{
 					{
 						Name: "app",
-						Environment: composeV3.MappingWithEquals{
-							ecsCredsProviderEnvName: aws.String(endpointsTempCredsPath),
-						},
 						Logging: &composeV3.LoggingConfig{
 							Driver: jsonFileLogDriver,
 						},
 					},
 					{
 						Name: "envoyproxy",
-						Environment: composeV3.MappingWithEquals{
-							ecsCredsProviderEnvName: aws.String(endpointsTempCredsPath),
-						},
 						Logging: &composeV3.LoggingConfig{
 							Driver: jsonFileLogDriver,
 						},

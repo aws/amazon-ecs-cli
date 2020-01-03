@@ -28,7 +28,6 @@ const (
 // ConvertToComposeOverride returns a Docker Compose object to be used to override containers defined
 // in the task definition.
 //
-// Overrides the AWS_CONTAINER_CREDENTIALS_RELATIVE_URI environment variable to "/creds" for every service.
 // Overrides the logging driver to "json-file" for every service.
 func ConvertToComposeOverride(taskDefinition *ecs.TaskDefinition) (*composeV3.Config, error) {
 	if taskDefinition == nil {
@@ -42,9 +41,6 @@ func ConvertToComposeOverride(taskDefinition *ecs.TaskDefinition) (*composeV3.Co
 	for _, container := range taskDefinition.ContainerDefinitions {
 		config := composeV3.ServiceConfig{
 			Name: aws.StringValue(container.Name),
-			Environment: composeV3.MappingWithEquals{
-				ecsCredsProviderEnvName: aws.String(endpointsTempCredsPath),
-			},
 			Logging: &composeV3.LoggingConfig{
 				Driver: jsonFileLogDriver,
 			},
