@@ -324,8 +324,6 @@ networks:
 	contentsComposeOverride := `version: "3.4"
 services:
   simple-test-app:
-    environment:
-      AWS_CONTAINER_CREDENTIALS_RELATIVE_URI: /creds
     logging:
       driver: json-file
 `
