@@ -3,5 +3,8 @@ version: 0.2
 phases:
   build:
     commands:
+      - latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
+      - echo "checking out $latestTag"
+      - git checkout $latestTag
       - make integ-test
       - ./bin/local/ecs-cli.test
