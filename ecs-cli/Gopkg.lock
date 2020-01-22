@@ -124,7 +124,7 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:a5ca15953ec7d39eced701d326903a1ffed0a7f1339a9b02156f6bc6b2a7cefd"
+  digest = "1:ae25b86119af299d4f1c95a91180580e3ab5a4fd0293ec423dac1c304050a944"
   name = "github.com/docker/cli"
   packages = [
     "cli/compose/interpolation",
@@ -135,8 +135,8 @@
     "opts",
   ]
   pruneopts = "UT"
-  revision = "c89750f836c57ce10386e71669e1b08a54c3caeb"
-  version = "v18.09.5"
+  revision = "1752eb3626e3a17b0881135a9402e57728208fed"
+  version = "v18.09.9"
 
 [[projects]]
   digest = "1:4ddc17aeaa82cb18c5f0a25d7c253a10682f518f4b2558a82869506eec223d76"
