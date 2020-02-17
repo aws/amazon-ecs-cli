@@ -35,7 +35,7 @@ $(LOCAL_BINARY): $(SOURCES)
 .PHONY: test
 test:
 	env -i PATH=$$PATH GOPATH=$$(go env GOPATH) GOROOT=$$(go env GOROOT) GOCACHE=$$(go env GOCACHE) \
-	go test -race -timeout=120s -v -cover ./ecs-cli/modules/...
+	go test -race -timeout=120s -cover ./ecs-cli/modules/...
 
 .PHONY: integ-test
 integ-test: integ-test-build integ-test-run-with-coverage
