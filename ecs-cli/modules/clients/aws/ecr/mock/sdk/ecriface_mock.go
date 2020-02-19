@@ -1663,3 +1663,69 @@ func (mr *MockECRAPIMockRecorder) UploadLayerPartWithContext(arg0, arg1 interfac
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadLayerPartWithContext", reflect.TypeOf((*MockECRAPI)(nil).UploadLayerPartWithContext), varargs...)
 }
+
+// WaitUntilImageScanComplete mocks base method
+func (m *MockECRAPI) WaitUntilImageScanComplete(arg0 *ecr.DescribeImageScanFindingsInput) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WaitUntilImageScanComplete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WaitUntilImageScanComplete indicates an expected call of WaitUntilImageScanComplete
+func (mr *MockECRAPIMockRecorder) WaitUntilImageScanComplete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WaitUntilImageScanComplete", reflect.TypeOf((*MockECRAPI)(nil).WaitUntilImageScanComplete), arg0)
+}
+
+// WaitUntilImageScanCompleteWithContext mocks base method
+func (m *MockECRAPI) WaitUntilImageScanCompleteWithContext(arg0 context.Context, arg1 *ecr.DescribeImageScanFindingsInput, arg2 ...request.WaiterOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "WaitUntilImageScanCompleteWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WaitUntilImageScanCompleteWithContext indicates an expected call of WaitUntilImageScanCompleteWithContext
+func (mr *MockECRAPIMockRecorder) WaitUntilImageScanCompleteWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WaitUntilImageScanCompleteWithContext", reflect.TypeOf((*MockECRAPI)(nil).WaitUntilImageScanCompleteWithContext), varargs...)
+}
+
+// WaitUntilLifecyclePolicyPreviewComplete mocks base method
+func (m *MockECRAPI) WaitUntilLifecyclePolicyPreviewComplete(arg0 *ecr.GetLifecyclePolicyPreviewInput) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WaitUntilLifecyclePolicyPreviewComplete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WaitUntilLifecyclePolicyPreviewComplete indicates an expected call of WaitUntilLifecyclePolicyPreviewComplete
+func (mr *MockECRAPIMockRecorder) WaitUntilLifecyclePolicyPreviewComplete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WaitUntilLifecyclePolicyPreviewComplete", reflect.TypeOf((*MockECRAPI)(nil).WaitUntilLifecyclePolicyPreviewComplete), arg0)
+}
+
+// WaitUntilLifecyclePolicyPreviewCompleteWithContext mocks base method
+func (m *MockECRAPI) WaitUntilLifecyclePolicyPreviewCompleteWithContext(arg0 context.Context, arg1 *ecr.GetLifecyclePolicyPreviewInput, arg2 ...request.WaiterOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "WaitUntilLifecyclePolicyPreviewCompleteWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WaitUntilLifecyclePolicyPreviewCompleteWithContext indicates an expected call of WaitUntilLifecyclePolicyPreviewCompleteWithContext
+func (mr *MockECRAPIMockRecorder) WaitUntilLifecyclePolicyPreviewCompleteWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WaitUntilLifecyclePolicyPreviewCompleteWithContext", reflect.TypeOf((*MockECRAPI)(nil).WaitUntilLifecyclePolicyPreviewCompleteWithContext), varargs...)
+}
