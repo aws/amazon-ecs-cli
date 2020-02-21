@@ -34,6 +34,9 @@ func TestCreateClusterWithFargateService(t *testing.T) {
 	conf := cmd.TestFargateTutorialConfig(t)
 	vpc := cmd.TestUp(t, conf)
 
+	// Ensure cleanup of cluster
+	defer cmd.TestDown(t, conf)
+
 	// Create the files for a task definition
 	project := cmd.NewProject("e2e-fargate-test-service", conf.ConfigName)
 	project.ComposeFileName = createFargateTutorialComposeFile(t)
@@ -41,19 +44,18 @@ func TestCreateClusterWithFargateService(t *testing.T) {
 	defer os.Remove(project.ComposeFileName)
 	defer os.Remove(project.ECSParamsFileName)
 
+
 	// Create a new service
 	cmd.TestServiceUp(t, project)
+
+	// Ensure cleanup of service
+	defer cmd.TestServiceDown(t, project)
+
 	cmd.TestServicePs(t, project, 1)
 
 	// Increase the number of running tasks
 	cmd.TestServiceScale(t, project, 2)
 	cmd.TestServicePs(t, project, 2)
-
-	// Delete the service
-	cmd.TestServiceDown(t, project)
-
-	// Delete the cluster
-	cmd.TestDown(t, conf)
 }
 
 func createFargateTutorialComposeFile(t *testing.T) string {

@@ -45,6 +45,9 @@ func TestDown(t *testing.T, conf *CLIConfig) {
 		"Deleted cluster",
 		fmt.Sprintf("cluster=%s", conf.ClusterName),
 	})
+
+	t.Logf("Deleted cluster %s", conf.ClusterName)
+
 	cfn.TestNoStackName(t, stackName(conf.ClusterName))
 	t.Logf("Deleted stack %s", stackName(conf.ClusterName))
 }
