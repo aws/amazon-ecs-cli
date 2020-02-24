@@ -72,38 +72,6 @@ func logNewServiceEvents(loggedEvents map[string]bool, events []*ecs.ServiceEven
 
 }
 
-func waitForServiceDescribable(service *Service) error {
-	eventsLogged := make(map[string]bool)
-	timeOut := float64(DefaultUpdateServiceTimeout)
-	actionInvokedAt := time.Now()
-
-	if val := service.Context().CLIContext.Float64(flags.ComposeServiceTimeOutFlag); val > 0 {
-		timeOut = val
-	} else if val < 0 {
-		return fmt.Errorf("Error with timeout flag: %f is not a valid timeout value", val)
-	} else {
-		log.Warn("Timeout was specified as zero. Service creation may not have completed yet.")
-		return nil
-	}
-
-	return waiters.ServiceWaitUntilComplete(func(retryCount int) (bool, error) {
-		if ecsService, err := service.describeService(); err == nil {
-			// log new service events
-			if len(ecsService.Events) > 0 {
-				logNewServiceEvents(eventsLogged, ecsService.Events, actionInvokedAt)
-			}
-			return true, nil
-		}
-
-		if time.Since(actionInvokedAt).Minutes() > timeOut {
-			return false, fmt.Errorf("Deployment has not completed: Service can't be described after %.2f minutes", timeOut)
-		}
-
-		return false, nil
-
-	}, service)
-}
-
 // waitForServiceTasks continuously polls ECS (by calling describeService) and waits for service to get stable
 // with desiredCount == runningCount
 func waitForServiceTasks(service *Service, ecsServiceName string) error {

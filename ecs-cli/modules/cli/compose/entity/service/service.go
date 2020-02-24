@@ -198,7 +198,7 @@ func (s *Service) Create() error {
 	if err != nil {
 		return err
 	}
-	return s.createService()
+	return s.createService(0)
 }
 
 // Start starts the containers if they weren't already running. Internally, start calls
@@ -246,15 +246,7 @@ func (s *Service) Up() error {
 	// if ECS service was not created before, or is inactive, create and start the ECS Service
 	if missingServiceErr || aws.StringValue(ecsService.Status) != ecsActiveResourceCode {
 		// uses the latest task definition to create the service
-		err = s.createService()
-		if err != nil {
-			return err
-		}
-		err = waitForServiceDescribable(s)
-		if err != nil {
-			return err
-		}
-		return s.startService()
+		return s.createService(1)
 	}
 
 	// Update Existing Service
@@ -498,7 +490,7 @@ func (s *Service) GetTags() ([]*ecs.Tag, error) {
 
 // ----------- Commands' helper functions --------
 
-func (s *Service) buildCreateServiceInput(serviceName, taskDefName string) (*ecs.CreateServiceInput, error) {
+func (s *Service) buildCreateServiceInput(serviceName, taskDefName string, desiredCount int) (*ecs.CreateServiceInput, error) {
 	launchType := s.Context().CommandConfig.LaunchType
 	cluster := s.Context().CommandConfig.Cluster
 	ecsParams := s.ecsContext.ECSParams
@@ -527,9 +519,9 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string) (*ecs
 	}
 
 	createServiceInput := &ecs.CreateServiceInput{
-		DesiredCount:            aws.Int64(0),            // Required unless DAEMON schedulingStrategy
-		ServiceName:             aws.String(serviceName), // Required
-		TaskDefinition:          aws.String(taskDefName), // Required
+		DesiredCount:            aws.Int64(int64(desiredCount)), // Required unless DAEMON schedulingStrategy
+		ServiceName:             aws.String(serviceName),        // Required
+		TaskDefinition:          aws.String(taskDefName),        // Required
 		Cluster:                 aws.String(cluster),
 		DeploymentConfiguration: s.deploymentConfig,
 		LoadBalancers:           []*ecs.LoadBalancer{s.loadBalancer},
@@ -638,7 +630,7 @@ func (s *Service) logCreateService(serviceName, taskDefName string) {
 }
 
 // createService calls the underlying ECS.CreateService
-func (s *Service) createService() error {
+func (s *Service) createService(desiredCount int) error {
 	serviceName := entity.GetServiceName(s)
 	taskDefName := entity.GetIdFromArn(s.TaskDefinition().TaskDefinitionArn)
 
@@ -658,7 +650,7 @@ func (s *Service) createService() error {
 	}
 
 	// Create request input
-	createServiceInput, err := s.buildCreateServiceInput(serviceName, taskDefName)
+	createServiceInput, err := s.buildCreateServiceInput(serviceName, taskDefName, desiredCount)
 	if err != nil {
 		return err
 	}
