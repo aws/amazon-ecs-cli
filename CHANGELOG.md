@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.18.1
+* Bug - Correctly parse value specified in --tags flag (#959)
+* Bug - `compose up` now only makes one API call, reducing errors caused by a race condition (#988)
+* Bug - Allow `local create` to use taskRole (#970)
+* Enhancement - Ensure resource cleanup in integ tests (#987)
+* Enhancement - Populate EC2 instance type options through API call (#958)
+
 ## 1.18.0
 * Enhancement - Print verbose messages for credential chain errors (#937)
 * Enhancement - Add G4 instance support (#940)
