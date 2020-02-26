@@ -431,6 +431,18 @@ func TestCreateWithHealthCheckGracePeriodAndELB(t *testing.T) {
 	)
 }
 
+func TestDelayedServiceCreate(t *testing.T) {
+	// define test flag set
+	timeoutFlagValue := 1
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.ComposeServiceTimeOutFlag, strconv.Itoa(timeoutFlagValue), "")
+	cliContext := cli.NewContext(nil, flagSet, nil)
+
+	// call tests
+	createNewServiceWithDelay(t, cliContext, &config.CommandConfig{}, &utils.ECSParams{})
+}
+
 func TestCreateWithServiceDiscovery(t *testing.T) {
 	sdsARN := "arn:aws:servicediscovery:eu-west-1:11111111111:service/srv-clydelovespudding"
 
@@ -739,6 +751,105 @@ func createServiceTest(t *testing.T,
 	service.SetTaskDefinition(&taskDefinition)
 	err = service.Create()
 	assert.NoError(t, err, "Unexpected error while create")
+
+	// task definition should be set
+	assert.Equal(t, taskDefArn, aws.StringValue(service.TaskDefinition().TaskDefinitionArn), "TaskDefArn should match")
+}
+
+// helper for createNewServiceWithDelay
+func getCreateServiceWithDelayMockClient(t *testing.T,
+	ctrl *gomock.Controller,
+	taskDefinition ecs.TaskDefinition,
+	taskDefID string,
+	registerTaskDefResponse ecs.TaskDefinition) *mock_ecs.MockECSClient {
+
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+
+	createdService := &ecs.Service{
+		TaskDefinition: aws.String("arn/" + taskDefID),
+		Status:         aws.String("ACTIVE"),
+		DesiredCount:   aws.Int64(0),
+		RunningCount:   aws.Int64(0),
+		ServiceName:    aws.String("test-created"),
+	}
+	stableService := &ecs.Service{
+		TaskDefinition: aws.String("arn/" + taskDefID),
+		Status:         aws.String("ACTIVE"),
+		DesiredCount:   aws.Int64(1),
+		RunningCount:   aws.Int64(1),
+		ServiceName:    aws.String("test-created"),
+		Deployments:    []*ecs.Deployment{
+			{
+				DesiredCount: aws.Int64(1),
+				RunningCount: aws.Int64(1),
+			},
+		},
+	}
+	gomock.InOrder(
+		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(getDescribeServiceTestResponse(nil), nil),
+
+		mockEcs.EXPECT().RegisterTaskDefinitionIfNeeded(
+			gomock.Any(), // RegisterTaskDefinitionInput
+			gomock.Any(), // taskDefinitionCache
+		).Do(func(input, cache interface{}) {
+			verifyTaskDefinitionInput(t, taskDefinition, input.(*ecs.RegisterTaskDefinitionInput))
+		}).Return(&registerTaskDefResponse, nil),
+
+		mockEcs.EXPECT().ListAccountSettings(gomock.Any()).Do(func(input interface{}) {
+			req := input.(*ecs.ListAccountSettingsInput)
+			assert.True(t, aws.BoolValue(req.EffectiveSettings), "Expected Effective settings to be true")
+			assert.Equal(t, ecs.SettingNameTaskLongArnFormat, aws.StringValue(req.Name), "Expected setting name to be service long ARN")
+		}).Return(&ecs.ListAccountSettingsOutput{
+			Settings: []*ecs.Setting{
+				&ecs.Setting{
+					Value: aws.String(ecsSettingDisabled),
+				},
+			},
+		}, nil),
+
+		mockEcs.EXPECT().CreateService(
+			gomock.Any(), // createServiceInput
+		).Do(func(input interface{}) {
+			req := input.(*ecs.CreateServiceInput)
+			observedTaskDefID := req.TaskDefinition
+			assert.Equal(t, taskDefID, aws.StringValue(observedTaskDefID), "Task Definition name should match")
+		}).Return(nil),
+
+		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(getDescribeServiceTestResponse(nil), nil),
+		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(getDescribeServiceTestResponse(createdService), nil).MaxTimes(2),
+		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(getDescribeServiceTestResponse(createdService.SetDeployments([]*ecs.Deployment{&ecs.Deployment{}}).SetDesiredCount(1).SetRunningCount(0)), nil).MaxTimes(2),
+		mockEcs.EXPECT().DescribeService(gomock.Any()).Return(getDescribeServiceTestResponse(stableService), nil),
+	)
+	return mockEcs
+}
+
+func createNewServiceWithDelay(t *testing.T,
+	cliContext *cli.Context,
+	commandConfig *config.CommandConfig,
+	ecsParams *utils.ECSParams) {
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	taskDefID := "newTaskDefinitionId"
+	taskDefArn, taskDefinition, registerTaskDefResponse := getTestTaskDef(taskDefID)
+
+	mockEcs := getCreateServiceWithDelayMockClient(t, ctrl, taskDefinition, taskDefID, registerTaskDefResponse)
+
+	ecsContext := &context.ECSContext{
+		ECSClient:     mockEcs,
+		CommandConfig: commandConfig,
+		CLIContext:    cliContext,
+		ECSParams:     ecsParams,
+	}
+	ecsContext.SetProjectName()
+	service := NewService(ecsContext)
+	err := service.LoadContext()
+	assert.NoError(t, err, "Unexpected error while loading context in update service with new task def test")
+
+	service.SetTaskDefinition(&taskDefinition)
+	err = service.Up()
+	assert.NoError(t, err, "Unexpected error on service up with new task def")
 
 	// task definition should be set
 	assert.Equal(t, taskDefArn, aws.StringValue(service.TaskDefinition().TaskDefinitionArn), "TaskDefArn should match")

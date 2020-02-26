@@ -213,6 +213,8 @@ func collectTasks(entity ProjectEntity, filterLocal bool, desiredStatus string) 
 
 // CollectTasksWithStatus gets all the tasks of specified desired status
 // If filterLocal is true, it filters out with Group or StartedBy as this project
+
+// NOTE: desired status is misleading, we should probably filter on last status.
 func CollectTasksWithStatus(entity ProjectEntity, status string, filterLocal bool) ([]*ecs.Task, error) {
 	request := constructListPagesRequest(entity, status, filterLocal)
 	result := []*ecs.Task{}

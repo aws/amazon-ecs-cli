@@ -663,7 +663,12 @@ func (s *Service) createService(desiredCount int) error {
 		return err
 	}
 
-	return nil
+	err = waitForServiceDescribable(s)
+	if err != nil {
+		return err
+	}
+
+	return waitForServiceTasks(s, serviceName)
 }
 
 // describeService calls underlying ECS.DescribeService and expects the service to be present,

@@ -64,6 +64,7 @@ func TestUp(t *testing.T, conf *CLIConfig, options ...func([]string) []string) *
 	})
 	cfn.TestStackNameExists(t, stackName(conf.ClusterName))
 
+	// TODO fix: Cluster not technically part of the stack
 	t.Logf("Created cluster %s in stack %s", conf.ClusterName, stackName(conf.ClusterName))
 	return parseVPC(out)
 }
