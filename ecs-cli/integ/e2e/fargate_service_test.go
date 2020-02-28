@@ -46,12 +46,11 @@ func TestCreateClusterWithFargateService(t *testing.T) {
 	defer os.Remove(project.ComposeFileName)
 	defer os.Remove(project.ECSParamsFileName)
 
-	// Create a new service
-	cmd.TestServiceUp(t, project)
-
 	// Ensure cleanup of service
 	defer cmd.TestServiceDown(t, project)
 
+	// Create a new service
+	cmd.TestServiceUp(t, project)
 	cmd.TestServicePs(t, project, 1)
 
 	// Increase the number of running tasks
