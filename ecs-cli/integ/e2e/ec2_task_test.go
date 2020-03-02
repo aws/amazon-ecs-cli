@@ -30,21 +30,30 @@ import (
 // TestCreateClusterWithEC2Task runs the sequence of ecs-cli commands from
 // the EC2 tutorial: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-ec2.html
 func TestCreateClusterWithEC2Task(t *testing.T) {
-
 	// Create the cluster
 	conf := cmd.TestEC2TutorialConfig(t)
+
+	// Ensure cluster cleanup
+	defer cmd.TestDown(t, conf)
+
 	cmd.TestUp(t,
 		conf,
 		cmd.WithCapabilityIAM(),
 		cmd.WithInstanceType("t2.medium"),
 		cmd.WithSize(2),
 	)
+
+	// TODO add waiter/retry?
 	ecs.TestClusterSize(t, conf.ClusterName, 2)
 
 	// Create the files for a task definition
 	project := cmd.NewProject("e2e-ec2-tutorial-taskdef", conf.ConfigName)
 	project.ComposeFileName = createEC2TutorialComposeFile(t)
 	defer os.Remove(project.ComposeFileName)
+
+	// Ensure cleanup of task
+	defer ecs.TestListTasks(t, conf.ClusterName, 0)
+	defer cmd.TestTaskDown(t, project)
 
 	// Create a new task with 2 containers.
 	cmd.TestTaskUp(t, project)
@@ -55,13 +64,6 @@ func TestCreateClusterWithEC2Task(t *testing.T) {
 	cmd.TestTaskScale(t, project, 2)
 	ecs.TestListTasks(t, conf.ClusterName, 2)
 	cmd.TestPsRunning(t, project, 4)
-
-	// Delete the task
-	cmd.TestTaskDown(t, project)
-	ecs.TestListTasks(t, conf.ClusterName, 0)
-
-	// Delete the cluster
-	cmd.TestDown(t, conf)
 }
 
 func createEC2TutorialComposeFile(t *testing.T) string {
