@@ -86,7 +86,7 @@ func waitForServiceDescribable(service *Service) error {
 		return nil
 	}
 
-	return waiters.ServiceWaitUntilComplete(func(retryCount int) (bool, error) {
+	return waiters.ServiceWaitUntilComplete(func() (bool, error) {
 		if ecsService, err := service.describeService(); err == nil {
 			// log new service events
 			if len(ecsService.Events) > 0 {
@@ -122,7 +122,7 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 		return nil
 	}
 
-	return waiters.ServiceWaitUntilComplete(func(retryCount int) (bool, error) {
+	return waiters.ServiceWaitUntilComplete(func() (bool, error) {
 		ecsService, err := service.describeService()
 		if err != nil {
 			return false, err
@@ -131,6 +131,7 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 		desiredCount := aws.Int64Value(ecsService.DesiredCount)
 		runningCount := aws.Int64Value(ecsService.RunningCount)
 
+		// log current state of service
 		logFields := log.Fields{
 			"serviceName":  ecsServiceName,
 			"desiredCount": desiredCount,

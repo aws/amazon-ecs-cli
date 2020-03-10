@@ -37,15 +37,19 @@ const (
 	servicesWaitDelay = 5 * time.Second
 )
 
-// waiterAction defines an action performed on the project entity
-// and returns a bool to stop the wait or error if something unexpected happens
-type waiterAction func(retryCount int) (bool, error)
+// taskWaiterAction defines an action performed on a task and returns a bool to
+// stop the wait or error if something unexpected happens
+type taskWaiterAction func(retryCount int) (bool, error)
+
+// serviceWaiterAction defines an action performed on a service and returns a bool to
+// stop the wait or error if something unexpected happens
+type serviceWaiterAction func() (bool, error)
 
 // ServiceWaitUntilComplete runs the action in a for true loop, until the action returns true or an error
-func ServiceWaitUntilComplete(action waiterAction, entity entity.ProjectEntity) error {
+func ServiceWaitUntilComplete(action serviceWaiterAction, entity entity.ProjectEntity) error {
 	// run the loop until done or error thrown
-	for retryCount := 0; true; retryCount++ {
-		done, err := action(retryCount)
+	for {
+		done, err := action()
 		if err != nil {
 			return err
 		}
@@ -56,11 +60,10 @@ func ServiceWaitUntilComplete(action waiterAction, entity entity.ProjectEntity) 
 	}
 
 	return nil
-
 }
 
 // WaitUntilTimeout executes the waiterAction for maxRetries number of times, waiting for delayWait time between execution
-func TaskWaitUntilTimeout(action waiterAction, entity entity.ProjectEntity, timeoutMessage string) error {
+func TaskWaitUntilTimeout(action taskWaiterAction, entity entity.ProjectEntity, timeoutMessage string) error {
 	for retryCount := 0; retryCount < tasksMaxRetries; retryCount++ {
 		done, err := action(retryCount)
 		if err != nil {
