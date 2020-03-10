@@ -35,11 +35,6 @@ const (
 	// while determining if the service is stable or inactive. This value
 	// reflects the values set in the ecs waiters json file in the aws-go-sdk.
 	servicesWaitDelay = 15 * time.Second
-
-	// servicesMaxRetries is the maximum number of ECS DescribeServices API will be invoked by the WaitUntilComplete method
-	// to determine if the task is running or stopped before giving up. This value reflects the values set in the
-	// ecs waiters json file in the aws-go-sdk.
-	servicesMaxRetries = 40
 )
 
 // waiterAction defines an action performed on the project entity
