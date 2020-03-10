@@ -34,7 +34,7 @@ const (
 	// servicesWaitDelay is the delay between successive ECS DescribeServices API calls
 	// while determining if the service is stable or inactive. This value
 	// reflects the values set in the ecs waiters json file in the aws-go-sdk.
-	servicesWaitDelay = 15 * time.Second
+	servicesWaitDelay = 5 * time.Second
 )
 
 // waiterAction defines an action performed on the project entity
@@ -61,7 +61,6 @@ func ServiceWaitUntilComplete(action waiterAction, entity entity.ProjectEntity) 
 
 // WaitUntilTimeout executes the waiterAction for maxRetries number of times, waiting for delayWait time between execution
 func TaskWaitUntilTimeout(action waiterAction, entity entity.ProjectEntity, timeoutMessage string) error {
-
 	for retryCount := 0; retryCount < tasksMaxRetries; retryCount++ {
 		done, err := action(retryCount)
 		if err != nil {

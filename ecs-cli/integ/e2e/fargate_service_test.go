@@ -47,7 +47,7 @@ func TestCreateClusterWithFargateService(t *testing.T) {
 	defer os.Remove(project.ECSParamsFileName)
 
 	// Ensure cleanup of service
-	defer cmd.TestServiceDown(t, project)
+	defer cmd.TestServiceDown(t, project) // Add waiter here to make sure this succeeds?
 
 	// Create a new service
 	cmd.TestServiceUp(t, project)
