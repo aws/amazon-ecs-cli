@@ -129,6 +129,7 @@ func (c *ecsClient) DeleteService(serviceName string) error {
 	_, err := c.client.DeleteService(&ecs.DeleteServiceInput{
 		Service: aws.String(serviceName),
 		Cluster: aws.String(c.config.Cluster),
+		Force: aws.Bool(true),
 	})
 	if err != nil {
 		log.WithFields(log.Fields{

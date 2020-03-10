@@ -425,14 +425,8 @@ func (s *Service) Down() error {
 		return nil
 	}
 
-	// stop any running tasks
-	if aws.Int64Value(ecsService.DesiredCount) != 0 && aws.StringValue(ecsService.SchedulingStrategy) != ecs.SchedulingStrategyDaemon {
-		if err = s.Stop(); err != nil {
-			return err
-		}
-	}
-
-	// deleteService
+	// DeleteService will ignore desiredCount being non-zero by making use
+	// of the force flag
 	if err = s.Context().ECSClient.DeleteService(ecsServiceName); err != nil {
 		return err
 	}
