@@ -15,12 +15,12 @@ package utils
 
 import "time"
 
-// Sleeper interface implements the sleep() method. Useful for testing Wait* methods.
+// Sleeper interface implements the Sleep() method. Useful for testing Wait* methods.
 type Sleeper interface {
 	Sleep(time.Duration)
 }
 
-// timeSleeper implements sleeper interface by calling the time.Sleep method for sleeping.
+// timeSleeper implements Sleeper interface by calling the time.Sleep method for sleeping.
 type TimeSleeper struct{}
 
 func (t *TimeSleeper) Sleep(d time.Duration) {
