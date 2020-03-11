@@ -1,3 +1,12 @@
+__✨ The [ECS CLI v2](https://github.com/aws/amazon-ecs-cli-v2) is now in preview: a new way to develop, release and operate your container apps on ECS__
+
+<details>
+<summary>Learn more about the ECS CLI V2</summary>
+
+The [ECS CLI v2](https://github.com/aws/amazon-ecs-cli-v2) is a brand new CLI focused on the full developer experience of building, deploying and operating your containerized apps. From helping manage all of your infrastructure, to setting up CD Pipelines, the V2 is here to help. The [ECS CLI v2](https://github.com/aws/amazon-ecs-cli-v2) is still in preview and quite different from V1, but we'd love your feedback! For more info on V2, V1 and how these projects are being developed [check out our V2 proposal](https://github.com/aws/containers-roadmap/issues/513).
+</details>
+
+
 # Amazon ECS CLI
 
 The Amazon ECS Command Line Interface (CLI) is a command line tool for Amazon Elastic Container
