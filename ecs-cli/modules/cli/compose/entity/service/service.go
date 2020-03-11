@@ -658,8 +658,8 @@ func (s *Service) createService(desiredCount int) error {
 	return waitForServiceTasks(s, serviceName)
 }
 
-// describeService calls underlying ECS.DescribeService and expects the service to be present,
-// returns error otherwise
+// describeService calls underlying ECS.DescribeService and expects the service
+// to be present, returns error otherwise
 func (s *Service) describeService() (*ecs.Service, error) {
 	serviceName := entity.GetServiceName(s)
 	output, err := s.Context().ECSClient.DescribeService(serviceName)
@@ -673,6 +673,18 @@ func (s *Service) describeService() (*ecs.Service, error) {
 		return nil, fmt.Errorf("Got an empty list of services while describing the service '%s'", serviceName)
 	}
 	return output.Services[0], nil
+}
+
+// getExisting calls underlying ECS.DescribeService and expects the service to
+// be present, retries if ECS has not fully registered a newly-created service
+// yet.
+func (s *Service) getExisting() (*ecs.Service, error) {
+	serviceName := entity.GetServiceName(s)
+	err := s.Context().ECSClient.WaitUntilServiceStable(serviceName)
+	if err != nil {
+		return nil, err
+	}
+	return s.describeService()
 }
 
 // startService checks if the service has a zero desired count and updates the count to 1 (of each container)

@@ -17,6 +17,7 @@ import (
 	"crypto/md5"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/adapter"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients"
@@ -24,6 +25,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
 	log "github.com/sirupsen/logrus"
@@ -46,6 +48,7 @@ type ECSClient interface {
 	UpdateService(updateServiceInput *ecs.UpdateServiceInput) error
 	DescribeService(serviceName string) (*ecs.DescribeServicesOutput, error)
 	DeleteService(serviceName string) error
+	WaitUntilServiceStable(serviceName string) error
 
 	// Task Definition related
 	RegisterTaskDefinitionIfNeeded(request *ecs.RegisterTaskDefinitionInput, tdCache cache.Cache) (*ecs.TaskDefinition, error)
@@ -462,4 +465,46 @@ func (c *ecsClient) IsActiveCluster(clusterName string) (bool, error) {
 // Checks if the given setting is enabled
 func (c *ecsClient) ListAccountSettings(input *ecs.ListAccountSettingsInput) (*ecs.ListAccountSettingsOutput, error) {
 	return c.client.ListAccountSettings(input)
+}
+
+// Lifted from aws-sdk-go ECS waiters, with changes in the acceptors
+func (c *ecsClient) WaitUntilServiceStable(serviceName string) error {
+	fmt.Println("GOT TO WAITER")
+	input := &ecs.DescribeServicesInput{
+		Services: []*string{aws.String(serviceName)},
+		Cluster:  aws.String(c.config.Cluster),
+	}
+	ctx := aws.BackgroundContext()
+
+	w := request.Waiter{
+		Name:        "WaitUntilServicesStable",
+		MaxAttempts: 40,
+		Delay:       request.ConstantWaiterDelay(15 * time.Second),
+		Acceptors: []request.WaiterAcceptor{
+			{
+				State:   request.RetryWaiterState,
+				Matcher: request.PathAnyWaiterMatch, Argument: "failures[].reason",
+				Expected: "MISSING",
+			},
+			{
+				State:   request.SuccessWaiterState,
+				Matcher: request.PathWaiterMatch, Argument: "length(services[?!(length(deployments) == `1` && runningCount == desiredCount)]) == `0`",
+				Expected: true,
+			},
+		},
+		// Logger: c.client.Config.Logger,
+		NewRequest: func(opts []request.Option) (*request.Request, error) {
+			var inCpy *ecs.DescribeServicesInput
+			if input != nil {
+				tmp := *input
+				inCpy = &tmp
+			}
+			req, _ := c.client.DescribeServicesRequest(inCpy)
+			req.SetContext(ctx)
+			req.ApplyOptions(opts...)
+			return req, nil
+		},
+	}
+
+	return w.WaitWithContext(ctx)
 }

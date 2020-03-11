@@ -110,7 +110,7 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 	eventsLogged := make(map[string]bool)
 	var lastRunningCount int64
 	lastRunningCountChangedAt := time.Now()
-	timeOut := float64(DefaultUpdateServiceTimeout)
+	timeOut := float64(DefaultUpdateServiceTimeout) // TODO move timeout logic to waiters package
 	actionInvokedAt := time.Now()
 
 	if val := service.Context().CLIContext.Float64(flags.ComposeServiceTimeOutFlag); val > 0 {
@@ -123,7 +123,7 @@ func waitForServiceTasks(service *Service, ecsServiceName string) error {
 	}
 
 	return waiters.ServiceWaitUntilComplete(func() (bool, error) {
-		ecsService, err := service.describeService()
+		ecsService, err := service.getExisting()
 		if err != nil {
 			return false, err
 		}
