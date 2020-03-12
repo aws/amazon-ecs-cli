@@ -12,4 +12,8 @@ phases:
       - cd /go/src/github.com/aws/amazon-ecs-cli/
   build:
     commands:
-      - make integ-test
+      - $TMPDIR=/tmp make integ-test
+      - ./bin/local/ecs-cli.test
+artifacts:
+  files:
+    - '**/*'
