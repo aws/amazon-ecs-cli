@@ -12,7 +12,9 @@ phases:
       - cd /go/src/github.com/aws/amazon-ecs-cli/
   build:
     commands:
-      - $TMPDIR=/tmp make integ-test
+      - mkdir ./test_data
+      - export TMPDIR=./test_data 
+      - make integ-test
       - ./bin/local/ecs-cli.test
 artifacts:
   files:
