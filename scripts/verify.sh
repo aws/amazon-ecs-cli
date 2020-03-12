@@ -18,6 +18,7 @@ function verifyAll {
         bn="$(basename $artifact)"
         echo "Downloading artifact and verifying signature for $bn"
         wget -q -T 300 https://$S3_ENDPOINT/$BUCKET/$bn
+        echo "Downloading artifact "
         wget -q -T 300 https://$S3_ENDPOINT/$BUCKET/$bn.asc
         gpg --verify $bn.asc $bn
     done
@@ -27,5 +28,8 @@ function setupGPG {
     gpg --version
     mkdir ~/.gnupg
     echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf
-    gpg --keyserver hkp://keys.gnupg.net --recv BCE9D9A42D51784F
+    gpg --keyserver hkp://pool.sks-keyservers.net --recv BCE9D9A42D51784F || return 1
 }
+
+setupGPG
+retry verifyAll $1

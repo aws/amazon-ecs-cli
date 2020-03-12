@@ -1,10 +1,8 @@
 version: 0.2
 phases:
-  install:
-    commands:
-      source ./scripts/verify.sh
-      S3_ENDPOINT=s3.cn-north-1.amazonaws.com.cn
-      BUCKET=amazon-ecs-cli
   build:
-    GIT_COMMIT_ID=`git rev-parse HEAD`
-    retry verifyAll $GIT_COMMIT_ID.manifest
+    commands:
+      - export S3_ENDPOINT=s3.cn-north-1.amazonaws.com.cn
+      - export BUCKET=amazon-ecs-cli
+      - GIT_COMMIT_ID=`git rev-parse HEAD`
+      - ./scripts/verify.sh $GIT_COMMIT_ID.manifest
