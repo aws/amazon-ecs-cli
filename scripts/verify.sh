@@ -11,17 +11,27 @@ function retry {
     done
 }
 
+function failBadPGPSignature {
+    echo "PGP Signature failed. retrying in $delay s" >&2
+    return 1
+}
+
+function failBadConnection {
+    echo "Couldn't download artifact $bn. Retrying in $delay s" >&2
+    return 1
+}
+
 #usage: verifyAll <manifestFile>
 function verifyAll {
     for artifact in `cat $1`
     do
         bn="$(basename $artifact)"
-        echo "Downloading artifact $bn from endpoint $S3_ENDPOINT"
-        wget -q -T 300 https://$S3_ENDPOINT/$BUCKET/$bn
-        echo "Downloading artifact signature from $S3_ENDPOINT_SIGNATURES"
+        echo "Downloading artifact $bn from endpoint https://$S3_ENDPOINT/$BUCKET"
+        wget -q https://$S3_ENDPOINT/$BUCKET/$bn || failBadConnection || return 1
+        echo "Downloading artifact signature $bn.asc from $S3_ENDPOINT_SIGNATURES"
         wget -q -T 300 https://$S3_ENDPOINT_SIGNATURES/$BUCKET/$bn.asc
         echo "verifying signature..."
-        gpg --verify $bn.asc $bn || return 1
+        gpg --verify $bn.asc $bn || failBadPGPSignature || return 1
     done
 }
 
