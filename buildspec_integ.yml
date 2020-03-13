@@ -13,6 +13,3 @@ phases:
     commands:
       - make integ-test
       - ./bin/local/ecs-cli.test
-artifacts:
-  files:
-    - '**/*'
