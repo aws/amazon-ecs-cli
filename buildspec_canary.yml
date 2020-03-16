@@ -6,7 +6,6 @@ phases:
       golang: 1.13
   build:
     commands:
-      - GOPROXY=direct
       - latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
       - echo "checking out $latestTag"
       - git checkout $latestTag
