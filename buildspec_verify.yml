@@ -1,0 +1,9 @@
+version: 0.2
+phases:
+  build:
+    commands:
+      - export S3_ENDPOINT=s3.cn-north-1.amazonaws.com.cn
+      - export S3_ENDPOINT_SIGNATURES=s3.amazonaws.com
+      - export BUCKET=amazon-ecs-cli
+      - GIT_COMMIT_ID=`git rev-parse HEAD`
+      - ./scripts/verify.sh $GIT_COMMIT_ID.manifest
