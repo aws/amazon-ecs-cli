@@ -56,7 +56,7 @@ func ServiceWaitUntilComplete(action serviceWaiterAction, entity entity.ProjectE
 		if done {
 			return nil
 		}
-		entity.Sleeper().Sleep(servicesWaitDelay)
+		time.Sleep(servicesWaitDelay)
 	}
 
 	return nil
@@ -72,7 +72,7 @@ func TaskWaitUntilTimeout(action taskWaiterAction, entity entity.ProjectEntity, 
 		if done {
 			return nil
 		}
-		entity.Sleeper().Sleep(tasksWaitDelay)
+		time.Sleep(tasksWaitDelay)
 	}
 
 	return fmt.Errorf(timeoutMessage)

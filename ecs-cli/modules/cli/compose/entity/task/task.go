@@ -36,7 +36,6 @@ type Task struct {
 	taskDef     *ecs.TaskDefinition
 	cache       cache.Cache
 	ecsContext  *context.ECSContext
-	timeSleeper *utils.TimeSleeper
 	tags        []*ecs.Tag
 }
 
@@ -45,7 +44,6 @@ func NewTask(context *context.ECSContext) entity.ProjectEntity {
 	return &Task{
 		cache:       entity.SetupTaskDefinitionCache(),
 		ecsContext:  context,
-		timeSleeper: &utils.TimeSleeper{},
 	}
 }
 
@@ -63,11 +61,6 @@ func (t *Task) SetTaskDefinition(taskDefinition *ecs.TaskDefinition) {
 // Context returs the context of this project
 func (t *Task) Context() *context.ECSContext {
 	return t.ecsContext
-}
-
-// Sleeper returs an instance of TimeSleeper used to wait until Tasks has either started running or stopped
-func (t *Task) Sleeper() *utils.TimeSleeper {
-	return t.timeSleeper
 }
 
 // TaskDefinition returns the task definition object that was created by

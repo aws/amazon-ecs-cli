@@ -43,7 +43,6 @@ type Service struct {
 	taskDef           *ecs.TaskDefinition
 	cache             cache.Cache
 	ecsContext        *context.ECSContext
-	timeSleeper       *utils.TimeSleeper
 	deploymentConfig  *ecs.DeploymentConfiguration
 	loadBalancer      *ecs.LoadBalancer
 	role              string
@@ -74,7 +73,6 @@ func NewService(ecsContext *context.ECSContext) entity.ProjectEntity {
 	return &Service{
 		cache:       entity.SetupTaskDefinitionCache(),
 		ecsContext:  ecsContext,
-		timeSleeper: &utils.TimeSleeper{},
 	}
 }
 
@@ -160,11 +158,6 @@ func (s *Service) SetTaskDefinition(taskDefinition *ecs.TaskDefinition) {
 // Context returs the context of this project
 func (s *Service) Context() *context.ECSContext {
 	return s.ecsContext
-}
-
-// Sleeper returs an instance of TimeSleeper used to wait until Service has gone to a stable state
-func (s *Service) Sleeper() *utils.TimeSleeper {
-	return s.timeSleeper
 }
 
 // TaskDefinition returns the task definition object that was created by
