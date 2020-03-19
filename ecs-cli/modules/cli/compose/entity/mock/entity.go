@@ -22,7 +22,6 @@ import (
 
 	context "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	types "github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
-	utils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	cache "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
 	ecs "github.com/aws/aws-sdk-go/service/ecs"
 	project "github.com/docker/libcompose/project"
@@ -54,7 +53,6 @@ func (m *MockProjectEntity) EXPECT() *MockProjectEntityMockRecorder {
 
 // Context mocks base method
 func (m *MockProjectEntity) Context() *context.ECSContext {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Context")
 	ret0, _ := ret[0].(*context.ECSContext)
 	return ret0
@@ -62,13 +60,11 @@ func (m *MockProjectEntity) Context() *context.ECSContext {
 
 // Context indicates an expected call of Context
 func (mr *MockProjectEntityMockRecorder) Context() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Context", reflect.TypeOf((*MockProjectEntity)(nil).Context))
 }
 
 // Create mocks base method
 func (m *MockProjectEntity) Create() error {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create")
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -76,13 +72,11 @@ func (m *MockProjectEntity) Create() error {
 
 // Create indicates an expected call of Create
 func (mr *MockProjectEntityMockRecorder) Create() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockProjectEntity)(nil).Create))
 }
 
 // Down mocks base method
 func (m *MockProjectEntity) Down() error {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Down")
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -90,13 +84,11 @@ func (m *MockProjectEntity) Down() error {
 
 // Down indicates an expected call of Down
 func (mr *MockProjectEntityMockRecorder) Down() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Down", reflect.TypeOf((*MockProjectEntity)(nil).Down))
 }
 
 // EntityType mocks base method
 func (m *MockProjectEntity) EntityType() types.Type {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "EntityType")
 	ret0, _ := ret[0].(types.Type)
 	return ret0
@@ -104,13 +96,11 @@ func (m *MockProjectEntity) EntityType() types.Type {
 
 // EntityType indicates an expected call of EntityType
 func (mr *MockProjectEntityMockRecorder) EntityType() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EntityType", reflect.TypeOf((*MockProjectEntity)(nil).EntityType))
 }
 
 // GetTags mocks base method
 func (m *MockProjectEntity) GetTags() ([]*ecs.Tag, error) {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTags")
 	ret0, _ := ret[0].([]*ecs.Tag)
 	ret1, _ := ret[1].(error)
@@ -119,13 +109,11 @@ func (m *MockProjectEntity) GetTags() ([]*ecs.Tag, error) {
 
 // GetTags indicates an expected call of GetTags
 func (mr *MockProjectEntityMockRecorder) GetTags() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTags", reflect.TypeOf((*MockProjectEntity)(nil).GetTags))
 }
 
 // Info mocks base method
 func (m *MockProjectEntity) Info(arg0 bool, arg1 string) (project.InfoSet, error) {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Info", arg0, arg1)
 	ret0, _ := ret[0].(project.InfoSet)
 	ret1, _ := ret[1].(error)
@@ -134,13 +122,11 @@ func (m *MockProjectEntity) Info(arg0 bool, arg1 string) (project.InfoSet, error
 
 // Info indicates an expected call of Info
 func (mr *MockProjectEntityMockRecorder) Info(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Info", reflect.TypeOf((*MockProjectEntity)(nil).Info), arg0, arg1)
 }
 
 // LoadContext mocks base method
 func (m *MockProjectEntity) LoadContext() error {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "LoadContext")
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -148,13 +134,11 @@ func (m *MockProjectEntity) LoadContext() error {
 
 // LoadContext indicates an expected call of LoadContext
 func (mr *MockProjectEntityMockRecorder) LoadContext() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadContext", reflect.TypeOf((*MockProjectEntity)(nil).LoadContext))
 }
 
 // Run mocks base method
 func (m *MockProjectEntity) Run(arg0 map[string][]string) error {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Run", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -162,13 +146,11 @@ func (m *MockProjectEntity) Run(arg0 map[string][]string) error {
 
 // Run indicates an expected call of Run
 func (mr *MockProjectEntityMockRecorder) Run(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Run", reflect.TypeOf((*MockProjectEntity)(nil).Run), arg0)
 }
 
 // Scale mocks base method
 func (m *MockProjectEntity) Scale(arg0 int) error {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Scale", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -176,39 +158,21 @@ func (m *MockProjectEntity) Scale(arg0 int) error {
 
 // Scale indicates an expected call of Scale
 func (mr *MockProjectEntityMockRecorder) Scale(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Scale", reflect.TypeOf((*MockProjectEntity)(nil).Scale), arg0)
 }
 
 // SetTaskDefinition mocks base method
 func (m *MockProjectEntity) SetTaskDefinition(arg0 *ecs.TaskDefinition) {
-	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetTaskDefinition", arg0)
 }
 
 // SetTaskDefinition indicates an expected call of SetTaskDefinition
 func (mr *MockProjectEntityMockRecorder) SetTaskDefinition(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetTaskDefinition", reflect.TypeOf((*MockProjectEntity)(nil).SetTaskDefinition), arg0)
-}
-
-// Sleeper mocks base method
-func (m *MockProjectEntity) Sleeper() *utils.TimeSleeper {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Sleeper")
-	ret0, _ := ret[0].(*utils.TimeSleeper)
-	return ret0
-}
-
-// Sleeper indicates an expected call of Sleeper
-func (mr *MockProjectEntityMockRecorder) Sleeper() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Sleeper", reflect.TypeOf((*MockProjectEntity)(nil).Sleeper))
 }
 
 // Start mocks base method
 func (m *MockProjectEntity) Start() error {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Start")
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -216,13 +180,11 @@ func (m *MockProjectEntity) Start() error {
 
 // Start indicates an expected call of Start
 func (mr *MockProjectEntityMockRecorder) Start() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockProjectEntity)(nil).Start))
 }
 
 // Stop mocks base method
 func (m *MockProjectEntity) Stop() error {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Stop")
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -230,13 +192,11 @@ func (m *MockProjectEntity) Stop() error {
 
 // Stop indicates an expected call of Stop
 func (mr *MockProjectEntityMockRecorder) Stop() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stop", reflect.TypeOf((*MockProjectEntity)(nil).Stop))
 }
 
 // TaskDefinition mocks base method
 func (m *MockProjectEntity) TaskDefinition() *ecs.TaskDefinition {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TaskDefinition")
 	ret0, _ := ret[0].(*ecs.TaskDefinition)
 	return ret0
@@ -244,13 +204,11 @@ func (m *MockProjectEntity) TaskDefinition() *ecs.TaskDefinition {
 
 // TaskDefinition indicates an expected call of TaskDefinition
 func (mr *MockProjectEntityMockRecorder) TaskDefinition() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TaskDefinition", reflect.TypeOf((*MockProjectEntity)(nil).TaskDefinition))
 }
 
 // TaskDefinitionCache mocks base method
 func (m *MockProjectEntity) TaskDefinitionCache() cache.Cache {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TaskDefinitionCache")
 	ret0, _ := ret[0].(cache.Cache)
 	return ret0
@@ -258,13 +216,11 @@ func (m *MockProjectEntity) TaskDefinitionCache() cache.Cache {
 
 // TaskDefinitionCache indicates an expected call of TaskDefinitionCache
 func (mr *MockProjectEntityMockRecorder) TaskDefinitionCache() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TaskDefinitionCache", reflect.TypeOf((*MockProjectEntity)(nil).TaskDefinitionCache))
 }
 
 // Up mocks base method
 func (m *MockProjectEntity) Up() error {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Up")
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -272,6 +228,5 @@ func (m *MockProjectEntity) Up() error {
 
 // Up indicates an expected call of Up
 func (mr *MockProjectEntityMockRecorder) Up() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Up", reflect.TypeOf((*MockProjectEntity)(nil).Up))
 }

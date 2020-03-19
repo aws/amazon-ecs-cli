@@ -49,7 +49,6 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 
 // GetRecommendedECSLinuxAMI mocks base method
 func (m *MockClient) GetRecommendedECSLinuxAMI(arg0 string) (*amimetadata.AMIMetadata, error) {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetRecommendedECSLinuxAMI", arg0)
 	ret0, _ := ret[0].(*amimetadata.AMIMetadata)
 	ret1, _ := ret[1].(error)
@@ -58,6 +57,5 @@ func (m *MockClient) GetRecommendedECSLinuxAMI(arg0 string) (*amimetadata.AMIMet
 
 // GetRecommendedECSLinuxAMI indicates an expected call of GetRecommendedECSLinuxAMI
 func (mr *MockClientMockRecorder) GetRecommendedECSLinuxAMI(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRecommendedECSLinuxAMI", reflect.TypeOf((*MockClient)(nil).GetRecommendedECSLinuxAMI), arg0)
 }

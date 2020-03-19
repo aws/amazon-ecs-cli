@@ -49,7 +49,6 @@ func (m *MockLogClientFactory) EXPECT() *MockLogClientFactoryMockRecorder {
 
 // Get mocks base method
 func (m *MockLogClientFactory) Get(arg0 string) cloudwatchlogs.Client {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", arg0)
 	ret0, _ := ret[0].(cloudwatchlogs.Client)
 	return ret0
@@ -57,6 +56,5 @@ func (m *MockLogClientFactory) Get(arg0 string) cloudwatchlogs.Client {
 
 // Get indicates an expected call of Get
 func (mr *MockLogClientFactoryMockRecorder) Get(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockLogClientFactory)(nil).Get), arg0)
 }
