@@ -251,3 +251,15 @@ func (m *MockECSClient) UpdateService(arg0 *ecs0.UpdateServiceInput) error {
 func (mr *MockECSClientMockRecorder) UpdateService(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateService", reflect.TypeOf((*MockECSClient)(nil).UpdateService), arg0)
 }
+
+// WaitUntilServiceStable mocks base method
+func (m *MockECSClient) WaitUntilServiceStable(arg0 string) error {
+	ret := m.ctrl.Call(m, "WaitUntilServiceStable", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WaitUntilServiceStable indicates an expected call of WaitUntilServiceStable
+func (mr *MockECSClientMockRecorder) WaitUntilServiceStable(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WaitUntilServiceStable", reflect.TypeOf((*MockECSClient)(nil).WaitUntilServiceStable), arg0)
+}
