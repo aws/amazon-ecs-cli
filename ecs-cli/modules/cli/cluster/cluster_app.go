@@ -325,7 +325,7 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 		}
 		supportedInstanceTypes, err := awsClients.EC2Client.DescribeInstanceTypeOfferings(commandConfig.Region())
 		if err != nil {
-			return errors.Wrapf(err, "No instance type found in region %s", commandConfig.Region())
+			return fmt.Errorf("describe instance type offerings: %w", err)
 		}
 
 		if err = validateInstanceType(instanceType, supportedInstanceTypes); err != nil {
