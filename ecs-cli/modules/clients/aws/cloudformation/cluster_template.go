@@ -21,7 +21,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 )
 
-func GetClusterTemplate(tags []*ecs.Tag, stackName string, instanceTypes []string) (string, error) {
+func GetClusterTemplate(tags []*ecs.Tag, stackName string) (string, error) {
 	tagJSON, err := json.Marshal(tags)
 	if err != nil {
 		return "", err
@@ -33,12 +33,7 @@ func GetClusterTemplate(tags []*ecs.Tag, stackName string, instanceTypes []strin
 		return "", err
 	}
 
-	instanceTypesJSON, err := json.Marshal(instanceTypes)
-	if err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf(clusterTemplate, string(tagJSON), string(asgTagJSON), string(instanceTypesJSON)), nil
+	return fmt.Sprintf(clusterTemplate, string(tagJSON), string(asgTagJSON)), nil
 }
 
 // Autoscaling CFN tags have an additional field that determines if they are
@@ -115,9 +110,6 @@ var clusterTemplate = `
     "EcsInstanceType": {
       "Type": "String",
       "Description": "ECS EC2 instance type",
-      "Default": "` + DefaultECSInstanceType + `",
-      "AllowedValues": %[3]s,
-      "ConstraintDescription": "must be a valid EC2 instance type."
     },
     "SpotPrice": {
       "Type": "Number",
