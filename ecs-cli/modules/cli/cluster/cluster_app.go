@@ -319,7 +319,7 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 	}
 
 	if launchType == config.LaunchTypeEC2 {
-		instanceType, err := populateInstanceTypeParameter(cfnParams)
+		instanceType, err := getInstanceType(cfnParams)
 		if err != nil {
 			return err
 		}
@@ -406,19 +406,7 @@ func canEnableContainerInstanceTagging(client ecsclient.ECSClient) (bool, error)
 	return false, nil
 }
 
-func retrieveInstanceType(cfnParams *cloudformation.CfnStackParams) (string, error) {
-	param, err := cfnParams.GetParameter(ParameterKeyInstanceType)
-
-	if err == cloudformation.ParameterNotFoundError {
-		return cloudformation.DefaultECSInstanceType, nil
-	}
-	if err != nil {
-		return "", err
-	}
-	return aws.StringValue(param.ParameterValue), nil
-}
-
-func populateInstanceTypeParameter(cfnParams *cloudformation.CfnStackParams) (string, error) {
+func getInstanceType(cfnParams *cloudformation.CfnStackParams) (string, error) {
 	param, err := cfnParams.GetParameter(ParameterKeyInstanceType)
 	if err == cloudformation.ParameterNotFoundError {
 		logrus.Infof("Defaulting instance type to %s", cloudformation.DefaultECSInstanceType)
@@ -430,7 +418,7 @@ func populateInstanceTypeParameter(cfnParams *cloudformation.CfnStackParams) (st
 		return "", err
 	}
 
-	return aws.StringValue(param.ParameterValue), err
+	return aws.StringValue(param.ParameterValue), nil
 }
 
 func validateInstanceType(instanceType string, supportedInstanceTypes []string) error {
@@ -449,7 +437,7 @@ func validateInstanceType(instanceType string, supportedInstanceTypes []string) 
 }
 
 func populateAMIID(cfnParams *cloudformation.CfnStackParams, client amimetadata.Client) error {
-	instanceType, err := retrieveInstanceType(cfnParams)
+	instanceType, err := getInstanceType(cfnParams)
 	if err != nil {
 		return err
 	}
