@@ -109,7 +109,7 @@ func TestSSMDecrypter_DecryptSecret(t *testing.T) {
 						WithDecryption: aws.Bool(true),
 					}).Return(&ssm.GetParameterOutput{
 						Parameter: &ssm.Parameter{
-							Value: aws.String("what??"),
+							Value: aws.String("ponies"),
 						},
 					}, nil),
 
