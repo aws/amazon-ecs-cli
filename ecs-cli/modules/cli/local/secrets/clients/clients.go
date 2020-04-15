@@ -15,6 +15,8 @@
 package clients
 
 import (
+	"strings"
+
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
 	arnParser "github.com/aws/aws-sdk-go/aws/arn"
@@ -25,6 +27,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/ssm/ssmiface"
 	"github.com/pkg/errors"
 )
+
+// ssmSeparator is used to check if ssm parameter names are fully qualified paths
+const ssmSeparator = "/"
+
+const splitAllStrings = -1
 
 // region represents an AWS region.
 type region string
@@ -61,6 +68,7 @@ func (d *SSMDecrypter) DecryptSecret(arnOrName string) (string, error) {
 	paramName := arnOrName
 	if parsedARN, err := arnParser.Parse(arnOrName); err == nil {
 		paramName = parsedARN.Resource[len("parameter/"):] // Resource is formatted as parameter/{paramName}.
+		paramName = formatParam(paramName)
 		d.SSMAPI = d.getClient(region(parsedARN.Region))
 	}
 
@@ -72,6 +80,17 @@ func (d *SSMDecrypter) DecryptSecret(arnOrName string) (string, error) {
 		return "", errors.Wrapf(err, "failed to retrieve decrypted secret from %s due to %v", arnOrName, err)
 	}
 	return *val.Parameter.Value, nil
+}
+
+// Clean up param if it is hierarchical.
+// SSM parameters containing hierarchies must start with "/"
+// Leading / is optional for non-hierarchical param names
+func formatParam(p string) string {
+	parts := strings.SplitN(p, ssmSeparator, splitAllStrings)
+	if len(parts) > 1 {
+		return "/" + p
+	}
+	return p
 }
 
 // getClient returns the SSM client for a given region.
