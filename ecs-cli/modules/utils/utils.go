@@ -17,6 +17,7 @@ package utils
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -79,7 +80,7 @@ func ParseTags(flagValue string, tags []*ecs.Tag) ([]*ecs.Tag, error) {
 	return tags, nil
 }
 
-// GetTags parses AWS Resource tags from the flag value
+// GetTagsMap parses AWS Resource tags from the flag value
 // users specify tags in this format: key1=value1,key2=value2,key3=value3
 // Returns tags in the format used by the standalone resource tagging API
 func GetTagsMap(flagValue string) (map[string]*string, error) {
@@ -105,4 +106,41 @@ func GetPartition(region string) string {
 	} else {
 		return "aws"
 	}
+}
+
+// ParseLoadBalancers returns a list of load balacners struct
+// For users wanting to register multiple or one load balancers to a single service
+func ParseLoadBalancers(flagValue []string, list []*ecs.LoadBalancer) ([]*ecs.LoadBalancer, error) {
+
+	for i := 0; i < len(flagValue); i++ {
+		m := make(map[string]string)
+		targetGroupArn := false
+		keyValPairs := strings.Split(flagValue[i], ",")
+
+		for _, kv := range keyValPairs {
+			pair := strings.SplitN(kv, "=", 2)
+			m[pair[0]] = pair[1]
+			if pair[0] == "targetGroupArn" {
+				targetGroupArn = true
+			}
+		}
+		containerPort, err := strconv.ParseInt(m["containerPort"], 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("Please pass integer value for the flag %s", m["containerPort"])
+		}
+		if targetGroupArn {
+			list = append(list, &ecs.LoadBalancer{
+				TargetGroupArn: aws.String(m["targetGroupArn"]),
+				ContainerName:  aws.String(m["containerName"]),
+				ContainerPort:  aws.Int64((containerPort)),
+			})
+		} else {
+			list = append(list, &ecs.LoadBalancer{
+				LoadBalancerName: aws.String(m["loadBalancerName"]),
+				ContainerName:    aws.String(m["containerName"]),
+				ContainerPort:    aws.Int64((containerPort)),
+			})
+		}
+	}
+	return list, nil
 }

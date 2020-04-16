@@ -45,6 +45,7 @@ type Service struct {
 	ecsContext        *context.ECSContext
 	deploymentConfig  *ecs.DeploymentConfiguration
 	loadBalancer      *ecs.LoadBalancer
+	loadBalancers     []*ecs.LoadBalancer
 	role              string
 	healthCheckGP     *int64
 	serviceRegistries []*ecs.ServiceRegistry
@@ -71,8 +72,8 @@ var waitUntilSDSDeletable route53.WaitUntilSDSDeletableFunc = route53.WaitUntilS
 // NewService creates an instance of a Service and also sets up a cache for task definition
 func NewService(ecsContext *context.ECSContext) entity.ProjectEntity {
 	return &Service{
-		cache:       entity.SetupTaskDefinitionCache(),
-		ecsContext:  ecsContext,
+		cache:      entity.SetupTaskDefinitionCache(),
+		ecsContext: ecsContext,
 	}
 }
 
@@ -97,6 +98,7 @@ func (s *Service) LoadContext() error {
 	role := s.Context().CLIContext.String(flags.RoleFlag)
 	targetGroupArn := s.Context().CLIContext.String(flags.TargetGroupArnFlag)
 	loadBalancerName := s.Context().CLIContext.String(flags.LoadBalancerNameFlag)
+	loadBalancerList := s.Context().CLIContext.StringSlice(flags.LoadBalancerListFlag)
 	containerName := s.Context().CLIContext.String(flags.ContainerNameFlag)
 	containerPort, err := getInt64FromCLIContext(s.Context(), flags.ContainerPortFlag)
 	if err != nil {
@@ -121,6 +123,9 @@ func (s *Service) LoadContext() error {
 		if targetGroupArn != "" && loadBalancerName != "" {
 			return errors.Errorf("[--%s] and [--%s] flags cannot both be specified", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
 		}
+		if len(loadBalancerList) != 0 {
+			return errors.Errorf("Can not have --load-balancer-list at the same time")
+		}
 
 		s.loadBalancer = &ecs.LoadBalancer{
 			ContainerName: aws.String(containerName),
@@ -133,6 +138,16 @@ func (s *Service) LoadContext() error {
 			s.loadBalancer.LoadBalancerName = aws.String(loadBalancerName)
 		}
 		s.role = role
+		s.loadBalancers = append(s.loadBalancers, s.loadBalancer)
+	} else if len(loadBalancerList) != 0 {
+		if len(loadBalancerList) > 5 {
+			return errors.Errorf("Can not register more than 5 loadbalancers in a service")
+		}
+		loadBalancers, err := s.getLoadBalancerList(loadBalancerList)
+		if err != nil {
+			return err
+		}
+		s.loadBalancers = loadBalancers
 	}
 	return nil
 }
@@ -475,6 +490,19 @@ func (s *Service) GetTags() ([]*ecs.Tag, error) {
 	return s.tags, nil
 }
 
+func (s *Service) getLoadBalancerList(loadBalancerValue []string) ([]*ecs.LoadBalancer, error) {
+	if s.loadBalancers == nil {
+		loadBalancers := make([]*ecs.LoadBalancer, 0)
+		var err error
+		loadBalancers, err = utils.ParseLoadBalancers(loadBalancerValue, loadBalancers)
+		if err != nil {
+			return nil, err
+		}
+		s.loadBalancers = loadBalancers
+	}
+	return s.loadBalancers, nil
+}
+
 // ----------- Commands' helper functions --------
 
 func (s *Service) buildCreateServiceInput(serviceName, taskDefName string, desiredCount int) (*ecs.CreateServiceInput, error) {
@@ -511,7 +539,7 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string, desir
 		TaskDefinition:          aws.String(taskDefName),        // Required
 		Cluster:                 aws.String(cluster),
 		DeploymentConfiguration: s.deploymentConfig,
-		LoadBalancers:           []*ecs.LoadBalancer{s.loadBalancer},
+		LoadBalancers:           s.loadBalancers,
 		Role:                    aws.String(s.role),
 	}
 
