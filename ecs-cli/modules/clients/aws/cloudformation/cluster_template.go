@@ -109,7 +109,8 @@ var clusterTemplate = `
     },
     "EcsInstanceType": {
       "Type": "String",
-      "Description": "ECS EC2 instance type"
+      "Description": "ECS EC2 instance type",
+      "Default": ""
     },
     "SpotPrice": {
       "Type": "Number",
