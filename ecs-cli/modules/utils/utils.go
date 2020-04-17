@@ -23,6 +23,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -115,8 +116,7 @@ func ParseLoadBalancers(flagValues []string) ([]*ecs.LoadBalancer, error) {
 
 	for _, flagValue := range flagValues {
 		m := make(map[string]string)
-		elbv2 := false
-		elbv1 := false
+		var elbv1, elbv2 bool
 		keyValPairs := strings.Split(flagValue, ",")
 
 		for _, kv := range keyValPairs {
@@ -130,6 +130,9 @@ func ParseLoadBalancers(flagValues []string) ([]*ecs.LoadBalancer, error) {
 				elbv2 = true
 			} else if pair[0] == "loadBalancerName" {
 				elbv1 = true
+			}
+			if elbv1 && elbv2 {
+				return nil, errors.Errorf("[--%s] and [--%s] flags cannot both be specified", "target-group-arn", "load-balancer-name")
 			}
 		}
 		containerPort, err := strconv.ParseInt(m["containerPort"], 10, 64)
@@ -149,7 +152,7 @@ func ParseLoadBalancers(flagValues []string) ([]*ecs.LoadBalancer, error) {
 				ContainerPort:    aws.Int64((containerPort)),
 			})
 		} else {
-			return nil, fmt.Errorf("InvalidParameterException: Target Group Arn or Load Balancer Name can not be blank")
+			return nil, fmt.Errorf("Target Group Arn or Load Balancer Name can not be blank")
 		}
 	}
 	return list, nil
