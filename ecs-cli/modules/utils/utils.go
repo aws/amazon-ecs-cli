@@ -108,10 +108,10 @@ func GetPartition(region string) string {
 	}
 }
 
-// ParseLoadBalancers parses
-// For users wanting to register multiple or one load balancers to a single service
+// ParseLoadBalancers parses a StringSlice array into an array of load balancers struct
+// Input: ["targetGroupArn="...",containerName="...",containerPort=80","targetGroupArn="...",containerName="...",containerPort=40"]
 func ParseLoadBalancers(flagValues []string) ([]*ecs.LoadBalancer, error) {
-	list := make([]*ecs.LoadBalancer, len(flagValues))
+	var list []*ecs.LoadBalancer
 
 	for _, flagValue := range flagValues {
 		m := make(map[string]string)

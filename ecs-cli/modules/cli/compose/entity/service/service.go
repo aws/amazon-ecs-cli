@@ -119,34 +119,49 @@ func (s *Service) LoadContext() error {
 	// specified do not exist.
 	// TODO: Add validation on targetGroupArn or loadBalancerName being
 	// present if containerName or containerPort are specified
-	if role != "" || targetGroupArn != "" || loadBalancerName != "" || containerName != "" || containerPort != nil || len(targetGroupsList) != 0 {
+	if targetGroupArn != "" || loadBalancerName != "" || containerName != "" || containerPort != nil {
+		if role == "" {
+			return errors.Errorf("[--%s] is required when either when [--%s] or [--%s] flag is specified", flags.RoleFlag, flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
+		}
+		if containerName == "" {
+			return errors.Errorf("[--%s] is required if [--%s] or [--%s] is specified", flags.ContainerNameFlag, flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
+		}
+		if containerPort == nil {
+			return errors.Errorf("[--%s] is required if [--%s] or [--%s] is specified", flags.ContainerPortFlag, flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
+		}
 		if targetGroupArn != "" && loadBalancerName != "" {
 			return errors.Errorf("[--%s] and [--%s] flags cannot both be specified", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
-		} else if (targetGroupArn != "" || loadBalancerName != "") && len(targetGroupsList) != 0 {
-			return errors.Errorf("[--%s] or [--%s] flags cannot be specified with %s", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag, flags.TargetGroupsFlag)
 		}
-
-		if targetGroupArn != "" || loadBalancerName != "" {
-			s.loadBalancer = &ecs.LoadBalancer{
-				ContainerName: aws.String(containerName),
-				ContainerPort: containerPort,
-			}
-			if targetGroupArn != "" {
-				s.loadBalancer.TargetGroupArn = aws.String(targetGroupArn)
-			}
-			if loadBalancerName != "" {
-				s.loadBalancer.LoadBalancerName = aws.String(loadBalancerName)
-			}
-			s.loadBalancers = append(s.loadBalancers, s.loadBalancer)
-		} else {
-			loadBalancers, err := utils.ParseLoadBalancers(targetGroupsList)
-			if err != nil {
-				return err
-			}
-			s.loadBalancers = loadBalancers
+		if targetGroupArn == "" && loadBalancerName == "" {
+			return errors.Errorf("Must specify either [--%s] or [--%s] flag for your service", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
 		}
+		s.loadBalancer = &ecs.LoadBalancer{
+			ContainerName: aws.String(containerName),
+			ContainerPort: containerPort,
+		}
+		if targetGroupArn != "" {
+			s.loadBalancer.TargetGroupArn = aws.String(targetGroupArn)
+		}
+		if loadBalancerName != "" {
+			s.loadBalancer.LoadBalancerName = aws.String(loadBalancerName)
+		}
+		s.loadBalancers = []*ecs.LoadBalancer{s.loadBalancer}
+		// s.loadBalancers = append(s.loadBalancers, s.loadBalancer)
 		s.role = role
 	}
+
+	if len(targetGroupsList) != 0 {
+		if role == "" {
+			return errors.Errorf("[--%s] is required when either when [--%s] flag is specified", flags.RoleFlag, flags.TargetGroupsFlag)
+		}
+		loadBalancers, err := utils.ParseLoadBalancers(targetGroupsList)
+		if err != nil {
+			return err
+		}
+		s.loadBalancers = append(s.loadBalancers, loadBalancers...)
+		s.role = role
+	}
+
 	return nil
 }
 
