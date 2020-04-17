@@ -98,7 +98,7 @@ func (s *Service) LoadContext() error {
 	role := s.Context().CLIContext.String(flags.RoleFlag)
 	targetGroupArn := s.Context().CLIContext.String(flags.TargetGroupArnFlag)
 	loadBalancerName := s.Context().CLIContext.String(flags.LoadBalancerNameFlag)
-	loadBalancerList := s.Context().CLIContext.StringSlice(flags.LoadBalancerListFlag)
+	targetGroupsList := s.Context().CLIContext.StringSlice(flags.TargetGroupsFlag)
 	containerName := s.Context().CLIContext.String(flags.ContainerNameFlag)
 	containerPort, err := getInt64FromCLIContext(s.Context(), flags.ContainerPortFlag)
 	if err != nil {
@@ -119,35 +119,33 @@ func (s *Service) LoadContext() error {
 	// specified do not exist.
 	// TODO: Add validation on targetGroupArn or loadBalancerName being
 	// present if containerName or containerPort are specified
-	if role != "" || targetGroupArn != "" || loadBalancerName != "" || containerName != "" || containerPort != nil {
+	if role != "" || targetGroupArn != "" || loadBalancerName != "" || containerName != "" || containerPort != nil || len(targetGroupsList) != 0 {
 		if targetGroupArn != "" && loadBalancerName != "" {
 			return errors.Errorf("[--%s] and [--%s] flags cannot both be specified", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
-		}
-		if len(loadBalancerList) != 0 {
-			return errors.Errorf("Can not have --load-balancer-list at the same time")
+		} else if (targetGroupArn != "" || loadBalancerName != "") && len(targetGroupsList) != 0 {
+			return errors.Errorf("[--%s] or [--%s] flags cannot be specified with %s", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag, flags.TargetGroupsFlag)
 		}
 
-		s.loadBalancer = &ecs.LoadBalancer{
-			ContainerName: aws.String(containerName),
-			ContainerPort: containerPort,
-		}
-		if targetGroupArn != "" {
-			s.loadBalancer.TargetGroupArn = aws.String(targetGroupArn)
-		}
-		if loadBalancerName != "" {
-			s.loadBalancer.LoadBalancerName = aws.String(loadBalancerName)
+		if targetGroupArn != "" || loadBalancerName != "" {
+			s.loadBalancer = &ecs.LoadBalancer{
+				ContainerName: aws.String(containerName),
+				ContainerPort: containerPort,
+			}
+			if targetGroupArn != "" {
+				s.loadBalancer.TargetGroupArn = aws.String(targetGroupArn)
+			}
+			if loadBalancerName != "" {
+				s.loadBalancer.LoadBalancerName = aws.String(loadBalancerName)
+			}
+			s.loadBalancers = append(s.loadBalancers, s.loadBalancer)
+		} else {
+			loadBalancers, err := utils.ParseLoadBalancers(targetGroupsList)
+			if err != nil {
+				return err
+			}
+			s.loadBalancers = loadBalancers
 		}
 		s.role = role
-		s.loadBalancers = append(s.loadBalancers, s.loadBalancer)
-	} else if len(loadBalancerList) != 0 {
-		if len(loadBalancerList) > 5 {
-			return errors.Errorf("Can not register more than 5 loadbalancers in a service")
-		}
-		loadBalancers, err := s.getLoadBalancerList(loadBalancerList)
-		if err != nil {
-			return err
-		}
-		s.loadBalancers = loadBalancers
 	}
 	return nil
 }
@@ -488,19 +486,6 @@ func (s *Service) GetTags() ([]*ecs.Tag, error) {
 
 	}
 	return s.tags, nil
-}
-
-func (s *Service) getLoadBalancerList(loadBalancerValue []string) ([]*ecs.LoadBalancer, error) {
-	if s.loadBalancers == nil {
-		loadBalancers := make([]*ecs.LoadBalancer, 0)
-		var err error
-		loadBalancers, err = utils.ParseLoadBalancers(loadBalancerValue, loadBalancers)
-		if err != nil {
-			return nil, err
-		}
-		s.loadBalancers = loadBalancers
-	}
-	return s.loadBalancers, nil
 }
 
 // ----------- Commands' helper functions --------

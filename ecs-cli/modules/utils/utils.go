@@ -108,27 +108,32 @@ func GetPartition(region string) string {
 	}
 }
 
-// ParseLoadBalancers returns a list of load balacners struct
+// ParseLoadBalancers parses
 // For users wanting to register multiple or one load balancers to a single service
-func ParseLoadBalancers(flagValue []string, list []*ecs.LoadBalancer) ([]*ecs.LoadBalancer, error) {
+func ParseLoadBalancers(flagValues []string) ([]*ecs.LoadBalancer, error) {
+	list := make([]*ecs.LoadBalancer, len(flagValues))
 
-	for i := 0; i < len(flagValue); i++ {
+	for _, flagValue := range flagValues {
 		m := make(map[string]string)
-		targetGroupArn := false
-		keyValPairs := strings.Split(flagValue[i], ",")
+		elbv2 := false
+		keyValPairs := strings.Split(flagValue, ",")
 
 		for _, kv := range keyValPairs {
-			pair := strings.SplitN(kv, "=", 2)
+			pair := strings.SplitN(kv, "=", -1)
+			if len(pair) > 2 {
+				return nil, fmt.Errorf("Only include one = to indicate your value in your %s", pair[0])
+			}
+
 			m[pair[0]] = pair[1]
 			if pair[0] == "targetGroupArn" {
-				targetGroupArn = true
+				elbv2 = true
 			}
 		}
 		containerPort, err := strconv.ParseInt(m["containerPort"], 10, 64)
 		if err != nil {
-			return nil, fmt.Errorf("Please pass integer value for the flag %s", m["containerPort"])
+			return nil, fmt.Errorf("Fail to parse container port %s for container %s", m["containerPort"], m["containerName"])
 		}
-		if targetGroupArn {
+		if elbv2 {
 			list = append(list, &ecs.LoadBalancer{
 				TargetGroupArn: aws.String(m["targetGroupArn"]),
 				ContainerName:  aws.String(m["containerName"]),
