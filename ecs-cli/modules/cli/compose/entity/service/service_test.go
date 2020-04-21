@@ -394,12 +394,47 @@ func TestCreateWithTwoTargetGroupsFlag(t *testing.T) {
 		ecsSettingDisabled,
 	)
 }
+func TestCreateWithTargetGroupsFlagWithMultipleTargetGroupArn(t *testing.T) {
+	role := "role"
+	targetGroups := &cli.StringSlice{}
+	targetGroups.Set("targetGroupArn=SuperMario,containerName=Bob,containerPort=80")
+	targetGroups.Set("targetGroupArn=Overwatch,targetGroupArn=Overwatch2,containerName=Joes,containerPort=40")
 
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.RoleFlag, role, "")
+	flagSet.Var(targetGroups, flags.TargetGroupsFlag, "")
+	cliContext := cli.NewContext(nil, flagSet, nil)
+
+	service := &Service{
+		ecsContext: &context.ECSContext{CLIContext: cliContext},
+	}
+
+	err := service.LoadContext()
+	assert.Error(t, err, "Cannot have multiple targetGroupArns in one --target-group flag")
+}
+func TestCreateWithTargetGroupsFlagWithMultipleLoadBalancerName(t *testing.T) {
+	role := "role"
+	targetGroups := &cli.StringSlice{}
+	targetGroups.Set("targetGroupArn=SuperMario,containerName=Bob,containerPort=80")
+	targetGroups.Set("loadBalancerName=Overwatch,loadBalancerName=Overwatch2,containerName=Joes,containerPort=40")
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.RoleFlag, role, "")
+	flagSet.Var(targetGroups, flags.TargetGroupsFlag, "")
+	cliContext := cli.NewContext(nil, flagSet, nil)
+
+	service := &Service{
+		ecsContext: &context.ECSContext{CLIContext: cliContext},
+	}
+
+	err := service.LoadContext()
+	assert.Error(t, err, "Cannot have multiple loadBalancerName in one --target-group flag")
+}
 func TestCreateWithTargetGroupsFlagWithTargetGroupArnAndLoadBalancerName(t *testing.T) {
 	role := "role"
 	targetGroups := &cli.StringSlice{}
 	targetGroups.Set("targetGroupArn=Overwatch,containerName=Joes,containerPort=40")
-	targetGroups.Set("targetGroupArn=CS:GO,loadBalancerName=SuperMario,containerName=Bob,containerPort=80")
+	targetGroups.Set("targetGroupArn=CS:GO,targetGroupArn=SuperMario,containerName=Bob,containerPort=80")
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.String(flags.RoleFlag, role, "")

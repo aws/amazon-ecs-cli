@@ -112,13 +112,13 @@ func GetPartition(region string) string {
 // Input: ["targetGroupArn="...",containerName="...",containerPort=80","targetGroupArn="...",containerName="...",containerPort=40"]
 func ParseLoadBalancers(flagValues []string) ([]*ecs.LoadBalancer, error) {
 	var list []*ecs.LoadBalancer
-	validFlags := map[string]string{
-		"containerName": "container-name",
-		"containerPort": "container-port",
-	}
 
 	for _, flagValue := range flagValues {
 		m := make(map[string]string)
+		validFlags := map[string]bool{
+			"containerName": false,
+			"containerPort": false,
+		}
 		var elbv1, elbv2 bool
 		keyValPairs := strings.Split(flagValue, ",")
 
@@ -136,14 +136,17 @@ func ParseLoadBalancers(flagValues []string) ([]*ecs.LoadBalancer, error) {
 			} else if pair[0] == "loadBalancerName" {
 				elbv1 = true
 			}
-			if elbv1 && elbv2 {
-				return nil, fmt.Errorf("[--%s] and [--%s] flags cannot both be specified", "target-group-arn", "load-balancer-name")
+			if validFlags[pair[0]] {
+				return nil, fmt.Errorf("%s already exists", pair[0])
 			}
+			validFlags[pair[0]] = true
 		}
-
-		for key := range validFlags {
-			if _, exist := m[key]; !exist {
-				return nil, fmt.Errorf("Does not have [--%s] flag", validFlags[key])
+		if elbv1 && elbv2 {
+			return nil, fmt.Errorf("[--%s] and [--%s] flags cannot both be specified", "target-group-arn", "load-balancer-name")
+		}
+		for key, value := range validFlags {
+			if value == false {
+				return nil, fmt.Errorf("--%s must be specified", key)
 			}
 		}
 
