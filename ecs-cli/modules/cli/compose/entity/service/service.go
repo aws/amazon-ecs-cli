@@ -97,7 +97,7 @@ func (s *Service) LoadContext() error {
 	role := s.Context().CLIContext.String(flags.RoleFlag)
 	targetGroupArn := s.Context().CLIContext.String(flags.TargetGroupArnFlag)
 	loadBalancerName := s.Context().CLIContext.String(flags.LoadBalancerNameFlag)
-	targetGroupsList := s.Context().CLIContext.StringSlice(flags.TargetGroupsFlag)
+	targetGroups := s.Context().CLIContext.StringSlice(flags.TargetGroupsFlag)
 	containerName := s.Context().CLIContext.String(flags.ContainerNameFlag)
 	containerPort, err := getInt64FromCLIContext(s.Context(), flags.ContainerPortFlag)
 	if err != nil {
@@ -148,11 +148,11 @@ func (s *Service) LoadContext() error {
 		s.role = role
 	}
 
-	if len(targetGroupsList) != 0 {
+	if len(targetGroups) != 0 {
 		if role == "" {
 			return errors.Errorf("[--%s] is required when either when [--%s] flag is specified", flags.RoleFlag, flags.TargetGroupsFlag)
 		}
-		loadBalancers, err := utils.ParseLoadBalancers(targetGroupsList)
+		loadBalancers, err := utils.ParseLoadBalancers(targetGroups)
 		if err != nil {
 			return err
 		}

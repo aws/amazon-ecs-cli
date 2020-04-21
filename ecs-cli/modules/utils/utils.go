@@ -23,7 +23,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -113,6 +112,10 @@ func GetPartition(region string) string {
 // Input: ["targetGroupArn="...",containerName="...",containerPort=80","targetGroupArn="...",containerName="...",containerPort=40"]
 func ParseLoadBalancers(flagValues []string) ([]*ecs.LoadBalancer, error) {
 	var list []*ecs.LoadBalancer
+	validFlags := map[string]string{
+		"containerName": "container-name",
+		"containerPort": "container-port",
+	}
 
 	for _, flagValue := range flagValues {
 		m := make(map[string]string)
@@ -124,7 +127,9 @@ func ParseLoadBalancers(flagValues []string) ([]*ecs.LoadBalancer, error) {
 			if len(pair) > 2 {
 				return nil, fmt.Errorf("Only include one = to indicate your value in your %s", pair[0])
 			}
-
+			if pair[0] != "targetGroupArn" && pair[0] != "loadBalancerName" && pair[0] != "containerName" && pair[0] != "containerPort" {
+				return nil, fmt.Errorf("[--%s] is an invalid flag", pair[0])
+			}
 			m[pair[0]] = pair[1]
 			if pair[0] == "targetGroupArn" {
 				elbv2 = true
@@ -132,9 +137,16 @@ func ParseLoadBalancers(flagValues []string) ([]*ecs.LoadBalancer, error) {
 				elbv1 = true
 			}
 			if elbv1 && elbv2 {
-				return nil, errors.Errorf("[--%s] and [--%s] flags cannot both be specified", "target-group-arn", "load-balancer-name")
+				return nil, fmt.Errorf("[--%s] and [--%s] flags cannot both be specified", "target-group-arn", "load-balancer-name")
 			}
 		}
+
+		for key := range validFlags {
+			if _, exist := m[key]; !exist {
+				return nil, fmt.Errorf("Does not have [--%s] flag", validFlags[key])
+			}
+		}
+
 		containerPort, err := strconv.ParseInt(m["containerPort"], 10, 64)
 		if err != nil {
 			return nil, fmt.Errorf("Fail to parse container port %s for container %s", m["containerPort"], m["containerName"])
