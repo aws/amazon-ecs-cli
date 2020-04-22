@@ -27,7 +27,11 @@ import (
 
 const (
 	// ECSCLIResourcePrefix is prepended to the names of resources created through the ecs-cli
-	ECSCLIResourcePrefix = "amazon-ecs-cli-setup-"
+	ECSCLIResourcePrefix     = "amazon-ecs-cli-setup-"
+	containerNameParamKey    = "containerName"
+	containerPortParamKey    = "containerPort"
+	loadBalancerNameParamKey = "loadBalancerName"
+	targetGroupArnParamKey   = "targetGroupArn"
 )
 
 // InSlice checks if the given string exists in the given slice:
@@ -115,7 +119,8 @@ func ParseLoadBalancers(flagValues []string) ([]*ecs.LoadBalancer, error) {
 
 	for _, flagValue := range flagValues {
 		m := make(map[string]string)
-		validFlags := []string{"targetGroupArn", "loadBalancerName", "containerName", "containerPort"}
+
+		validFlags := []string{containerNameParamKey, containerPortParamKey, loadBalancerNameParamKey, targetGroupArnParamKey}
 		currentFlags := map[string]bool{
 			"containerName": false,
 			"containerPort": false,
@@ -130,6 +135,7 @@ func ParseLoadBalancers(flagValues []string) ([]*ecs.LoadBalancer, error) {
 			if len(pair) > 2 {
 				return nil, fmt.Errorf("Only include one = to indicate your value in your %s", key)
 			}
+
 			if ok := contains(validFlags, key); !ok {
 				return nil, fmt.Errorf("[--%s] is an invalid flag", key)
 			}
