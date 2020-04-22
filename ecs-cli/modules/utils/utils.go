@@ -115,36 +115,39 @@ func ParseLoadBalancers(flagValues []string) ([]*ecs.LoadBalancer, error) {
 
 	for _, flagValue := range flagValues {
 		m := make(map[string]string)
-		validFlags := map[string]bool{
+		validFlags := []string{"targetGroupArn", "loadBalancerName", "containerName", "containerPort"}
+		currentFlags := map[string]bool{
 			"containerName": false,
 			"containerPort": false,
 		}
+
 		var elbv1, elbv2 bool
 		keyValPairs := strings.Split(flagValue, ",")
 
 		for _, kv := range keyValPairs {
 			pair := strings.SplitN(kv, "=", -1)
+			key, val := pair[0], pair[1]
 			if len(pair) > 2 {
-				return nil, fmt.Errorf("Only include one = to indicate your value in your %s", pair[0])
+				return nil, fmt.Errorf("Only include one = to indicate your value in your %s", key)
 			}
-			if pair[0] != "targetGroupArn" && pair[0] != "loadBalancerName" && pair[0] != "containerName" && pair[0] != "containerPort" {
-				return nil, fmt.Errorf("[--%s] is an invalid flag", pair[0])
+			if ok := contains(validFlags, key); !ok {
+				return nil, fmt.Errorf("[--%s] is an invalid flag", key)
 			}
-			m[pair[0]] = pair[1]
-			if pair[0] == "targetGroupArn" {
+			m[key] = val
+			if key == "targetGroupArn" {
 				elbv2 = true
-			} else if pair[0] == "loadBalancerName" {
+			} else if key == "loadBalancerName" {
 				elbv1 = true
 			}
-			if validFlags[pair[0]] {
-				return nil, fmt.Errorf("%s already exists", pair[0])
+			if currentFlags[key] {
+				return nil, fmt.Errorf("%s already exists", key)
 			}
-			validFlags[pair[0]] = true
+			currentFlags[key] = true
 		}
 		if elbv1 && elbv2 {
 			return nil, fmt.Errorf("[--%s] and [--%s] flags cannot both be specified", "target-group-arn", "load-balancer-name")
 		}
-		for key, value := range validFlags {
+		for key, value := range currentFlags {
 			if value == false {
 				return nil, fmt.Errorf("--%s must be specified", key)
 			}
@@ -167,8 +170,17 @@ func ParseLoadBalancers(flagValues []string) ([]*ecs.LoadBalancer, error) {
 				ContainerPort:    aws.Int64((containerPort)),
 			})
 		} else {
-			return nil, fmt.Errorf("Target Group Arn or Load Balancer Name can not be blank")
+			return nil, fmt.Errorf("Target Group Arn or Load Balancer Name cannot be blank")
 		}
 	}
 	return list, nil
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
