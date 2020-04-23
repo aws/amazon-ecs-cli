@@ -131,10 +131,11 @@ func ParseLoadBalancers(flagValues []string) ([]*ecs.LoadBalancer, error) {
 
 		for _, kv := range keyValPairs {
 			pair := strings.SplitN(kv, "=", -1)
-			key, val := pair[0], pair[1]
-			if len(pair) > 2 {
-				return nil, fmt.Errorf("Only include one = to indicate your value in your %s", key)
+
+			if len(pair) != 2 {
+				return nil, fmt.Errorf("There is an (key=value) initialization error, please check to see if you are using = accordingly on %s", pair[0])
 			}
+			key, val := pair[0], pair[1]
 
 			if ok := contains(validFlags, key); !ok {
 				return nil, fmt.Errorf("[--%s] is an invalid flag", key)
