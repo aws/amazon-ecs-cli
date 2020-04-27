@@ -434,7 +434,7 @@ func TestCreateWithTargetGroupsFlagWithTargetGroupArnAndLoadBalancerName(t *test
 	role := "role"
 	targetGroups := &cli.StringSlice{}
 	targetGroups.Set("targetGroupArn=Overwatch,containerName=Joes,containerPort=40")
-	targetGroups.Set("targetGroupArn=CS:GO,targetGroupArn=SuperMario,containerName=Bob,containerPort=80")
+	targetGroups.Set("targetGroupArn=CS:GO,loadBalancerName=SuperMario,containerName=Bob,containerPort=80")
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.String(flags.RoleFlag, role, "")
@@ -561,61 +561,82 @@ func TestCreateWithTargetGroupsFlagWitDoubleEqualSigns(t *testing.T) {
 
 func TestCreateWithTargetGroupArnAndTargetGroupsFlag(t *testing.T) {
 	targetGroupArn := "targetGroupArnName"
-	containerName := "containerName"
-	containerPort := 100
-	role := "role"
 	targetGroups := &cli.StringSlice{}
 	targetGroups.Set("targetGroupArn=CS:GO,containerName=Bobs,containerPort=80")
-	targetGroups.Set("targetGroupArn=Overwatch,containerName=Joes,containerPort=40")
-
-	targetGroupArnList := []string{"targetGroupArnName", "CS:GO", "Overwatch"}
-	containerNameList := []string{"containerName", "Bobs", "Joes"}
-	containerPostList := []int64{100, 80, 40}
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 	flagSet.String(flags.TargetGroupArnFlag, targetGroupArn, "")
-	flagSet.String(flags.ContainerNameFlag, containerName, "")
-	flagSet.String(flags.ContainerPortFlag, strconv.Itoa(containerPort), "")
-	flagSet.String(flags.RoleFlag, role, "")
 	flagSet.Var(targetGroups, flags.TargetGroupsFlag, "")
+	cliContext := cli.NewContext(nil, flagSet, nil)
 
-	createServiceTest(
-		t,
-		flagSet,
-		&config.CommandConfig{},
-		&utils.ECSParams{},
-		func(input *ecs.CreateServiceInput) {
-			loadBalancer := input.LoadBalancers
-			observedRole := input.Role
-			for i := 0; i < len(loadBalancer); i++ {
-				assert.Equal(t, *loadBalancer[i].TargetGroupArn, targetGroupArnList[i], "LoadBalancer.TargetGroupArn should match")
-				assert.Equal(t, *loadBalancer[i].ContainerName, containerNameList[i], "LoadBalancer.ContainerName should match")
-				assert.Equal(t, *loadBalancer[i].ContainerPort, containerPostList[i], "LoadBalancer.ContainerPort should match")
-				assert.Equal(t, role, aws.StringValue(observedRole), "Role should match")
-			}
-		},
-		ecsSettingDisabled,
-	)
+	service := &Service{
+		ecsContext: &context.ECSContext{CLIContext: cliContext},
+	}
+	err := service.LoadContext()
+	assert.Error(t, err, "Cannot have both --target-group-arn flag with --target-groups")
+}
+
+func TestCreateWithLoadBalancerNameAndTargetGroupsFlag(t *testing.T) {
+	loadBalancerName := "loadBalancerName"
+	targetGroups := &cli.StringSlice{}
+	targetGroups.Set("targetGroupArn=CS:GO,containerName=Bobs,containerPort=80")
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.LoadBalancerNameFlag, loadBalancerName, "")
+	flagSet.Var(targetGroups, flags.TargetGroupsFlag, "")
+	cliContext := cli.NewContext(nil, flagSet, nil)
+
+	service := &Service{
+		ecsContext: &context.ECSContext{CLIContext: cliContext},
+	}
+	err := service.LoadContext()
+	assert.Error(t, err, "Cannot have both --load-balancer-name flag with --target-groups")
+}
+
+func TestCreateWithContainerNameAndTargetGroupsFlag(t *testing.T) {
+	containerName := "containerName"
+	targetGroups := &cli.StringSlice{}
+	targetGroups.Set("targetGroupArn=CS:GO,containerName=Bobs,containerPort=80")
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.ContainerNameFlag, containerName, "")
+	flagSet.Var(targetGroups, flags.TargetGroupsFlag, "")
+	cliContext := cli.NewContext(nil, flagSet, nil)
+
+	service := &Service{
+		ecsContext: &context.ECSContext{CLIContext: cliContext},
+	}
+	err := service.LoadContext()
+	assert.Error(t, err, "Cannot have both --container-name flag with --target-groups")
+}
+
+func TestCreateWithContainerPortAndTargetGroupsFlag(t *testing.T) {
+	containerPort := "containerPort"
+	targetGroups := &cli.StringSlice{}
+	targetGroups.Set("targetGroupArn=CS:GO,containerName=Bobs,containerPort=80")
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.String(flags.ContainerPortFlag, containerPort, "")
+	flagSet.Var(targetGroups, flags.TargetGroupsFlag, "")
+	cliContext := cli.NewContext(nil, flagSet, nil)
+
+	service := &Service{
+		ecsContext: &context.ECSContext{CLIContext: cliContext},
+	}
+	err := service.LoadContext()
+	assert.Error(t, err, "Cannot have both --container-port flag with --target-groups")
 }
 
 func TestCreateWithLoadBalancerNameFlagAndTargetGroupsFlag(t *testing.T) {
-	loadBalancerName := "loadbalancerName"
-	containerName := "containerName"
-	containerPort := 100
-	role := "role"
 	targetGroups := &cli.StringSlice{}
 	targetGroups.Set("loadBalancerName=CS:GO,containerName=Bobs,containerPort=80")
 	targetGroups.Set("loadBalancerName=Overwatch,containerName=Joes,containerPort=40")
 
-	loadBalancerNameList := []string{"loadbalancerName", "CS:GO", "Overwatch"}
-	containerNameList := []string{"containerName", "Bobs", "Joes"}
-	containerPostList := []int64{100, 80, 40}
+	loadBalancerNameList := []string{"CS:GO", "Overwatch"}
+	containerNameList := []string{"Bobs", "Joes"}
+	containerPostList := []int64{80, 40}
 
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
-	flagSet.String(flags.LoadBalancerNameFlag, loadBalancerName, "")
-	flagSet.String(flags.ContainerNameFlag, containerName, "")
-	flagSet.String(flags.ContainerPortFlag, strconv.Itoa(containerPort), "")
-	flagSet.String(flags.RoleFlag, role, "")
 	flagSet.Var(targetGroups, flags.TargetGroupsFlag, "")
 
 	createServiceTest(
@@ -625,12 +646,10 @@ func TestCreateWithLoadBalancerNameFlagAndTargetGroupsFlag(t *testing.T) {
 		&utils.ECSParams{},
 		func(input *ecs.CreateServiceInput) {
 			loadBalancer := input.LoadBalancers
-			observedRole := input.Role
 			for i := 0; i < len(loadBalancer); i++ {
 				assert.Equal(t, *loadBalancer[i].LoadBalancerName, loadBalancerNameList[i], "LoadBalancer.LoadBalancerName should match")
 				assert.Equal(t, *loadBalancer[i].ContainerName, containerNameList[i], "LoadBalancer.ContainerName should match")
 				assert.Equal(t, *loadBalancer[i].ContainerPort, containerPostList[i], "LoadBalancer.ContainerPort should match")
-				assert.Equal(t, role, aws.StringValue(observedRole), "Role should match")
 			}
 		},
 		ecsSettingDisabled,
