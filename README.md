@@ -118,8 +118,9 @@ Install `gpg` using the package manager on your flavor of linux.
 
 One easy way is to use Homebrew, a package manager for OS X. Install Homebrew using the [instructions on its site](https://brew.sh/).
 
-```
+```bash
 brew install gnupg
+brew install amazon-ecs-cli
 ```
 
 ###### Windows
