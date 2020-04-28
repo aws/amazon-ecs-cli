@@ -222,10 +222,11 @@ func deploymentConfigFlags(specifyDefaults bool) []cli.Flag {
 }
 
 func loadBalancerFlags() []cli.Flag {
-	targetGroupArnUsageString := fmt.Sprintf("[Optional] Specifies the full Amazon Resource Name (ARN) of a previously configured target group for an Application Load Balancer or Network Load Balancer to associate with your service. NOTE: For Classic Load Balancers, use the --%s flag.", flags.LoadBalancerNameFlag)
-	containerNameUsageString := fmt.Sprintf("[Optional] Specifies the container name (as it appears in a container definition). This parameter is required if --%s or --%s is specified.", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
-	containerPortUsageString := fmt.Sprintf("[Optional] Specifies the port on the container to associate with the load balancer. This port must correspond to a containerPort in the service's task definition. This parameter is required if --%s or --%s is specified.", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
-	loadBalancerNameUsageString := fmt.Sprintf("[Optional] Specifies the name of a previously configured Classic Elastic Load Balancing load balancer to associate with your service. NOTE: For Application Load Balancers or Network Load Balancers, use the --%s flag.", flags.TargetGroupArnFlag)
+	targetGroupArnUsageString := fmt.Sprintf("[Deprecated] Specifies the full Amazon Resource Name (ARN) of a previously configured target group for an Application Load Balancer or Network Load Balancer to associate with your service. NOTE: For Classic Load Balancers, use the --%s flag.", flags.LoadBalancerNameFlag)
+	containerNameUsageString := fmt.Sprintf("[Deprecated] Specifies the container name (as it appears in a container definition). This parameter is required if --%s or --%s is specified.", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
+	containerPortUsageString := fmt.Sprintf("[Deprecated] Specifies the port on the container to associate with the load balancer. This port must correspond to a containerPort in the service's task definition. This parameter is required if --%s or --%s is specified.", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
+	loadBalancerNameUsageString := fmt.Sprintf("[Deprecated] Specifies the name of a previously configured Classic Elastic Load Balancing load balancer to associate with your service. NOTE: For Application Load Balancers or Network Load Balancers, use the --%s flag.", flags.TargetGroupArnFlag)
+	targetGroupsUsageString := fmt.Sprintf("[Optional] Specifies multiple target groups to register with a service. Can't be used with --%s flag or --%s at the same time. To specify multiple target groups, add multiple seperate --%s flags Example: ecs-cli compose service create --target-groups targetGroupArn=arn,containerName=nginx,containerPort=80 --target-groups targetGroupArn=arn,containerName=database,containerPort=3306", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag, flags.TargetGroupsFlag)
 	roleUsageString := fmt.Sprintf("[Optional] Specifies the name or full Amazon Resource Name (ARN) of the IAM role that allows Amazon ECS to make calls to your load balancer or target group on your behalf. This parameter requires either --%s or --%s to be specified.", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
 	healthCheckGracePeriodString := "[Optional] Specifies the period of time, in seconds, that the Amazon ECS service scheduler should ignore unhealthy Elastic Load Balancing target health checks after a task has first started."
 
@@ -253,6 +254,11 @@ func loadBalancerFlags() []cli.Flag {
 		cli.StringFlag{
 			Name:  flags.HealthCheckGracePeriodFlag,
 			Usage: healthCheckGracePeriodString,
+		},
+		cli.StringSliceFlag{
+			Name:  flags.TargetGroupsFlag,
+			Usage: targetGroupsUsageString,
+			Value: &cli.StringSlice{},
 		},
 	}
 }

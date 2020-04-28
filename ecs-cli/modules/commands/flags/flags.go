@@ -134,6 +134,7 @@ const (
 	RoleFlag                                = "role"
 	ComposeServiceTimeOutFlag               = "timeout"
 	ForceDeploymentFlag                     = "force-deployment"
+	TargetGroupsFlag                        = "target-groups"
 
 	// Registry Creds
 	UpdateExistingSecretsFlag = "update-existing-secrets"
