@@ -262,42 +262,83 @@ func convertToECSSecrets(secrets []Secret) []*ecs.Secret {
 }
 
 func mergeVolumesWithoutHost(composeVolumes []string, ecsParams *ECSParams) ([]*ecs.Volume, error) {
-	volumesWithoutHost := make(map[string]DockerVolume)
+	volumesWithoutHost := make(map[string]Volume)
 	output := []*ecs.Volume{}
 
 	for _, volName := range composeVolumes {
-		volumesWithoutHost[volName] = DockerVolume{}
+		volumesWithoutHost[volName] = Volume{}
 	}
 
 	if ecsParams != nil {
 		for _, dockerVol := range ecsParams.TaskDefinition.DockerVolumes {
 			if dockerVol.Name != "" {
-				volumesWithoutHost[dockerVol.Name] = dockerVol
+				volumesWithoutHost[dockerVol.Name] = Volume{DockerVolumeConfig: dockerVol}
 			} else {
 				return nil, fmt.Errorf("Name is required when specifying a docker volume")
 			}
 		}
+		for _, efsVol := range ecsParams.TaskDefinition.EFSVolumes {
+			if efsVol.Name != "" {
+				volumesWithoutHost[efsVol.Name] = Volume{EFSVolumeConfig: efsVol}
+			}
+		}
 	}
-
+	var dVolCfg DockerVolume
+	var efsVolCfg EFSVolume
 	for volName, dVol := range volumesWithoutHost {
 		ecsVolume := &ecs.Volume{
 			Name: aws.String(volName),
 		}
-		if dVol.Name != "" {
+		dVolCfg = dVol.DockerVolumeConfig
+		efsVolCfg = dVol.EFSVolumeConfig
+		if dVolCfg.Name != "" {
 			ecsVolume.DockerVolumeConfiguration = &ecs.DockerVolumeConfiguration{
-				Autoprovision: dVol.Autoprovision,
+				Autoprovision: dVolCfg.Autoprovision,
 			}
-			if dVol.Driver != nil {
-				ecsVolume.DockerVolumeConfiguration.Driver = dVol.Driver
+			if dVolCfg.Driver != nil {
+				ecsVolume.DockerVolumeConfiguration.Driver = dVolCfg.Driver
 			}
-			if dVol.Scope != nil {
-				ecsVolume.DockerVolumeConfiguration.Scope = dVol.Scope
+			if dVolCfg.Scope != nil {
+				ecsVolume.DockerVolumeConfiguration.Scope = dVolCfg.Scope
 			}
-			if dVol.DriverOptions != nil {
-				ecsVolume.DockerVolumeConfiguration.DriverOpts = aws.StringMap(dVol.DriverOptions)
+			if dVolCfg.DriverOptions != nil {
+				ecsVolume.DockerVolumeConfiguration.DriverOpts = aws.StringMap(dVolCfg.DriverOptions)
 			}
-			if dVol.Labels != nil {
-				ecsVolume.DockerVolumeConfiguration.Labels = aws.StringMap(dVol.Labels)
+			if dVolCfg.Labels != nil {
+				ecsVolume.DockerVolumeConfiguration.Labels = aws.StringMap(dVolCfg.Labels)
+			}
+		}
+		if efsVolCfg.Name != "" {
+			ecsVolume.EfsVolumeConfiguration = &ecs.EFSVolumeConfiguration{}
+			if efsVolCfg.FileSystemID != nil {
+				ecsVolume.EfsVolumeConfiguration.FileSystemId = efsVolCfg.FileSystemID
+			} else {
+				return nil, fmt.Errorf("file system id is required for efs volumes")
+			}
+			if efsVolCfg.RootDirectory != nil {
+				ecsVolume.EfsVolumeConfiguration.RootDirectory = efsVolCfg.RootDirectory
+			}
+			var transitEncryptionRequired = false
+			efsAuthCfg := &ecs.EFSAuthorizationConfig{}
+			if efsVolCfg.IAM != nil {
+				efsAuthCfg.Iam = efsVolCfg.IAM
+				if *efsVolCfg.IAM == "ENABLED" {
+					transitEncryptionRequired = true
+				}
+			}
+			if efsVolCfg.AccessPointID != nil {
+				efsAuthCfg.AccessPointId = efsVolCfg.AccessPointID
+				transitEncryptionRequired = true
+			}
+			ecsVolume.EfsVolumeConfiguration.AuthorizationConfig = efsAuthCfg
+			if efsVolCfg.TransitEncryption != nil {
+				ecsVolume.EfsVolumeConfiguration.TransitEncryption = efsVolCfg.TransitEncryption
+			}
+			if transitEncryptionRequired && *efsVolCfg.TransitEncryption != "ENABLED" {
+				return nil, fmt.Errorf("Transit encryption is required when using IAM access or an access point")
+			}
+			if efsVolCfg.TransitEncryptionPort != nil {
+				ecsVolume.EfsVolumeConfiguration.TransitEncryptionPort = efsVolCfg.TransitEncryptionPort
 			}
 		}
 		output = append(output, ecsVolume)
