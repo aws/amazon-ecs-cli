@@ -513,6 +513,7 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string, desir
 		DeploymentConfiguration: s.deploymentConfig,
 		LoadBalancers:           []*ecs.LoadBalancer{s.loadBalancer},
 		Role:                    aws.String(s.role),
+		PlatformVersion:         aws.String("1.4.0"),
 	}
 
 	if schedulingStrategy != "" {
