@@ -14,6 +14,7 @@
 package utils
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -1403,6 +1404,61 @@ func TestConvertToTaskDefinitionWithECSParamsVolumeWithoutNameError(t *testing.T
 
 	_, err := ConvertToTaskDefinition(testParams)
 	assert.Error(t, err, "Expected error converting Task Definition with ECS Params volume without name")
+}
+
+func TestConvertToTaskDefinitionWithEFSVolume(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "httpd",
+		MountPoints: []*ecs.MountPoint{{
+			SourceVolume:  aws.String("myEFSVolume"),
+			ContainerPath: aws.String("/mount/efs"),
+			ReadOnly:      aws.Bool(true),
+		}},
+	}
+
+	ecsParamsString := `version: 1
+task_definition:
+  efs_volumes:
+    - name: myEFSVolume
+      filesystem_id: fs-1234
+      root_directory: /
+      transit_encryption: "DISABLED"
+      iam_auth_enabled: "DISABLED"`
+
+	ecsParams, err := createTempECSParamsForTest(t, ecsParamsString)
+	assert.NoError(t, err)
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	volumes := adapter.Volumes{
+		VolumeWithHost: map[string]string{
+			"/mount/efs": "myEFSVolume",
+		},
+	}
+	testParams := ConvertTaskDefParams{
+		TaskDefName:            projectName,
+		TaskRoleArn:            "",
+		RequiredCompatibilites: "",
+		Volumes:                &volumes,
+		ContainerConfigs:       containerConfigs,
+		ECSParams:              ecsParams,
+		ECSRegistryCreds:       nil,
+	}
+
+	taskDefinition, err := ConvertToTaskDefinition(testParams)
+	assert.NoError(t, err)
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+	mp := web.MountPoints[0]
+	efsVolCfg := taskDefinition.Volumes[0].EfsVolumeConfiguration
+	fmt.Printf("%v\n", efsVolCfg)
+	if assert.NoError(t, err) {
+		assert.Equal(t, *mp.SourceVolume, "myEFSVolume")
+		assert.Equal(t, mp.ContainerPath, aws.String("/mount/efs"))
+		// assert.Equal(t, efsVolCfg.FileSystemId, aws.String("fs-1234"))
+		// assert.Equal(t, efsVolCfg.RootDirectory, aws.String("/"))
+		assert.Equal(t, *taskDefinition.Volumes[0].Name, "myEFSVolume")
+	}
 }
 
 func TestIsZeroForEmptyConfig(t *testing.T) {
