@@ -71,8 +71,8 @@ var waitUntilSDSDeletable route53.WaitUntilSDSDeletableFunc = route53.WaitUntilS
 // NewService creates an instance of a Service and also sets up a cache for task definition
 func NewService(ecsContext *context.ECSContext) entity.ProjectEntity {
 	return &Service{
-		cache:       entity.SetupTaskDefinitionCache(),
-		ecsContext:  ecsContext,
+		cache:      entity.SetupTaskDefinitionCache(),
+		ecsContext: ecsContext,
 	}
 }
 
@@ -513,7 +513,8 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string, desir
 		DeploymentConfiguration: s.deploymentConfig,
 		LoadBalancers:           []*ecs.LoadBalancer{s.loadBalancer},
 		Role:                    aws.String(s.role),
-		PlatformVersion:         aws.String("1.4.0"),
+		// TODO: revert to "LATEST" when latest refers to 1.4.0
+		PlatformVersion: aws.String("1.4.0"),
 	}
 
 	if schedulingStrategy != "" {
