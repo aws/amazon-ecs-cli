@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.19.0
+* Bug - correctly parse secret names when name includes nested slashes (#1012)
+* Bug - fixed a bug where valid instance types were rejected by CFN (#1007)
+* Enhancement - add documentation for homebrew installation (#1015)
+* Feature - enable EFS volume configuration in ecs-params (#1019)
+* Feature - enable multiple target groups attached to a single service (#1013)
 ## 1.18.1
 * Bug - Correctly parse value specified in --tags flag (#959)
 * Bug - `compose up` now only makes one API call, reducing errors caused by a race condition (#988)
