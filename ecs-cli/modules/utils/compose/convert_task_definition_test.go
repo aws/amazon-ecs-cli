@@ -14,7 +14,6 @@
 package utils
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -1450,13 +1449,9 @@ task_definition:
 	containerDefs := taskDefinition.ContainerDefinitions
 	web := findContainerByName("web", containerDefs)
 	mp := web.MountPoints[0]
-	efsVolCfg := taskDefinition.Volumes[0].EfsVolumeConfiguration
-	fmt.Printf("%v\n", efsVolCfg)
 	if assert.NoError(t, err) {
 		assert.Equal(t, *mp.SourceVolume, "myEFSVolume")
 		assert.Equal(t, mp.ContainerPath, aws.String("/mount/efs"))
-		// assert.Equal(t, efsVolCfg.FileSystemId, aws.String("fs-1234"))
-		// assert.Equal(t, efsVolCfg.RootDirectory, aws.String("/"))
 		assert.Equal(t, *taskDefinition.Volumes[0].Name, "myEFSVolume")
 	}
 }
