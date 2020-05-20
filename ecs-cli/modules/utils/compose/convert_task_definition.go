@@ -287,12 +287,12 @@ func mergeVolumesWithoutHost(composeVolumes []string, ecsParams *ECSParams) ([]*
 	}
 	var dVolCfg DockerVolume
 	var efsVolCfg EFSVolume
-	for volName, dVol := range volumesWithoutHost {
+	for volName, vol := range volumesWithoutHost {
 		ecsVolume := &ecs.Volume{
 			Name: aws.String(volName),
 		}
-		dVolCfg = dVol.DockerVolumeConfig
-		efsVolCfg = dVol.EFSVolumeConfig
+		dVolCfg = vol.DockerVolumeConfig
+		efsVolCfg = vol.EFSVolumeConfig
 		if dVolCfg.Name != "" {
 			ecsVolume.DockerVolumeConfiguration = &ecs.DockerVolumeConfiguration{
 				Autoprovision: dVolCfg.Autoprovision,
