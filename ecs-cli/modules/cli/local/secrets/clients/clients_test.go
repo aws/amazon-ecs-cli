@@ -45,7 +45,7 @@ func TestSSMDecrypter_DecryptSecret(t *testing.T) {
 
 				gomock.InOrder(
 					defaultClient.EXPECT().GetParameter(&ssm.GetParameterInput{
-						Name:           aws.String("TEST_DB_PASSWORD"),
+						Name:           aws.String("/TEST_DB_PASSWORD"),
 						WithDecryption: aws.Bool(true),
 					}).Return(&ssm.GetParameterOutput{
 						Parameter: &ssm.Parameter{
@@ -74,7 +74,7 @@ func TestSSMDecrypter_DecryptSecret(t *testing.T) {
 
 				gomock.InOrder(
 					pdxClient.EXPECT().GetParameter(&ssm.GetParameterInput{
-						Name:           aws.String("TEST_DB_PASSWORD"),
+						Name:           aws.String("/TEST_DB_PASSWORD"),
 						WithDecryption: aws.Bool(true),
 					}).Return(&ssm.GetParameterOutput{
 						Parameter: &ssm.Parameter{

@@ -15,8 +15,6 @@
 package clients
 
 import (
-	"strings"
-
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/aws-sdk-go/aws"
 	arnParser "github.com/aws/aws-sdk-go/aws/arn"
@@ -67,9 +65,10 @@ func (d *SSMDecrypter) DecryptSecret(arnOrName string) (string, error) {
 	// If the value is an ARN we need to retrieve the parameter name and update the region of the client.
 	paramName := arnOrName
 	if parsedARN, err := arnParser.Parse(arnOrName); err == nil {
-		paramName = parsedARN.Resource[len("parameter/"):] // Resource is formatted as parameter/{paramName}.
-		paramName = formatParam(paramName)
+		paramName = parsedARN.Resource[len("parameter"):] // Resource is formatted as parameter/{paramName}.
 		d.SSMAPI = d.getClient(region(parsedARN.Region))
+	} else if err != nil {
+		return "", errors.Wrapf(err, "failed to parse resource identifier %s due to %v", arnOrName, err)
 	}
 
 	val, err := d.GetParameter(&ssm.GetParameterInput{
@@ -80,17 +79,6 @@ func (d *SSMDecrypter) DecryptSecret(arnOrName string) (string, error) {
 		return "", errors.Wrapf(err, "failed to retrieve decrypted secret from %s due to %v", arnOrName, err)
 	}
 	return *val.Parameter.Value, nil
-}
-
-// Clean up param if it is hierarchical.
-// SSM parameters containing hierarchies must start with "/"
-// Leading / is optional for non-hierarchical param names
-func formatParam(p string) string {
-	parts := strings.SplitN(p, ssmSeparator, splitAllStrings)
-	if len(parts) > 1 {
-		return "/" + p
-	}
-	return p
 }
 
 // getClient returns the SSM client for a given region.
