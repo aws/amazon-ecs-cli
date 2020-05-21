@@ -4,7 +4,6 @@ pull_request_rules:
       - base~=master
       - "#approved-reviews-by>=2"
       - approved-reviews-by=@aws/aws-ecs-devx
-      - status-success=AWS CodeBuild us-west-2 (ecs-cli-ci)
       - status-success=continuous-integration/travis-ci/pr
       - -approved-reviews-by~=author
       - -title~=(WIP|wip)
