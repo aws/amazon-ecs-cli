@@ -705,6 +705,30 @@ run_params:
       - type: distinctInstance`
 ```
 
+Example `ecs-params.yml` with EFS volume:
+
+```
+version: 1
+task_definition:
+  task_execution_role: ecsTaskExecutionRole
+  ecs_network_mode: awsvpc
+  task_size:
+    mem_limit: 1.0GB
+    cpu_limit: 512
+  efs_volumes:
+    - name: "myEFSVolume"
+      filesystem_id: "fs-fedc8554"
+run_params:
+  network_configuration:
+    awsvpc_configuration:
+      subnets:
+        - "subnet-0b24acd73f534bb4f"
+        - "subnet-0f0e20022e2cccd67"
+      security_groups:
+        - "sg-0fb24ebc7dd5254b0"
+      assign_public_ip: "ENABLED"
+```
+
 You can then start a task by calling:
 ```
 ecs-cli compose --ecs-params my-ecs-params.yml up
