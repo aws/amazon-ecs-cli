@@ -281,7 +281,7 @@ func mergeVolumesWithoutHost(composeVolumes []string, ecsParams *ECSParams) ([]*
 			if efsVol.Name != "" {
 				volumesWithoutHost[efsVol.Name] = Volume{EFSVolumeConfig: efsVol}
 			} else {
-				return nil, fmt.Errorf("Name is required when specifying an docker volume")
+				return nil, fmt.Errorf("Name is required when specifying an EFS volume")
 			}
 		}
 	}
