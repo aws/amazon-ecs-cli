@@ -6,6 +6,7 @@
 * Bug - Correctly parse secret names when name includes nested slashes (#1012)
 * Bug - Fix a bug where valid instance types were rejected by CFN (#1007)
 * Enhancement - Add documentation for homebrew installation (#1015)
+
 ## 1.18.1
 * Bug - Correctly parse value specified in --tags flag (#959)
 * Bug - `compose up` now only makes one API call, reducing errors caused by a race condition (#988)
