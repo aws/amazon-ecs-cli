@@ -14,6 +14,7 @@ phases:
       - mkdir -p /go/src/github.com/aws/amazon-ecs-cli
       - cp -R . /go/src/github.com/aws/amazon-ecs-cli/
       - cd /go/src/github.com/aws/amazon-ecs-cli
+      # At least one unit test expects no region to be set in the environment. Unset for testing, then reset.
       - export AWS_REGION_BAK=$AWS_REGION && export AWS_REGION=
       - export AWS_DEFAULT_REGION_BAK=$AWS_DEFAULT_REGION && export AWS_DEFAULT_REGION=
       - go test -race -v -cover ./ecs-cli/modules/...
