@@ -6,10 +6,11 @@ phases:
       golang: 1.13
   pre_build:
     commands:
-      # GOPATH is setup like the following in Codebuild standard 2.0 image
+      # GOPATH is setup like the following in Codebuild standard 4.0 image
       # /go:/codebuild/output/src<some numbers>
-      # so we copy all the source code to the appropriate location before
-      # invoking any go command
+      # so we copy all the source code to the go root install location before
+      # invoking any go command. 
+      # this also allows us to build using dep while the transition to go modules is ongoing
       - ls -lah
       - mkdir -p /go/src/github.com/aws/amazon-ecs-cli
       - cp -R . /go/src/github.com/aws/amazon-ecs-cli/
