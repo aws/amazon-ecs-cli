@@ -13,22 +13,21 @@ phases:
       - ls -lah
       - mkdir -p /go/src/github.com/aws/amazon-ecs-cli
       - cp -R . /go/src/github.com/aws/amazon-ecs-cli/
-      - |
-        env -i PATH=$PATH GOPATH=`go env GOPATH` GOROOT=`go env GOROOT` GOCACHE=`go env GOCACHE` \
-        go test -race -v -cover github.com/aws/amazon-ecs-cli/ecs-cli/modules/...
+      - cd /go/src/github.com/aws/amazon-ecs-cli
+      - go test -race -v -cover ./ecs-cli/modules/...
       # make a copy of the version.go because `go run gen/version-gen.go` will
       # modify it.
-      - cp /go/src/github.com/aws/amazon-ecs-cli/ecs-cli/modules/version/version.go /go/src/github.com/aws/amazon-ecs-cli/ecs-cli/modules/version/_version.go
+      - cp ./ecs-cli/modules/version/version.go ./ecs-cli/modules/version/_version.go
       # need to cd into the version package because version-gen.go assumes the relative
       # location of the VERSION file.
-      - cd /go/src/github.com/aws/amazon-ecs-cli/ecs-cli/modules/version/
+      - cd ./ecs-cli/modules/version/
       # since we are running the go program inside a Linux container, has to hardcode
       # the GOOS and GOARCH correspondinly regardless of what the host OS is.
       - GOOS=linux GOARCH=amd64 ECS_RELEASE=cleanbuild go run gen/version-gen.go
   build:
     commands:
       - echo "cd into $CODEBUILD_SRC_DIR"
-      - cd $CODEBUILD_SRC_DIR
+      - cd /go/src/github.com/aws/amazon-ecs-cli
       - echo "Compilation context:"
       - echo "CODEBUILD_SOURCE_VERSION=$CODEBUILD_SOURCE_VERSION"
       - VERSION=`git tag --points-at HEAD`
@@ -46,9 +45,9 @@ phases:
           echo "the VERSION file contains a version number that is different from the git tag. file: $CHECKED_IN_VERSION, tag: $VERSION"  
           exit 1
         fi
-      - GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o aws/amazon-ecs-cli/ecs-cli-windows-amd64-$VERSION.exe github.com/aws/amazon-ecs-cli/ecs-cli/
-      - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION github.com/aws/amazon-ecs-cli/ecs-cli/
-      - GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o aws/amazon-ecs-cli/ecs-cli-darwin-amd64-$VERSION github.com/aws/amazon-ecs-cli/ecs-cli/
+      - GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o aws/amazon-ecs-cli/ecs-cli-windows-amd64-$VERSION.exe ./ecs-cli/
+      - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION ./ecs-cli/
+      - GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o aws/amazon-ecs-cli/ecs-cli-darwin-amd64-$VERSION ./ecs-cli/
     finally:
       - echo "built artifacts:"
       - ls -lah aws/amazon-ecs-cli/
