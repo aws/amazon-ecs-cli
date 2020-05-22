@@ -14,7 +14,11 @@ phases:
       - mkdir -p /go/src/github.com/aws/amazon-ecs-cli
       - cp -R . /go/src/github.com/aws/amazon-ecs-cli/
       - cd /go/src/github.com/aws/amazon-ecs-cli
+      - export AWS_REGION_BAK=$AWS_REGION && export AWS_REGION=
+      - export AWS_DEFAULT_REGION_BAK=$AWS_DEFAULT_REGION && export AWS_DEFAULT_REGION=
       - go test -race -v -cover ./ecs-cli/modules/...
+      - export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION_BAK
+      - export AWS_REGION=$AWS_REGION_BAK
       # make a copy of the version.go because `go run gen/version-gen.go` will
       # modify it.
       - cp ./ecs-cli/modules/version/version.go ./ecs-cli/modules/version/_version.go
