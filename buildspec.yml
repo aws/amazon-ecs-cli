@@ -44,6 +44,12 @@ phases:
       - CHECKED_IN_VERSION=`cat /go/src/github.com/aws/amazon-ecs-cli/VERSION`
       - echo "VERSION_FILE=$CHECKED_IN_VERSION"
       - echo "GOPATH=$GOPATH"
+      # Check if there is a tag currently pointing at the head and exit if not. 
+      - |
+        if [ -z "$VERSION" ]; then
+          echo "the current commit is not tagged. Stopping the build stage..."
+          exit 1
+        fi
       - |
         # $CHECKED_IN_VERSION is not prefixed with "v", only the semantic version number,
         # such as 1.17.0 instead of v1.17.0, which is what normal version tags look like.
