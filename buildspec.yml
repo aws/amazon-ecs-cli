@@ -32,7 +32,7 @@ phases:
       - GOOS=linux GOARCH=amd64 ECS_RELEASE=cleanbuild go run gen/version-gen.go
   build:
     commands:
-      - echo "cd into $CODEBUILD_SRC_DIR"
+      - echo "cd into go root directory"
       - cd /go/src/github.com/aws/amazon-ecs-cli
       - echo "Compilation context:"
       - echo "CODEBUILD_SOURCE_VERSION=$CODEBUILD_SOURCE_VERSION"
@@ -57,10 +57,12 @@ phases:
           echo "the VERSION file contains a version number that is different from the git tag. file: $CHECKED_IN_VERSION, tag: $VERSION"  
           exit 1
         fi
-      - GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o aws/amazon-ecs-cli/ecs-cli-windows-amd64-$VERSION.exe ./ecs-cli/
-      - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION ./ecs-cli/
-      - GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o aws/amazon-ecs-cli/ecs-cli-darwin-amd64-$VERSION ./ecs-cli/
+      - GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o $CODEBUILD_SRC_DIR/aws/amazon-ecs-cli/ecs-cli-windows-amd64-$VERSION.exe ./ecs-cli/
+      - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o $CODEBUILD_SRC_DIR/aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION ./ecs-cli/
+      - GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o $CODEBUILD_SRC_DIR/aws/amazon-ecs-cli/ecs-cli-darwin-amd64-$VERSION ./ecs-cli/
     finally:
+      - echo "CD into codebuild src directory for last phase"
+      - cd $CODEBUILD_SRC_DIR
       - echo "built artifacts:"
       - ls -lah aws/amazon-ecs-cli/
       - ./aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION --version
