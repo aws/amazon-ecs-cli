@@ -153,7 +153,7 @@
   version = "v2.7.1"
 
 [[projects]]
-  digest = "1:b335c0b8d90199b16144c1dcf80826d0cee1e8189a75649ac358e1001b94a066"
+  digest = "1:aec8f230a51cca524d1da9a32e6e0adb3526d72f2e6a490e88b52ddb45e57345"
   name = "github.com/docker/docker"
   packages = [
     "api",
@@ -173,7 +173,6 @@
     "api/types/versions",
     "api/types/volume",
     "client",
-    "opts",
     "pkg/archive",
     "pkg/fileutils",
     "pkg/homedir",
@@ -240,11 +239,12 @@
   revision = "3f9db97f856818214da2e1057f8ad84803971cff"
 
 [[projects]]
-  digest = "1:31d1aded40429b05e49de804f779c37a503353e418554e1ed74dc56d62374f78"
+  digest = "1:431240b4ef377dd203b0668accceb9532cdfd213d898e5710a7b5d880d08fc6f"
   name = "github.com/fsouza/go-dockerclient"
   packages = ["."]
   pruneopts = "UT"
-  revision = "4a934a8fd3ec3d4f84d9dcd8b47e7b277918c366"
+  revision = "9abb9ed850fd14325e1f2c7d4fa47960baf980eb"
+  version = "v1.6.5"
 
 [[projects]]
   digest = "1:50772cf1f376b08cb57b4e8e9225775d9f9f4aad8487313afcb66846ceaa5d4c"
@@ -266,13 +266,6 @@
   packages = ["gomock"]
   pruneopts = "UT"
   revision = "837231f7bb377b365da147e5ff6c031b12f0dfaa"
-
-[[projects]]
-  digest = "1:3cc8d6f7489eff4cc78ce9fd6591978d270a55518bbbe66628eb7eb06cbf899b"
-  name = "github.com/hashicorp/go-cleanhttp"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "ad28ea4487f05916463e2423a55166280e8254b5"
 
 [[projects]]
   digest = "1:b39dba8363bf11da3cddcc31c5a9c39f17fba8a5317ae0836ea4530bae3b4866"
