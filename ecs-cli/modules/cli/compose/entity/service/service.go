@@ -44,7 +44,7 @@ type Service struct {
 	cache             cache.Cache
 	ecsContext        *context.ECSContext
 	deploymentConfig  *ecs.DeploymentConfiguration
-	loadBalancer      *ecs.LoadBalancer
+	loadBalancers     []*ecs.LoadBalancer
 	role              string
 	healthCheckGP     *int64
 	serviceRegistries []*ecs.ServiceRegistry
@@ -94,6 +94,7 @@ func (s *Service) LoadContext() error {
 	}
 
 	// Load Balancer
+	targetGroups := s.Context().CLIContext.StringSlice(flags.TargetGroupsFlag)
 	role := s.Context().CLIContext.String(flags.RoleFlag)
 	targetGroupArn := s.Context().CLIContext.String(flags.TargetGroupArnFlag)
 	loadBalancerName := s.Context().CLIContext.String(flags.LoadBalancerNameFlag)
@@ -117,23 +118,41 @@ func (s *Service) LoadContext() error {
 	// specified do not exist.
 	// TODO: Add validation on targetGroupArn or loadBalancerName being
 	// present if containerName or containerPort are specified
-	if role != "" || targetGroupArn != "" || loadBalancerName != "" || containerName != "" || containerPort != nil {
+
+	if (targetGroupArn != "" || loadBalancerName != "" || containerName != "" || containerPort != nil) && len(targetGroups) != 0 {
+		return errors.Errorf("[--%s] cannot be used with [--%s], [--%s], [--%s] or [--%s]", flags.TargetGroupsFlag, flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag, flags.ContainerNameFlag, flags.ContainerPortFlag)
+	} else if targetGroupArn != "" || loadBalancerName != "" || containerName != "" || containerPort != nil {
 		if targetGroupArn != "" && loadBalancerName != "" {
 			return errors.Errorf("[--%s] and [--%s] flags cannot both be specified", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
 		}
-
-		s.loadBalancer = &ecs.LoadBalancer{
+		if targetGroupArn == "" && loadBalancerName == "" {
+			return errors.Errorf("Must specify either [--%s] or [--%s] flag for your service", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
+		}
+		if containerName == "" {
+			return errors.Errorf("[--%s] is required if [--%s] or [--%s] is specified", flags.ContainerNameFlag, flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
+		}
+		if containerPort == nil {
+			return errors.Errorf("[--%s] is required if [--%s] or [--%s] is specified", flags.ContainerPortFlag, flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
+		}
+		loadBalancer := &ecs.LoadBalancer{
 			ContainerName: aws.String(containerName),
 			ContainerPort: containerPort,
 		}
 		if targetGroupArn != "" {
-			s.loadBalancer.TargetGroupArn = aws.String(targetGroupArn)
+			loadBalancer.TargetGroupArn = aws.String(targetGroupArn)
 		}
 		if loadBalancerName != "" {
-			s.loadBalancer.LoadBalancerName = aws.String(loadBalancerName)
+			loadBalancer.LoadBalancerName = aws.String(loadBalancerName)
 		}
-		s.role = role
+		s.loadBalancers = []*ecs.LoadBalancer{loadBalancer}
+	} else if len(targetGroups) != 0 {
+		loadBalancers, err := utils.ParseLoadBalancers(targetGroups)
+		if err != nil {
+			return err
+		}
+		s.loadBalancers = append(s.loadBalancers, loadBalancers...)
 	}
+	s.role = role
 	return nil
 }
 
@@ -336,7 +355,7 @@ func (s *Service) updateService(ecsService *ecs.Service, newTaskDefinition *ecs.
 	}
 
 	ecsServiceName := aws.StringValue(ecsService.ServiceName)
-	if s.loadBalancer != nil {
+	if s.loadBalancers != nil {
 		log.WithFields(log.Fields{
 			"serviceName": ecsServiceName,
 		}).Warn("You cannot update the load balancer configuration on an existing service.")
@@ -501,7 +520,7 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string, desir
 		return nil, err
 	}
 
-	if s.healthCheckGP != nil && s.loadBalancer == nil {
+	if s.healthCheckGP != nil && s.loadBalancers == nil {
 		return nil, fmt.Errorf("--%v is only valid for services configured to use load balancers", flags.HealthCheckGracePeriodFlag)
 	}
 	// TODO: revert to "LATEST" when latest refers to 1.4.0
@@ -519,7 +538,7 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string, desir
 		TaskDefinition:          aws.String(taskDefName),        // Required
 		Cluster:                 aws.String(cluster),
 		DeploymentConfiguration: s.deploymentConfig,
-		LoadBalancers:           []*ecs.LoadBalancer{s.loadBalancer},
+		LoadBalancers:           s.loadBalancers,
 		Role:                    aws.String(s.role),
 		PlatformVersion:         platformVersion,
 	}

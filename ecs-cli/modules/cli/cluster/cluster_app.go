@@ -71,6 +71,11 @@ const (
 	ParameterKeySpotPrice                = "SpotPrice"
 )
 
+const (
+	invalidInstanceTypeFmt     = "instance type %s not found in list of supported instance types %s"
+	instanceTypeUnsupportedFmt = "instance type %s not supported in region %s: %w"
+)
+
 var flagNamesToStackParameterKeys map[string]string
 var requiredParameters []string = []string{ParameterKeyCluster}
 
@@ -314,6 +319,24 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 	}
 
 	if launchType == config.LaunchTypeEC2 {
+		instanceType, err := getInstanceType(cfnParams)
+		if err != nil {
+			return err
+		}
+		supportedInstanceTypes, err := awsClients.EC2Client.DescribeInstanceTypeOfferings(commandConfig.Region())
+		if err != nil {
+			return fmt.Errorf("describe instance type offerings: %w", err)
+		}
+
+		if err = validateInstanceType(instanceType, supportedInstanceTypes); err != nil {
+			// if we detect the default value is unsupported then we'll suggest to the user overriding the value with the appropriate flag
+			if instanceType == cloudformation.DefaultECSInstanceType {
+				logrus.Warnf("Default instance type %s not supported in region %s. Override the default instance type with the --%s flag and provide a supported value.",
+					instanceType, commandConfig.Region(), flags.InstanceTypeFlag)
+			}
+			return fmt.Errorf(instanceTypeUnsupportedFmt, instanceType, commandConfig.Region(), err)
+		}
+
 		// Check if image id was supplied, else populate
 		_, err = cfnParams.GetParameter(ParameterKeyAmiId)
 		if err == cloudformation.ParameterNotFoundError {
@@ -345,11 +368,7 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 		}
 	}
 	// Create cfn stack
-	instanceTypes, err := awsClients.EC2Client.DescribeInstanceTypeOfferings(commandConfig.Region())
-	if err != nil {
-		return errors.Wrapf(err, "No instance type found in region %s", commandConfig.Region())
-	}
-	template, err := cloudformation.GetClusterTemplate(tags, stackName, instanceTypes)
+	template, err := cloudformation.GetClusterTemplate(tags, stackName)
 	if err != nil {
 		return errors.Wrapf(err, "Error building cloudformation template")
 	}
@@ -387,21 +406,38 @@ func canEnableContainerInstanceTagging(client ecsclient.ECSClient) (bool, error)
 	return false, nil
 }
 
-func retrieveInstanceType(cfnParams *cloudformation.CfnStackParams) (string, error) {
+func getInstanceType(cfnParams *cloudformation.CfnStackParams) (string, error) {
 	param, err := cfnParams.GetParameter(ParameterKeyInstanceType)
-
 	if err == cloudformation.ParameterNotFoundError {
 		logrus.Infof("Defaulting instance type to %s", cloudformation.DefaultECSInstanceType)
+
+		cfnParams.Add(ParameterKeyInstanceType, cloudformation.DefaultECSInstanceType)
+
 		return cloudformation.DefaultECSInstanceType, nil
-	}
-	if err != nil {
+	} else if err != nil {
 		return "", err
 	}
+
 	return aws.StringValue(param.ParameterValue), nil
 }
 
+func validateInstanceType(instanceType string, supportedInstanceTypes []string) error {
+	found := false
+	for _, it := range supportedInstanceTypes {
+		if it == instanceType {
+			found = true
+			break
+		}
+	}
+	if !found {
+		return fmt.Errorf(invalidInstanceTypeFmt, instanceType, supportedInstanceTypes)
+	}
+
+	return nil
+}
+
 func populateAMIID(cfnParams *cloudformation.CfnStackParams, client amimetadata.Client) error {
-	instanceType, err := retrieveInstanceType(cfnParams)
+	instanceType, err := getInstanceType(cfnParams)
 	if err != nil {
 		return err
 	}

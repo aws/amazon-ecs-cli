@@ -17,6 +17,7 @@ package utils
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -26,7 +27,11 @@ import (
 
 const (
 	// ECSCLIResourcePrefix is prepended to the names of resources created through the ecs-cli
-	ECSCLIResourcePrefix = "amazon-ecs-cli-setup-"
+	ECSCLIResourcePrefix     = "amazon-ecs-cli-setup-"
+	containerNameParamKey    = "containerName"
+	containerPortParamKey    = "containerPort"
+	loadBalancerNameParamKey = "loadBalancerName"
+	targetGroupArnParamKey   = "targetGroupArn"
 )
 
 // InSlice checks if the given string exists in the given slice:
@@ -79,7 +84,7 @@ func ParseTags(flagValue string, tags []*ecs.Tag) ([]*ecs.Tag, error) {
 	return tags, nil
 }
 
-// GetTags parses AWS Resource tags from the flag value
+// GetTagsMap parses AWS Resource tags from the flag value
 // users specify tags in this format: key1=value1,key2=value2,key3=value3
 // Returns tags in the format used by the standalone resource tagging API
 func GetTagsMap(flagValue string) (map[string]*string, error) {
@@ -105,4 +110,84 @@ func GetPartition(region string) string {
 	} else {
 		return "aws"
 	}
+}
+
+// ParseLoadBalancers parses a StringSlice array into an array of load balancers struct
+// Input: ["targetGroupArn="...",containerName="...",containerPort=80","targetGroupArn="...",containerName="...",containerPort=40"]
+func ParseLoadBalancers(flagValues []string) ([]*ecs.LoadBalancer, error) {
+	var list []*ecs.LoadBalancer
+
+	for _, flagValue := range flagValues {
+		m := make(map[string]string)
+
+		validFlags := []string{containerNameParamKey, containerPortParamKey, loadBalancerNameParamKey, targetGroupArnParamKey}
+		currentFlags := map[string]bool{
+			"containerName": false,
+			"containerPort": false,
+		}
+
+		var elbv1, elbv2 bool
+		keyValPairs := strings.Split(flagValue, ",")
+
+		for _, kv := range keyValPairs {
+			pair := strings.SplitN(kv, "=", -1)
+
+			if len(pair) != 2 {
+				return nil, fmt.Errorf("There is an (key=value) initialization error, please check to see if you are using = accordingly on %s", pair[0])
+			}
+			key, val := pair[0], pair[1]
+
+			if ok := contains(validFlags, key); !ok {
+				return nil, fmt.Errorf("[--%s] is an invalid flag", key)
+			}
+			m[key] = val
+			if key == "targetGroupArn" {
+				elbv2 = true
+			} else if key == "loadBalancerName" {
+				elbv1 = true
+			}
+			if currentFlags[key] {
+				return nil, fmt.Errorf("%s already exists", key)
+			}
+			currentFlags[key] = true
+		}
+		if elbv1 && elbv2 {
+			return nil, fmt.Errorf("[--%s] and [--%s] flags cannot both be specified", "target-group-arn", "load-balancer-name")
+		}
+		for key, value := range currentFlags {
+			if value == false {
+				return nil, fmt.Errorf("--%s must be specified", key)
+			}
+		}
+
+		containerPort, err := strconv.ParseInt(m["containerPort"], 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("Fail to parse container port %s for container %s", m["containerPort"], m["containerName"])
+		}
+		if elbv2 {
+			list = append(list, &ecs.LoadBalancer{
+				TargetGroupArn: aws.String(m["targetGroupArn"]),
+				ContainerName:  aws.String(m["containerName"]),
+				ContainerPort:  aws.Int64((containerPort)),
+			})
+		} else if elbv1 {
+			list = append(list, &ecs.LoadBalancer{
+				LoadBalancerName: aws.String(m["loadBalancerName"]),
+				ContainerName:    aws.String(m["containerName"]),
+				ContainerPort:    aws.Int64((containerPort)),
+			})
+		} else {
+			return nil, fmt.Errorf("Target Group Arn or Load Balancer Name cannot be blank")
+		}
+	}
+	return list, nil
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
