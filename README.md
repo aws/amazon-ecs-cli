@@ -503,16 +503,15 @@ task_definition:
       labels:
         string: string
   efs_volumes:
-     - name: string                     // Required
-       filesystem_id: string            // Required
-       root_directory: string           // Required: directory to mount to docker     
-                                        //   volume. Default: / 
-       transit_encryption: string       // ENABLED or DISABLED (default). Required if 
+     - name: string
+       filesystem_id: string
+       root_directory: string
+       transit_encryption: string       // Valid values: "ENABLED" | "DISABLED" (default). Required if 
                                         //   IAM is enabled or an access point ID is  
                                         //   specified
-       transit_encryption_port: int64   // required if transit_encryption is ENABLED
-       access_point: string             // access point ID for filesystem.
-       iam: string                      // ENABLED or DISABLED (default). Enable IAM 
+       transit_encryption_port: int64   // required if transit_encryption is enabled
+       access_point: string
+       iam: string                      // Valid values: "ENABLED" | "DISABLED" (default). Enable IAM 
                                         //   authentication for FS access. 
   placement_constraints:
     - type: string                      // Valid values: "memberOf"
