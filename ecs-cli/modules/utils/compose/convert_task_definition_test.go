@@ -1405,6 +1405,181 @@ func TestConvertToTaskDefinitionWithECSParamsVolumeWithoutNameError(t *testing.T
 	assert.Error(t, err, "Expected error converting Task Definition with ECS Params volume without name")
 }
 
+func TestConvertToTaskDefinitionWithEFSVolume(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "httpd",
+		MountPoints: []*ecs.MountPoint{{
+			SourceVolume:  aws.String("myEFSVolume"),
+			ContainerPath: aws.String("/mount/efs"),
+			ReadOnly:      aws.Bool(true),
+		}},
+	}
+
+	ecsParamsString := `version: 1
+task_definition:
+  efs_volumes:
+    - name: myEFSVolume
+      filesystem_id: fs-1234
+      root_directory: /
+      transit_encryption: "DISABLED"
+      iam: "DISABLED"`
+
+	ecsParams, err := createTempECSParamsForTest(t, ecsParamsString)
+	assert.NoError(t, err)
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	volumes := adapter.Volumes{
+		VolumeWithHost: map[string]string{
+			"/mount/efs": "myEFSVolume",
+		},
+	}
+	testParams := ConvertTaskDefParams{
+		TaskDefName:            projectName,
+		TaskRoleArn:            "",
+		RequiredCompatibilites: "",
+		Volumes:                &volumes,
+		ContainerConfigs:       containerConfigs,
+		ECSParams:              ecsParams,
+		ECSRegistryCreds:       nil,
+	}
+
+	taskDefinition, err := ConvertToTaskDefinition(testParams)
+	assert.NoError(t, err)
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+	mp := web.MountPoints[0]
+	if assert.NoError(t, err) {
+		assert.Equal(t, *mp.SourceVolume, "myEFSVolume")
+		assert.Equal(t, mp.ContainerPath, aws.String("/mount/efs"))
+		assert.Equal(t, *taskDefinition.Volumes[0].Name, "myEFSVolume")
+	}
+}
+func TestConvertToTaskDefinitionWithEFSVolumeNoId(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "httpd",
+		MountPoints: []*ecs.MountPoint{{
+			SourceVolume:  aws.String("myEFSVolume"),
+			ContainerPath: aws.String("/mount/efs"),
+			ReadOnly:      aws.Bool(true),
+		}},
+	}
+	ecsParamsString := `version: 1
+task_definition:
+  efs_volumes:
+    - name: myEFSVolume
+      root_directory: /
+      transit_encryption: "DISABLED"
+      iam: "DISABLED"`
+
+	ecsParams, err := createTempECSParamsForTest(t, ecsParamsString)
+	assert.NoError(t, err)
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	volumes := adapter.Volumes{
+		VolumeWithHost: map[string]string{
+			"/mount/efs": "myEFSVolume",
+		},
+	}
+	testParams := ConvertTaskDefParams{
+		TaskDefName:            projectName,
+		TaskRoleArn:            "",
+		RequiredCompatibilites: "",
+		Volumes:                &volumes,
+		ContainerConfigs:       containerConfigs,
+		ECSParams:              ecsParams,
+		ECSRegistryCreds:       nil,
+	}
+
+	_, err = ConvertToTaskDefinition(testParams)
+	assert.EqualError(t, err, "file system id is required for efs volumes")
+}
+
+func TestConvertToTaskDefinitionWithEFSVolumeAuthError(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "httpd",
+		MountPoints: []*ecs.MountPoint{{
+			SourceVolume:  aws.String("myEFSVolume"),
+			ContainerPath: aws.String("/mount/efs"),
+			ReadOnly:      aws.Bool(true),
+		}},
+	}
+	ecsParamsString := `version: 1
+task_definition:
+  efs_volumes:
+    - name: myEFSVolume
+      filesystem_id: fs-1234
+      root_directory: /
+      transit_encryption: "DISABLED"
+      iam: "ENABLED"`
+
+	ecsParams, err := createTempECSParamsForTest(t, ecsParamsString)
+	assert.NoError(t, err)
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	volumes := adapter.Volumes{
+		VolumeWithHost: map[string]string{
+			"/mount/efs": "myEFSVolume",
+		},
+	}
+	testParams := ConvertTaskDefParams{
+		TaskDefName:            projectName,
+		TaskRoleArn:            "",
+		RequiredCompatibilites: "",
+		Volumes:                &volumes,
+		ContainerConfigs:       containerConfigs,
+		ECSParams:              ecsParams,
+		ECSRegistryCreds:       nil,
+	}
+
+	_, err = ConvertToTaskDefinition(testParams)
+	assert.EqualError(t, err, "Transit encryption is required when using IAM access or an access point")
+}
+
+func TestConvertToTaskDefinitionWithEFSVolumeAPError(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "httpd",
+		MountPoints: []*ecs.MountPoint{{
+			SourceVolume:  aws.String("myEFSVolume"),
+			ContainerPath: aws.String("/mount/efs"),
+			ReadOnly:      aws.Bool(true),
+		}},
+	}
+	ecsParamsString := `version: 1
+task_definition:
+  efs_volumes:
+    - name: myEFSVolume
+      filesystem_id: fs-1234
+      root_directory: /
+      transit_encryption: "DISABLED"
+      access_point: "ap-1234"`
+
+	ecsParams, err := createTempECSParamsForTest(t, ecsParamsString)
+	assert.NoError(t, err)
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	volumes := adapter.Volumes{
+		VolumeWithHost: map[string]string{
+			"/mount/efs": "myEFSVolume",
+		},
+	}
+	testParams := ConvertTaskDefParams{
+		TaskDefName:            projectName,
+		TaskRoleArn:            "",
+		RequiredCompatibilites: "",
+		Volumes:                &volumes,
+		ContainerConfigs:       containerConfigs,
+		ECSParams:              ecsParams,
+		ECSRegistryCreds:       nil,
+	}
+
+	_, err = ConvertToTaskDefinition(testParams)
+	assert.EqualError(t, err, "Transit encryption is required when using IAM access or an access point")
+}
+
 func TestIsZeroForEmptyConfig(t *testing.T) {
 	containerConfig := &adapter.ContainerConfig{}
 
