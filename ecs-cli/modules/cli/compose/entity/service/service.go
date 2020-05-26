@@ -523,6 +523,14 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string, desir
 	if s.healthCheckGP != nil && s.loadBalancers == nil {
 		return nil, fmt.Errorf("--%v is only valid for services configured to use load balancers", flags.HealthCheckGracePeriodFlag)
 	}
+	// TODO: revert to "LATEST" when latest refers to 1.4.0
+	platformVersion := aws.String("LATEST")
+	if len(ecsParams.TaskDefinition.EFSVolumes) != 0 {
+		log.Warnf("Detected an EFS Volume in task definition %s", taskDefName)
+		log.Warn("Using Fargate platform version 1.4.0, which includes changes to the networking flows for VPC endpoint customers.")
+		log.Warn("Learn more: https://aws.amazon.com/blogs/containers/aws-fargate-launches-platform-version-1-4/")
+		platformVersion = aws.String("1.4.0")
+	}
 
 	createServiceInput := &ecs.CreateServiceInput{
 		DesiredCount:            aws.Int64(int64(desiredCount)), // Required unless DAEMON schedulingStrategy
@@ -532,6 +540,7 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string, desir
 		DeploymentConfiguration: s.deploymentConfig,
 		LoadBalancers:           s.loadBalancers,
 		Role:                    aws.String(s.role),
+		PlatformVersion:         platformVersion,
 	}
 
 	if schedulingStrategy != "" {

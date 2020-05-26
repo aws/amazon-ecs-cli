@@ -51,6 +51,7 @@ type EcsTaskDef struct {
 	ExecutionRole        string         `yaml:"task_execution_role"`
 	TaskSize             TaskSize       `yaml:"task_size"` // Needed to run FARGATE tasks
 	DockerVolumes        []DockerVolume `yaml:"docker_volumes"`
+	EFSVolumes           []EFSVolume    `yaml:"efs_volumes"`
 	PlacementConstraints []Constraint   `yaml:"placement_constraints"`
 }
 
@@ -73,6 +74,11 @@ type ContainerDef struct {
 	GPU                   string                 `yaml:"gpu"`
 }
 
+type Volume struct {
+	DockerVolumeConfig DockerVolume
+	EFSVolumeConfig    EFSVolume
+}
+
 type DockerVolume struct {
 	Name          string            `yaml:"name"`
 	Scope         *string           `yaml:"scope"`
@@ -80,6 +86,16 @@ type DockerVolume struct {
 	Driver        *string           `yaml:"driver"`
 	DriverOptions map[string]string `yaml:"driver_opts"`
 	Labels        map[string]string `yaml:"labels"`
+}
+
+type EFSVolume struct {
+	Name                  string  `yaml:"name"`
+	FileSystemID          *string `yaml:"filesystem_id"` // Required
+	RootDirectory         *string `yaml:"root_directory"`
+	TransitEncryption     *string `yaml:"transit_encryption"` // Optional. default: DISABLED. options: ENABLED or DISABLED
+	TransitEncryptionPort *int64  `yaml:"transit_encryption_port"`
+	AccessPointID         *string `yaml:"access_point"`
+	IAM                   *string `yaml:"iam"` // default: DISABLED. options: ENABLED or DISABLED
 }
 
 // Firelens holds all possible fields for logging via Firelens
