@@ -527,7 +527,6 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string, desir
 	// TODO: revert to "LATEST" when latest refers to 1.4.0
 	var platformVersion *string
 	if launchType == "FARGATE" {
-		platformVersion = aws.String("LATEST")
 		if len(ecsParams.TaskDefinition.EFSVolumes) != 0 {
 			log.Warnf("Detected an EFS Volume in task definition %s", taskDefName)
 			log.Warn("Using Fargate platform version 1.4.0, which includes changes to the networking flows for VPC endpoint customers.")
