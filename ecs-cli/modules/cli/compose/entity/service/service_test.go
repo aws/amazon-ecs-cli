@@ -301,7 +301,7 @@ func TestCreateWithTaskPlacement(t *testing.T) {
 					Type:  aws.String("binpack"),
 				},
 			}
-			assert.Nil(t, input.LaunchType, "launch type should be nil")
+			assert.Nil(t, input.PlatformVersion, "platform version should be nil for ec2")
 			assert.Len(t, placementConstraints, 2)
 			assert.Equal(t, expectedConstraints, placementConstraints, "Expected Placement Constraints to match")
 			assert.Len(t, placementStrategy, 2)
