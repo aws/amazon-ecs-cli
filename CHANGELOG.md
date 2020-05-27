@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.19.1
+* Bug - Don't set platform version for EC2 services (#1041)
+
 ## 1.19.0
 * Feature - Add support for EFS volume configuration in ecs-params (#1019)
 * Feature - Add support for multiple target groups attached to a single service (#1013)
