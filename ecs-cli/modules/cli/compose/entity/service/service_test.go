@@ -146,6 +146,25 @@ func ecsParamsWithFargateNetworkConfig() *utils.ECSParams {
 	}
 }
 
+func TestCreateWithEFS_EC2(t *testing.T) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+
+	createServiceTest(
+		t,
+		flagSet,
+		&config.CommandConfig{LaunchType: config.LaunchTypeEC2},
+		ecsParamsWithFargateEFSVolume(),
+		func(input *ecs.CreateServiceInput) {
+			launchType := input.LaunchType
+			assert.Equal(t, config.LaunchTypeEC2, aws.StringValue(launchType), "launch type is not ec2")
+			platformVersion := input.PlatformVersion
+
+			assert.Nil(t, platformVersion)
+		},
+		ecsSettingDisabled,
+	)
+}
+
 func TestCreateWithEFSFargate(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 
