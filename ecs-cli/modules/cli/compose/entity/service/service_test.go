@@ -302,6 +302,7 @@ func TestCreateWithTaskPlacement(t *testing.T) {
 				},
 			}
 			assert.Nil(t, input.PlatformVersion, "platform version should be nil for ec2")
+			assert.Nil(t, input.LaunchType, "Launch type should be nil for default case")
 			assert.Len(t, placementConstraints, 2)
 			assert.Equal(t, expectedConstraints, placementConstraints, "Expected Placement Constraints to match")
 			assert.Len(t, placementStrategy, 2)
