@@ -14,3 +14,16 @@ pull_request_rules:
         method: squash
         strict: smart
         strict_method: merge
+
+  - name: Automatically approve Dependabot PRs
+    conditions:
+      - base=master
+      - status-success=continuous-integration/travis-ci/pr
+      - author~=^dependabot(|-preview)\[bot\]$
+      - -title~=(WIP|wip)
+      - -label~=(WIP|do-not-merge)
+      - -merged
+      - -closed
+    actions:
+      merge:
+        method: merge
