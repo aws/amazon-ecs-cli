@@ -53,7 +53,7 @@
 
 [[constraint]]
   name = "github.com/golang/mock"
-  revision = "837231f7bb377b365da147e5ff6c031b12f0dfaa"
+  version = "^1.4.3"
 
 [[constraint]]
   name = "github.com/pkg/errors"
