@@ -9,6 +9,7 @@ pull_request_rules:
       - -title~=(WIP|wip)
       - -merged
       - -closed
+      - -label~=(WIP|do-not-merge)
     actions:
       merge:
         method: squash

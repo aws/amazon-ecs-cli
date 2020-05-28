@@ -29,7 +29,7 @@
   revision = "cd527374f1e5bff4938207604a14f2e38a9cf512"
 
 [[projects]]
-  digest = "1:d15b8b6f9a3325a7476a4f336878306e6370708ab62a52da15db68d4aa02e4db"
+  digest = "1:85c8fe506c365bcccac9fa75b898e6d7273403d7c4e159054442c64953cfa220"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -95,8 +95,8 @@
     "service/sts/stsiface",
   ]
   pruneopts = "UT"
-  revision = "013e43dff3a1cd1c7778d7b131988a66a543598c"
-  version = "v1.30.17"
+  revision = "dec680944007a3cd6b2b2a54f6a28c1539484be2"
+  version = "v1.31.5"
 
 [[projects]]
   digest = "1:026cf6793eeccaa96eab18497993ce6b4d9e11fd5bfdb4701d832afe3ea6b17e"
@@ -127,7 +127,7 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:ae25b86119af299d4f1c95a91180580e3ab5a4fd0293ec423dac1c304050a944"
+  digest = "1:faa193fc781d5b85ee654b96016623c4e39d1c5eca54e5b8b33ef034b9ede933"
   name = "github.com/docker/cli"
   packages = [
     "cli/compose/interpolation",
@@ -138,8 +138,8 @@
     "opts",
   ]
   pruneopts = "UT"
-  revision = "1752eb3626e3a17b0881135a9402e57728208fed"
-  version = "v18.09.9"
+  revision = "ab108430b26834f59f6fa72328cc77cc6b6ebf54"
+  version = "v19.03.9"
 
 [[projects]]
   digest = "1:4ddc17aeaa82cb18c5f0a25d7c253a10682f518f4b2558a82869506eec223d76"
