@@ -25,7 +25,7 @@
 
 [[constraint]]
   name = "github.com/aws/aws-sdk-go"
-  version = "^1.29.0"
+  version = "^1.31.5"
 
 [[constraint]]
   name = "github.com/awslabs/amazon-ecr-credential-helper"
@@ -49,7 +49,7 @@
 
 [[constraint]]
   name = "github.com/go-ini/ini"
-  revision = "32e4c1e6bc4e7d0d8451aa6b75200d19e37a536a"
+  version = "^1.56.0"
 
 [[constraint]]
   name = "github.com/golang/mock"

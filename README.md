@@ -503,6 +503,17 @@ task_definition:
         string: string
       labels:
         string: string
+  efs_volumes:
+     - name: string
+       filesystem_id: string
+       root_directory: string
+       transit_encryption: string       // Valid values: "ENABLED" | "DISABLED" (default). Required if 
+                                        //   IAM is enabled or an access point ID is  
+                                        //   specified
+       transit_encryption_port: int64   // required if transit_encryption is enabled
+       access_point: string
+       iam: string                      // Valid values: "ENABLED" | "DISABLED" (default). Enable IAM 
+                                        //   authentication for FS access. 
   placement_constraints:
     - type: string                      // Valid values: "memberOf"
       expression: string
@@ -572,6 +583,8 @@ Fields listed under `task_definition` correspond to fields that will be included
     * `name` is the name of the logging option in which the secret will be stored.
 
 * `docker_volumes` allows you to create docker volumes. The name key is required, and `scope`, `autoprovision`, `driver`, `driver_opts` and `labels` correspond with the fields under [dockerVolumeConfiguration](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-volumes.html) in an ECS Task Definition. Volumes defined with the `docker_volumes` key can be referenced in your compose file by name, even if they were not also specified in the compose file.
+
+* `efs_volumes` allows you to mount EFS volumes to your container. The name and EFS filesystem ID are required. EFS volumes can be referenced by name in your compose file like `docker_volumes`. 
 
 * `task_execution_role` should be the ARN of an IAM role. **NOTE**: This field is required to enable ECS Tasks to be configured with Cloudwatch Logs, or to pull images from ECR for your tasks.
 
@@ -690,6 +703,30 @@ run_params:
       - expression: attribute:ecs.instance-type =~ t2.*
         type: memberOf
       - type: distinctInstance`
+```
+
+Example `ecs-params.yml` with EFS volume:
+
+```
+version: 1
+task_definition:
+  task_execution_role: ecsTaskExecutionRole
+  ecs_network_mode: awsvpc
+  task_size:
+    mem_limit: 1.0GB
+    cpu_limit: 512
+  efs_volumes:
+    - name: "myEFSVolume"
+      filesystem_id: "fs-fedc8554"
+run_params:
+  network_configuration:
+    awsvpc_configuration:
+      subnets:
+        - "subnet-0b24acd73f534bb4f"
+        - "subnet-0f0e20022e2cccd67"
+      security_groups:
+        - "sg-0fb24ebc7dd5254b0"
+      assign_public_ip: "ENABLED"
 ```
 
 You can then start a task by calling:

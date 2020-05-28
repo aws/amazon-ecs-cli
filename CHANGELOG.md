@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.19.1
+* Bug - Don't set platform version for EC2 services (#1041)
+
+## 1.19.0
+* Feature - Add support for EFS volume configuration in ecs-params (#1019)
+* Feature - Add support for multiple target groups attached to a single service (#1013)
+* Bug - Correctly parse secret names when name includes nested slashes (#1012)
+* Bug - Fix a bug where valid instance types were rejected by CFN (#1007)
+* Enhancement - Add documentation for homebrew installation (#1015)
+
 ## 1.18.1
 * Bug - Correctly parse value specified in --tags flag (#959)
 * Bug - `compose up` now only makes one API call, reducing errors caused by a race condition (#988)

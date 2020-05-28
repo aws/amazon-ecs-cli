@@ -49,6 +49,7 @@ func (m *MockEC2Client) EXPECT() *MockEC2ClientMockRecorder {
 
 // DescribeInstanceTypeOfferings mocks base method
 func (m *MockEC2Client) DescribeInstanceTypeOfferings(arg0 string) ([]string, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeInstanceTypeOfferings", arg0)
 	ret0, _ := ret[0].([]string)
 	ret1, _ := ret[1].(error)
@@ -57,11 +58,13 @@ func (m *MockEC2Client) DescribeInstanceTypeOfferings(arg0 string) ([]string, er
 
 // DescribeInstanceTypeOfferings indicates an expected call of DescribeInstanceTypeOfferings
 func (mr *MockEC2ClientMockRecorder) DescribeInstanceTypeOfferings(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstanceTypeOfferings", reflect.TypeOf((*MockEC2Client)(nil).DescribeInstanceTypeOfferings), arg0)
 }
 
 // DescribeInstances mocks base method
 func (m *MockEC2Client) DescribeInstances(arg0 []*string) (map[string]*ec2.Instance, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeInstances", arg0)
 	ret0, _ := ret[0].(map[string]*ec2.Instance)
 	ret1, _ := ret[1].(error)
@@ -70,11 +73,13 @@ func (m *MockEC2Client) DescribeInstances(arg0 []*string) (map[string]*ec2.Insta
 
 // DescribeInstances indicates an expected call of DescribeInstances
 func (mr *MockEC2ClientMockRecorder) DescribeInstances(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstances", reflect.TypeOf((*MockEC2Client)(nil).DescribeInstances), arg0)
 }
 
 // DescribeNetworkInterfaces mocks base method
 func (m *MockEC2Client) DescribeNetworkInterfaces(arg0 []*string) ([]*ec2.NetworkInterface, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeNetworkInterfaces", arg0)
 	ret0, _ := ret[0].([]*ec2.NetworkInterface)
 	ret1, _ := ret[1].(error)
@@ -83,5 +88,6 @@ func (m *MockEC2Client) DescribeNetworkInterfaces(arg0 []*string) ([]*ec2.Networ
 
 // DescribeNetworkInterfaces indicates an expected call of DescribeNetworkInterfaces
 func (mr *MockEC2ClientMockRecorder) DescribeNetworkInterfaces(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeNetworkInterfaces", reflect.TypeOf((*MockEC2Client)(nil).DescribeNetworkInterfaces), arg0)
 }

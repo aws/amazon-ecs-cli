@@ -29,7 +29,7 @@
   revision = "cd527374f1e5bff4938207604a14f2e38a9cf512"
 
 [[projects]]
-  digest = "1:dc0e7e7351b6ad73a9100edbcf040ea2f39a7de284dd8e61f7bd3d3973a5f120"
+  digest = "1:85c8fe506c365bcccac9fa75b898e6d7273403d7c4e159054442c64953cfa220"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -95,8 +95,8 @@
     "service/sts/stsiface",
   ]
   pruneopts = "UT"
-  revision = "a9494254b255c4db77d30a6c0a23a82390063845"
-  version = "v1.29.4"
+  revision = "dec680944007a3cd6b2b2a54f6a28c1539484be2"
+  version = "v1.31.5"
 
 [[projects]]
   digest = "1:026cf6793eeccaa96eab18497993ce6b4d9e11fd5bfdb4701d832afe3ea6b17e"
@@ -247,11 +247,12 @@
   revision = "4a934a8fd3ec3d4f84d9dcd8b47e7b277918c366"
 
 [[projects]]
-  digest = "1:50772cf1f376b08cb57b4e8e9225775d9f9f4aad8487313afcb66846ceaa5d4c"
+  digest = "1:2d32701bd465142606b3a84562c6c63b2950f0fb1bf82f231116a7b89de40e2d"
   name = "github.com/go-ini/ini"
   packages = ["."]
   pruneopts = "UT"
-  revision = "32e4c1e6bc4e7d0d8451aa6b75200d19e37a536a"
+  revision = "ad8a10643d24d67f464955e42b23e0d42d60fcb4"
+  version = "v1.56.0"
 
 [[projects]]
   digest = "1:fecc1dbffae2bc975f8412a4871f298b3de456dafb3598e87cb2c34137395987"

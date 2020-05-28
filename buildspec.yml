@@ -6,29 +6,34 @@ phases:
       golang: 1.13
   pre_build:
     commands:
-      # GOPATH is setup like the following in Codebuild standard 2.0 image
+      # GOPATH is setup like the following in Codebuild standard 4.0 image
       # /go:/codebuild/output/src<some numbers>
-      # so we copy all the source code to the appropriate location before
-      # invoking any go command
+      # so we copy all the source code to the go root install location before
+      # invoking any go command. 
+      # this also allows us to build using dep while the transition to go modules is ongoing
       - ls -lah
       - mkdir -p /go/src/github.com/aws/amazon-ecs-cli
       - cp -R . /go/src/github.com/aws/amazon-ecs-cli/
-      - |
-        env -i PATH=$PATH GOPATH=`go env GOPATH` GOROOT=`go env GOROOT` GOCACHE=`go env GOCACHE` \
-        go test -race -v -cover github.com/aws/amazon-ecs-cli/ecs-cli/modules/...
+      - cd /go/src/github.com/aws/amazon-ecs-cli
+      # At least one unit test expects no region to be set in the environment. Unset for testing, then reset.
+      - export AWS_REGION_BAK=$AWS_REGION && export AWS_REGION=
+      - export AWS_DEFAULT_REGION_BAK=$AWS_DEFAULT_REGION && export AWS_DEFAULT_REGION=
+      - go test -race -v -cover ./ecs-cli/modules/...
+      - export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION_BAK
+      - export AWS_REGION=$AWS_REGION_BAK
       # make a copy of the version.go because `go run gen/version-gen.go` will
       # modify it.
-      - cp /go/src/github.com/aws/amazon-ecs-cli/ecs-cli/modules/version/version.go /go/src/github.com/aws/amazon-ecs-cli/ecs-cli/modules/version/_version.go
+      - cp ./ecs-cli/modules/version/version.go ./ecs-cli/modules/version/_version.go
       # need to cd into the version package because version-gen.go assumes the relative
       # location of the VERSION file.
-      - cd /go/src/github.com/aws/amazon-ecs-cli/ecs-cli/modules/version/
+      - cd ./ecs-cli/modules/version/
       # since we are running the go program inside a Linux container, has to hardcode
       # the GOOS and GOARCH correspondinly regardless of what the host OS is.
       - GOOS=linux GOARCH=amd64 ECS_RELEASE=cleanbuild go run gen/version-gen.go
   build:
     commands:
-      - echo "cd into $CODEBUILD_SRC_DIR"
-      - cd $CODEBUILD_SRC_DIR
+      - echo "cd into go root directory"
+      - cd /go/src/github.com/aws/amazon-ecs-cli
       - echo "Compilation context:"
       - echo "CODEBUILD_SOURCE_VERSION=$CODEBUILD_SOURCE_VERSION"
       - VERSION=`git tag --points-at HEAD`
@@ -39,6 +44,12 @@ phases:
       - CHECKED_IN_VERSION=`cat /go/src/github.com/aws/amazon-ecs-cli/VERSION`
       - echo "VERSION_FILE=$CHECKED_IN_VERSION"
       - echo "GOPATH=$GOPATH"
+      # Check if there is a tag currently pointing at the head and exit if not. 
+      - |
+        if [ -z "$VERSION" ]; then
+          echo "the current commit is not tagged. Stopping the build stage..."
+          exit 1
+        fi
       - |
         # $CHECKED_IN_VERSION is not prefixed with "v", only the semantic version number,
         # such as 1.17.0 instead of v1.17.0, which is what normal version tags look like.
@@ -46,10 +57,12 @@ phases:
           echo "the VERSION file contains a version number that is different from the git tag. file: $CHECKED_IN_VERSION, tag: $VERSION"  
           exit 1
         fi
-      - GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o aws/amazon-ecs-cli/ecs-cli-windows-amd64-$VERSION.exe github.com/aws/amazon-ecs-cli/ecs-cli/
-      - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION github.com/aws/amazon-ecs-cli/ecs-cli/
-      - GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o aws/amazon-ecs-cli/ecs-cli-darwin-amd64-$VERSION github.com/aws/amazon-ecs-cli/ecs-cli/
+      - GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o $CODEBUILD_SRC_DIR/aws/amazon-ecs-cli/ecs-cli-windows-amd64-$VERSION.exe ./ecs-cli/
+      - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o $CODEBUILD_SRC_DIR/aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION ./ecs-cli/
+      - GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o $CODEBUILD_SRC_DIR/aws/amazon-ecs-cli/ecs-cli-darwin-amd64-$VERSION ./ecs-cli/
     finally:
+      - echo "CD into codebuild src directory for last phase"
+      - cd $CODEBUILD_SRC_DIR
       - echo "built artifacts:"
       - ls -lah aws/amazon-ecs-cli/
       - ./aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION --version

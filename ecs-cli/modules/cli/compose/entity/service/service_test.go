@@ -146,6 +146,70 @@ func ecsParamsWithFargateNetworkConfig() *utils.ECSParams {
 	}
 }
 
+func TestCreateWithEFS_EC2(t *testing.T) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+
+	createServiceTest(
+		t,
+		flagSet,
+		&config.CommandConfig{LaunchType: config.LaunchTypeEC2},
+		ecsParamsWithFargateEFSVolume(),
+		func(input *ecs.CreateServiceInput) {
+			launchType := input.LaunchType
+			assert.Equal(t, config.LaunchTypeEC2, aws.StringValue(launchType), "launch type is not ec2")
+			platformVersion := input.PlatformVersion
+
+			assert.Nil(t, platformVersion)
+		},
+		ecsSettingDisabled,
+	)
+}
+
+func TestCreateWithEFSFargate(t *testing.T) {
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+
+	createServiceTest(
+		t,
+		flagSet,
+		&config.CommandConfig{LaunchType: config.LaunchTypeFargate},
+		ecsParamsWithFargateEFSVolume(),
+		func(input *ecs.CreateServiceInput) {
+			launchType := input.LaunchType
+			assert.Equal(t, config.LaunchTypeFargate, aws.StringValue(launchType), "launch type is not fargate")
+			platformVersion := input.PlatformVersion
+			assert.Equal(t, aws.String("1.4.0"), platformVersion)
+		},
+		ecsSettingDisabled,
+	)
+}
+
+func ecsParamsWithFargateEFSVolume() *utils.ECSParams {
+	return &utils.ECSParams{
+		TaskDefinition: utils.EcsTaskDef{
+			ExecutionRole: "arn:aws:iam::123456789012:role/fargate_role",
+			NetworkMode:   "awsvpc",
+			TaskSize: utils.TaskSize{
+				Cpu:    "512",
+				Memory: "1GB",
+			},
+			EFSVolumes: []utils.EFSVolume{
+				{
+					Name:         "myVolume",
+					FileSystemID: aws.String("fs-1234"),
+				},
+			},
+		},
+		RunParams: utils.RunParams{
+			NetworkConfiguration: utils.NetworkConfiguration{
+				AwsVpcConfiguration: utils.AwsVpcConfiguration{
+					Subnets:        []string{"sg-bafff1ed", "sg-c0ffeefe"},
+					AssignPublicIp: utils.Enabled,
+				},
+			},
+		},
+	}
+}
+
 func TestCreateFargate(t *testing.T) {
 	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
 
@@ -221,7 +285,7 @@ func TestCreateEC2Explicitly(t *testing.T) {
 		func(input *ecs.CreateServiceInput) {
 			launchType := input.LaunchType
 			assert.Equal(t, "EC2", aws.StringValue(launchType))
-
+			assert.Nil(t, input.PlatformVersion, "platform version is not nil")
 			networkConfig := input.NetworkConfiguration
 			assert.Nil(t, networkConfig, "NetworkConfiguration should be nil")
 		},
@@ -256,7 +320,8 @@ func TestCreateWithTaskPlacement(t *testing.T) {
 					Type:  aws.String("binpack"),
 				},
 			}
-
+			assert.Nil(t, input.PlatformVersion, "platform version should be nil for ec2")
+			assert.Nil(t, input.LaunchType, "Launch type should be nil for default case")
 			assert.Len(t, placementConstraints, 2)
 			assert.Equal(t, expectedConstraints, placementConstraints, "Expected Placement Constraints to match")
 			assert.Len(t, placementStrategy, 2)

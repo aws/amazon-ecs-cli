@@ -1,5 +1,4 @@
 version: 0.2
-
 phases:
   install:
     runtime-versions:
@@ -8,8 +7,13 @@ phases:
     commands:
       - mkdir -p /go/src/github.com/aws/amazon-ecs-cli
       - cp -R . /go/src/github.com/aws/amazon-ecs-cli/
-      - cd /go/src/github.com/aws/amazon-ecs-cli/
   build:
     commands:
-      - make integ-test
+      - cd /go/src/github.com/aws/amazon-ecs-cli/
+      # Replicate make integ-test target by installing and building binaries
+      - echo "installing dependencies..."
+      - go get github.com/wadey/gocovmerge
+      - echo "building test binary..."
+      - go test -coverpkg ./ecs-cli/modules/... -c -tags testrunmain -o ./bin/local/ecs-cli.test ./ecs-cli
+      - make integ-test-run-with-coverage
       - ./bin/local/ecs-cli.test
