@@ -127,7 +127,7 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:ae25b86119af299d4f1c95a91180580e3ab5a4fd0293ec423dac1c304050a944"
+  digest = "1:faa193fc781d5b85ee654b96016623c4e39d1c5eca54e5b8b33ef034b9ede933"
   name = "github.com/docker/cli"
   packages = [
     "cli/compose/interpolation",
@@ -138,8 +138,8 @@
     "opts",
   ]
   pruneopts = "UT"
-  revision = "1752eb3626e3a17b0881135a9402e57728208fed"
-  version = "v18.09.9"
+  revision = "ab108430b26834f59f6fa72328cc77cc6b6ebf54"
+  version = "v19.03.9"
 
 [[projects]]
   digest = "1:4ddc17aeaa82cb18c5f0a25d7c253a10682f518f4b2558a82869506eec223d76"
@@ -262,11 +262,12 @@
   revision = "160de10b2537169b5ae3e7e221d28269ef40d311"
 
 [[projects]]
-  digest = "1:07ba1bc652c063a17b0ab080ea2293eb938f8fc75b2fafd509431dfa33938b52"
+  digest = "1:7ae311278f7ccaa724de8f2cdec0a507ba3ee6dea8c77237e8157bcf64b0f28b"
   name = "github.com/golang/mock"
   packages = ["gomock"]
   pruneopts = "UT"
-  revision = "837231f7bb377b365da147e5ff6c031b12f0dfaa"
+  revision = "3a35fb6e3e18b9dbfee291262260dee7372d2a92"
+  version = "v1.4.3"
 
 [[projects]]
   digest = "1:3cc8d6f7489eff4cc78ce9fd6591978d270a55518bbbe66628eb7eb06cbf899b"

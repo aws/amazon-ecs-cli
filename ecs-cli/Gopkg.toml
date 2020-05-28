@@ -53,7 +53,7 @@
 
 [[constraint]]
   name = "github.com/golang/mock"
-  revision = "837231f7bb377b365da147e5ff6c031b12f0dfaa"
+  version = "^1.4.3"
 
 [[constraint]]
   name = "github.com/pkg/errors"
@@ -78,7 +78,7 @@
 
 [[constraint]]
   name = "github.com/docker/cli"
-  version = "~18.09.5"
+  version = "~19.03.9"
 
 [[override]]
   name = "github.com/docker/docker"
