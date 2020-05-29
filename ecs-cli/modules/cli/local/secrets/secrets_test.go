@@ -31,6 +31,10 @@ func TestName(t *testing.T) {
 			input:  NewContainerSecret("mongodb", "DB_PASSWORD", "arn:aws:secretsmanager:us-east-1:11111111111:secret:alpha/efe/local"),
 			wanted: "mongodb_DB_PASSWORD",
 		},
+		"complex": {
+			input:  NewContainerSecret("mongodb", "DB_PASSWORD", "arn:aws:secretsmanager:us-east-1:11111111111:secret:alpha/efe/local/mongo/aws"),
+			wanted: "mongodb_DB_PASSWORD",
+		},
 	}
 
 	for name, tc := range testCases {

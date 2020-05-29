@@ -45,7 +45,7 @@ func TestSSMDecrypter_DecryptSecret(t *testing.T) {
 
 				gomock.InOrder(
 					defaultClient.EXPECT().GetParameter(&ssm.GetParameterInput{
-						Name:           aws.String("TEST_DB_PASSWORD"),
+						Name:           aws.String("/TEST_DB_PASSWORD"),
 						WithDecryption: aws.Bool(true),
 					}).Return(&ssm.GetParameterOutput{
 						Parameter: &ssm.Parameter{
@@ -74,11 +74,42 @@ func TestSSMDecrypter_DecryptSecret(t *testing.T) {
 
 				gomock.InOrder(
 					pdxClient.EXPECT().GetParameter(&ssm.GetParameterInput{
-						Name:           aws.String("TEST_DB_PASSWORD"),
+						Name:           aws.String("/TEST_DB_PASSWORD"),
 						WithDecryption: aws.Bool(true),
 					}).Return(&ssm.GetParameterOutput{
 						Parameter: &ssm.Parameter{
 							Value: aws.String("what??"),
+						},
+					}, nil),
+
+					iadClient.EXPECT().GetParameter(gomock.Any()).Times(0), // Should not have called IAD
+				)
+
+				return &SSMDecrypter{
+					SSMAPI:  iadClient,
+					clients: m,
+				}
+			},
+		},
+		"with ARN and forward slashes": {
+			input:        "arn:aws:ssm:us-west-2:11111111111:parameter/TEST/DB/PASSWORD",
+			wantedSecret: "ponies",
+			setupDecrypter: func(ctrl *gomock.Controller) *SSMDecrypter {
+				iadClient := mock_ssmiface.NewMockSSMAPI(ctrl)
+				pdxClient := mock_ssmiface.NewMockSSMAPI(ctrl)
+
+				m := make(map[region]ssmiface.SSMAPI)
+				m["default"] = iadClient
+				m["us-east-1"] = iadClient
+				m["us-west-2"] = pdxClient
+
+				gomock.InOrder(
+					pdxClient.EXPECT().GetParameter(&ssm.GetParameterInput{
+						Name:           aws.String("/TEST/DB/PASSWORD"),
+						WithDecryption: aws.Bool(true),
+					}).Return(&ssm.GetParameterOutput{
+						Parameter: &ssm.Parameter{
+							Value: aws.String("ponies"),
 						},
 					}, nil),
 

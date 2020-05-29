@@ -49,6 +49,7 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 
 // CreateRepository mocks base method
 func (m *MockClient) CreateRepository(arg0 string) (string, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateRepository", arg0)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
@@ -57,11 +58,13 @@ func (m *MockClient) CreateRepository(arg0 string) (string, error) {
 
 // CreateRepository indicates an expected call of CreateRepository
 func (mr *MockClientMockRecorder) CreateRepository(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRepository", reflect.TypeOf((*MockClient)(nil).CreateRepository), arg0)
 }
 
 // GetAuthorizationToken mocks base method
 func (m *MockClient) GetAuthorizationToken(arg0 string) (*ecr.Auth, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAuthorizationToken", arg0)
 	ret0, _ := ret[0].(*ecr.Auth)
 	ret1, _ := ret[1].(error)
@@ -70,11 +73,13 @@ func (m *MockClient) GetAuthorizationToken(arg0 string) (*ecr.Auth, error) {
 
 // GetAuthorizationToken indicates an expected call of GetAuthorizationToken
 func (mr *MockClientMockRecorder) GetAuthorizationToken(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAuthorizationToken", reflect.TypeOf((*MockClient)(nil).GetAuthorizationToken), arg0)
 }
 
 // GetAuthorizationTokenByID mocks base method
 func (m *MockClient) GetAuthorizationTokenByID(arg0 string) (*ecr.Auth, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAuthorizationTokenByID", arg0)
 	ret0, _ := ret[0].(*ecr.Auth)
 	ret1, _ := ret[1].(error)
@@ -83,11 +88,13 @@ func (m *MockClient) GetAuthorizationTokenByID(arg0 string) (*ecr.Auth, error) {
 
 // GetAuthorizationTokenByID indicates an expected call of GetAuthorizationTokenByID
 func (mr *MockClientMockRecorder) GetAuthorizationTokenByID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAuthorizationTokenByID", reflect.TypeOf((*MockClient)(nil).GetAuthorizationTokenByID), arg0)
 }
 
 // GetImages mocks base method
 func (m *MockClient) GetImages(arg0 []*string, arg1, arg2 string, arg3 ecr.ProcessImageDetails) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetImages", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -95,11 +102,13 @@ func (m *MockClient) GetImages(arg0 []*string, arg1, arg2 string, arg3 ecr.Proce
 
 // GetImages indicates an expected call of GetImages
 func (mr *MockClientMockRecorder) GetImages(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImages", reflect.TypeOf((*MockClient)(nil).GetImages), arg0, arg1, arg2, arg3)
 }
 
 // RepositoryExists mocks base method
 func (m *MockClient) RepositoryExists(arg0 string) bool {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RepositoryExists", arg0)
 	ret0, _ := ret[0].(bool)
 	return ret0
@@ -107,5 +116,6 @@ func (m *MockClient) RepositoryExists(arg0 string) bool {
 
 // RepositoryExists indicates an expected call of RepositoryExists
 func (mr *MockClientMockRecorder) RepositoryExists(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepositoryExists", reflect.TypeOf((*MockClient)(nil).RepositoryExists), arg0)
 }
