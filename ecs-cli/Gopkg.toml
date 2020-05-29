@@ -29,7 +29,7 @@
 
 [[constraint]]
   name = "github.com/awslabs/amazon-ecr-credential-helper"
-  version = "0.3.0"
+  version = "0.4.0"
 
 [[constraint]]
   name = "github.com/docker/go-units"

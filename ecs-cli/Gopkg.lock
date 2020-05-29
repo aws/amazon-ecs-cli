@@ -99,7 +99,7 @@
   version = "v1.31.5"
 
 [[projects]]
-  digest = "1:026cf6793eeccaa96eab18497993ce6b4d9e11fd5bfdb4701d832afe3ea6b17e"
+  digest = "1:574f8d48476ebc5929d19f48eeb45fc02d79b11ff24591d6ff1ad40d8c98e81a"
   name = "github.com/awslabs/amazon-ecr-credential-helper"
   packages = [
     "ecr-login/api",
@@ -108,8 +108,8 @@
     "ecr-login/version",
   ]
   pruneopts = "UT"
-  revision = "798bf2536dbe8a8d297e0b9ce5d61a8ef3df7775"
-  version = "v0.3.0"
+  revision = "1a5791b236421b509fbc30502211b1de51ca8e30"
+  version = "v0.4.0"
 
 [[projects]]
   digest = "1:fc8dbcc2a5de7c093e167828ebbdf551641761d2ad75431d3a167d467a264115"
