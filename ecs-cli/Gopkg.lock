@@ -343,11 +343,12 @@
   revision = "f376b8033d2caae5207de9be1ee4d4a695886af1"
 
 [[projects]]
-  digest = "1:5c77ec0df6475d5fc9bc636ebd00a2585310c4e44c8a30c83f0f5f0c4b53d717"
+  digest = "1:9e1d37b58d17113ec3cb5608ac0382313c5b59470b94ed97d0976e69c7022314"
   name = "github.com/pkg/errors"
   packages = ["."]
   pruneopts = "UT"
-  revision = "248dadf4e9068a0b3e79f02ed0a610d935de5302"
+  revision = "614d223910a179a466c1767a985424175c39b465"
+  version = "v0.9.1"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
