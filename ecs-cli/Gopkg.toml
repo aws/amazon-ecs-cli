@@ -82,5 +82,5 @@
 
 [[override]]
   name = "github.com/docker/docker"
-  revision = "8e435b8279f2af3e0cebd73fa9e25ca1bb26004e"
+  version = "^19.03.10"
   source = "https://github.com/moby/moby.git"
