@@ -59,6 +59,7 @@ phases:
         fi
       - GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o $CODEBUILD_SRC_DIR/aws/amazon-ecs-cli/ecs-cli-windows-amd64-$VERSION.exe ./ecs-cli/
       - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o $CODEBUILD_SRC_DIR/aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION ./ecs-cli/
+      - GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o $CODEBUILD_SRC_DIR/aws/amazon-ecs-cli/ecs-cli-linux-arm64-$VERSION ./ecs-cli/
       - GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags "-s" -o $CODEBUILD_SRC_DIR/aws/amazon-ecs-cli/ecs-cli-darwin-amd64-$VERSION ./ecs-cli/
     finally:
       - echo "CD into codebuild src directory for last phase"
@@ -73,13 +74,16 @@ phases:
       - echo "Creating latest artifacts..."
       - cp aws/amazon-ecs-cli/ecs-cli-windows-amd64-$VERSION.exe aws/amazon-ecs-cli/ecs-cli-windows-amd64-latest.exe
       - cp aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION aws/amazon-ecs-cli/ecs-cli-linux-amd64-latest
+      - cp aws/amazon-ecs-cli/ecs-cli-linux-arm64-$VERSION aws/amazon-ecs-cli/ecs-cli-linux-arm64-latest
       - cp aws/amazon-ecs-cli/ecs-cli-darwin-amd64-$VERSION aws/amazon-ecs-cli/ecs-cli-darwin-amd64-latest
       - MANIFESTFILE="$GIT_COMMIT_ID.manifest"
       - echo "aws/amazon-ecs-cli/ecs-cli-windows-amd64-$VERSION.exe" >> $MANIFESTFILE
       - echo "aws/amazon-ecs-cli/ecs-cli-linux-amd64-$VERSION" >> $MANIFESTFILE
+      - echo "aws/amazon-ecs-cli/ecs-cli-linux-arm64-$VERSION" >> $MANIFESTFILE
       - echo "aws/amazon-ecs-cli/ecs-cli-darwin-amd64-$VERSION" >> $MANIFESTFILE
       - echo "aws/amazon-ecs-cli/ecs-cli-windows-amd64-latest.exe" >> $MANIFESTFILE
       - echo "aws/amazon-ecs-cli/ecs-cli-linux-amd64-latest" >> $MANIFESTFILE
+      - echo "aws/amazon-ecs-cli/ecs-cli-linux-arm64-latest" >> $MANIFESTFILE
       - echo "aws/amazon-ecs-cli/ecs-cli-darwin-amd64-latest" >> $MANIFESTFILE
 artifacts:
   files:
