@@ -292,6 +292,14 @@
   revision = "c2b33e84"
 
 [[projects]]
+  digest = "1:09cb61dc19af93deae01587e2fdb1c081e0bf48f1a5ad5fa24f48750dc57dce8"
+  name = "github.com/konsorten/go-windows-terminal-sequences"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "edb144dfd453055e1e49a3d8b410a660b5a87613"
+  version = "v1.0.3"
+
+[[projects]]
   digest = "1:7efe48dea4db6b35dcc15e15394b627247e5b3fb814242de986b746ba8e0abf0"
   name = "github.com/mattn/go-shellwords"
   packages = ["."]
@@ -359,12 +367,12 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:5622116f2c79239f2d25d47b881e14f96a8b8c17b63b8a8326a38ee1a332b007"
+  digest = "1:05eebdd5727fea23083fce0d98d307d70c86baed644178e81608aaa9f09ea469"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   pruneopts = "UT"
-  revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
-  version = "v1.0.4"
+  revision = "60c74ad9be0d874af0ab0daef6ab07c5c5911f0d"
+  version = "v1.6.0"
 
 [[projects]]
   digest = "1:49b1087f45b1e49687da2f8eb49d9e07919d4bad3813344251c722141dcb31d6"
@@ -404,13 +412,6 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "e18f0065e8c148fcf567ac43a3f8f5b66ac0720b"
-
-[[projects]]
-  digest = "1:707ec3bb6ccc1cd330b8789467fa6cd8dad40f63fed028ba777a6c2ca13a9838"
-  name = "golang.org/x/crypto"
-  packages = ["ssh/terminal"]
-  pruneopts = "UT"
-  revision = "5f55bce93ad2c89f411e009659bb1fd83da36e7b"
 
 [[projects]]
   digest = "1:7381f7ed9f50730de3e3ba2086fabdf60bfade9b61c75e4f61edcf0ad4088caf"
