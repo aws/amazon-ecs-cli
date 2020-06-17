@@ -69,8 +69,8 @@
 
 [[constraint]]
   name = "github.com/urfave/cli"
+  version = "^1.22.0"
   # version = "1.19.1"
-  revision = "2526b57c56f30b50466c96c4133b1a4ad0f0191f"
 
 [[constraint]]
   name = "gopkg.in/yaml.v2"
