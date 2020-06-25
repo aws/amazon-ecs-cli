@@ -1609,8 +1609,10 @@ func TestUpdateExistingServiceWithServiceDiscoveryFlag(t *testing.T) {
 		ServiceName:    aws.String(serviceName),
 	}
 
+	expectedInput := getDefaultUpdateInput()
+	expectedInput.serviceName = serviceName
 	// call tests
-	updateServiceExceptionTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, existingService)
+	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService, true)
 }
 
 ///////////////////////////////////////
