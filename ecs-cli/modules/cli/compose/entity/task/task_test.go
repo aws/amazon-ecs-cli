@@ -15,7 +15,6 @@ package task
 
 import (
 	"flag"
-	"fmt"
 	"testing"
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
@@ -402,7 +401,7 @@ func TestBuildRunTaskInput_EFSFargate(t *testing.T) {
 	context := &context.ECSContext{
 		ECSClient:  mockEcs,
 		CLIContext: cliContext,
-		ECSParams:  ecsParamsWithEFSVolume(launchType),
+		ECSParams:  ecsParamsWithEFSVolume(),
 		CommandConfig: &config.CommandConfig{
 			Cluster:    cluster,
 			LaunchType: launchType,
@@ -438,7 +437,7 @@ func TestBuildRunTaskInput_EFSEC2(t *testing.T) {
 	context := &context.ECSContext{
 		ECSClient:  mockEcs,
 		CLIContext: cliContext,
-		ECSParams:  ecsParamsWithEFSVolume(launchType),
+		ECSParams:  ecsParamsWithEFSVolume(),
 		CommandConfig: &config.CommandConfig{
 			Cluster:    cluster,
 			LaunchType: launchType,
@@ -460,10 +459,10 @@ func TestBuildRunTaskInput_EFSEC2(t *testing.T) {
 		assert.Nil(t, req.Overrides)
 	}
 }
-func ecsParamsWithEFSVolume(launchType string) *utils.ECSParams {
+func ecsParamsWithEFSVolume() *utils.ECSParams {
 	return &utils.ECSParams{
 		TaskDefinition: utils.EcsTaskDef{
-			ExecutionRole: fmt.Sprintf("arn:aws:iam::123456789012:role/%s_role", launchType),
+			ExecutionRole: "arn:aws:iam::123456789012:role/my_execution_role",
 			NetworkMode:   "awsvpc",
 			TaskSize: utils.TaskSize{
 				Cpu:    "512",
