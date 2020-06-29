@@ -34,17 +34,17 @@ import (
 // Task type is placeholder for a single task definition and its cache
 // and it performs compose operations at a task definition level
 type Task struct {
-	taskDef     *ecs.TaskDefinition
-	cache       cache.Cache
-	ecsContext  *context.ECSContext
-	tags        []*ecs.Tag
+	taskDef    *ecs.TaskDefinition
+	cache      cache.Cache
+	ecsContext *context.ECSContext
+	tags       []*ecs.Tag
 }
 
 // NewTask creates an instance of a Task and also sets up a cache for task definition
 func NewTask(context *context.ECSContext) entity.ProjectEntity {
 	return &Task{
-		cache:       entity.SetupTaskDefinitionCache(),
-		ecsContext:  context,
+		cache:      entity.SetupTaskDefinitionCache(),
+		ecsContext: context,
 	}
 }
 
