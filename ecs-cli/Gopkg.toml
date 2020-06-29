@@ -78,7 +78,7 @@
 
 [[constraint]]
   name = "github.com/docker/cli"
-  version = "~19.03.11"
+  version = "~19.03.12"
 
 [[override]]
   name = "github.com/docker/docker"
