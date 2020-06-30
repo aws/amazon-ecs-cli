@@ -19,9 +19,10 @@ import (
 
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/context"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity"
-	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"
+	mock_ecs "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs/mock"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
+	utils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
@@ -384,5 +385,103 @@ func TestBuildRuntaskInputManagedTagsDisabled(t *testing.T) {
 		assert.Equal(t, int64(count), aws.Int64Value(req.Count))
 		assert.Nil(t, req.Overrides)
 		assert.Nil(t, req.EnableECSManagedTags, "Expected ECS Managed tags to be unset")
+	}
+}
+
+func TestBuildRunTaskInput_EFSFargate(t *testing.T) {
+	taskDef := "dogPicService"
+	count := 1
+	cluster := "myCluster"
+	launchType := config.LaunchTypeFargate
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.Bool(flags.DisableECSManagedTagsFlag, true, "")
+	cliContext := cli.NewContext(nil, flagSet, nil)
+	ctrl := gomock.NewController(t)
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	context := &context.ECSContext{
+		ECSClient:  mockEcs,
+		CLIContext: cliContext,
+		ECSParams:  ecsParamsWithEFSVolume(),
+		CommandConfig: &config.CommandConfig{
+			Cluster:    cluster,
+			LaunchType: launchType,
+		},
+	}
+
+	task := &Task{
+		ecsContext: context,
+	}
+
+	req, err := task.buildRunTaskInput(taskDef, count, nil)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, aws.String(cluster), req.Cluster)
+		assert.Equal(t, aws.String(taskDef), req.TaskDefinition)
+		assert.Equal(t, aws.String(launchType), req.LaunchType)
+		assert.Equal(t, int64(count), aws.Int64Value(req.Count))
+		assert.Equal(t, aws.String(config.PlatformVersion140), req.PlatformVersion)
+		assert.Nil(t, req.Overrides)
+	}
+}
+
+func TestBuildRunTaskInput_EFSEC2(t *testing.T) {
+	taskDef := "dogPicService"
+	count := 1
+	cluster := "myCluster"
+	launchType := config.LaunchTypeEC2
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.Bool(flags.DisableECSManagedTagsFlag, true, "")
+	cliContext := cli.NewContext(nil, flagSet, nil)
+	ctrl := gomock.NewController(t)
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	context := &context.ECSContext{
+		ECSClient:  mockEcs,
+		CLIContext: cliContext,
+		ECSParams:  ecsParamsWithEFSVolume(),
+		CommandConfig: &config.CommandConfig{
+			Cluster:    cluster,
+			LaunchType: launchType,
+		},
+	}
+
+	task := &Task{
+		ecsContext: context,
+	}
+
+	req, err := task.buildRunTaskInput(taskDef, count, nil)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, aws.String(cluster), req.Cluster)
+		assert.Equal(t, aws.String(taskDef), req.TaskDefinition)
+		assert.Equal(t, aws.String(launchType), req.LaunchType)
+		assert.Equal(t, int64(count), aws.Int64Value(req.Count))
+		assert.Nil(t, req.PlatformVersion)
+		assert.Nil(t, req.Overrides)
+	}
+}
+func ecsParamsWithEFSVolume() *utils.ECSParams {
+	return &utils.ECSParams{
+		TaskDefinition: utils.EcsTaskDef{
+			ExecutionRole: "arn:aws:iam::123456789012:role/my_execution_role",
+			NetworkMode:   "awsvpc",
+			TaskSize: utils.TaskSize{
+				Cpu:    "512",
+				Memory: "1GB",
+			},
+			EFSVolumes: []utils.EFSVolume{
+				{
+					Name:         "myVolume",
+					FileSystemID: aws.String("fs-1234"),
+				},
+			},
+		},
+		RunParams: utils.RunParams{
+			NetworkConfiguration: utils.NetworkConfiguration{
+				AwsVpcConfiguration: utils.AwsVpcConfiguration{
+					Subnets:        []string{"sg-bafff1ed", "sg-c0ffeefe"},
+					AssignPublicIp: utils.Enabled,
+				},
+			},
+		},
 	}
 }

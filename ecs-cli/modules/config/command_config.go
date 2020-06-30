@@ -28,6 +28,11 @@ const (
 	LaunchTypeDefault = "EC2"
 )
 
+const (
+	PlatformVersionLatest = "LATEST"
+	PlatformVersion140    = "1.4.0"
+)
+
 // CommandConfig contains the configuration parameters and AWS Session required to run a specific command
 type CommandConfig struct {
 	Cluster                  string
