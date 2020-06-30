@@ -419,7 +419,7 @@ func TestBuildRunTaskInput_EFSFargate(t *testing.T) {
 		assert.Equal(t, aws.String(taskDef), req.TaskDefinition)
 		assert.Equal(t, aws.String(launchType), req.LaunchType)
 		assert.Equal(t, int64(count), aws.Int64Value(req.Count))
-		assert.Equal(t, aws.String("1.4.0"), req.PlatformVersion)
+		assert.Equal(t, aws.String(config.PlatformVersion140), req.PlatformVersion)
 		assert.Nil(t, req.Overrides)
 	}
 }

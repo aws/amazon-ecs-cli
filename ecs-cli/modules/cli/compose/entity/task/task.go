@@ -386,9 +386,9 @@ func (t *Task) buildRunTaskInput(taskDefinition string, count int, overrides map
 	// TODO: revert to "LATEST" when latest refers to 1.4.0
 	if launchType == config.LaunchTypeFargate && ecsParams != nil && len(ecsParams.TaskDefinition.EFSVolumes) > 0 {
 		log.Warnf("Detected an EFS Volume in task definition %s", taskDefinition)
-		log.Warn("Using Fargate platform version 1.4.0, which includes changes to the networking flows for VPC endpoint customers.")
+		log.Warn("Using Fargate platform version %s, which includes changes to the networking flows for VPC endpoint customers.", config.PlatformVersion140)
 		log.Warn("Learn more: https://aws.amazon.com/blogs/containers/aws-fargate-launches-platform-version-1-4/")
-		runTaskInput.PlatformVersion = aws.String("1.4.0")
+		runTaskInput.PlatformVersion = aws.String(config.PlatformVersion140)
 	}
 
 	return runTaskInput, nil
