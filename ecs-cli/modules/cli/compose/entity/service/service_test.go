@@ -153,7 +153,7 @@ func TestCreateWithEFS_EC2(t *testing.T) {
 		t,
 		flagSet,
 		&config.CommandConfig{LaunchType: config.LaunchTypeEC2},
-		ecsParamsWithFargateEFSVolume(),
+		ecsParamsWithEFSVolume(),
 		func(input *ecs.CreateServiceInput) {
 			launchType := input.LaunchType
 			assert.Equal(t, config.LaunchTypeEC2, aws.StringValue(launchType), "launch type is not ec2")
@@ -172,21 +172,21 @@ func TestCreateWithEFSFargate(t *testing.T) {
 		t,
 		flagSet,
 		&config.CommandConfig{LaunchType: config.LaunchTypeFargate},
-		ecsParamsWithFargateEFSVolume(),
+		ecsParamsWithEFSVolume(),
 		func(input *ecs.CreateServiceInput) {
 			launchType := input.LaunchType
 			assert.Equal(t, config.LaunchTypeFargate, aws.StringValue(launchType), "launch type is not fargate")
 			platformVersion := input.PlatformVersion
-			assert.Equal(t, aws.String("1.4.0"), platformVersion)
+			assert.Equal(t, aws.String(config.PlatformVersion140), platformVersion)
 		},
 		ecsSettingDisabled,
 	)
 }
 
-func ecsParamsWithFargateEFSVolume() *utils.ECSParams {
+func ecsParamsWithEFSVolume() *utils.ECSParams {
 	return &utils.ECSParams{
 		TaskDefinition: utils.EcsTaskDef{
-			ExecutionRole: "arn:aws:iam::123456789012:role/fargate_role",
+			ExecutionRole: "arn:aws:iam::123456789012:role/my_execution_role",
 			NetworkMode:   "awsvpc",
 			TaskSize: utils.TaskSize{
 				Cpu:    "512",
