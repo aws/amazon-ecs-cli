@@ -347,7 +347,7 @@ func (s *Service) buildUpdateServiceInput(count *int64, serviceName, taskDefinit
 
 func (s *Service) updateService(ecsService *ecs.Service, newTaskDefinition *ecs.TaskDefinition) error {
 	if s.Context().CLIContext.Bool(flags.EnableServiceDiscoveryFlag) {
-		return fmt.Errorf("Service Discovery can not be enabled on an existing ECS Service")
+		log.Warningln("Service Discovery can not be enabled on an existing ECS Service. Skipping this flag...")
 	}
 
 	schedulingStrategy := strings.ToUpper(s.Context().CLIContext.String(flags.SchedulingStrategyFlag))
