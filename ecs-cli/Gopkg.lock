@@ -212,9 +212,9 @@
     "pkg/urlutil",
   ]
   pruneopts = "UT"
-  revision = "77e06fda0c9457c99a210e9648c064b44805fa2d"
+  revision = "9dc6525e6118a25fab2be322d1914740ea842495"
   source = "https://github.com/moby/moby.git"
-  version = "v19.03.11"
+  version = "v19.03.12"
 
 [[projects]]
   digest = "1:811c86996b1ca46729bad2724d4499014c4b9effd05ef8c71b852aad90deb0ce"
