@@ -21,6 +21,7 @@ import (
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/cli/compose/entity/types"
 	ecsclient "github.com/aws/amazon-ecs-cli/ecs-cli/modules/clients/aws/ecs"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/commands/flags"
+	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/config"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils"
 	"github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/cache"
 	composeutils "github.com/aws/amazon-ecs-cli/ecs-cli/modules/utils/compose"
@@ -33,17 +34,17 @@ import (
 // Task type is placeholder for a single task definition and its cache
 // and it performs compose operations at a task definition level
 type Task struct {
-	taskDef     *ecs.TaskDefinition
-	cache       cache.Cache
-	ecsContext  *context.ECSContext
-	tags        []*ecs.Tag
+	taskDef    *ecs.TaskDefinition
+	cache      cache.Cache
+	ecsContext *context.ECSContext
+	tags       []*ecs.Tag
 }
 
 // NewTask creates an instance of a Task and also sets up a cache for task definition
 func NewTask(context *context.ECSContext) entity.ProjectEntity {
 	return &Task{
-		cache:       entity.SetupTaskDefinitionCache(),
-		ecsContext:  context,
+		cache:      entity.SetupTaskDefinitionCache(),
+		ecsContext: context,
 	}
 }
 
@@ -380,6 +381,14 @@ func (t *Task) buildRunTaskInput(taskDefinition string, count int, overrides map
 			log.Info("Auto-enabling ECS Managed Tags")
 			runTaskInput.EnableECSManagedTags = aws.Bool(true)
 		}
+	}
+
+	// TODO: revert to "LATEST" when latest refers to 1.4.0
+	if launchType == config.LaunchTypeFargate && ecsParams != nil && len(ecsParams.TaskDefinition.EFSVolumes) > 0 {
+		log.Warnf("Detected an EFS Volume in task definition %s", taskDefinition)
+		log.Warnf("Using Fargate platform version %s, which includes changes to the networking flows for VPC endpoint customers.", config.PlatformVersion140)
+		log.Warn("Learn more: https://aws.amazon.com/blogs/containers/aws-fargate-launches-platform-version-1-4/")
+		runTaskInput.PlatformVersion = aws.String(config.PlatformVersion140)
 	}
 
 	return runTaskInput, nil
