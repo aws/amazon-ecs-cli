@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.20.0
+* Feature - Add support for EFS in `compose up` ECS Task workflow (#1076)
+* Enhancement (BREAKING CHANGE) - Downgrade the error generated when setting 
+  `--enable-service-discovery` on an existing service to a warning (#1071)
+
 ## 1.19.1
 * Bug - Don't set platform version for EC2 services (#1041)
 
