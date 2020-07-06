@@ -1,7 +1,7 @@
 pull_request_rules:
   - name: Merge on CI success and review approval
     conditions:
-      - base~=master
+      - base~=mainline
       - "#approved-reviews-by>=2"
       - approved-reviews-by=@aws/aws-ecs-devx
       - status-success=continuous-integration/travis-ci/pr
