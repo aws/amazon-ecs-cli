@@ -18,7 +18,7 @@ pull_request_rules:
 
   - name: Automatically approve Dependabot PRs
     conditions:
-      - base=master
+      - base=mainline
       - status-success=continuous-integration/travis-ci/pr
       - author~=^dependabot(|-preview)\[bot\]$
       - -title~=(WIP|wip)
