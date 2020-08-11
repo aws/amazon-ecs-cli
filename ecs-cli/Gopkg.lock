@@ -290,8 +290,8 @@
   name = "github.com/golang/mock"
   packages = ["gomock"]
   pruneopts = "UT"
-  revision = "3a35fb6e3e18b9dbfee291262260dee7372d2a92"
-  version = "v1.4.3"
+  revision = "f7b1909c82a8958747e5c87c6a5c3b2eaed8a33d"
+  version = "v1.4.4"
 
 [[projects]]
   digest = "1:4a32eb57407190eced21a21abee9ce4d4ab6f0bf113ca61cb1cb2d549a65c985"
