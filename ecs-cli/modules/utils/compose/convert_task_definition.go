@@ -261,6 +261,18 @@ func convertToECSSecrets(secrets []Secret) []*ecs.Secret {
 	return ecsSecrets
 }
 
+func convertToECSContainerDependency(dependencies []ContainerDependency) []*ecs.ContainerDependency {
+	var ecsContainerDependencies []*ecs.ContainerDependency
+	for _, dependency := range dependencies {
+		d := &ecs.ContainerDependency{
+			Condition:     aws.String(dependency.Condition),
+			ContainerName: aws.String(dependency.ContainerName),
+		}
+		ecsContainerDependencies = append(ecsContainerDependencies, d)
+	}
+	return ecsContainerDependencies
+}
+
 func mergeVolumesWithoutHost(composeVolumes []string, ecsParams *ECSParams) ([]*ecs.Volume, error) {
 	volumesWithoutHost := make(map[string]Volume)
 	output := []*ecs.Volume{}

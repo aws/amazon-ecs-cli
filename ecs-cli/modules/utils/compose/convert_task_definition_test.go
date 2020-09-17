@@ -1688,6 +1688,54 @@ task_definition:
 	}
 }
 
+func TestConvertToTaskDefinitionWithECSParams_ContainerDependency(t *testing.T) {
+	webContainerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "httpd",
+	}
+
+	logRouterContainerConfig := &adapter.ContainerConfig{
+		Name:  "log_router",
+		Image: "amazon/aws-for-fluent-bit",
+	}
+
+	ecsParamsString := `version: 1
+task_definition:
+  services:
+    web:
+      depends_on:
+        - container_name: log_router
+          condition: STARTED`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	containerConfigs := []adapter.ContainerConfig{*webContainerConfig, * logRouterContainerConfig}
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
+
+	containerDefs := taskDefinition.ContainerDefinitions
+	web := findContainerByName("web", containerDefs)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, aws.String("STARTED"), web.DependsOn[0].Condition)
+		assert.Equal(t, aws.String("log_router"), web.DependsOn[0].ContainerName)
+	}
+}
+
 func TestConvertToTaskDefinitionWithECSParams_OnlyTaskMemProvided(t *testing.T) {
 	containerConfig := &adapter.ContainerConfig{
 		Name: "web",

@@ -130,6 +130,10 @@ func reconcileContainerDef(inputCfg *adapter.ContainerConfig, ecsConDef *Contain
 			outputContDef.SetSecrets(convertToECSSecrets(ecsConDef.Secrets))
 		}
 
+		if len(ecsConDef.ContainerDependencies) > 0 {
+			outputContDef.SetDependsOn(convertToECSContainerDependency(ecsConDef.ContainerDependencies))
+		}
+
 		if len(ecsConDef.Logging.SecretOptions) > 0 {
 			convertedSecrets := convertToECSSecrets(ecsConDef.Logging.SecretOptions)
 			outputContDef.LogConfiguration.SetSecretOptions(convertedSecrets)
