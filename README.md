@@ -1,9 +1,9 @@
-__✨ The [ECS CLI v2](https://github.com/aws/amazon-ecs-cli-v2) is now in preview: a new way to develop, release and operate your container apps on ECS__
+__✨ The [AWS Copilot CLI](https://github.com/aws/copilot-cli) is now in preview: a new way to build, release and operate your container apps on ECS and Fargate__
 
 <details>
-<summary>Learn more about the ECS CLI V2</summary>
+<summary>Learn more about the AWS Copilot CLI</summary>
 
-The [ECS CLI v2](https://github.com/aws/amazon-ecs-cli-v2) is a brand new CLI focused on the full developer experience of building, deploying and operating your containerized apps. From helping manage all of your infrastructure, to setting up CD Pipelines, the V2 is here to help. The [ECS CLI v2](https://github.com/aws/amazon-ecs-cli-v2) is still in preview and quite different from V1, but we'd love your feedback! For more info on V2, V1 and how these projects are being developed [check out our V2 proposal](https://github.com/aws/containers-roadmap/issues/513).
+The [AWS Copilot CLI](https://github.com/aws/copilot-cli) is a brand new CLI focused on the full developer experience of building, deploying and operating your containerized apps. From helping manage all of your infrastructure, to setting up CD Pipelines, `copilot` is here to help. [AWS Copilot](https://github.com/aws/copilot-cli) is in preview and quite different from the ECS CLI, but we'd love your feedback! To learn more about AWS Copilot, check out the [wiki](https://github.com/aws/copilot-cli/wiki).
 </details>
 
 
