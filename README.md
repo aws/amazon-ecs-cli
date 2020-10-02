@@ -65,7 +65,7 @@ You can use the provided `md5` hash to verify the integrity of your download.
 For information about installing and using the Amazon ECS CLI, see the [ECS Command Line Interface](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI.html).
 
 ### Latest version
-* Linux (x86-64):
+* Linux (amd64):
   * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest)
   * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest.md5](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest.md5)
 * Linux (arm64):
@@ -83,7 +83,7 @@ For information about installing and using the Amazon ECS CLI, see the [ECS Comm
 As of v0.6.2 the ECS CLI supports the cn-north-1 region in China. The following links are the exact
 same binaries, but they are localized within China to provide a faster download experience.
 
-* Linux (x86-64):
+* Linux (amd64):
   * [https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-linux-amd64-latest](https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-linux-amd64-latest)
   * [https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-linux-amd64-latest.md5](https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-linux-amd64-latest.md5)
 * Linux (arm64):
@@ -104,7 +104,7 @@ downloading, remember to rename the binary file to `ecs-cli`.
 
 ***NOTE:*** ARM64 is only supported starting with version `v1.20.0`.
 
-* Linux (x86-64):
+* Linux (amd64):
   * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-v1.0.0](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-v1.0.0)
   * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-v1.0.0.md5](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-v1.0.0.md5)
 * Linux (arm64):
@@ -166,7 +166,7 @@ ECS CLI signatures are ascii armored detached PGP signatures stored in files wit
 curl -o ecs-cli.asc https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-latest.asc
 ```
 
-###### Linux (x86-64)
+###### Linux (amd64)
 ```
 curl -o ecs-cli.asc https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest.asc
 ```
