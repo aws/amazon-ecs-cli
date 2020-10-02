@@ -1,8 +1,8 @@
 pull_request_rules:
   - name: Merge on CI success and review approval
     conditions:
-      - base~=master
-      - "#approved-reviews-by>=2"
+      - base~=mainline
+      - "#approved-reviews-by>=1"
       - approved-reviews-by=@aws/aws-ecs-devx
       - status-success=continuous-integration/travis-ci/pr
       - -approved-reviews-by~=author
@@ -15,3 +15,16 @@ pull_request_rules:
         method: squash
         strict: smart
         strict_method: merge
+
+  - name: Automatically approve Dependabot PRs
+    conditions:
+      - base=mainline
+      - status-success=continuous-integration/travis-ci/pr
+      - author~=^dependabot(|-preview)\[bot\]$
+      - -title~=(WIP|wip)
+      - -label~=(WIP|do-not-merge)
+      - -merged
+      - -closed
+    actions:
+      merge:
+        method: merge

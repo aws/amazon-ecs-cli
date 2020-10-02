@@ -25,7 +25,7 @@
 
 [[constraint]]
   name = "github.com/aws/aws-sdk-go"
-  version = "^1.31.5"
+  version = "^1.34.9"
 
 [[constraint]]
   name = "github.com/awslabs/amazon-ecr-credential-helper"
@@ -45,42 +45,42 @@
 
 [[constraint]]
   name = "github.com/fsouza/go-dockerclient"
-  revision = "4a934a8fd3ec3d4f84d9dcd8b47e7b277918c366"
+  version = "^1.6.5"
 
 [[constraint]]
   name = "github.com/go-ini/ini"
-  version = "^1.56.0"
+  version = "^1.60.1"
 
 [[constraint]]
   name = "github.com/golang/mock"
-  version = "^1.4.3"
+  version = "^1.4.4"
 
 [[constraint]]
   name = "github.com/pkg/errors"
-  revision = "248dadf4e9068a0b3e79f02ed0a610d935de5302"
+  version = "^0.9.1"
 
 [[constraint]]
   name = "github.com/sirupsen/logrus"
-  version = "1.0.4"
+  version = "1.6.0"
 
 [[constraint]]
   name = "github.com/stretchr/testify"
-  version = "=1.5.1"
+  version = "=1.6.1"
 
 [[constraint]]
   name = "github.com/urfave/cli"
+  version = "^1.22.0"
   # version = "1.19.1"
-  revision = "2526b57c56f30b50466c96c4133b1a4ad0f0191f"
 
 [[constraint]]
   name = "gopkg.in/yaml.v2"
-  revision = "v2.2.2"
+  version = "^2.3.0"
 
 [[constraint]]
   name = "github.com/docker/cli"
-  version = "~19.03.9"
+  version = "~19.03.12"
 
 [[override]]
   name = "github.com/docker/docker"
-  revision = "8e435b8279f2af3e0cebd73fa9e25ca1bb26004e"
+  version = "^19.03.12"
   source = "https://github.com/moby/moby.git"
