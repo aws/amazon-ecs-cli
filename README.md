@@ -98,14 +98,18 @@ same binaries, but they are localized within China to provide a faster download 
 
 ### Download specific version
 Using the URLs above, replace `latest` with the desired tag, for example `v1.0.0`. After
-downloading, remember to rename the binary file to `ecs-cli`. ***NOTE:*** Windows is only supported starting with version `v1.0.0`.
+downloading, remember to rename the binary file to `ecs-cli`. 
+
+***NOTE:*** Windows is only supported starting with version `v1.0.0`.
+
+***NOTE:*** ARM64 is only supported starting with version `v1.20.0`.
 
 * Linux (x86-64):
   * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-v1.0.0](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-v1.0.0)
   * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-v1.0.0.md5](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-v1.0.0.md5)
 * Linux (arm64):
-  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-arm64-v1.0.0](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-arm64-v1.0.0)
-  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-arm64-v1.0.0.md5](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-arm64-v1.0.0.md5)
+  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-arm64-v1.20.0](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-arm64-v1.20.0)
+  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-arm64-v1.20.0.md5](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-arm64-v1.20.0.md5)
 * Macintosh:
   * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-v1.0.0](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-v1.0.0)
   * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-v1.0.0.md5](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-v1.0.0.md5)
