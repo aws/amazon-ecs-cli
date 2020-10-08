@@ -222,10 +222,6 @@ func (p *ecsProject) transformTaskDefinition() error {
 
 	p.entity.SetTaskDefinition(taskDefinition)
 
-	// i think this is where we can get the task definition out of here
-	// fmt.Println(taskDefinition)
-	// i can but really what i want is the create-service call
-
 	return nil
 }
 

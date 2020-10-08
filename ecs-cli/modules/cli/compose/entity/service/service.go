@@ -156,13 +156,16 @@ func (s *Service) LoadContext() error {
 			return err
 		}
 		s.loadBalancers = append(s.loadBalancers, loadBalancers...)
+	}
 
+	if len(capacityProviders) != 0 {
 		capacityProviderStrategy, err := utils.ParseCapacityProviders(capacityProviders)
 		if err != nil {
 			return err
 		}
 		s.capacityProviderStrategy = append(s.capacityProviderStrategy, capacityProviderStrategy...)
 	}
+
 	s.role = role
 	return nil
 }
@@ -581,30 +584,13 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string, desir
 		createServiceInput.PlacementStrategy = placementStrategy
 	}
 
-	// i think this is getting a default value somewhere so it is never blank
-	// just comment it out entirely and substitute a hard-coded capacity provider
-	/*
-		if launchType != "" {
-			createServiceInput.LaunchType = aws.String(launchType)
-		}
-	*/
-
-	// https://docs.aws.amazon.com/sdk-for-go/api/service/ecs/#CreateServiceInput
-	var strategyItemList []*ecs.CapacityProviderStrategyItem
-
-	base := int64(1)
-	weight := int64(1)
-	strategy := "de-dev-application-capacity-provider"
-
-	strategyItem := ecs.CapacityProviderStrategyItem{
-		Base:             &base,
-		CapacityProvider: &strategy,
-		Weight:           &weight,
+	// just let capacity provider take precedence if it is set
+	// otherwise, fall back on the launch type
+	if len(s.capacityProviderStrategy) > 0 {
+		createServiceInput.CapacityProviderStrategy = s.capacityProviderStrategy
+	} else if launchType != "" {
+		createServiceInput.LaunchType = aws.String(launchType)
 	}
-
-	strategyItemList = append(strategyItemList, &strategyItem)
-
-	createServiceInput.CapacityProviderStrategy = strategyItemList
 
 	if err = createServiceInput.Validate(); err != nil {
 		return nil, err
