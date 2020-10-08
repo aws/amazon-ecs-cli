@@ -221,7 +221,6 @@ func (p *ecsProject) transformTaskDefinition() error {
 	}
 
 	p.entity.SetTaskDefinition(taskDefinition)
-
 	return nil
 }
 

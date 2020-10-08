@@ -510,8 +510,6 @@ func (s *Service) GetTags() ([]*ecs.Tag, error) {
 
 // ----------- Commands' helper functions --------
 
-// i think this is what needs to be modified so that instead of just a launchType it could also take a capacity provider (strategy)
-
 func (s *Service) buildCreateServiceInput(serviceName, taskDefName string, desiredCount int) (*ecs.CreateServiceInput, error) {
 	launchType := s.Context().CommandConfig.LaunchType
 	cluster := s.Context().CommandConfig.Cluster
@@ -622,8 +620,6 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string, desir
 			createServiceInput.EnableECSManagedTags = aws.Bool(true)
 		}
 	}
-
-	// fmt.Println(createServiceInput)
 
 	return createServiceInput, nil
 }

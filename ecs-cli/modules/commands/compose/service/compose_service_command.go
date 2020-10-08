@@ -264,7 +264,7 @@ func loadBalancerFlags() []cli.Flag {
 }
 
 func capacityProviderStrategyFlags() []cli.Flag {
-	capacityProviderStrategyUsageString := fmt.Sprintf("[Optional] Specifies multiple capacity providers to register with a service. Can't be used with --%s flag at the same time. To specify multiple capacity providers, add multiple separate --%s flags Example: ecs-cli compose service create --capacity-provider capacityProviderName=t3-large-capacity-provider,base=1,weight=1 --capacity-provider capacityProviderName=t3-nano-capacity-provider,weight=5", flags.LaunchTypeFlag, flags.CapacityProviderStrategyFlag)
+	capacityProviderStrategyUsageString := fmt.Sprintf("[Optional] Specifies multiple capacity providers to register with a service. Can't be used with --%s flag at the same time. To specify multiple capacity providers, add multiple separate --%s flags.  Only one capacity provider can have a base > 0, set the base of all others to zero.  Example: ecs-cli compose service create --capacity-provider capacityProviderName=t3-large-capacity-provider,base=1,weight=1 --capacity-provider capacityProviderName=t3-nano-capacity-provider,base=0,weight=5", flags.LaunchTypeFlag, flags.CapacityProviderStrategyFlag)
 
 	return []cli.Flag{
 		cli.StringSliceFlag{
