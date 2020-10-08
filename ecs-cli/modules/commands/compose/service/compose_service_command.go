@@ -68,7 +68,7 @@ func createServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "create",
 		Usage:        usage.ServiceCreate,
 		Action:       compose.WithProject(factory, compose.ProjectCreate, true),
-		Flags:        flags.AppendFlags(deploymentConfigFlags(true), loadBalancerFlags(), flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), serviceDiscoveryFlags(), flags.OptionalSchedulingStrategyFlag(), taggingFlags()),
+		Flags:        flags.AppendFlags(deploymentConfigFlags(true), loadBalancerFlags(), capacityProviderStrategyFlags(), flags.OptionalConfigFlags(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), serviceDiscoveryFlags(), flags.OptionalSchedulingStrategyFlag(), taggingFlags()),
 		OnUsageError: flags.UsageErrorFactory("create"),
 	}
 }
@@ -88,7 +88,7 @@ func upServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "up",
 		Usage:        usage.ServiceUp,
 		Action:       compose.WithProject(factory, compose.ProjectUp, true),
-		Flags:        flags.AppendFlags(deploymentConfigFlags(true), loadBalancerFlags(), flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), ForceNewDeploymentFlag(), serviceDiscoveryFlags(), updateServiceDiscoveryFlags(), flags.OptionalSchedulingStrategyFlag(), taggingFlags()),
+		Flags:        flags.AppendFlags(deploymentConfigFlags(true), loadBalancerFlags(), capacityProviderStrategyFlags(), flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), ForceNewDeploymentFlag(), serviceDiscoveryFlags(), updateServiceDiscoveryFlags(), flags.OptionalSchedulingStrategyFlag(), taggingFlags()),
 		OnUsageError: flags.UsageErrorFactory("up"),
 	}
 }
@@ -226,7 +226,7 @@ func loadBalancerFlags() []cli.Flag {
 	containerNameUsageString := fmt.Sprintf("[Deprecated] Specifies the container name (as it appears in a container definition). This parameter is required if --%s or --%s is specified.", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
 	containerPortUsageString := fmt.Sprintf("[Deprecated] Specifies the port on the container to associate with the load balancer. This port must correspond to a containerPort in the service's task definition. This parameter is required if --%s or --%s is specified.", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
 	loadBalancerNameUsageString := fmt.Sprintf("[Deprecated] Specifies the name of a previously configured Classic Elastic Load Balancing load balancer to associate with your service. NOTE: For Application Load Balancers or Network Load Balancers, use the --%s flag.", flags.TargetGroupArnFlag)
-	targetGroupsUsageString := fmt.Sprintf("[Optional] Specifies multiple target groups to register with a service. Can't be used with --%s flag or --%s at the same time. To specify multiple target groups, add multiple seperate --%s flags Example: ecs-cli compose service create --target-groups targetGroupArn=arn,containerName=nginx,containerPort=80 --target-groups targetGroupArn=arn,containerName=database,containerPort=3306", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag, flags.TargetGroupsFlag)
+	targetGroupsUsageString := fmt.Sprintf("[Optional] Specifies multiple target groups to register with a service. Can't be used with --%s flag or --%s at the same time. To specify multiple target groups, add multiple separate --%s flags Example: ecs-cli compose service create --target-groups targetGroupArn=arn,containerName=nginx,containerPort=80 --target-groups targetGroupArn=arn,containerName=database,containerPort=3306", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag, flags.TargetGroupsFlag)
 	roleUsageString := fmt.Sprintf("[Optional] Specifies the name or full Amazon Resource Name (ARN) of the IAM role that allows Amazon ECS to make calls to your load balancer or target group on your behalf. This parameter requires either --%s or --%s to be specified.", flags.LoadBalancerNameFlag, flags.TargetGroupArnFlag)
 	healthCheckGracePeriodString := "[Optional] Specifies the period of time, in seconds, that the Amazon ECS service scheduler should ignore unhealthy Elastic Load Balancing target health checks after a task has first started."
 
@@ -258,6 +258,18 @@ func loadBalancerFlags() []cli.Flag {
 		cli.StringSliceFlag{
 			Name:  flags.TargetGroupsFlag,
 			Usage: targetGroupsUsageString,
+			Value: &cli.StringSlice{},
+		},
+	}
+}
+
+func capacityProviderStrategyFlags() []cli.Flag {
+	capacityProviderStrategyUsageString := fmt.Sprintf("[Optional] Specifies multiple capacity providers to register with a service. Can't be used with --%s flag at the same time. To specify multiple capacity providers, add multiple separate --%s flags Example: ecs-cli compose service create --capacity-provider capacityProviderName=t3-large-capacity-provider,base=1,weight=1 --capacity-provider capacityProviderName=t3-nano-capacity-provider,weight=5", flags.LaunchTypeFlag, flags.CapacityProviderStrategyFlag)
+
+	return []cli.Flag{
+		cli.StringSliceFlag{
+			Name:  flags.CapacityProviderStrategyFlag,
+			Usage: capacityProviderStrategyUsageString,
 			Value: &cli.StringSlice{},
 		},
 	}

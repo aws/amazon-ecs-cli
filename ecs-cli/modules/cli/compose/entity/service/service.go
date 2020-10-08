@@ -41,15 +41,16 @@ import (
 // Service type is placeholder for a single task definition and its cache
 // and it performs operations on ECS Service level
 type Service struct {
-	taskDef           *ecs.TaskDefinition
-	cache             cache.Cache
-	ecsContext        *context.ECSContext
-	deploymentConfig  *ecs.DeploymentConfiguration
-	loadBalancers     []*ecs.LoadBalancer
-	role              string
-	healthCheckGP     *int64
-	serviceRegistries []*ecs.ServiceRegistry
-	tags              []*ecs.Tag
+	taskDef                  *ecs.TaskDefinition
+	cache                    cache.Cache
+	ecsContext               *context.ECSContext
+	deploymentConfig         *ecs.DeploymentConfiguration
+	loadBalancers            []*ecs.LoadBalancer
+	capacityProviderStrategy []*ecs.CapacityProviderStrategyItem
+	role                     string
+	healthCheckGP            *int64
+	serviceRegistries        []*ecs.ServiceRegistry
+	tags                     []*ecs.Tag
 }
 
 const (
@@ -105,6 +106,9 @@ func (s *Service) LoadContext() error {
 		return err
 	}
 
+	// Capacity Provider Strategy
+	capacityProviders := s.Context().CLIContext.StringSlice(flags.CapacityProviderStrategyFlag)
+
 	// Health Check Grace Period
 	healthCheckGP, err := getInt64FromCLIContext(s.Context(), flags.HealthCheckGracePeriodFlag)
 	if err != nil {
@@ -152,6 +156,12 @@ func (s *Service) LoadContext() error {
 			return err
 		}
 		s.loadBalancers = append(s.loadBalancers, loadBalancers...)
+
+		capacityProviderStrategy, err := utils.ParseCapacityProviders(capacityProviders)
+		if err != nil {
+			return err
+		}
+		s.capacityProviderStrategy = append(s.capacityProviderStrategy, capacityProviderStrategy...)
 	}
 	s.role = role
 	return nil
@@ -497,6 +507,8 @@ func (s *Service) GetTags() ([]*ecs.Tag, error) {
 
 // ----------- Commands' helper functions --------
 
+// i think this is what needs to be modified so that instead of just a launchType it could also take a capacity provider (strategy)
+
 func (s *Service) buildCreateServiceInput(serviceName, taskDefName string, desiredCount int) (*ecs.CreateServiceInput, error) {
 	launchType := s.Context().CommandConfig.LaunchType
 	cluster := s.Context().CommandConfig.Cluster
@@ -569,9 +581,30 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string, desir
 		createServiceInput.PlacementStrategy = placementStrategy
 	}
 
-	if launchType != "" {
-		createServiceInput.LaunchType = aws.String(launchType)
+	// i think this is getting a default value somewhere so it is never blank
+	// just comment it out entirely and substitute a hard-coded capacity provider
+	/*
+		if launchType != "" {
+			createServiceInput.LaunchType = aws.String(launchType)
+		}
+	*/
+
+	// https://docs.aws.amazon.com/sdk-for-go/api/service/ecs/#CreateServiceInput
+	var strategyItemList []*ecs.CapacityProviderStrategyItem
+
+	base := int64(1)
+	weight := int64(1)
+	strategy := "de-dev-application-capacity-provider"
+
+	strategyItem := ecs.CapacityProviderStrategyItem{
+		Base:             &base,
+		CapacityProvider: &strategy,
+		Weight:           &weight,
 	}
+
+	strategyItemList = append(strategyItemList, &strategyItem)
+
+	createServiceInput.CapacityProviderStrategy = strategyItemList
 
 	if err = createServiceInput.Validate(); err != nil {
 		return nil, err
@@ -603,6 +636,8 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string, desir
 			createServiceInput.EnableECSManagedTags = aws.Bool(true)
 		}
 	}
+
+	// fmt.Println(createServiceInput)
 
 	return createServiceInput, nil
 }

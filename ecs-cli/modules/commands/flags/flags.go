@@ -135,6 +135,7 @@ const (
 	ComposeServiceTimeOutFlag               = "timeout"
 	ForceDeploymentFlag                     = "force-deployment"
 	TargetGroupsFlag                        = "target-groups"
+	CapacityProviderStrategyFlag            = "capacity-provider"
 
 	// Registry Creds
 	UpdateExistingSecretsFlag = "update-existing-secrets"

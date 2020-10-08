@@ -27,11 +27,14 @@ import (
 
 const (
 	// ECSCLIResourcePrefix is prepended to the names of resources created through the ecs-cli
-	ECSCLIResourcePrefix     = "amazon-ecs-cli-setup-"
-	containerNameParamKey    = "containerName"
-	containerPortParamKey    = "containerPort"
-	loadBalancerNameParamKey = "loadBalancerName"
-	targetGroupArnParamKey   = "targetGroupArn"
+	ECSCLIResourcePrefix           = "amazon-ecs-cli-setup-"
+	containerNameParamKey          = "containerName"
+	containerPortParamKey          = "containerPort"
+	loadBalancerNameParamKey       = "loadBalancerName"
+	targetGroupArnParamKey         = "targetGroupArn"
+	capacityProviderNameParamKey   = "capacityProviderName"
+	capacityProviderBaseParamKey   = "base"
+	capacityProviderWeightParamKey = "weight"
 )
 
 // InSlice checks if the given string exists in the given slice:
@@ -110,6 +113,78 @@ func GetPartition(region string) string {
 	} else {
 		return "aws"
 	}
+}
+
+// I think i need to create a new ParseCapacityProviders to parse the StringSlice array into an array of capacity providers struct, just like the target groups below
+
+// capacityProviderName=t3-large-capacity-provider,base=1,weight=1
+
+// ParseCapacityProviders parses a StringSlice array into an array of capacity provider strategy item struct
+// When you specify a capacity provider strategy, the number of capacity providers that can be specified is limited to six.
+// A CapacityProviderItem is (https://docs.aws.amazon.com/sdk-for-go/v2/api/service/ecs/#CapacityProviderStrategyItem):
+// need a string capacity provider name
+// optionally, need an integer Base (but only one capacity provider in a capacity provider strategy can have a base defined)
+// optionally, need an integer Weight
+
+// Input: ["capacityProviderName="...",base="...",weight=80","capacityProviderName="...",base="...",weight=40"]
+func ParseCapacityProviders(flagValues []string) ([]*ecs.CapacityProviderStrategyItem, error) {
+	var list []*ecs.CapacityProviderStrategyItem
+
+	if len(flagValues) > 6 {
+		return nil, fmt.Errorf("ECS only permits 6 Capacity providers, you provided %s", len(flagValues))
+	}
+
+	for _, flagValue := range flagValues {
+		m := make(map[string]string)
+
+		validFlags := []string{capacityProviderNameParamKey, capacityProviderBaseParamKey, capacityProviderWeightParamKey}
+		currentFlags := map[string]bool{
+			"capacityProviderName": false,
+			"base":                 false,
+			"weight":               false,
+		}
+
+		keyValPairs := strings.Split(flagValue, ",")
+
+		for _, kv := range keyValPairs {
+			pair := strings.SplitN(kv, "=", -1)
+
+			if len(pair) != 2 {
+				return nil, fmt.Errorf("There is an (key=value) initialization error, please check to see if you are using = accordingly on %s", pair[0])
+			}
+			key, val := pair[0], pair[1]
+
+			if ok := contains(validFlags, key); !ok {
+				return nil, fmt.Errorf("[--%s] is an invalid flag", key)
+			}
+			m[key] = val
+			if currentFlags[key] {
+				return nil, fmt.Errorf("%s already exists", key)
+			}
+			currentFlags[key] = true
+		}
+		for key, value := range currentFlags {
+			if value == false {
+				return nil, fmt.Errorf("--%s must be specified", key)
+			}
+		}
+
+		base, err := strconv.ParseInt(m["base"], 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("Fail to capacity provider base %s for capacity provider %s", m["base"], m["capacityProviderName"])
+		}
+		weight, err := strconv.ParseInt(m["weight"], 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("Fail to parse capacity provider weight %s for capacity provider %s", m["weight"], m["capacityProviderName"])
+		}
+
+		list = append(list, &ecs.CapacityProviderStrategyItem{
+			CapacityProvider: aws.String(m["capacityProviderName"]),
+			Base:             aws.Int64((base)),
+			Weight:           aws.Int64((weight)),
+		})
+	}
+	return list, nil
 }
 
 // ParseLoadBalancers parses a StringSlice array into an array of load balancers struct
