@@ -115,17 +115,8 @@ func GetPartition(region string) string {
 	}
 }
 
-// I think i need to create a new ParseCapacityProviders to parse the StringSlice array into an array of capacity providers struct, just like the target groups below
-
-// capacityProviderName=t3-large-capacity-provider,base=1,weight=1
-
-// ParseCapacityProviders parses a StringSlice array into an array of capacity provider strategy item struct
+// ParseCapacityProviders parses a StringSlice array into an array of CapacityProviderItem
 // When you specify a capacity provider strategy, the number of capacity providers that can be specified is limited to six.
-// A CapacityProviderItem is (https://docs.aws.amazon.com/sdk-for-go/v2/api/service/ecs/#CapacityProviderStrategyItem):
-// need a string capacity provider name
-// optionally, need an integer Base (but only one capacity provider in a capacity provider strategy can have a base defined)
-// optionally, need an integer Weight
-
 // Input: ["capacityProviderName="...",base="...",weight=80","capacityProviderName="...",base="...",weight=40"]
 func ParseCapacityProviders(flagValues []string) ([]*ecs.CapacityProviderStrategyItem, error) {
 	var list []*ecs.CapacityProviderStrategyItem
@@ -140,8 +131,6 @@ func ParseCapacityProviders(flagValues []string) ([]*ecs.CapacityProviderStrateg
 		validFlags := []string{capacityProviderNameParamKey, capacityProviderBaseParamKey, capacityProviderWeightParamKey}
 		currentFlags := map[string]bool{
 			"capacityProviderName": false,
-			"base":                 false,
-			"weight":               false,
 		}
 
 		keyValPairs := strings.Split(flagValue, ",")
@@ -171,11 +160,11 @@ func ParseCapacityProviders(flagValues []string) ([]*ecs.CapacityProviderStrateg
 
 		base, err := strconv.ParseInt(m["base"], 10, 64)
 		if err != nil {
-			return nil, fmt.Errorf("Fail to capacity provider base %s for capacity provider %s", m["base"], m["capacityProviderName"])
+			return nil, fmt.Errorf("Failed to parse capacity provider base for capacity provider %s; set base to zero on all providers except one", m["capacityProviderName"])
 		}
 		weight, err := strconv.ParseInt(m["weight"], 10, 64)
 		if err != nil {
-			return nil, fmt.Errorf("Fail to parse capacity provider weight %s for capacity provider %s", m["weight"], m["capacityProviderName"])
+			return nil, fmt.Errorf("Failed to parse capacity provider weight for capacity provider %s", m["capacityProviderName"])
 		}
 
 		list = append(list, &ecs.CapacityProviderStrategyItem{
