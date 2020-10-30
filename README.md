@@ -1,9 +1,9 @@
-__✨ The [ECS CLI v2](https://github.com/aws/amazon-ecs-cli-v2) is now in preview: a new way to develop, release and operate your container apps on ECS__
+__✨ The [AWS Copilot CLI](https://github.com/aws/copilot-cli) is now in preview: a new way to build, release and operate your container apps on ECS and Fargate__
 
 <details>
-<summary>Learn more about the ECS CLI V2</summary>
+<summary>Learn more about the AWS Copilot CLI</summary>
 
-The [ECS CLI v2](https://github.com/aws/amazon-ecs-cli-v2) is a brand new CLI focused on the full developer experience of building, deploying and operating your containerized apps. From helping manage all of your infrastructure, to setting up CD Pipelines, the V2 is here to help. The [ECS CLI v2](https://github.com/aws/amazon-ecs-cli-v2) is still in preview and quite different from V1, but we'd love your feedback! For more info on V2, V1 and how these projects are being developed [check out our V2 proposal](https://github.com/aws/containers-roadmap/issues/513).
+The [AWS Copilot CLI](https://github.com/aws/copilot-cli) is a brand new CLI focused on the full developer experience of building, deploying and operating your containerized apps. From helping manage all of your infrastructure, to setting up CD Pipelines, `copilot` is here to help. [AWS Copilot](https://github.com/aws/copilot-cli) is in preview and quite different from the ECS CLI, but we'd love your feedback! To learn more about AWS Copilot, check out the [wiki](https://github.com/aws/copilot-cli/wiki).
 </details>
 
 
@@ -65,9 +65,12 @@ You can use the provided `md5` hash to verify the integrity of your download.
 For information about installing and using the Amazon ECS CLI, see the [ECS Command Line Interface](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI.html).
 
 ### Latest version
-* Linux:
+* Linux (amd64):
   * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest)
   * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest.md5](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest.md5)
+* Linux (arm64):
+  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-arm64-latest](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-arm64-latest)
+  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-arm64-latest.md5](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-arm64-latest.md5)
 * Macintosh:
   * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-latest](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-latest)
   * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-latest.md5](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-latest.md5)
@@ -80,9 +83,12 @@ For information about installing and using the Amazon ECS CLI, see the [ECS Comm
 As of v0.6.2 the ECS CLI supports the cn-north-1 region in China. The following links are the exact
 same binaries, but they are localized within China to provide a faster download experience.
 
-* Linux:
+* Linux (amd64):
   * [https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-linux-amd64-latest](https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-linux-amd64-latest)
   * [https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-linux-amd64-latest.md5](https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-linux-amd64-latest.md5)
+* Linux (arm64):
+  * [https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-linux-arm64-latest](https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-linux-arm64-latest)
+  * [https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-linux-arm64-latest.md5](https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-linux-arm64-latest.md5)
 * Macintosh:
   * [https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-darwin-amd64-latest](https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-darwin-amd64-latest)
   * [https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-darwin-amd64-latest.md5](https://amazon-ecs-cli.s3.cn-north-1.amazonaws.com.cn/ecs-cli-darwin-amd64-latest.md5)
@@ -92,11 +98,18 @@ same binaries, but they are localized within China to provide a faster download 
 
 ### Download specific version
 Using the URLs above, replace `latest` with the desired tag, for example `v1.0.0`. After
-downloading, remember to rename the binary file to `ecs-cli`. ***NOTE:*** Windows is only supported starting with version `v1.0.0`.
+downloading, remember to rename the binary file to `ecs-cli`. 
 
-* Linux:
+***NOTE:*** Windows is only supported starting with version `v1.0.0`.
+
+***NOTE:*** ARM64 is only supported starting with version `v1.20.0`.
+
+* Linux (amd64):
   * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-v1.0.0](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-v1.0.0)
   * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-v1.0.0.md5](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-v1.0.0.md5)
+* Linux (arm64):
+  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-arm64-v1.20.0](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-arm64-v1.20.0)
+  * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-arm64-v1.20.0.md5](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-arm64-v1.20.0.md5)
 * Macintosh:
   * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-v1.0.0](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-v1.0.0)
   * [https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-v1.0.0.md5](https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-v1.0.0.md5)
@@ -153,9 +166,14 @@ ECS CLI signatures are ascii armored detached PGP signatures stored in files wit
 curl -o ecs-cli.asc https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-latest.asc
 ```
 
-###### Linux
+###### Linux (amd64)
 ```
 curl -o ecs-cli.asc https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest.asc
+```
+
+###### Linux (arm64)
+```
+curl -o ecs-cli.asc https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-arm64-latest.asc
 ```
 
 ###### Windows
