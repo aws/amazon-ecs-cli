@@ -89,6 +89,11 @@ task_definition:
       mem_reservation: 500mb
     wordpress:
       essential: true
+      depends_on:
+        - container_name: mysql
+          condition: STARTED
+        - container_name: log_router
+          condition: STARTED
       repository_credentials:
         credentials_parameter: arn:aws:secretsmanager:1234567890:secret:test-RT4iv
       logging:
@@ -151,6 +156,19 @@ task_definition:
 
 		assert.ElementsMatch(t, expectedSecrets, wordpress.Secrets, "Expected secrets to match")
 		assert.ElementsMatch(t, expectedSecrets, wordpress.Logging.SecretOptions, "Expected secrets to match")
+
+		expectedContainerDependencies := []ContainerDependency {
+			ContainerDependency {
+				ContainerName: "mysql",
+				Condition: "STARTED",
+			},
+			ContainerDependency {
+				ContainerName: "log_router",
+				Condition: "STARTED",
+			},
+		}
+
+		assert.ElementsMatch(t, expectedContainerDependencies, wordpress.ContainerDependencies, "Expected container dependiencies to match")
 
 		assert.Equal(t, "fluentbit", log_router.FirelensConfiguration.Type, "Except firelens_configuration type to be fluentbit")
 		assert.Equal(t, "true", log_router.FirelensConfiguration.Options["enable-ecs-log-metadata"], "Expected Firelens 'enable-ecs-log-metadata' to be 'true'")

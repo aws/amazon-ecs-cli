@@ -489,6 +489,9 @@ task_definition:
   services:
     <service_name>:
       essential: boolean
+      depends_on:
+        - container_name: string         // <service_name> of any other service in services
+          condition: string              // Valid values: START | COMPLETE | SUCCESS | HEALTHY
       repository_credentials:
         credentials_parameter: string
       cpu_shares: integer
@@ -582,6 +585,7 @@ Fields listed under `task_definition` correspond to fields that will be included
 
 * `services` correspond to the services listed in your docker compose file, with `service_name` matching the name of the container you wish to run. Its fields will be merged into an [ECS Container Definition](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ecs-taskdefinition-containerdefinitions.html).
   * If the [`essential`](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ecs-taskdefinition-containerdefinitions.html#cfn-ecs-taskdefinition-containerdefinition-essential) field is not specified, the value defaults to true.
+  * `depends_on` field maps to [`dependsOn`](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#container_definition_dependson) parameter in task definition. It allows you to specify a list of [`ContainerDependency`](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ecs-taskdefinition-containerdependency.html), which can be used for conditional startup of dependent containers or ensuring order of startup between containers. Refer [example](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/example_task_definitions.html#example_task_definition-containerdependency).
   * If you are using Docker compose version 3, the `cpu_shares`, `mem_limit`, and `mem_reservation` fields are optional and must be specified in the ECS params file rather than the compose file.
   * In Docker compose version 2, the `cpu_shares`, `mem_limit`, and `mem_reservation` fields can be specified in either the compose or ECS params file. If they are specified in the ECS params file, the values will override values present in the compose file.
   * If you are using a private repository for pulling images, `repository_credentials` allows you to specify an AWS Secrets Manager secret ARN for the name of the secret containing your private repository credentials as a `credential_parameter`.

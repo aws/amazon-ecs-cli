@@ -72,6 +72,7 @@ type ContainerDef struct {
 	FirelensConfiguration FirelensConfiguration  `yaml:"firelens_configuration"`
 	Secrets               []Secret               `yaml:"secrets"`
 	GPU                   string                 `yaml:"gpu"`
+	ContainerDependencies []ContainerDependency  `yaml:"depends_on"`
 }
 
 type Volume struct {
@@ -119,6 +120,12 @@ type HealthCheck struct {
 // RepositoryCredentials holds CredentialParameters for a ContainerDef
 type RepositoryCredentials struct {
 	CredentialsParameter string `yaml:"credentials_parameter"`
+}
+
+// ContainerDependency holds a dependency container
+type ContainerDependency struct {
+	ContainerName string `yaml:"container_name"`
+	Condition     string `yaml:"condition"`
 }
 
 // Logging holds a list of Secrets within SecretOptions. They are essentially
