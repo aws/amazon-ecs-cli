@@ -15,13 +15,13 @@ type Configurer func(ssmClient *mock_ssmiface.MockSSMAPI) *mock_ssmiface.MockSSM
 
 func TestMetadataClient_GetRecommendedECSLinuxAMI(t *testing.T) {
 	tests := []struct {
-		instanceType  string
+		instanceTypes []string
 		configureMock Configurer
 		expectedErr   error
 	}{
 		{
 			// validate that we use the ARM64 optimized AMI for Arm instances
-			"a1.medium",
+			[]string{"a1.medium", "m6g.medium", "c6gd.16xlarge", "m6g.metal"},
 			func(ssmClient *mock_ssmiface.MockSSMAPI) *mock_ssmiface.MockSSMAPI {
 				ssmClient.EXPECT().GetParameter(gomock.Any()).Do(func(input *ssm.GetParameterInput) {
 					assert.Equal(t, amazonLinux2ARM64RecommendedParameterName, *input.Name)
@@ -32,18 +32,7 @@ func TestMetadataClient_GetRecommendedECSLinuxAMI(t *testing.T) {
 		},
 		{
 			// validate that we use GPU optimized AMI for GPU instances
-			"p2.large",
-			func(ssmClient *mock_ssmiface.MockSSMAPI) *mock_ssmiface.MockSSMAPI {
-				ssmClient.EXPECT().GetParameter(gomock.Any()).Do(func(input *ssm.GetParameterInput) {
-					assert.Equal(t, amazonLinux2X86GPURecommendedParameterName, *input.Name)
-				}).Return(emptySSMParameterOutput(), nil)
-				return ssmClient
-			},
-			nil,
-		},
-		{
-			// validate that we use GPU optimized AMI for GPU instances
-			"g4dn.xlarge",
+			[]string{"p2.large", "g4dn.xlarge"},
 			func(ssmClient *mock_ssmiface.MockSSMAPI) *mock_ssmiface.MockSSMAPI {
 				ssmClient.EXPECT().GetParameter(gomock.Any()).Do(func(input *ssm.GetParameterInput) {
 					assert.Equal(t, amazonLinux2X86GPURecommendedParameterName, *input.Name)
@@ -54,7 +43,7 @@ func TestMetadataClient_GetRecommendedECSLinuxAMI(t *testing.T) {
 		},
 		{
 			// validate that we use the generic AMI for other instances
-			"t2.micro",
+			[]string{"t2.micro"},
 			func(ssmClient *mock_ssmiface.MockSSMAPI) *mock_ssmiface.MockSSMAPI {
 				ssmClient.EXPECT().GetParameter(gomock.Any()).Do(func(input *ssm.GetParameterInput) {
 					assert.Equal(t, amazonLinux2X86RecommendedParameterName, *input.Name)
@@ -65,7 +54,7 @@ func TestMetadataClient_GetRecommendedECSLinuxAMI(t *testing.T) {
 		},
 		{
 			// validate that we throw an error if the AMI is not available in a region
-			"t2.micro",
+			[]string{"t2.micro"},
 			func(ssmClient *mock_ssmiface.MockSSMAPI) *mock_ssmiface.MockSSMAPI {
 				ssmClient.EXPECT().GetParameter(gomock.Any()).Do(func(input *ssm.GetParameterInput) {
 					assert.Equal(t, amazonLinux2X86RecommendedParameterName, *input.Name)
@@ -79,7 +68,7 @@ func TestMetadataClient_GetRecommendedECSLinuxAMI(t *testing.T) {
 		},
 		{
 			// validate that we throw unexpected errors
-			"t2.micro",
+			[]string{"t2.micro"},
 			func(ssmClient *mock_ssmiface.MockSSMAPI) *mock_ssmiface.MockSSMAPI {
 				ssmClient.EXPECT().GetParameter(gomock.Any()).Do(func(input *ssm.GetParameterInput) {
 					assert.Equal(t, amazonLinux2X86RecommendedParameterName, *input.Name)
@@ -91,19 +80,21 @@ func TestMetadataClient_GetRecommendedECSLinuxAMI(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		m := newMockSSMAPI(t)
-		test.configureMock(m)
+		for _, instanceType := range test.instanceTypes {
+			m := newMockSSMAPI(t)
+			test.configureMock(m)
 
-		c := metadataClient{
-			m,
-			"us-east-1",
-		}
-		_, actualErr := c.GetRecommendedECSLinuxAMI(test.instanceType)
+			c := metadataClient{
+				m,
+				"us-east-1",
+			}
+			_, actualErr := c.GetRecommendedECSLinuxAMI(instanceType)
 
-		if test.expectedErr == nil {
-			assert.NoError(t, actualErr)
-		} else {
-			assert.EqualError(t, actualErr, test.expectedErr.Error())
+			if test.expectedErr == nil {
+				assert.NoError(t, actualErr)
+			} else {
+				assert.EqualError(t, actualErr, test.expectedErr.Error())
+			}
 		}
 	}
 }
