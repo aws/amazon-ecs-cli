@@ -43,7 +43,7 @@ func TestMetadataClient_GetRecommendedECSLinuxAMI(t *testing.T) {
 		},
 		{
 			// validate that we use the generic AMI for other instances
-			[]string{"t2.micro"},
+			[]string{"t2.micro", "m5ad.large", "c4.large", "i3.2xlarge"},
 			func(ssmClient *mock_ssmiface.MockSSMAPI) *mock_ssmiface.MockSSMAPI {
 				ssmClient.EXPECT().GetParameter(gomock.Any()).Do(func(input *ssm.GetParameterInput) {
 					assert.Equal(t, amazonLinux2X86RecommendedParameterName, *input.Name)
