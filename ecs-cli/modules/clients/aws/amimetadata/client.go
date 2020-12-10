@@ -103,8 +103,13 @@ func (c *metadataClient) parameterValueFor(ssmParamName string) (*AMIMetadata, e
 	return metadata, err
 }
 
+// See: https://aws.amazon.com/ec2/instance-types/
+// a1 is the first generation of graviton processors.
+// t4g, m6g, c6g, r6g are using graviton 2.
+// The d suffix is for disk optimized and applies to all except a1 and t4g, e.g. m6gd.medium.
+// Invalid instance type like t4gd.nano will trigger validation error in API so we don't do validation here.
 func isARM64Instance(instanceType string) bool {
-	r := regexp.MustCompile("a1\\.(medium|\\d*x?large)")
+	r := regexp.MustCompile("(a1|.\\dgd?)\\.(medium|\\d*x?large|metal)")
 	if r.MatchString(instanceType) {
 		return true
 	}
