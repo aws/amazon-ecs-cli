@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.21.0
+* Feature - Add support for container dependencies in ecs-params.yml (#1105)
+* Feature - Add support for Arm-based AWS Graviton2 instances on `ecs-cli up` (#1116)
+
 ## 1.20.0
 * Feature - Add support for EFS in `compose up` ECS Task workflow (#1076)
 * Enhancement (BREAKING CHANGE) - Downgrade the error generated when setting 
