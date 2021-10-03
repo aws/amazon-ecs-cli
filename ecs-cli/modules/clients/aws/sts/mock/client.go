@@ -23,30 +23,30 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockClient is a mock of Client interface
+// MockClient is a mock of Client interface.
 type MockClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockClientMockRecorder
 }
 
-// MockClientMockRecorder is the mock recorder for MockClient
+// MockClientMockRecorder is the mock recorder for MockClient.
 type MockClientMockRecorder struct {
 	mock *MockClient
 }
 
-// NewMockClient creates a new mock instance
+// NewMockClient creates a new mock instance.
 func NewMockClient(ctrl *gomock.Controller) *MockClient {
 	mock := &MockClient{ctrl: ctrl}
 	mock.recorder = &MockClientMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockClient) EXPECT() *MockClientMockRecorder {
 	return m.recorder
 }
 
-// GetAWSAccountID mocks base method
+// GetAWSAccountID mocks base method.
 func (m *MockClient) GetAWSAccountID() (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAWSAccountID")
@@ -55,7 +55,7 @@ func (m *MockClient) GetAWSAccountID() (string, error) {
 	return ret0, ret1
 }
 
-// GetAWSAccountID indicates an expected call of GetAWSAccountID
+// GetAWSAccountID indicates an expected call of GetAWSAccountID.
 func (mr *MockClientMockRecorder) GetAWSAccountID() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAWSAccountID", reflect.TypeOf((*MockClient)(nil).GetAWSAccountID))

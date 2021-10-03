@@ -53,6 +53,13 @@ const (
 	// Each association has a limit of 1,000 versions.
 	ErrCodeAssociationVersionLimitExceeded = "AssociationVersionLimitExceeded"
 
+	// ErrCodeAutomationDefinitionNotApprovedException for service response error code
+	// "AutomationDefinitionNotApprovedException".
+	//
+	// Indicates that the Change Manager change template used in the change request
+	// was rejected or is still in a pending state.
+	ErrCodeAutomationDefinitionNotApprovedException = "AutomationDefinitionNotApprovedException"
+
 	// ErrCodeAutomationDefinitionNotFoundException for service response error code
 	// "AutomationDefinitionNotFoundException".
 	//
@@ -265,6 +272,8 @@ const (
 
 	// ErrCodeInvalidCommandId for service response error code
 	// "InvalidCommandId".
+	//
+	// The specified command ID is not valid. Verify the ID and try again.
 	ErrCodeInvalidCommandId = "InvalidCommandId"
 
 	// ErrCodeInvalidDeleteInventoryParametersException for service response error code
@@ -569,6 +578,59 @@ const (
 	// The specified OpsItem ID doesn't exist. Verify the ID and try again.
 	ErrCodeOpsItemNotFoundException = "OpsItemNotFoundException"
 
+	// ErrCodeOpsItemRelatedItemAlreadyExistsException for service response error code
+	// "OpsItemRelatedItemAlreadyExistsException".
+	//
+	// The Amazon Resource Name (ARN) is already associated with the OpsItem.
+	ErrCodeOpsItemRelatedItemAlreadyExistsException = "OpsItemRelatedItemAlreadyExistsException"
+
+	// ErrCodeOpsItemRelatedItemAssociationNotFoundException for service response error code
+	// "OpsItemRelatedItemAssociationNotFoundException".
+	//
+	// The association was not found using the parameters you specified in the call.
+	// Verify the information and try again.
+	ErrCodeOpsItemRelatedItemAssociationNotFoundException = "OpsItemRelatedItemAssociationNotFoundException"
+
+	// ErrCodeOpsMetadataAlreadyExistsException for service response error code
+	// "OpsMetadataAlreadyExistsException".
+	//
+	// An OpsMetadata object already exists for the selected resource.
+	ErrCodeOpsMetadataAlreadyExistsException = "OpsMetadataAlreadyExistsException"
+
+	// ErrCodeOpsMetadataInvalidArgumentException for service response error code
+	// "OpsMetadataInvalidArgumentException".
+	//
+	// One of the arguments passed is invalid.
+	ErrCodeOpsMetadataInvalidArgumentException = "OpsMetadataInvalidArgumentException"
+
+	// ErrCodeOpsMetadataKeyLimitExceededException for service response error code
+	// "OpsMetadataKeyLimitExceededException".
+	//
+	// The OpsMetadata object exceeds the maximum number of OpsMetadata keys that
+	// you can assign to an application in Application Manager.
+	ErrCodeOpsMetadataKeyLimitExceededException = "OpsMetadataKeyLimitExceededException"
+
+	// ErrCodeOpsMetadataLimitExceededException for service response error code
+	// "OpsMetadataLimitExceededException".
+	//
+	// Your account reached the maximum number of OpsMetadata objects allowed by
+	// Application Manager. The maximum is 200 OpsMetadata objects. Delete one or
+	// more OpsMetadata object and try again.
+	ErrCodeOpsMetadataLimitExceededException = "OpsMetadataLimitExceededException"
+
+	// ErrCodeOpsMetadataNotFoundException for service response error code
+	// "OpsMetadataNotFoundException".
+	//
+	// The OpsMetadata object does not exist.
+	ErrCodeOpsMetadataNotFoundException = "OpsMetadataNotFoundException"
+
+	// ErrCodeOpsMetadataTooManyUpdatesException for service response error code
+	// "OpsMetadataTooManyUpdatesException".
+	//
+	// The system is processing too many concurrent updates. Wait a few moments
+	// and try again.
+	ErrCodeOpsMetadataTooManyUpdatesException = "OpsMetadataTooManyUpdatesException"
+
 	// ErrCodeParameterAlreadyExists for service response error code
 	// "ParameterAlreadyExists".
 	//
@@ -585,7 +647,25 @@ const (
 	// ErrCodeParameterMaxVersionLimitExceeded for service response error code
 	// "ParameterMaxVersionLimitExceeded".
 	//
-	// The parameter exceeded the maximum number of allowed versions.
+	// Parameter Store retains the 100 most recently created versions of a parameter.
+	// After this number of versions has been created, Parameter Store deletes the
+	// oldest version when a new one is created. However, if the oldest version
+	// has a label attached to it, Parameter Store will not delete the version and
+	// instead presents this error message:
+	//
+	// An error occurred (ParameterMaxVersionLimitExceeded) when calling the PutParameter
+	// operation: You attempted to create a new version of parameter-name by calling
+	// the PutParameter API with the overwrite flag. Version version-number, the
+	// oldest version, can't be deleted because it has a label associated with it.
+	// Move the label to another version of the parameter, and try again.
+	//
+	// This safeguard is to prevent parameter versions with mission critical labels
+	// assigned to them from being deleted. To continue creating new parameters,
+	// first move the label from the oldest version of the parameter to a newer
+	// one for use in your operations. For information about moving parameter labels,
+	// see Move a parameter label (console) (https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-paramstore-labels.html#sysman-paramstore-labels-console-move)
+	// or Move a parameter label (CLI) (https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-paramstore-labels.html#sysman-paramstore-labels-cli-move)
+	// in the AWS Systems Manager User Guide.
 	ErrCodeParameterMaxVersionLimitExceeded = "ParameterMaxVersionLimitExceeded"
 
 	// ErrCodeParameterNotFound for service response error code
@@ -701,7 +781,9 @@ const (
 	// The specified target instance for the session is not fully configured for
 	// use with Session Manager. For more information, see Getting started with
 	// Session Manager (https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started.html)
-	// in the AWS Systems Manager User Guide.
+	// in the AWS Systems Manager User Guide. This error is also returned if you
+	// attempt to start a session on an instance that is located in a different
+	// account or Region
 	ErrCodeTargetNotConnected = "TargetNotConnected"
 
 	// ErrCodeTooManyTagsError for service response error code
@@ -761,8 +843,7 @@ const (
 	// "UnsupportedOperatingSystem".
 	//
 	// The operating systems you specified is not supported, or the operation is
-	// not supported for the operating system. Valid operating systems include:
-	// Windows, AmazonLinux, RedhatEnterpriseLinux, and Ubuntu.
+	// not supported for the operating system.
 	ErrCodeUnsupportedOperatingSystem = "UnsupportedOperatingSystem"
 
 	// ErrCodeUnsupportedParameterType for service response error code
@@ -780,117 +861,126 @@ const (
 )
 
 var exceptionFromCode = map[string]func(protocol.ResponseMetadata) error{
-	"AlreadyExistsException":                        newErrorAlreadyExistsException,
-	"AssociatedInstances":                           newErrorAssociatedInstances,
-	"AssociationAlreadyExists":                      newErrorAssociationAlreadyExists,
-	"AssociationDoesNotExist":                       newErrorAssociationDoesNotExist,
-	"AssociationExecutionDoesNotExist":              newErrorAssociationExecutionDoesNotExist,
-	"AssociationLimitExceeded":                      newErrorAssociationLimitExceeded,
-	"AssociationVersionLimitExceeded":               newErrorAssociationVersionLimitExceeded,
-	"AutomationDefinitionNotFoundException":         newErrorAutomationDefinitionNotFoundException,
-	"AutomationDefinitionVersionNotFoundException":  newErrorAutomationDefinitionVersionNotFoundException,
-	"AutomationExecutionLimitExceededException":     newErrorAutomationExecutionLimitExceededException,
-	"AutomationExecutionNotFoundException":          newErrorAutomationExecutionNotFoundException,
-	"AutomationStepNotFoundException":               newErrorAutomationStepNotFoundException,
-	"ComplianceTypeCountLimitExceededException":     newErrorComplianceTypeCountLimitExceededException,
-	"CustomSchemaCountLimitExceededException":       newErrorCustomSchemaCountLimitExceededException,
-	"DocumentAlreadyExists":                         newErrorDocumentAlreadyExists,
-	"DocumentLimitExceeded":                         newErrorDocumentLimitExceeded,
-	"DocumentPermissionLimit":                       newErrorDocumentPermissionLimit,
-	"DocumentVersionLimitExceeded":                  newErrorDocumentVersionLimitExceeded,
-	"DoesNotExistException":                         newErrorDoesNotExistException,
-	"DuplicateDocumentContent":                      newErrorDuplicateDocumentContent,
-	"DuplicateDocumentVersionName":                  newErrorDuplicateDocumentVersionName,
-	"DuplicateInstanceId":                           newErrorDuplicateInstanceId,
-	"FeatureNotAvailableException":                  newErrorFeatureNotAvailableException,
-	"HierarchyLevelLimitExceededException":          newErrorHierarchyLevelLimitExceededException,
-	"HierarchyTypeMismatchException":                newErrorHierarchyTypeMismatchException,
-	"IdempotentParameterMismatch":                   newErrorIdempotentParameterMismatch,
-	"IncompatiblePolicyException":                   newErrorIncompatiblePolicyException,
-	"InternalServerError":                           newErrorInternalServerError,
-	"InvalidActivation":                             newErrorInvalidActivation,
-	"InvalidActivationId":                           newErrorInvalidActivationId,
-	"InvalidAggregatorException":                    newErrorInvalidAggregatorException,
-	"InvalidAllowedPatternException":                newErrorInvalidAllowedPatternException,
-	"InvalidAssociation":                            newErrorInvalidAssociation,
-	"InvalidAssociationVersion":                     newErrorInvalidAssociationVersion,
-	"InvalidAutomationExecutionParametersException": newErrorInvalidAutomationExecutionParametersException,
-	"InvalidAutomationSignalException":              newErrorInvalidAutomationSignalException,
-	"InvalidAutomationStatusUpdateException":        newErrorInvalidAutomationStatusUpdateException,
-	"InvalidCommandId":                              newErrorInvalidCommandId,
-	"InvalidDeleteInventoryParametersException":     newErrorInvalidDeleteInventoryParametersException,
-	"InvalidDeletionIdException":                    newErrorInvalidDeletionIdException,
-	"InvalidDocument":                               newErrorInvalidDocument,
-	"InvalidDocumentContent":                        newErrorInvalidDocumentContent,
-	"InvalidDocumentOperation":                      newErrorInvalidDocumentOperation,
-	"InvalidDocumentSchemaVersion":                  newErrorInvalidDocumentSchemaVersion,
-	"InvalidDocumentType":                           newErrorInvalidDocumentType,
-	"InvalidDocumentVersion":                        newErrorInvalidDocumentVersion,
-	"InvalidFilter":                                 newErrorInvalidFilter,
-	"InvalidFilterKey":                              newErrorInvalidFilterKey,
-	"InvalidFilterOption":                           newErrorInvalidFilterOption,
-	"InvalidFilterValue":                            newErrorInvalidFilterValue,
-	"InvalidInstanceId":                             newErrorInvalidInstanceId,
-	"InvalidInstanceInformationFilterValue":         newErrorInvalidInstanceInformationFilterValue,
-	"InvalidInventoryGroupException":                newErrorInvalidInventoryGroupException,
-	"InvalidInventoryItemContextException":          newErrorInvalidInventoryItemContextException,
-	"InvalidInventoryRequestException":              newErrorInvalidInventoryRequestException,
-	"InvalidItemContentException":                   newErrorInvalidItemContentException,
-	"InvalidKeyId":                                  newErrorInvalidKeyId,
-	"InvalidNextToken":                              newErrorInvalidNextToken,
-	"InvalidNotificationConfig":                     newErrorInvalidNotificationConfig,
-	"InvalidOptionException":                        newErrorInvalidOptionException,
-	"InvalidOutputFolder":                           newErrorInvalidOutputFolder,
-	"InvalidOutputLocation":                         newErrorInvalidOutputLocation,
-	"InvalidParameters":                             newErrorInvalidParameters,
-	"InvalidPermissionType":                         newErrorInvalidPermissionType,
-	"InvalidPluginName":                             newErrorInvalidPluginName,
-	"InvalidPolicyAttributeException":               newErrorInvalidPolicyAttributeException,
-	"InvalidPolicyTypeException":                    newErrorInvalidPolicyTypeException,
-	"InvalidResourceId":                             newErrorInvalidResourceId,
-	"InvalidResourceType":                           newErrorInvalidResourceType,
-	"InvalidResultAttributeException":               newErrorInvalidResultAttributeException,
-	"InvalidRole":                                   newErrorInvalidRole,
-	"InvalidSchedule":                               newErrorInvalidSchedule,
-	"InvalidTarget":                                 newErrorInvalidTarget,
-	"InvalidTypeNameException":                      newErrorInvalidTypeNameException,
-	"InvalidUpdate":                                 newErrorInvalidUpdate,
-	"InvocationDoesNotExist":                        newErrorInvocationDoesNotExist,
-	"ItemContentMismatchException":                  newErrorItemContentMismatchException,
-	"ItemSizeLimitExceededException":                newErrorItemSizeLimitExceededException,
-	"MaxDocumentSizeExceeded":                       newErrorMaxDocumentSizeExceeded,
-	"OpsItemAlreadyExistsException":                 newErrorOpsItemAlreadyExistsException,
-	"OpsItemInvalidParameterException":              newErrorOpsItemInvalidParameterException,
-	"OpsItemLimitExceededException":                 newErrorOpsItemLimitExceededException,
-	"OpsItemNotFoundException":                      newErrorOpsItemNotFoundException,
-	"ParameterAlreadyExists":                        newErrorParameterAlreadyExists,
-	"ParameterLimitExceeded":                        newErrorParameterLimitExceeded,
-	"ParameterMaxVersionLimitExceeded":              newErrorParameterMaxVersionLimitExceeded,
-	"ParameterNotFound":                             newErrorParameterNotFound,
-	"ParameterPatternMismatchException":             newErrorParameterPatternMismatchException,
-	"ParameterVersionLabelLimitExceeded":            newErrorParameterVersionLabelLimitExceeded,
-	"ParameterVersionNotFound":                      newErrorParameterVersionNotFound,
-	"PoliciesLimitExceededException":                newErrorPoliciesLimitExceededException,
-	"ResourceDataSyncAlreadyExistsException":        newErrorResourceDataSyncAlreadyExistsException,
-	"ResourceDataSyncConflictException":             newErrorResourceDataSyncConflictException,
-	"ResourceDataSyncCountExceededException":        newErrorResourceDataSyncCountExceededException,
-	"ResourceDataSyncInvalidConfigurationException": newErrorResourceDataSyncInvalidConfigurationException,
-	"ResourceDataSyncNotFoundException":             newErrorResourceDataSyncNotFoundException,
-	"ResourceInUseException":                        newErrorResourceInUseException,
-	"ResourceLimitExceededException":                newErrorResourceLimitExceededException,
-	"ServiceSettingNotFound":                        newErrorServiceSettingNotFound,
-	"StatusUnchanged":                               newErrorStatusUnchanged,
-	"SubTypeCountLimitExceededException":            newErrorSubTypeCountLimitExceededException,
-	"TargetInUseException":                          newErrorTargetInUseException,
-	"TargetNotConnected":                            newErrorTargetNotConnected,
-	"TooManyTagsError":                              newErrorTooManyTagsError,
-	"TooManyUpdates":                                newErrorTooManyUpdates,
-	"TotalSizeLimitExceededException":               newErrorTotalSizeLimitExceededException,
-	"UnsupportedCalendarException":                  newErrorUnsupportedCalendarException,
-	"UnsupportedFeatureRequiredException":           newErrorUnsupportedFeatureRequiredException,
-	"UnsupportedInventoryItemContextException":      newErrorUnsupportedInventoryItemContextException,
-	"UnsupportedInventorySchemaVersionException":    newErrorUnsupportedInventorySchemaVersionException,
-	"UnsupportedOperatingSystem":                    newErrorUnsupportedOperatingSystem,
-	"UnsupportedParameterType":                      newErrorUnsupportedParameterType,
-	"UnsupportedPlatformType":                       newErrorUnsupportedPlatformType,
+	"AlreadyExistsException":                         newErrorAlreadyExistsException,
+	"AssociatedInstances":                            newErrorAssociatedInstances,
+	"AssociationAlreadyExists":                       newErrorAssociationAlreadyExists,
+	"AssociationDoesNotExist":                        newErrorAssociationDoesNotExist,
+	"AssociationExecutionDoesNotExist":               newErrorAssociationExecutionDoesNotExist,
+	"AssociationLimitExceeded":                       newErrorAssociationLimitExceeded,
+	"AssociationVersionLimitExceeded":                newErrorAssociationVersionLimitExceeded,
+	"AutomationDefinitionNotApprovedException":       newErrorAutomationDefinitionNotApprovedException,
+	"AutomationDefinitionNotFoundException":          newErrorAutomationDefinitionNotFoundException,
+	"AutomationDefinitionVersionNotFoundException":   newErrorAutomationDefinitionVersionNotFoundException,
+	"AutomationExecutionLimitExceededException":      newErrorAutomationExecutionLimitExceededException,
+	"AutomationExecutionNotFoundException":           newErrorAutomationExecutionNotFoundException,
+	"AutomationStepNotFoundException":                newErrorAutomationStepNotFoundException,
+	"ComplianceTypeCountLimitExceededException":      newErrorComplianceTypeCountLimitExceededException,
+	"CustomSchemaCountLimitExceededException":        newErrorCustomSchemaCountLimitExceededException,
+	"DocumentAlreadyExists":                          newErrorDocumentAlreadyExists,
+	"DocumentLimitExceeded":                          newErrorDocumentLimitExceeded,
+	"DocumentPermissionLimit":                        newErrorDocumentPermissionLimit,
+	"DocumentVersionLimitExceeded":                   newErrorDocumentVersionLimitExceeded,
+	"DoesNotExistException":                          newErrorDoesNotExistException,
+	"DuplicateDocumentContent":                       newErrorDuplicateDocumentContent,
+	"DuplicateDocumentVersionName":                   newErrorDuplicateDocumentVersionName,
+	"DuplicateInstanceId":                            newErrorDuplicateInstanceId,
+	"FeatureNotAvailableException":                   newErrorFeatureNotAvailableException,
+	"HierarchyLevelLimitExceededException":           newErrorHierarchyLevelLimitExceededException,
+	"HierarchyTypeMismatchException":                 newErrorHierarchyTypeMismatchException,
+	"IdempotentParameterMismatch":                    newErrorIdempotentParameterMismatch,
+	"IncompatiblePolicyException":                    newErrorIncompatiblePolicyException,
+	"InternalServerError":                            newErrorInternalServerError,
+	"InvalidActivation":                              newErrorInvalidActivation,
+	"InvalidActivationId":                            newErrorInvalidActivationId,
+	"InvalidAggregatorException":                     newErrorInvalidAggregatorException,
+	"InvalidAllowedPatternException":                 newErrorInvalidAllowedPatternException,
+	"InvalidAssociation":                             newErrorInvalidAssociation,
+	"InvalidAssociationVersion":                      newErrorInvalidAssociationVersion,
+	"InvalidAutomationExecutionParametersException":  newErrorInvalidAutomationExecutionParametersException,
+	"InvalidAutomationSignalException":               newErrorInvalidAutomationSignalException,
+	"InvalidAutomationStatusUpdateException":         newErrorInvalidAutomationStatusUpdateException,
+	"InvalidCommandId":                               newErrorInvalidCommandId,
+	"InvalidDeleteInventoryParametersException":      newErrorInvalidDeleteInventoryParametersException,
+	"InvalidDeletionIdException":                     newErrorInvalidDeletionIdException,
+	"InvalidDocument":                                newErrorInvalidDocument,
+	"InvalidDocumentContent":                         newErrorInvalidDocumentContent,
+	"InvalidDocumentOperation":                       newErrorInvalidDocumentOperation,
+	"InvalidDocumentSchemaVersion":                   newErrorInvalidDocumentSchemaVersion,
+	"InvalidDocumentType":                            newErrorInvalidDocumentType,
+	"InvalidDocumentVersion":                         newErrorInvalidDocumentVersion,
+	"InvalidFilter":                                  newErrorInvalidFilter,
+	"InvalidFilterKey":                               newErrorInvalidFilterKey,
+	"InvalidFilterOption":                            newErrorInvalidFilterOption,
+	"InvalidFilterValue":                             newErrorInvalidFilterValue,
+	"InvalidInstanceId":                              newErrorInvalidInstanceId,
+	"InvalidInstanceInformationFilterValue":          newErrorInvalidInstanceInformationFilterValue,
+	"InvalidInventoryGroupException":                 newErrorInvalidInventoryGroupException,
+	"InvalidInventoryItemContextException":           newErrorInvalidInventoryItemContextException,
+	"InvalidInventoryRequestException":               newErrorInvalidInventoryRequestException,
+	"InvalidItemContentException":                    newErrorInvalidItemContentException,
+	"InvalidKeyId":                                   newErrorInvalidKeyId,
+	"InvalidNextToken":                               newErrorInvalidNextToken,
+	"InvalidNotificationConfig":                      newErrorInvalidNotificationConfig,
+	"InvalidOptionException":                         newErrorInvalidOptionException,
+	"InvalidOutputFolder":                            newErrorInvalidOutputFolder,
+	"InvalidOutputLocation":                          newErrorInvalidOutputLocation,
+	"InvalidParameters":                              newErrorInvalidParameters,
+	"InvalidPermissionType":                          newErrorInvalidPermissionType,
+	"InvalidPluginName":                              newErrorInvalidPluginName,
+	"InvalidPolicyAttributeException":                newErrorInvalidPolicyAttributeException,
+	"InvalidPolicyTypeException":                     newErrorInvalidPolicyTypeException,
+	"InvalidResourceId":                              newErrorInvalidResourceId,
+	"InvalidResourceType":                            newErrorInvalidResourceType,
+	"InvalidResultAttributeException":                newErrorInvalidResultAttributeException,
+	"InvalidRole":                                    newErrorInvalidRole,
+	"InvalidSchedule":                                newErrorInvalidSchedule,
+	"InvalidTarget":                                  newErrorInvalidTarget,
+	"InvalidTypeNameException":                       newErrorInvalidTypeNameException,
+	"InvalidUpdate":                                  newErrorInvalidUpdate,
+	"InvocationDoesNotExist":                         newErrorInvocationDoesNotExist,
+	"ItemContentMismatchException":                   newErrorItemContentMismatchException,
+	"ItemSizeLimitExceededException":                 newErrorItemSizeLimitExceededException,
+	"MaxDocumentSizeExceeded":                        newErrorMaxDocumentSizeExceeded,
+	"OpsItemAlreadyExistsException":                  newErrorOpsItemAlreadyExistsException,
+	"OpsItemInvalidParameterException":               newErrorOpsItemInvalidParameterException,
+	"OpsItemLimitExceededException":                  newErrorOpsItemLimitExceededException,
+	"OpsItemNotFoundException":                       newErrorOpsItemNotFoundException,
+	"OpsItemRelatedItemAlreadyExistsException":       newErrorOpsItemRelatedItemAlreadyExistsException,
+	"OpsItemRelatedItemAssociationNotFoundException": newErrorOpsItemRelatedItemAssociationNotFoundException,
+	"OpsMetadataAlreadyExistsException":              newErrorOpsMetadataAlreadyExistsException,
+	"OpsMetadataInvalidArgumentException":            newErrorOpsMetadataInvalidArgumentException,
+	"OpsMetadataKeyLimitExceededException":           newErrorOpsMetadataKeyLimitExceededException,
+	"OpsMetadataLimitExceededException":              newErrorOpsMetadataLimitExceededException,
+	"OpsMetadataNotFoundException":                   newErrorOpsMetadataNotFoundException,
+	"OpsMetadataTooManyUpdatesException":             newErrorOpsMetadataTooManyUpdatesException,
+	"ParameterAlreadyExists":                         newErrorParameterAlreadyExists,
+	"ParameterLimitExceeded":                         newErrorParameterLimitExceeded,
+	"ParameterMaxVersionLimitExceeded":               newErrorParameterMaxVersionLimitExceeded,
+	"ParameterNotFound":                              newErrorParameterNotFound,
+	"ParameterPatternMismatchException":              newErrorParameterPatternMismatchException,
+	"ParameterVersionLabelLimitExceeded":             newErrorParameterVersionLabelLimitExceeded,
+	"ParameterVersionNotFound":                       newErrorParameterVersionNotFound,
+	"PoliciesLimitExceededException":                 newErrorPoliciesLimitExceededException,
+	"ResourceDataSyncAlreadyExistsException":         newErrorResourceDataSyncAlreadyExistsException,
+	"ResourceDataSyncConflictException":              newErrorResourceDataSyncConflictException,
+	"ResourceDataSyncCountExceededException":         newErrorResourceDataSyncCountExceededException,
+	"ResourceDataSyncInvalidConfigurationException":  newErrorResourceDataSyncInvalidConfigurationException,
+	"ResourceDataSyncNotFoundException":              newErrorResourceDataSyncNotFoundException,
+	"ResourceInUseException":                         newErrorResourceInUseException,
+	"ResourceLimitExceededException":                 newErrorResourceLimitExceededException,
+	"ServiceSettingNotFound":                         newErrorServiceSettingNotFound,
+	"StatusUnchanged":                                newErrorStatusUnchanged,
+	"SubTypeCountLimitExceededException":             newErrorSubTypeCountLimitExceededException,
+	"TargetInUseException":                           newErrorTargetInUseException,
+	"TargetNotConnected":                             newErrorTargetNotConnected,
+	"TooManyTagsError":                               newErrorTooManyTagsError,
+	"TooManyUpdates":                                 newErrorTooManyUpdates,
+	"TotalSizeLimitExceededException":                newErrorTotalSizeLimitExceededException,
+	"UnsupportedCalendarException":                   newErrorUnsupportedCalendarException,
+	"UnsupportedFeatureRequiredException":            newErrorUnsupportedFeatureRequiredException,
+	"UnsupportedInventoryItemContextException":       newErrorUnsupportedInventoryItemContextException,
+	"UnsupportedInventorySchemaVersionException":     newErrorUnsupportedInventorySchemaVersionException,
+	"UnsupportedOperatingSystem":                     newErrorUnsupportedOperatingSystem,
+	"UnsupportedParameterType":                       newErrorUnsupportedParameterType,
+	"UnsupportedPlatformType":                        newErrorUnsupportedPlatformType,
 }
