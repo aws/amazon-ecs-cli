@@ -235,7 +235,7 @@ func validateCredsInput(input regcredio.ECSRegCredsInput, kmsClient kms.Client) 
 		return nil, errors.New("provided credentials must contain at least one registry")
 	}
 	if len(inputRegCreds) > maxContainersPerTaskDef {
-		return nil, errors.New("no more than" + string(maxContainersPerTaskDef) + "registry credential entries can be created at one time")
+		return nil, errors.New("no more than" + fmt.Sprint(maxContainersPerTaskDef) + "registry credential entries can be created at one time")
 	}
 
 	namedContainers := make(map[string]bool)

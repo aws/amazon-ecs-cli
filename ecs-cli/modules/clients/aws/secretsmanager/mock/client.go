@@ -24,30 +24,30 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockSMClient is a mock of SMClient interface
+// MockSMClient is a mock of SMClient interface.
 type MockSMClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockSMClientMockRecorder
 }
 
-// MockSMClientMockRecorder is the mock recorder for MockSMClient
+// MockSMClientMockRecorder is the mock recorder for MockSMClient.
 type MockSMClientMockRecorder struct {
 	mock *MockSMClient
 }
 
-// NewMockSMClient creates a new mock instance
+// NewMockSMClient creates a new mock instance.
 func NewMockSMClient(ctrl *gomock.Controller) *MockSMClient {
 	mock := &MockSMClient{ctrl: ctrl}
 	mock.recorder = &MockSMClientMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockSMClient) EXPECT() *MockSMClientMockRecorder {
 	return m.recorder
 }
 
-// CreateSecret mocks base method
+// CreateSecret mocks base method.
 func (m *MockSMClient) CreateSecret(arg0 secretsmanager.CreateSecretInput) (*secretsmanager.CreateSecretOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateSecret", arg0)
@@ -56,13 +56,13 @@ func (m *MockSMClient) CreateSecret(arg0 secretsmanager.CreateSecretInput) (*sec
 	return ret0, ret1
 }
 
-// CreateSecret indicates an expected call of CreateSecret
+// CreateSecret indicates an expected call of CreateSecret.
 func (mr *MockSMClientMockRecorder) CreateSecret(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSecret", reflect.TypeOf((*MockSMClient)(nil).CreateSecret), arg0)
 }
 
-// DescribeSecret mocks base method
+// DescribeSecret mocks base method.
 func (m *MockSMClient) DescribeSecret(arg0 string) (*secretsmanager.DescribeSecretOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeSecret", arg0)
@@ -71,13 +71,13 @@ func (m *MockSMClient) DescribeSecret(arg0 string) (*secretsmanager.DescribeSecr
 	return ret0, ret1
 }
 
-// DescribeSecret indicates an expected call of DescribeSecret
+// DescribeSecret indicates an expected call of DescribeSecret.
 func (mr *MockSMClientMockRecorder) DescribeSecret(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSecret", reflect.TypeOf((*MockSMClient)(nil).DescribeSecret), arg0)
 }
 
-// ListSecrets mocks base method
+// ListSecrets mocks base method.
 func (m *MockSMClient) ListSecrets(arg0 *string) (*secretsmanager.ListSecretsOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListSecrets", arg0)
@@ -86,13 +86,13 @@ func (m *MockSMClient) ListSecrets(arg0 *string) (*secretsmanager.ListSecretsOut
 	return ret0, ret1
 }
 
-// ListSecrets indicates an expected call of ListSecrets
+// ListSecrets indicates an expected call of ListSecrets.
 func (mr *MockSMClientMockRecorder) ListSecrets(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSecrets", reflect.TypeOf((*MockSMClient)(nil).ListSecrets), arg0)
 }
 
-// PutSecretValue mocks base method
+// PutSecretValue mocks base method.
 func (m *MockSMClient) PutSecretValue(arg0 secretsmanager.PutSecretValueInput) (*secretsmanager.PutSecretValueOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutSecretValue", arg0)
@@ -101,7 +101,7 @@ func (m *MockSMClient) PutSecretValue(arg0 secretsmanager.PutSecretValueInput) (
 	return ret0, ret1
 }
 
-// PutSecretValue indicates an expected call of PutSecretValue
+// PutSecretValue indicates an expected call of PutSecretValue.
 func (mr *MockSMClientMockRecorder) PutSecretValue(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutSecretValue", reflect.TypeOf((*MockSMClient)(nil).PutSecretValue), arg0)

@@ -4,10 +4,10 @@
 // requests to Amazon CloudWatch Logs.
 //
 // You can use Amazon CloudWatch Logs to monitor, store, and access your log
-// files from Amazon EC2 instances, AWS CloudTrail, or other sources. You can
-// then retrieve the associated log data from CloudWatch Logs using the CloudWatch
-// console, CloudWatch Logs commands in the AWS CLI, CloudWatch Logs API, or
-// CloudWatch Logs SDK.
+// files from EC2 instances, CloudTrail, and other sources. You can then retrieve
+// the associated log data from CloudWatch Logs using the CloudWatch console,
+// CloudWatch Logs commands in the Amazon Web Services CLI, CloudWatch Logs
+// API, or CloudWatch Logs SDK.
 //
 // You can use CloudWatch Logs to:
 //
@@ -15,17 +15,17 @@
 //    Logs to monitor applications and systems using log data. For example,
 //    CloudWatch Logs can track the number of errors that occur in your application
 //    logs and send you a notification whenever the rate of errors exceeds a
-//    threshold that you specify. CloudWatch Logs uses your log data for monitoring;
-//    so, no code changes are required. For example, you can monitor application
+//    threshold that you specify. CloudWatch Logs uses your log data for monitoring
+//    so no code changes are required. For example, you can monitor application
 //    logs for specific literal terms (such as "NullReferenceException") or
 //    count the number of occurrences of a literal term at a particular position
 //    in log data (such as "404" status codes in an Apache access log). When
 //    the term you are searching for is found, CloudWatch Logs reports the data
 //    to a CloudWatch metric that you specify.
 //
-//    * Monitor AWS CloudTrail logged events: You can create alarms in CloudWatch
-//    and receive notifications of particular API activity as captured by CloudTrail
-//    and use the notification to perform troubleshooting.
+//    * Monitor CloudTrail logged events: You can create alarms in CloudWatch
+//    and receive notifications of particular API activity as captured by CloudTrail.
+//    You can use the notification to perform troubleshooting.
 //
 //    * Archive log data: You can use CloudWatch Logs to store your log data
 //    in highly durable storage. You can change the log retention setting so
