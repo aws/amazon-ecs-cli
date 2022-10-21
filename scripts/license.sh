@@ -41,14 +41,14 @@ appendRepoLicense() {
 }
 
 for registry in github.com golang.org; do
-  for user in ./../../../vendor/$registry/*; do
+  for user in ./../../../../vendor/$registry/*; do
     for repo in $user/*; do
       appendRepoLicense $repo
     done;
   done;
 done;
 
-for repo in ./../../../vendor/gopkg.in/*; do
+for repo in ./../../../../vendor/gopkg.in/*; do
   appendRepoLicense $repo
 done;
 
