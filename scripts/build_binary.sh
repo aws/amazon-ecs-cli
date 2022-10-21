@@ -29,5 +29,5 @@ go run gen/version-gen.go
 
 cd "${ROOT}"
 
-GOOS=$TARGET_GOOS CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags '-s' -o $1/ecs-cli ./ecs-cli/
+GOOS=$TARGET_GOOS CGO_ENABLED=0 go build -installsuffix cgo -a -ldflags '-s' -o $1/ecs-cli .
 

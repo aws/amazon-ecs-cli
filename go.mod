@@ -1,4 +1,4 @@
-module github.com/aws/amazon-ecs-cli/ecs-cli
+module github.com/aws/amazon-ecs-cli
 
 go 1.13
 
