@@ -68,13 +68,6 @@ integ-test-run-with-coverage: integ-test-run
 generate: $(SOURCES)
 	PATH=$(LOCAL_PATH) go generate ./ecs-cli/modules/...
 
-.PHONY: generate-deps
-generate-deps:
-	DEP_RELEASE_TAG=$DEP_RELEASE_TAG
-	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-	go get github.com/golang/mock/mockgen
-	go get golang.org/x/tools/cmd/goimports
-
 .PHONY: windows-build
 windows-build: $(WINDOWS_BINARY)
 

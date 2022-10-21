@@ -2149,6 +2149,56 @@ func (mr *MockEC2APIMockRecorder) CreateCapacityReservationWithContext(arg0, arg
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCapacityReservationWithContext", reflect.TypeOf((*MockEC2API)(nil).CreateCapacityReservationWithContext), varargs...)
 }
 
+// CreateCarrierGateway mocks base method
+func (m *MockEC2API) CreateCarrierGateway(arg0 *ec2.CreateCarrierGatewayInput) (*ec2.CreateCarrierGatewayOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateCarrierGateway", arg0)
+	ret0, _ := ret[0].(*ec2.CreateCarrierGatewayOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateCarrierGateway indicates an expected call of CreateCarrierGateway
+func (mr *MockEC2APIMockRecorder) CreateCarrierGateway(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCarrierGateway", reflect.TypeOf((*MockEC2API)(nil).CreateCarrierGateway), arg0)
+}
+
+// CreateCarrierGatewayRequest mocks base method
+func (m *MockEC2API) CreateCarrierGatewayRequest(arg0 *ec2.CreateCarrierGatewayInput) (*request.Request, *ec2.CreateCarrierGatewayOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateCarrierGatewayRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.CreateCarrierGatewayOutput)
+	return ret0, ret1
+}
+
+// CreateCarrierGatewayRequest indicates an expected call of CreateCarrierGatewayRequest
+func (mr *MockEC2APIMockRecorder) CreateCarrierGatewayRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCarrierGatewayRequest", reflect.TypeOf((*MockEC2API)(nil).CreateCarrierGatewayRequest), arg0)
+}
+
+// CreateCarrierGatewayWithContext mocks base method
+func (m *MockEC2API) CreateCarrierGatewayWithContext(arg0 context.Context, arg1 *ec2.CreateCarrierGatewayInput, arg2 ...request.Option) (*ec2.CreateCarrierGatewayOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateCarrierGatewayWithContext", varargs...)
+	ret0, _ := ret[0].(*ec2.CreateCarrierGatewayOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateCarrierGatewayWithContext indicates an expected call of CreateCarrierGatewayWithContext
+func (mr *MockEC2APIMockRecorder) CreateCarrierGatewayWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCarrierGatewayWithContext", reflect.TypeOf((*MockEC2API)(nil).CreateCarrierGatewayWithContext), varargs...)
+}
+
 // CreateClientVpnEndpoint mocks base method
 func (m *MockEC2API) CreateClientVpnEndpoint(arg0 *ec2.CreateClientVpnEndpointInput) (*ec2.CreateClientVpnEndpointOutput, error) {
 	m.ctrl.T.Helper()
@@ -3047,6 +3097,56 @@ func (mr *MockEC2APIMockRecorder) CreateLocalGatewayRouteWithContext(arg0, arg1 
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLocalGatewayRouteWithContext", reflect.TypeOf((*MockEC2API)(nil).CreateLocalGatewayRouteWithContext), varargs...)
+}
+
+// CreateManagedPrefixList mocks base method
+func (m *MockEC2API) CreateManagedPrefixList(arg0 *ec2.CreateManagedPrefixListInput) (*ec2.CreateManagedPrefixListOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateManagedPrefixList", arg0)
+	ret0, _ := ret[0].(*ec2.CreateManagedPrefixListOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateManagedPrefixList indicates an expected call of CreateManagedPrefixList
+func (mr *MockEC2APIMockRecorder) CreateManagedPrefixList(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateManagedPrefixList", reflect.TypeOf((*MockEC2API)(nil).CreateManagedPrefixList), arg0)
+}
+
+// CreateManagedPrefixListRequest mocks base method
+func (m *MockEC2API) CreateManagedPrefixListRequest(arg0 *ec2.CreateManagedPrefixListInput) (*request.Request, *ec2.CreateManagedPrefixListOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateManagedPrefixListRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.CreateManagedPrefixListOutput)
+	return ret0, ret1
+}
+
+// CreateManagedPrefixListRequest indicates an expected call of CreateManagedPrefixListRequest
+func (mr *MockEC2APIMockRecorder) CreateManagedPrefixListRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateManagedPrefixListRequest", reflect.TypeOf((*MockEC2API)(nil).CreateManagedPrefixListRequest), arg0)
+}
+
+// CreateManagedPrefixListWithContext mocks base method
+func (m *MockEC2API) CreateManagedPrefixListWithContext(arg0 context.Context, arg1 *ec2.CreateManagedPrefixListInput, arg2 ...request.Option) (*ec2.CreateManagedPrefixListOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateManagedPrefixListWithContext", varargs...)
+	ret0, _ := ret[0].(*ec2.CreateManagedPrefixListOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateManagedPrefixListWithContext indicates an expected call of CreateManagedPrefixListWithContext
+func (mr *MockEC2APIMockRecorder) CreateManagedPrefixListWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateManagedPrefixListWithContext", reflect.TypeOf((*MockEC2API)(nil).CreateManagedPrefixListWithContext), varargs...)
 }
 
 // CreateNatGateway mocks base method
@@ -4749,6 +4849,56 @@ func (mr *MockEC2APIMockRecorder) CreateVpnGatewayWithContext(arg0, arg1 interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateVpnGatewayWithContext", reflect.TypeOf((*MockEC2API)(nil).CreateVpnGatewayWithContext), varargs...)
 }
 
+// DeleteCarrierGateway mocks base method
+func (m *MockEC2API) DeleteCarrierGateway(arg0 *ec2.DeleteCarrierGatewayInput) (*ec2.DeleteCarrierGatewayOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteCarrierGateway", arg0)
+	ret0, _ := ret[0].(*ec2.DeleteCarrierGatewayOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteCarrierGateway indicates an expected call of DeleteCarrierGateway
+func (mr *MockEC2APIMockRecorder) DeleteCarrierGateway(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCarrierGateway", reflect.TypeOf((*MockEC2API)(nil).DeleteCarrierGateway), arg0)
+}
+
+// DeleteCarrierGatewayRequest mocks base method
+func (m *MockEC2API) DeleteCarrierGatewayRequest(arg0 *ec2.DeleteCarrierGatewayInput) (*request.Request, *ec2.DeleteCarrierGatewayOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteCarrierGatewayRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.DeleteCarrierGatewayOutput)
+	return ret0, ret1
+}
+
+// DeleteCarrierGatewayRequest indicates an expected call of DeleteCarrierGatewayRequest
+func (mr *MockEC2APIMockRecorder) DeleteCarrierGatewayRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCarrierGatewayRequest", reflect.TypeOf((*MockEC2API)(nil).DeleteCarrierGatewayRequest), arg0)
+}
+
+// DeleteCarrierGatewayWithContext mocks base method
+func (m *MockEC2API) DeleteCarrierGatewayWithContext(arg0 context.Context, arg1 *ec2.DeleteCarrierGatewayInput, arg2 ...request.Option) (*ec2.DeleteCarrierGatewayOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteCarrierGatewayWithContext", varargs...)
+	ret0, _ := ret[0].(*ec2.DeleteCarrierGatewayOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteCarrierGatewayWithContext indicates an expected call of DeleteCarrierGatewayWithContext
+func (mr *MockEC2APIMockRecorder) DeleteCarrierGatewayWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCarrierGatewayWithContext", reflect.TypeOf((*MockEC2API)(nil).DeleteCarrierGatewayWithContext), varargs...)
+}
+
 // DeleteClientVpnEndpoint mocks base method
 func (m *MockEC2API) DeleteClientVpnEndpoint(arg0 *ec2.DeleteClientVpnEndpointInput) (*ec2.DeleteClientVpnEndpointOutput, error) {
 	m.ctrl.T.Helper()
@@ -5447,6 +5597,56 @@ func (mr *MockEC2APIMockRecorder) DeleteLocalGatewayRouteWithContext(arg0, arg1 
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLocalGatewayRouteWithContext", reflect.TypeOf((*MockEC2API)(nil).DeleteLocalGatewayRouteWithContext), varargs...)
+}
+
+// DeleteManagedPrefixList mocks base method
+func (m *MockEC2API) DeleteManagedPrefixList(arg0 *ec2.DeleteManagedPrefixListInput) (*ec2.DeleteManagedPrefixListOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteManagedPrefixList", arg0)
+	ret0, _ := ret[0].(*ec2.DeleteManagedPrefixListOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteManagedPrefixList indicates an expected call of DeleteManagedPrefixList
+func (mr *MockEC2APIMockRecorder) DeleteManagedPrefixList(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteManagedPrefixList", reflect.TypeOf((*MockEC2API)(nil).DeleteManagedPrefixList), arg0)
+}
+
+// DeleteManagedPrefixListRequest mocks base method
+func (m *MockEC2API) DeleteManagedPrefixListRequest(arg0 *ec2.DeleteManagedPrefixListInput) (*request.Request, *ec2.DeleteManagedPrefixListOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteManagedPrefixListRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.DeleteManagedPrefixListOutput)
+	return ret0, ret1
+}
+
+// DeleteManagedPrefixListRequest indicates an expected call of DeleteManagedPrefixListRequest
+func (mr *MockEC2APIMockRecorder) DeleteManagedPrefixListRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteManagedPrefixListRequest", reflect.TypeOf((*MockEC2API)(nil).DeleteManagedPrefixListRequest), arg0)
+}
+
+// DeleteManagedPrefixListWithContext mocks base method
+func (m *MockEC2API) DeleteManagedPrefixListWithContext(arg0 context.Context, arg1 *ec2.DeleteManagedPrefixListInput, arg2 ...request.Option) (*ec2.DeleteManagedPrefixListOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteManagedPrefixListWithContext", varargs...)
+	ret0, _ := ret[0].(*ec2.DeleteManagedPrefixListOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteManagedPrefixListWithContext indicates an expected call of DeleteManagedPrefixListWithContext
+func (mr *MockEC2APIMockRecorder) DeleteManagedPrefixListWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteManagedPrefixListWithContext", reflect.TypeOf((*MockEC2API)(nil).DeleteManagedPrefixListWithContext), varargs...)
 }
 
 // DeleteNatGateway mocks base method
@@ -7763,6 +7963,89 @@ func (mr *MockEC2APIMockRecorder) DescribeCapacityReservationsWithContext(arg0, 
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeCapacityReservationsWithContext", reflect.TypeOf((*MockEC2API)(nil).DescribeCapacityReservationsWithContext), varargs...)
+}
+
+// DescribeCarrierGateways mocks base method
+func (m *MockEC2API) DescribeCarrierGateways(arg0 *ec2.DescribeCarrierGatewaysInput) (*ec2.DescribeCarrierGatewaysOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeCarrierGateways", arg0)
+	ret0, _ := ret[0].(*ec2.DescribeCarrierGatewaysOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeCarrierGateways indicates an expected call of DescribeCarrierGateways
+func (mr *MockEC2APIMockRecorder) DescribeCarrierGateways(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeCarrierGateways", reflect.TypeOf((*MockEC2API)(nil).DescribeCarrierGateways), arg0)
+}
+
+// DescribeCarrierGatewaysPages mocks base method
+func (m *MockEC2API) DescribeCarrierGatewaysPages(arg0 *ec2.DescribeCarrierGatewaysInput, arg1 func(*ec2.DescribeCarrierGatewaysOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeCarrierGatewaysPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeCarrierGatewaysPages indicates an expected call of DescribeCarrierGatewaysPages
+func (mr *MockEC2APIMockRecorder) DescribeCarrierGatewaysPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeCarrierGatewaysPages", reflect.TypeOf((*MockEC2API)(nil).DescribeCarrierGatewaysPages), arg0, arg1)
+}
+
+// DescribeCarrierGatewaysPagesWithContext mocks base method
+func (m *MockEC2API) DescribeCarrierGatewaysPagesWithContext(arg0 context.Context, arg1 *ec2.DescribeCarrierGatewaysInput, arg2 func(*ec2.DescribeCarrierGatewaysOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeCarrierGatewaysPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeCarrierGatewaysPagesWithContext indicates an expected call of DescribeCarrierGatewaysPagesWithContext
+func (mr *MockEC2APIMockRecorder) DescribeCarrierGatewaysPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeCarrierGatewaysPagesWithContext", reflect.TypeOf((*MockEC2API)(nil).DescribeCarrierGatewaysPagesWithContext), varargs...)
+}
+
+// DescribeCarrierGatewaysRequest mocks base method
+func (m *MockEC2API) DescribeCarrierGatewaysRequest(arg0 *ec2.DescribeCarrierGatewaysInput) (*request.Request, *ec2.DescribeCarrierGatewaysOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeCarrierGatewaysRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.DescribeCarrierGatewaysOutput)
+	return ret0, ret1
+}
+
+// DescribeCarrierGatewaysRequest indicates an expected call of DescribeCarrierGatewaysRequest
+func (mr *MockEC2APIMockRecorder) DescribeCarrierGatewaysRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeCarrierGatewaysRequest", reflect.TypeOf((*MockEC2API)(nil).DescribeCarrierGatewaysRequest), arg0)
+}
+
+// DescribeCarrierGatewaysWithContext mocks base method
+func (m *MockEC2API) DescribeCarrierGatewaysWithContext(arg0 context.Context, arg1 *ec2.DescribeCarrierGatewaysInput, arg2 ...request.Option) (*ec2.DescribeCarrierGatewaysOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeCarrierGatewaysWithContext", varargs...)
+	ret0, _ := ret[0].(*ec2.DescribeCarrierGatewaysOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeCarrierGatewaysWithContext indicates an expected call of DescribeCarrierGatewaysWithContext
+func (mr *MockEC2APIMockRecorder) DescribeCarrierGatewaysWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeCarrierGatewaysWithContext", reflect.TypeOf((*MockEC2API)(nil).DescribeCarrierGatewaysWithContext), varargs...)
 }
 
 // DescribeClassicLinkInstances mocks base method
@@ -11368,6 +11651,89 @@ func (mr *MockEC2APIMockRecorder) DescribeLocalGatewaysWithContext(arg0, arg1 in
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeLocalGatewaysWithContext", reflect.TypeOf((*MockEC2API)(nil).DescribeLocalGatewaysWithContext), varargs...)
+}
+
+// DescribeManagedPrefixLists mocks base method
+func (m *MockEC2API) DescribeManagedPrefixLists(arg0 *ec2.DescribeManagedPrefixListsInput) (*ec2.DescribeManagedPrefixListsOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeManagedPrefixLists", arg0)
+	ret0, _ := ret[0].(*ec2.DescribeManagedPrefixListsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeManagedPrefixLists indicates an expected call of DescribeManagedPrefixLists
+func (mr *MockEC2APIMockRecorder) DescribeManagedPrefixLists(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeManagedPrefixLists", reflect.TypeOf((*MockEC2API)(nil).DescribeManagedPrefixLists), arg0)
+}
+
+// DescribeManagedPrefixListsPages mocks base method
+func (m *MockEC2API) DescribeManagedPrefixListsPages(arg0 *ec2.DescribeManagedPrefixListsInput, arg1 func(*ec2.DescribeManagedPrefixListsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeManagedPrefixListsPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeManagedPrefixListsPages indicates an expected call of DescribeManagedPrefixListsPages
+func (mr *MockEC2APIMockRecorder) DescribeManagedPrefixListsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeManagedPrefixListsPages", reflect.TypeOf((*MockEC2API)(nil).DescribeManagedPrefixListsPages), arg0, arg1)
+}
+
+// DescribeManagedPrefixListsPagesWithContext mocks base method
+func (m *MockEC2API) DescribeManagedPrefixListsPagesWithContext(arg0 context.Context, arg1 *ec2.DescribeManagedPrefixListsInput, arg2 func(*ec2.DescribeManagedPrefixListsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeManagedPrefixListsPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeManagedPrefixListsPagesWithContext indicates an expected call of DescribeManagedPrefixListsPagesWithContext
+func (mr *MockEC2APIMockRecorder) DescribeManagedPrefixListsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeManagedPrefixListsPagesWithContext", reflect.TypeOf((*MockEC2API)(nil).DescribeManagedPrefixListsPagesWithContext), varargs...)
+}
+
+// DescribeManagedPrefixListsRequest mocks base method
+func (m *MockEC2API) DescribeManagedPrefixListsRequest(arg0 *ec2.DescribeManagedPrefixListsInput) (*request.Request, *ec2.DescribeManagedPrefixListsOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeManagedPrefixListsRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.DescribeManagedPrefixListsOutput)
+	return ret0, ret1
+}
+
+// DescribeManagedPrefixListsRequest indicates an expected call of DescribeManagedPrefixListsRequest
+func (mr *MockEC2APIMockRecorder) DescribeManagedPrefixListsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeManagedPrefixListsRequest", reflect.TypeOf((*MockEC2API)(nil).DescribeManagedPrefixListsRequest), arg0)
+}
+
+// DescribeManagedPrefixListsWithContext mocks base method
+func (m *MockEC2API) DescribeManagedPrefixListsWithContext(arg0 context.Context, arg1 *ec2.DescribeManagedPrefixListsInput, arg2 ...request.Option) (*ec2.DescribeManagedPrefixListsOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeManagedPrefixListsWithContext", varargs...)
+	ret0, _ := ret[0].(*ec2.DescribeManagedPrefixListsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeManagedPrefixListsWithContext indicates an expected call of DescribeManagedPrefixListsWithContext
+func (mr *MockEC2APIMockRecorder) DescribeManagedPrefixListsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeManagedPrefixListsWithContext", reflect.TypeOf((*MockEC2API)(nil).DescribeManagedPrefixListsWithContext), varargs...)
 }
 
 // DescribeMovingAddresses mocks base method
@@ -17506,6 +17872,89 @@ func (mr *MockEC2APIMockRecorder) GetEbsEncryptionByDefaultWithContext(arg0, arg
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEbsEncryptionByDefaultWithContext", reflect.TypeOf((*MockEC2API)(nil).GetEbsEncryptionByDefaultWithContext), varargs...)
 }
 
+// GetGroupsForCapacityReservation mocks base method
+func (m *MockEC2API) GetGroupsForCapacityReservation(arg0 *ec2.GetGroupsForCapacityReservationInput) (*ec2.GetGroupsForCapacityReservationOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGroupsForCapacityReservation", arg0)
+	ret0, _ := ret[0].(*ec2.GetGroupsForCapacityReservationOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetGroupsForCapacityReservation indicates an expected call of GetGroupsForCapacityReservation
+func (mr *MockEC2APIMockRecorder) GetGroupsForCapacityReservation(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGroupsForCapacityReservation", reflect.TypeOf((*MockEC2API)(nil).GetGroupsForCapacityReservation), arg0)
+}
+
+// GetGroupsForCapacityReservationPages mocks base method
+func (m *MockEC2API) GetGroupsForCapacityReservationPages(arg0 *ec2.GetGroupsForCapacityReservationInput, arg1 func(*ec2.GetGroupsForCapacityReservationOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGroupsForCapacityReservationPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GetGroupsForCapacityReservationPages indicates an expected call of GetGroupsForCapacityReservationPages
+func (mr *MockEC2APIMockRecorder) GetGroupsForCapacityReservationPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGroupsForCapacityReservationPages", reflect.TypeOf((*MockEC2API)(nil).GetGroupsForCapacityReservationPages), arg0, arg1)
+}
+
+// GetGroupsForCapacityReservationPagesWithContext mocks base method
+func (m *MockEC2API) GetGroupsForCapacityReservationPagesWithContext(arg0 context.Context, arg1 *ec2.GetGroupsForCapacityReservationInput, arg2 func(*ec2.GetGroupsForCapacityReservationOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetGroupsForCapacityReservationPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GetGroupsForCapacityReservationPagesWithContext indicates an expected call of GetGroupsForCapacityReservationPagesWithContext
+func (mr *MockEC2APIMockRecorder) GetGroupsForCapacityReservationPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGroupsForCapacityReservationPagesWithContext", reflect.TypeOf((*MockEC2API)(nil).GetGroupsForCapacityReservationPagesWithContext), varargs...)
+}
+
+// GetGroupsForCapacityReservationRequest mocks base method
+func (m *MockEC2API) GetGroupsForCapacityReservationRequest(arg0 *ec2.GetGroupsForCapacityReservationInput) (*request.Request, *ec2.GetGroupsForCapacityReservationOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGroupsForCapacityReservationRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.GetGroupsForCapacityReservationOutput)
+	return ret0, ret1
+}
+
+// GetGroupsForCapacityReservationRequest indicates an expected call of GetGroupsForCapacityReservationRequest
+func (mr *MockEC2APIMockRecorder) GetGroupsForCapacityReservationRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGroupsForCapacityReservationRequest", reflect.TypeOf((*MockEC2API)(nil).GetGroupsForCapacityReservationRequest), arg0)
+}
+
+// GetGroupsForCapacityReservationWithContext mocks base method
+func (m *MockEC2API) GetGroupsForCapacityReservationWithContext(arg0 context.Context, arg1 *ec2.GetGroupsForCapacityReservationInput, arg2 ...request.Option) (*ec2.GetGroupsForCapacityReservationOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetGroupsForCapacityReservationWithContext", varargs...)
+	ret0, _ := ret[0].(*ec2.GetGroupsForCapacityReservationOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetGroupsForCapacityReservationWithContext indicates an expected call of GetGroupsForCapacityReservationWithContext
+func (mr *MockEC2APIMockRecorder) GetGroupsForCapacityReservationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGroupsForCapacityReservationWithContext", reflect.TypeOf((*MockEC2API)(nil).GetGroupsForCapacityReservationWithContext), varargs...)
+}
+
 // GetHostReservationPurchasePreview mocks base method
 func (m *MockEC2API) GetHostReservationPurchasePreview(arg0 *ec2.GetHostReservationPurchasePreviewInput) (*ec2.GetHostReservationPurchasePreviewOutput, error) {
 	m.ctrl.T.Helper()
@@ -17604,6 +18053,172 @@ func (mr *MockEC2APIMockRecorder) GetLaunchTemplateDataWithContext(arg0, arg1 in
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLaunchTemplateDataWithContext", reflect.TypeOf((*MockEC2API)(nil).GetLaunchTemplateDataWithContext), varargs...)
+}
+
+// GetManagedPrefixListAssociations mocks base method
+func (m *MockEC2API) GetManagedPrefixListAssociations(arg0 *ec2.GetManagedPrefixListAssociationsInput) (*ec2.GetManagedPrefixListAssociationsOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetManagedPrefixListAssociations", arg0)
+	ret0, _ := ret[0].(*ec2.GetManagedPrefixListAssociationsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetManagedPrefixListAssociations indicates an expected call of GetManagedPrefixListAssociations
+func (mr *MockEC2APIMockRecorder) GetManagedPrefixListAssociations(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetManagedPrefixListAssociations", reflect.TypeOf((*MockEC2API)(nil).GetManagedPrefixListAssociations), arg0)
+}
+
+// GetManagedPrefixListAssociationsPages mocks base method
+func (m *MockEC2API) GetManagedPrefixListAssociationsPages(arg0 *ec2.GetManagedPrefixListAssociationsInput, arg1 func(*ec2.GetManagedPrefixListAssociationsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetManagedPrefixListAssociationsPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GetManagedPrefixListAssociationsPages indicates an expected call of GetManagedPrefixListAssociationsPages
+func (mr *MockEC2APIMockRecorder) GetManagedPrefixListAssociationsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetManagedPrefixListAssociationsPages", reflect.TypeOf((*MockEC2API)(nil).GetManagedPrefixListAssociationsPages), arg0, arg1)
+}
+
+// GetManagedPrefixListAssociationsPagesWithContext mocks base method
+func (m *MockEC2API) GetManagedPrefixListAssociationsPagesWithContext(arg0 context.Context, arg1 *ec2.GetManagedPrefixListAssociationsInput, arg2 func(*ec2.GetManagedPrefixListAssociationsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetManagedPrefixListAssociationsPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GetManagedPrefixListAssociationsPagesWithContext indicates an expected call of GetManagedPrefixListAssociationsPagesWithContext
+func (mr *MockEC2APIMockRecorder) GetManagedPrefixListAssociationsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetManagedPrefixListAssociationsPagesWithContext", reflect.TypeOf((*MockEC2API)(nil).GetManagedPrefixListAssociationsPagesWithContext), varargs...)
+}
+
+// GetManagedPrefixListAssociationsRequest mocks base method
+func (m *MockEC2API) GetManagedPrefixListAssociationsRequest(arg0 *ec2.GetManagedPrefixListAssociationsInput) (*request.Request, *ec2.GetManagedPrefixListAssociationsOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetManagedPrefixListAssociationsRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.GetManagedPrefixListAssociationsOutput)
+	return ret0, ret1
+}
+
+// GetManagedPrefixListAssociationsRequest indicates an expected call of GetManagedPrefixListAssociationsRequest
+func (mr *MockEC2APIMockRecorder) GetManagedPrefixListAssociationsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetManagedPrefixListAssociationsRequest", reflect.TypeOf((*MockEC2API)(nil).GetManagedPrefixListAssociationsRequest), arg0)
+}
+
+// GetManagedPrefixListAssociationsWithContext mocks base method
+func (m *MockEC2API) GetManagedPrefixListAssociationsWithContext(arg0 context.Context, arg1 *ec2.GetManagedPrefixListAssociationsInput, arg2 ...request.Option) (*ec2.GetManagedPrefixListAssociationsOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetManagedPrefixListAssociationsWithContext", varargs...)
+	ret0, _ := ret[0].(*ec2.GetManagedPrefixListAssociationsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetManagedPrefixListAssociationsWithContext indicates an expected call of GetManagedPrefixListAssociationsWithContext
+func (mr *MockEC2APIMockRecorder) GetManagedPrefixListAssociationsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetManagedPrefixListAssociationsWithContext", reflect.TypeOf((*MockEC2API)(nil).GetManagedPrefixListAssociationsWithContext), varargs...)
+}
+
+// GetManagedPrefixListEntries mocks base method
+func (m *MockEC2API) GetManagedPrefixListEntries(arg0 *ec2.GetManagedPrefixListEntriesInput) (*ec2.GetManagedPrefixListEntriesOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetManagedPrefixListEntries", arg0)
+	ret0, _ := ret[0].(*ec2.GetManagedPrefixListEntriesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetManagedPrefixListEntries indicates an expected call of GetManagedPrefixListEntries
+func (mr *MockEC2APIMockRecorder) GetManagedPrefixListEntries(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetManagedPrefixListEntries", reflect.TypeOf((*MockEC2API)(nil).GetManagedPrefixListEntries), arg0)
+}
+
+// GetManagedPrefixListEntriesPages mocks base method
+func (m *MockEC2API) GetManagedPrefixListEntriesPages(arg0 *ec2.GetManagedPrefixListEntriesInput, arg1 func(*ec2.GetManagedPrefixListEntriesOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetManagedPrefixListEntriesPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GetManagedPrefixListEntriesPages indicates an expected call of GetManagedPrefixListEntriesPages
+func (mr *MockEC2APIMockRecorder) GetManagedPrefixListEntriesPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetManagedPrefixListEntriesPages", reflect.TypeOf((*MockEC2API)(nil).GetManagedPrefixListEntriesPages), arg0, arg1)
+}
+
+// GetManagedPrefixListEntriesPagesWithContext mocks base method
+func (m *MockEC2API) GetManagedPrefixListEntriesPagesWithContext(arg0 context.Context, arg1 *ec2.GetManagedPrefixListEntriesInput, arg2 func(*ec2.GetManagedPrefixListEntriesOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetManagedPrefixListEntriesPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GetManagedPrefixListEntriesPagesWithContext indicates an expected call of GetManagedPrefixListEntriesPagesWithContext
+func (mr *MockEC2APIMockRecorder) GetManagedPrefixListEntriesPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetManagedPrefixListEntriesPagesWithContext", reflect.TypeOf((*MockEC2API)(nil).GetManagedPrefixListEntriesPagesWithContext), varargs...)
+}
+
+// GetManagedPrefixListEntriesRequest mocks base method
+func (m *MockEC2API) GetManagedPrefixListEntriesRequest(arg0 *ec2.GetManagedPrefixListEntriesInput) (*request.Request, *ec2.GetManagedPrefixListEntriesOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetManagedPrefixListEntriesRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.GetManagedPrefixListEntriesOutput)
+	return ret0, ret1
+}
+
+// GetManagedPrefixListEntriesRequest indicates an expected call of GetManagedPrefixListEntriesRequest
+func (mr *MockEC2APIMockRecorder) GetManagedPrefixListEntriesRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetManagedPrefixListEntriesRequest", reflect.TypeOf((*MockEC2API)(nil).GetManagedPrefixListEntriesRequest), arg0)
+}
+
+// GetManagedPrefixListEntriesWithContext mocks base method
+func (m *MockEC2API) GetManagedPrefixListEntriesWithContext(arg0 context.Context, arg1 *ec2.GetManagedPrefixListEntriesInput, arg2 ...request.Option) (*ec2.GetManagedPrefixListEntriesOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetManagedPrefixListEntriesWithContext", varargs...)
+	ret0, _ := ret[0].(*ec2.GetManagedPrefixListEntriesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetManagedPrefixListEntriesWithContext indicates an expected call of GetManagedPrefixListEntriesWithContext
+func (mr *MockEC2APIMockRecorder) GetManagedPrefixListEntriesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetManagedPrefixListEntriesWithContext", reflect.TypeOf((*MockEC2API)(nil).GetManagedPrefixListEntriesWithContext), varargs...)
 }
 
 // GetPasswordData mocks base method
@@ -19236,6 +19851,56 @@ func (mr *MockEC2APIMockRecorder) ModifyLaunchTemplateWithContext(arg0, arg1 int
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModifyLaunchTemplateWithContext", reflect.TypeOf((*MockEC2API)(nil).ModifyLaunchTemplateWithContext), varargs...)
+}
+
+// ModifyManagedPrefixList mocks base method
+func (m *MockEC2API) ModifyManagedPrefixList(arg0 *ec2.ModifyManagedPrefixListInput) (*ec2.ModifyManagedPrefixListOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ModifyManagedPrefixList", arg0)
+	ret0, _ := ret[0].(*ec2.ModifyManagedPrefixListOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ModifyManagedPrefixList indicates an expected call of ModifyManagedPrefixList
+func (mr *MockEC2APIMockRecorder) ModifyManagedPrefixList(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModifyManagedPrefixList", reflect.TypeOf((*MockEC2API)(nil).ModifyManagedPrefixList), arg0)
+}
+
+// ModifyManagedPrefixListRequest mocks base method
+func (m *MockEC2API) ModifyManagedPrefixListRequest(arg0 *ec2.ModifyManagedPrefixListInput) (*request.Request, *ec2.ModifyManagedPrefixListOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ModifyManagedPrefixListRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.ModifyManagedPrefixListOutput)
+	return ret0, ret1
+}
+
+// ModifyManagedPrefixListRequest indicates an expected call of ModifyManagedPrefixListRequest
+func (mr *MockEC2APIMockRecorder) ModifyManagedPrefixListRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModifyManagedPrefixListRequest", reflect.TypeOf((*MockEC2API)(nil).ModifyManagedPrefixListRequest), arg0)
+}
+
+// ModifyManagedPrefixListWithContext mocks base method
+func (m *MockEC2API) ModifyManagedPrefixListWithContext(arg0 context.Context, arg1 *ec2.ModifyManagedPrefixListInput, arg2 ...request.Option) (*ec2.ModifyManagedPrefixListOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ModifyManagedPrefixListWithContext", varargs...)
+	ret0, _ := ret[0].(*ec2.ModifyManagedPrefixListOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ModifyManagedPrefixListWithContext indicates an expected call of ModifyManagedPrefixListWithContext
+func (mr *MockEC2APIMockRecorder) ModifyManagedPrefixListWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModifyManagedPrefixListWithContext", reflect.TypeOf((*MockEC2API)(nil).ModifyManagedPrefixListWithContext), varargs...)
 }
 
 // ModifyNetworkInterfaceAttribute mocks base method
@@ -21936,6 +22601,56 @@ func (mr *MockEC2APIMockRecorder) RestoreAddressToClassicWithContext(arg0, arg1 
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreAddressToClassicWithContext", reflect.TypeOf((*MockEC2API)(nil).RestoreAddressToClassicWithContext), varargs...)
+}
+
+// RestoreManagedPrefixListVersion mocks base method
+func (m *MockEC2API) RestoreManagedPrefixListVersion(arg0 *ec2.RestoreManagedPrefixListVersionInput) (*ec2.RestoreManagedPrefixListVersionOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RestoreManagedPrefixListVersion", arg0)
+	ret0, _ := ret[0].(*ec2.RestoreManagedPrefixListVersionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RestoreManagedPrefixListVersion indicates an expected call of RestoreManagedPrefixListVersion
+func (mr *MockEC2APIMockRecorder) RestoreManagedPrefixListVersion(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreManagedPrefixListVersion", reflect.TypeOf((*MockEC2API)(nil).RestoreManagedPrefixListVersion), arg0)
+}
+
+// RestoreManagedPrefixListVersionRequest mocks base method
+func (m *MockEC2API) RestoreManagedPrefixListVersionRequest(arg0 *ec2.RestoreManagedPrefixListVersionInput) (*request.Request, *ec2.RestoreManagedPrefixListVersionOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RestoreManagedPrefixListVersionRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*ec2.RestoreManagedPrefixListVersionOutput)
+	return ret0, ret1
+}
+
+// RestoreManagedPrefixListVersionRequest indicates an expected call of RestoreManagedPrefixListVersionRequest
+func (mr *MockEC2APIMockRecorder) RestoreManagedPrefixListVersionRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreManagedPrefixListVersionRequest", reflect.TypeOf((*MockEC2API)(nil).RestoreManagedPrefixListVersionRequest), arg0)
+}
+
+// RestoreManagedPrefixListVersionWithContext mocks base method
+func (m *MockEC2API) RestoreManagedPrefixListVersionWithContext(arg0 context.Context, arg1 *ec2.RestoreManagedPrefixListVersionInput, arg2 ...request.Option) (*ec2.RestoreManagedPrefixListVersionOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "RestoreManagedPrefixListVersionWithContext", varargs...)
+	ret0, _ := ret[0].(*ec2.RestoreManagedPrefixListVersionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RestoreManagedPrefixListVersionWithContext indicates an expected call of RestoreManagedPrefixListVersionWithContext
+func (mr *MockEC2APIMockRecorder) RestoreManagedPrefixListVersionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreManagedPrefixListVersionWithContext", reflect.TypeOf((*MockEC2API)(nil).RestoreManagedPrefixListVersionWithContext), varargs...)
 }
 
 // RevokeClientVpnIngress mocks base method

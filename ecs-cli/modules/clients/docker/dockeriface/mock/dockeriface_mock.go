@@ -20,7 +20,7 @@ package mock_dockeriface
 import (
 	reflect "reflect"
 
-	go_dockerclient "github.com/fsouza/go-dockerclient"
+	docker "github.com/fsouza/go-dockerclient"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -48,7 +48,7 @@ func (m *MockDockerAPI) EXPECT() *MockDockerAPIMockRecorder {
 }
 
 // PullImage mocks base method
-func (m *MockDockerAPI) PullImage(arg0 go_dockerclient.PullImageOptions, arg1 go_dockerclient.AuthConfiguration) error {
+func (m *MockDockerAPI) PullImage(arg0 docker.PullImageOptions, arg1 docker.AuthConfiguration) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PullImage", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -62,7 +62,7 @@ func (mr *MockDockerAPIMockRecorder) PullImage(arg0, arg1 interface{}) *gomock.C
 }
 
 // PushImage mocks base method
-func (m *MockDockerAPI) PushImage(arg0 go_dockerclient.PushImageOptions, arg1 go_dockerclient.AuthConfiguration) error {
+func (m *MockDockerAPI) PushImage(arg0 docker.PushImageOptions, arg1 docker.AuthConfiguration) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PushImage", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -76,7 +76,7 @@ func (mr *MockDockerAPIMockRecorder) PushImage(arg0, arg1 interface{}) *gomock.C
 }
 
 // TagImage mocks base method
-func (m *MockDockerAPI) TagImage(arg0 string, arg1 go_dockerclient.TagImageOptions) error {
+func (m *MockDockerAPI) TagImage(arg0 string, arg1 docker.TagImageOptions) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TagImage", arg0, arg1)
 	ret0, _ := ret[0].(error)

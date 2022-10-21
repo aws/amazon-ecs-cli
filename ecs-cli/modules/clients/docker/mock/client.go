@@ -20,7 +20,7 @@ package mock_docker
 import (
 	reflect "reflect"
 
-	go_dockerclient "github.com/fsouza/go-dockerclient"
+	docker "github.com/fsouza/go-dockerclient"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -48,7 +48,7 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 }
 
 // PullImage mocks base method
-func (m *MockClient) PullImage(arg0, arg1 string, arg2 go_dockerclient.AuthConfiguration) error {
+func (m *MockClient) PullImage(arg0, arg1 string, arg2 docker.AuthConfiguration) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PullImage", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
@@ -62,7 +62,7 @@ func (mr *MockClientMockRecorder) PullImage(arg0, arg1, arg2 interface{}) *gomoc
 }
 
 // PushImage mocks base method
-func (m *MockClient) PushImage(arg0, arg1, arg2 string, arg3 go_dockerclient.AuthConfiguration) error {
+func (m *MockClient) PushImage(arg0, arg1, arg2 string, arg3 docker.AuthConfiguration) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PushImage", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)

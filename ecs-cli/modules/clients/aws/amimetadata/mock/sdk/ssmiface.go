@@ -1362,6 +1362,39 @@ func (mr *MockSSMAPIMockRecorder) DescribeAssociationExecutionTargets(arg0 inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAssociationExecutionTargets", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAssociationExecutionTargets), arg0)
 }
 
+// DescribeAssociationExecutionTargetsPages mocks base method
+func (m *MockSSMAPI) DescribeAssociationExecutionTargetsPages(arg0 *ssm.DescribeAssociationExecutionTargetsInput, arg1 func(*ssm.DescribeAssociationExecutionTargetsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeAssociationExecutionTargetsPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeAssociationExecutionTargetsPages indicates an expected call of DescribeAssociationExecutionTargetsPages
+func (mr *MockSSMAPIMockRecorder) DescribeAssociationExecutionTargetsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAssociationExecutionTargetsPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAssociationExecutionTargetsPages), arg0, arg1)
+}
+
+// DescribeAssociationExecutionTargetsPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeAssociationExecutionTargetsPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeAssociationExecutionTargetsInput, arg2 func(*ssm.DescribeAssociationExecutionTargetsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeAssociationExecutionTargetsPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeAssociationExecutionTargetsPagesWithContext indicates an expected call of DescribeAssociationExecutionTargetsPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeAssociationExecutionTargetsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAssociationExecutionTargetsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAssociationExecutionTargetsPagesWithContext), varargs...)
+}
+
 // DescribeAssociationExecutionTargetsRequest mocks base method
 func (m *MockSSMAPI) DescribeAssociationExecutionTargetsRequest(arg0 *ssm.DescribeAssociationExecutionTargetsInput) (*request.Request, *ssm.DescribeAssociationExecutionTargetsOutput) {
 	m.ctrl.T.Helper()
@@ -1410,6 +1443,39 @@ func (m *MockSSMAPI) DescribeAssociationExecutions(arg0 *ssm.DescribeAssociation
 func (mr *MockSSMAPIMockRecorder) DescribeAssociationExecutions(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAssociationExecutions", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAssociationExecutions), arg0)
+}
+
+// DescribeAssociationExecutionsPages mocks base method
+func (m *MockSSMAPI) DescribeAssociationExecutionsPages(arg0 *ssm.DescribeAssociationExecutionsInput, arg1 func(*ssm.DescribeAssociationExecutionsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeAssociationExecutionsPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeAssociationExecutionsPages indicates an expected call of DescribeAssociationExecutionsPages
+func (mr *MockSSMAPIMockRecorder) DescribeAssociationExecutionsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAssociationExecutionsPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAssociationExecutionsPages), arg0, arg1)
+}
+
+// DescribeAssociationExecutionsPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeAssociationExecutionsPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeAssociationExecutionsInput, arg2 func(*ssm.DescribeAssociationExecutionsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeAssociationExecutionsPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeAssociationExecutionsPagesWithContext indicates an expected call of DescribeAssociationExecutionsPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeAssociationExecutionsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAssociationExecutionsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAssociationExecutionsPagesWithContext), varargs...)
 }
 
 // DescribeAssociationExecutionsRequest mocks base method
@@ -1497,6 +1563,39 @@ func (mr *MockSSMAPIMockRecorder) DescribeAutomationExecutions(arg0 interface{})
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAutomationExecutions", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAutomationExecutions), arg0)
 }
 
+// DescribeAutomationExecutionsPages mocks base method
+func (m *MockSSMAPI) DescribeAutomationExecutionsPages(arg0 *ssm.DescribeAutomationExecutionsInput, arg1 func(*ssm.DescribeAutomationExecutionsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeAutomationExecutionsPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeAutomationExecutionsPages indicates an expected call of DescribeAutomationExecutionsPages
+func (mr *MockSSMAPIMockRecorder) DescribeAutomationExecutionsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAutomationExecutionsPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAutomationExecutionsPages), arg0, arg1)
+}
+
+// DescribeAutomationExecutionsPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeAutomationExecutionsPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeAutomationExecutionsInput, arg2 func(*ssm.DescribeAutomationExecutionsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeAutomationExecutionsPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeAutomationExecutionsPagesWithContext indicates an expected call of DescribeAutomationExecutionsPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeAutomationExecutionsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAutomationExecutionsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAutomationExecutionsPagesWithContext), varargs...)
+}
+
 // DescribeAutomationExecutionsRequest mocks base method
 func (m *MockSSMAPI) DescribeAutomationExecutionsRequest(arg0 *ssm.DescribeAutomationExecutionsInput) (*request.Request, *ssm.DescribeAutomationExecutionsOutput) {
 	m.ctrl.T.Helper()
@@ -1547,6 +1646,39 @@ func (mr *MockSSMAPIMockRecorder) DescribeAutomationStepExecutions(arg0 interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAutomationStepExecutions", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAutomationStepExecutions), arg0)
 }
 
+// DescribeAutomationStepExecutionsPages mocks base method
+func (m *MockSSMAPI) DescribeAutomationStepExecutionsPages(arg0 *ssm.DescribeAutomationStepExecutionsInput, arg1 func(*ssm.DescribeAutomationStepExecutionsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeAutomationStepExecutionsPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeAutomationStepExecutionsPages indicates an expected call of DescribeAutomationStepExecutionsPages
+func (mr *MockSSMAPIMockRecorder) DescribeAutomationStepExecutionsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAutomationStepExecutionsPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAutomationStepExecutionsPages), arg0, arg1)
+}
+
+// DescribeAutomationStepExecutionsPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeAutomationStepExecutionsPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeAutomationStepExecutionsInput, arg2 func(*ssm.DescribeAutomationStepExecutionsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeAutomationStepExecutionsPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeAutomationStepExecutionsPagesWithContext indicates an expected call of DescribeAutomationStepExecutionsPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeAutomationStepExecutionsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAutomationStepExecutionsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAutomationStepExecutionsPagesWithContext), varargs...)
+}
+
 // DescribeAutomationStepExecutionsRequest mocks base method
 func (m *MockSSMAPI) DescribeAutomationStepExecutionsRequest(arg0 *ssm.DescribeAutomationStepExecutionsInput) (*request.Request, *ssm.DescribeAutomationStepExecutionsOutput) {
 	m.ctrl.T.Helper()
@@ -1595,6 +1727,39 @@ func (m *MockSSMAPI) DescribeAvailablePatches(arg0 *ssm.DescribeAvailablePatches
 func (mr *MockSSMAPIMockRecorder) DescribeAvailablePatches(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAvailablePatches", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAvailablePatches), arg0)
+}
+
+// DescribeAvailablePatchesPages mocks base method
+func (m *MockSSMAPI) DescribeAvailablePatchesPages(arg0 *ssm.DescribeAvailablePatchesInput, arg1 func(*ssm.DescribeAvailablePatchesOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeAvailablePatchesPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeAvailablePatchesPages indicates an expected call of DescribeAvailablePatchesPages
+func (mr *MockSSMAPIMockRecorder) DescribeAvailablePatchesPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAvailablePatchesPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAvailablePatchesPages), arg0, arg1)
+}
+
+// DescribeAvailablePatchesPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeAvailablePatchesPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeAvailablePatchesInput, arg2 func(*ssm.DescribeAvailablePatchesOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeAvailablePatchesPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeAvailablePatchesPagesWithContext indicates an expected call of DescribeAvailablePatchesPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeAvailablePatchesPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeAvailablePatchesPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeAvailablePatchesPagesWithContext), varargs...)
 }
 
 // DescribeAvailablePatchesRequest mocks base method
@@ -1747,6 +1912,39 @@ func (mr *MockSSMAPIMockRecorder) DescribeEffectiveInstanceAssociations(arg0 int
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeEffectiveInstanceAssociations", reflect.TypeOf((*MockSSMAPI)(nil).DescribeEffectiveInstanceAssociations), arg0)
 }
 
+// DescribeEffectiveInstanceAssociationsPages mocks base method
+func (m *MockSSMAPI) DescribeEffectiveInstanceAssociationsPages(arg0 *ssm.DescribeEffectiveInstanceAssociationsInput, arg1 func(*ssm.DescribeEffectiveInstanceAssociationsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeEffectiveInstanceAssociationsPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeEffectiveInstanceAssociationsPages indicates an expected call of DescribeEffectiveInstanceAssociationsPages
+func (mr *MockSSMAPIMockRecorder) DescribeEffectiveInstanceAssociationsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeEffectiveInstanceAssociationsPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeEffectiveInstanceAssociationsPages), arg0, arg1)
+}
+
+// DescribeEffectiveInstanceAssociationsPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeEffectiveInstanceAssociationsPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeEffectiveInstanceAssociationsInput, arg2 func(*ssm.DescribeEffectiveInstanceAssociationsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeEffectiveInstanceAssociationsPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeEffectiveInstanceAssociationsPagesWithContext indicates an expected call of DescribeEffectiveInstanceAssociationsPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeEffectiveInstanceAssociationsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeEffectiveInstanceAssociationsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeEffectiveInstanceAssociationsPagesWithContext), varargs...)
+}
+
 // DescribeEffectiveInstanceAssociationsRequest mocks base method
 func (m *MockSSMAPI) DescribeEffectiveInstanceAssociationsRequest(arg0 *ssm.DescribeEffectiveInstanceAssociationsInput) (*request.Request, *ssm.DescribeEffectiveInstanceAssociationsOutput) {
 	m.ctrl.T.Helper()
@@ -1797,6 +1995,39 @@ func (mr *MockSSMAPIMockRecorder) DescribeEffectivePatchesForPatchBaseline(arg0 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeEffectivePatchesForPatchBaseline", reflect.TypeOf((*MockSSMAPI)(nil).DescribeEffectivePatchesForPatchBaseline), arg0)
 }
 
+// DescribeEffectivePatchesForPatchBaselinePages mocks base method
+func (m *MockSSMAPI) DescribeEffectivePatchesForPatchBaselinePages(arg0 *ssm.DescribeEffectivePatchesForPatchBaselineInput, arg1 func(*ssm.DescribeEffectivePatchesForPatchBaselineOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeEffectivePatchesForPatchBaselinePages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeEffectivePatchesForPatchBaselinePages indicates an expected call of DescribeEffectivePatchesForPatchBaselinePages
+func (mr *MockSSMAPIMockRecorder) DescribeEffectivePatchesForPatchBaselinePages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeEffectivePatchesForPatchBaselinePages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeEffectivePatchesForPatchBaselinePages), arg0, arg1)
+}
+
+// DescribeEffectivePatchesForPatchBaselinePagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeEffectivePatchesForPatchBaselinePagesWithContext(arg0 context.Context, arg1 *ssm.DescribeEffectivePatchesForPatchBaselineInput, arg2 func(*ssm.DescribeEffectivePatchesForPatchBaselineOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeEffectivePatchesForPatchBaselinePagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeEffectivePatchesForPatchBaselinePagesWithContext indicates an expected call of DescribeEffectivePatchesForPatchBaselinePagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeEffectivePatchesForPatchBaselinePagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeEffectivePatchesForPatchBaselinePagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeEffectivePatchesForPatchBaselinePagesWithContext), varargs...)
+}
+
 // DescribeEffectivePatchesForPatchBaselineRequest mocks base method
 func (m *MockSSMAPI) DescribeEffectivePatchesForPatchBaselineRequest(arg0 *ssm.DescribeEffectivePatchesForPatchBaselineInput) (*request.Request, *ssm.DescribeEffectivePatchesForPatchBaselineOutput) {
 	m.ctrl.T.Helper()
@@ -1845,6 +2076,39 @@ func (m *MockSSMAPI) DescribeInstanceAssociationsStatus(arg0 *ssm.DescribeInstan
 func (mr *MockSSMAPIMockRecorder) DescribeInstanceAssociationsStatus(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstanceAssociationsStatus", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstanceAssociationsStatus), arg0)
+}
+
+// DescribeInstanceAssociationsStatusPages mocks base method
+func (m *MockSSMAPI) DescribeInstanceAssociationsStatusPages(arg0 *ssm.DescribeInstanceAssociationsStatusInput, arg1 func(*ssm.DescribeInstanceAssociationsStatusOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeInstanceAssociationsStatusPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeInstanceAssociationsStatusPages indicates an expected call of DescribeInstanceAssociationsStatusPages
+func (mr *MockSSMAPIMockRecorder) DescribeInstanceAssociationsStatusPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstanceAssociationsStatusPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstanceAssociationsStatusPages), arg0, arg1)
+}
+
+// DescribeInstanceAssociationsStatusPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeInstanceAssociationsStatusPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeInstanceAssociationsStatusInput, arg2 func(*ssm.DescribeInstanceAssociationsStatusOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeInstanceAssociationsStatusPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeInstanceAssociationsStatusPagesWithContext indicates an expected call of DescribeInstanceAssociationsStatusPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeInstanceAssociationsStatusPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstanceAssociationsStatusPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstanceAssociationsStatusPagesWithContext), varargs...)
 }
 
 // DescribeInstanceAssociationsStatusRequest mocks base method
@@ -1995,6 +2259,39 @@ func (mr *MockSSMAPIMockRecorder) DescribeInstancePatchStatesForPatchGroup(arg0 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatchStatesForPatchGroup", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatchStatesForPatchGroup), arg0)
 }
 
+// DescribeInstancePatchStatesForPatchGroupPages mocks base method
+func (m *MockSSMAPI) DescribeInstancePatchStatesForPatchGroupPages(arg0 *ssm.DescribeInstancePatchStatesForPatchGroupInput, arg1 func(*ssm.DescribeInstancePatchStatesForPatchGroupOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeInstancePatchStatesForPatchGroupPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeInstancePatchStatesForPatchGroupPages indicates an expected call of DescribeInstancePatchStatesForPatchGroupPages
+func (mr *MockSSMAPIMockRecorder) DescribeInstancePatchStatesForPatchGroupPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatchStatesForPatchGroupPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatchStatesForPatchGroupPages), arg0, arg1)
+}
+
+// DescribeInstancePatchStatesForPatchGroupPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeInstancePatchStatesForPatchGroupPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeInstancePatchStatesForPatchGroupInput, arg2 func(*ssm.DescribeInstancePatchStatesForPatchGroupOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeInstancePatchStatesForPatchGroupPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeInstancePatchStatesForPatchGroupPagesWithContext indicates an expected call of DescribeInstancePatchStatesForPatchGroupPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeInstancePatchStatesForPatchGroupPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatchStatesForPatchGroupPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatchStatesForPatchGroupPagesWithContext), varargs...)
+}
+
 // DescribeInstancePatchStatesForPatchGroupRequest mocks base method
 func (m *MockSSMAPI) DescribeInstancePatchStatesForPatchGroupRequest(arg0 *ssm.DescribeInstancePatchStatesForPatchGroupInput) (*request.Request, *ssm.DescribeInstancePatchStatesForPatchGroupOutput) {
 	m.ctrl.T.Helper()
@@ -2028,6 +2325,39 @@ func (mr *MockSSMAPIMockRecorder) DescribeInstancePatchStatesForPatchGroupWithCo
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatchStatesForPatchGroupWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatchStatesForPatchGroupWithContext), varargs...)
+}
+
+// DescribeInstancePatchStatesPages mocks base method
+func (m *MockSSMAPI) DescribeInstancePatchStatesPages(arg0 *ssm.DescribeInstancePatchStatesInput, arg1 func(*ssm.DescribeInstancePatchStatesOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeInstancePatchStatesPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeInstancePatchStatesPages indicates an expected call of DescribeInstancePatchStatesPages
+func (mr *MockSSMAPIMockRecorder) DescribeInstancePatchStatesPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatchStatesPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatchStatesPages), arg0, arg1)
+}
+
+// DescribeInstancePatchStatesPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeInstancePatchStatesPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeInstancePatchStatesInput, arg2 func(*ssm.DescribeInstancePatchStatesOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeInstancePatchStatesPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeInstancePatchStatesPagesWithContext indicates an expected call of DescribeInstancePatchStatesPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeInstancePatchStatesPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatchStatesPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatchStatesPagesWithContext), varargs...)
 }
 
 // DescribeInstancePatchStatesRequest mocks base method
@@ -2080,6 +2410,39 @@ func (mr *MockSSMAPIMockRecorder) DescribeInstancePatches(arg0 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatches", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatches), arg0)
 }
 
+// DescribeInstancePatchesPages mocks base method
+func (m *MockSSMAPI) DescribeInstancePatchesPages(arg0 *ssm.DescribeInstancePatchesInput, arg1 func(*ssm.DescribeInstancePatchesOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeInstancePatchesPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeInstancePatchesPages indicates an expected call of DescribeInstancePatchesPages
+func (mr *MockSSMAPIMockRecorder) DescribeInstancePatchesPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatchesPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatchesPages), arg0, arg1)
+}
+
+// DescribeInstancePatchesPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeInstancePatchesPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeInstancePatchesInput, arg2 func(*ssm.DescribeInstancePatchesOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeInstancePatchesPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeInstancePatchesPagesWithContext indicates an expected call of DescribeInstancePatchesPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeInstancePatchesPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInstancePatchesPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInstancePatchesPagesWithContext), varargs...)
+}
+
 // DescribeInstancePatchesRequest mocks base method
 func (m *MockSSMAPI) DescribeInstancePatchesRequest(arg0 *ssm.DescribeInstancePatchesInput) (*request.Request, *ssm.DescribeInstancePatchesOutput) {
 	m.ctrl.T.Helper()
@@ -2128,6 +2491,39 @@ func (m *MockSSMAPI) DescribeInventoryDeletions(arg0 *ssm.DescribeInventoryDelet
 func (mr *MockSSMAPIMockRecorder) DescribeInventoryDeletions(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInventoryDeletions", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInventoryDeletions), arg0)
+}
+
+// DescribeInventoryDeletionsPages mocks base method
+func (m *MockSSMAPI) DescribeInventoryDeletionsPages(arg0 *ssm.DescribeInventoryDeletionsInput, arg1 func(*ssm.DescribeInventoryDeletionsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeInventoryDeletionsPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeInventoryDeletionsPages indicates an expected call of DescribeInventoryDeletionsPages
+func (mr *MockSSMAPIMockRecorder) DescribeInventoryDeletionsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInventoryDeletionsPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInventoryDeletionsPages), arg0, arg1)
+}
+
+// DescribeInventoryDeletionsPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeInventoryDeletionsPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeInventoryDeletionsInput, arg2 func(*ssm.DescribeInventoryDeletionsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeInventoryDeletionsPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeInventoryDeletionsPagesWithContext indicates an expected call of DescribeInventoryDeletionsPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeInventoryDeletionsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeInventoryDeletionsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeInventoryDeletionsPagesWithContext), varargs...)
 }
 
 // DescribeInventoryDeletionsRequest mocks base method
@@ -2180,6 +2576,39 @@ func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowExecutionTaskInvocati
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowExecutionTaskInvocations", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowExecutionTaskInvocations), arg0)
 }
 
+// DescribeMaintenanceWindowExecutionTaskInvocationsPages mocks base method
+func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTaskInvocationsPages(arg0 *ssm.DescribeMaintenanceWindowExecutionTaskInvocationsInput, arg1 func(*ssm.DescribeMaintenanceWindowExecutionTaskInvocationsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowExecutionTaskInvocationsPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeMaintenanceWindowExecutionTaskInvocationsPages indicates an expected call of DescribeMaintenanceWindowExecutionTaskInvocationsPages
+func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowExecutionTaskInvocationsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowExecutionTaskInvocationsPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowExecutionTaskInvocationsPages), arg0, arg1)
+}
+
+// DescribeMaintenanceWindowExecutionTaskInvocationsPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTaskInvocationsPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeMaintenanceWindowExecutionTaskInvocationsInput, arg2 func(*ssm.DescribeMaintenanceWindowExecutionTaskInvocationsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowExecutionTaskInvocationsPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeMaintenanceWindowExecutionTaskInvocationsPagesWithContext indicates an expected call of DescribeMaintenanceWindowExecutionTaskInvocationsPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowExecutionTaskInvocationsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowExecutionTaskInvocationsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowExecutionTaskInvocationsPagesWithContext), varargs...)
+}
+
 // DescribeMaintenanceWindowExecutionTaskInvocationsRequest mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTaskInvocationsRequest(arg0 *ssm.DescribeMaintenanceWindowExecutionTaskInvocationsInput) (*request.Request, *ssm.DescribeMaintenanceWindowExecutionTaskInvocationsOutput) {
 	m.ctrl.T.Helper()
@@ -2228,6 +2657,39 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTasks(arg0 *ssm.DescribeM
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowExecutionTasks(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowExecutionTasks", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowExecutionTasks), arg0)
+}
+
+// DescribeMaintenanceWindowExecutionTasksPages mocks base method
+func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTasksPages(arg0 *ssm.DescribeMaintenanceWindowExecutionTasksInput, arg1 func(*ssm.DescribeMaintenanceWindowExecutionTasksOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowExecutionTasksPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeMaintenanceWindowExecutionTasksPages indicates an expected call of DescribeMaintenanceWindowExecutionTasksPages
+func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowExecutionTasksPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowExecutionTasksPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowExecutionTasksPages), arg0, arg1)
+}
+
+// DescribeMaintenanceWindowExecutionTasksPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionTasksPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeMaintenanceWindowExecutionTasksInput, arg2 func(*ssm.DescribeMaintenanceWindowExecutionTasksOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowExecutionTasksPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeMaintenanceWindowExecutionTasksPagesWithContext indicates an expected call of DescribeMaintenanceWindowExecutionTasksPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowExecutionTasksPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowExecutionTasksPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowExecutionTasksPagesWithContext), varargs...)
 }
 
 // DescribeMaintenanceWindowExecutionTasksRequest mocks base method
@@ -2280,6 +2742,39 @@ func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowExecutions(arg0 inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowExecutions", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowExecutions), arg0)
 }
 
+// DescribeMaintenanceWindowExecutionsPages mocks base method
+func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionsPages(arg0 *ssm.DescribeMaintenanceWindowExecutionsInput, arg1 func(*ssm.DescribeMaintenanceWindowExecutionsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowExecutionsPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeMaintenanceWindowExecutionsPages indicates an expected call of DescribeMaintenanceWindowExecutionsPages
+func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowExecutionsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowExecutionsPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowExecutionsPages), arg0, arg1)
+}
+
+// DescribeMaintenanceWindowExecutionsPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionsPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeMaintenanceWindowExecutionsInput, arg2 func(*ssm.DescribeMaintenanceWindowExecutionsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowExecutionsPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeMaintenanceWindowExecutionsPagesWithContext indicates an expected call of DescribeMaintenanceWindowExecutionsPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowExecutionsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowExecutionsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowExecutionsPagesWithContext), varargs...)
+}
+
 // DescribeMaintenanceWindowExecutionsRequest mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowExecutionsRequest(arg0 *ssm.DescribeMaintenanceWindowExecutionsInput) (*request.Request, *ssm.DescribeMaintenanceWindowExecutionsOutput) {
 	m.ctrl.T.Helper()
@@ -2328,6 +2823,39 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowSchedule(arg0 *ssm.DescribeMainten
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowSchedule(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowSchedule", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowSchedule), arg0)
+}
+
+// DescribeMaintenanceWindowSchedulePages mocks base method
+func (m *MockSSMAPI) DescribeMaintenanceWindowSchedulePages(arg0 *ssm.DescribeMaintenanceWindowScheduleInput, arg1 func(*ssm.DescribeMaintenanceWindowScheduleOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowSchedulePages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeMaintenanceWindowSchedulePages indicates an expected call of DescribeMaintenanceWindowSchedulePages
+func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowSchedulePages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowSchedulePages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowSchedulePages), arg0, arg1)
+}
+
+// DescribeMaintenanceWindowSchedulePagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeMaintenanceWindowSchedulePagesWithContext(arg0 context.Context, arg1 *ssm.DescribeMaintenanceWindowScheduleInput, arg2 func(*ssm.DescribeMaintenanceWindowScheduleOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowSchedulePagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeMaintenanceWindowSchedulePagesWithContext indicates an expected call of DescribeMaintenanceWindowSchedulePagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowSchedulePagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowSchedulePagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowSchedulePagesWithContext), varargs...)
 }
 
 // DescribeMaintenanceWindowScheduleRequest mocks base method
@@ -2380,6 +2908,39 @@ func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowTargets(arg0 interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowTargets", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowTargets), arg0)
 }
 
+// DescribeMaintenanceWindowTargetsPages mocks base method
+func (m *MockSSMAPI) DescribeMaintenanceWindowTargetsPages(arg0 *ssm.DescribeMaintenanceWindowTargetsInput, arg1 func(*ssm.DescribeMaintenanceWindowTargetsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowTargetsPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeMaintenanceWindowTargetsPages indicates an expected call of DescribeMaintenanceWindowTargetsPages
+func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowTargetsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowTargetsPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowTargetsPages), arg0, arg1)
+}
+
+// DescribeMaintenanceWindowTargetsPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeMaintenanceWindowTargetsPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeMaintenanceWindowTargetsInput, arg2 func(*ssm.DescribeMaintenanceWindowTargetsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowTargetsPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeMaintenanceWindowTargetsPagesWithContext indicates an expected call of DescribeMaintenanceWindowTargetsPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowTargetsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowTargetsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowTargetsPagesWithContext), varargs...)
+}
+
 // DescribeMaintenanceWindowTargetsRequest mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowTargetsRequest(arg0 *ssm.DescribeMaintenanceWindowTargetsInput) (*request.Request, *ssm.DescribeMaintenanceWindowTargetsOutput) {
 	m.ctrl.T.Helper()
@@ -2428,6 +2989,39 @@ func (m *MockSSMAPI) DescribeMaintenanceWindowTasks(arg0 *ssm.DescribeMaintenanc
 func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowTasks(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowTasks", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowTasks), arg0)
+}
+
+// DescribeMaintenanceWindowTasksPages mocks base method
+func (m *MockSSMAPI) DescribeMaintenanceWindowTasksPages(arg0 *ssm.DescribeMaintenanceWindowTasksInput, arg1 func(*ssm.DescribeMaintenanceWindowTasksOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowTasksPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeMaintenanceWindowTasksPages indicates an expected call of DescribeMaintenanceWindowTasksPages
+func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowTasksPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowTasksPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowTasksPages), arg0, arg1)
+}
+
+// DescribeMaintenanceWindowTasksPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeMaintenanceWindowTasksPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeMaintenanceWindowTasksInput, arg2 func(*ssm.DescribeMaintenanceWindowTasksOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowTasksPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeMaintenanceWindowTasksPagesWithContext indicates an expected call of DescribeMaintenanceWindowTasksPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowTasksPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowTasksPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowTasksPagesWithContext), varargs...)
 }
 
 // DescribeMaintenanceWindowTasksRequest mocks base method
@@ -2495,6 +3089,39 @@ func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowsForTarget(arg0 inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowsForTarget", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowsForTarget), arg0)
 }
 
+// DescribeMaintenanceWindowsForTargetPages mocks base method
+func (m *MockSSMAPI) DescribeMaintenanceWindowsForTargetPages(arg0 *ssm.DescribeMaintenanceWindowsForTargetInput, arg1 func(*ssm.DescribeMaintenanceWindowsForTargetOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowsForTargetPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeMaintenanceWindowsForTargetPages indicates an expected call of DescribeMaintenanceWindowsForTargetPages
+func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowsForTargetPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowsForTargetPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowsForTargetPages), arg0, arg1)
+}
+
+// DescribeMaintenanceWindowsForTargetPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeMaintenanceWindowsForTargetPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeMaintenanceWindowsForTargetInput, arg2 func(*ssm.DescribeMaintenanceWindowsForTargetOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowsForTargetPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeMaintenanceWindowsForTargetPagesWithContext indicates an expected call of DescribeMaintenanceWindowsForTargetPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowsForTargetPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowsForTargetPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowsForTargetPagesWithContext), varargs...)
+}
+
 // DescribeMaintenanceWindowsForTargetRequest mocks base method
 func (m *MockSSMAPI) DescribeMaintenanceWindowsForTargetRequest(arg0 *ssm.DescribeMaintenanceWindowsForTargetInput) (*request.Request, *ssm.DescribeMaintenanceWindowsForTargetOutput) {
 	m.ctrl.T.Helper()
@@ -2528,6 +3155,39 @@ func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowsForTargetWithContext
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowsForTargetWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowsForTargetWithContext), varargs...)
+}
+
+// DescribeMaintenanceWindowsPages mocks base method
+func (m *MockSSMAPI) DescribeMaintenanceWindowsPages(arg0 *ssm.DescribeMaintenanceWindowsInput, arg1 func(*ssm.DescribeMaintenanceWindowsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowsPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeMaintenanceWindowsPages indicates an expected call of DescribeMaintenanceWindowsPages
+func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowsPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowsPages), arg0, arg1)
+}
+
+// DescribeMaintenanceWindowsPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeMaintenanceWindowsPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeMaintenanceWindowsInput, arg2 func(*ssm.DescribeMaintenanceWindowsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeMaintenanceWindowsPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeMaintenanceWindowsPagesWithContext indicates an expected call of DescribeMaintenanceWindowsPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeMaintenanceWindowsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMaintenanceWindowsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeMaintenanceWindowsPagesWithContext), varargs...)
 }
 
 // DescribeMaintenanceWindowsRequest mocks base method
@@ -2578,6 +3238,39 @@ func (m *MockSSMAPI) DescribeOpsItems(arg0 *ssm.DescribeOpsItemsInput) (*ssm.Des
 func (mr *MockSSMAPIMockRecorder) DescribeOpsItems(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeOpsItems", reflect.TypeOf((*MockSSMAPI)(nil).DescribeOpsItems), arg0)
+}
+
+// DescribeOpsItemsPages mocks base method
+func (m *MockSSMAPI) DescribeOpsItemsPages(arg0 *ssm.DescribeOpsItemsInput, arg1 func(*ssm.DescribeOpsItemsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeOpsItemsPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeOpsItemsPages indicates an expected call of DescribeOpsItemsPages
+func (mr *MockSSMAPIMockRecorder) DescribeOpsItemsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeOpsItemsPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeOpsItemsPages), arg0, arg1)
+}
+
+// DescribeOpsItemsPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeOpsItemsPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeOpsItemsInput, arg2 func(*ssm.DescribeOpsItemsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeOpsItemsPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeOpsItemsPagesWithContext indicates an expected call of DescribeOpsItemsPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeOpsItemsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeOpsItemsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeOpsItemsPagesWithContext), varargs...)
 }
 
 // DescribeOpsItemsRequest mocks base method
@@ -2713,6 +3406,39 @@ func (mr *MockSSMAPIMockRecorder) DescribePatchBaselines(arg0 interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribePatchBaselines", reflect.TypeOf((*MockSSMAPI)(nil).DescribePatchBaselines), arg0)
 }
 
+// DescribePatchBaselinesPages mocks base method
+func (m *MockSSMAPI) DescribePatchBaselinesPages(arg0 *ssm.DescribePatchBaselinesInput, arg1 func(*ssm.DescribePatchBaselinesOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribePatchBaselinesPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribePatchBaselinesPages indicates an expected call of DescribePatchBaselinesPages
+func (mr *MockSSMAPIMockRecorder) DescribePatchBaselinesPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribePatchBaselinesPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribePatchBaselinesPages), arg0, arg1)
+}
+
+// DescribePatchBaselinesPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribePatchBaselinesPagesWithContext(arg0 context.Context, arg1 *ssm.DescribePatchBaselinesInput, arg2 func(*ssm.DescribePatchBaselinesOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribePatchBaselinesPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribePatchBaselinesPagesWithContext indicates an expected call of DescribePatchBaselinesPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribePatchBaselinesPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribePatchBaselinesPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribePatchBaselinesPagesWithContext), varargs...)
+}
+
 // DescribePatchBaselinesRequest mocks base method
 func (m *MockSSMAPI) DescribePatchBaselinesRequest(arg0 *ssm.DescribePatchBaselinesInput) (*request.Request, *ssm.DescribePatchBaselinesOutput) {
 	m.ctrl.T.Helper()
@@ -2813,6 +3539,39 @@ func (mr *MockSSMAPIMockRecorder) DescribePatchGroups(arg0 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribePatchGroups", reflect.TypeOf((*MockSSMAPI)(nil).DescribePatchGroups), arg0)
 }
 
+// DescribePatchGroupsPages mocks base method
+func (m *MockSSMAPI) DescribePatchGroupsPages(arg0 *ssm.DescribePatchGroupsInput, arg1 func(*ssm.DescribePatchGroupsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribePatchGroupsPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribePatchGroupsPages indicates an expected call of DescribePatchGroupsPages
+func (mr *MockSSMAPIMockRecorder) DescribePatchGroupsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribePatchGroupsPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribePatchGroupsPages), arg0, arg1)
+}
+
+// DescribePatchGroupsPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribePatchGroupsPagesWithContext(arg0 context.Context, arg1 *ssm.DescribePatchGroupsInput, arg2 func(*ssm.DescribePatchGroupsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribePatchGroupsPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribePatchGroupsPagesWithContext indicates an expected call of DescribePatchGroupsPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribePatchGroupsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribePatchGroupsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribePatchGroupsPagesWithContext), varargs...)
+}
+
 // DescribePatchGroupsRequest mocks base method
 func (m *MockSSMAPI) DescribePatchGroupsRequest(arg0 *ssm.DescribePatchGroupsInput) (*request.Request, *ssm.DescribePatchGroupsOutput) {
 	m.ctrl.T.Helper()
@@ -2863,6 +3622,39 @@ func (mr *MockSSMAPIMockRecorder) DescribePatchProperties(arg0 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribePatchProperties", reflect.TypeOf((*MockSSMAPI)(nil).DescribePatchProperties), arg0)
 }
 
+// DescribePatchPropertiesPages mocks base method
+func (m *MockSSMAPI) DescribePatchPropertiesPages(arg0 *ssm.DescribePatchPropertiesInput, arg1 func(*ssm.DescribePatchPropertiesOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribePatchPropertiesPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribePatchPropertiesPages indicates an expected call of DescribePatchPropertiesPages
+func (mr *MockSSMAPIMockRecorder) DescribePatchPropertiesPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribePatchPropertiesPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribePatchPropertiesPages), arg0, arg1)
+}
+
+// DescribePatchPropertiesPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribePatchPropertiesPagesWithContext(arg0 context.Context, arg1 *ssm.DescribePatchPropertiesInput, arg2 func(*ssm.DescribePatchPropertiesOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribePatchPropertiesPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribePatchPropertiesPagesWithContext indicates an expected call of DescribePatchPropertiesPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribePatchPropertiesPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribePatchPropertiesPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribePatchPropertiesPagesWithContext), varargs...)
+}
+
 // DescribePatchPropertiesRequest mocks base method
 func (m *MockSSMAPI) DescribePatchPropertiesRequest(arg0 *ssm.DescribePatchPropertiesInput) (*request.Request, *ssm.DescribePatchPropertiesOutput) {
 	m.ctrl.T.Helper()
@@ -2911,6 +3703,39 @@ func (m *MockSSMAPI) DescribeSessions(arg0 *ssm.DescribeSessionsInput) (*ssm.Des
 func (mr *MockSSMAPIMockRecorder) DescribeSessions(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSessions", reflect.TypeOf((*MockSSMAPI)(nil).DescribeSessions), arg0)
+}
+
+// DescribeSessionsPages mocks base method
+func (m *MockSSMAPI) DescribeSessionsPages(arg0 *ssm.DescribeSessionsInput, arg1 func(*ssm.DescribeSessionsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeSessionsPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeSessionsPages indicates an expected call of DescribeSessionsPages
+func (mr *MockSSMAPIMockRecorder) DescribeSessionsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSessionsPages", reflect.TypeOf((*MockSSMAPI)(nil).DescribeSessionsPages), arg0, arg1)
+}
+
+// DescribeSessionsPagesWithContext mocks base method
+func (m *MockSSMAPI) DescribeSessionsPagesWithContext(arg0 context.Context, arg1 *ssm.DescribeSessionsInput, arg2 func(*ssm.DescribeSessionsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeSessionsPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DescribeSessionsPagesWithContext indicates an expected call of DescribeSessionsPagesWithContext
+func (mr *MockSSMAPIMockRecorder) DescribeSessionsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSessionsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).DescribeSessionsPagesWithContext), varargs...)
 }
 
 // DescribeSessionsRequest mocks base method
@@ -3313,6 +4138,39 @@ func (mr *MockSSMAPIMockRecorder) GetInventory(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInventory", reflect.TypeOf((*MockSSMAPI)(nil).GetInventory), arg0)
 }
 
+// GetInventoryPages mocks base method
+func (m *MockSSMAPI) GetInventoryPages(arg0 *ssm.GetInventoryInput, arg1 func(*ssm.GetInventoryOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetInventoryPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GetInventoryPages indicates an expected call of GetInventoryPages
+func (mr *MockSSMAPIMockRecorder) GetInventoryPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInventoryPages", reflect.TypeOf((*MockSSMAPI)(nil).GetInventoryPages), arg0, arg1)
+}
+
+// GetInventoryPagesWithContext mocks base method
+func (m *MockSSMAPI) GetInventoryPagesWithContext(arg0 context.Context, arg1 *ssm.GetInventoryInput, arg2 func(*ssm.GetInventoryOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetInventoryPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GetInventoryPagesWithContext indicates an expected call of GetInventoryPagesWithContext
+func (mr *MockSSMAPIMockRecorder) GetInventoryPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInventoryPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetInventoryPagesWithContext), varargs...)
+}
+
 // GetInventoryRequest mocks base method
 func (m *MockSSMAPI) GetInventoryRequest(arg0 *ssm.GetInventoryInput) (*request.Request, *ssm.GetInventoryOutput) {
 	m.ctrl.T.Helper()
@@ -3341,6 +4199,39 @@ func (m *MockSSMAPI) GetInventorySchema(arg0 *ssm.GetInventorySchemaInput) (*ssm
 func (mr *MockSSMAPIMockRecorder) GetInventorySchema(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInventorySchema", reflect.TypeOf((*MockSSMAPI)(nil).GetInventorySchema), arg0)
+}
+
+// GetInventorySchemaPages mocks base method
+func (m *MockSSMAPI) GetInventorySchemaPages(arg0 *ssm.GetInventorySchemaInput, arg1 func(*ssm.GetInventorySchemaOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetInventorySchemaPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GetInventorySchemaPages indicates an expected call of GetInventorySchemaPages
+func (mr *MockSSMAPIMockRecorder) GetInventorySchemaPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInventorySchemaPages", reflect.TypeOf((*MockSSMAPI)(nil).GetInventorySchemaPages), arg0, arg1)
+}
+
+// GetInventorySchemaPagesWithContext mocks base method
+func (m *MockSSMAPI) GetInventorySchemaPagesWithContext(arg0 context.Context, arg1 *ssm.GetInventorySchemaInput, arg2 func(*ssm.GetInventorySchemaOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetInventorySchemaPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GetInventorySchemaPagesWithContext indicates an expected call of GetInventorySchemaPagesWithContext
+func (mr *MockSSMAPIMockRecorder) GetInventorySchemaPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInventorySchemaPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetInventorySchemaPagesWithContext), varargs...)
 }
 
 // GetInventorySchemaRequest mocks base method
@@ -3711,6 +4602,39 @@ func (m *MockSSMAPI) GetOpsSummary(arg0 *ssm.GetOpsSummaryInput) (*ssm.GetOpsSum
 func (mr *MockSSMAPIMockRecorder) GetOpsSummary(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOpsSummary", reflect.TypeOf((*MockSSMAPI)(nil).GetOpsSummary), arg0)
+}
+
+// GetOpsSummaryPages mocks base method
+func (m *MockSSMAPI) GetOpsSummaryPages(arg0 *ssm.GetOpsSummaryInput, arg1 func(*ssm.GetOpsSummaryOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOpsSummaryPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GetOpsSummaryPages indicates an expected call of GetOpsSummaryPages
+func (mr *MockSSMAPIMockRecorder) GetOpsSummaryPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOpsSummaryPages", reflect.TypeOf((*MockSSMAPI)(nil).GetOpsSummaryPages), arg0, arg1)
+}
+
+// GetOpsSummaryPagesWithContext mocks base method
+func (m *MockSSMAPI) GetOpsSummaryPagesWithContext(arg0 context.Context, arg1 *ssm.GetOpsSummaryInput, arg2 func(*ssm.GetOpsSummaryOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetOpsSummaryPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GetOpsSummaryPagesWithContext indicates an expected call of GetOpsSummaryPagesWithContext
+func (mr *MockSSMAPIMockRecorder) GetOpsSummaryPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOpsSummaryPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).GetOpsSummaryPagesWithContext), varargs...)
 }
 
 // GetOpsSummaryRequest mocks base method
@@ -4229,6 +5153,39 @@ func (mr *MockSSMAPIMockRecorder) ListAssociationVersions(arg0 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAssociationVersions", reflect.TypeOf((*MockSSMAPI)(nil).ListAssociationVersions), arg0)
 }
 
+// ListAssociationVersionsPages mocks base method
+func (m *MockSSMAPI) ListAssociationVersionsPages(arg0 *ssm.ListAssociationVersionsInput, arg1 func(*ssm.ListAssociationVersionsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListAssociationVersionsPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ListAssociationVersionsPages indicates an expected call of ListAssociationVersionsPages
+func (mr *MockSSMAPIMockRecorder) ListAssociationVersionsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAssociationVersionsPages", reflect.TypeOf((*MockSSMAPI)(nil).ListAssociationVersionsPages), arg0, arg1)
+}
+
+// ListAssociationVersionsPagesWithContext mocks base method
+func (m *MockSSMAPI) ListAssociationVersionsPagesWithContext(arg0 context.Context, arg1 *ssm.ListAssociationVersionsInput, arg2 func(*ssm.ListAssociationVersionsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListAssociationVersionsPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ListAssociationVersionsPagesWithContext indicates an expected call of ListAssociationVersionsPagesWithContext
+func (mr *MockSSMAPIMockRecorder) ListAssociationVersionsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAssociationVersionsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListAssociationVersionsPagesWithContext), varargs...)
+}
+
 // ListAssociationVersionsRequest mocks base method
 func (m *MockSSMAPI) ListAssociationVersionsRequest(arg0 *ssm.ListAssociationVersionsInput) (*request.Request, *ssm.ListAssociationVersionsOutput) {
 	m.ctrl.T.Helper()
@@ -4528,6 +5485,39 @@ func (mr *MockSSMAPIMockRecorder) ListComplianceItems(arg0 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListComplianceItems", reflect.TypeOf((*MockSSMAPI)(nil).ListComplianceItems), arg0)
 }
 
+// ListComplianceItemsPages mocks base method
+func (m *MockSSMAPI) ListComplianceItemsPages(arg0 *ssm.ListComplianceItemsInput, arg1 func(*ssm.ListComplianceItemsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListComplianceItemsPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ListComplianceItemsPages indicates an expected call of ListComplianceItemsPages
+func (mr *MockSSMAPIMockRecorder) ListComplianceItemsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListComplianceItemsPages", reflect.TypeOf((*MockSSMAPI)(nil).ListComplianceItemsPages), arg0, arg1)
+}
+
+// ListComplianceItemsPagesWithContext mocks base method
+func (m *MockSSMAPI) ListComplianceItemsPagesWithContext(arg0 context.Context, arg1 *ssm.ListComplianceItemsInput, arg2 func(*ssm.ListComplianceItemsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListComplianceItemsPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ListComplianceItemsPagesWithContext indicates an expected call of ListComplianceItemsPagesWithContext
+func (mr *MockSSMAPIMockRecorder) ListComplianceItemsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListComplianceItemsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListComplianceItemsPagesWithContext), varargs...)
+}
+
 // ListComplianceItemsRequest mocks base method
 func (m *MockSSMAPI) ListComplianceItemsRequest(arg0 *ssm.ListComplianceItemsInput) (*request.Request, *ssm.ListComplianceItemsOutput) {
 	m.ctrl.T.Helper()
@@ -4578,6 +5568,39 @@ func (mr *MockSSMAPIMockRecorder) ListComplianceSummaries(arg0 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListComplianceSummaries", reflect.TypeOf((*MockSSMAPI)(nil).ListComplianceSummaries), arg0)
 }
 
+// ListComplianceSummariesPages mocks base method
+func (m *MockSSMAPI) ListComplianceSummariesPages(arg0 *ssm.ListComplianceSummariesInput, arg1 func(*ssm.ListComplianceSummariesOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListComplianceSummariesPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ListComplianceSummariesPages indicates an expected call of ListComplianceSummariesPages
+func (mr *MockSSMAPIMockRecorder) ListComplianceSummariesPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListComplianceSummariesPages", reflect.TypeOf((*MockSSMAPI)(nil).ListComplianceSummariesPages), arg0, arg1)
+}
+
+// ListComplianceSummariesPagesWithContext mocks base method
+func (m *MockSSMAPI) ListComplianceSummariesPagesWithContext(arg0 context.Context, arg1 *ssm.ListComplianceSummariesInput, arg2 func(*ssm.ListComplianceSummariesOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListComplianceSummariesPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ListComplianceSummariesPagesWithContext indicates an expected call of ListComplianceSummariesPagesWithContext
+func (mr *MockSSMAPIMockRecorder) ListComplianceSummariesPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListComplianceSummariesPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListComplianceSummariesPagesWithContext), varargs...)
+}
+
 // ListComplianceSummariesRequest mocks base method
 func (m *MockSSMAPI) ListComplianceSummariesRequest(arg0 *ssm.ListComplianceSummariesInput) (*request.Request, *ssm.ListComplianceSummariesOutput) {
 	m.ctrl.T.Helper()
@@ -4626,6 +5649,39 @@ func (m *MockSSMAPI) ListDocumentVersions(arg0 *ssm.ListDocumentVersionsInput) (
 func (mr *MockSSMAPIMockRecorder) ListDocumentVersions(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDocumentVersions", reflect.TypeOf((*MockSSMAPI)(nil).ListDocumentVersions), arg0)
+}
+
+// ListDocumentVersionsPages mocks base method
+func (m *MockSSMAPI) ListDocumentVersionsPages(arg0 *ssm.ListDocumentVersionsInput, arg1 func(*ssm.ListDocumentVersionsOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListDocumentVersionsPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ListDocumentVersionsPages indicates an expected call of ListDocumentVersionsPages
+func (mr *MockSSMAPIMockRecorder) ListDocumentVersionsPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDocumentVersionsPages", reflect.TypeOf((*MockSSMAPI)(nil).ListDocumentVersionsPages), arg0, arg1)
+}
+
+// ListDocumentVersionsPagesWithContext mocks base method
+func (m *MockSSMAPI) ListDocumentVersionsPagesWithContext(arg0 context.Context, arg1 *ssm.ListDocumentVersionsInput, arg2 func(*ssm.ListDocumentVersionsOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListDocumentVersionsPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ListDocumentVersionsPagesWithContext indicates an expected call of ListDocumentVersionsPagesWithContext
+func (mr *MockSSMAPIMockRecorder) ListDocumentVersionsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDocumentVersionsPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListDocumentVersionsPagesWithContext), varargs...)
 }
 
 // ListDocumentVersionsRequest mocks base method
@@ -4811,6 +5867,39 @@ func (mr *MockSSMAPIMockRecorder) ListResourceComplianceSummaries(arg0 interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListResourceComplianceSummaries", reflect.TypeOf((*MockSSMAPI)(nil).ListResourceComplianceSummaries), arg0)
 }
 
+// ListResourceComplianceSummariesPages mocks base method
+func (m *MockSSMAPI) ListResourceComplianceSummariesPages(arg0 *ssm.ListResourceComplianceSummariesInput, arg1 func(*ssm.ListResourceComplianceSummariesOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListResourceComplianceSummariesPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ListResourceComplianceSummariesPages indicates an expected call of ListResourceComplianceSummariesPages
+func (mr *MockSSMAPIMockRecorder) ListResourceComplianceSummariesPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListResourceComplianceSummariesPages", reflect.TypeOf((*MockSSMAPI)(nil).ListResourceComplianceSummariesPages), arg0, arg1)
+}
+
+// ListResourceComplianceSummariesPagesWithContext mocks base method
+func (m *MockSSMAPI) ListResourceComplianceSummariesPagesWithContext(arg0 context.Context, arg1 *ssm.ListResourceComplianceSummariesInput, arg2 func(*ssm.ListResourceComplianceSummariesOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListResourceComplianceSummariesPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ListResourceComplianceSummariesPagesWithContext indicates an expected call of ListResourceComplianceSummariesPagesWithContext
+func (mr *MockSSMAPIMockRecorder) ListResourceComplianceSummariesPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListResourceComplianceSummariesPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListResourceComplianceSummariesPagesWithContext), varargs...)
+}
+
 // ListResourceComplianceSummariesRequest mocks base method
 func (m *MockSSMAPI) ListResourceComplianceSummariesRequest(arg0 *ssm.ListResourceComplianceSummariesInput) (*request.Request, *ssm.ListResourceComplianceSummariesOutput) {
 	m.ctrl.T.Helper()
@@ -4859,6 +5948,39 @@ func (m *MockSSMAPI) ListResourceDataSync(arg0 *ssm.ListResourceDataSyncInput) (
 func (mr *MockSSMAPIMockRecorder) ListResourceDataSync(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListResourceDataSync", reflect.TypeOf((*MockSSMAPI)(nil).ListResourceDataSync), arg0)
+}
+
+// ListResourceDataSyncPages mocks base method
+func (m *MockSSMAPI) ListResourceDataSyncPages(arg0 *ssm.ListResourceDataSyncInput, arg1 func(*ssm.ListResourceDataSyncOutput, bool) bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListResourceDataSyncPages", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ListResourceDataSyncPages indicates an expected call of ListResourceDataSyncPages
+func (mr *MockSSMAPIMockRecorder) ListResourceDataSyncPages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListResourceDataSyncPages", reflect.TypeOf((*MockSSMAPI)(nil).ListResourceDataSyncPages), arg0, arg1)
+}
+
+// ListResourceDataSyncPagesWithContext mocks base method
+func (m *MockSSMAPI) ListResourceDataSyncPagesWithContext(arg0 context.Context, arg1 *ssm.ListResourceDataSyncInput, arg2 func(*ssm.ListResourceDataSyncOutput, bool) bool, arg3 ...request.Option) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListResourceDataSyncPagesWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ListResourceDataSyncPagesWithContext indicates an expected call of ListResourceDataSyncPagesWithContext
+func (mr *MockSSMAPIMockRecorder) ListResourceDataSyncPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListResourceDataSyncPagesWithContext", reflect.TypeOf((*MockSSMAPI)(nil).ListResourceDataSyncPagesWithContext), varargs...)
 }
 
 // ListResourceDataSyncRequest mocks base method
@@ -6444,4 +7566,37 @@ func (mr *MockSSMAPIMockRecorder) UpdateServiceSettingWithContext(arg0, arg1 int
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateServiceSettingWithContext", reflect.TypeOf((*MockSSMAPI)(nil).UpdateServiceSettingWithContext), varargs...)
+}
+
+// WaitUntilCommandExecuted mocks base method
+func (m *MockSSMAPI) WaitUntilCommandExecuted(arg0 *ssm.GetCommandInvocationInput) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WaitUntilCommandExecuted", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WaitUntilCommandExecuted indicates an expected call of WaitUntilCommandExecuted
+func (mr *MockSSMAPIMockRecorder) WaitUntilCommandExecuted(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WaitUntilCommandExecuted", reflect.TypeOf((*MockSSMAPI)(nil).WaitUntilCommandExecuted), arg0)
+}
+
+// WaitUntilCommandExecutedWithContext mocks base method
+func (m *MockSSMAPI) WaitUntilCommandExecutedWithContext(arg0 context.Context, arg1 *ssm.GetCommandInvocationInput, arg2 ...request.WaiterOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "WaitUntilCommandExecutedWithContext", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WaitUntilCommandExecutedWithContext indicates an expected call of WaitUntilCommandExecutedWithContext
+func (mr *MockSSMAPIMockRecorder) WaitUntilCommandExecutedWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WaitUntilCommandExecutedWithContext", reflect.TypeOf((*MockSSMAPI)(nil).WaitUntilCommandExecutedWithContext), varargs...)
 }

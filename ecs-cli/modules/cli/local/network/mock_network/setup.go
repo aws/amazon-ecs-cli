@@ -18,6 +18,7 @@
 package mock_network
 
 import (
+	context "context"
 	io "io"
 	reflect "reflect"
 
@@ -25,7 +26,6 @@ import (
 	container "github.com/docker/docker/api/types/container"
 	network "github.com/docker/docker/api/types/network"
 	gomock "github.com/golang/mock/gomock"
-	context "golang.org/x/net/context"
 )
 
 // MockLocalEndpointsStarter is a mock of LocalEndpointsStarter interface
