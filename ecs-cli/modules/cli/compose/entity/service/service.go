@@ -41,15 +41,16 @@ import (
 // Service type is placeholder for a single task definition and its cache
 // and it performs operations on ECS Service level
 type Service struct {
-	taskDef           *ecs.TaskDefinition
-	cache             cache.Cache
-	ecsContext        *context.ECSContext
-	deploymentConfig  *ecs.DeploymentConfiguration
-	loadBalancers     []*ecs.LoadBalancer
-	role              string
-	healthCheckGP     *int64
-	serviceRegistries []*ecs.ServiceRegistry
-	tags              []*ecs.Tag
+	taskDef                  *ecs.TaskDefinition
+	cache                    cache.Cache
+	ecsContext               *context.ECSContext
+	deploymentConfig         *ecs.DeploymentConfiguration
+	loadBalancers            []*ecs.LoadBalancer
+	capacityProviderStrategy []*ecs.CapacityProviderStrategyItem
+	role                     string
+	healthCheckGP            *int64
+	serviceRegistries        []*ecs.ServiceRegistry
+	tags                     []*ecs.Tag
 }
 
 const (
@@ -105,6 +106,9 @@ func (s *Service) LoadContext() error {
 		return err
 	}
 
+	// Capacity Provider Strategy
+	capacityProviders := s.Context().CLIContext.StringSlice(flags.CapacityProviderStrategyFlag)
+
 	// Health Check Grace Period
 	healthCheckGP, err := getInt64FromCLIContext(s.Context(), flags.HealthCheckGracePeriodFlag)
 	if err != nil {
@@ -153,6 +157,15 @@ func (s *Service) LoadContext() error {
 		}
 		s.loadBalancers = append(s.loadBalancers, loadBalancers...)
 	}
+
+	if len(capacityProviders) != 0 {
+		capacityProviderStrategy, err := utils.ParseCapacityProviders(capacityProviders)
+		if err != nil {
+			return err
+		}
+		s.capacityProviderStrategy = append(s.capacityProviderStrategy, capacityProviderStrategy...)
+	}
+
 	s.role = role
 	return nil
 }
@@ -569,7 +582,11 @@ func (s *Service) buildCreateServiceInput(serviceName, taskDefName string, desir
 		createServiceInput.PlacementStrategy = placementStrategy
 	}
 
-	if launchType != "" {
+	// just let capacity provider take precedence if it is set
+	// otherwise, fall back on the launch type
+	if len(s.capacityProviderStrategy) > 0 {
+		createServiceInput.CapacityProviderStrategy = s.capacityProviderStrategy
+	} else if launchType != "" {
 		createServiceInput.LaunchType = aws.String(launchType)
 	}
 
