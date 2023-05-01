@@ -6,8 +6,9 @@ phases:
       golang: 1.13
   build:
     commands:
-      - latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
-      - echo "checking out $latestTag"
-      - git checkout $latestTag
+      # - latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
+      # - echo "checking out $latestTag"
+      # - git checkout $latestTag
+      - git checkout mainline
       - make integ-test
       - ./bin/local/ecs-cli.test
