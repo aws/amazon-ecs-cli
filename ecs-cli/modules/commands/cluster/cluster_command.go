@@ -138,6 +138,10 @@ func clusterUpFlags() []cli.Flag {
 			Name:  flags.ResourceTagsFlag,
 			Usage: "[Optional] Specify tags which will be added to AWS Resources created for your cluster. Specify in the format 'key1=value1,key2=value2,key3=value3'",
 		},
+		cli.BoolFlag{
+			Name:  flags.IMDSv2Flag,
+			Usage: "[Optional] Disable IMDSv1 on an EC2 instance launch.",
+		},
 	}
 }
 

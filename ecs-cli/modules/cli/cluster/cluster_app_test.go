@@ -663,7 +663,7 @@ func TestCliFlagsToCfnStackParams(t *testing.T) {
 	assert.NoError(t, err, "Unexpected error getting parameter ParameterKeyAsgMaxSize")
 }
 
-func TestClusterUpForImageIdInput(t *testing.T) {
+func TestClusterUpForImageIdInput_And_IMDSv2(t *testing.T) {
 	defer os.Clearenv()
 	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
 	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}
@@ -683,10 +683,14 @@ func TestClusterUpForImageIdInput(t *testing.T) {
 		mockCloudformation.EXPECT().CreateStack(gomock.Any(), stackName, true, gomock.Any(), gomock.Any()).Do(func(v, w, x, y, z interface{}) {
 			capabilityIAM := x.(bool)
 			cfnStackParams := y.(*cloudformation.CfnStackParams)
-			param, err := cfnStackParams.GetParameter(ParameterKeyAmiId)
+			actualAMIID, err := cfnStackParams.GetParameter(ParameterKeyAmiId)
 			assert.NoError(t, err, "Expected image id params to be present")
-			assert.Equal(t, imageID, aws.StringValue(param.ParameterValue), "Expected image id to match")
+			actualIsIMDSv2, err := cfnStackParams.GetParameter(ParameterKeyIsIMDSv2)
+			assert.NoError(t, err, "Expected IsIMDSv2 parameter to be present")
+
+			assert.Equal(t, imageID, aws.StringValue(actualAMIID.ParameterValue), "Expected image id to match")
 			assert.True(t, capabilityIAM, "Expected capability capabilityIAM to be true")
+			assert.Equal(t, "true", aws.StringValue(actualIsIMDSv2.ParameterValue), "Expected IMDS v2 to be enabled")
 		}).Return("", nil),
 		mockCloudformation.EXPECT().WaitUntilCreateComplete(stackName).Return(nil),
 	)
@@ -699,6 +703,7 @@ func TestClusterUpForImageIdInput(t *testing.T) {
 	flagSet.Bool(flags.CapabilityIAMFlag, true, "")
 	flagSet.String(flags.KeypairNameFlag, "default", "")
 	flagSet.String(flags.ImageIdFlag, imageID, "")
+	flagSet.Bool(flags.IMDSv2Flag, true, "")
 
 	context := cli.NewContext(nil, flagSet, nil)
 	rdwr := newMockReadWriter()
@@ -1259,9 +1264,9 @@ func TestClusterUpWithTagsContainerInstanceTaggingEnabled(t *testing.T) {
 	assert.Equal(t, userdataMock.tags, expectedECSTags, "Expected tags to match")
 }
 
-///////////////////
+// /////////////////
 // Cluster Down //
-//////////////////
+// ////////////////
 func TestClusterDown(t *testing.T) {
 	mockECS, mockCloudformation, mockSSM, mockEC2 := setupTest(t)
 	awsClients := &AWSClients{mockECS, mockCloudformation, mockSSM, mockEC2}

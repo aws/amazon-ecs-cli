@@ -179,6 +179,11 @@ var clusterTemplate = `
       "Description": "Optional - Whether to create resources only for running Fargate tasks.",
       "Default": "false"
     },
+    "IsIMDSv2": {
+      "Type": "String",
+      "Description": "Optional - Disable IMDSv1.",
+      "Default": "false",
+    },
     "UserData" : {
       "Type" : "String",
       "Description" : "User data for EC2 instances. Required for EC2 launch type, ignored with Fargate",
@@ -194,6 +199,9 @@ var clusterTemplate = `
     },
     "LaunchInstances": {
       "Fn::Equals": [ { "Ref": "IsFargate" }, "false" ]
+    },
+    "EnableIMDSv2": {
+      "Fn::Equals": [ { "Ref": "IsIMDSv2" }, "true" ]
     },
     "CreateVpcResources": {
       "Fn::Equals": [
@@ -542,6 +550,18 @@ var clusterTemplate = `
             "CreateEC2LCWithKeyPair",
             {
               "Ref": "KeyName"
+            },
+            {
+              "Ref": "AWS::NoValue"
+            }
+          ]
+        },
+        "MetadataOptions": {
+          "Fn::If": [
+            "EnableIMDSv2",
+            {
+              "HttpEndpoint": "enabled",
+              "HttpTokens": "required"
             },
             {
               "Ref": "AWS::NoValue"

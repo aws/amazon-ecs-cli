@@ -95,6 +95,14 @@ func WithInstanceType(instanceType string) func(args []string) []string {
 	}
 }
 
+// WithInstanceType enables IMDSv2 on EC2 instances on launch.
+func WithIMDSv2() func(args []string) []string {
+	return func(args []string) []string {
+		args = append(args, "--imdsv2")
+		return args
+	}
+}
+
 func stackName(clusterName string) string {
 	return ecsCLIStackNamePrefix + clusterName
 }

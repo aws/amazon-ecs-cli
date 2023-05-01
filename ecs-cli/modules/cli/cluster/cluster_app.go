@@ -65,6 +65,7 @@ const (
 	ParameterKeyCluster                  = "EcsCluster"
 	ParameterKeyAmiId                    = "EcsAmiId"
 	ParameterKeyAssociatePublicIPAddress = "AssociatePublicIpAddress"
+	ParameterKeyIsIMDSv2                 = "IsIMDSv2"
 	ParameterKeyInstanceRole             = "InstanceRole"
 	ParameterKeyIsFargate                = "IsFargate"
 	ParameterKeyUserData                 = "UserData"
@@ -112,9 +113,9 @@ func newAWSClients(commandConfig *config.CommandConfig) *AWSClients {
 	return &AWSClients{ecsClient, cfnClient, metadataClient, ec2Client}
 }
 
-///////////////////////
+// /////////////////////
 // Public Functions //
-/////////////////////
+// ///////////////////
 func ClusterUp(c *cli.Context) {
 	rdwr, err := config.NewReadWriter()
 	if err != nil {
@@ -277,6 +278,10 @@ func createCluster(context *cli.Context, awsClients *AWSClients, commandConfig *
 	cfnParams.Add(ParameterKeyCluster, commandConfig.Cluster)
 	if context.Bool(flags.NoAutoAssignPublicIPAddressFlag) {
 		cfnParams.Add(ParameterKeyAssociatePublicIPAddress, "false")
+	}
+
+	if context.Bool(flags.IMDSv2Flag) {
+		cfnParams.Add(ParameterKeyIsIMDSv2, "true")
 	}
 
 	if launchType == config.LaunchTypeFargate {
