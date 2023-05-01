@@ -76,8 +76,6 @@ const (
 
 	// Name of the container, we need to give it a name so that we don't re-create a container every time we setup.
 	localEndpointsContainerName = "amazon-ecs-local-container-endpoints"
-
-
 )
 
 // Setup creates a user-defined bridge network with a running Local Container Endpoints container. It will pull
@@ -209,7 +207,7 @@ func createLocalEndpointsContainer(dockerClient containerStarter) string {
 		},
 		&container.HostConfig{
 			Binds: []string{
-				"/var/run:/var/run",
+				"/var/run/docker.sock:/var/run/docker.sock",
 				fmt.Sprintf("%s/.aws/:/home/.aws/", os.Getenv("HOME")),
 			},
 		},
