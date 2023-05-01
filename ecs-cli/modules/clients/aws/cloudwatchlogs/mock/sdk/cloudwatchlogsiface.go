@@ -26,30 +26,30 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockCloudWatchLogsAPI is a mock of CloudWatchLogsAPI interface
+// MockCloudWatchLogsAPI is a mock of CloudWatchLogsAPI interface.
 type MockCloudWatchLogsAPI struct {
 	ctrl     *gomock.Controller
 	recorder *MockCloudWatchLogsAPIMockRecorder
 }
 
-// MockCloudWatchLogsAPIMockRecorder is the mock recorder for MockCloudWatchLogsAPI
+// MockCloudWatchLogsAPIMockRecorder is the mock recorder for MockCloudWatchLogsAPI.
 type MockCloudWatchLogsAPIMockRecorder struct {
 	mock *MockCloudWatchLogsAPI
 }
 
-// NewMockCloudWatchLogsAPI creates a new mock instance
+// NewMockCloudWatchLogsAPI creates a new mock instance.
 func NewMockCloudWatchLogsAPI(ctrl *gomock.Controller) *MockCloudWatchLogsAPI {
 	mock := &MockCloudWatchLogsAPI{ctrl: ctrl}
 	mock.recorder = &MockCloudWatchLogsAPIMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockCloudWatchLogsAPI) EXPECT() *MockCloudWatchLogsAPIMockRecorder {
 	return m.recorder
 }
 
-// AssociateKmsKey mocks base method
+// AssociateKmsKey mocks base method.
 func (m *MockCloudWatchLogsAPI) AssociateKmsKey(arg0 *cloudwatchlogs.AssociateKmsKeyInput) (*cloudwatchlogs.AssociateKmsKeyOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AssociateKmsKey", arg0)
@@ -58,13 +58,13 @@ func (m *MockCloudWatchLogsAPI) AssociateKmsKey(arg0 *cloudwatchlogs.AssociateKm
 	return ret0, ret1
 }
 
-// AssociateKmsKey indicates an expected call of AssociateKmsKey
+// AssociateKmsKey indicates an expected call of AssociateKmsKey.
 func (mr *MockCloudWatchLogsAPIMockRecorder) AssociateKmsKey(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssociateKmsKey", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).AssociateKmsKey), arg0)
 }
 
-// AssociateKmsKeyRequest mocks base method
+// AssociateKmsKeyRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) AssociateKmsKeyRequest(arg0 *cloudwatchlogs.AssociateKmsKeyInput) (*request.Request, *cloudwatchlogs.AssociateKmsKeyOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AssociateKmsKeyRequest", arg0)
@@ -73,13 +73,13 @@ func (m *MockCloudWatchLogsAPI) AssociateKmsKeyRequest(arg0 *cloudwatchlogs.Asso
 	return ret0, ret1
 }
 
-// AssociateKmsKeyRequest indicates an expected call of AssociateKmsKeyRequest
+// AssociateKmsKeyRequest indicates an expected call of AssociateKmsKeyRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) AssociateKmsKeyRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssociateKmsKeyRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).AssociateKmsKeyRequest), arg0)
 }
 
-// AssociateKmsKeyWithContext mocks base method
+// AssociateKmsKeyWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) AssociateKmsKeyWithContext(arg0 context.Context, arg1 *cloudwatchlogs.AssociateKmsKeyInput, arg2 ...request.Option) (*cloudwatchlogs.AssociateKmsKeyOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -92,14 +92,14 @@ func (m *MockCloudWatchLogsAPI) AssociateKmsKeyWithContext(arg0 context.Context,
 	return ret0, ret1
 }
 
-// AssociateKmsKeyWithContext indicates an expected call of AssociateKmsKeyWithContext
+// AssociateKmsKeyWithContext indicates an expected call of AssociateKmsKeyWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) AssociateKmsKeyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssociateKmsKeyWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).AssociateKmsKeyWithContext), varargs...)
 }
 
-// CancelExportTask mocks base method
+// CancelExportTask mocks base method.
 func (m *MockCloudWatchLogsAPI) CancelExportTask(arg0 *cloudwatchlogs.CancelExportTaskInput) (*cloudwatchlogs.CancelExportTaskOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CancelExportTask", arg0)
@@ -108,13 +108,13 @@ func (m *MockCloudWatchLogsAPI) CancelExportTask(arg0 *cloudwatchlogs.CancelExpo
 	return ret0, ret1
 }
 
-// CancelExportTask indicates an expected call of CancelExportTask
+// CancelExportTask indicates an expected call of CancelExportTask.
 func (mr *MockCloudWatchLogsAPIMockRecorder) CancelExportTask(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelExportTask", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).CancelExportTask), arg0)
 }
 
-// CancelExportTaskRequest mocks base method
+// CancelExportTaskRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) CancelExportTaskRequest(arg0 *cloudwatchlogs.CancelExportTaskInput) (*request.Request, *cloudwatchlogs.CancelExportTaskOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CancelExportTaskRequest", arg0)
@@ -123,13 +123,13 @@ func (m *MockCloudWatchLogsAPI) CancelExportTaskRequest(arg0 *cloudwatchlogs.Can
 	return ret0, ret1
 }
 
-// CancelExportTaskRequest indicates an expected call of CancelExportTaskRequest
+// CancelExportTaskRequest indicates an expected call of CancelExportTaskRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) CancelExportTaskRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelExportTaskRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).CancelExportTaskRequest), arg0)
 }
 
-// CancelExportTaskWithContext mocks base method
+// CancelExportTaskWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) CancelExportTaskWithContext(arg0 context.Context, arg1 *cloudwatchlogs.CancelExportTaskInput, arg2 ...request.Option) (*cloudwatchlogs.CancelExportTaskOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -142,14 +142,14 @@ func (m *MockCloudWatchLogsAPI) CancelExportTaskWithContext(arg0 context.Context
 	return ret0, ret1
 }
 
-// CancelExportTaskWithContext indicates an expected call of CancelExportTaskWithContext
+// CancelExportTaskWithContext indicates an expected call of CancelExportTaskWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) CancelExportTaskWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelExportTaskWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).CancelExportTaskWithContext), varargs...)
 }
 
-// CreateExportTask mocks base method
+// CreateExportTask mocks base method.
 func (m *MockCloudWatchLogsAPI) CreateExportTask(arg0 *cloudwatchlogs.CreateExportTaskInput) (*cloudwatchlogs.CreateExportTaskOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateExportTask", arg0)
@@ -158,13 +158,13 @@ func (m *MockCloudWatchLogsAPI) CreateExportTask(arg0 *cloudwatchlogs.CreateExpo
 	return ret0, ret1
 }
 
-// CreateExportTask indicates an expected call of CreateExportTask
+// CreateExportTask indicates an expected call of CreateExportTask.
 func (mr *MockCloudWatchLogsAPIMockRecorder) CreateExportTask(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateExportTask", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).CreateExportTask), arg0)
 }
 
-// CreateExportTaskRequest mocks base method
+// CreateExportTaskRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) CreateExportTaskRequest(arg0 *cloudwatchlogs.CreateExportTaskInput) (*request.Request, *cloudwatchlogs.CreateExportTaskOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateExportTaskRequest", arg0)
@@ -173,13 +173,13 @@ func (m *MockCloudWatchLogsAPI) CreateExportTaskRequest(arg0 *cloudwatchlogs.Cre
 	return ret0, ret1
 }
 
-// CreateExportTaskRequest indicates an expected call of CreateExportTaskRequest
+// CreateExportTaskRequest indicates an expected call of CreateExportTaskRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) CreateExportTaskRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateExportTaskRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).CreateExportTaskRequest), arg0)
 }
 
-// CreateExportTaskWithContext mocks base method
+// CreateExportTaskWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) CreateExportTaskWithContext(arg0 context.Context, arg1 *cloudwatchlogs.CreateExportTaskInput, arg2 ...request.Option) (*cloudwatchlogs.CreateExportTaskOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -192,14 +192,14 @@ func (m *MockCloudWatchLogsAPI) CreateExportTaskWithContext(arg0 context.Context
 	return ret0, ret1
 }
 
-// CreateExportTaskWithContext indicates an expected call of CreateExportTaskWithContext
+// CreateExportTaskWithContext indicates an expected call of CreateExportTaskWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) CreateExportTaskWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateExportTaskWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).CreateExportTaskWithContext), varargs...)
 }
 
-// CreateLogGroup mocks base method
+// CreateLogGroup mocks base method.
 func (m *MockCloudWatchLogsAPI) CreateLogGroup(arg0 *cloudwatchlogs.CreateLogGroupInput) (*cloudwatchlogs.CreateLogGroupOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateLogGroup", arg0)
@@ -208,13 +208,13 @@ func (m *MockCloudWatchLogsAPI) CreateLogGroup(arg0 *cloudwatchlogs.CreateLogGro
 	return ret0, ret1
 }
 
-// CreateLogGroup indicates an expected call of CreateLogGroup
+// CreateLogGroup indicates an expected call of CreateLogGroup.
 func (mr *MockCloudWatchLogsAPIMockRecorder) CreateLogGroup(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLogGroup", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).CreateLogGroup), arg0)
 }
 
-// CreateLogGroupRequest mocks base method
+// CreateLogGroupRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) CreateLogGroupRequest(arg0 *cloudwatchlogs.CreateLogGroupInput) (*request.Request, *cloudwatchlogs.CreateLogGroupOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateLogGroupRequest", arg0)
@@ -223,13 +223,13 @@ func (m *MockCloudWatchLogsAPI) CreateLogGroupRequest(arg0 *cloudwatchlogs.Creat
 	return ret0, ret1
 }
 
-// CreateLogGroupRequest indicates an expected call of CreateLogGroupRequest
+// CreateLogGroupRequest indicates an expected call of CreateLogGroupRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) CreateLogGroupRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLogGroupRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).CreateLogGroupRequest), arg0)
 }
 
-// CreateLogGroupWithContext mocks base method
+// CreateLogGroupWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) CreateLogGroupWithContext(arg0 context.Context, arg1 *cloudwatchlogs.CreateLogGroupInput, arg2 ...request.Option) (*cloudwatchlogs.CreateLogGroupOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -242,14 +242,14 @@ func (m *MockCloudWatchLogsAPI) CreateLogGroupWithContext(arg0 context.Context, 
 	return ret0, ret1
 }
 
-// CreateLogGroupWithContext indicates an expected call of CreateLogGroupWithContext
+// CreateLogGroupWithContext indicates an expected call of CreateLogGroupWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) CreateLogGroupWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLogGroupWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).CreateLogGroupWithContext), varargs...)
 }
 
-// CreateLogStream mocks base method
+// CreateLogStream mocks base method.
 func (m *MockCloudWatchLogsAPI) CreateLogStream(arg0 *cloudwatchlogs.CreateLogStreamInput) (*cloudwatchlogs.CreateLogStreamOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateLogStream", arg0)
@@ -258,13 +258,13 @@ func (m *MockCloudWatchLogsAPI) CreateLogStream(arg0 *cloudwatchlogs.CreateLogSt
 	return ret0, ret1
 }
 
-// CreateLogStream indicates an expected call of CreateLogStream
+// CreateLogStream indicates an expected call of CreateLogStream.
 func (mr *MockCloudWatchLogsAPIMockRecorder) CreateLogStream(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLogStream", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).CreateLogStream), arg0)
 }
 
-// CreateLogStreamRequest mocks base method
+// CreateLogStreamRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) CreateLogStreamRequest(arg0 *cloudwatchlogs.CreateLogStreamInput) (*request.Request, *cloudwatchlogs.CreateLogStreamOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateLogStreamRequest", arg0)
@@ -273,13 +273,13 @@ func (m *MockCloudWatchLogsAPI) CreateLogStreamRequest(arg0 *cloudwatchlogs.Crea
 	return ret0, ret1
 }
 
-// CreateLogStreamRequest indicates an expected call of CreateLogStreamRequest
+// CreateLogStreamRequest indicates an expected call of CreateLogStreamRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) CreateLogStreamRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLogStreamRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).CreateLogStreamRequest), arg0)
 }
 
-// CreateLogStreamWithContext mocks base method
+// CreateLogStreamWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) CreateLogStreamWithContext(arg0 context.Context, arg1 *cloudwatchlogs.CreateLogStreamInput, arg2 ...request.Option) (*cloudwatchlogs.CreateLogStreamOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -292,14 +292,14 @@ func (m *MockCloudWatchLogsAPI) CreateLogStreamWithContext(arg0 context.Context,
 	return ret0, ret1
 }
 
-// CreateLogStreamWithContext indicates an expected call of CreateLogStreamWithContext
+// CreateLogStreamWithContext indicates an expected call of CreateLogStreamWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) CreateLogStreamWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLogStreamWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).CreateLogStreamWithContext), varargs...)
 }
 
-// DeleteDestination mocks base method
+// DeleteDestination mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteDestination(arg0 *cloudwatchlogs.DeleteDestinationInput) (*cloudwatchlogs.DeleteDestinationOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteDestination", arg0)
@@ -308,13 +308,13 @@ func (m *MockCloudWatchLogsAPI) DeleteDestination(arg0 *cloudwatchlogs.DeleteDes
 	return ret0, ret1
 }
 
-// DeleteDestination indicates an expected call of DeleteDestination
+// DeleteDestination indicates an expected call of DeleteDestination.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteDestination(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDestination", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteDestination), arg0)
 }
 
-// DeleteDestinationRequest mocks base method
+// DeleteDestinationRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteDestinationRequest(arg0 *cloudwatchlogs.DeleteDestinationInput) (*request.Request, *cloudwatchlogs.DeleteDestinationOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteDestinationRequest", arg0)
@@ -323,13 +323,13 @@ func (m *MockCloudWatchLogsAPI) DeleteDestinationRequest(arg0 *cloudwatchlogs.De
 	return ret0, ret1
 }
 
-// DeleteDestinationRequest indicates an expected call of DeleteDestinationRequest
+// DeleteDestinationRequest indicates an expected call of DeleteDestinationRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteDestinationRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDestinationRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteDestinationRequest), arg0)
 }
 
-// DeleteDestinationWithContext mocks base method
+// DeleteDestinationWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteDestinationWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DeleteDestinationInput, arg2 ...request.Option) (*cloudwatchlogs.DeleteDestinationOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -342,14 +342,14 @@ func (m *MockCloudWatchLogsAPI) DeleteDestinationWithContext(arg0 context.Contex
 	return ret0, ret1
 }
 
-// DeleteDestinationWithContext indicates an expected call of DeleteDestinationWithContext
+// DeleteDestinationWithContext indicates an expected call of DeleteDestinationWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteDestinationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDestinationWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteDestinationWithContext), varargs...)
 }
 
-// DeleteLogGroup mocks base method
+// DeleteLogGroup mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteLogGroup(arg0 *cloudwatchlogs.DeleteLogGroupInput) (*cloudwatchlogs.DeleteLogGroupOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteLogGroup", arg0)
@@ -358,13 +358,13 @@ func (m *MockCloudWatchLogsAPI) DeleteLogGroup(arg0 *cloudwatchlogs.DeleteLogGro
 	return ret0, ret1
 }
 
-// DeleteLogGroup indicates an expected call of DeleteLogGroup
+// DeleteLogGroup indicates an expected call of DeleteLogGroup.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteLogGroup(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLogGroup", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteLogGroup), arg0)
 }
 
-// DeleteLogGroupRequest mocks base method
+// DeleteLogGroupRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteLogGroupRequest(arg0 *cloudwatchlogs.DeleteLogGroupInput) (*request.Request, *cloudwatchlogs.DeleteLogGroupOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteLogGroupRequest", arg0)
@@ -373,13 +373,13 @@ func (m *MockCloudWatchLogsAPI) DeleteLogGroupRequest(arg0 *cloudwatchlogs.Delet
 	return ret0, ret1
 }
 
-// DeleteLogGroupRequest indicates an expected call of DeleteLogGroupRequest
+// DeleteLogGroupRequest indicates an expected call of DeleteLogGroupRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteLogGroupRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLogGroupRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteLogGroupRequest), arg0)
 }
 
-// DeleteLogGroupWithContext mocks base method
+// DeleteLogGroupWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteLogGroupWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DeleteLogGroupInput, arg2 ...request.Option) (*cloudwatchlogs.DeleteLogGroupOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -392,14 +392,14 @@ func (m *MockCloudWatchLogsAPI) DeleteLogGroupWithContext(arg0 context.Context, 
 	return ret0, ret1
 }
 
-// DeleteLogGroupWithContext indicates an expected call of DeleteLogGroupWithContext
+// DeleteLogGroupWithContext indicates an expected call of DeleteLogGroupWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteLogGroupWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLogGroupWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteLogGroupWithContext), varargs...)
 }
 
-// DeleteLogStream mocks base method
+// DeleteLogStream mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteLogStream(arg0 *cloudwatchlogs.DeleteLogStreamInput) (*cloudwatchlogs.DeleteLogStreamOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteLogStream", arg0)
@@ -408,13 +408,13 @@ func (m *MockCloudWatchLogsAPI) DeleteLogStream(arg0 *cloudwatchlogs.DeleteLogSt
 	return ret0, ret1
 }
 
-// DeleteLogStream indicates an expected call of DeleteLogStream
+// DeleteLogStream indicates an expected call of DeleteLogStream.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteLogStream(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLogStream", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteLogStream), arg0)
 }
 
-// DeleteLogStreamRequest mocks base method
+// DeleteLogStreamRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteLogStreamRequest(arg0 *cloudwatchlogs.DeleteLogStreamInput) (*request.Request, *cloudwatchlogs.DeleteLogStreamOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteLogStreamRequest", arg0)
@@ -423,13 +423,13 @@ func (m *MockCloudWatchLogsAPI) DeleteLogStreamRequest(arg0 *cloudwatchlogs.Dele
 	return ret0, ret1
 }
 
-// DeleteLogStreamRequest indicates an expected call of DeleteLogStreamRequest
+// DeleteLogStreamRequest indicates an expected call of DeleteLogStreamRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteLogStreamRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLogStreamRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteLogStreamRequest), arg0)
 }
 
-// DeleteLogStreamWithContext mocks base method
+// DeleteLogStreamWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteLogStreamWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DeleteLogStreamInput, arg2 ...request.Option) (*cloudwatchlogs.DeleteLogStreamOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -442,14 +442,14 @@ func (m *MockCloudWatchLogsAPI) DeleteLogStreamWithContext(arg0 context.Context,
 	return ret0, ret1
 }
 
-// DeleteLogStreamWithContext indicates an expected call of DeleteLogStreamWithContext
+// DeleteLogStreamWithContext indicates an expected call of DeleteLogStreamWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteLogStreamWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLogStreamWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteLogStreamWithContext), varargs...)
 }
 
-// DeleteMetricFilter mocks base method
+// DeleteMetricFilter mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteMetricFilter(arg0 *cloudwatchlogs.DeleteMetricFilterInput) (*cloudwatchlogs.DeleteMetricFilterOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteMetricFilter", arg0)
@@ -458,13 +458,13 @@ func (m *MockCloudWatchLogsAPI) DeleteMetricFilter(arg0 *cloudwatchlogs.DeleteMe
 	return ret0, ret1
 }
 
-// DeleteMetricFilter indicates an expected call of DeleteMetricFilter
+// DeleteMetricFilter indicates an expected call of DeleteMetricFilter.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteMetricFilter(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteMetricFilter", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteMetricFilter), arg0)
 }
 
-// DeleteMetricFilterRequest mocks base method
+// DeleteMetricFilterRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteMetricFilterRequest(arg0 *cloudwatchlogs.DeleteMetricFilterInput) (*request.Request, *cloudwatchlogs.DeleteMetricFilterOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteMetricFilterRequest", arg0)
@@ -473,13 +473,13 @@ func (m *MockCloudWatchLogsAPI) DeleteMetricFilterRequest(arg0 *cloudwatchlogs.D
 	return ret0, ret1
 }
 
-// DeleteMetricFilterRequest indicates an expected call of DeleteMetricFilterRequest
+// DeleteMetricFilterRequest indicates an expected call of DeleteMetricFilterRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteMetricFilterRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteMetricFilterRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteMetricFilterRequest), arg0)
 }
 
-// DeleteMetricFilterWithContext mocks base method
+// DeleteMetricFilterWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteMetricFilterWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DeleteMetricFilterInput, arg2 ...request.Option) (*cloudwatchlogs.DeleteMetricFilterOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -492,14 +492,64 @@ func (m *MockCloudWatchLogsAPI) DeleteMetricFilterWithContext(arg0 context.Conte
 	return ret0, ret1
 }
 
-// DeleteMetricFilterWithContext indicates an expected call of DeleteMetricFilterWithContext
+// DeleteMetricFilterWithContext indicates an expected call of DeleteMetricFilterWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteMetricFilterWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteMetricFilterWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteMetricFilterWithContext), varargs...)
 }
 
-// DeleteResourcePolicy mocks base method
+// DeleteQueryDefinition mocks base method.
+func (m *MockCloudWatchLogsAPI) DeleteQueryDefinition(arg0 *cloudwatchlogs.DeleteQueryDefinitionInput) (*cloudwatchlogs.DeleteQueryDefinitionOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteQueryDefinition", arg0)
+	ret0, _ := ret[0].(*cloudwatchlogs.DeleteQueryDefinitionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteQueryDefinition indicates an expected call of DeleteQueryDefinition.
+func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteQueryDefinition(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteQueryDefinition", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteQueryDefinition), arg0)
+}
+
+// DeleteQueryDefinitionRequest mocks base method.
+func (m *MockCloudWatchLogsAPI) DeleteQueryDefinitionRequest(arg0 *cloudwatchlogs.DeleteQueryDefinitionInput) (*request.Request, *cloudwatchlogs.DeleteQueryDefinitionOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteQueryDefinitionRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudwatchlogs.DeleteQueryDefinitionOutput)
+	return ret0, ret1
+}
+
+// DeleteQueryDefinitionRequest indicates an expected call of DeleteQueryDefinitionRequest.
+func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteQueryDefinitionRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteQueryDefinitionRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteQueryDefinitionRequest), arg0)
+}
+
+// DeleteQueryDefinitionWithContext mocks base method.
+func (m *MockCloudWatchLogsAPI) DeleteQueryDefinitionWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DeleteQueryDefinitionInput, arg2 ...request.Option) (*cloudwatchlogs.DeleteQueryDefinitionOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteQueryDefinitionWithContext", varargs...)
+	ret0, _ := ret[0].(*cloudwatchlogs.DeleteQueryDefinitionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteQueryDefinitionWithContext indicates an expected call of DeleteQueryDefinitionWithContext.
+func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteQueryDefinitionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteQueryDefinitionWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteQueryDefinitionWithContext), varargs...)
+}
+
+// DeleteResourcePolicy mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteResourcePolicy(arg0 *cloudwatchlogs.DeleteResourcePolicyInput) (*cloudwatchlogs.DeleteResourcePolicyOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteResourcePolicy", arg0)
@@ -508,13 +558,13 @@ func (m *MockCloudWatchLogsAPI) DeleteResourcePolicy(arg0 *cloudwatchlogs.Delete
 	return ret0, ret1
 }
 
-// DeleteResourcePolicy indicates an expected call of DeleteResourcePolicy
+// DeleteResourcePolicy indicates an expected call of DeleteResourcePolicy.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteResourcePolicy(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteResourcePolicy", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteResourcePolicy), arg0)
 }
 
-// DeleteResourcePolicyRequest mocks base method
+// DeleteResourcePolicyRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteResourcePolicyRequest(arg0 *cloudwatchlogs.DeleteResourcePolicyInput) (*request.Request, *cloudwatchlogs.DeleteResourcePolicyOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteResourcePolicyRequest", arg0)
@@ -523,13 +573,13 @@ func (m *MockCloudWatchLogsAPI) DeleteResourcePolicyRequest(arg0 *cloudwatchlogs
 	return ret0, ret1
 }
 
-// DeleteResourcePolicyRequest indicates an expected call of DeleteResourcePolicyRequest
+// DeleteResourcePolicyRequest indicates an expected call of DeleteResourcePolicyRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteResourcePolicyRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteResourcePolicyRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteResourcePolicyRequest), arg0)
 }
 
-// DeleteResourcePolicyWithContext mocks base method
+// DeleteResourcePolicyWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteResourcePolicyWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DeleteResourcePolicyInput, arg2 ...request.Option) (*cloudwatchlogs.DeleteResourcePolicyOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -542,14 +592,14 @@ func (m *MockCloudWatchLogsAPI) DeleteResourcePolicyWithContext(arg0 context.Con
 	return ret0, ret1
 }
 
-// DeleteResourcePolicyWithContext indicates an expected call of DeleteResourcePolicyWithContext
+// DeleteResourcePolicyWithContext indicates an expected call of DeleteResourcePolicyWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteResourcePolicyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteResourcePolicyWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteResourcePolicyWithContext), varargs...)
 }
 
-// DeleteRetentionPolicy mocks base method
+// DeleteRetentionPolicy mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteRetentionPolicy(arg0 *cloudwatchlogs.DeleteRetentionPolicyInput) (*cloudwatchlogs.DeleteRetentionPolicyOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteRetentionPolicy", arg0)
@@ -558,13 +608,13 @@ func (m *MockCloudWatchLogsAPI) DeleteRetentionPolicy(arg0 *cloudwatchlogs.Delet
 	return ret0, ret1
 }
 
-// DeleteRetentionPolicy indicates an expected call of DeleteRetentionPolicy
+// DeleteRetentionPolicy indicates an expected call of DeleteRetentionPolicy.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteRetentionPolicy(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRetentionPolicy", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteRetentionPolicy), arg0)
 }
 
-// DeleteRetentionPolicyRequest mocks base method
+// DeleteRetentionPolicyRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteRetentionPolicyRequest(arg0 *cloudwatchlogs.DeleteRetentionPolicyInput) (*request.Request, *cloudwatchlogs.DeleteRetentionPolicyOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteRetentionPolicyRequest", arg0)
@@ -573,13 +623,13 @@ func (m *MockCloudWatchLogsAPI) DeleteRetentionPolicyRequest(arg0 *cloudwatchlog
 	return ret0, ret1
 }
 
-// DeleteRetentionPolicyRequest indicates an expected call of DeleteRetentionPolicyRequest
+// DeleteRetentionPolicyRequest indicates an expected call of DeleteRetentionPolicyRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteRetentionPolicyRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRetentionPolicyRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteRetentionPolicyRequest), arg0)
 }
 
-// DeleteRetentionPolicyWithContext mocks base method
+// DeleteRetentionPolicyWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteRetentionPolicyWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DeleteRetentionPolicyInput, arg2 ...request.Option) (*cloudwatchlogs.DeleteRetentionPolicyOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -592,14 +642,14 @@ func (m *MockCloudWatchLogsAPI) DeleteRetentionPolicyWithContext(arg0 context.Co
 	return ret0, ret1
 }
 
-// DeleteRetentionPolicyWithContext indicates an expected call of DeleteRetentionPolicyWithContext
+// DeleteRetentionPolicyWithContext indicates an expected call of DeleteRetentionPolicyWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteRetentionPolicyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRetentionPolicyWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteRetentionPolicyWithContext), varargs...)
 }
 
-// DeleteSubscriptionFilter mocks base method
+// DeleteSubscriptionFilter mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteSubscriptionFilter(arg0 *cloudwatchlogs.DeleteSubscriptionFilterInput) (*cloudwatchlogs.DeleteSubscriptionFilterOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteSubscriptionFilter", arg0)
@@ -608,13 +658,13 @@ func (m *MockCloudWatchLogsAPI) DeleteSubscriptionFilter(arg0 *cloudwatchlogs.De
 	return ret0, ret1
 }
 
-// DeleteSubscriptionFilter indicates an expected call of DeleteSubscriptionFilter
+// DeleteSubscriptionFilter indicates an expected call of DeleteSubscriptionFilter.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteSubscriptionFilter(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSubscriptionFilter", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteSubscriptionFilter), arg0)
 }
 
-// DeleteSubscriptionFilterRequest mocks base method
+// DeleteSubscriptionFilterRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteSubscriptionFilterRequest(arg0 *cloudwatchlogs.DeleteSubscriptionFilterInput) (*request.Request, *cloudwatchlogs.DeleteSubscriptionFilterOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteSubscriptionFilterRequest", arg0)
@@ -623,13 +673,13 @@ func (m *MockCloudWatchLogsAPI) DeleteSubscriptionFilterRequest(arg0 *cloudwatch
 	return ret0, ret1
 }
 
-// DeleteSubscriptionFilterRequest indicates an expected call of DeleteSubscriptionFilterRequest
+// DeleteSubscriptionFilterRequest indicates an expected call of DeleteSubscriptionFilterRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteSubscriptionFilterRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSubscriptionFilterRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteSubscriptionFilterRequest), arg0)
 }
 
-// DeleteSubscriptionFilterWithContext mocks base method
+// DeleteSubscriptionFilterWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DeleteSubscriptionFilterWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DeleteSubscriptionFilterInput, arg2 ...request.Option) (*cloudwatchlogs.DeleteSubscriptionFilterOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -642,14 +692,14 @@ func (m *MockCloudWatchLogsAPI) DeleteSubscriptionFilterWithContext(arg0 context
 	return ret0, ret1
 }
 
-// DeleteSubscriptionFilterWithContext indicates an expected call of DeleteSubscriptionFilterWithContext
+// DeleteSubscriptionFilterWithContext indicates an expected call of DeleteSubscriptionFilterWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteSubscriptionFilterWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSubscriptionFilterWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteSubscriptionFilterWithContext), varargs...)
 }
 
-// DescribeDestinations mocks base method
+// DescribeDestinations mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeDestinations(arg0 *cloudwatchlogs.DescribeDestinationsInput) (*cloudwatchlogs.DescribeDestinationsOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeDestinations", arg0)
@@ -658,13 +708,13 @@ func (m *MockCloudWatchLogsAPI) DescribeDestinations(arg0 *cloudwatchlogs.Descri
 	return ret0, ret1
 }
 
-// DescribeDestinations indicates an expected call of DescribeDestinations
+// DescribeDestinations indicates an expected call of DescribeDestinations.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeDestinations(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeDestinations", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeDestinations), arg0)
 }
 
-// DescribeDestinationsPages mocks base method
+// DescribeDestinationsPages mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeDestinationsPages(arg0 *cloudwatchlogs.DescribeDestinationsInput, arg1 func(*cloudwatchlogs.DescribeDestinationsOutput, bool) bool) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeDestinationsPages", arg0, arg1)
@@ -672,13 +722,13 @@ func (m *MockCloudWatchLogsAPI) DescribeDestinationsPages(arg0 *cloudwatchlogs.D
 	return ret0
 }
 
-// DescribeDestinationsPages indicates an expected call of DescribeDestinationsPages
+// DescribeDestinationsPages indicates an expected call of DescribeDestinationsPages.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeDestinationsPages(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeDestinationsPages", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeDestinationsPages), arg0, arg1)
 }
 
-// DescribeDestinationsPagesWithContext mocks base method
+// DescribeDestinationsPagesWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeDestinationsPagesWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DescribeDestinationsInput, arg2 func(*cloudwatchlogs.DescribeDestinationsOutput, bool) bool, arg3 ...request.Option) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
@@ -690,14 +740,14 @@ func (m *MockCloudWatchLogsAPI) DescribeDestinationsPagesWithContext(arg0 contex
 	return ret0
 }
 
-// DescribeDestinationsPagesWithContext indicates an expected call of DescribeDestinationsPagesWithContext
+// DescribeDestinationsPagesWithContext indicates an expected call of DescribeDestinationsPagesWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeDestinationsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeDestinationsPagesWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeDestinationsPagesWithContext), varargs...)
 }
 
-// DescribeDestinationsRequest mocks base method
+// DescribeDestinationsRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeDestinationsRequest(arg0 *cloudwatchlogs.DescribeDestinationsInput) (*request.Request, *cloudwatchlogs.DescribeDestinationsOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeDestinationsRequest", arg0)
@@ -706,13 +756,13 @@ func (m *MockCloudWatchLogsAPI) DescribeDestinationsRequest(arg0 *cloudwatchlogs
 	return ret0, ret1
 }
 
-// DescribeDestinationsRequest indicates an expected call of DescribeDestinationsRequest
+// DescribeDestinationsRequest indicates an expected call of DescribeDestinationsRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeDestinationsRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeDestinationsRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeDestinationsRequest), arg0)
 }
 
-// DescribeDestinationsWithContext mocks base method
+// DescribeDestinationsWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeDestinationsWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DescribeDestinationsInput, arg2 ...request.Option) (*cloudwatchlogs.DescribeDestinationsOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -725,14 +775,14 @@ func (m *MockCloudWatchLogsAPI) DescribeDestinationsWithContext(arg0 context.Con
 	return ret0, ret1
 }
 
-// DescribeDestinationsWithContext indicates an expected call of DescribeDestinationsWithContext
+// DescribeDestinationsWithContext indicates an expected call of DescribeDestinationsWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeDestinationsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeDestinationsWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeDestinationsWithContext), varargs...)
 }
 
-// DescribeExportTasks mocks base method
+// DescribeExportTasks mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeExportTasks(arg0 *cloudwatchlogs.DescribeExportTasksInput) (*cloudwatchlogs.DescribeExportTasksOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeExportTasks", arg0)
@@ -741,13 +791,13 @@ func (m *MockCloudWatchLogsAPI) DescribeExportTasks(arg0 *cloudwatchlogs.Describ
 	return ret0, ret1
 }
 
-// DescribeExportTasks indicates an expected call of DescribeExportTasks
+// DescribeExportTasks indicates an expected call of DescribeExportTasks.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeExportTasks(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeExportTasks", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeExportTasks), arg0)
 }
 
-// DescribeExportTasksRequest mocks base method
+// DescribeExportTasksRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeExportTasksRequest(arg0 *cloudwatchlogs.DescribeExportTasksInput) (*request.Request, *cloudwatchlogs.DescribeExportTasksOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeExportTasksRequest", arg0)
@@ -756,13 +806,13 @@ func (m *MockCloudWatchLogsAPI) DescribeExportTasksRequest(arg0 *cloudwatchlogs.
 	return ret0, ret1
 }
 
-// DescribeExportTasksRequest indicates an expected call of DescribeExportTasksRequest
+// DescribeExportTasksRequest indicates an expected call of DescribeExportTasksRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeExportTasksRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeExportTasksRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeExportTasksRequest), arg0)
 }
 
-// DescribeExportTasksWithContext mocks base method
+// DescribeExportTasksWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeExportTasksWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DescribeExportTasksInput, arg2 ...request.Option) (*cloudwatchlogs.DescribeExportTasksOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -775,14 +825,14 @@ func (m *MockCloudWatchLogsAPI) DescribeExportTasksWithContext(arg0 context.Cont
 	return ret0, ret1
 }
 
-// DescribeExportTasksWithContext indicates an expected call of DescribeExportTasksWithContext
+// DescribeExportTasksWithContext indicates an expected call of DescribeExportTasksWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeExportTasksWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeExportTasksWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeExportTasksWithContext), varargs...)
 }
 
-// DescribeLogGroups mocks base method
+// DescribeLogGroups mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeLogGroups(arg0 *cloudwatchlogs.DescribeLogGroupsInput) (*cloudwatchlogs.DescribeLogGroupsOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeLogGroups", arg0)
@@ -791,13 +841,13 @@ func (m *MockCloudWatchLogsAPI) DescribeLogGroups(arg0 *cloudwatchlogs.DescribeL
 	return ret0, ret1
 }
 
-// DescribeLogGroups indicates an expected call of DescribeLogGroups
+// DescribeLogGroups indicates an expected call of DescribeLogGroups.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeLogGroups(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeLogGroups", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeLogGroups), arg0)
 }
 
-// DescribeLogGroupsPages mocks base method
+// DescribeLogGroupsPages mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeLogGroupsPages(arg0 *cloudwatchlogs.DescribeLogGroupsInput, arg1 func(*cloudwatchlogs.DescribeLogGroupsOutput, bool) bool) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeLogGroupsPages", arg0, arg1)
@@ -805,13 +855,13 @@ func (m *MockCloudWatchLogsAPI) DescribeLogGroupsPages(arg0 *cloudwatchlogs.Desc
 	return ret0
 }
 
-// DescribeLogGroupsPages indicates an expected call of DescribeLogGroupsPages
+// DescribeLogGroupsPages indicates an expected call of DescribeLogGroupsPages.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeLogGroupsPages(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeLogGroupsPages", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeLogGroupsPages), arg0, arg1)
 }
 
-// DescribeLogGroupsPagesWithContext mocks base method
+// DescribeLogGroupsPagesWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeLogGroupsPagesWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DescribeLogGroupsInput, arg2 func(*cloudwatchlogs.DescribeLogGroupsOutput, bool) bool, arg3 ...request.Option) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
@@ -823,14 +873,14 @@ func (m *MockCloudWatchLogsAPI) DescribeLogGroupsPagesWithContext(arg0 context.C
 	return ret0
 }
 
-// DescribeLogGroupsPagesWithContext indicates an expected call of DescribeLogGroupsPagesWithContext
+// DescribeLogGroupsPagesWithContext indicates an expected call of DescribeLogGroupsPagesWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeLogGroupsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeLogGroupsPagesWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeLogGroupsPagesWithContext), varargs...)
 }
 
-// DescribeLogGroupsRequest mocks base method
+// DescribeLogGroupsRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeLogGroupsRequest(arg0 *cloudwatchlogs.DescribeLogGroupsInput) (*request.Request, *cloudwatchlogs.DescribeLogGroupsOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeLogGroupsRequest", arg0)
@@ -839,13 +889,13 @@ func (m *MockCloudWatchLogsAPI) DescribeLogGroupsRequest(arg0 *cloudwatchlogs.De
 	return ret0, ret1
 }
 
-// DescribeLogGroupsRequest indicates an expected call of DescribeLogGroupsRequest
+// DescribeLogGroupsRequest indicates an expected call of DescribeLogGroupsRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeLogGroupsRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeLogGroupsRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeLogGroupsRequest), arg0)
 }
 
-// DescribeLogGroupsWithContext mocks base method
+// DescribeLogGroupsWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeLogGroupsWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DescribeLogGroupsInput, arg2 ...request.Option) (*cloudwatchlogs.DescribeLogGroupsOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -858,14 +908,14 @@ func (m *MockCloudWatchLogsAPI) DescribeLogGroupsWithContext(arg0 context.Contex
 	return ret0, ret1
 }
 
-// DescribeLogGroupsWithContext indicates an expected call of DescribeLogGroupsWithContext
+// DescribeLogGroupsWithContext indicates an expected call of DescribeLogGroupsWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeLogGroupsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeLogGroupsWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeLogGroupsWithContext), varargs...)
 }
 
-// DescribeLogStreams mocks base method
+// DescribeLogStreams mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeLogStreams(arg0 *cloudwatchlogs.DescribeLogStreamsInput) (*cloudwatchlogs.DescribeLogStreamsOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeLogStreams", arg0)
@@ -874,13 +924,13 @@ func (m *MockCloudWatchLogsAPI) DescribeLogStreams(arg0 *cloudwatchlogs.Describe
 	return ret0, ret1
 }
 
-// DescribeLogStreams indicates an expected call of DescribeLogStreams
+// DescribeLogStreams indicates an expected call of DescribeLogStreams.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeLogStreams(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeLogStreams", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeLogStreams), arg0)
 }
 
-// DescribeLogStreamsPages mocks base method
+// DescribeLogStreamsPages mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeLogStreamsPages(arg0 *cloudwatchlogs.DescribeLogStreamsInput, arg1 func(*cloudwatchlogs.DescribeLogStreamsOutput, bool) bool) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeLogStreamsPages", arg0, arg1)
@@ -888,13 +938,13 @@ func (m *MockCloudWatchLogsAPI) DescribeLogStreamsPages(arg0 *cloudwatchlogs.Des
 	return ret0
 }
 
-// DescribeLogStreamsPages indicates an expected call of DescribeLogStreamsPages
+// DescribeLogStreamsPages indicates an expected call of DescribeLogStreamsPages.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeLogStreamsPages(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeLogStreamsPages", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeLogStreamsPages), arg0, arg1)
 }
 
-// DescribeLogStreamsPagesWithContext mocks base method
+// DescribeLogStreamsPagesWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeLogStreamsPagesWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DescribeLogStreamsInput, arg2 func(*cloudwatchlogs.DescribeLogStreamsOutput, bool) bool, arg3 ...request.Option) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
@@ -906,14 +956,14 @@ func (m *MockCloudWatchLogsAPI) DescribeLogStreamsPagesWithContext(arg0 context.
 	return ret0
 }
 
-// DescribeLogStreamsPagesWithContext indicates an expected call of DescribeLogStreamsPagesWithContext
+// DescribeLogStreamsPagesWithContext indicates an expected call of DescribeLogStreamsPagesWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeLogStreamsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeLogStreamsPagesWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeLogStreamsPagesWithContext), varargs...)
 }
 
-// DescribeLogStreamsRequest mocks base method
+// DescribeLogStreamsRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeLogStreamsRequest(arg0 *cloudwatchlogs.DescribeLogStreamsInput) (*request.Request, *cloudwatchlogs.DescribeLogStreamsOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeLogStreamsRequest", arg0)
@@ -922,13 +972,13 @@ func (m *MockCloudWatchLogsAPI) DescribeLogStreamsRequest(arg0 *cloudwatchlogs.D
 	return ret0, ret1
 }
 
-// DescribeLogStreamsRequest indicates an expected call of DescribeLogStreamsRequest
+// DescribeLogStreamsRequest indicates an expected call of DescribeLogStreamsRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeLogStreamsRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeLogStreamsRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeLogStreamsRequest), arg0)
 }
 
-// DescribeLogStreamsWithContext mocks base method
+// DescribeLogStreamsWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeLogStreamsWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DescribeLogStreamsInput, arg2 ...request.Option) (*cloudwatchlogs.DescribeLogStreamsOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -941,14 +991,14 @@ func (m *MockCloudWatchLogsAPI) DescribeLogStreamsWithContext(arg0 context.Conte
 	return ret0, ret1
 }
 
-// DescribeLogStreamsWithContext indicates an expected call of DescribeLogStreamsWithContext
+// DescribeLogStreamsWithContext indicates an expected call of DescribeLogStreamsWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeLogStreamsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeLogStreamsWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeLogStreamsWithContext), varargs...)
 }
 
-// DescribeMetricFilters mocks base method
+// DescribeMetricFilters mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeMetricFilters(arg0 *cloudwatchlogs.DescribeMetricFiltersInput) (*cloudwatchlogs.DescribeMetricFiltersOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMetricFilters", arg0)
@@ -957,13 +1007,13 @@ func (m *MockCloudWatchLogsAPI) DescribeMetricFilters(arg0 *cloudwatchlogs.Descr
 	return ret0, ret1
 }
 
-// DescribeMetricFilters indicates an expected call of DescribeMetricFilters
+// DescribeMetricFilters indicates an expected call of DescribeMetricFilters.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeMetricFilters(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMetricFilters", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeMetricFilters), arg0)
 }
 
-// DescribeMetricFiltersPages mocks base method
+// DescribeMetricFiltersPages mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeMetricFiltersPages(arg0 *cloudwatchlogs.DescribeMetricFiltersInput, arg1 func(*cloudwatchlogs.DescribeMetricFiltersOutput, bool) bool) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMetricFiltersPages", arg0, arg1)
@@ -971,13 +1021,13 @@ func (m *MockCloudWatchLogsAPI) DescribeMetricFiltersPages(arg0 *cloudwatchlogs.
 	return ret0
 }
 
-// DescribeMetricFiltersPages indicates an expected call of DescribeMetricFiltersPages
+// DescribeMetricFiltersPages indicates an expected call of DescribeMetricFiltersPages.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeMetricFiltersPages(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMetricFiltersPages", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeMetricFiltersPages), arg0, arg1)
 }
 
-// DescribeMetricFiltersPagesWithContext mocks base method
+// DescribeMetricFiltersPagesWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeMetricFiltersPagesWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DescribeMetricFiltersInput, arg2 func(*cloudwatchlogs.DescribeMetricFiltersOutput, bool) bool, arg3 ...request.Option) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
@@ -989,14 +1039,14 @@ func (m *MockCloudWatchLogsAPI) DescribeMetricFiltersPagesWithContext(arg0 conte
 	return ret0
 }
 
-// DescribeMetricFiltersPagesWithContext indicates an expected call of DescribeMetricFiltersPagesWithContext
+// DescribeMetricFiltersPagesWithContext indicates an expected call of DescribeMetricFiltersPagesWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeMetricFiltersPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMetricFiltersPagesWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeMetricFiltersPagesWithContext), varargs...)
 }
 
-// DescribeMetricFiltersRequest mocks base method
+// DescribeMetricFiltersRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeMetricFiltersRequest(arg0 *cloudwatchlogs.DescribeMetricFiltersInput) (*request.Request, *cloudwatchlogs.DescribeMetricFiltersOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeMetricFiltersRequest", arg0)
@@ -1005,13 +1055,13 @@ func (m *MockCloudWatchLogsAPI) DescribeMetricFiltersRequest(arg0 *cloudwatchlog
 	return ret0, ret1
 }
 
-// DescribeMetricFiltersRequest indicates an expected call of DescribeMetricFiltersRequest
+// DescribeMetricFiltersRequest indicates an expected call of DescribeMetricFiltersRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeMetricFiltersRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMetricFiltersRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeMetricFiltersRequest), arg0)
 }
 
-// DescribeMetricFiltersWithContext mocks base method
+// DescribeMetricFiltersWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeMetricFiltersWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DescribeMetricFiltersInput, arg2 ...request.Option) (*cloudwatchlogs.DescribeMetricFiltersOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -1024,14 +1074,14 @@ func (m *MockCloudWatchLogsAPI) DescribeMetricFiltersWithContext(arg0 context.Co
 	return ret0, ret1
 }
 
-// DescribeMetricFiltersWithContext indicates an expected call of DescribeMetricFiltersWithContext
+// DescribeMetricFiltersWithContext indicates an expected call of DescribeMetricFiltersWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeMetricFiltersWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMetricFiltersWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeMetricFiltersWithContext), varargs...)
 }
 
-// DescribeQueries mocks base method
+// DescribeQueries mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeQueries(arg0 *cloudwatchlogs.DescribeQueriesInput) (*cloudwatchlogs.DescribeQueriesOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeQueries", arg0)
@@ -1040,13 +1090,13 @@ func (m *MockCloudWatchLogsAPI) DescribeQueries(arg0 *cloudwatchlogs.DescribeQue
 	return ret0, ret1
 }
 
-// DescribeQueries indicates an expected call of DescribeQueries
+// DescribeQueries indicates an expected call of DescribeQueries.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeQueries(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeQueries", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeQueries), arg0)
 }
 
-// DescribeQueriesRequest mocks base method
+// DescribeQueriesRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeQueriesRequest(arg0 *cloudwatchlogs.DescribeQueriesInput) (*request.Request, *cloudwatchlogs.DescribeQueriesOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeQueriesRequest", arg0)
@@ -1055,13 +1105,13 @@ func (m *MockCloudWatchLogsAPI) DescribeQueriesRequest(arg0 *cloudwatchlogs.Desc
 	return ret0, ret1
 }
 
-// DescribeQueriesRequest indicates an expected call of DescribeQueriesRequest
+// DescribeQueriesRequest indicates an expected call of DescribeQueriesRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeQueriesRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeQueriesRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeQueriesRequest), arg0)
 }
 
-// DescribeQueriesWithContext mocks base method
+// DescribeQueriesWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeQueriesWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DescribeQueriesInput, arg2 ...request.Option) (*cloudwatchlogs.DescribeQueriesOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -1074,14 +1124,64 @@ func (m *MockCloudWatchLogsAPI) DescribeQueriesWithContext(arg0 context.Context,
 	return ret0, ret1
 }
 
-// DescribeQueriesWithContext indicates an expected call of DescribeQueriesWithContext
+// DescribeQueriesWithContext indicates an expected call of DescribeQueriesWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeQueriesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeQueriesWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeQueriesWithContext), varargs...)
 }
 
-// DescribeResourcePolicies mocks base method
+// DescribeQueryDefinitions mocks base method.
+func (m *MockCloudWatchLogsAPI) DescribeQueryDefinitions(arg0 *cloudwatchlogs.DescribeQueryDefinitionsInput) (*cloudwatchlogs.DescribeQueryDefinitionsOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeQueryDefinitions", arg0)
+	ret0, _ := ret[0].(*cloudwatchlogs.DescribeQueryDefinitionsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeQueryDefinitions indicates an expected call of DescribeQueryDefinitions.
+func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeQueryDefinitions(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeQueryDefinitions", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeQueryDefinitions), arg0)
+}
+
+// DescribeQueryDefinitionsRequest mocks base method.
+func (m *MockCloudWatchLogsAPI) DescribeQueryDefinitionsRequest(arg0 *cloudwatchlogs.DescribeQueryDefinitionsInput) (*request.Request, *cloudwatchlogs.DescribeQueryDefinitionsOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeQueryDefinitionsRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudwatchlogs.DescribeQueryDefinitionsOutput)
+	return ret0, ret1
+}
+
+// DescribeQueryDefinitionsRequest indicates an expected call of DescribeQueryDefinitionsRequest.
+func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeQueryDefinitionsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeQueryDefinitionsRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeQueryDefinitionsRequest), arg0)
+}
+
+// DescribeQueryDefinitionsWithContext mocks base method.
+func (m *MockCloudWatchLogsAPI) DescribeQueryDefinitionsWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DescribeQueryDefinitionsInput, arg2 ...request.Option) (*cloudwatchlogs.DescribeQueryDefinitionsOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeQueryDefinitionsWithContext", varargs...)
+	ret0, _ := ret[0].(*cloudwatchlogs.DescribeQueryDefinitionsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeQueryDefinitionsWithContext indicates an expected call of DescribeQueryDefinitionsWithContext.
+func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeQueryDefinitionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeQueryDefinitionsWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeQueryDefinitionsWithContext), varargs...)
+}
+
+// DescribeResourcePolicies mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeResourcePolicies(arg0 *cloudwatchlogs.DescribeResourcePoliciesInput) (*cloudwatchlogs.DescribeResourcePoliciesOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeResourcePolicies", arg0)
@@ -1090,13 +1190,13 @@ func (m *MockCloudWatchLogsAPI) DescribeResourcePolicies(arg0 *cloudwatchlogs.De
 	return ret0, ret1
 }
 
-// DescribeResourcePolicies indicates an expected call of DescribeResourcePolicies
+// DescribeResourcePolicies indicates an expected call of DescribeResourcePolicies.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeResourcePolicies(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeResourcePolicies", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeResourcePolicies), arg0)
 }
 
-// DescribeResourcePoliciesRequest mocks base method
+// DescribeResourcePoliciesRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeResourcePoliciesRequest(arg0 *cloudwatchlogs.DescribeResourcePoliciesInput) (*request.Request, *cloudwatchlogs.DescribeResourcePoliciesOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeResourcePoliciesRequest", arg0)
@@ -1105,13 +1205,13 @@ func (m *MockCloudWatchLogsAPI) DescribeResourcePoliciesRequest(arg0 *cloudwatch
 	return ret0, ret1
 }
 
-// DescribeResourcePoliciesRequest indicates an expected call of DescribeResourcePoliciesRequest
+// DescribeResourcePoliciesRequest indicates an expected call of DescribeResourcePoliciesRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeResourcePoliciesRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeResourcePoliciesRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeResourcePoliciesRequest), arg0)
 }
 
-// DescribeResourcePoliciesWithContext mocks base method
+// DescribeResourcePoliciesWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeResourcePoliciesWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DescribeResourcePoliciesInput, arg2 ...request.Option) (*cloudwatchlogs.DescribeResourcePoliciesOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -1124,14 +1224,14 @@ func (m *MockCloudWatchLogsAPI) DescribeResourcePoliciesWithContext(arg0 context
 	return ret0, ret1
 }
 
-// DescribeResourcePoliciesWithContext indicates an expected call of DescribeResourcePoliciesWithContext
+// DescribeResourcePoliciesWithContext indicates an expected call of DescribeResourcePoliciesWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeResourcePoliciesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeResourcePoliciesWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeResourcePoliciesWithContext), varargs...)
 }
 
-// DescribeSubscriptionFilters mocks base method
+// DescribeSubscriptionFilters mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeSubscriptionFilters(arg0 *cloudwatchlogs.DescribeSubscriptionFiltersInput) (*cloudwatchlogs.DescribeSubscriptionFiltersOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeSubscriptionFilters", arg0)
@@ -1140,13 +1240,13 @@ func (m *MockCloudWatchLogsAPI) DescribeSubscriptionFilters(arg0 *cloudwatchlogs
 	return ret0, ret1
 }
 
-// DescribeSubscriptionFilters indicates an expected call of DescribeSubscriptionFilters
+// DescribeSubscriptionFilters indicates an expected call of DescribeSubscriptionFilters.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeSubscriptionFilters(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSubscriptionFilters", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeSubscriptionFilters), arg0)
 }
 
-// DescribeSubscriptionFiltersPages mocks base method
+// DescribeSubscriptionFiltersPages mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeSubscriptionFiltersPages(arg0 *cloudwatchlogs.DescribeSubscriptionFiltersInput, arg1 func(*cloudwatchlogs.DescribeSubscriptionFiltersOutput, bool) bool) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeSubscriptionFiltersPages", arg0, arg1)
@@ -1154,13 +1254,13 @@ func (m *MockCloudWatchLogsAPI) DescribeSubscriptionFiltersPages(arg0 *cloudwatc
 	return ret0
 }
 
-// DescribeSubscriptionFiltersPages indicates an expected call of DescribeSubscriptionFiltersPages
+// DescribeSubscriptionFiltersPages indicates an expected call of DescribeSubscriptionFiltersPages.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeSubscriptionFiltersPages(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSubscriptionFiltersPages", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeSubscriptionFiltersPages), arg0, arg1)
 }
 
-// DescribeSubscriptionFiltersPagesWithContext mocks base method
+// DescribeSubscriptionFiltersPagesWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeSubscriptionFiltersPagesWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DescribeSubscriptionFiltersInput, arg2 func(*cloudwatchlogs.DescribeSubscriptionFiltersOutput, bool) bool, arg3 ...request.Option) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
@@ -1172,14 +1272,14 @@ func (m *MockCloudWatchLogsAPI) DescribeSubscriptionFiltersPagesWithContext(arg0
 	return ret0
 }
 
-// DescribeSubscriptionFiltersPagesWithContext indicates an expected call of DescribeSubscriptionFiltersPagesWithContext
+// DescribeSubscriptionFiltersPagesWithContext indicates an expected call of DescribeSubscriptionFiltersPagesWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeSubscriptionFiltersPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSubscriptionFiltersPagesWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeSubscriptionFiltersPagesWithContext), varargs...)
 }
 
-// DescribeSubscriptionFiltersRequest mocks base method
+// DescribeSubscriptionFiltersRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeSubscriptionFiltersRequest(arg0 *cloudwatchlogs.DescribeSubscriptionFiltersInput) (*request.Request, *cloudwatchlogs.DescribeSubscriptionFiltersOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeSubscriptionFiltersRequest", arg0)
@@ -1188,13 +1288,13 @@ func (m *MockCloudWatchLogsAPI) DescribeSubscriptionFiltersRequest(arg0 *cloudwa
 	return ret0, ret1
 }
 
-// DescribeSubscriptionFiltersRequest indicates an expected call of DescribeSubscriptionFiltersRequest
+// DescribeSubscriptionFiltersRequest indicates an expected call of DescribeSubscriptionFiltersRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeSubscriptionFiltersRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSubscriptionFiltersRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeSubscriptionFiltersRequest), arg0)
 }
 
-// DescribeSubscriptionFiltersWithContext mocks base method
+// DescribeSubscriptionFiltersWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DescribeSubscriptionFiltersWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DescribeSubscriptionFiltersInput, arg2 ...request.Option) (*cloudwatchlogs.DescribeSubscriptionFiltersOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -1207,14 +1307,14 @@ func (m *MockCloudWatchLogsAPI) DescribeSubscriptionFiltersWithContext(arg0 cont
 	return ret0, ret1
 }
 
-// DescribeSubscriptionFiltersWithContext indicates an expected call of DescribeSubscriptionFiltersWithContext
+// DescribeSubscriptionFiltersWithContext indicates an expected call of DescribeSubscriptionFiltersWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeSubscriptionFiltersWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSubscriptionFiltersWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeSubscriptionFiltersWithContext), varargs...)
 }
 
-// DisassociateKmsKey mocks base method
+// DisassociateKmsKey mocks base method.
 func (m *MockCloudWatchLogsAPI) DisassociateKmsKey(arg0 *cloudwatchlogs.DisassociateKmsKeyInput) (*cloudwatchlogs.DisassociateKmsKeyOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DisassociateKmsKey", arg0)
@@ -1223,13 +1323,13 @@ func (m *MockCloudWatchLogsAPI) DisassociateKmsKey(arg0 *cloudwatchlogs.Disassoc
 	return ret0, ret1
 }
 
-// DisassociateKmsKey indicates an expected call of DisassociateKmsKey
+// DisassociateKmsKey indicates an expected call of DisassociateKmsKey.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DisassociateKmsKey(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DisassociateKmsKey", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DisassociateKmsKey), arg0)
 }
 
-// DisassociateKmsKeyRequest mocks base method
+// DisassociateKmsKeyRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) DisassociateKmsKeyRequest(arg0 *cloudwatchlogs.DisassociateKmsKeyInput) (*request.Request, *cloudwatchlogs.DisassociateKmsKeyOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DisassociateKmsKeyRequest", arg0)
@@ -1238,13 +1338,13 @@ func (m *MockCloudWatchLogsAPI) DisassociateKmsKeyRequest(arg0 *cloudwatchlogs.D
 	return ret0, ret1
 }
 
-// DisassociateKmsKeyRequest indicates an expected call of DisassociateKmsKeyRequest
+// DisassociateKmsKeyRequest indicates an expected call of DisassociateKmsKeyRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DisassociateKmsKeyRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DisassociateKmsKeyRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DisassociateKmsKeyRequest), arg0)
 }
 
-// DisassociateKmsKeyWithContext mocks base method
+// DisassociateKmsKeyWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) DisassociateKmsKeyWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DisassociateKmsKeyInput, arg2 ...request.Option) (*cloudwatchlogs.DisassociateKmsKeyOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -1257,14 +1357,14 @@ func (m *MockCloudWatchLogsAPI) DisassociateKmsKeyWithContext(arg0 context.Conte
 	return ret0, ret1
 }
 
-// DisassociateKmsKeyWithContext indicates an expected call of DisassociateKmsKeyWithContext
+// DisassociateKmsKeyWithContext indicates an expected call of DisassociateKmsKeyWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DisassociateKmsKeyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DisassociateKmsKeyWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DisassociateKmsKeyWithContext), varargs...)
 }
 
-// FilterLogEvents mocks base method
+// FilterLogEvents mocks base method.
 func (m *MockCloudWatchLogsAPI) FilterLogEvents(arg0 *cloudwatchlogs.FilterLogEventsInput) (*cloudwatchlogs.FilterLogEventsOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FilterLogEvents", arg0)
@@ -1273,13 +1373,13 @@ func (m *MockCloudWatchLogsAPI) FilterLogEvents(arg0 *cloudwatchlogs.FilterLogEv
 	return ret0, ret1
 }
 
-// FilterLogEvents indicates an expected call of FilterLogEvents
+// FilterLogEvents indicates an expected call of FilterLogEvents.
 func (mr *MockCloudWatchLogsAPIMockRecorder) FilterLogEvents(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FilterLogEvents", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).FilterLogEvents), arg0)
 }
 
-// FilterLogEventsPages mocks base method
+// FilterLogEventsPages mocks base method.
 func (m *MockCloudWatchLogsAPI) FilterLogEventsPages(arg0 *cloudwatchlogs.FilterLogEventsInput, arg1 func(*cloudwatchlogs.FilterLogEventsOutput, bool) bool) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FilterLogEventsPages", arg0, arg1)
@@ -1287,13 +1387,13 @@ func (m *MockCloudWatchLogsAPI) FilterLogEventsPages(arg0 *cloudwatchlogs.Filter
 	return ret0
 }
 
-// FilterLogEventsPages indicates an expected call of FilterLogEventsPages
+// FilterLogEventsPages indicates an expected call of FilterLogEventsPages.
 func (mr *MockCloudWatchLogsAPIMockRecorder) FilterLogEventsPages(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FilterLogEventsPages", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).FilterLogEventsPages), arg0, arg1)
 }
 
-// FilterLogEventsPagesWithContext mocks base method
+// FilterLogEventsPagesWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) FilterLogEventsPagesWithContext(arg0 context.Context, arg1 *cloudwatchlogs.FilterLogEventsInput, arg2 func(*cloudwatchlogs.FilterLogEventsOutput, bool) bool, arg3 ...request.Option) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
@@ -1305,14 +1405,14 @@ func (m *MockCloudWatchLogsAPI) FilterLogEventsPagesWithContext(arg0 context.Con
 	return ret0
 }
 
-// FilterLogEventsPagesWithContext indicates an expected call of FilterLogEventsPagesWithContext
+// FilterLogEventsPagesWithContext indicates an expected call of FilterLogEventsPagesWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) FilterLogEventsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FilterLogEventsPagesWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).FilterLogEventsPagesWithContext), varargs...)
 }
 
-// FilterLogEventsRequest mocks base method
+// FilterLogEventsRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) FilterLogEventsRequest(arg0 *cloudwatchlogs.FilterLogEventsInput) (*request.Request, *cloudwatchlogs.FilterLogEventsOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FilterLogEventsRequest", arg0)
@@ -1321,13 +1421,13 @@ func (m *MockCloudWatchLogsAPI) FilterLogEventsRequest(arg0 *cloudwatchlogs.Filt
 	return ret0, ret1
 }
 
-// FilterLogEventsRequest indicates an expected call of FilterLogEventsRequest
+// FilterLogEventsRequest indicates an expected call of FilterLogEventsRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) FilterLogEventsRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FilterLogEventsRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).FilterLogEventsRequest), arg0)
 }
 
-// FilterLogEventsWithContext mocks base method
+// FilterLogEventsWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) FilterLogEventsWithContext(arg0 context.Context, arg1 *cloudwatchlogs.FilterLogEventsInput, arg2 ...request.Option) (*cloudwatchlogs.FilterLogEventsOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -1340,14 +1440,14 @@ func (m *MockCloudWatchLogsAPI) FilterLogEventsWithContext(arg0 context.Context,
 	return ret0, ret1
 }
 
-// FilterLogEventsWithContext indicates an expected call of FilterLogEventsWithContext
+// FilterLogEventsWithContext indicates an expected call of FilterLogEventsWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) FilterLogEventsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FilterLogEventsWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).FilterLogEventsWithContext), varargs...)
 }
 
-// GetLogEvents mocks base method
+// GetLogEvents mocks base method.
 func (m *MockCloudWatchLogsAPI) GetLogEvents(arg0 *cloudwatchlogs.GetLogEventsInput) (*cloudwatchlogs.GetLogEventsOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLogEvents", arg0)
@@ -1356,13 +1456,13 @@ func (m *MockCloudWatchLogsAPI) GetLogEvents(arg0 *cloudwatchlogs.GetLogEventsIn
 	return ret0, ret1
 }
 
-// GetLogEvents indicates an expected call of GetLogEvents
+// GetLogEvents indicates an expected call of GetLogEvents.
 func (mr *MockCloudWatchLogsAPIMockRecorder) GetLogEvents(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLogEvents", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).GetLogEvents), arg0)
 }
 
-// GetLogEventsPages mocks base method
+// GetLogEventsPages mocks base method.
 func (m *MockCloudWatchLogsAPI) GetLogEventsPages(arg0 *cloudwatchlogs.GetLogEventsInput, arg1 func(*cloudwatchlogs.GetLogEventsOutput, bool) bool) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLogEventsPages", arg0, arg1)
@@ -1370,13 +1470,13 @@ func (m *MockCloudWatchLogsAPI) GetLogEventsPages(arg0 *cloudwatchlogs.GetLogEve
 	return ret0
 }
 
-// GetLogEventsPages indicates an expected call of GetLogEventsPages
+// GetLogEventsPages indicates an expected call of GetLogEventsPages.
 func (mr *MockCloudWatchLogsAPIMockRecorder) GetLogEventsPages(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLogEventsPages", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).GetLogEventsPages), arg0, arg1)
 }
 
-// GetLogEventsPagesWithContext mocks base method
+// GetLogEventsPagesWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) GetLogEventsPagesWithContext(arg0 context.Context, arg1 *cloudwatchlogs.GetLogEventsInput, arg2 func(*cloudwatchlogs.GetLogEventsOutput, bool) bool, arg3 ...request.Option) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
@@ -1388,14 +1488,14 @@ func (m *MockCloudWatchLogsAPI) GetLogEventsPagesWithContext(arg0 context.Contex
 	return ret0
 }
 
-// GetLogEventsPagesWithContext indicates an expected call of GetLogEventsPagesWithContext
+// GetLogEventsPagesWithContext indicates an expected call of GetLogEventsPagesWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) GetLogEventsPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLogEventsPagesWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).GetLogEventsPagesWithContext), varargs...)
 }
 
-// GetLogEventsRequest mocks base method
+// GetLogEventsRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) GetLogEventsRequest(arg0 *cloudwatchlogs.GetLogEventsInput) (*request.Request, *cloudwatchlogs.GetLogEventsOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLogEventsRequest", arg0)
@@ -1404,13 +1504,13 @@ func (m *MockCloudWatchLogsAPI) GetLogEventsRequest(arg0 *cloudwatchlogs.GetLogE
 	return ret0, ret1
 }
 
-// GetLogEventsRequest indicates an expected call of GetLogEventsRequest
+// GetLogEventsRequest indicates an expected call of GetLogEventsRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) GetLogEventsRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLogEventsRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).GetLogEventsRequest), arg0)
 }
 
-// GetLogEventsWithContext mocks base method
+// GetLogEventsWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) GetLogEventsWithContext(arg0 context.Context, arg1 *cloudwatchlogs.GetLogEventsInput, arg2 ...request.Option) (*cloudwatchlogs.GetLogEventsOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -1423,14 +1523,14 @@ func (m *MockCloudWatchLogsAPI) GetLogEventsWithContext(arg0 context.Context, ar
 	return ret0, ret1
 }
 
-// GetLogEventsWithContext indicates an expected call of GetLogEventsWithContext
+// GetLogEventsWithContext indicates an expected call of GetLogEventsWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) GetLogEventsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLogEventsWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).GetLogEventsWithContext), varargs...)
 }
 
-// GetLogGroupFields mocks base method
+// GetLogGroupFields mocks base method.
 func (m *MockCloudWatchLogsAPI) GetLogGroupFields(arg0 *cloudwatchlogs.GetLogGroupFieldsInput) (*cloudwatchlogs.GetLogGroupFieldsOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLogGroupFields", arg0)
@@ -1439,13 +1539,13 @@ func (m *MockCloudWatchLogsAPI) GetLogGroupFields(arg0 *cloudwatchlogs.GetLogGro
 	return ret0, ret1
 }
 
-// GetLogGroupFields indicates an expected call of GetLogGroupFields
+// GetLogGroupFields indicates an expected call of GetLogGroupFields.
 func (mr *MockCloudWatchLogsAPIMockRecorder) GetLogGroupFields(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLogGroupFields", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).GetLogGroupFields), arg0)
 }
 
-// GetLogGroupFieldsRequest mocks base method
+// GetLogGroupFieldsRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) GetLogGroupFieldsRequest(arg0 *cloudwatchlogs.GetLogGroupFieldsInput) (*request.Request, *cloudwatchlogs.GetLogGroupFieldsOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLogGroupFieldsRequest", arg0)
@@ -1454,13 +1554,13 @@ func (m *MockCloudWatchLogsAPI) GetLogGroupFieldsRequest(arg0 *cloudwatchlogs.Ge
 	return ret0, ret1
 }
 
-// GetLogGroupFieldsRequest indicates an expected call of GetLogGroupFieldsRequest
+// GetLogGroupFieldsRequest indicates an expected call of GetLogGroupFieldsRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) GetLogGroupFieldsRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLogGroupFieldsRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).GetLogGroupFieldsRequest), arg0)
 }
 
-// GetLogGroupFieldsWithContext mocks base method
+// GetLogGroupFieldsWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) GetLogGroupFieldsWithContext(arg0 context.Context, arg1 *cloudwatchlogs.GetLogGroupFieldsInput, arg2 ...request.Option) (*cloudwatchlogs.GetLogGroupFieldsOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -1473,14 +1573,14 @@ func (m *MockCloudWatchLogsAPI) GetLogGroupFieldsWithContext(arg0 context.Contex
 	return ret0, ret1
 }
 
-// GetLogGroupFieldsWithContext indicates an expected call of GetLogGroupFieldsWithContext
+// GetLogGroupFieldsWithContext indicates an expected call of GetLogGroupFieldsWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) GetLogGroupFieldsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLogGroupFieldsWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).GetLogGroupFieldsWithContext), varargs...)
 }
 
-// GetLogRecord mocks base method
+// GetLogRecord mocks base method.
 func (m *MockCloudWatchLogsAPI) GetLogRecord(arg0 *cloudwatchlogs.GetLogRecordInput) (*cloudwatchlogs.GetLogRecordOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLogRecord", arg0)
@@ -1489,13 +1589,13 @@ func (m *MockCloudWatchLogsAPI) GetLogRecord(arg0 *cloudwatchlogs.GetLogRecordIn
 	return ret0, ret1
 }
 
-// GetLogRecord indicates an expected call of GetLogRecord
+// GetLogRecord indicates an expected call of GetLogRecord.
 func (mr *MockCloudWatchLogsAPIMockRecorder) GetLogRecord(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLogRecord", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).GetLogRecord), arg0)
 }
 
-// GetLogRecordRequest mocks base method
+// GetLogRecordRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) GetLogRecordRequest(arg0 *cloudwatchlogs.GetLogRecordInput) (*request.Request, *cloudwatchlogs.GetLogRecordOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLogRecordRequest", arg0)
@@ -1504,13 +1604,13 @@ func (m *MockCloudWatchLogsAPI) GetLogRecordRequest(arg0 *cloudwatchlogs.GetLogR
 	return ret0, ret1
 }
 
-// GetLogRecordRequest indicates an expected call of GetLogRecordRequest
+// GetLogRecordRequest indicates an expected call of GetLogRecordRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) GetLogRecordRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLogRecordRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).GetLogRecordRequest), arg0)
 }
 
-// GetLogRecordWithContext mocks base method
+// GetLogRecordWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) GetLogRecordWithContext(arg0 context.Context, arg1 *cloudwatchlogs.GetLogRecordInput, arg2 ...request.Option) (*cloudwatchlogs.GetLogRecordOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -1523,14 +1623,14 @@ func (m *MockCloudWatchLogsAPI) GetLogRecordWithContext(arg0 context.Context, ar
 	return ret0, ret1
 }
 
-// GetLogRecordWithContext indicates an expected call of GetLogRecordWithContext
+// GetLogRecordWithContext indicates an expected call of GetLogRecordWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) GetLogRecordWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLogRecordWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).GetLogRecordWithContext), varargs...)
 }
 
-// GetQueryResults mocks base method
+// GetQueryResults mocks base method.
 func (m *MockCloudWatchLogsAPI) GetQueryResults(arg0 *cloudwatchlogs.GetQueryResultsInput) (*cloudwatchlogs.GetQueryResultsOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetQueryResults", arg0)
@@ -1539,13 +1639,13 @@ func (m *MockCloudWatchLogsAPI) GetQueryResults(arg0 *cloudwatchlogs.GetQueryRes
 	return ret0, ret1
 }
 
-// GetQueryResults indicates an expected call of GetQueryResults
+// GetQueryResults indicates an expected call of GetQueryResults.
 func (mr *MockCloudWatchLogsAPIMockRecorder) GetQueryResults(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetQueryResults", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).GetQueryResults), arg0)
 }
 
-// GetQueryResultsRequest mocks base method
+// GetQueryResultsRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) GetQueryResultsRequest(arg0 *cloudwatchlogs.GetQueryResultsInput) (*request.Request, *cloudwatchlogs.GetQueryResultsOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetQueryResultsRequest", arg0)
@@ -1554,13 +1654,13 @@ func (m *MockCloudWatchLogsAPI) GetQueryResultsRequest(arg0 *cloudwatchlogs.GetQ
 	return ret0, ret1
 }
 
-// GetQueryResultsRequest indicates an expected call of GetQueryResultsRequest
+// GetQueryResultsRequest indicates an expected call of GetQueryResultsRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) GetQueryResultsRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetQueryResultsRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).GetQueryResultsRequest), arg0)
 }
 
-// GetQueryResultsWithContext mocks base method
+// GetQueryResultsWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) GetQueryResultsWithContext(arg0 context.Context, arg1 *cloudwatchlogs.GetQueryResultsInput, arg2 ...request.Option) (*cloudwatchlogs.GetQueryResultsOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -1573,14 +1673,14 @@ func (m *MockCloudWatchLogsAPI) GetQueryResultsWithContext(arg0 context.Context,
 	return ret0, ret1
 }
 
-// GetQueryResultsWithContext indicates an expected call of GetQueryResultsWithContext
+// GetQueryResultsWithContext indicates an expected call of GetQueryResultsWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) GetQueryResultsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetQueryResultsWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).GetQueryResultsWithContext), varargs...)
 }
 
-// ListTagsLogGroup mocks base method
+// ListTagsLogGroup mocks base method.
 func (m *MockCloudWatchLogsAPI) ListTagsLogGroup(arg0 *cloudwatchlogs.ListTagsLogGroupInput) (*cloudwatchlogs.ListTagsLogGroupOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListTagsLogGroup", arg0)
@@ -1589,13 +1689,13 @@ func (m *MockCloudWatchLogsAPI) ListTagsLogGroup(arg0 *cloudwatchlogs.ListTagsLo
 	return ret0, ret1
 }
 
-// ListTagsLogGroup indicates an expected call of ListTagsLogGroup
+// ListTagsLogGroup indicates an expected call of ListTagsLogGroup.
 func (mr *MockCloudWatchLogsAPIMockRecorder) ListTagsLogGroup(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTagsLogGroup", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).ListTagsLogGroup), arg0)
 }
 
-// ListTagsLogGroupRequest mocks base method
+// ListTagsLogGroupRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) ListTagsLogGroupRequest(arg0 *cloudwatchlogs.ListTagsLogGroupInput) (*request.Request, *cloudwatchlogs.ListTagsLogGroupOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListTagsLogGroupRequest", arg0)
@@ -1604,13 +1704,13 @@ func (m *MockCloudWatchLogsAPI) ListTagsLogGroupRequest(arg0 *cloudwatchlogs.Lis
 	return ret0, ret1
 }
 
-// ListTagsLogGroupRequest indicates an expected call of ListTagsLogGroupRequest
+// ListTagsLogGroupRequest indicates an expected call of ListTagsLogGroupRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) ListTagsLogGroupRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTagsLogGroupRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).ListTagsLogGroupRequest), arg0)
 }
 
-// ListTagsLogGroupWithContext mocks base method
+// ListTagsLogGroupWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) ListTagsLogGroupWithContext(arg0 context.Context, arg1 *cloudwatchlogs.ListTagsLogGroupInput, arg2 ...request.Option) (*cloudwatchlogs.ListTagsLogGroupOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -1623,14 +1723,14 @@ func (m *MockCloudWatchLogsAPI) ListTagsLogGroupWithContext(arg0 context.Context
 	return ret0, ret1
 }
 
-// ListTagsLogGroupWithContext indicates an expected call of ListTagsLogGroupWithContext
+// ListTagsLogGroupWithContext indicates an expected call of ListTagsLogGroupWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) ListTagsLogGroupWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTagsLogGroupWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).ListTagsLogGroupWithContext), varargs...)
 }
 
-// PutDestination mocks base method
+// PutDestination mocks base method.
 func (m *MockCloudWatchLogsAPI) PutDestination(arg0 *cloudwatchlogs.PutDestinationInput) (*cloudwatchlogs.PutDestinationOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutDestination", arg0)
@@ -1639,13 +1739,13 @@ func (m *MockCloudWatchLogsAPI) PutDestination(arg0 *cloudwatchlogs.PutDestinati
 	return ret0, ret1
 }
 
-// PutDestination indicates an expected call of PutDestination
+// PutDestination indicates an expected call of PutDestination.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutDestination(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutDestination", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutDestination), arg0)
 }
 
-// PutDestinationPolicy mocks base method
+// PutDestinationPolicy mocks base method.
 func (m *MockCloudWatchLogsAPI) PutDestinationPolicy(arg0 *cloudwatchlogs.PutDestinationPolicyInput) (*cloudwatchlogs.PutDestinationPolicyOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutDestinationPolicy", arg0)
@@ -1654,13 +1754,13 @@ func (m *MockCloudWatchLogsAPI) PutDestinationPolicy(arg0 *cloudwatchlogs.PutDes
 	return ret0, ret1
 }
 
-// PutDestinationPolicy indicates an expected call of PutDestinationPolicy
+// PutDestinationPolicy indicates an expected call of PutDestinationPolicy.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutDestinationPolicy(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutDestinationPolicy", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutDestinationPolicy), arg0)
 }
 
-// PutDestinationPolicyRequest mocks base method
+// PutDestinationPolicyRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) PutDestinationPolicyRequest(arg0 *cloudwatchlogs.PutDestinationPolicyInput) (*request.Request, *cloudwatchlogs.PutDestinationPolicyOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutDestinationPolicyRequest", arg0)
@@ -1669,13 +1769,13 @@ func (m *MockCloudWatchLogsAPI) PutDestinationPolicyRequest(arg0 *cloudwatchlogs
 	return ret0, ret1
 }
 
-// PutDestinationPolicyRequest indicates an expected call of PutDestinationPolicyRequest
+// PutDestinationPolicyRequest indicates an expected call of PutDestinationPolicyRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutDestinationPolicyRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutDestinationPolicyRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutDestinationPolicyRequest), arg0)
 }
 
-// PutDestinationPolicyWithContext mocks base method
+// PutDestinationPolicyWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) PutDestinationPolicyWithContext(arg0 context.Context, arg1 *cloudwatchlogs.PutDestinationPolicyInput, arg2 ...request.Option) (*cloudwatchlogs.PutDestinationPolicyOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -1688,14 +1788,14 @@ func (m *MockCloudWatchLogsAPI) PutDestinationPolicyWithContext(arg0 context.Con
 	return ret0, ret1
 }
 
-// PutDestinationPolicyWithContext indicates an expected call of PutDestinationPolicyWithContext
+// PutDestinationPolicyWithContext indicates an expected call of PutDestinationPolicyWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutDestinationPolicyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutDestinationPolicyWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutDestinationPolicyWithContext), varargs...)
 }
 
-// PutDestinationRequest mocks base method
+// PutDestinationRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) PutDestinationRequest(arg0 *cloudwatchlogs.PutDestinationInput) (*request.Request, *cloudwatchlogs.PutDestinationOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutDestinationRequest", arg0)
@@ -1704,13 +1804,13 @@ func (m *MockCloudWatchLogsAPI) PutDestinationRequest(arg0 *cloudwatchlogs.PutDe
 	return ret0, ret1
 }
 
-// PutDestinationRequest indicates an expected call of PutDestinationRequest
+// PutDestinationRequest indicates an expected call of PutDestinationRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutDestinationRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutDestinationRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutDestinationRequest), arg0)
 }
 
-// PutDestinationWithContext mocks base method
+// PutDestinationWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) PutDestinationWithContext(arg0 context.Context, arg1 *cloudwatchlogs.PutDestinationInput, arg2 ...request.Option) (*cloudwatchlogs.PutDestinationOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -1723,14 +1823,14 @@ func (m *MockCloudWatchLogsAPI) PutDestinationWithContext(arg0 context.Context, 
 	return ret0, ret1
 }
 
-// PutDestinationWithContext indicates an expected call of PutDestinationWithContext
+// PutDestinationWithContext indicates an expected call of PutDestinationWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutDestinationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutDestinationWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutDestinationWithContext), varargs...)
 }
 
-// PutLogEvents mocks base method
+// PutLogEvents mocks base method.
 func (m *MockCloudWatchLogsAPI) PutLogEvents(arg0 *cloudwatchlogs.PutLogEventsInput) (*cloudwatchlogs.PutLogEventsOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutLogEvents", arg0)
@@ -1739,13 +1839,13 @@ func (m *MockCloudWatchLogsAPI) PutLogEvents(arg0 *cloudwatchlogs.PutLogEventsIn
 	return ret0, ret1
 }
 
-// PutLogEvents indicates an expected call of PutLogEvents
+// PutLogEvents indicates an expected call of PutLogEvents.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutLogEvents(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutLogEvents", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutLogEvents), arg0)
 }
 
-// PutLogEventsRequest mocks base method
+// PutLogEventsRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) PutLogEventsRequest(arg0 *cloudwatchlogs.PutLogEventsInput) (*request.Request, *cloudwatchlogs.PutLogEventsOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutLogEventsRequest", arg0)
@@ -1754,13 +1854,13 @@ func (m *MockCloudWatchLogsAPI) PutLogEventsRequest(arg0 *cloudwatchlogs.PutLogE
 	return ret0, ret1
 }
 
-// PutLogEventsRequest indicates an expected call of PutLogEventsRequest
+// PutLogEventsRequest indicates an expected call of PutLogEventsRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutLogEventsRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutLogEventsRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutLogEventsRequest), arg0)
 }
 
-// PutLogEventsWithContext mocks base method
+// PutLogEventsWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) PutLogEventsWithContext(arg0 context.Context, arg1 *cloudwatchlogs.PutLogEventsInput, arg2 ...request.Option) (*cloudwatchlogs.PutLogEventsOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -1773,14 +1873,14 @@ func (m *MockCloudWatchLogsAPI) PutLogEventsWithContext(arg0 context.Context, ar
 	return ret0, ret1
 }
 
-// PutLogEventsWithContext indicates an expected call of PutLogEventsWithContext
+// PutLogEventsWithContext indicates an expected call of PutLogEventsWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutLogEventsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutLogEventsWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutLogEventsWithContext), varargs...)
 }
 
-// PutMetricFilter mocks base method
+// PutMetricFilter mocks base method.
 func (m *MockCloudWatchLogsAPI) PutMetricFilter(arg0 *cloudwatchlogs.PutMetricFilterInput) (*cloudwatchlogs.PutMetricFilterOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutMetricFilter", arg0)
@@ -1789,13 +1889,13 @@ func (m *MockCloudWatchLogsAPI) PutMetricFilter(arg0 *cloudwatchlogs.PutMetricFi
 	return ret0, ret1
 }
 
-// PutMetricFilter indicates an expected call of PutMetricFilter
+// PutMetricFilter indicates an expected call of PutMetricFilter.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutMetricFilter(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutMetricFilter", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutMetricFilter), arg0)
 }
 
-// PutMetricFilterRequest mocks base method
+// PutMetricFilterRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) PutMetricFilterRequest(arg0 *cloudwatchlogs.PutMetricFilterInput) (*request.Request, *cloudwatchlogs.PutMetricFilterOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutMetricFilterRequest", arg0)
@@ -1804,13 +1904,13 @@ func (m *MockCloudWatchLogsAPI) PutMetricFilterRequest(arg0 *cloudwatchlogs.PutM
 	return ret0, ret1
 }
 
-// PutMetricFilterRequest indicates an expected call of PutMetricFilterRequest
+// PutMetricFilterRequest indicates an expected call of PutMetricFilterRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutMetricFilterRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutMetricFilterRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutMetricFilterRequest), arg0)
 }
 
-// PutMetricFilterWithContext mocks base method
+// PutMetricFilterWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) PutMetricFilterWithContext(arg0 context.Context, arg1 *cloudwatchlogs.PutMetricFilterInput, arg2 ...request.Option) (*cloudwatchlogs.PutMetricFilterOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -1823,14 +1923,64 @@ func (m *MockCloudWatchLogsAPI) PutMetricFilterWithContext(arg0 context.Context,
 	return ret0, ret1
 }
 
-// PutMetricFilterWithContext indicates an expected call of PutMetricFilterWithContext
+// PutMetricFilterWithContext indicates an expected call of PutMetricFilterWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutMetricFilterWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutMetricFilterWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutMetricFilterWithContext), varargs...)
 }
 
-// PutResourcePolicy mocks base method
+// PutQueryDefinition mocks base method.
+func (m *MockCloudWatchLogsAPI) PutQueryDefinition(arg0 *cloudwatchlogs.PutQueryDefinitionInput) (*cloudwatchlogs.PutQueryDefinitionOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PutQueryDefinition", arg0)
+	ret0, _ := ret[0].(*cloudwatchlogs.PutQueryDefinitionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutQueryDefinition indicates an expected call of PutQueryDefinition.
+func (mr *MockCloudWatchLogsAPIMockRecorder) PutQueryDefinition(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutQueryDefinition", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutQueryDefinition), arg0)
+}
+
+// PutQueryDefinitionRequest mocks base method.
+func (m *MockCloudWatchLogsAPI) PutQueryDefinitionRequest(arg0 *cloudwatchlogs.PutQueryDefinitionInput) (*request.Request, *cloudwatchlogs.PutQueryDefinitionOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PutQueryDefinitionRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudwatchlogs.PutQueryDefinitionOutput)
+	return ret0, ret1
+}
+
+// PutQueryDefinitionRequest indicates an expected call of PutQueryDefinitionRequest.
+func (mr *MockCloudWatchLogsAPIMockRecorder) PutQueryDefinitionRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutQueryDefinitionRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutQueryDefinitionRequest), arg0)
+}
+
+// PutQueryDefinitionWithContext mocks base method.
+func (m *MockCloudWatchLogsAPI) PutQueryDefinitionWithContext(arg0 context.Context, arg1 *cloudwatchlogs.PutQueryDefinitionInput, arg2 ...request.Option) (*cloudwatchlogs.PutQueryDefinitionOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PutQueryDefinitionWithContext", varargs...)
+	ret0, _ := ret[0].(*cloudwatchlogs.PutQueryDefinitionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutQueryDefinitionWithContext indicates an expected call of PutQueryDefinitionWithContext.
+func (mr *MockCloudWatchLogsAPIMockRecorder) PutQueryDefinitionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutQueryDefinitionWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutQueryDefinitionWithContext), varargs...)
+}
+
+// PutResourcePolicy mocks base method.
 func (m *MockCloudWatchLogsAPI) PutResourcePolicy(arg0 *cloudwatchlogs.PutResourcePolicyInput) (*cloudwatchlogs.PutResourcePolicyOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutResourcePolicy", arg0)
@@ -1839,13 +1989,13 @@ func (m *MockCloudWatchLogsAPI) PutResourcePolicy(arg0 *cloudwatchlogs.PutResour
 	return ret0, ret1
 }
 
-// PutResourcePolicy indicates an expected call of PutResourcePolicy
+// PutResourcePolicy indicates an expected call of PutResourcePolicy.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutResourcePolicy(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutResourcePolicy", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutResourcePolicy), arg0)
 }
 
-// PutResourcePolicyRequest mocks base method
+// PutResourcePolicyRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) PutResourcePolicyRequest(arg0 *cloudwatchlogs.PutResourcePolicyInput) (*request.Request, *cloudwatchlogs.PutResourcePolicyOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutResourcePolicyRequest", arg0)
@@ -1854,13 +2004,13 @@ func (m *MockCloudWatchLogsAPI) PutResourcePolicyRequest(arg0 *cloudwatchlogs.Pu
 	return ret0, ret1
 }
 
-// PutResourcePolicyRequest indicates an expected call of PutResourcePolicyRequest
+// PutResourcePolicyRequest indicates an expected call of PutResourcePolicyRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutResourcePolicyRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutResourcePolicyRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutResourcePolicyRequest), arg0)
 }
 
-// PutResourcePolicyWithContext mocks base method
+// PutResourcePolicyWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) PutResourcePolicyWithContext(arg0 context.Context, arg1 *cloudwatchlogs.PutResourcePolicyInput, arg2 ...request.Option) (*cloudwatchlogs.PutResourcePolicyOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -1873,14 +2023,14 @@ func (m *MockCloudWatchLogsAPI) PutResourcePolicyWithContext(arg0 context.Contex
 	return ret0, ret1
 }
 
-// PutResourcePolicyWithContext indicates an expected call of PutResourcePolicyWithContext
+// PutResourcePolicyWithContext indicates an expected call of PutResourcePolicyWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutResourcePolicyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutResourcePolicyWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutResourcePolicyWithContext), varargs...)
 }
 
-// PutRetentionPolicy mocks base method
+// PutRetentionPolicy mocks base method.
 func (m *MockCloudWatchLogsAPI) PutRetentionPolicy(arg0 *cloudwatchlogs.PutRetentionPolicyInput) (*cloudwatchlogs.PutRetentionPolicyOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutRetentionPolicy", arg0)
@@ -1889,13 +2039,13 @@ func (m *MockCloudWatchLogsAPI) PutRetentionPolicy(arg0 *cloudwatchlogs.PutReten
 	return ret0, ret1
 }
 
-// PutRetentionPolicy indicates an expected call of PutRetentionPolicy
+// PutRetentionPolicy indicates an expected call of PutRetentionPolicy.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutRetentionPolicy(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutRetentionPolicy", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutRetentionPolicy), arg0)
 }
 
-// PutRetentionPolicyRequest mocks base method
+// PutRetentionPolicyRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) PutRetentionPolicyRequest(arg0 *cloudwatchlogs.PutRetentionPolicyInput) (*request.Request, *cloudwatchlogs.PutRetentionPolicyOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutRetentionPolicyRequest", arg0)
@@ -1904,13 +2054,13 @@ func (m *MockCloudWatchLogsAPI) PutRetentionPolicyRequest(arg0 *cloudwatchlogs.P
 	return ret0, ret1
 }
 
-// PutRetentionPolicyRequest indicates an expected call of PutRetentionPolicyRequest
+// PutRetentionPolicyRequest indicates an expected call of PutRetentionPolicyRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutRetentionPolicyRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutRetentionPolicyRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutRetentionPolicyRequest), arg0)
 }
 
-// PutRetentionPolicyWithContext mocks base method
+// PutRetentionPolicyWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) PutRetentionPolicyWithContext(arg0 context.Context, arg1 *cloudwatchlogs.PutRetentionPolicyInput, arg2 ...request.Option) (*cloudwatchlogs.PutRetentionPolicyOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -1923,14 +2073,14 @@ func (m *MockCloudWatchLogsAPI) PutRetentionPolicyWithContext(arg0 context.Conte
 	return ret0, ret1
 }
 
-// PutRetentionPolicyWithContext indicates an expected call of PutRetentionPolicyWithContext
+// PutRetentionPolicyWithContext indicates an expected call of PutRetentionPolicyWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutRetentionPolicyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutRetentionPolicyWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutRetentionPolicyWithContext), varargs...)
 }
 
-// PutSubscriptionFilter mocks base method
+// PutSubscriptionFilter mocks base method.
 func (m *MockCloudWatchLogsAPI) PutSubscriptionFilter(arg0 *cloudwatchlogs.PutSubscriptionFilterInput) (*cloudwatchlogs.PutSubscriptionFilterOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutSubscriptionFilter", arg0)
@@ -1939,13 +2089,13 @@ func (m *MockCloudWatchLogsAPI) PutSubscriptionFilter(arg0 *cloudwatchlogs.PutSu
 	return ret0, ret1
 }
 
-// PutSubscriptionFilter indicates an expected call of PutSubscriptionFilter
+// PutSubscriptionFilter indicates an expected call of PutSubscriptionFilter.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutSubscriptionFilter(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutSubscriptionFilter", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutSubscriptionFilter), arg0)
 }
 
-// PutSubscriptionFilterRequest mocks base method
+// PutSubscriptionFilterRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) PutSubscriptionFilterRequest(arg0 *cloudwatchlogs.PutSubscriptionFilterInput) (*request.Request, *cloudwatchlogs.PutSubscriptionFilterOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutSubscriptionFilterRequest", arg0)
@@ -1954,13 +2104,13 @@ func (m *MockCloudWatchLogsAPI) PutSubscriptionFilterRequest(arg0 *cloudwatchlog
 	return ret0, ret1
 }
 
-// PutSubscriptionFilterRequest indicates an expected call of PutSubscriptionFilterRequest
+// PutSubscriptionFilterRequest indicates an expected call of PutSubscriptionFilterRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutSubscriptionFilterRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutSubscriptionFilterRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutSubscriptionFilterRequest), arg0)
 }
 
-// PutSubscriptionFilterWithContext mocks base method
+// PutSubscriptionFilterWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) PutSubscriptionFilterWithContext(arg0 context.Context, arg1 *cloudwatchlogs.PutSubscriptionFilterInput, arg2 ...request.Option) (*cloudwatchlogs.PutSubscriptionFilterOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -1973,14 +2123,14 @@ func (m *MockCloudWatchLogsAPI) PutSubscriptionFilterWithContext(arg0 context.Co
 	return ret0, ret1
 }
 
-// PutSubscriptionFilterWithContext indicates an expected call of PutSubscriptionFilterWithContext
+// PutSubscriptionFilterWithContext indicates an expected call of PutSubscriptionFilterWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutSubscriptionFilterWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutSubscriptionFilterWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutSubscriptionFilterWithContext), varargs...)
 }
 
-// StartQuery mocks base method
+// StartQuery mocks base method.
 func (m *MockCloudWatchLogsAPI) StartQuery(arg0 *cloudwatchlogs.StartQueryInput) (*cloudwatchlogs.StartQueryOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StartQuery", arg0)
@@ -1989,13 +2139,13 @@ func (m *MockCloudWatchLogsAPI) StartQuery(arg0 *cloudwatchlogs.StartQueryInput)
 	return ret0, ret1
 }
 
-// StartQuery indicates an expected call of StartQuery
+// StartQuery indicates an expected call of StartQuery.
 func (mr *MockCloudWatchLogsAPIMockRecorder) StartQuery(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartQuery", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).StartQuery), arg0)
 }
 
-// StartQueryRequest mocks base method
+// StartQueryRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) StartQueryRequest(arg0 *cloudwatchlogs.StartQueryInput) (*request.Request, *cloudwatchlogs.StartQueryOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StartQueryRequest", arg0)
@@ -2004,13 +2154,13 @@ func (m *MockCloudWatchLogsAPI) StartQueryRequest(arg0 *cloudwatchlogs.StartQuer
 	return ret0, ret1
 }
 
-// StartQueryRequest indicates an expected call of StartQueryRequest
+// StartQueryRequest indicates an expected call of StartQueryRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) StartQueryRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartQueryRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).StartQueryRequest), arg0)
 }
 
-// StartQueryWithContext mocks base method
+// StartQueryWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) StartQueryWithContext(arg0 context.Context, arg1 *cloudwatchlogs.StartQueryInput, arg2 ...request.Option) (*cloudwatchlogs.StartQueryOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -2023,14 +2173,14 @@ func (m *MockCloudWatchLogsAPI) StartQueryWithContext(arg0 context.Context, arg1
 	return ret0, ret1
 }
 
-// StartQueryWithContext indicates an expected call of StartQueryWithContext
+// StartQueryWithContext indicates an expected call of StartQueryWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) StartQueryWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartQueryWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).StartQueryWithContext), varargs...)
 }
 
-// StopQuery mocks base method
+// StopQuery mocks base method.
 func (m *MockCloudWatchLogsAPI) StopQuery(arg0 *cloudwatchlogs.StopQueryInput) (*cloudwatchlogs.StopQueryOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StopQuery", arg0)
@@ -2039,13 +2189,13 @@ func (m *MockCloudWatchLogsAPI) StopQuery(arg0 *cloudwatchlogs.StopQueryInput) (
 	return ret0, ret1
 }
 
-// StopQuery indicates an expected call of StopQuery
+// StopQuery indicates an expected call of StopQuery.
 func (mr *MockCloudWatchLogsAPIMockRecorder) StopQuery(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StopQuery", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).StopQuery), arg0)
 }
 
-// StopQueryRequest mocks base method
+// StopQueryRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) StopQueryRequest(arg0 *cloudwatchlogs.StopQueryInput) (*request.Request, *cloudwatchlogs.StopQueryOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StopQueryRequest", arg0)
@@ -2054,13 +2204,13 @@ func (m *MockCloudWatchLogsAPI) StopQueryRequest(arg0 *cloudwatchlogs.StopQueryI
 	return ret0, ret1
 }
 
-// StopQueryRequest indicates an expected call of StopQueryRequest
+// StopQueryRequest indicates an expected call of StopQueryRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) StopQueryRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StopQueryRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).StopQueryRequest), arg0)
 }
 
-// StopQueryWithContext mocks base method
+// StopQueryWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) StopQueryWithContext(arg0 context.Context, arg1 *cloudwatchlogs.StopQueryInput, arg2 ...request.Option) (*cloudwatchlogs.StopQueryOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -2073,14 +2223,14 @@ func (m *MockCloudWatchLogsAPI) StopQueryWithContext(arg0 context.Context, arg1 
 	return ret0, ret1
 }
 
-// StopQueryWithContext indicates an expected call of StopQueryWithContext
+// StopQueryWithContext indicates an expected call of StopQueryWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) StopQueryWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StopQueryWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).StopQueryWithContext), varargs...)
 }
 
-// TagLogGroup mocks base method
+// TagLogGroup mocks base method.
 func (m *MockCloudWatchLogsAPI) TagLogGroup(arg0 *cloudwatchlogs.TagLogGroupInput) (*cloudwatchlogs.TagLogGroupOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TagLogGroup", arg0)
@@ -2089,13 +2239,13 @@ func (m *MockCloudWatchLogsAPI) TagLogGroup(arg0 *cloudwatchlogs.TagLogGroupInpu
 	return ret0, ret1
 }
 
-// TagLogGroup indicates an expected call of TagLogGroup
+// TagLogGroup indicates an expected call of TagLogGroup.
 func (mr *MockCloudWatchLogsAPIMockRecorder) TagLogGroup(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TagLogGroup", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).TagLogGroup), arg0)
 }
 
-// TagLogGroupRequest mocks base method
+// TagLogGroupRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) TagLogGroupRequest(arg0 *cloudwatchlogs.TagLogGroupInput) (*request.Request, *cloudwatchlogs.TagLogGroupOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TagLogGroupRequest", arg0)
@@ -2104,13 +2254,13 @@ func (m *MockCloudWatchLogsAPI) TagLogGroupRequest(arg0 *cloudwatchlogs.TagLogGr
 	return ret0, ret1
 }
 
-// TagLogGroupRequest indicates an expected call of TagLogGroupRequest
+// TagLogGroupRequest indicates an expected call of TagLogGroupRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) TagLogGroupRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TagLogGroupRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).TagLogGroupRequest), arg0)
 }
 
-// TagLogGroupWithContext mocks base method
+// TagLogGroupWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) TagLogGroupWithContext(arg0 context.Context, arg1 *cloudwatchlogs.TagLogGroupInput, arg2 ...request.Option) (*cloudwatchlogs.TagLogGroupOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -2123,14 +2273,14 @@ func (m *MockCloudWatchLogsAPI) TagLogGroupWithContext(arg0 context.Context, arg
 	return ret0, ret1
 }
 
-// TagLogGroupWithContext indicates an expected call of TagLogGroupWithContext
+// TagLogGroupWithContext indicates an expected call of TagLogGroupWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) TagLogGroupWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TagLogGroupWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).TagLogGroupWithContext), varargs...)
 }
 
-// TestMetricFilter mocks base method
+// TestMetricFilter mocks base method.
 func (m *MockCloudWatchLogsAPI) TestMetricFilter(arg0 *cloudwatchlogs.TestMetricFilterInput) (*cloudwatchlogs.TestMetricFilterOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TestMetricFilter", arg0)
@@ -2139,13 +2289,13 @@ func (m *MockCloudWatchLogsAPI) TestMetricFilter(arg0 *cloudwatchlogs.TestMetric
 	return ret0, ret1
 }
 
-// TestMetricFilter indicates an expected call of TestMetricFilter
+// TestMetricFilter indicates an expected call of TestMetricFilter.
 func (mr *MockCloudWatchLogsAPIMockRecorder) TestMetricFilter(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TestMetricFilter", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).TestMetricFilter), arg0)
 }
 
-// TestMetricFilterRequest mocks base method
+// TestMetricFilterRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) TestMetricFilterRequest(arg0 *cloudwatchlogs.TestMetricFilterInput) (*request.Request, *cloudwatchlogs.TestMetricFilterOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TestMetricFilterRequest", arg0)
@@ -2154,13 +2304,13 @@ func (m *MockCloudWatchLogsAPI) TestMetricFilterRequest(arg0 *cloudwatchlogs.Tes
 	return ret0, ret1
 }
 
-// TestMetricFilterRequest indicates an expected call of TestMetricFilterRequest
+// TestMetricFilterRequest indicates an expected call of TestMetricFilterRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) TestMetricFilterRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TestMetricFilterRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).TestMetricFilterRequest), arg0)
 }
 
-// TestMetricFilterWithContext mocks base method
+// TestMetricFilterWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) TestMetricFilterWithContext(arg0 context.Context, arg1 *cloudwatchlogs.TestMetricFilterInput, arg2 ...request.Option) (*cloudwatchlogs.TestMetricFilterOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -2173,14 +2323,14 @@ func (m *MockCloudWatchLogsAPI) TestMetricFilterWithContext(arg0 context.Context
 	return ret0, ret1
 }
 
-// TestMetricFilterWithContext indicates an expected call of TestMetricFilterWithContext
+// TestMetricFilterWithContext indicates an expected call of TestMetricFilterWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) TestMetricFilterWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TestMetricFilterWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).TestMetricFilterWithContext), varargs...)
 }
 
-// UntagLogGroup mocks base method
+// UntagLogGroup mocks base method.
 func (m *MockCloudWatchLogsAPI) UntagLogGroup(arg0 *cloudwatchlogs.UntagLogGroupInput) (*cloudwatchlogs.UntagLogGroupOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UntagLogGroup", arg0)
@@ -2189,13 +2339,13 @@ func (m *MockCloudWatchLogsAPI) UntagLogGroup(arg0 *cloudwatchlogs.UntagLogGroup
 	return ret0, ret1
 }
 
-// UntagLogGroup indicates an expected call of UntagLogGroup
+// UntagLogGroup indicates an expected call of UntagLogGroup.
 func (mr *MockCloudWatchLogsAPIMockRecorder) UntagLogGroup(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UntagLogGroup", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).UntagLogGroup), arg0)
 }
 
-// UntagLogGroupRequest mocks base method
+// UntagLogGroupRequest mocks base method.
 func (m *MockCloudWatchLogsAPI) UntagLogGroupRequest(arg0 *cloudwatchlogs.UntagLogGroupInput) (*request.Request, *cloudwatchlogs.UntagLogGroupOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UntagLogGroupRequest", arg0)
@@ -2204,13 +2354,13 @@ func (m *MockCloudWatchLogsAPI) UntagLogGroupRequest(arg0 *cloudwatchlogs.UntagL
 	return ret0, ret1
 }
 
-// UntagLogGroupRequest indicates an expected call of UntagLogGroupRequest
+// UntagLogGroupRequest indicates an expected call of UntagLogGroupRequest.
 func (mr *MockCloudWatchLogsAPIMockRecorder) UntagLogGroupRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UntagLogGroupRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).UntagLogGroupRequest), arg0)
 }
 
-// UntagLogGroupWithContext mocks base method
+// UntagLogGroupWithContext mocks base method.
 func (m *MockCloudWatchLogsAPI) UntagLogGroupWithContext(arg0 context.Context, arg1 *cloudwatchlogs.UntagLogGroupInput, arg2 ...request.Option) (*cloudwatchlogs.UntagLogGroupOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -2223,7 +2373,7 @@ func (m *MockCloudWatchLogsAPI) UntagLogGroupWithContext(arg0 context.Context, a
 	return ret0, ret1
 }
 
-// UntagLogGroupWithContext indicates an expected call of UntagLogGroupWithContext
+// UntagLogGroupWithContext indicates an expected call of UntagLogGroupWithContext.
 func (mr *MockCloudWatchLogsAPIMockRecorder) UntagLogGroupWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)

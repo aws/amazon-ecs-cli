@@ -24,30 +24,30 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockClient is a mock of Client interface
+// MockClient is a mock of Client interface.
 type MockClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockClientMockRecorder
 }
 
-// MockClientMockRecorder is the mock recorder for MockClient
+// MockClientMockRecorder is the mock recorder for MockClient.
 type MockClientMockRecorder struct {
 	mock *MockClient
 }
 
-// NewMockClient creates a new mock instance
+// NewMockClient creates a new mock instance.
 func NewMockClient(ctrl *gomock.Controller) *MockClient {
 	mock := &MockClient{ctrl: ctrl}
 	mock.recorder = &MockClientMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockClient) EXPECT() *MockClientMockRecorder {
 	return m.recorder
 }
 
-// GetCredentials mocks base method
+// GetCredentials mocks base method.
 func (m *MockClient) GetCredentials(arg0 string) (*api.Auth, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCredentials", arg0)
@@ -56,13 +56,13 @@ func (m *MockClient) GetCredentials(arg0 string) (*api.Auth, error) {
 	return ret0, ret1
 }
 
-// GetCredentials indicates an expected call of GetCredentials
+// GetCredentials indicates an expected call of GetCredentials.
 func (mr *MockClientMockRecorder) GetCredentials(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCredentials", reflect.TypeOf((*MockClient)(nil).GetCredentials), arg0)
 }
 
-// GetCredentialsByRegistryID mocks base method
+// GetCredentialsByRegistryID mocks base method.
 func (m *MockClient) GetCredentialsByRegistryID(arg0 string) (*api.Auth, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCredentialsByRegistryID", arg0)
@@ -71,13 +71,13 @@ func (m *MockClient) GetCredentialsByRegistryID(arg0 string) (*api.Auth, error) 
 	return ret0, ret1
 }
 
-// GetCredentialsByRegistryID indicates an expected call of GetCredentialsByRegistryID
+// GetCredentialsByRegistryID indicates an expected call of GetCredentialsByRegistryID.
 func (mr *MockClientMockRecorder) GetCredentialsByRegistryID(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCredentialsByRegistryID", reflect.TypeOf((*MockClient)(nil).GetCredentialsByRegistryID), arg0)
 }
 
-// ListCredentials mocks base method
+// ListCredentials mocks base method.
 func (m *MockClient) ListCredentials() ([]*api.Auth, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListCredentials")
@@ -86,7 +86,7 @@ func (m *MockClient) ListCredentials() ([]*api.Auth, error) {
 	return ret0, ret1
 }
 
-// ListCredentials indicates an expected call of ListCredentials
+// ListCredentials indicates an expected call of ListCredentials.
 func (mr *MockClientMockRecorder) ListCredentials() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCredentials", reflect.TypeOf((*MockClient)(nil).ListCredentials))

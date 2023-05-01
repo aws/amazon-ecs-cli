@@ -135,6 +135,7 @@ const (
 	RoleFlag                                = "role"
 	ComposeServiceTimeOutFlag               = "timeout"
 	ForceDeploymentFlag                     = "force-deployment"
+  EnableExecuteCommandFlag                = "enable-execute-command"
 	TargetGroupsFlag                        = "target-groups"
 
 	// Registry Creds

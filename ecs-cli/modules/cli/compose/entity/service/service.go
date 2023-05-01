@@ -317,6 +317,7 @@ func (s *Service) buildUpdateServiceInput(count *int64, serviceName, taskDefinit
 	cluster := s.Context().CommandConfig.Cluster
 	deploymentConfig := s.DeploymentConfig()
 	forceDeployment := s.Context().CLIContext.Bool(flags.ForceDeploymentFlag)
+	enableExecuteCommand := s.Context().CLIContext.Bool(flags.EnableExecuteCommandFlag)
 	networkConfig, err := composeutils.ConvertToECSNetworkConfiguration(s.ecsContext.ECSParams)
 	if err != nil {
 		return nil, err
@@ -328,6 +329,7 @@ func (s *Service) buildUpdateServiceInput(count *int64, serviceName, taskDefinit
 		Cluster:                 aws.String(cluster),
 		DeploymentConfiguration: deploymentConfig,
 		ForceNewDeployment:      &forceDeployment,
+		EnableExecuteCommand:    &enableExecuteCommand,
 	}
 
 	if s.healthCheckGP != nil {
@@ -718,14 +720,16 @@ func (s *Service) startService() error {
 	serviceName := aws.StringValue(ecsService.ServiceName)
 	desiredCount := aws.Int64Value(ecsService.DesiredCount)
 	forceDeployment := s.Context().CLIContext.Bool(flags.ForceDeploymentFlag)
+	enableExecuteCommand := s.Context().CLIContext.Bool(flags.EnableExecuteCommandFlag)
 	schedulingStrategy := aws.StringValue(ecsService.SchedulingStrategy)
 	if desiredCount != 0 || schedulingStrategy == ecs.SchedulingStrategyDaemon {
 		if forceDeployment {
 			log.WithFields(log.Fields{
-				"serviceName":        serviceName,
-				"desiredCount":       desiredCount,
-				"schedulingStrategy": schedulingStrategy,
-				"force-deployment":   strconv.FormatBool(forceDeployment),
+				"serviceName":              serviceName,
+				"desiredCount":             desiredCount,
+				"schedulingStrategy":       schedulingStrategy,
+				"force-deployment":         strconv.FormatBool(forceDeployment),
+				"enable-execute-command":   strconv.FormatBool(enableExecuteCommand),
 			}).Info("Forcing new deployment of running ECS Service")
 			count := aws.Int64(desiredCount)
 			if schedulingStrategy == ecs.SchedulingStrategyDaemon {
@@ -780,6 +784,9 @@ func (s *Service) logUpdateService(input *ecs.UpdateServiceInput, message string
 	}
 	if input.ForceNewDeployment != nil {
 		fields["force-deployment"] = aws.BoolValue(input.ForceNewDeployment)
+	}
+	if input.EnableExecuteCommand != nil {
+		fields["enable-execute-command"] = aws.BoolValue(input.EnableExecuteCommand)
 	}
 
 	log.WithFields(fields).Info(message)
