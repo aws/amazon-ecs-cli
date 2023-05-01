@@ -24,30 +24,30 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockLogClientFactory is a mock of LogClientFactory interface
+// MockLogClientFactory is a mock of LogClientFactory interface.
 type MockLogClientFactory struct {
 	ctrl     *gomock.Controller
 	recorder *MockLogClientFactoryMockRecorder
 }
 
-// MockLogClientFactoryMockRecorder is the mock recorder for MockLogClientFactory
+// MockLogClientFactoryMockRecorder is the mock recorder for MockLogClientFactory.
 type MockLogClientFactoryMockRecorder struct {
 	mock *MockLogClientFactory
 }
 
-// NewMockLogClientFactory creates a new mock instance
+// NewMockLogClientFactory creates a new mock instance.
 func NewMockLogClientFactory(ctrl *gomock.Controller) *MockLogClientFactory {
 	mock := &MockLogClientFactory{ctrl: ctrl}
 	mock.recorder = &MockLogClientFactoryMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockLogClientFactory) EXPECT() *MockLogClientFactoryMockRecorder {
 	return m.recorder
 }
 
-// Get mocks base method
+// Get mocks base method.
 func (m *MockLogClientFactory) Get(arg0 string) cloudwatchlogs.Client {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", arg0)
@@ -55,7 +55,7 @@ func (m *MockLogClientFactory) Get(arg0 string) cloudwatchlogs.Client {
 	return ret0
 }
 
-// Get indicates an expected call of Get
+// Get indicates an expected call of Get.
 func (mr *MockLogClientFactoryMockRecorder) Get(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockLogClientFactory)(nil).Get), arg0)

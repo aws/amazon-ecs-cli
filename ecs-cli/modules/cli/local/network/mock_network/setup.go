@@ -28,30 +28,30 @@ import (
 	context "golang.org/x/net/context"
 )
 
-// MockLocalEndpointsStarter is a mock of LocalEndpointsStarter interface
+// MockLocalEndpointsStarter is a mock of LocalEndpointsStarter interface.
 type MockLocalEndpointsStarter struct {
 	ctrl     *gomock.Controller
 	recorder *MockLocalEndpointsStarterMockRecorder
 }
 
-// MockLocalEndpointsStarterMockRecorder is the mock recorder for MockLocalEndpointsStarter
+// MockLocalEndpointsStarterMockRecorder is the mock recorder for MockLocalEndpointsStarter.
 type MockLocalEndpointsStarterMockRecorder struct {
 	mock *MockLocalEndpointsStarter
 }
 
-// NewMockLocalEndpointsStarter creates a new mock instance
+// NewMockLocalEndpointsStarter creates a new mock instance.
 func NewMockLocalEndpointsStarter(ctrl *gomock.Controller) *MockLocalEndpointsStarter {
 	mock := &MockLocalEndpointsStarter{ctrl: ctrl}
 	mock.recorder = &MockLocalEndpointsStarterMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockLocalEndpointsStarter) EXPECT() *MockLocalEndpointsStarterMockRecorder {
 	return m.recorder
 }
 
-// ContainerCreate mocks base method
+// ContainerCreate mocks base method.
 func (m *MockLocalEndpointsStarter) ContainerCreate(arg0 context.Context, arg1 *container.Config, arg2 *container.HostConfig, arg3 *network.NetworkingConfig, arg4 string) (container.ContainerCreateCreatedBody, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ContainerCreate", arg0, arg1, arg2, arg3, arg4)
@@ -60,13 +60,13 @@ func (m *MockLocalEndpointsStarter) ContainerCreate(arg0 context.Context, arg1 *
 	return ret0, ret1
 }
 
-// ContainerCreate indicates an expected call of ContainerCreate
+// ContainerCreate indicates an expected call of ContainerCreate.
 func (mr *MockLocalEndpointsStarterMockRecorder) ContainerCreate(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerCreate", reflect.TypeOf((*MockLocalEndpointsStarter)(nil).ContainerCreate), arg0, arg1, arg2, arg3, arg4)
 }
 
-// ContainerList mocks base method
+// ContainerList mocks base method.
 func (m *MockLocalEndpointsStarter) ContainerList(arg0 context.Context, arg1 types.ContainerListOptions) ([]types.Container, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ContainerList", arg0, arg1)
@@ -75,13 +75,13 @@ func (m *MockLocalEndpointsStarter) ContainerList(arg0 context.Context, arg1 typ
 	return ret0, ret1
 }
 
-// ContainerList indicates an expected call of ContainerList
+// ContainerList indicates an expected call of ContainerList.
 func (mr *MockLocalEndpointsStarterMockRecorder) ContainerList(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerList", reflect.TypeOf((*MockLocalEndpointsStarter)(nil).ContainerList), arg0, arg1)
 }
 
-// ContainerStart mocks base method
+// ContainerStart mocks base method.
 func (m *MockLocalEndpointsStarter) ContainerStart(arg0 context.Context, arg1 string, arg2 types.ContainerStartOptions) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ContainerStart", arg0, arg1, arg2)
@@ -89,13 +89,13 @@ func (m *MockLocalEndpointsStarter) ContainerStart(arg0 context.Context, arg1 st
 	return ret0
 }
 
-// ContainerStart indicates an expected call of ContainerStart
+// ContainerStart indicates an expected call of ContainerStart.
 func (mr *MockLocalEndpointsStarterMockRecorder) ContainerStart(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerStart", reflect.TypeOf((*MockLocalEndpointsStarter)(nil).ContainerStart), arg0, arg1, arg2)
 }
 
-// ImageList mocks base method
+// ImageList mocks base method.
 func (m *MockLocalEndpointsStarter) ImageList(arg0 context.Context, arg1 types.ImageListOptions) ([]types.ImageSummary, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ImageList", arg0, arg1)
@@ -104,13 +104,13 @@ func (m *MockLocalEndpointsStarter) ImageList(arg0 context.Context, arg1 types.I
 	return ret0, ret1
 }
 
-// ImageList indicates an expected call of ImageList
+// ImageList indicates an expected call of ImageList.
 func (mr *MockLocalEndpointsStarterMockRecorder) ImageList(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ImageList", reflect.TypeOf((*MockLocalEndpointsStarter)(nil).ImageList), arg0, arg1)
 }
 
-// ImagePull mocks base method
+// ImagePull mocks base method.
 func (m *MockLocalEndpointsStarter) ImagePull(arg0 context.Context, arg1 string, arg2 types.ImagePullOptions) (io.ReadCloser, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ImagePull", arg0, arg1, arg2)
@@ -119,13 +119,13 @@ func (m *MockLocalEndpointsStarter) ImagePull(arg0 context.Context, arg1 string,
 	return ret0, ret1
 }
 
-// ImagePull indicates an expected call of ImagePull
+// ImagePull indicates an expected call of ImagePull.
 func (mr *MockLocalEndpointsStarterMockRecorder) ImagePull(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ImagePull", reflect.TypeOf((*MockLocalEndpointsStarter)(nil).ImagePull), arg0, arg1, arg2)
 }
 
-// NetworkCreate mocks base method
+// NetworkCreate mocks base method.
 func (m *MockLocalEndpointsStarter) NetworkCreate(arg0 context.Context, arg1 string, arg2 types.NetworkCreate) (types.NetworkCreateResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "NetworkCreate", arg0, arg1, arg2)
@@ -134,13 +134,13 @@ func (m *MockLocalEndpointsStarter) NetworkCreate(arg0 context.Context, arg1 str
 	return ret0, ret1
 }
 
-// NetworkCreate indicates an expected call of NetworkCreate
+// NetworkCreate indicates an expected call of NetworkCreate.
 func (mr *MockLocalEndpointsStarterMockRecorder) NetworkCreate(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NetworkCreate", reflect.TypeOf((*MockLocalEndpointsStarter)(nil).NetworkCreate), arg0, arg1, arg2)
 }
 
-// NetworkInspect mocks base method
+// NetworkInspect mocks base method.
 func (m *MockLocalEndpointsStarter) NetworkInspect(arg0 context.Context, arg1 string, arg2 types.NetworkInspectOptions) (types.NetworkResource, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "NetworkInspect", arg0, arg1, arg2)
@@ -149,7 +149,7 @@ func (m *MockLocalEndpointsStarter) NetworkInspect(arg0 context.Context, arg1 st
 	return ret0, ret1
 }
 
-// NetworkInspect indicates an expected call of NetworkInspect
+// NetworkInspect indicates an expected call of NetworkInspect.
 func (mr *MockLocalEndpointsStarterMockRecorder) NetworkInspect(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NetworkInspect", reflect.TypeOf((*MockLocalEndpointsStarter)(nil).NetworkInspect), arg0, arg1, arg2)
