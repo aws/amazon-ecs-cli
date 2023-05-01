@@ -8,3 +8,4 @@ ecs-cli/vendor/pkg
 ecs-cli/.vscode/*
 ecs-cli/.idea
 .idea/*
+vendor

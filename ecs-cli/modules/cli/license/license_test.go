@@ -19,24 +19,26 @@ import (
 )
 
 func TestVendorDirectoryStructure(t *testing.T) {
-	expectedDirectories := map[string]bool{"github.com": true, "golang.org": true, "gopkg.in": true}
-	expectedDirCount := len(expectedDirectories)
+	expectedDirectories := map[string]bool{"github.com": true, "golang.org": true, "gopkg.in": true, "google.golang.org": true}
+	expectedFiles := map[string]bool{"modules.txt": true}
+	expectedEntryCount := len(expectedDirectories) + len(expectedFiles) // for modules.txt
 
-	directories, _ := ioutil.ReadDir("./../../../vendor")
-	if len(directories) != expectedDirCount {
-		t.Errorf("Should have exactly 3 directories under vendor/. Found [%d] directories", len(directories))
+	files, _ := ioutil.ReadDir("./../../../../vendor")
+	if len(files) != expectedEntryCount {
+		t.Errorf("Should have exactly 4 directories and 1 modules.txt under vendor/. Found [%d] directories", len(files))
 	}
 	foundDirCount := 0
-	for _, dir := range directories {
-		if !dir.IsDir() {
-			t.Errorf("Expected contents of vendor/ to be directories, but %s is not", dir)
-		}
-		if expectedDirectories[dir.Name()] {
+	for _, file := range files {
+		if !file.IsDir() {
+			if file.Name() != "modules.txt" { // we have a modules.txt from `go mod vendor`
+				t.Errorf("Expected contents of vendor/ to be directories, but %s is not", file)
+			}
+		} else if expectedDirectories[file.Name()] {
 			foundDirCount += 1
 		}
 	}
 
-	if expectedDirCount != foundDirCount {
-		t.Errorf("Expected [%d] directories, Found=[%v] count=[%d]", expectedDirCount, directories, foundDirCount)
+	if foundDirCount != len(expectedDirectories) {
+		t.Errorf("Expected [%d] directories, Found=[%v] count=[%d]", expectedEntryCount, files, foundDirCount)
 	}
 }

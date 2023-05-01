@@ -18,12 +18,12 @@
 package mock_network
 
 import (
+	context "context"
 	reflect "reflect"
 	time "time"
 
 	types "github.com/docker/docker/api/types"
 	gomock "github.com/golang/mock/gomock"
-	context "golang.org/x/net/context"
 )
 
 // MockLocalEndpointsStopper is a mock of LocalEndpointsStopper interface

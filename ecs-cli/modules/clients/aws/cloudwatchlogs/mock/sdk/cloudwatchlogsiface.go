@@ -499,6 +499,56 @@ func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteMetricFilterWithContext(arg0,
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteMetricFilterWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteMetricFilterWithContext), varargs...)
 }
 
+// DeleteQueryDefinition mocks base method
+func (m *MockCloudWatchLogsAPI) DeleteQueryDefinition(arg0 *cloudwatchlogs.DeleteQueryDefinitionInput) (*cloudwatchlogs.DeleteQueryDefinitionOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteQueryDefinition", arg0)
+	ret0, _ := ret[0].(*cloudwatchlogs.DeleteQueryDefinitionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteQueryDefinition indicates an expected call of DeleteQueryDefinition
+func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteQueryDefinition(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteQueryDefinition", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteQueryDefinition), arg0)
+}
+
+// DeleteQueryDefinitionRequest mocks base method
+func (m *MockCloudWatchLogsAPI) DeleteQueryDefinitionRequest(arg0 *cloudwatchlogs.DeleteQueryDefinitionInput) (*request.Request, *cloudwatchlogs.DeleteQueryDefinitionOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteQueryDefinitionRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudwatchlogs.DeleteQueryDefinitionOutput)
+	return ret0, ret1
+}
+
+// DeleteQueryDefinitionRequest indicates an expected call of DeleteQueryDefinitionRequest
+func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteQueryDefinitionRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteQueryDefinitionRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteQueryDefinitionRequest), arg0)
+}
+
+// DeleteQueryDefinitionWithContext mocks base method
+func (m *MockCloudWatchLogsAPI) DeleteQueryDefinitionWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DeleteQueryDefinitionInput, arg2 ...request.Option) (*cloudwatchlogs.DeleteQueryDefinitionOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteQueryDefinitionWithContext", varargs...)
+	ret0, _ := ret[0].(*cloudwatchlogs.DeleteQueryDefinitionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteQueryDefinitionWithContext indicates an expected call of DeleteQueryDefinitionWithContext
+func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteQueryDefinitionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteQueryDefinitionWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteQueryDefinitionWithContext), varargs...)
+}
+
 // DeleteResourcePolicy mocks base method
 func (m *MockCloudWatchLogsAPI) DeleteResourcePolicy(arg0 *cloudwatchlogs.DeleteResourcePolicyInput) (*cloudwatchlogs.DeleteResourcePolicyOutput, error) {
 	m.ctrl.T.Helper()
@@ -1079,6 +1129,56 @@ func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeQueriesWithContext(arg0, ar
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeQueriesWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeQueriesWithContext), varargs...)
+}
+
+// DescribeQueryDefinitions mocks base method
+func (m *MockCloudWatchLogsAPI) DescribeQueryDefinitions(arg0 *cloudwatchlogs.DescribeQueryDefinitionsInput) (*cloudwatchlogs.DescribeQueryDefinitionsOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeQueryDefinitions", arg0)
+	ret0, _ := ret[0].(*cloudwatchlogs.DescribeQueryDefinitionsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeQueryDefinitions indicates an expected call of DescribeQueryDefinitions
+func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeQueryDefinitions(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeQueryDefinitions", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeQueryDefinitions), arg0)
+}
+
+// DescribeQueryDefinitionsRequest mocks base method
+func (m *MockCloudWatchLogsAPI) DescribeQueryDefinitionsRequest(arg0 *cloudwatchlogs.DescribeQueryDefinitionsInput) (*request.Request, *cloudwatchlogs.DescribeQueryDefinitionsOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeQueryDefinitionsRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudwatchlogs.DescribeQueryDefinitionsOutput)
+	return ret0, ret1
+}
+
+// DescribeQueryDefinitionsRequest indicates an expected call of DescribeQueryDefinitionsRequest
+func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeQueryDefinitionsRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeQueryDefinitionsRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeQueryDefinitionsRequest), arg0)
+}
+
+// DescribeQueryDefinitionsWithContext mocks base method
+func (m *MockCloudWatchLogsAPI) DescribeQueryDefinitionsWithContext(arg0 context.Context, arg1 *cloudwatchlogs.DescribeQueryDefinitionsInput, arg2 ...request.Option) (*cloudwatchlogs.DescribeQueryDefinitionsOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeQueryDefinitionsWithContext", varargs...)
+	ret0, _ := ret[0].(*cloudwatchlogs.DescribeQueryDefinitionsOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeQueryDefinitionsWithContext indicates an expected call of DescribeQueryDefinitionsWithContext
+func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeQueryDefinitionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeQueryDefinitionsWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeQueryDefinitionsWithContext), varargs...)
 }
 
 // DescribeResourcePolicies mocks base method
@@ -1828,6 +1928,56 @@ func (mr *MockCloudWatchLogsAPIMockRecorder) PutMetricFilterWithContext(arg0, ar
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutMetricFilterWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutMetricFilterWithContext), varargs...)
+}
+
+// PutQueryDefinition mocks base method
+func (m *MockCloudWatchLogsAPI) PutQueryDefinition(arg0 *cloudwatchlogs.PutQueryDefinitionInput) (*cloudwatchlogs.PutQueryDefinitionOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PutQueryDefinition", arg0)
+	ret0, _ := ret[0].(*cloudwatchlogs.PutQueryDefinitionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutQueryDefinition indicates an expected call of PutQueryDefinition
+func (mr *MockCloudWatchLogsAPIMockRecorder) PutQueryDefinition(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutQueryDefinition", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutQueryDefinition), arg0)
+}
+
+// PutQueryDefinitionRequest mocks base method
+func (m *MockCloudWatchLogsAPI) PutQueryDefinitionRequest(arg0 *cloudwatchlogs.PutQueryDefinitionInput) (*request.Request, *cloudwatchlogs.PutQueryDefinitionOutput) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PutQueryDefinitionRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudwatchlogs.PutQueryDefinitionOutput)
+	return ret0, ret1
+}
+
+// PutQueryDefinitionRequest indicates an expected call of PutQueryDefinitionRequest
+func (mr *MockCloudWatchLogsAPIMockRecorder) PutQueryDefinitionRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutQueryDefinitionRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutQueryDefinitionRequest), arg0)
+}
+
+// PutQueryDefinitionWithContext mocks base method
+func (m *MockCloudWatchLogsAPI) PutQueryDefinitionWithContext(arg0 context.Context, arg1 *cloudwatchlogs.PutQueryDefinitionInput, arg2 ...request.Option) (*cloudwatchlogs.PutQueryDefinitionOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PutQueryDefinitionWithContext", varargs...)
+	ret0, _ := ret[0].(*cloudwatchlogs.PutQueryDefinitionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutQueryDefinitionWithContext indicates an expected call of PutQueryDefinitionWithContext
+func (mr *MockCloudWatchLogsAPIMockRecorder) PutQueryDefinitionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutQueryDefinitionWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutQueryDefinitionWithContext), varargs...)
 }
 
 // PutResourcePolicy mocks base method
