@@ -1,3 +1,4 @@
+//go:build integ
 // +build integ
 
 // Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
@@ -41,6 +42,7 @@ func TestCreateClusterWithEC2Task(t *testing.T) {
 		cmd.WithCapabilityIAM(),
 		cmd.WithInstanceType("t2.medium"),
 		cmd.WithSize(2),
+		cmd.WithIMDSv2(),
 	)
 
 	// TODO add waiter/retry?

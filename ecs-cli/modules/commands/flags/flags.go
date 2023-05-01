@@ -89,6 +89,7 @@ const (
 
 	// Cluster
 	AsgMaxSizeFlag                  = "size"
+	IMDSv2Flag                      = "imdsv2"
 	VpcAzFlag                       = "azs"
 	SecurityGroupFlag               = "security-group"
 	SourceCidrFlag                  = "cidr"
