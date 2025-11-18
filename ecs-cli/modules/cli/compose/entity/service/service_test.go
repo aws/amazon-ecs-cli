@@ -1304,9 +1304,36 @@ type UpdateServiceParams struct {
 	networkConfig          *ecs.NetworkConfiguration
 	healthCheckGracePeriod *int64
 	forceDeployment        bool
+	enableExecuteCommand   bool
 }
 
 // For an existing service
+func TestUpdateExistingServiceWithEnableExecuteFlag(t *testing.T) {
+	// define test flag set
+	enableExecuteFlagValue := true
+
+	flagSet := flag.NewFlagSet("ecs-cli-up", 0)
+	flagSet.Bool(flags.EnableExecuteCommandFlag, enableExecuteFlagValue, "")
+
+	// define existing service
+	serviceName := "test-service"
+	existingService := &ecs.Service{
+		TaskDefinition: aws.String("arn/test-task-def"),
+		Status:         aws.String("ACTIVE"),
+		DesiredCount:   aws.Int64(0),
+		ServiceName:    aws.String(serviceName),
+	}
+
+	// define expected client input given the above info
+	expectedInput := getDefaultUpdateInput()
+	expectedInput.serviceName = serviceName
+	expectedInput.enableExecuteCommand = enableExecuteFlagValue
+
+	// call tests
+	updateServiceTest(t, flagSet, &config.CommandConfig{}, &utils.ECSParams{}, expectedInput, existingService, true)
+}
+
+
 func TestUpdateExistingServiceWithForceFlag(t *testing.T) {
 	// define test flag set
 	forceFlagValue := true
@@ -1668,6 +1695,7 @@ func updateServiceTest(t *testing.T,
 				networkConfig:          req.NetworkConfiguration,
 				healthCheckGracePeriod: req.HealthCheckGracePeriodSeconds,
 				forceDeployment:        aws.BoolValue(req.ForceNewDeployment),
+				enableExecuteCommand:   aws.BoolValue(req.EnableExecuteCommand),
 			}
 			assert.Equal(t, expectedInput, observedInput)
 

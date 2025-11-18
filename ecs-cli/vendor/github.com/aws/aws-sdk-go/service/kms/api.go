@@ -59,15 +59,22 @@ func (c *KMS) CancelKeyDeletionRequest(input *CancelKeyDeletionInput) (req *requ
 //
 // Cancels the deletion of a customer master key (CMK). When this operation
 // succeeds, the key state of the CMK is Disabled. To enable the CMK, use EnableKey.
-// You cannot perform this operation on a CMK in a different AWS account.
 //
 // For more information about scheduling and canceling deletion of a CMK, see
 // Deleting Customer Master Keys (https://docs.aws.amazon.com/kms/latest/developerguide/deleting-keys.html)
 // in the AWS Key Management Service Developer Guide.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: No. You cannot perform this operation on a CMK in a different
+// AWS account.
+//
+// Required permissions: kms:CancelKeyDeletion (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations: ScheduleKeyDeletion
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -207,6 +214,24 @@ func (c *KMS) ConnectCustomKeyStoreRequest(input *ConnectCustomKeyStoreInput) (r
 // If you are having trouble connecting or disconnecting a custom key store,
 // see Troubleshooting a Custom Key Store (https://docs.aws.amazon.com/kms/latest/developerguide/fix-keystore.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: No. You cannot perform this operation on a custom key
+// store in a different AWS account.
+//
+// Required permissions: kms:ConnectCustomKeyStore (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (IAM policy)
+//
+// Related operations
+//
+//    * CreateCustomKeyStore
+//
+//    * DeleteCustomKeyStore
+//
+//    * DescribeCustomKeyStores
+//
+//    * DisconnectCustomKeyStore
+//
+//    * UpdateCustomKeyStore
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -349,70 +374,56 @@ func (c *KMS) CreateAliasRequest(input *CreateAliasInput) (req *request.Request,
 
 // CreateAlias API operation for AWS Key Management Service.
 //
-// Creates a display name for a customer managed customer master key (CMK).
-// You can use an alias to identify a CMK in cryptographic operations, such
-// as Encrypt and GenerateDataKey. You can change the CMK associated with the
-// alias at any time.
+// Creates a friendly name for a customer master key (CMK).
 //
-// Aliases are easier to remember than key IDs. They can also help to simplify
-// your applications. For example, if you use an alias in your code, you can
-// change the CMK your code uses by associating a given alias with a different
-// CMK.
+// Adding, deleting, or updating an alias can allow or deny permission to the
+// CMK. For details, see Using ABAC in AWS KMS (https://docs.aws.amazon.com/kms/latest/developerguide/abac.html)
+// in the AWS Key Management Service Developer Guide.
 //
-// To run the same code in multiple AWS regions, use an alias in your code,
-// such as alias/ApplicationKey. Then, in each AWS Region, create an alias/ApplicationKey
-// alias that is associated with a CMK in that Region. When you run your code,
-// it uses the alias/ApplicationKey CMK for that AWS Region without any Region-specific
-// code.
+// You can use an alias to identify a CMK in the AWS KMS console, in the DescribeKey
+// operation and in cryptographic operations (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#cryptographic-operations),
+// such as Encrypt and GenerateDataKey. You can also change the CMK that's associated
+// with the alias (UpdateAlias) or delete the alias (DeleteAlias) at any time.
+// These operations don't affect the underlying CMK.
+//
+// You can associate the alias with any customer managed CMK in the same AWS
+// Region. Each alias is associated with only one CMK at a time, but a CMK can
+// have multiple aliases. A valid CMK is required. You can't create an alias
+// without a CMK.
+//
+// The alias must be unique in the account and Region, but you can have aliases
+// with the same name in different Regions. For detailed information about aliases,
+// see Using aliases (https://docs.aws.amazon.com/kms/latest/developerguide/kms-alias.html)
+// in the AWS Key Management Service Developer Guide.
 //
 // This operation does not return a response. To get the alias that you created,
 // use the ListAliases operation.
 //
-// To use aliases successfully, be aware of the following information.
-//
-//    * Each alias points to only one CMK at a time, although a single CMK can
-//    have multiple aliases. The alias and its associated CMK must be in the
-//    same AWS account and Region.
-//
-//    * You can associate an alias with any customer managed CMK in the same
-//    AWS account and Region. However, you do not have permission to associate
-//    an alias with an AWS managed CMK (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-managed-cmk)
-//    or an AWS owned CMK (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-owned-cmk).
-//
-//    * To change the CMK associated with an alias, use the UpdateAlias operation.
-//    The current CMK and the new CMK must be the same type (both symmetric
-//    or both asymmetric) and they must have the same key usage (ENCRYPT_DECRYPT
-//    or SIGN_VERIFY). This restriction prevents cryptographic errors in code
-//    that uses aliases.
-//
-//    * The alias name must begin with alias/ followed by a name, such as alias/ExampleAlias.
-//    It can contain only alphanumeric characters, forward slashes (/), underscores
-//    (_), and dashes (-). The alias name cannot begin with alias/aws/. The
-//    alias/aws/ prefix is reserved for AWS managed CMKs (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-managed-cmk).
-//
-//    * The alias name must be unique within an AWS Region. However, you can
-//    use the same alias name in multiple Regions of the same AWS account. Each
-//    instance of the alias is associated with a CMK in its Region.
-//
-//    * After you create an alias, you cannot change its alias name. However,
-//    you can use the DeleteAlias operation to delete the alias and then create
-//    a new alias with the desired name.
-//
-//    * You can use an alias name or alias ARN to identify a CMK in AWS KMS
-//    cryptographic operations and in the DescribeKey operation. However, you
-//    cannot use alias names or alias ARNs in API operations that manage CMKs,
-//    such as DisableKey or GetKeyPolicy. For information about the valid CMK
-//    identifiers for each AWS KMS API operation, see the descriptions of the
-//    KeyId parameter in the API operation documentation.
-//
-// Because an alias is not a property of a CMK, you can delete and change the
-// aliases of a CMK without affecting the CMK. Also, aliases do not appear in
-// the response from the DescribeKey operation. To get the aliases and alias
-// ARNs of CMKs in each AWS account and Region, use the ListAliases operation.
-//
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: No. You cannot perform this operation on an alias in a
+// different AWS account.
+//
+// Required permissions
+//
+//    * kms:CreateAlias (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+//    on the alias (IAM policy).
+//
+//    * kms:CreateAlias (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+//    on the CMK (key policy).
+//
+// For details, see Controlling access to aliases (https://docs.aws.amazon.com/kms/latest/developerguide/kms-alias.html#alias-access)
+// in the AWS Key Management Service Developer Guide.
+//
+// Related operations:
+//
+//    * DeleteAlias
+//
+//    * ListAliases
+//
+//    * UpdateAlias
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -543,6 +554,24 @@ func (c *KMS) CreateCustomKeyStoreRequest(input *CreateCustomKeyStoreInput) (req
 //
 // For help with failures, see Troubleshooting a Custom Key Store (https://docs.aws.amazon.com/kms/latest/developerguide/fix-keystore.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: No. You cannot perform this operation on a custom key
+// store in a different AWS account.
+//
+// Required permissions: kms:CreateCustomKeyStore (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (IAM policy).
+//
+// Related operations:
+//
+//    * ConnectCustomKeyStore
+//
+//    * DeleteCustomKeyStore
+//
+//    * DescribeCustomKeyStores
+//
+//    * DisconnectCustomKeyStore
+//
+//    * UpdateCustomKeyStore
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -689,49 +718,62 @@ func (c *KMS) CreateGrantRequest(input *CreateGrantInput) (req *request.Request,
 
 // CreateGrant API operation for AWS Key Management Service.
 //
-// Adds a grant to a customer master key (CMK). The grant allows the grantee
-// principal to use the CMK when the conditions specified in the grant are met.
-// When setting permissions, grants are an alternative to key policies.
+// Adds a grant to a customer master key (CMK).
 //
-// To create a grant that allows a cryptographic operation only when the request
-// includes a particular encryption context (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#encrypt_context),
-// use the Constraints parameter. For details, see GrantConstraints.
+// A grant is a policy instrument that allows AWS principals to use AWS KMS
+// customer master keys (CMKs) in cryptographic operations. It also can allow
+// them to view a CMK (DescribeKey) and create and manage grants. When authorizing
+// access to a CMK, grants are considered along with key policies and IAM policies.
+// Grants are often used for temporary permissions because you can create one,
+// use its permissions, and delete it without changing your key policies or
+// IAM policies.
 //
-// You can create grants on symmetric and asymmetric CMKs. However, if the grant
-// allows an operation that the CMK does not support, CreateGrant fails with
-// a ValidationException.
+// For detailed information about grants, including grant terminology, see Using
+// grants (https://docs.aws.amazon.com/kms/latest/developerguide/grants.html)
+// in the AWS Key Management Service Developer Guide . For examples of working
+// with grants in several programming languages, see Programming grants (https://docs.aws.amazon.com/kms/latest/developerguide/programming-grants.html).
 //
-//    * Grants for symmetric CMKs cannot allow operations that are not supported
-//    for symmetric CMKs, including Sign, Verify, and GetPublicKey. (There are
-//    limited exceptions to this rule for legacy operations, but you should
-//    not create a grant for an operation that AWS KMS does not support.)
+// The CreateGrant operation returns a GrantToken and a GrantId.
 //
-//    * Grants for asymmetric CMKs cannot allow operations that are not supported
-//    for asymmetric CMKs, including operations that generate data keys (https://docs.aws.amazon.com/kms/latest/APIReference/API_GenerateDataKey)
-//    or data key pairs (https://docs.aws.amazon.com/kms/latest/APIReference/API_GenerateDataKeyPair),
-//    or operations related to automatic key rotation (https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html),
-//    imported key material (https://docs.aws.amazon.com/kms/latest/developerguide/importing-keys.html),
-//    or CMKs in custom key stores (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html).
+//    * When you create, retire, or revoke a grant, there might be a brief delay,
+//    usually less than five minutes, until the grant is available throughout
+//    AWS KMS. This state is known as eventual consistency. Once the grant has
+//    achieved eventual consistency, the grantee principal can use the permissions
+//    in the grant without identifying the grant. However, to use the permissions
+//    in the grant immediately, use the GrantToken that CreateGrant returns.
+//    For details, see Using a grant token (https://docs.aws.amazon.com/kms/latest/developerguide/using-grant-token.html)
+//    in the AWS Key Management Service Developer Guide .
 //
-//    * Grants for asymmetric CMKs with a KeyUsage of ENCRYPT_DECRYPT cannot
-//    allow the Sign or Verify operations. Grants for asymmetric CMKs with a
-//    KeyUsage of SIGN_VERIFY cannot allow the Encrypt or Decrypt operations.
-//
-//    * Grants for asymmetric CMKs cannot include an encryption context grant
-//    constraint. An encryption context is not supported on asymmetric CMKs.
+//    * The CreateGrant operation also returns a GrantId. You can use the GrantId
+//    and a key identifier to identify the grant in the RetireGrant and RevokeGrant
+//    operations. To find the grant ID, use the ListGrants or ListRetirableGrants
+//    operations.
 //
 // For information about symmetric and asymmetric CMKs, see Using Symmetric
 // and Asymmetric CMKs (https://docs.aws.amazon.com/kms/latest/developerguide/symmetric-asymmetric.html)
-// in the AWS Key Management Service Developer Guide.
-//
-// To perform this operation on a CMK in a different AWS account, specify the
-// key ARN in the value of the KeyId parameter. For more information about grants,
-// see Grants (https://docs.aws.amazon.com/kms/latest/developerguide/grants.html)
+// in the AWS Key Management Service Developer Guide. For more information about
+// grants, see Grants (https://docs.aws.amazon.com/kms/latest/developerguide/grants.html)
 // in the AWS Key Management Service Developer Guide .
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: Yes. To perform this operation on a CMK in a different
+// AWS account, specify the key ARN in the value of the KeyId parameter.
+//
+// Required permissions: kms:CreateGrant (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations:
+//
+//    * ListGrants
+//
+//    * ListRetirableGrants
+//
+//    * RetireGrant
+//
+//    * RevokeGrant
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -843,8 +885,7 @@ func (c *KMS) CreateKeyRequest(input *CreateKeyInput) (req *request.Request, out
 // CreateKey API operation for AWS Key Management Service.
 //
 // Creates a unique customer managed customer master key (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#master-keys)
-// (CMK) in your AWS account and Region. You cannot use this operation to create
-// a CMK in a different AWS account.
+// (CMK) in your AWS account and Region.
 //
 // You can use the CreateKey operation to create symmetric or asymmetric CMKs.
 //
@@ -882,7 +923,29 @@ func (c *KMS) CreateKeyRequest(input *CreateKeyInput) (req *request.Request, out
 // and the default value for KeyUsage, ENCRYPT_DECRYPT, are the only valid values
 // for symmetric CMKs.
 //
-// Imported Key Material
+// Multi-Region primary keys
+//
+// Imported key material
+//
+// To create a multi-Region primary key in the local AWS Region, use the MultiRegion
+// parameter with a value of True. To create a multi-Region replica key, that
+// is, a CMK with the same key ID and key material as a primary key, but in
+// a different AWS Region, use the ReplicateKey operation. To change a replica
+// key to a primary key, and its primary key to a replica key, use the UpdatePrimaryRegion
+// operation.
+//
+// This operation supports multi-Region keys, an AWS KMS feature that lets you
+// create multiple interoperable CMKs in different AWS Regions. Because these
+// CMKs have the same key ID, key material, and other metadata, you can use
+// them to encrypt data in one AWS Region and decrypt it in a different AWS
+// Region without making a cross-Region call or exposing the plaintext data.
+// For more information about multi-Region keys, see Using multi-Region keys
+// (https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html)
+// in the AWS Key Management Service Developer Guide.
+//
+// You can create symmetric and asymmetric multi-Region keys and multi-Region
+// keys with imported key material. You cannot create multi-Region keys in a
+// custom key store.
 //
 // To import your own key material, begin by creating a symmetric CMK with no
 // key material. To do this, use the Origin parameter of CreateKey with a value
@@ -893,7 +956,14 @@ func (c *KMS) CreateKeyRequest(input *CreateKeyInput) (req *request.Request, out
 // in the AWS Key Management Service Developer Guide . You cannot import the
 // key material into an asymmetric CMK.
 //
-// Custom Key Stores
+// To create a multi-Region primary key with imported key material, use the
+// Origin parameter of CreateKey with a value of EXTERNAL and the MultiRegion
+// parameter with a value of True. To create replicas of the multi-Region primary
+// key, use the ReplicateKey operation. For more information about multi-Region
+// keys, see Using multi-Region keys (https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html)
+// in the AWS Key Management Service Developer Guide.
+//
+// Custom key store
 //
 // To create a symmetric CMK in a custom key store (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html),
 // use the CustomKeyStoreId parameter to specify the custom key store. You must
@@ -901,9 +971,27 @@ func (c *KMS) CreateKeyRequest(input *CreateKeyInput) (req *request.Request, out
 // cluster that is associated with the custom key store must have at least two
 // active HSMs in different Availability Zones in the AWS Region.
 //
-// You cannot create an asymmetric CMK in a custom key store. For information
-// about custom key stores in AWS KMS see Using Custom Key Stores (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html)
+// You cannot create an asymmetric CMK or a multi-Region CMK in a custom key
+// store. For information about custom key stores in AWS KMS see Using Custom
+// Key Stores (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html)
 // in the AWS Key Management Service Developer Guide .
+//
+// Cross-account use: No. You cannot use this operation to create a CMK in a
+// different AWS account.
+//
+// Required permissions: kms:CreateKey (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (IAM policy). To use the Tags parameter, kms:TagResource (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (IAM policy). For examples and information about related permissions, see
+// Allow a user to create CMKs (https://docs.aws.amazon.com/kms/latest/developerguide/iam-policies.html#iam-policy-example-create-key)
+// in the AWS Key Management Service Developer Guide.
+//
+// Related operations:
+//
+//    * DescribeKey
+//
+//    * ListKeys
+//
+//    * ScheduleKeyDeletion
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1090,12 +1178,15 @@ func (c *KMS) DecryptRequest(input *DecryptInput) (req *request.Request, output 
 // These libraries return a ciphertext format that is incompatible with AWS
 // KMS.
 //
-// If the ciphertext was encrypted under a symmetric CMK, you do not need to
-// specify the CMK or the encryption algorithm. AWS KMS can get this information
-// from metadata that it adds to the symmetric ciphertext blob. However, if
-// you prefer, you can specify the KeyId to ensure that a particular CMK is
-// used to decrypt the ciphertext. If you specify a different CMK than the one
-// used to encrypt the ciphertext, the Decrypt operation fails.
+// If the ciphertext was encrypted under a symmetric CMK, the KeyId parameter
+// is optional. AWS KMS can get this information from metadata that it adds
+// to the symmetric ciphertext blob. This feature adds durability to your implementation
+// by ensuring that authorized users can decrypt ciphertext decades after it
+// was encrypted, even if they've lost track of the CMK ID. However, specifying
+// the CMK is always recommended as a best practice. When you use the KeyId
+// parameter to specify a CMK, AWS KMS only uses the CMK you specify. If the
+// ciphertext was encrypted under a different CMK, the Decrypt operation fails.
+// This practice ensures that you use the CMK that you intend.
 //
 // Whenever possible, use key policies to give users permission to call the
 // Decrypt operation on a particular CMK, instead of using IAM policies. Otherwise,
@@ -1103,11 +1194,29 @@ func (c *KMS) DecryptRequest(input *DecryptInput) (req *request.Request, output 
 // on all CMKs. This user could decrypt ciphertext that was encrypted by CMKs
 // in other accounts if the key policy for the cross-account CMK permits it.
 // If you must use an IAM policy for Decrypt permissions, limit the user to
-// particular CMKs or particular trusted accounts.
+// particular CMKs or particular trusted accounts. For details, see Best practices
+// for IAM policies (https://docs.aws.amazon.com/kms/latest/developerguide/iam-policies.html#iam-policies-best-practices)
+// in the AWS Key Management Service Developer Guide.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: Yes. You can decrypt a ciphertext using a CMK in a different
+// AWS account.
+//
+// Required permissions: kms:Decrypt (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations:
+//
+//    * Encrypt
+//
+//    * GenerateDataKey
+//
+//    * GenerateDataKeyPair
+//
+//    * ReEncrypt
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1243,8 +1352,11 @@ func (c *KMS) DeleteAliasRequest(input *DeleteAliasInput) (req *request.Request,
 
 // DeleteAlias API operation for AWS Key Management Service.
 //
-// Deletes the specified alias. You cannot perform this operation on an alias
-// in a different AWS account.
+// Deletes the specified alias.
+//
+// Adding, deleting, or updating an alias can allow or deny permission to the
+// CMK. For details, see Using ABAC in AWS KMS (https://docs.aws.amazon.com/kms/latest/developerguide/abac.html)
+// in the AWS Key Management Service Developer Guide.
 //
 // Because an alias is not a property of a CMK, you can delete and change the
 // aliases of a CMK without affecting the CMK. Also, aliases do not appear in
@@ -1254,6 +1366,28 @@ func (c *KMS) DeleteAliasRequest(input *DeleteAliasInput) (req *request.Request,
 // Each CMK can have multiple aliases. To change the alias of a CMK, use DeleteAlias
 // to delete the current alias and CreateAlias to create a new alias. To associate
 // an existing alias with a different customer master key (CMK), call UpdateAlias.
+//
+// Cross-account use: No. You cannot perform this operation on an alias in a
+// different AWS account.
+//
+// Required permissions
+//
+//    * kms:DeleteAlias (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+//    on the alias (IAM policy).
+//
+//    * kms:DeleteAlias (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+//    on the CMK (key policy).
+//
+// For details, see Controlling access to aliases (https://docs.aws.amazon.com/kms/latest/developerguide/kms-alias.html#alias-access)
+// in the AWS Key Management Service Developer Guide.
+//
+// Related operations:
+//
+//    * CreateAlias
+//
+//    * ListAliases
+//
+//    * UpdateAlias
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1357,12 +1491,12 @@ func (c *KMS) DeleteCustomKeyStoreRequest(input *DeleteCustomKeyStoreInput) (req
 // The custom key store that you delete cannot contain any AWS KMS customer
 // master keys (CMKs) (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#master_keys).
 // Before deleting the key store, verify that you will never need to use any
-// of the CMKs in the key store for any cryptographic operations. Then, use
-// ScheduleKeyDeletion to delete the AWS KMS customer master keys (CMKs) from
-// the key store. When the scheduled waiting period expires, the ScheduleKeyDeletion
-// operation deletes the CMKs. Then it makes a best effort to delete the key
-// material from the associated cluster. However, you might need to manually
-// delete the orphaned key material (https://docs.aws.amazon.com/kms/latest/developerguide/fix-keystore.html#fix-keystore-orphaned-key)
+// of the CMKs in the key store for any cryptographic operations (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#cryptographic-operations).
+// Then, use ScheduleKeyDeletion to delete the AWS KMS customer master keys
+// (CMKs) from the key store. When the scheduled waiting period expires, the
+// ScheduleKeyDeletion operation deletes the CMKs. Then it makes a best effort
+// to delete the key material from the associated cluster. However, you might
+// need to manually delete the orphaned key material (https://docs.aws.amazon.com/kms/latest/developerguide/fix-keystore.html#fix-keystore-orphaned-key)
 // from the cluster and its backups.
 //
 // After all CMKs are deleted from AWS KMS, use DisconnectCustomKeyStore to
@@ -1379,6 +1513,24 @@ func (c *KMS) DeleteCustomKeyStoreRequest(input *DeleteCustomKeyStoreInput) (req
 // This operation is part of the Custom Key Store feature (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html)
 // feature in AWS KMS, which combines the convenience and extensive integration
 // of AWS KMS with the isolation and control of a single-tenant key store.
+//
+// Cross-account use: No. You cannot perform this operation on a custom key
+// store in a different AWS account.
+//
+// Required permissions: kms:DeleteCustomKeyStore (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (IAM policy)
+//
+// Related operations:
+//
+//    * ConnectCustomKeyStore
+//
+//    * CreateCustomKeyStore
+//
+//    * DescribeCustomKeyStores
+//
+//    * DisconnectCustomKeyStore
+//
+//    * UpdateCustomKeyStore
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1491,8 +1643,7 @@ func (c *KMS) DeleteImportedKeyMaterialRequest(input *DeleteImportedKeyMaterialI
 // Deletes key material that you previously imported. This operation makes the
 // specified customer master key (CMK) unusable. For more information about
 // importing key material into AWS KMS, see Importing Key Material (https://docs.aws.amazon.com/kms/latest/developerguide/importing-keys.html)
-// in the AWS Key Management Service Developer Guide. You cannot perform this
-// operation on a CMK in a different AWS account.
+// in the AWS Key Management Service Developer Guide.
 //
 // When the specified CMK is in the PendingDeletion state, this operation does
 // not change the CMK's state. Otherwise, it changes the CMK's state to PendingImport.
@@ -1501,8 +1652,20 @@ func (c *KMS) DeleteImportedKeyMaterialRequest(input *DeleteImportedKeyMaterialI
 // the same key material into the CMK.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: No. You cannot perform this operation on a CMK in a different
+// AWS account.
+//
+// Required permissions: kms:DeleteImportedKeyMaterial (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations:
+//
+//    * GetParametersForImport
+//
+//    * ImportKeyMaterial
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1607,14 +1770,14 @@ func (c *KMS) DescribeCustomKeyStoresRequest(input *DescribeCustomKeyStoresInput
 // DescribeCustomKeyStores API operation for AWS Key Management Service.
 //
 // Gets information about custom key stores (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html)
-// in the account and region.
+// in the account and Region.
 //
 // This operation is part of the Custom Key Store feature (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html)
 // feature in AWS KMS, which combines the convenience and extensive integration
 // of AWS KMS with the isolation and control of a single-tenant key store.
 //
 // By default, this operation returns information about all custom key stores
-// in the account and region. To get only information about a particular custom
+// in the account and Region. To get only information about a particular custom
 // key store, use either the CustomKeyStoreName or CustomKeyStoreId parameter
 // (but not both).
 //
@@ -1634,6 +1797,24 @@ func (c *KMS) DescribeCustomKeyStoresRequest(input *DescribeCustomKeyStoresInput
 // Key Stores (https://docs.aws.amazon.com/kms/latest/developerguide/fix-keystore.html)
 // topic in the AWS Key Management Service Developer Guide.
 //
+// Cross-account use: No. You cannot perform this operation on a custom key
+// store in a different AWS account.
+//
+// Required permissions: kms:DescribeCustomKeyStores (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (IAM policy)
+//
+// Related operations:
+//
+//    * ConnectCustomKeyStore
+//
+//    * CreateCustomKeyStore
+//
+//    * DeleteCustomKeyStore
+//
+//    * DisconnectCustomKeyStore
+//
+//    * UpdateCustomKeyStore
+//
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
 // the error.
@@ -1645,6 +1826,10 @@ func (c *KMS) DescribeCustomKeyStoresRequest(input *DescribeCustomKeyStoresInput
 //   * CustomKeyStoreNotFoundException
 //   The request was rejected because AWS KMS cannot find a custom key store with
 //   the specified key store name or ID.
+//
+//   * InvalidMarkerException
+//   The request was rejected because the marker that specifies where pagination
+//   should next begin is not valid.
 //
 //   * InternalException
 //   The request was rejected because an internal exception occurred. The request
@@ -1749,8 +1934,27 @@ func (c *KMS) DescribeKeyRequest(input *DescribeKeyInput) (req *request.Request,
 // Then, it associates the alias with the new CMK, and returns the KeyId and
 // Arn of the new CMK in the response.
 //
-// To perform this operation on a CMK in a different AWS account, specify the
-// key ARN or alias ARN in the value of the KeyId parameter.
+// Cross-account use: Yes. To perform this operation with a CMK in a different
+// AWS account, specify the key ARN or alias ARN in the value of the KeyId parameter.
+//
+// Required permissions: kms:DescribeKey (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations:
+//
+//    * GetKeyPolicy
+//
+//    * GetKeyRotationStatus
+//
+//    * ListAliases
+//
+//    * ListGrants
+//
+//    * ListKeys
+//
+//    * ListResourceTags
+//
+//    * ListRetirableGrants
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1843,17 +2047,24 @@ func (c *KMS) DisableKeyRequest(input *DisableKeyInput) (req *request.Request, o
 
 // DisableKey API operation for AWS Key Management Service.
 //
-// Sets the state of a customer master key (CMK) to disabled, thereby preventing
-// its use for cryptographic operations. You cannot perform this operation on
-// a CMK in a different AWS account.
+// Sets the state of a customer master key (CMK) to disabled. This change temporarily
+// prevents use of the CMK for cryptographic operations (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#cryptographic-operations).
 //
-// For more information about how key state affects the use of a CMK, see How
-// Key State Affects the Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For more information about how key state affects the use of a CMK, see Key
+// state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide .
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: No. You cannot perform this operation on a CMK in a different
+// AWS account.
+//
+// Required permissions: kms:DisableKey (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations: EnableKey
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1957,13 +2168,28 @@ func (c *KMS) DisableKeyRotationRequest(input *DisableKeyRotationInput) (req *re
 // Disables automatic rotation of the key material (https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html)
 // for the specified symmetric customer master key (CMK).
 //
-// You cannot enable automatic rotation of asymmetric CMKs, CMKs with imported
-// key material, or CMKs in a custom key store (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html).
-// You cannot perform this operation on a CMK in a different AWS account.
+// You cannot enable automatic rotation of asymmetric CMKs (https://docs.aws.amazon.com/kms/latest/developerguide/symm-asymm-concepts.html#asymmetric-cmks),
+// CMKs with imported key material (https://docs.aws.amazon.com/kms/latest/developerguide/importing-keys.html),
+// or CMKs in a custom key store (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html).
+// To enable or disable automatic rotation of a set of related multi-Region
+// keys (https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html#mrk-replica-key),
+// set the property on the primary key.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: No. You cannot perform this operation on a CMK in a different
+// AWS account.
+//
+// Required permissions: kms:DisableKeyRotation (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations:
+//
+//    * EnableKeyRotation
+//
+//    * GetKeyRotationStatus
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2079,8 +2305,9 @@ func (c *KMS) DisconnectCustomKeyStoreRequest(input *DisconnectCustomKeyStoreInp
 //
 // While a custom key store is disconnected, all attempts to create customer
 // master keys (CMKs) in the custom key store or to use existing CMKs in cryptographic
-// operations will fail. This action can prevent users from storing and accessing
-// sensitive data.
+// operations (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#cryptographic-operations)
+// will fail. This action can prevent users from storing and accessing sensitive
+// data.
 //
 // To find the connection state of a custom key store, use the DescribeCustomKeyStores
 // operation. To reconnect a custom key store, use the ConnectCustomKeyStore
@@ -2091,6 +2318,24 @@ func (c *KMS) DisconnectCustomKeyStoreRequest(input *DisconnectCustomKeyStoreInp
 // This operation is part of the Custom Key Store feature (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html)
 // feature in AWS KMS, which combines the convenience and extensive integration
 // of AWS KMS with the isolation and control of a single-tenant key store.
+//
+// Cross-account use: No. You cannot perform this operation on a custom key
+// store in a different AWS account.
+//
+// Required permissions: kms:DisconnectCustomKeyStore (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (IAM policy)
+//
+// Related operations:
+//
+//    * ConnectCustomKeyStore
+//
+//    * CreateCustomKeyStore
+//
+//    * DeleteCustomKeyStore
+//
+//    * DescribeCustomKeyStores
+//
+//    * UpdateCustomKeyStore
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2195,12 +2440,19 @@ func (c *KMS) EnableKeyRequest(input *EnableKeyInput) (req *request.Request, out
 // EnableKey API operation for AWS Key Management Service.
 //
 // Sets the key state of a customer master key (CMK) to enabled. This allows
-// you to use the CMK for cryptographic operations. You cannot perform this
-// operation on a CMK in a different AWS account.
+// you to use the CMK for cryptographic operations (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#cryptographic-operations).
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: No. You cannot perform this operation on a CMK in a different
+// AWS account.
+//
+// Required permissions: kms:EnableKey (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations: DisableKey
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2307,15 +2559,30 @@ func (c *KMS) EnableKeyRotationRequest(input *EnableKeyRotationInput) (req *requ
 // EnableKeyRotation API operation for AWS Key Management Service.
 //
 // Enables automatic rotation of the key material (https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html)
-// for the specified symmetric customer master key (CMK). You cannot perform
-// this operation on a CMK in a different AWS account.
+// for the specified symmetric customer master key (CMK).
 //
-// You cannot enable automatic rotation of asymmetric CMKs, CMKs with imported
-// key material, or CMKs in a custom key store (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html).
+// You cannot enable automatic rotation of asymmetric CMKs (https://docs.aws.amazon.com/kms/latest/developerguide/symm-asymm-concepts.html#asymmetric-cmks),
+// CMKs with imported key material (https://docs.aws.amazon.com/kms/latest/developerguide/importing-keys.html),
+// or CMKs in a custom key store (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html).
+// To enable or disable automatic rotation of a set of related multi-Region
+// keys (https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html#mrk-replica-key),
+// set the property on the primary key.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: No. You cannot perform this operation on a CMK in a different
+// AWS account.
+//
+// Required permissions: kms:EnableKeyRotation (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations:
+//
+//    * DisableKeyRotation
+//
+//    * GetKeyRotationStatus
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2429,11 +2696,12 @@ func (c *KMS) EncryptRequest(input *EncryptInput) (req *request.Request, output 
 //    identifier or database password, or other sensitive information.
 //
 //    * You can use the Encrypt operation to move encrypted data from one AWS
-//    region to another. In the first region, generate a data key and use the
-//    plaintext key to encrypt the data. Then, in the new region, call the Encrypt
-//    method on same plaintext data key. Now, you can safely move the encrypted
-//    data and encrypted data key to the new region, and decrypt in the new
-//    region when necessary.
+//    Region to another. For example, in Region A, generate a data key and use
+//    the plaintext key to encrypt your data. Then, in Region A, use the Encrypt
+//    operation to encrypt the plaintext data key under a CMK in Region B. Now,
+//    you can move the encrypted data and the encrypted data key to Region B.
+//    When necessary, you can decrypt the encrypted data key and the encrypted
+//    data entirely within in Region B.
 //
 // You don't need to use the Encrypt operation to encrypt a data key. The GenerateDataKey
 // and GenerateDataKeyPair operations return a plaintext data key and an encrypted
@@ -2478,11 +2746,22 @@ func (c *KMS) EncryptRequest(input *EncryptInput) (req *request.Request, output 
 //    * RSA_4096 RSAES_OAEP_SHA_1: 470 bytes RSAES_OAEP_SHA_256: 446 bytes
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
 //
-// To perform this operation on a CMK in a different AWS account, specify the
-// key ARN or alias ARN in the value of the KeyId parameter.
+// Cross-account use: Yes. To perform this operation with a CMK in a different
+// AWS account, specify the key ARN or alias ARN in the value of the KeyId parameter.
+//
+// Required permissions: kms:Encrypt (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations:
+//
+//    * Decrypt
+//
+//    * GenerateDataKey
+//
+//    * GenerateDataKeyPair
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2603,27 +2882,20 @@ func (c *KMS) GenerateDataKeyRequest(input *GenerateDataKeyInput) (req *request.
 
 // GenerateDataKey API operation for AWS Key Management Service.
 //
-// Generates a unique symmetric data key. This operation returns a plaintext
-// copy of the data key and a copy that is encrypted under a customer master
-// key (CMK) that you specify. You can use the plaintext key to encrypt your
-// data outside of AWS KMS and store the encrypted data key with the encrypted
-// data.
+// Generates a unique symmetric data key for client-side encryption. This operation
+// returns a plaintext copy of the data key and a copy that is encrypted under
+// a customer master key (CMK) that you specify. You can use the plaintext key
+// to encrypt your data outside of AWS KMS and store the encrypted data key
+// with the encrypted data.
 //
 // GenerateDataKey returns a unique data key for each request. The bytes in
-// the key are not related to the caller or CMK that is used to encrypt the
-// data key.
+// the plaintext key are not related to the caller or the CMK.
 //
 // To generate a data key, specify the symmetric CMK that will be used to encrypt
 // the data key. You cannot use an asymmetric CMK to generate data keys. To
-// get the type of your CMK, use the DescribeKey operation.
-//
-// You must also specify the length of the data key. Use either the KeySpec
-// or NumberOfBytes parameters (but not both). For 128-bit and 256-bit data
-// keys, use the KeySpec parameter.
-//
-// If the operation succeeds, the plaintext copy of the data key is in the Plaintext
-// field of the response, and the encrypted copy of the data key in the CiphertextBlob
-// field.
+// get the type of your CMK, use the DescribeKey operation. You must also specify
+// the length of the data key. Use either the KeySpec or NumberOfBytes parameters
+// (but not both). For 128-bit and 256-bit data keys, use the KeySpec parameter.
 //
 // To get only an encrypted copy of the data key, use GenerateDataKeyWithoutPlaintext.
 // To generate an asymmetric data key pair, use the GenerateDataKeyPair or GenerateDataKeyPairWithoutPlaintext
@@ -2637,27 +2909,53 @@ func (c *KMS) GenerateDataKeyRequest(input *GenerateDataKeyInput) (req *request.
 // in the AWS Key Management Service Developer Guide.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
 //
+// How to use your data key
+//
 // We recommend that you use the following pattern to encrypt data locally in
-// your application:
+// your application. You can write your own code or use a client-side encryption
+// library, such as the AWS Encryption SDK (https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/),
+// the Amazon DynamoDB Encryption Client (https://docs.aws.amazon.com/dynamodb-encryption-client/latest/devguide/),
+// or Amazon S3 client-side encryption (https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingClientSideEncryption.html)
+// to do these tasks for you.
 //
-// Use the GenerateDataKey operation to get a data encryption key.
+// To encrypt data outside of AWS KMS:
 //
-// Use the plaintext data key (returned in the Plaintext field of the response)
-// to encrypt data locally, then erase the plaintext data key from memory.
+// Use the GenerateDataKey operation to get a data key.
 //
-// Store the encrypted data key (returned in the CiphertextBlob field of the
-// response) alongside the locally encrypted data.
+// Use the plaintext data key (in the Plaintext field of the response) to encrypt
+// your data outside of AWS KMS. Then erase the plaintext data key from memory.
 //
-// To decrypt data locally:
+// Store the encrypted data key (in the CiphertextBlob field of the response)
+// with the encrypted data.
+//
+// To decrypt data outside of AWS KMS:
 //
 // Use the Decrypt operation to decrypt the encrypted data key. The operation
 // returns a plaintext copy of the data key.
 //
-// Use the plaintext data key to decrypt data locally, then erase the plaintext
-// data key from memory.
+// Use the plaintext data key to decrypt data outside of AWS KMS, then erase
+// the plaintext data key from memory.
+//
+// Cross-account use: Yes. To perform this operation with a CMK in a different
+// AWS account, specify the key ARN or alias ARN in the value of the KeyId parameter.
+//
+// Required permissions: kms:GenerateDataKey (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations:
+//
+//    * Decrypt
+//
+//    * Encrypt
+//
+//    * GenerateDataKeyPair
+//
+//    * GenerateDataKeyPairWithoutPlaintext
+//
+//    * GenerateDataKeyWithoutPlaintext
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2794,7 +3092,8 @@ func (c *KMS) GenerateDataKeyPairRequest(input *GenerateDataKeyPairInput) (req *
 //
 // To generate a data key pair, you must specify a symmetric customer master
 // key (CMK) to encrypt the private key in a data key pair. You cannot use an
-// asymmetric CMK. To get the type of your CMK, use the DescribeKey operation.
+// asymmetric CMK or a CMK in a custom key store. To get the type and origin
+// of your CMK, use the DescribeKey operation.
 //
 // If you are using the data key pair to encrypt data, or for any operation
 // where you don't immediately need a private key, consider using the GenerateDataKeyPairWithoutPlaintext
@@ -2812,8 +3111,26 @@ func (c *KMS) GenerateDataKeyPairRequest(input *GenerateDataKeyPairInput) (req *
 // in the AWS Key Management Service Developer Guide.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: Yes. To perform this operation with a CMK in a different
+// AWS account, specify the key ARN or alias ARN in the value of the KeyId parameter.
+//
+// Required permissions: kms:GenerateDataKeyPair (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations:
+//
+//    * Decrypt
+//
+//    * Encrypt
+//
+//    * GenerateDataKey
+//
+//    * GenerateDataKeyPairWithoutPlaintext
+//
+//    * GenerateDataKeyWithoutPlaintext
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2867,6 +3184,10 @@ func (c *KMS) GenerateDataKeyPairRequest(input *GenerateDataKeyPairInput) (req *
 //   For more information about how key state affects the use of a CMK, see How
 //   Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 //   in the AWS Key Management Service Developer Guide .
+//
+//   * UnsupportedOperationException
+//   The request was rejected because a specified parameter is not supported or
+//   a specified resource is not valid for this operation.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/kms-2014-11-01/GenerateDataKeyPair
 func (c *KMS) GenerateDataKeyPair(input *GenerateDataKeyPairInput) (*GenerateDataKeyPairOutput, error) {
@@ -2941,8 +3262,8 @@ func (c *KMS) GenerateDataKeyPairWithoutPlaintextRequest(input *GenerateDataKeyP
 //
 // To generate a data key pair, you must specify a symmetric customer master
 // key (CMK) to encrypt the private key in the data key pair. You cannot use
-// an asymmetric CMK. To get the type of your CMK, use the KeySpec field in
-// the DescribeKey response.
+// an asymmetric CMK or a CMK in a custom key store. To get the type and origin
+// of your CMK, use the KeySpec field in the DescribeKey response.
 //
 // You can use the public key that GenerateDataKeyPairWithoutPlaintext returns
 // to encrypt data or verify a signature outside of AWS KMS. Then, store the
@@ -2962,8 +3283,26 @@ func (c *KMS) GenerateDataKeyPairWithoutPlaintextRequest(input *GenerateDataKeyP
 // in the AWS Key Management Service Developer Guide.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: Yes. To perform this operation with a CMK in a different
+// AWS account, specify the key ARN or alias ARN in the value of the KeyId parameter.
+//
+// Required permissions: kms:GenerateDataKeyPairWithoutPlaintext (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations:
+//
+//    * Decrypt
+//
+//    * Encrypt
+//
+//    * GenerateDataKey
+//
+//    * GenerateDataKeyPair
+//
+//    * GenerateDataKeyWithoutPlaintext
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3017,6 +3356,10 @@ func (c *KMS) GenerateDataKeyPairWithoutPlaintextRequest(input *GenerateDataKeyP
 //   For more information about how key state affects the use of a CMK, see How
 //   Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 //   in the AWS Key Management Service Developer Guide .
+//
+//   * UnsupportedOperationException
+//   The request was rejected because a specified parameter is not supported or
+//   a specified resource is not valid for this operation.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/kms-2014-11-01/GenerateDataKeyPairWithoutPlaintext
 func (c *KMS) GenerateDataKeyPairWithoutPlaintext(input *GenerateDataKeyPairWithoutPlaintextInput) (*GenerateDataKeyPairWithoutPlaintextOutput, error) {
@@ -3124,8 +3467,26 @@ func (c *KMS) GenerateDataKeyWithoutPlaintextRequest(input *GenerateDataKeyWitho
 // in the AWS Key Management Service Developer Guide.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: Yes. To perform this operation with a CMK in a different
+// AWS account, specify the key ARN or alias ARN in the value of the KeyId parameter.
+//
+// Required permissions: kms:GenerateDataKeyWithoutPlaintext (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations:
+//
+//    * Decrypt
+//
+//    * Encrypt
+//
+//    * GenerateDataKey
+//
+//    * GenerateDataKeyPair
+//
+//    * GenerateDataKeyPairWithoutPlaintext
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3253,9 +3614,11 @@ func (c *KMS) GenerateRandomRequest(input *GenerateRandomInput) (req *request.Re
 // key store (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html),
 // specify the custom key store ID.
 //
-// For more information about entropy and random number generation, see the
-// AWS Key Management Service Cryptographic Details (https://d0.awsstatic.com/whitepapers/KMS-Cryptographic-Details.pdf)
-// whitepaper.
+// For more information about entropy and random number generation, see AWS
+// Key Management Service Cryptographic Details (https://docs.aws.amazon.com/kms/latest/cryptographic-details/).
+//
+// Required permissions: kms:GenerateRandom (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (IAM policy)
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3362,8 +3725,15 @@ func (c *KMS) GetKeyPolicyRequest(input *GetKeyPolicyInput) (req *request.Reques
 
 // GetKeyPolicy API operation for AWS Key Management Service.
 //
-// Gets a key policy attached to the specified customer master key (CMK). You
-// cannot perform this operation on a CMK in a different AWS account.
+// Gets a key policy attached to the specified customer master key (CMK).
+//
+// Cross-account use: No. You cannot perform this operation on a CMK in a different
+// AWS account.
+//
+// Required permissions: kms:GetKeyPolicy (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations: PutKeyPolicy
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3467,12 +3837,16 @@ func (c *KMS) GetKeyRotationStatusRequest(input *GetKeyRotationStatusInput) (req
 // material (https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html)
 // is enabled for the specified customer master key (CMK).
 //
-// You cannot enable automatic rotation of asymmetric CMKs, CMKs with imported
-// key material, or CMKs in a custom key store (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html).
-// The key rotation status for these CMKs is always false.
+// You cannot enable automatic rotation of asymmetric CMKs (https://docs.aws.amazon.com/kms/latest/developerguide/symm-asymm-concepts.html#asymmetric-cmks),
+// CMKs with imported key material (https://docs.aws.amazon.com/kms/latest/developerguide/importing-keys.html),
+// or CMKs in a custom key store (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html).
+// To enable or disable automatic rotation of a set of related multi-Region
+// keys (https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html#mrk-replica-key),
+// set the property on the primary key. The key rotation status for these CMKs
+// is always false.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
 //
 //    * Disabled: The key rotation status does not change when you disable a
@@ -3483,8 +3857,17 @@ func (c *KMS) GetKeyRotationStatusRequest(input *GetKeyRotationStatusInput) (req
 //    status is false and AWS KMS does not rotate the backing key. If you cancel
 //    the deletion, the original key rotation status is restored.
 //
-// To perform this operation on a CMK in a different AWS account, specify the
-// key ARN in the value of the KeyId parameter.
+// Cross-account use: Yes. To perform this operation on a CMK in a different
+// AWS account, specify the key ARN in the value of the KeyId parameter.
+//
+// Required permissions: kms:GetKeyRotationStatus (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations:
+//
+//    * DisableKeyRotation
+//
+//    * EnableKeyRotation
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3610,8 +3993,20 @@ func (c *KMS) GetParametersForImportRequest(input *GetParametersForImportInput) 
 // send another GetParametersForImport request.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: No. You cannot perform this operation on a CMK in a different
+// AWS account.
+//
+// Required permissions: kms:GetParametersForImport (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations:
+//
+//    * ImportKeyMaterial
+//
+//    * DeleteImportedKeyMaterial
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3754,8 +4149,16 @@ func (c *KMS) GetPublicKeyRequest(input *GetPublicKeyInput) (req *request.Reques
 // errors, such as using the wrong signing algorithm in a verification operation.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: Yes. To perform this operation with a CMK in a different
+// AWS account, specify the key ARN or alias ARN in the value of the KeyId parameter.
+//
+// Required permissions: kms:GetPublicKey (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations: CreateKey
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3929,8 +4332,20 @@ func (c *KMS) ImportKeyMaterialRequest(input *ImportKeyMaterialInput) (req *requ
 // in the AWS Key Management Service Developer Guide.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: No. You cannot perform this operation on a CMK in a different
+// AWS account.
+//
+// Required permissions: kms:ImportKeyMaterial (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations:
+//
+//    * DeleteImportedKeyMaterial
+//
+//    * GetParametersForImport
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -4063,12 +4478,12 @@ func (c *KMS) ListAliasesRequest(input *ListAliasesInput) (req *request.Request,
 
 // ListAliases API operation for AWS Key Management Service.
 //
-// Gets a list of aliases in the caller's AWS account and region. You cannot
-// list aliases in other accounts. For more information about aliases, see CreateAlias.
+// Gets a list of aliases in the caller's AWS account and region. For more information
+// about aliases, see CreateAlias.
 //
-// By default, the ListAliases command returns all aliases in the account and
-// region. To get only the aliases that point to a particular customer master
-// key (CMK), use the KeyId parameter.
+// By default, the ListAliases operation returns all aliases in the account
+// and region. To get only the aliases associated with a particular customer
+// master key (CMK), use the KeyId parameter.
 //
 // The ListAliases response can include aliases that you created and associated
 // with your customer managed CMKs, and aliases that AWS created and associated
@@ -4079,6 +4494,22 @@ func (c *KMS) ListAliasesRequest(input *ListAliasesInput) (req *request.Request,
 // are predefined aliases that AWS has created but has not yet associated with
 // a CMK. Aliases that AWS creates in your account, including predefined aliases,
 // do not count against your AWS KMS aliases quota (https://docs.aws.amazon.com/kms/latest/developerguide/limits.html#aliases-limit).
+//
+// Cross-account use: No. ListAliases does not return aliases in other AWS accounts.
+//
+// Required permissions: kms:ListAliases (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (IAM policy)
+//
+// For details, see Controlling access to aliases (https://docs.aws.amazon.com/kms/latest/developerguide/kms-alias.html#alias-access)
+// in the AWS Key Management Service Developer Guide.
+//
+// Related operations:
+//
+//    * CreateAlias
+//
+//    * DeleteAlias
+//
+//    * UpdateAlias
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -4234,8 +4665,30 @@ func (c *KMS) ListGrantsRequest(input *ListGrantsInput) (req *request.Request, o
 //
 // Gets a list of all grants for the specified customer master key (CMK).
 //
-// To perform this operation on a CMK in a different AWS account, specify the
-// key ARN in the value of the KeyId parameter.
+// You must specify the CMK in all requests. You can filter the grant list by
+// grant ID or grantee principal.
+//
+// The GranteePrincipal field in the ListGrants response usually contains the
+// user or role designated as the grantee principal in the grant. However, when
+// the grantee principal in the grant is an AWS service, the GranteePrincipal
+// field contains the service principal (https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html#principal-services),
+// which might represent several different grantee principals.
+//
+// Cross-account use: Yes. To perform this operation on a CMK in a different
+// AWS account, specify the key ARN in the value of the KeyId parameter.
+//
+// Required permissions: kms:ListGrants (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations:
+//
+//    * CreateGrant
+//
+//    * ListRetirableGrants
+//
+//    * RetireGrant
+//
+//    * RevokeGrant
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -4256,6 +4709,9 @@ func (c *KMS) ListGrantsRequest(input *ListGrantsInput) (req *request.Request, o
 //   * InvalidMarkerException
 //   The request was rejected because the marker that specifies where pagination
 //   should next begin is not valid.
+//
+//   * InvalidGrantIdException
+//   The request was rejected because the specified GrantId is not valid.
 //
 //   * InvalidArnException
 //   The request was rejected because a specified ARN, or an ARN in a key policy,
@@ -4400,7 +4856,18 @@ func (c *KMS) ListKeyPoliciesRequest(input *ListKeyPoliciesInput) (req *request.
 // Gets the names of the key policies that are attached to a customer master
 // key (CMK). This operation is designed to get policy names that you can use
 // in a GetKeyPolicy operation. However, the only valid policy name is default.
-// You cannot perform this operation on a CMK in a different AWS account.
+//
+// Cross-account use: No. You cannot perform this operation on a CMK in a different
+// AWS account.
+//
+// Required permissions: kms:ListKeyPolicies (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations:
+//
+//    * GetKeyPolicy
+//
+//    * PutKeyPolicy
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -4561,6 +5028,22 @@ func (c *KMS) ListKeysRequest(input *ListKeysInput) (req *request.Request, outpu
 // Gets a list of all customer master keys (CMKs) in the caller's AWS account
 // and Region.
 //
+// Cross-account use: No. You cannot perform this operation on a CMK in a different
+// AWS account.
+//
+// Required permissions: kms:ListKeys (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (IAM policy)
+//
+// Related operations:
+//
+//    * CreateKey
+//
+//    * DescribeKey
+//
+//    * ListAliases
+//
+//    * ListResourceTags
+//
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
 // the error.
@@ -4699,9 +5182,28 @@ func (c *KMS) ListResourceTagsRequest(input *ListResourceTagsInput) (req *reques
 
 // ListResourceTags API operation for AWS Key Management Service.
 //
-// Returns a list of all tags for the specified customer master key (CMK).
+// Returns all tags on the specified customer master key (CMK).
 //
-// You cannot perform this operation on a CMK in a different AWS account.
+// For general information about tags, including the format and syntax, see
+// Tagging AWS resources (https://docs.aws.amazon.com/general/latest/gr/aws_tagging.html)
+// in the Amazon Web Services General Reference. For information about using
+// tags in AWS KMS, see Tagging keys (https://docs.aws.amazon.com/kms/latest/developerguide/tagging-keys.html).
+//
+// Cross-account use: No. You cannot perform this operation on a CMK in a different
+// AWS account.
+//
+// Required permissions: kms:ListResourceTags (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations:
+//
+//    * CreateKey
+//
+//    * ReplicateKey
+//
+//    * TagResource
+//
+//    * UntagResource
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -4793,11 +5295,34 @@ func (c *KMS) ListRetirableGrantsRequest(input *ListRetirableGrantsInput) (req *
 
 // ListRetirableGrants API operation for AWS Key Management Service.
 //
-// Returns a list of all grants for which the grant's RetiringPrincipal matches
-// the one specified.
+// Returns information about all grants in the AWS account and Region that have
+// the specified retiring principal. For more information about grants, see
+// Grants (https://docs.aws.amazon.com/kms/latest/developerguide/grants.html)
+// in the AWS Key Management Service Developer Guide .
 //
-// A typical use is to list all grants that you are able to retire. To retire
-// a grant, use RetireGrant.
+// You can specify any principal in your AWS account. The grants that are returned
+// include grants for CMKs in your AWS account and other AWS accounts.
+//
+// You might use this operation to determine which grants you may retire. To
+// retire a grant, use the RetireGrant operation.
+//
+// Cross-account use: You must specify a principal in your AWS account. However,
+// this operation can return grants in any AWS account. You do not need kms:ListRetirableGrants
+// permission (or any other additional permission) in any AWS account other
+// than your own.
+//
+// Required permissions: kms:ListRetirableGrants (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (IAM policy) in your AWS account.
+//
+// Related operations:
+//
+//    * CreateGrant
+//
+//    * ListGrants
+//
+//    * RetireGrant
+//
+//    * RevokeGrant
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -4894,11 +5419,22 @@ func (c *KMS) PutKeyPolicyRequest(input *PutKeyPolicyInput) (req *request.Reques
 
 // PutKeyPolicy API operation for AWS Key Management Service.
 //
-// Attaches a key policy to the specified customer master key (CMK). You cannot
-// perform this operation on a CMK in a different AWS account.
+// Attaches a key policy to the specified customer master key (CMK).
 //
 // For more information about key policies, see Key Policies (https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html)
+// in the AWS Key Management Service Developer Guide. For help writing and formatting
+// a JSON policy document, see the IAM JSON Policy Reference (https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html)
+// in the IAM User Guide . For examples of adding a key policy in multiple programming
+// languages, see Setting a key policy (https://docs.aws.amazon.com/kms/latest/developerguide/programming-key-policies.html#put-policy)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: No. You cannot perform this operation on a CMK in a different
+// AWS account.
+//
+// Required permissions: kms:PutKeyPolicy (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations: GetKeyPolicy
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5016,13 +5552,15 @@ func (c *KMS) ReEncryptRequest(input *ReEncryptInput) (req *request.Request, out
 // is encrypted, such as when you manually rotate (https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html#rotate-keys-manually)
 // a CMK or change the CMK that protects a ciphertext. You can also use it to
 // reencrypt ciphertext under the same CMK, such as to change the encryption
-// context of a ciphertext.
+// context (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#encrypt_context)
+// of a ciphertext.
 //
 // The ReEncrypt operation can decrypt ciphertext that was encrypted by using
 // an AWS KMS CMK in an AWS KMS operation, such as Encrypt or GenerateDataKey.
 // It can also decrypt ciphertext that was encrypted by using the public key
-// of an asymmetric CMK outside of AWS KMS. However, it cannot decrypt ciphertext
-// produced by other libraries, such as the AWS Encryption SDK (https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/)
+// of an asymmetric CMK (https://docs.aws.amazon.com/kms/latest/developerguide/symm-asymm-concepts.html#asymmetric-cmks)
+// outside of AWS KMS. However, it cannot decrypt ciphertext produced by other
+// libraries, such as the AWS Encryption SDK (https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/)
 // or Amazon S3 client-side encryption (https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingClientSideEncryption.html).
 // These libraries return a ciphertext format that is incompatible with AWS
 // KMS.
@@ -5030,17 +5568,23 @@ func (c *KMS) ReEncryptRequest(input *ReEncryptInput) (req *request.Request, out
 // When you use the ReEncrypt operation, you need to provide information for
 // the decrypt operation and the subsequent encrypt operation.
 //
-//    * If your ciphertext was encrypted under an asymmetric CMK, you must identify
-//    the source CMK, that is, the CMK that encrypted the ciphertext. You must
-//    also supply the encryption algorithm that was used. This information is
-//    required to decrypt the data.
+//    * If your ciphertext was encrypted under an asymmetric CMK, you must use
+//    the SourceKeyId parameter to identify the CMK that encrypted the ciphertext.
+//    You must also supply the encryption algorithm that was used. This information
+//    is required to decrypt the data.
 //
-//    * It is optional, but you can specify a source CMK even when the ciphertext
-//    was encrypted under a symmetric CMK. This ensures that the ciphertext
-//    is decrypted only by using a particular CMK. If the CMK that you specify
-//    cannot decrypt the ciphertext, the ReEncrypt operation fails.
+//    * If your ciphertext was encrypted under a symmetric CMK, the SourceKeyId
+//    parameter is optional. AWS KMS can get this information from metadata
+//    that it adds to the symmetric ciphertext blob. This feature adds durability
+//    to your implementation by ensuring that authorized users can decrypt ciphertext
+//    decades after it was encrypted, even if they've lost track of the CMK
+//    ID. However, specifying the source CMK is always recommended as a best
+//    practice. When you use the SourceKeyId parameter to specify a CMK, AWS
+//    KMS uses only the CMK you specify. If the ciphertext was encrypted under
+//    a different CMK, the ReEncrypt operation fails. This practice ensures
+//    that you use the CMK that you intend.
 //
-//    * To reencrypt the data, you must specify the destination CMK, that is,
+//    * To reencrypt the data, you must use the DestinationKeyId parameter specify
 //    the CMK that re-encrypts the data after it is decrypted. You can select
 //    a symmetric or asymmetric CMK. If the destination CMK is an asymmetric
 //    CMK, you must also provide the encryption algorithm. The algorithm that
@@ -5055,23 +5599,38 @@ func (c *KMS) ReEncryptRequest(input *ReEncryptInput) (req *request.Request, out
 //    with asymmetric keys. The standard format for asymmetric key ciphertext
 //    does not include configurable fields.
 //
-// Unlike other AWS KMS API operations, ReEncrypt callers must have two permissions:
+// The CMK that you use for this operation must be in a compatible key state.
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// in the AWS Key Management Service Developer Guide.
 //
-//    * kms:EncryptFrom permission on the source CMK
+// Cross-account use: Yes. The source CMK and destination CMK can be in different
+// AWS accounts. Either or both CMKs can be in a different account than the
+// caller.
 //
-//    * kms:EncryptTo permission on the destination CMK
+// Required permissions:
 //
-// To permit reencryption from
+//    * kms:ReEncryptFrom (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+//    permission on the source CMK (key policy)
 //
-// or to a CMK, include the "kms:ReEncrypt*" permission in your key policy (https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html).
+//    * kms:ReEncryptTo (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+//    permission on the destination CMK (key policy)
+//
+// To permit reencryption from or to a CMK, include the "kms:ReEncrypt*" permission
+// in your key policy (https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html).
 // This permission is automatically included in the key policy when you use
 // the console to create a CMK. But you must include it manually when you create
-// a CMK programmatically or when you use the PutKeyPolicy operation set a key
-// policy.
+// a CMK programmatically or when you use the PutKeyPolicy operation to set
+// a key policy.
 //
-// The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
-// in the AWS Key Management Service Developer Guide.
+// Related operations:
+//
+//    * Decrypt
+//
+//    * Encrypt
+//
+//    * GenerateDataKey
+//
+//    * GenerateDataKeyPair
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5162,6 +5721,198 @@ func (c *KMS) ReEncryptWithContext(ctx aws.Context, input *ReEncryptInput, opts 
 	return out, req.Send()
 }
 
+const opReplicateKey = "ReplicateKey"
+
+// ReplicateKeyRequest generates a "aws/request.Request" representing the
+// client's request for the ReplicateKey operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See ReplicateKey for more information on using the ReplicateKey
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the ReplicateKeyRequest method.
+//    req, resp := client.ReplicateKeyRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/kms-2014-11-01/ReplicateKey
+func (c *KMS) ReplicateKeyRequest(input *ReplicateKeyInput) (req *request.Request, output *ReplicateKeyOutput) {
+	op := &request.Operation{
+		Name:       opReplicateKey,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &ReplicateKeyInput{}
+	}
+
+	output = &ReplicateKeyOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// ReplicateKey API operation for AWS Key Management Service.
+//
+// Replicates a multi-Region key into the specified Region. This operation creates
+// a multi-Region replica key based on a multi-Region primary key in a different
+// Region of the same AWS partition. You can create multiple replicas of a primary
+// key, but each must be in a different Region. To create a multi-Region primary
+// key, use the CreateKey operation.
+//
+// This operation supports multi-Region keys, an AWS KMS feature that lets you
+// create multiple interoperable CMKs in different AWS Regions. Because these
+// CMKs have the same key ID, key material, and other metadata, you can use
+// them to encrypt data in one AWS Region and decrypt it in a different AWS
+// Region without making a cross-Region call or exposing the plaintext data.
+// For more information about multi-Region keys, see Using multi-Region keys
+// (https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html)
+// in the AWS Key Management Service Developer Guide.
+//
+// A replica key is a fully-functional CMK that can be used independently of
+// its primary and peer replica keys. A primary key and its replica keys share
+// properties that make them interoperable. They have the same key ID (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id-key-id)
+// and key material. They also have the same key spec (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-spec),
+// key usage (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-usage),
+// key material origin (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-origin),
+// and automatic key rotation status (https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html).
+// AWS KMS automatically synchronizes these shared properties among related
+// multi-Region keys. All other properties of a replica key can differ, including
+// its key policy (https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html),
+// tags (https://docs.aws.amazon.com/kms/latest/developerguide/tagging-keys.html),
+// aliases (https://docs.aws.amazon.com/kms/latest/developerguide/kms-alias.html),
+// and key state (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html).
+// AWS KMS pricing and quotas for CMKs apply to each primary key and replica
+// key.
+//
+// When this operation completes, the new replica key has a transient key state
+// of Creating. This key state changes to Enabled (or PendingImport) after a
+// few seconds when the process of creating the new replica key is complete.
+// While the key state is Creating, you can manage key, but you cannot yet use
+// it in cryptographic operations. If you are creating and using the replica
+// key programmatically, retry on KMSInvalidStateException or call DescribeKey
+// to check its KeyState value before using it. For details about the Creating
+// key state, see Key state: Effect on your CMK (kms/latest/developerguide/key-state.html)
+// in the AWS Key Management Service Developer Guide.
+//
+// The AWS CloudTrail log of a ReplicateKey operation records a ReplicateKey
+// operation in the primary key's Region and a CreateKey operation in the replica
+// key's Region.
+//
+// If you replicate a multi-Region primary key with imported key material, the
+// replica key is created with no key material. You must import the same key
+// material that you imported into the primary key. For details, see Importing
+// key material into multi-Region keys (kms/latest/developerguide/multi-region-keys-import.html)
+// in the AWS Key Management Service Developer Guide.
+//
+// To convert a replica key to a primary key, use the UpdatePrimaryRegion operation.
+//
+// ReplicateKey uses different default values for the KeyPolicy and Tags parameters
+// than those used in the AWS KMS console. For details, see the parameter descriptions.
+//
+// Cross-account use: No. You cannot use this operation to create a CMK in a
+// different AWS account.
+//
+// Required permissions:
+//
+//    * kms:ReplicateKey on the primary CMK (in the primary CMK's Region). Include
+//    this permission in the primary CMK's key policy.
+//
+//    * kms:CreateKey in an IAM policy in the replica Region.
+//
+//    * To use the Tags parameter, kms:TagResource in an IAM policy in the replica
+//    Region.
+//
+// Related operations
+//
+//    * CreateKey
+//
+//    * UpdatePrimaryRegion
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for AWS Key Management Service's
+// API operation ReplicateKey for usage and error information.
+//
+// Returned Error Types:
+//   * AlreadyExistsException
+//   The request was rejected because it attempted to create a resource that already
+//   exists.
+//
+//   * DisabledException
+//   The request was rejected because the specified CMK is not enabled.
+//
+//   * InvalidArnException
+//   The request was rejected because a specified ARN, or an ARN in a key policy,
+//   is not valid.
+//
+//   * InvalidStateException
+//   The request was rejected because the state of the specified resource is not
+//   valid for this request.
+//
+//   For more information about how key state affects the use of a CMK, see How
+//   Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+//   in the AWS Key Management Service Developer Guide .
+//
+//   * InternalException
+//   The request was rejected because an internal exception occurred. The request
+//   can be retried.
+//
+//   * LimitExceededException
+//   The request was rejected because a quota was exceeded. For more information,
+//   see Quotas (https://docs.aws.amazon.com/kms/latest/developerguide/limits.html)
+//   in the AWS Key Management Service Developer Guide.
+//
+//   * MalformedPolicyDocumentException
+//   The request was rejected because the specified policy is not syntactically
+//   or semantically correct.
+//
+//   * NotFoundException
+//   The request was rejected because the specified entity or resource could not
+//   be found.
+//
+//   * TagException
+//   The request was rejected because one or more tags are not valid.
+//
+//   * UnsupportedOperationException
+//   The request was rejected because a specified parameter is not supported or
+//   a specified resource is not valid for this operation.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/kms-2014-11-01/ReplicateKey
+func (c *KMS) ReplicateKey(input *ReplicateKeyInput) (*ReplicateKeyOutput, error) {
+	req, out := c.ReplicateKeyRequest(input)
+	return out, req.Send()
+}
+
+// ReplicateKeyWithContext is the same as ReplicateKey with the addition of
+// the ability to pass a context and additional request options.
+//
+// See ReplicateKey for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *KMS) ReplicateKeyWithContext(ctx aws.Context, input *ReplicateKeyInput, opts ...request.Option) (*ReplicateKeyOutput, error) {
+	req, out := c.ReplicateKeyRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opRetireGrant = "RetireGrant"
 
 // RetireGrantRequest generates a "aws/request.Request" representing the
@@ -5207,22 +5958,39 @@ func (c *KMS) RetireGrantRequest(input *RetireGrantInput) (req *request.Request,
 
 // RetireGrant API operation for AWS Key Management Service.
 //
-// Retires a grant. To clean up, you can retire a grant when you're done using
-// it. You should revoke a grant when you intend to actively deny operations
-// that depend on it. The following are permitted to call this API:
+// Deletes a grant. Typically, you retire a grant when you no longer need its
+// permissions. To identify the grant to retire, use a grant token (https://docs.aws.amazon.com/kms/latest/developerguide/grants.html#grant_token),
+// or both the grant ID and a key identifier (key ID or key ARN) of the customer
+// master key (CMK). The CreateGrant operation returns both values.
 //
-//    * The AWS account (root user) under which the grant was created
+// This operation can be called by the retiring principal for a grant, by the
+// grantee principal if the grant allows the RetireGrant operation, and by the
+// AWS account (root user) in which the grant is created. It can also be called
+// by principals to whom permission for retiring a grant is delegated. For details,
+// see Retiring and revoking grants (https://docs.aws.amazon.com/kms/latest/developerguide/grant-manage.html#grant-delete)
+// in the AWS Key Management Service Developer Guide.
 //
-//    * The RetiringPrincipal, if present in the grant
+// For detailed information about grants, including grant terminology, see Using
+// grants (https://docs.aws.amazon.com/kms/latest/developerguide/grants.html)
+// in the AWS Key Management Service Developer Guide . For examples of working
+// with grants in several programming languages, see Programming grants (https://docs.aws.amazon.com/kms/latest/developerguide/programming-grants.html).
 //
-//    * The GranteePrincipal, if RetireGrant is an operation specified in the
-//    grant
+// Cross-account use: Yes. You can retire a grant on a CMK in a different AWS
+// account.
 //
-// You must identify the grant to retire by its grant token or by a combination
-// of the grant ID and the Amazon Resource Name (ARN) of the customer master
-// key (CMK). A grant token is a unique variable-length base64-encoded string.
-// A grant ID is a 64 character unique identifier of a grant. The CreateGrant
-// operation returns both.
+// Required permissions::Permission to retire a grant is determined primarily
+// by the grant. For details, see Retiring and revoking grants (https://docs.aws.amazon.com/kms/latest/developerguide/grant-manage.html#grant-delete)
+// in the AWS Key Management Service Developer Guide.
+//
+// Related operations:
+//
+//    * CreateGrant
+//
+//    * ListGrants
+//
+//    * ListRetirableGrants
+//
+//    * RevokeGrant
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5329,11 +6097,32 @@ func (c *KMS) RevokeGrantRequest(input *RevokeGrantInput) (req *request.Request,
 
 // RevokeGrant API operation for AWS Key Management Service.
 //
-// Revokes the specified grant for the specified customer master key (CMK).
-// You can revoke a grant to actively deny operations that depend on it.
+// Deletes the specified grant. You revoke a grant to terminate the permissions
+// that the grant allows. For more information, see Retiring and revoking grants
+// (https://docs.aws.amazon.com/kms/latest/developerguide/managing-grants.html#grant-delete)
+// in the AWS Key Management Service Developer Guide .
 //
-// To perform this operation on a CMK in a different AWS account, specify the
-// key ARN in the value of the KeyId parameter.
+// When you create, retire, or revoke a grant, there might be a brief delay,
+// usually less than five minutes, until the grant is available throughout AWS
+// KMS. This state is known as eventual consistency. For details, see Eventual
+// consistency (https://docs.aws.amazon.com/kms/latest/developerguide/grants.html#terms-eventual-consistency)
+// in the AWS Key Management Service Developer Guide .
+//
+// Cross-account use: Yes. To perform this operation on a CMK in a different
+// AWS account, specify the key ARN in the value of the KeyId parameter.
+//
+// Required permissions: kms:RevokeGrant (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy).
+//
+// Related operations:
+//
+//    * CreateGrant
+//
+//    * ListGrants
+//
+//    * ListRetirableGrants
+//
+//    * RetireGrant
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5436,18 +6225,20 @@ func (c *KMS) ScheduleKeyDeletionRequest(input *ScheduleKeyDeletionInput) (req *
 
 // ScheduleKeyDeletion API operation for AWS Key Management Service.
 //
-// Schedules the deletion of a customer master key (CMK). You may provide a
-// waiting period, specified in days, before deletion occurs. If you do not
-// provide a waiting period, the default period of 30 days is used. When this
-// operation is successful, the key state of the CMK changes to PendingDeletion.
+// Schedules the deletion of a customer master key (CMK). By default, AWS KMS
+// applies a waiting period of 30 days, but you can specify a waiting period
+// of 7-30 days. When this operation is successful, the key state of the CMK
+// changes to PendingDeletion and the key can't be used in any cryptographic
+// operations. It remains in this state for the duration of the waiting period.
 // Before the waiting period ends, you can use CancelKeyDeletion to cancel the
-// deletion of the CMK. After the waiting period ends, AWS KMS deletes the CMK
-// and all AWS KMS data associated with it, including all aliases that refer
-// to it.
+// deletion of the CMK. After the waiting period ends, AWS KMS deletes the CMK,
+// its key material, and all AWS KMS data associated with it, including all
+// aliases that refer to it.
 //
 // Deleting a CMK is a destructive and potentially dangerous operation. When
 // a CMK is deleted, all data that was encrypted under the CMK is unrecoverable.
-// To prevent the use of a CMK without deleting it, use DisableKey.
+// (The only exception is a multi-Region replica key.) To prevent the use of
+// a CMK without deleting it, use DisableKey.
 //
 // If you schedule deletion of a CMK from a custom key store (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html),
 // when the waiting period expires, ScheduleKeyDeletion deletes the CMK from
@@ -5456,15 +6247,35 @@ func (c *KMS) ScheduleKeyDeletionRequest(input *ScheduleKeyDeletionInput) (req *
 // delete the orphaned key material (https://docs.aws.amazon.com/kms/latest/developerguide/fix-keystore.html#fix-keystore-orphaned-key)
 // from the cluster and its backups.
 //
-// You cannot perform this operation on a CMK in a different AWS account.
+// You can schedule the deletion of a multi-Region primary key and its replica
+// keys at any time. However, AWS KMS will not delete a multi-Region primary
+// key with existing replica keys. If you schedule the deletion of a primary
+// key with replicas, its key state changes to PendingReplicaDeletion and it
+// cannot be replicated or used in cryptographic operations. This status can
+// continue indefinitely. When the last of its replicas keys is deleted (not
+// just scheduled), the key state of the primary key changes to PendingDeletion
+// and its waiting period (PendingWindowInDays) begins. For details, see Deleting
+// multi-Region keys (https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-delete.html)
+// in the AWS Key Management Service Developer Guide.
 //
 // For more information about scheduling a CMK for deletion, see Deleting Customer
 // Master Keys (https://docs.aws.amazon.com/kms/latest/developerguide/deleting-keys.html)
 // in the AWS Key Management Service Developer Guide.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: No. You cannot perform this operation on a CMK in a different
+// AWS account.
+//
+// Required permissions: kms:ScheduleKeyDeletion (key policy)
+//
+// Related operations
+//
+//    * CancelKeyDeletion
+//
+//    * DisableKey
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5600,8 +6411,16 @@ func (c *KMS) SignRequest(input *SignInput) (req *request.Request, output *SignO
 // the public key to verify the signature outside of AWS KMS.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: Yes. To perform this operation with a CMK in a different
+// AWS account, specify the key ARN or alias ARN in the value of the KeyId parameter.
+//
+// Required permissions: kms:Sign (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations: Verify
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5723,22 +6542,50 @@ func (c *KMS) TagResourceRequest(input *TagResourceInput) (req *request.Request,
 
 // TagResource API operation for AWS Key Management Service.
 //
-// Adds or edits tags for a customer master key (CMK). You cannot perform this
-// operation on a CMK in a different AWS account.
+// Adds or edits tags on a customer managed CMK (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#customer-cmk).
 //
-// Each tag consists of a tag key and a tag value. Tag keys and tag values are
-// both required, but tag values can be empty (null) strings.
+// Tagging or untagging a CMK can allow or deny permission to the CMK. For details,
+// see Using ABAC in AWS KMS (https://docs.aws.amazon.com/kms/latest/developerguide/abac.html)
+// in the AWS Key Management Service Developer Guide.
 //
-// You can only use a tag key once for each CMK. If you use the tag key again,
-// AWS KMS replaces the current tag value with the specified value.
+// Each tag consists of a tag key and a tag value, both of which are case-sensitive
+// strings. The tag value can be an empty (null) string. To add a tag, specify
+// a new tag key and a tag value. To edit a tag, specify an existing tag key
+// and a new tag value.
 //
-// For information about the rules that apply to tag keys and tag values, see
-// User-Defined Tag Restrictions (https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/allocation-tag-restrictions.html)
-// in the AWS Billing and Cost Management User Guide.
+// You can use this operation to tag a customer managed CMK (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#customer-cmk),
+// but you cannot tag an AWS managed CMK (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-managed-cmk),
+// an AWS owned CMK (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-owned-cmk),
+// a custom key store (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#keystore-concept),
+// or an alias (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#alias-concept).
+//
+// You can also add tags to a CMK while creating it (CreateKey) or replicating
+// it (ReplicateKey).
+//
+// For information about using tags in AWS KMS, see Tagging keys (https://docs.aws.amazon.com/kms/latest/developerguide/tagging-keys.html).
+// For general information about tags, including the format and syntax, see
+// Tagging AWS resources (https://docs.aws.amazon.com/general/latest/gr/aws_tagging.html)
+// in the Amazon Web Services General Reference.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: No. You cannot perform this operation on a CMK in a different
+// AWS account.
+//
+// Required permissions: kms:TagResource (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations
+//
+//    * CreateKey
+//
+//    * ListResourceTags
+//
+//    * ReplicateKey
+//
+//    * UntagResource
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5843,15 +6690,42 @@ func (c *KMS) UntagResourceRequest(input *UntagResourceInput) (req *request.Requ
 
 // UntagResource API operation for AWS Key Management Service.
 //
-// Removes the specified tags from the specified customer master key (CMK).
-// You cannot perform this operation on a CMK in a different AWS account.
+// Deletes tags from a customer managed CMK (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#customer-cmk).
+// To delete a tag, specify the tag key and the CMK.
 //
-// To remove a tag, specify the tag key. To change the tag value of an existing
-// tag key, use TagResource.
+// Tagging or untagging a CMK can allow or deny permission to the CMK. For details,
+// see Using ABAC in AWS KMS (https://docs.aws.amazon.com/kms/latest/developerguide/abac.html)
+// in the AWS Key Management Service Developer Guide.
+//
+// When it succeeds, the UntagResource operation doesn't return any output.
+// Also, if the specified tag key isn't found on the CMK, it doesn't throw an
+// exception or return a response. To confirm that the operation worked, use
+// the ListResourceTags operation.
+//
+// For information about using tags in AWS KMS, see Tagging keys (https://docs.aws.amazon.com/kms/latest/developerguide/tagging-keys.html).
+// For general information about tags, including the format and syntax, see
+// Tagging AWS resources (https://docs.aws.amazon.com/general/latest/gr/aws_tagging.html)
+// in the Amazon Web Services General Reference.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: No. You cannot perform this operation on a CMK in a different
+// AWS account.
+//
+// Required permissions: kms:UntagResource (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations
+//
+//    * CreateKey
+//
+//    * ListResourceTags
+//
+//    * ReplicateKey
+//
+//    * TagResource
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5954,8 +6828,11 @@ func (c *KMS) UpdateAliasRequest(input *UpdateAliasInput) (req *request.Request,
 // Associates an existing AWS KMS alias with a different customer master key
 // (CMK). Each alias is associated with only one CMK at a time, although a CMK
 // can have multiple aliases. The alias and the CMK must be in the same AWS
-// account and region. You cannot perform this operation on an alias in a different
-// AWS account.
+// account and Region.
+//
+// Adding, deleting, or updating an alias can allow or deny permission to the
+// CMK. For details, see Using ABAC in AWS KMS (https://docs.aws.amazon.com/kms/latest/developerguide/abac.html)
+// in the AWS Key Management Service Developer Guide.
 //
 // The current and new CMK must be the same type (both symmetric or both asymmetric),
 // and they must have the same key usage (ENCRYPT_DECRYPT or SIGN_VERIFY). This
@@ -5972,8 +6849,33 @@ func (c *KMS) UpdateAliasRequest(input *UpdateAliasInput) (req *request.Request,
 // of all CMKs in the account, use the ListAliases operation.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: No. You cannot perform this operation on a CMK in a different
+// AWS account.
+//
+// Required permissions
+//
+//    * kms:UpdateAlias (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+//    on the alias (IAM policy).
+//
+//    * kms:UpdateAlias (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+//    on the current CMK (key policy).
+//
+//    * kms:UpdateAlias (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+//    on the new CMK (key policy).
+//
+// For details, see Controlling access to aliases (https://docs.aws.amazon.com/kms/latest/developerguide/kms-alias.html#alias-access)
+// in the AWS Key Management Service Developer Guide.
+//
+// Related operations:
+//
+//    * CreateAlias
+//
+//    * DeleteAlias
+//
+//    * ListAliases
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5994,6 +6896,11 @@ func (c *KMS) UpdateAliasRequest(input *UpdateAliasInput) (req *request.Request,
 //   * InternalException
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
+//
+//   * LimitExceededException
+//   The request was rejected because a quota was exceeded. For more information,
+//   see Quotas (https://docs.aws.amazon.com/kms/latest/developerguide/limits.html)
+//   in the AWS Key Management Service Developer Guide.
 //
 //   * InvalidStateException
 //   The request was rejected because the state of the specified resource is not
@@ -6104,6 +7011,24 @@ func (c *KMS) UpdateCustomKeyStoreRequest(input *UpdateCustomKeyStoreInput) (req
 // This operation is part of the Custom Key Store feature (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html)
 // feature in AWS KMS, which combines the convenience and extensive integration
 // of AWS KMS with the isolation and control of a single-tenant key store.
+//
+// Cross-account use: No. You cannot perform this operation on a custom key
+// store in a different AWS account.
+//
+// Required permissions: kms:UpdateCustomKeyStore (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (IAM policy)
+//
+// Related operations:
+//
+//    * ConnectCustomKeyStore
+//
+//    * CreateCustomKeyStore
+//
+//    * DeleteCustomKeyStore
+//
+//    * DescribeCustomKeyStores
+//
+//    * DisconnectCustomKeyStore
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -6273,11 +7198,21 @@ func (c *KMS) UpdateKeyDescriptionRequest(input *UpdateKeyDescriptionInput) (req
 // Updates the description of a customer master key (CMK). To see the description
 // of a CMK, use DescribeKey.
 //
-// You cannot perform this operation on a CMK in a different AWS account.
-//
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: No. You cannot perform this operation on a CMK in a different
+// AWS account.
+//
+// Required permissions: kms:UpdateKeyDescription (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations
+//
+//    * CreateKey
+//
+//    * DescribeKey
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -6328,6 +7263,177 @@ func (c *KMS) UpdateKeyDescription(input *UpdateKeyDescriptionInput) (*UpdateKey
 // for more information on using Contexts.
 func (c *KMS) UpdateKeyDescriptionWithContext(ctx aws.Context, input *UpdateKeyDescriptionInput, opts ...request.Option) (*UpdateKeyDescriptionOutput, error) {
 	req, out := c.UpdateKeyDescriptionRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opUpdatePrimaryRegion = "UpdatePrimaryRegion"
+
+// UpdatePrimaryRegionRequest generates a "aws/request.Request" representing the
+// client's request for the UpdatePrimaryRegion operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See UpdatePrimaryRegion for more information on using the UpdatePrimaryRegion
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the UpdatePrimaryRegionRequest method.
+//    req, resp := client.UpdatePrimaryRegionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/kms-2014-11-01/UpdatePrimaryRegion
+func (c *KMS) UpdatePrimaryRegionRequest(input *UpdatePrimaryRegionInput) (req *request.Request, output *UpdatePrimaryRegionOutput) {
+	op := &request.Operation{
+		Name:       opUpdatePrimaryRegion,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &UpdatePrimaryRegionInput{}
+	}
+
+	output = &UpdatePrimaryRegionOutput{}
+	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
+	return
+}
+
+// UpdatePrimaryRegion API operation for AWS Key Management Service.
+//
+// Changes the primary key of a multi-Region key.
+//
+// This operation changes the replica key in the specified Region to a primary
+// key and changes the former primary key to a replica key. For example, suppose
+// you have a primary key in us-east-1 and a replica key in eu-west-2. If you
+// run UpdatePrimaryRegion with a PrimaryRegion value of eu-west-2, the primary
+// key is now the key in eu-west-2, and the key in us-east-1 becomes a replica
+// key. For details, see
+//
+// This operation supports multi-Region keys, an AWS KMS feature that lets you
+// create multiple interoperable CMKs in different AWS Regions. Because these
+// CMKs have the same key ID, key material, and other metadata, you can use
+// them to encrypt data in one AWS Region and decrypt it in a different AWS
+// Region without making a cross-Region call or exposing the plaintext data.
+// For more information about multi-Region keys, see Using multi-Region keys
+// (https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html)
+// in the AWS Key Management Service Developer Guide.
+//
+// The primary key of a multi-Region key is the source for properties that are
+// always shared by primary and replica keys, including the key material, key
+// ID (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id-key-id),
+// key spec (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-spec),
+// key usage (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-usage),
+// key material origin (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-origin),
+// and automatic key rotation (https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html).
+// It's the only key that can be replicated. You cannot delete the primary key
+// (https://docs.aws.amazon.com/kms/latest/APIReference/API_ScheduleKeyDeletion.html)
+// until all replicas are deleted.
+//
+// The key ID and primary Region that you specify uniquely identify the replica
+// key that will become the primary key. The primary Region must already have
+// a replica key. This operation does not create a CMK in the specified Region.
+// To find the replica keys, use the DescribeKey operation on the primary key
+// or any replica key. To create a replica key, use the ReplicateKey operation.
+//
+// You can run this operation while using the affected multi-Region keys in
+// cryptographic operations. This operation should not delay, interrupt, or
+// cause failures in cryptographic operations.
+//
+// Even after this operation completes, the process of updating the primary
+// Region might still be in progress for a few more seconds. Operations such
+// as DescribeKey might display both the old and new primary keys as replicas.
+// The old and new primary keys have a transient key state of Updating. The
+// original key state is restored when the update is complete. While the key
+// state is Updating, you can use the keys in cryptographic operations, but
+// you cannot replicate the new primary key or perform certain management operations,
+// such as enabling or disabling these keys. For details about the Updating
+// key state, see Key state: Effect on your CMK (kms/latest/developerguide/key-state.html)
+// in the AWS Key Management Service Developer Guide.
+//
+// This operation does not return any output. To verify that primary key is
+// changed, use the DescribeKey operation.
+//
+// Cross-account use: No. You cannot use this operation in a different AWS account.
+//
+// Required permissions:
+//
+//    * kms:UpdatePrimaryRegion on the current primary CMK (in the primary CMK's
+//    Region). Include this permission primary CMK's key policy.
+//
+//    * kms:UpdatePrimaryRegion on the current replica CMK (in the replica CMK's
+//    Region). Include this permission in the replica CMK's key policy.
+//
+// Related operations
+//
+//    * CreateKey
+//
+//    * ReplicateKey
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for AWS Key Management Service's
+// API operation UpdatePrimaryRegion for usage and error information.
+//
+// Returned Error Types:
+//   * DisabledException
+//   The request was rejected because the specified CMK is not enabled.
+//
+//   * InvalidArnException
+//   The request was rejected because a specified ARN, or an ARN in a key policy,
+//   is not valid.
+//
+//   * InvalidStateException
+//   The request was rejected because the state of the specified resource is not
+//   valid for this request.
+//
+//   For more information about how key state affects the use of a CMK, see How
+//   Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+//   in the AWS Key Management Service Developer Guide .
+//
+//   * InternalException
+//   The request was rejected because an internal exception occurred. The request
+//   can be retried.
+//
+//   * NotFoundException
+//   The request was rejected because the specified entity or resource could not
+//   be found.
+//
+//   * UnsupportedOperationException
+//   The request was rejected because a specified parameter is not supported or
+//   a specified resource is not valid for this operation.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/kms-2014-11-01/UpdatePrimaryRegion
+func (c *KMS) UpdatePrimaryRegion(input *UpdatePrimaryRegionInput) (*UpdatePrimaryRegionOutput, error) {
+	req, out := c.UpdatePrimaryRegionRequest(input)
+	return out, req.Send()
+}
+
+// UpdatePrimaryRegionWithContext is the same as UpdatePrimaryRegion with the addition of
+// the ability to pass a context and additional request options.
+//
+// See UpdatePrimaryRegion for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *KMS) UpdatePrimaryRegionWithContext(ctx aws.Context, input *UpdatePrimaryRegionInput, opts ...request.Option) (*UpdatePrimaryRegionOutput, error) {
+	req, out := c.UpdatePrimaryRegionRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -6405,8 +7511,16 @@ func (c *KMS) VerifyRequest(input *VerifyInput) (req *request.Request, output *V
 // the CMK to verify signatures.
 //
 // The CMK that you use for this operation must be in a compatible key state.
-// For details, see How Key State Affects Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// For details, see Key state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 // in the AWS Key Management Service Developer Guide.
+//
+// Cross-account use: Yes. To perform this operation with a CMK in a different
+// AWS account, specify the key ARN or alias ARN in the value of the KeyId parameter.
+//
+// Required permissions: kms:Verify (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+// (key policy)
+//
+// Related operations: Sign
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -6498,7 +7612,15 @@ type AliasListEntry struct {
 	// String that contains the alias. This value begins with alias/.
 	AliasName *string `min:"1" type:"string"`
 
-	// String that contains the key identifier referred to by the alias.
+	// Date and time that the alias was most recently created in the account and
+	// Region. Formatted as Unix time.
+	CreationDate *time.Time `type:"timestamp"`
+
+	// Date and time that the alias was most recently associated with a CMK in the
+	// account and Region. Formatted as Unix time.
+	LastUpdatedDate *time.Time `type:"timestamp"`
+
+	// String that contains the key identifier of the CMK associated with the alias.
 	TargetKeyId *string `min:"1" type:"string"`
 }
 
@@ -6521,6 +7643,18 @@ func (s *AliasListEntry) SetAliasArn(v string) *AliasListEntry {
 // SetAliasName sets the AliasName field's value.
 func (s *AliasListEntry) SetAliasName(v string) *AliasListEntry {
 	s.AliasName = &v
+	return s
+}
+
+// SetCreationDate sets the CreationDate field's value.
+func (s *AliasListEntry) SetCreationDate(v time.Time) *AliasListEntry {
+	s.CreationDate = &v
+	return s
+}
+
+// SetLastUpdatedDate sets the LastUpdatedDate field's value.
+func (s *AliasListEntry) SetLastUpdatedDate(v time.Time) *AliasListEntry {
+	s.LastUpdatedDate = &v
 	return s
 }
 
@@ -6590,10 +7724,9 @@ func (s *AlreadyExistsException) RequestID() string {
 type CancelKeyDeletionInput struct {
 	_ struct{} `type:"structure"`
 
-	// The unique identifier for the customer master key (CMK) for which to cancel
-	// deletion.
+	// Identifies the customer master key (CMK) whose deletion is being canceled.
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK.
+	// Specify the key ID or key ARN of the CMK.
 	//
 	// For example:
 	//
@@ -6642,7 +7775,8 @@ func (s *CancelKeyDeletionInput) SetKeyId(v string) *CancelKeyDeletionInput {
 type CancelKeyDeletionOutput struct {
 	_ struct{} `type:"structure"`
 
-	// The unique identifier of the master key for which deletion is canceled.
+	// The Amazon Resource Name (key ARN (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id-key-ARN))
+	// of the CMK whose deletion is canceled.
 	KeyId *string `min:"1" type:"string"`
 }
 
@@ -7055,16 +8189,34 @@ type CreateAliasInput struct {
 	_ struct{} `type:"structure"`
 
 	// Specifies the alias name. This value must begin with alias/ followed by a
-	// name, such as alias/ExampleAlias. The alias name cannot begin with alias/aws/.
-	// The alias/aws/ prefix is reserved for AWS managed CMKs.
+	// name, such as alias/ExampleAlias.
+	//
+	// The AliasName value must be string of 1-256 characters. It can contain only
+	// alphanumeric characters, forward slashes (/), underscores (_), and dashes
+	// (-). The alias name cannot begin with alias/aws/. The alias/aws/ prefix is
+	// reserved for AWS managed CMKs (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-managed-cmk).
 	//
 	// AliasName is a required field
 	AliasName *string `min:"1" type:"string" required:"true"`
 
-	// Identifies the CMK to which the alias refers. Specify the key ID or the Amazon
-	// Resource Name (ARN) of the CMK. You cannot specify another alias. For help
-	// finding the key ID and ARN, see Finding the Key ID and ARN (https://docs.aws.amazon.com/kms/latest/developerguide/viewing-keys.html#find-cmk-id-arn)
+	// Associates the alias with the specified customer managed CMK (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#customer-cmk).
+	// The CMK must be in the same AWS Region.
+	//
+	// A valid CMK ID is required. If you supply a null or empty string value, this
+	// operation returns an error.
+	//
+	// For help finding the key ID and ARN, see Finding the Key ID and ARN (https://docs.aws.amazon.com/kms/latest/developerguide/viewing-keys.html#find-cmk-id-arn)
 	// in the AWS Key Management Service Developer Guide.
+	//
+	// Specify the key ID or key ARN of the CMK.
+	//
+	// For example:
+	//
+	//    * Key ID: 1234abcd-12ab-34cd-56ef-1234567890ab
+	//
+	//    * Key ARN: arn:aws:kms:us-east-2:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab
+	//
+	// To get the key ID and key ARN for a CMK, use ListKeys or DescribeKey.
 	//
 	// TargetKeyId is a required field
 	TargetKeyId *string `min:"1" type:"string" required:"true"`
@@ -7259,20 +8411,37 @@ func (s *CreateCustomKeyStoreOutput) SetCustomKeyStoreId(v string) *CreateCustom
 type CreateGrantInput struct {
 	_ struct{} `type:"structure"`
 
-	// Allows a cryptographic operation only when the encryption context matches
-	// or includes the encryption context specified in this structure. For more
-	// information about encryption context, see Encryption Context (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#encrypt_context)
-	// in the AWS Key Management Service Developer Guide .
+	// Specifies a grant constraint.
+	//
+	// AWS KMS supports the EncryptionContextEquals and EncryptionContextSubset
+	// grant constraints. Each constraint value can include up to 8 encryption context
+	// pairs. The encryption context value in each constraint cannot exceed 384
+	// characters.
+	//
+	// These grant constraints allow a cryptographic operation (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#cryptographic-operations)
+	// only when the encryption context in the request matches (EncryptionContextEquals)
+	// or includes (EncryptionContextSubset) the encryption context specified in
+	// this structure. For more information about encryption context, see Encryption
+	// Context (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#encrypt_context)
+	// in the AWS Key Management Service Developer Guide . For information about
+	// grant constraints, see Using grant constraints (https://docs.aws.amazon.com/kms/latest/developerguide/create-grant-overview.html#grant-constraints)
+	// in the AWS Key Management Service Developer Guide.
+	//
+	// The encryption context grant constraints are supported only on operations
+	// that include an encryption context. You cannot use an encryption context
+	// grant constraint for cryptographic operations with asymmetric CMKs or for
+	// management operations, such as DescribeKey or RetireGrant.
 	Constraints *GrantConstraints `type:"structure"`
 
 	// A list of grant tokens.
 	//
-	// For more information, see Grant Tokens (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// Use a grant token when your permission to call this operation comes from
+	// a new grant that has not yet achieved eventual consistency. For more information,
+	// see Grant token (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
 	// in the AWS Key Management Service Developer Guide.
 	GrantTokens []*string `type:"list"`
 
-	// The principal that is given permission to perform the operations that the
-	// grant permits.
+	// The identity that gets the permissions specified in the grant.
 	//
 	// To specify the principal, use the Amazon Resource Name (ARN) (https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html)
 	// of an AWS principal. Valid AWS principals include AWS accounts (root), IAM
@@ -7284,11 +8453,11 @@ type CreateGrantInput struct {
 	// GranteePrincipal is a required field
 	GranteePrincipal *string `min:"1" type:"string" required:"true"`
 
-	// The unique identifier for the customer master key (CMK) that the grant applies
-	// to.
+	// Identifies the customer master key (CMK) for the grant. The grant gives principals
+	// permission to use this CMK.
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK. To specify
-	// a CMK in a different AWS account, you must use the key ARN.
+	// Specify the key ID or key ARN of the CMK. To specify a CMK in a different
+	// AWS account, you must use the key ARN.
 	//
 	// For example:
 	//
@@ -7301,8 +8470,8 @@ type CreateGrantInput struct {
 	// KeyId is a required field
 	KeyId *string `min:"1" type:"string" required:"true"`
 
-	// A friendly name for identifying the grant. Use this value to prevent the
-	// unintended creation of duplicate grants when retrying this request.
+	// A friendly name for the grant. Use this value to prevent the unintended creation
+	// of duplicate grants when retrying this request.
 	//
 	// When this value is absent, all CreateGrant requests result in a new grant
 	// with a unique GrantId even if all the supplied parameters are identical.
@@ -7312,10 +8481,17 @@ type CreateGrantInput struct {
 	// parameters; if the grant already exists, the original GrantId is returned
 	// without creating a new grant. Note that the returned grant token is unique
 	// with every CreateGrant request, even when a duplicate GrantId is returned.
-	// All grant tokens obtained in this way can be used interchangeably.
+	// All grant tokens for the same grant ID can be used interchangeably.
 	Name *string `min:"1" type:"string"`
 
 	// A list of operations that the grant permits.
+	//
+	// The operation must be supported on the CMK. For example, you cannot create
+	// a grant for a symmetric CMK that allows the Sign operation, or a grant for
+	// an asymmetric CMK that allows the GenerateDataKey operation. If you try,
+	// AWS KMS returns a ValidationError exception. For details, see Grant operations
+	// (https://docs.aws.amazon.com/kms/latest/developerguide/grants.html#terms-grant-operations)
+	// in the AWS Key Management Service Developer Guide.
 	//
 	// Operations is a required field
 	Operations []*string `type:"list" required:"true"`
@@ -7420,12 +8596,14 @@ type CreateGrantOutput struct {
 
 	// The unique identifier for the grant.
 	//
-	// You can use the GrantId in a subsequent RetireGrant or RevokeGrant operation.
+	// You can use the GrantId in a ListGrants, RetireGrant, or RevokeGrant operation.
 	GrantId *string `min:"1" type:"string"`
 
 	// The grant token.
 	//
-	// For more information, see Grant Tokens (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// Use a grant token when your permission to call this operation comes from
+	// a new grant that has not yet achieved eventual consistency. For more information,
+	// see Grant token (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
 	// in the AWS Key Management Service Developer Guide.
 	GrantToken *string `min:"1" type:"string"`
 }
@@ -7477,8 +8655,8 @@ type CreateKeyInput struct {
 	// the custom key store must have at least two active HSMs, each in a different
 	// Availability Zone in the Region.
 	//
-	// This parameter is valid only for symmetric CMKs. You cannot create an asymmetric
-	// CMK in a custom key store.
+	// This parameter is valid only for symmetric CMKs and regional CMKs. You cannot
+	// create an asymmetric CMK or a multi-Region CMK in a custom key store.
 	//
 	// To find the ID of a custom key store, use the DescribeCustomKeyStores operation.
 	//
@@ -7527,12 +8705,13 @@ type CreateKeyInput struct {
 	// A description of the CMK.
 	//
 	// Use a description that helps you decide whether the CMK is appropriate for
-	// a task.
+	// a task. The default value is an empty string (no description).
 	Description *string `type:"string"`
 
-	// Determines the cryptographic operations for which you can use the CMK. The
-	// default value is ENCRYPT_DECRYPT. This parameter is required only for asymmetric
-	// CMKs. You can't change the KeyUsage value after the CMK is created.
+	// Determines the cryptographic operations (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#cryptographic-operations)
+	// for which you can use the CMK. The default value is ENCRYPT_DECRYPT. This
+	// parameter is required only for asymmetric CMKs. You can't change the KeyUsage
+	// value after the CMK is created.
 	//
 	// Select only one valid value.
 	//
@@ -7544,22 +8723,43 @@ type CreateKeyInput struct {
 	//    * For asymmetric CMKs with ECC key material, specify SIGN_VERIFY.
 	KeyUsage *string `type:"string" enum:"KeyUsageType"`
 
-	// The source of the key material for the CMK. You cannot change the origin
-	// after you create the CMK. The default is AWS_KMS, which means AWS KMS creates
-	// the key material.
+	// Creates a multi-Region primary key that you can replicate into other AWS
+	// Regions. You cannot change this value after you create the CMK.
 	//
-	// When the parameter value is EXTERNAL, AWS KMS creates a CMK without key material
-	// so that you can import key material from your existing key management infrastructure.
-	// For more information about importing key material into AWS KMS, see Importing
-	// Key Material (https://docs.aws.amazon.com/kms/latest/developerguide/importing-keys.html)
+	// For a multi-Region key, set this parameter to True. For a single-Region CMK,
+	// omit this parameter or set it to False. The default value is False.
+	//
+	// This operation supports multi-Region keys, an AWS KMS feature that lets you
+	// create multiple interoperable CMKs in different AWS Regions. Because these
+	// CMKs have the same key ID, key material, and other metadata, you can use
+	// them to encrypt data in one AWS Region and decrypt it in a different AWS
+	// Region without making a cross-Region call or exposing the plaintext data.
+	// For more information about multi-Region keys, see Using multi-Region keys
+	// (https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html)
+	// in the AWS Key Management Service Developer Guide.
+	//
+	// This value creates a primary key, not a replica. To create a replica key,
+	// use the ReplicateKey operation.
+	//
+	// You can create a symmetric or asymmetric multi-Region CMK, and you can create
+	// a multi-Region CMK with imported key material. However, you cannot create
+	// a multi-Region CMK in a custom key store.
+	MultiRegion *bool `type:"boolean"`
+
+	// The source of the key material for the CMK. You cannot change the origin
+	// after you create the CMK. The default is AWS_KMS, which means that AWS KMS
+	// creates the key material.
+	//
+	// To create a CMK with no key material (for imported key material), set the
+	// value to EXTERNAL. For more information about importing key material into
+	// AWS KMS, see Importing Key Material (https://docs.aws.amazon.com/kms/latest/developerguide/importing-keys.html)
 	// in the AWS Key Management Service Developer Guide. This value is valid only
 	// for symmetric CMKs.
 	//
-	// When the parameter value is AWS_CLOUDHSM, AWS KMS creates the CMK in an AWS
-	// KMS custom key store (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html)
-	// and creates its key material in the associated AWS CloudHSM cluster. You
-	// must also use the CustomKeyStoreId parameter to identify the custom key store.
-	// This value is valid only for symmetric CMKs.
+	// To create a CMK in an AWS KMS custom key store (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html)
+	// and create its key material in the associated AWS CloudHSM cluster, set this
+	// value to AWS_CLOUDHSM. You must also use the CustomKeyStoreId parameter to
+	// identify the custom key store. This value is valid only for symmetric CMKs.
 	Origin *string `type:"string" enum:"OriginType"`
 
 	// The key policy to attach to the CMK.
@@ -7587,18 +8787,31 @@ type CreateKeyInput struct {
 	// in the AWS Key Management Service Developer Guide.
 	//
 	// The key policy size quota is 32 kilobytes (32768 bytes).
+	//
+	// For help writing and formatting a JSON policy document, see the IAM JSON
+	// Policy Reference (https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html)
+	// in the IAM User Guide .
 	Policy *string `min:"1" type:"string"`
 
-	// One or more tags. Each tag consists of a tag key and a tag value. Both the
-	// tag key and the tag value are required, but the tag value can be an empty
-	// (null) string.
+	// Assigns one or more tags to the CMK. Use this parameter to tag the CMK when
+	// it is created. To tag an existing CMK, use the TagResource operation.
 	//
-	// When you add tags to an AWS resource, AWS generates a cost allocation report
-	// with usage and costs aggregated by tags. For information about adding, changing,
-	// deleting and listing tags for CMKs, see Tagging Keys (https://docs.aws.amazon.com/kms/latest/developerguide/tagging-keys.html).
+	// Tagging or untagging a CMK can allow or deny permission to the CMK. For details,
+	// see Using ABAC in AWS KMS (https://docs.aws.amazon.com/kms/latest/developerguide/abac.html)
+	// in the AWS Key Management Service Developer Guide.
 	//
-	// Use this parameter to tag the CMK when it is created. To add tags to an existing
-	// CMK, use the TagResource operation.
+	// To use this parameter, you must have kms:TagResource (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+	// permission in an IAM policy.
+	//
+	// Each tag consists of a tag key and a tag value. Both the tag key and the
+	// tag value are required, but the tag value can be an empty (null) string.
+	// You cannot have more than one tag on a CMK with the same tag key. If you
+	// specify an existing tag key with a different tag value, AWS KMS replaces
+	// the current tag value with the specified one.
+	//
+	// When you assign tags to an AWS resource, AWS generates a cost allocation
+	// report with usage and costs aggregated by tags. Tags can also be used to
+	// control access to a CMK. For details, see Tagging Keys (https://docs.aws.amazon.com/kms/latest/developerguide/tagging-keys.html).
 	Tags []*Tag `type:"list"`
 }
 
@@ -7665,6 +8878,12 @@ func (s *CreateKeyInput) SetDescription(v string) *CreateKeyInput {
 // SetKeyUsage sets the KeyUsage field's value.
 func (s *CreateKeyInput) SetKeyUsage(v string) *CreateKeyInput {
 	s.KeyUsage = &v
+	return s
+}
+
+// SetMultiRegion sets the MultiRegion field's value.
+func (s *CreateKeyInput) SetMultiRegion(v bool) *CreateKeyInput {
+	s.MultiRegion = &v
 	return s
 }
 
@@ -7992,11 +9211,12 @@ type CustomKeyStoresListEntry struct {
 	//    to the custom key store.
 	//
 	//    * SUBNET_NOT_FOUND - A subnet in the AWS CloudHSM cluster configuration
-	//    was deleted. If AWS KMS cannot find all of the subnets that were configured
-	//    for the cluster when the custom key store was created, attempts to connect
-	//    fail. To fix this error, create a cluster from a backup and associate
-	//    it with your custom key store. This process includes selecting a VPC and
-	//    subnets. For details, see How to Fix a Connection Failure (https://docs.aws.amazon.com/kms/latest/developerguide/fix-keystore.html#fix-keystore-failed)
+	//    was deleted. If AWS KMS cannot find all of the subnets in the cluster
+	//    configuration, attempts to connect the custom key store to the AWS CloudHSM
+	//    cluster fail. To fix this error, create a cluster from a recent backup
+	//    and associate it with your custom key store. (This process creates a new
+	//    cluster configuration with a VPC and private subnets.) For details, see
+	//    How to Fix a Connection Failure (https://docs.aws.amazon.com/kms/latest/developerguide/fix-keystore.html#fix-keystore-failed)
 	//    in the AWS Key Management Service Developer Guide.
 	//
 	//    * USER_LOCKED_OUT - The kmsuser CU account is locked out of the associated
@@ -8126,9 +9346,9 @@ type DecryptInput struct {
 	EncryptionAlgorithm *string `type:"string" enum:"EncryptionAlgorithmSpec"`
 
 	// Specifies the encryption context to use when decrypting the data. An encryption
-	// context is valid only for cryptographic operations with a symmetric CMK.
-	// The standard asymmetric encryption algorithms that AWS KMS uses do not support
-	// an encryption context.
+	// context is valid only for cryptographic operations (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#cryptographic-operations)
+	// with a symmetric CMK. The standard asymmetric encryption algorithms that
+	// AWS KMS uses do not support an encryption context.
 	//
 	// An encryption context is a collection of non-secret key-value pairs that
 	// represents additional authenticated data. When you use an encryption context
@@ -8142,24 +9362,26 @@ type DecryptInput struct {
 
 	// A list of grant tokens.
 	//
-	// For more information, see Grant Tokens (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// Use a grant token when your permission to call this operation comes from
+	// a newly created grant that has not yet achieved eventual consistency. Use
+	// a grant token when your permission to call this operation comes from a new
+	// grant that has not yet achieved eventual consistency. For more information,
+	// see Grant token (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
 	// in the AWS Key Management Service Developer Guide.
 	GrantTokens []*string `type:"list"`
 
-	// Specifies the customer master key (CMK) that AWS KMS will use to decrypt
-	// the ciphertext. Enter a key ID of the CMK that was used to encrypt the ciphertext.
-	//
-	// If you specify a KeyId value, the Decrypt operation succeeds only if the
-	// specified CMK was used to encrypt the ciphertext.
+	// Specifies the customer master key (CMK) that AWS KMS uses to decrypt the
+	// ciphertext. Enter a key ID of the CMK that was used to encrypt the ciphertext.
 	//
 	// This parameter is required only when the ciphertext was encrypted under an
-	// asymmetric CMK. Otherwise, AWS KMS uses the metadata that it adds to the
-	// ciphertext blob to determine which CMK was used to encrypt the ciphertext.
-	// However, you can use this parameter to ensure that a particular CMK (of any
-	// kind) is used to decrypt the ciphertext.
+	// asymmetric CMK. If you used a symmetric CMK, AWS KMS can get the CMK from
+	// metadata that it adds to the symmetric ciphertext blob. However, it is always
+	// recommended as a best practice. This practice ensures that you use the CMK
+	// that you intend.
 	//
-	// To specify a CMK, use its key ID, Amazon Resource Name (ARN), alias name,
-	// or alias ARN. When using an alias name, prefix it with "alias/".
+	// To specify a CMK, use its key ID, key ARN, alias name, or alias ARN. When
+	// using an alias name, prefix it with "alias/". To specify a CMK in a different
+	// AWS account, you must use the key ARN or alias ARN.
 	//
 	// For example:
 	//
@@ -8241,7 +9463,8 @@ type DecryptOutput struct {
 	// The encryption algorithm that was used to decrypt the ciphertext.
 	EncryptionAlgorithm *string `type:"string" enum:"EncryptionAlgorithmSpec"`
 
-	// The ARN of the customer master key that was used to perform the decryption.
+	// The Amazon Resource Name (key ARN (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id-key-ARN))
+	// of the CMK that was used to decrypt the ciphertext.
 	KeyId *string `min:"1" type:"string"`
 
 	// Decrypted plaintext data. When you use the HTTP API or the AWS CLI, the value
@@ -8397,7 +9620,7 @@ type DeleteImportedKeyMaterialInput struct {
 	// Identifies the CMK from which you are deleting imported key material. The
 	// Origin of the CMK must be EXTERNAL.
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK.
+	// Specify the key ID or key ARN of the CMK.
 	//
 	// For example:
 	//
@@ -8521,7 +9744,7 @@ type DescribeCustomKeyStoresInput struct {
 	// store ID.
 	//
 	// By default, this operation gets information about all custom key stores in
-	// the account and region. To limit the output to a particular custom key store,
+	// the account and Region. To limit the output to a particular custom key store,
 	// you can use either the CustomKeyStoreId or CustomKeyStoreName parameter,
 	// but not both.
 	CustomKeyStoreId *string `min:"1" type:"string"`
@@ -8530,7 +9753,7 @@ type DescribeCustomKeyStoresInput struct {
 	// name of the custom key store.
 	//
 	// By default, this operation gets information about all custom key stores in
-	// the account and region. To limit the output to a particular custom key store,
+	// the account and Region. To limit the output to a particular custom key store,
 	// you can use either the CustomKeyStoreId or CustomKeyStoreName parameter,
 	// but not both.
 	CustomKeyStoreName *string `min:"1" type:"string"`
@@ -8652,7 +9875,9 @@ type DescribeKeyInput struct {
 
 	// A list of grant tokens.
 	//
-	// For more information, see Grant Tokens (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// Use a grant token when your permission to call this operation comes from
+	// a new grant that has not yet achieved eventual consistency. For more information,
+	// see Grant token (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
 	// in the AWS Key Management Service Developer Guide.
 	GrantTokens []*string `type:"list"`
 
@@ -8662,9 +9887,9 @@ type DescribeKeyInput struct {
 	// associates the alias with an AWS managed CMK (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#master_keys)
 	// and returns its KeyId and Arn in the response.
 	//
-	// To specify a CMK, use its key ID, Amazon Resource Name (ARN), alias name,
-	// or alias ARN. When using an alias name, prefix it with "alias/". To specify
-	// a CMK in a different AWS account, you must use the key ARN or alias ARN.
+	// To specify a CMK, use its key ID, key ARN, alias name, or alias ARN. When
+	// using an alias name, prefix it with "alias/". To specify a CMK in a different
+	// AWS account, you must use the key ARN or alias ARN.
 	//
 	// For example:
 	//
@@ -8747,9 +9972,9 @@ func (s *DescribeKeyOutput) SetKeyMetadata(v *KeyMetadata) *DescribeKeyOutput {
 type DisableKeyInput struct {
 	_ struct{} `type:"structure"`
 
-	// A unique identifier for the customer master key (CMK).
+	// Identifies the customer master key (CMK) to disable.
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK.
+	// Specify the key ID or key ARN of the CMK.
 	//
 	// For example:
 	//
@@ -8812,12 +10037,12 @@ func (s DisableKeyOutput) GoString() string {
 type DisableKeyRotationInput struct {
 	_ struct{} `type:"structure"`
 
-	// Identifies a symmetric customer master key (CMK). You cannot enable automatic
-	// rotation of asymmetric CMKs (https://docs.aws.amazon.com/kms/latest/developerguide/symmetric-asymmetric.html#asymmetric-cmks),
+	// Identifies a symmetric customer master key (CMK). You cannot enable or disable
+	// automatic rotation of asymmetric CMKs (https://docs.aws.amazon.com/kms/latest/developerguide/symmetric-asymmetric.html#asymmetric-cmks),
 	// CMKs with imported key material (https://docs.aws.amazon.com/kms/latest/developerguide/importing-keys.html),
 	// or CMKs in a custom key store (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html).
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK.
+	// Specify the key ID or key ARN of the CMK.
 	//
 	// For example:
 	//
@@ -8992,9 +10217,9 @@ func (s DisconnectCustomKeyStoreOutput) GoString() string {
 type EnableKeyInput struct {
 	_ struct{} `type:"structure"`
 
-	// A unique identifier for the customer master key (CMK).
+	// Identifies the customer master key (CMK) to enable.
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK.
+	// Specify the key ID or key ARN of the CMK.
 	//
 	// For example:
 	//
@@ -9058,10 +10283,14 @@ type EnableKeyRotationInput struct {
 	_ struct{} `type:"structure"`
 
 	// Identifies a symmetric customer master key (CMK). You cannot enable automatic
-	// rotation of asymmetric CMKs, CMKs with imported key material, or CMKs in
-	// a custom key store (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html).
+	// rotation of asymmetric CMKs (https://docs.aws.amazon.com/kms/latest/developerguide/symm-asymm-concepts.html#asymmetric-cmks),
+	// CMKs with imported key material (https://docs.aws.amazon.com/kms/latest/developerguide/importing-keys.html),
+	// or CMKs in a custom key store (https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html).
+	// To enable or disable automatic rotation of a set of related multi-Region
+	// keys (https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html#mrk-replica-key),
+	// set the property on the primary key.
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK.
+	// Specify the key ID or key ARN of the CMK.
 	//
 	// For example:
 	//
@@ -9133,9 +10362,9 @@ type EncryptInput struct {
 	EncryptionAlgorithm *string `type:"string" enum:"EncryptionAlgorithmSpec"`
 
 	// Specifies the encryption context that will be used to encrypt the data. An
-	// encryption context is valid only for cryptographic operations with a symmetric
-	// CMK. The standard asymmetric encryption algorithms that AWS KMS uses do not
-	// support an encryption context.
+	// encryption context is valid only for cryptographic operations (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#cryptographic-operations)
+	// with a symmetric CMK. The standard asymmetric encryption algorithms that
+	// AWS KMS uses do not support an encryption context.
 	//
 	// An encryption context is a collection of non-secret key-value pairs that
 	// represents additional authenticated data. When you use an encryption context
@@ -9149,15 +10378,17 @@ type EncryptInput struct {
 
 	// A list of grant tokens.
 	//
-	// For more information, see Grant Tokens (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// Use a grant token when your permission to call this operation comes from
+	// a new grant that has not yet achieved eventual consistency. For more information,
+	// see Grant token (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
 	// in the AWS Key Management Service Developer Guide.
 	GrantTokens []*string `type:"list"`
 
-	// A unique identifier for the customer master key (CMK).
+	// Identifies the customer master key (CMK) to use in the encryption operation.
 	//
-	// To specify a CMK, use its key ID, Amazon Resource Name (ARN), alias name,
-	// or alias ARN. When using an alias name, prefix it with "alias/". To specify
-	// a CMK in a different AWS account, you must use the key ARN or alias ARN.
+	// To specify a CMK, use its key ID, key ARN, alias name, or alias ARN. When
+	// using an alias name, prefix it with "alias/". To specify a CMK in a different
+	// AWS account, you must use the key ARN or alias ARN.
 	//
 	// For example:
 	//
@@ -9257,7 +10488,8 @@ type EncryptOutput struct {
 	// The encryption algorithm that was used to encrypt the plaintext.
 	EncryptionAlgorithm *string `type:"string" enum:"EncryptionAlgorithmSpec"`
 
-	// The ID of the key used during encryption.
+	// The Amazon Resource Name (key ARN (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id-key-ARN))
+	// of the CMK that was used to encrypt the plaintext.
 	KeyId *string `min:"1" type:"string"`
 }
 
@@ -9365,15 +10597,17 @@ type GenerateDataKeyInput struct {
 
 	// A list of grant tokens.
 	//
-	// For more information, see Grant Tokens (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// Use a grant token when your permission to call this operation comes from
+	// a new grant that has not yet achieved eventual consistency. For more information,
+	// see Grant token (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
 	// in the AWS Key Management Service Developer Guide.
 	GrantTokens []*string `type:"list"`
 
 	// Identifies the symmetric CMK that encrypts the data key.
 	//
-	// To specify a CMK, use its key ID, Amazon Resource Name (ARN), alias name,
-	// or alias ARN. When using an alias name, prefix it with "alias/". To specify
-	// a CMK in a different AWS account, you must use the key ARN or alias ARN.
+	// To specify a CMK, use its key ID, key ARN, alias name, or alias ARN. When
+	// using an alias name, prefix it with "alias/". To specify a CMK in a different
+	// AWS account, you must use the key ARN or alias ARN.
 	//
 	// For example:
 	//
@@ -9475,7 +10709,8 @@ type GenerateDataKeyOutput struct {
 	// CiphertextBlob is automatically base64 encoded/decoded by the SDK.
 	CiphertextBlob []byte `min:"1" type:"blob"`
 
-	// The identifier of the CMK that encrypted the data key.
+	// The Amazon Resource Name (key ARN (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id-key-ARN))
+	// of the CMK that encrypted the data key.
 	KeyId *string `min:"1" type:"string"`
 
 	// The plaintext data key. When you use the HTTP API or the AWS CLI, the value
@@ -9533,16 +10768,19 @@ type GenerateDataKeyPairInput struct {
 
 	// A list of grant tokens.
 	//
-	// For more information, see Grant Tokens (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// Use a grant token when your permission to call this operation comes from
+	// a new grant that has not yet achieved eventual consistency. For more information,
+	// see Grant token (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
 	// in the AWS Key Management Service Developer Guide.
 	GrantTokens []*string `type:"list"`
 
 	// Specifies the symmetric CMK that encrypts the private key in the data key
-	// pair. You cannot specify an asymmetric CMKs.
+	// pair. You cannot specify an asymmetric CMK or a CMK in a custom key store.
+	// To get the type and origin of your CMK, use the DescribeKey operation.
 	//
-	// To specify a CMK, use its key ID, Amazon Resource Name (ARN), alias name,
-	// or alias ARN. When using an alias name, prefix it with "alias/". To specify
-	// a CMK in a different AWS account, you must use the key ARN or alias ARN.
+	// To specify a CMK, use its key ID, key ARN, alias name, or alias ARN. When
+	// using an alias name, prefix it with "alias/". To specify a CMK in a different
+	// AWS account, you must use the key ARN or alias ARN.
 	//
 	// For example:
 	//
@@ -9627,7 +10865,8 @@ func (s *GenerateDataKeyPairInput) SetKeyPairSpec(v string) *GenerateDataKeyPair
 type GenerateDataKeyPairOutput struct {
 	_ struct{} `type:"structure"`
 
-	// The identifier of the CMK that encrypted the private key.
+	// The Amazon Resource Name (key ARN (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id-key-ARN))
+	// of the CMK that encrypted the private key.
 	KeyId *string `min:"1" type:"string"`
 
 	// The type of data key pair that was generated.
@@ -9709,16 +10948,20 @@ type GenerateDataKeyPairWithoutPlaintextInput struct {
 
 	// A list of grant tokens.
 	//
-	// For more information, see Grant Tokens (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// Use a grant token when your permission to call this operation comes from
+	// a new grant that has not yet achieved eventual consistency. For more information,
+	// see Grant token (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
 	// in the AWS Key Management Service Developer Guide.
 	GrantTokens []*string `type:"list"`
 
 	// Specifies the CMK that encrypts the private key in the data key pair. You
-	// must specify a symmetric CMK. You cannot use an asymmetric CMK. To get the
-	// type of your CMK, use the DescribeKey operation.
+	// must specify a symmetric CMK. You cannot use an asymmetric CMK or a CMK in
+	// a custom key store. To get the type and origin of your CMK, use the DescribeKey
+	// operation.
 	//
-	// To specify a CMK, use its key ID, Amazon Resource Name (ARN), alias name,
-	// or alias ARN. When using an alias name, prefix it with "alias/".
+	// To specify a CMK, use its key ID, key ARN, alias name, or alias ARN. When
+	// using an alias name, prefix it with "alias/". To specify a CMK in a different
+	// AWS account, you must use the key ARN or alias ARN.
 	//
 	// For example:
 	//
@@ -9803,25 +11046,8 @@ func (s *GenerateDataKeyPairWithoutPlaintextInput) SetKeyPairSpec(v string) *Gen
 type GenerateDataKeyPairWithoutPlaintextOutput struct {
 	_ struct{} `type:"structure"`
 
-	// Specifies the CMK that encrypted the private key in the data key pair. You
-	// must specify a symmetric CMK. You cannot use an asymmetric CMK. To get the
-	// type of your CMK, use the DescribeKey operation.
-	//
-	// To specify a CMK, use its key ID, Amazon Resource Name (ARN), alias name,
-	// or alias ARN. When using an alias name, prefix it with "alias/".
-	//
-	// For example:
-	//
-	//    * Key ID: 1234abcd-12ab-34cd-56ef-1234567890ab
-	//
-	//    * Key ARN: arn:aws:kms:us-east-2:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab
-	//
-	//    * Alias name: alias/ExampleAlias
-	//
-	//    * Alias ARN: arn:aws:kms:us-east-2:111122223333:alias/ExampleAlias
-	//
-	// To get the key ID and key ARN for a CMK, use ListKeys or DescribeKey. To
-	// get the alias name and alias ARN, use ListAliases.
+	// The Amazon Resource Name (key ARN (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id-key-ARN))
+	// of the CMK that encrypted the private key.
 	KeyId *string `min:"1" type:"string"`
 
 	// The type of data key pair that was generated.
@@ -9891,16 +11117,18 @@ type GenerateDataKeyWithoutPlaintextInput struct {
 
 	// A list of grant tokens.
 	//
-	// For more information, see Grant Tokens (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// Use a grant token when your permission to call this operation comes from
+	// a new grant that has not yet achieved eventual consistency. For more information,
+	// see Grant token (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
 	// in the AWS Key Management Service Developer Guide.
 	GrantTokens []*string `type:"list"`
 
 	// The identifier of the symmetric customer master key (CMK) that encrypts the
 	// data key.
 	//
-	// To specify a CMK, use its key ID, Amazon Resource Name (ARN), alias name,
-	// or alias ARN. When using an alias name, prefix it with "alias/". To specify
-	// a CMK in a different AWS account, you must use the key ARN or alias ARN.
+	// To specify a CMK, use its key ID, key ARN, alias name, or alias ARN. When
+	// using an alias name, prefix it with "alias/". To specify a CMK in a different
+	// AWS account, you must use the key ARN or alias ARN.
 	//
 	// For example:
 	//
@@ -9997,7 +11225,8 @@ type GenerateDataKeyWithoutPlaintextOutput struct {
 	// CiphertextBlob is automatically base64 encoded/decoded by the SDK.
 	CiphertextBlob []byte `min:"1" type:"blob"`
 
-	// The identifier of the CMK that encrypted the data key.
+	// The Amazon Resource Name (key ARN (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id-key-ARN))
+	// of the CMK that encrypted the data key.
 	KeyId *string `min:"1" type:"string"`
 }
 
@@ -10102,9 +11331,9 @@ func (s *GenerateRandomOutput) SetPlaintext(v []byte) *GenerateRandomOutput {
 type GetKeyPolicyInput struct {
 	_ struct{} `type:"structure"`
 
-	// A unique identifier for the customer master key (CMK).
+	// Gets the key policy for the specified customer master key (CMK).
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK.
+	// Specify the key ID or key ARN of the CMK.
 	//
 	// For example:
 	//
@@ -10194,10 +11423,10 @@ func (s *GetKeyPolicyOutput) SetPolicy(v string) *GetKeyPolicyOutput {
 type GetKeyRotationStatusInput struct {
 	_ struct{} `type:"structure"`
 
-	// A unique identifier for the customer master key (CMK).
+	// Gets the rotation status for the specified customer master key (CMK).
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK. To specify
-	// a CMK in a different AWS account, you must use the key ARN.
+	// Specify the key ID or key ARN of the CMK. To specify a CMK in a different
+	// AWS account, you must use the key ARN.
 	//
 	// For example:
 	//
@@ -10272,7 +11501,7 @@ type GetParametersForImportInput struct {
 	// The identifier of the symmetric CMK into which you will import key material.
 	// The Origin of the CMK must be EXTERNAL.
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK.
+	// Specify the key ID or key ARN of the CMK.
 	//
 	// For example:
 	//
@@ -10358,8 +11587,9 @@ type GetParametersForImportOutput struct {
 	// ImportToken is automatically base64 encoded/decoded by the SDK.
 	ImportToken []byte `min:"1" type:"blob"`
 
-	// The identifier of the CMK to use in a subsequent ImportKeyMaterial request.
-	// This is the same CMK specified in the GetParametersForImport request.
+	// The Amazon Resource Name (key ARN (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id-key-ARN))
+	// of the CMK to use in a subsequent ImportKeyMaterial request. This is the
+	// same CMK specified in the GetParametersForImport request.
 	KeyId *string `min:"1" type:"string"`
 
 	// The time at which the import token and public key are no longer valid. After
@@ -10413,15 +11643,17 @@ type GetPublicKeyInput struct {
 
 	// A list of grant tokens.
 	//
-	// For more information, see Grant Tokens (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// Use a grant token when your permission to call this operation comes from
+	// a new grant that has not yet achieved eventual consistency. For more information,
+	// see Grant token (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
 	// in the AWS Key Management Service Developer Guide.
 	GrantTokens []*string `type:"list"`
 
 	// Identifies the asymmetric CMK that includes the public key.
 	//
-	// To specify a CMK, use its key ID, Amazon Resource Name (ARN), alias name,
-	// or alias ARN. When using an alias name, prefix it with "alias/". To specify
-	// a CMK in a different AWS account, you must use the key ARN or alias ARN.
+	// To specify a CMK, use its key ID, key ARN, alias name, or alias ARN. When
+	// using an alias name, prefix it with "alias/". To specify a CMK in a different
+	// AWS account, you must use the key ARN or alias ARN.
 	//
 	// For example:
 	//
@@ -10494,7 +11726,8 @@ type GetPublicKeyOutput struct {
 	// is ENCRYPT_DECRYPT.
 	EncryptionAlgorithms []*string `type:"list"`
 
-	// The identifier of the asymmetric CMK from which the public key was downloaded.
+	// The Amazon Resource Name (key ARN (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id-key-ARN))
+	// of the asymmetric CMK from which the public key was downloaded.
 	KeyId *string `min:"1" type:"string"`
 
 	// The permitted use of the public key. Valid values are ENCRYPT_DECRYPT or
@@ -10567,24 +11800,16 @@ func (s *GetPublicKeyOutput) SetSigningAlgorithms(v []*string) *GetPublicKeyOutp
 	return s
 }
 
-// Use this structure to allow cryptographic operations in the grant only when
-// the operation request includes the specified encryption context (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#encrypt_context).
+// Use this structure to allow cryptographic operations (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#cryptographic-operations)
+// in the grant only when the operation request includes the specified encryption
+// context (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#encrypt_context).
 //
-// AWS KMS applies the grant constraints only when the grant allows a cryptographic
-// operation that accepts an encryption context as input, such as the following.
-//
-//    * Encrypt
-//
-//    * Decrypt
-//
-//    * GenerateDataKey
-//
-//    * GenerateDataKeyWithoutPlaintext
-//
-//    * ReEncrypt
-//
-// AWS KMS does not apply the grant constraints to other operations, such as
-// DescribeKey or ScheduleKeyDeletion.
+// AWS KMS applies the grant constraints only to cryptographic operations that
+// support an encryption context, that is, all cryptographic operations with
+// a symmetric CMK (https://docs.aws.amazon.com/kms/latest/developerguide/symm-asymm-concepts.html#symmetric-cmks).
+// Grant constraints are not applied to operations that do not support an encryption
+// context, such as cryptographic operations with asymmetric CMKs and management
+// operations, such as DescribeKey or RetireGrant.
 //
 // In a cryptographic operation, the encryption context in the decryption operation
 // must be an exact, case-sensitive match for the keys and values in the encryption
@@ -10602,16 +11827,16 @@ type GrantConstraints struct {
 	_ struct{} `type:"structure"`
 
 	// A list of key-value pairs that must match the encryption context in the cryptographic
-	// operation request. The grant allows the operation only when the encryption
-	// context in the request is the same as the encryption context specified in
-	// this constraint.
+	// operation (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#cryptographic-operations)
+	// request. The grant allows the operation only when the encryption context
+	// in the request is the same as the encryption context specified in this constraint.
 	EncryptionContextEquals map[string]*string `type:"map"`
 
 	// A list of key-value pairs that must be included in the encryption context
-	// of the cryptographic operation request. The grant allows the cryptographic
-	// operation only when the encryption context in the request includes the key-value
-	// pairs specified in this constraint, although it can include additional key-value
-	// pairs.
+	// of the cryptographic operation (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#cryptographic-operations)
+	// request. The grant allows the cryptographic operation only when the encryption
+	// context in the request includes the key-value pairs specified in this constraint,
+	// although it can include additional key-value pairs.
 	EncryptionContextSubset map[string]*string `type:"map"`
 }
 
@@ -10637,7 +11862,7 @@ func (s *GrantConstraints) SetEncryptionContextSubset(v map[string]*string) *Gra
 	return s
 }
 
-// Contains information about an entry in a list of grants.
+// Contains information about a grant.
 type GrantListEntry struct {
 	_ struct{} `type:"structure"`
 
@@ -10651,7 +11876,13 @@ type GrantListEntry struct {
 	// The unique identifier for the grant.
 	GrantId *string `min:"1" type:"string"`
 
-	// The principal that receives the grant's permissions.
+	// The identity that gets the permissions in the grant.
+	//
+	// The GranteePrincipal field in the ListGrants response usually contains the
+	// user or role designated as the grantee principal in the grant. However, when
+	// the grantee principal in the grant is an AWS service, the GranteePrincipal
+	// field contains the service principal (https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html#principal-services),
+	// which might represent several different grantee principals.
 	GranteePrincipal *string `min:"1" type:"string"`
 
 	// The AWS account under which the grant was issued.
@@ -10767,7 +11998,7 @@ type ImportKeyMaterialInput struct {
 	// The CMK's Origin must be EXTERNAL. This must be the same CMK specified in
 	// the KeyID parameter of the corresponding GetParametersForImport request.
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK.
+	// Specify the key ID or key ARN of the CMK.
 	//
 	// For example:
 	//
@@ -11757,8 +12988,13 @@ type KeyMetadata struct {
 	// Describes the type of key material in the CMK.
 	CustomerMasterKeySpec *string `type:"string" enum:"CustomerMasterKeySpec"`
 
-	// The date and time after which AWS KMS deletes the CMK. This value is present
-	// only when KeyState is PendingDeletion.
+	// The date and time after which AWS KMS deletes this CMK. This value is present
+	// only when the CMK is scheduled for deletion, that is, when its KeyState is
+	// PendingDeletion.
+	//
+	// When the primary key in a multi-Region key is scheduled for deletion but
+	// still has replica keys, its key state is PendingReplicaDeletion and the length
+	// of its waiting period is displayed in the PendingDeletionWindowInDays field.
 	DeletionDate *time.Time `type:"timestamp"`
 
 	// The description of the CMK.
@@ -11768,10 +13004,10 @@ type KeyMetadata struct {
 	// is true, otherwise it is false.
 	Enabled *bool `type:"boolean"`
 
-	// A list of encryption algorithms that the CMK supports. You cannot use the
-	// CMK with other encryption algorithms within AWS KMS.
+	// The encryption algorithms that the CMK supports. You cannot use the CMK with
+	// other encryption algorithms within AWS KMS.
 	//
-	// This field appears only when the KeyUsage of the CMK is ENCRYPT_DECRYPT.
+	// This value is present only when the KeyUsage of the CMK is ENCRYPT_DECRYPT.
 	EncryptionAlgorithms []*string `type:"list"`
 
 	// Specifies whether the CMK's key material expires. This value is present only
@@ -11789,15 +13025,40 @@ type KeyMetadata struct {
 	// in the AWS Key Management Service Developer Guide.
 	KeyManager *string `type:"string" enum:"KeyManagerType"`
 
-	// The state of the CMK.
+	// The current status of the CMK.
 	//
-	// For more information about how key state affects the use of a CMK, see How
-	// Key State Affects the Use of a Customer Master Key (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+	// For more information about how key state affects the use of a CMK, see Key
+	// state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 	// in the AWS Key Management Service Developer Guide.
 	KeyState *string `type:"string" enum:"KeyState"`
 
-	// The cryptographic operations for which you can use the CMK.
+	// The cryptographic operations (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#cryptographic-operations)
+	// for which you can use the CMK.
 	KeyUsage *string `type:"string" enum:"KeyUsageType"`
+
+	// Indicates whether the CMK is a multi-Region (True) or regional (False) key.
+	// This value is True for multi-Region primary and replica CMKs and False for
+	// regional CMKs.
+	//
+	// For more information about multi-Region keys, see Using multi-Region keys
+	// (https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html)
+	// in the AWS Key Management Service Developer Guide.
+	MultiRegion *bool `type:"boolean"`
+
+	// Lists the primary and replica CMKs in same multi-Region CMK. This field is
+	// present only when the value of the MultiRegion field is True.
+	//
+	// For more information about any listed CMK, use the DescribeKey operation.
+	//
+	//    * MultiRegionKeyType indicates whether the CMK is a PRIMARY or REPLICA
+	//    key.
+	//
+	//    * PrimaryKey displays the key ARN and Region of the primary key. This
+	//    field displays the current CMK if it is the primary key.
+	//
+	//    * ReplicaKeys displays the key ARNs and Regions of all replica keys. This
+	//    field includes the current CMK if it is a replica key.
+	MultiRegionConfiguration *MultiRegionConfiguration `type:"structure"`
 
 	// The source of the CMK's key material. When this value is AWS_KMS, AWS KMS
 	// created the key material. When this value is EXTERNAL, the key material was
@@ -11806,8 +13067,23 @@ type KeyMetadata struct {
 	// in the AWS CloudHSM cluster associated with a custom key store.
 	Origin *string `type:"string" enum:"OriginType"`
 
-	// A list of signing algorithms that the CMK supports. You cannot use the CMK
-	// with other signing algorithms within AWS KMS.
+	// The waiting period before the primary key in a multi-Region key is deleted.
+	// This waiting period begins when the last of its replica keys is deleted.
+	// This value is present only when the KeyState of the CMK is PendingReplicaDeletion.
+	// That indicates that the CMK is the primary key in a multi-Region key, it
+	// is scheduled for deletion, and it still has existing replica keys.
+	//
+	// When a regional CMK or a replica key in a multi-Region key is scheduled for
+	// deletion, its deletion date is displayed in the DeletionDate field. However,
+	// when the primary key in a multi-Region key is scheduled for deletion, its
+	// waiting period doesn't begin until all of its replica keys are deleted. This
+	// value displays that waiting period. When the last replica key in the multi-Region
+	// key is deleted, the KeyState of the scheduled primary key changes from PendingReplicaDeletion
+	// to PendingDeletion and the deletion date appears in the DeletionDate field.
+	PendingDeletionWindowInDays *int64 `min:"1" type:"integer"`
+
+	// The signing algorithms that the CMK supports. You cannot use the CMK with
+	// other signing algorithms within AWS KMS.
 	//
 	// This field appears only when the KeyUsage of the CMK is SIGN_VERIFY.
 	SigningAlgorithms []*string `type:"list"`
@@ -11919,9 +13195,27 @@ func (s *KeyMetadata) SetKeyUsage(v string) *KeyMetadata {
 	return s
 }
 
+// SetMultiRegion sets the MultiRegion field's value.
+func (s *KeyMetadata) SetMultiRegion(v bool) *KeyMetadata {
+	s.MultiRegion = &v
+	return s
+}
+
+// SetMultiRegionConfiguration sets the MultiRegionConfiguration field's value.
+func (s *KeyMetadata) SetMultiRegionConfiguration(v *MultiRegionConfiguration) *KeyMetadata {
+	s.MultiRegionConfiguration = v
+	return s
+}
+
 // SetOrigin sets the Origin field's value.
 func (s *KeyMetadata) SetOrigin(v string) *KeyMetadata {
 	s.Origin = &v
+	return s
+}
+
+// SetPendingDeletionWindowInDays sets the PendingDeletionWindowInDays field's value.
+func (s *KeyMetadata) SetPendingDeletionWindowInDays(v int64) *KeyMetadata {
+	s.PendingDeletionWindowInDays = &v
 	return s
 }
 
@@ -12055,12 +13349,21 @@ func (s *LimitExceededException) RequestID() string {
 type ListAliasesInput struct {
 	_ struct{} `type:"structure"`
 
-	// Lists only aliases that refer to the specified CMK. The value of this parameter
-	// can be the ID or Amazon Resource Name (ARN) of a CMK in the caller's account
-	// and region. You cannot use an alias name or alias ARN in this value.
+	// Lists only aliases that are associated with the specified CMK. Enter a CMK
+	// in your AWS account.
 	//
 	// This parameter is optional. If you omit it, ListAliases returns all aliases
-	// in the account and region.
+	// in the account and Region.
+	//
+	// Specify the key ID or key ARN of the CMK.
+	//
+	// For example:
+	//
+	//    * Key ID: 1234abcd-12ab-34cd-56ef-1234567890ab
+	//
+	//    * Key ARN: arn:aws:kms:us-east-2:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab
+	//
+	// To get the key ID and key ARN for a CMK, use ListKeys or DescribeKey.
 	KeyId *string `min:"1" type:"string"`
 
 	// Use this parameter to specify the maximum number of items to return. When
@@ -12172,10 +13475,19 @@ func (s *ListAliasesOutput) SetTruncated(v bool) *ListAliasesOutput {
 type ListGrantsInput struct {
 	_ struct{} `type:"structure"`
 
-	// A unique identifier for the customer master key (CMK).
+	// Returns only the grant with the specified grant ID. The grant ID uniquely
+	// identifies the grant.
+	GrantId *string `min:"1" type:"string"`
+
+	// Returns only grants where the specified principal is the grantee principal
+	// for the grant.
+	GranteePrincipal *string `min:"1" type:"string"`
+
+	// Returns only grants for the specified customer master key (CMK). This parameter
+	// is required.
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK. To specify
-	// a CMK in a different AWS account, you must use the key ARN.
+	// Specify the key ID or key ARN of the CMK. To specify a CMK in a different
+	// AWS account, you must use the key ARN.
 	//
 	// For example:
 	//
@@ -12215,6 +13527,12 @@ func (s ListGrantsInput) GoString() string {
 // Validate inspects the fields of the type to determine if they are valid.
 func (s *ListGrantsInput) Validate() error {
 	invalidParams := request.ErrInvalidParams{Context: "ListGrantsInput"}
+	if s.GrantId != nil && len(*s.GrantId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("GrantId", 1))
+	}
+	if s.GranteePrincipal != nil && len(*s.GranteePrincipal) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("GranteePrincipal", 1))
+	}
 	if s.KeyId == nil {
 		invalidParams.Add(request.NewErrParamRequired("KeyId"))
 	}
@@ -12232,6 +13550,18 @@ func (s *ListGrantsInput) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetGrantId sets the GrantId field's value.
+func (s *ListGrantsInput) SetGrantId(v string) *ListGrantsInput {
+	s.GrantId = &v
+	return s
+}
+
+// SetGranteePrincipal sets the GranteePrincipal field's value.
+func (s *ListGrantsInput) SetGranteePrincipal(v string) *ListGrantsInput {
+	s.GranteePrincipal = &v
+	return s
 }
 
 // SetKeyId sets the KeyId field's value.
@@ -12300,9 +13630,9 @@ func (s *ListGrantsResponse) SetTruncated(v bool) *ListGrantsResponse {
 type ListKeyPoliciesInput struct {
 	_ struct{} `type:"structure"`
 
-	// A unique identifier for the customer master key (CMK).
+	// Gets the names of key policies for the specified customer master key (CMK).
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK.
+	// Specify the key ID or key ARN of the CMK.
 	//
 	// For example:
 	//
@@ -12529,9 +13859,9 @@ func (s *ListKeysOutput) SetTruncated(v bool) *ListKeysOutput {
 type ListResourceTagsInput struct {
 	_ struct{} `type:"structure"`
 
-	// A unique identifier for the customer master key (CMK).
+	// Gets tags on the specified customer master key (CMK).
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK.
+	// Specify the key ID or key ARN of the CMK.
 	//
 	// For example:
 	//
@@ -12621,6 +13951,10 @@ type ListResourceTagsOutput struct {
 	NextMarker *string `min:"1" type:"string"`
 
 	// A list of tags. Each tag consists of a tag key and a tag value.
+	//
+	// Tagging or untagging a CMK can allow or deny permission to the CMK. For details,
+	// see Using ABAC in AWS KMS (https://docs.aws.amazon.com/kms/latest/developerguide/abac.html)
+	// in the AWS Key Management Service Developer Guide.
 	Tags []*Tag `type:"list"`
 
 	// A flag that indicates whether there are more items in the list. When this
@@ -12674,7 +14008,8 @@ type ListRetirableGrantsInput struct {
 	// you just received.
 	Marker *string `min:"1" type:"string"`
 
-	// The retiring principal for which to list grants.
+	// The retiring principal for which to list grants. Enter a principal in your
+	// AWS account.
 	//
 	// To specify the retiring principal, use the Amazon Resource Name (ARN) (https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html)
 	// of an AWS principal. Valid AWS principals include AWS accounts (root), IAM
@@ -12794,6 +14129,86 @@ func (s *MalformedPolicyDocumentException) RequestID() string {
 	return s.RespMetadata.RequestID
 }
 
+// Describes the configuration of this multi-Region CMK. This field appears
+// only when the CMK is a primary or replica of a multi-Region CMK.
+//
+// For more information about any listed CMK, use the DescribeKey operation.
+type MultiRegionConfiguration struct {
+	_ struct{} `type:"structure"`
+
+	// Indicates whether the CMK is a PRIMARY or REPLICA key.
+	MultiRegionKeyType *string `type:"string" enum:"MultiRegionKeyType"`
+
+	// Displays the key ARN and Region of the primary key. This field includes the
+	// current CMK if it is the primary key.
+	PrimaryKey *MultiRegionKey `type:"structure"`
+
+	// displays the key ARNs and Regions of all replica keys. This field includes
+	// the current CMK if it is a replica key.
+	ReplicaKeys []*MultiRegionKey `type:"list"`
+}
+
+// String returns the string representation
+func (s MultiRegionConfiguration) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s MultiRegionConfiguration) GoString() string {
+	return s.String()
+}
+
+// SetMultiRegionKeyType sets the MultiRegionKeyType field's value.
+func (s *MultiRegionConfiguration) SetMultiRegionKeyType(v string) *MultiRegionConfiguration {
+	s.MultiRegionKeyType = &v
+	return s
+}
+
+// SetPrimaryKey sets the PrimaryKey field's value.
+func (s *MultiRegionConfiguration) SetPrimaryKey(v *MultiRegionKey) *MultiRegionConfiguration {
+	s.PrimaryKey = v
+	return s
+}
+
+// SetReplicaKeys sets the ReplicaKeys field's value.
+func (s *MultiRegionConfiguration) SetReplicaKeys(v []*MultiRegionKey) *MultiRegionConfiguration {
+	s.ReplicaKeys = v
+	return s
+}
+
+// Describes the primary or replica key in a multi-Region key.
+type MultiRegionKey struct {
+	_ struct{} `type:"structure"`
+
+	// Displays the key ARN of a primary or replica key of a multi-Region key.
+	Arn *string `min:"20" type:"string"`
+
+	// Displays the AWS Region of a primary or replica key in a multi-Region key.
+	Region *string `min:"1" type:"string"`
+}
+
+// String returns the string representation
+func (s MultiRegionKey) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s MultiRegionKey) GoString() string {
+	return s.String()
+}
+
+// SetArn sets the Arn field's value.
+func (s *MultiRegionKey) SetArn(v string) *MultiRegionKey {
+	s.Arn = &v
+	return s
+}
+
+// SetRegion sets the Region field's value.
+func (s *MultiRegionKey) SetRegion(v string) *MultiRegionKey {
+	s.Region = &v
+	return s
+}
+
 // The request was rejected because the specified entity or resource could not
 // be found.
 type NotFoundException struct {
@@ -12868,9 +14283,9 @@ type PutKeyPolicyInput struct {
 	// The default value is false.
 	BypassPolicyLockoutSafetyCheck *bool `type:"boolean"`
 
-	// A unique identifier for the customer master key (CMK).
+	// Sets the key policy on the specified customer master key (CMK).
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK.
+	// Specify the key ID or key ARN of the CMK.
 	//
 	// For example:
 	//
@@ -13030,9 +14445,9 @@ type ReEncryptInput struct {
 	// a symmetric or asymmetric CMK with a KeyUsage value of ENCRYPT_DECRYPT. To
 	// find the KeyUsage value of a CMK, use the DescribeKey operation.
 	//
-	// To specify a CMK, use its key ID, Amazon Resource Name (ARN), alias name,
-	// or alias ARN. When using an alias name, prefix it with "alias/". To specify
-	// a CMK in a different AWS account, you must use the key ARN or alias ARN.
+	// To specify a CMK, use its key ID, key ARN, alias name, or alias ARN. When
+	// using an alias name, prefix it with "alias/". To specify a CMK in a different
+	// AWS account, you must use the key ARN or alias ARN.
 	//
 	// For example:
 	//
@@ -13052,7 +14467,9 @@ type ReEncryptInput struct {
 
 	// A list of grant tokens.
 	//
-	// For more information, see Grant Tokens (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// Use a grant token when your permission to call this operation comes from
+	// a new grant that has not yet achieved eventual consistency. For more information,
+	// see Grant token (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
 	// in the AWS Key Management Service Developer Guide.
 	GrantTokens []*string `type:"list"`
 
@@ -13080,20 +14497,19 @@ type ReEncryptInput struct {
 	// in the AWS Key Management Service Developer Guide.
 	SourceEncryptionContext map[string]*string `type:"map"`
 
-	// A unique identifier for the CMK that is used to decrypt the ciphertext before
-	// it reencrypts it using the destination CMK.
+	// Specifies the customer master key (CMK) that AWS KMS will use to decrypt
+	// the ciphertext before it is re-encrypted. Enter a key ID of the CMK that
+	// was used to encrypt the ciphertext.
 	//
 	// This parameter is required only when the ciphertext was encrypted under an
-	// asymmetric CMK. Otherwise, AWS KMS uses the metadata that it adds to the
-	// ciphertext blob to determine which CMK was used to encrypt the ciphertext.
-	// However, you can use this parameter to ensure that a particular CMK (of any
-	// kind) is used to decrypt the ciphertext before it is reencrypted.
+	// asymmetric CMK. If you used a symmetric CMK, AWS KMS can get the CMK from
+	// metadata that it adds to the symmetric ciphertext blob. However, it is always
+	// recommended as a best practice. This practice ensures that you use the CMK
+	// that you intend.
 	//
-	// If you specify a KeyId value, the decrypt part of the ReEncrypt operation
-	// succeeds only if the specified CMK was used to encrypt the ciphertext.
-	//
-	// To specify a CMK, use its key ID, Amazon Resource Name (ARN), alias name,
-	// or alias ARN. When using an alias name, prefix it with "alias/".
+	// To specify a CMK, use its key ID, key ARN, alias name, or alias ARN. When
+	// using an alias name, prefix it with "alias/". To specify a CMK in a different
+	// AWS account, you must use the key ARN or alias ARN.
 	//
 	// For example:
 	//
@@ -13205,7 +14621,8 @@ type ReEncryptOutput struct {
 	// The encryption algorithm that was used to reencrypt the data.
 	DestinationEncryptionAlgorithm *string `type:"string" enum:"EncryptionAlgorithmSpec"`
 
-	// Unique identifier of the CMK used to reencrypt the data.
+	// The Amazon Resource Name (key ARN (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id-key-ARN))
+	// of the CMK that was used to reencrypt the data.
 	KeyId *string `min:"1" type:"string"`
 
 	// The encryption algorithm that was used to decrypt the ciphertext before it
@@ -13256,19 +14673,272 @@ func (s *ReEncryptOutput) SetSourceKeyId(v string) *ReEncryptOutput {
 	return s
 }
 
+type ReplicateKeyInput struct {
+	_ struct{} `type:"structure"`
+
+	// A flag to indicate whether to bypass the key policy lockout safety check.
+	//
+	// Setting this value to true increases the risk that the CMK becomes unmanageable.
+	// Do not set this value to true indiscriminately.
+	//
+	// For more information, refer to the scenario in the Default Key Policy (https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html#key-policy-default-allow-root-enable-iam)
+	// section in the AWS Key Management Service Developer Guide.
+	//
+	// Use this parameter only when you intend to prevent the principal that is
+	// making the request from making a subsequent PutKeyPolicy request on the CMK.
+	//
+	// The default value is false.
+	BypassPolicyLockoutSafetyCheck *bool `type:"boolean"`
+
+	// A description of the CMK. Use a description that helps you decide whether
+	// the CMK is appropriate for a task. The default value is an empty string (no
+	// description).
+	//
+	// The description is not a shared property of multi-Region keys. You can specify
+	// the same description or a different description for each key in a set of
+	// related multi-Region keys. AWS KMS does not synchronize this property.
+	Description *string `type:"string"`
+
+	// Identifies the multi-Region primary key that is being replicated. To determine
+	// whether a CMK is a multi-Region primary key, use the DescribeKey operation
+	// to check the value of the MultiRegionKeyType property.
+	//
+	// Specify the key ID or key ARN of a multi-Region primary key.
+	//
+	// For example:
+	//
+	//    * Key ID: mrk-1234abcd12ab34cd56ef1234567890ab
+	//
+	//    * Key ARN: arn:aws:kms:us-east-2:111122223333:key/mrk-1234abcd12ab34cd56ef1234567890ab
+	//
+	// To get the key ID and key ARN for a CMK, use ListKeys or DescribeKey.
+	//
+	// KeyId is a required field
+	KeyId *string `min:"1" type:"string" required:"true"`
+
+	// The key policy to attach to the CMK. This parameter is optional. If you do
+	// not provide a key policy, AWS KMS attaches the default key policy (https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html#key-policy-default)
+	// to the CMK.
+	//
+	// The key policy is not a shared property of multi-Region keys. You can specify
+	// the same key policy or a different key policy for each key in a set of related
+	// multi-Region keys. AWS KMS does not synchronize this property.
+	//
+	// If you provide a key policy, it must meet the following criteria:
+	//
+	//    * If you don't set BypassPolicyLockoutSafetyCheck to true, the key policy
+	//    must give the caller kms:PutKeyPolicy permission on the replica CMK. This
+	//    reduces the risk that the CMK becomes unmanageable. For more information,
+	//    refer to the scenario in the Default Key Policy (https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html#key-policy-default-allow-root-enable-iam)
+	//    section of the AWS Key Management Service Developer Guide .
+	//
+	//    * Each statement in the key policy must contain one or more principals.
+	//    The principals in the key policy must exist and be visible to AWS KMS.
+	//    When you create a new AWS principal (for example, an IAM user or role),
+	//    you might need to enforce a delay before including the new principal in
+	//    a key policy because the new principal might not be immediately visible
+	//    to AWS KMS. For more information, see Changes that I make are not always
+	//    immediately visible (https://docs.aws.amazon.com/IAM/latest/UserGuide/troubleshoot_general.html#troubleshoot_general_eventual-consistency)
+	//    in the AWS Identity and Access Management User Guide.
+	//
+	//    * The key policy size quota is 32 kilobytes (32768 bytes).
+	Policy *string `min:"1" type:"string"`
+
+	// The Region ID of the AWS Region for this replica key.
+	//
+	// Enter the Region ID, such as us-east-1 or ap-southeast-2. For a list of AWS
+	// Regions in which AWS KMS is supported, see AWS KMS service endpoints (https://docs.aws.amazon.com/general/latest/gr/kms.html#kms_region)
+	// in the Amazon Web Services General Reference.
+	//
+	// The replica must be in a different AWS Region than its primary key and other
+	// replicas of that primary key, but in the same AWS partition. AWS KMS must
+	// be available in the replica Region. If the Region is not enabled by default,
+	// the AWS account must be enabled in the Region.
+	//
+	// For information about AWS partitions, see Amazon Resource Names (ARNs) in
+	// the Amazon Web Services General Reference. (https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html)
+	// For information about enabling and disabling Regions, see Enabling a Region
+	// (https://docs.aws.amazon.com/general/latest/gr/rande-manage.html#rande-manage-enable)
+	// and Disabling a Region (https://docs.aws.amazon.com/general/latest/gr/rande-manage.html#rande-manage-disable)
+	// in the Amazon Web Services General Reference.
+	//
+	// ReplicaRegion is a required field
+	ReplicaRegion *string `min:"1" type:"string" required:"true"`
+
+	// Assigns one or more tags to the replica key. Use this parameter to tag the
+	// CMK when it is created. To tag an existing CMK, use the TagResource operation.
+	//
+	// Tagging or untagging a CMK can allow or deny permission to the CMK. For details,
+	// see Using ABAC in AWS KMS (https://docs.aws.amazon.com/kms/latest/developerguide/abac.html)
+	// in the AWS Key Management Service Developer Guide.
+	//
+	// To use this parameter, you must have kms:TagResource (https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html)
+	// permission in an IAM policy.
+	//
+	// Tags are not a shared property of multi-Region keys. You can specify the
+	// same tags or different tags for each key in a set of related multi-Region
+	// keys. AWS KMS does not synchronize this property.
+	//
+	// Each tag consists of a tag key and a tag value. Both the tag key and the
+	// tag value are required, but the tag value can be an empty (null) string.
+	// You cannot have more than one tag on a CMK with the same tag key. If you
+	// specify an existing tag key with a different tag value, AWS KMS replaces
+	// the current tag value with the specified one.
+	//
+	// When you assign tags to an AWS resource, AWS generates a cost allocation
+	// report with usage and costs aggregated by tags. Tags can also be used to
+	// control access to a CMK. For details, see Tagging Keys (https://docs.aws.amazon.com/kms/latest/developerguide/tagging-keys.html).
+	Tags []*Tag `type:"list"`
+}
+
+// String returns the string representation
+func (s ReplicateKeyInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ReplicateKeyInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ReplicateKeyInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ReplicateKeyInput"}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+	if s.Policy != nil && len(*s.Policy) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Policy", 1))
+	}
+	if s.ReplicaRegion == nil {
+		invalidParams.Add(request.NewErrParamRequired("ReplicaRegion"))
+	}
+	if s.ReplicaRegion != nil && len(*s.ReplicaRegion) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("ReplicaRegion", 1))
+	}
+	if s.Tags != nil {
+		for i, v := range s.Tags {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Tags", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetBypassPolicyLockoutSafetyCheck sets the BypassPolicyLockoutSafetyCheck field's value.
+func (s *ReplicateKeyInput) SetBypassPolicyLockoutSafetyCheck(v bool) *ReplicateKeyInput {
+	s.BypassPolicyLockoutSafetyCheck = &v
+	return s
+}
+
+// SetDescription sets the Description field's value.
+func (s *ReplicateKeyInput) SetDescription(v string) *ReplicateKeyInput {
+	s.Description = &v
+	return s
+}
+
+// SetKeyId sets the KeyId field's value.
+func (s *ReplicateKeyInput) SetKeyId(v string) *ReplicateKeyInput {
+	s.KeyId = &v
+	return s
+}
+
+// SetPolicy sets the Policy field's value.
+func (s *ReplicateKeyInput) SetPolicy(v string) *ReplicateKeyInput {
+	s.Policy = &v
+	return s
+}
+
+// SetReplicaRegion sets the ReplicaRegion field's value.
+func (s *ReplicateKeyInput) SetReplicaRegion(v string) *ReplicateKeyInput {
+	s.ReplicaRegion = &v
+	return s
+}
+
+// SetTags sets the Tags field's value.
+func (s *ReplicateKeyInput) SetTags(v []*Tag) *ReplicateKeyInput {
+	s.Tags = v
+	return s
+}
+
+type ReplicateKeyOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Displays details about the new replica CMK, including its Amazon Resource
+	// Name (key ARN (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id-key-ARN))
+	// and key state (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html).
+	// It also includes the ARN and AWS Region of its primary key and other replica
+	// keys.
+	ReplicaKeyMetadata *KeyMetadata `type:"structure"`
+
+	// The key policy of the new replica key. The value is a key policy document
+	// in JSON format.
+	ReplicaPolicy *string `min:"1" type:"string"`
+
+	// The tags on the new replica key. The value is a list of tag key and tag value
+	// pairs.
+	ReplicaTags []*Tag `type:"list"`
+}
+
+// String returns the string representation
+func (s ReplicateKeyOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ReplicateKeyOutput) GoString() string {
+	return s.String()
+}
+
+// SetReplicaKeyMetadata sets the ReplicaKeyMetadata field's value.
+func (s *ReplicateKeyOutput) SetReplicaKeyMetadata(v *KeyMetadata) *ReplicateKeyOutput {
+	s.ReplicaKeyMetadata = v
+	return s
+}
+
+// SetReplicaPolicy sets the ReplicaPolicy field's value.
+func (s *ReplicateKeyOutput) SetReplicaPolicy(v string) *ReplicateKeyOutput {
+	s.ReplicaPolicy = &v
+	return s
+}
+
+// SetReplicaTags sets the ReplicaTags field's value.
+func (s *ReplicateKeyOutput) SetReplicaTags(v []*Tag) *ReplicateKeyOutput {
+	s.ReplicaTags = v
+	return s
+}
+
 type RetireGrantInput struct {
 	_ struct{} `type:"structure"`
 
-	// Unique identifier of the grant to retire. The grant ID is returned in the
-	// response to a CreateGrant operation.
+	// Identifies the grant to retire. To get the grant ID, use CreateGrant, ListGrants,
+	// or ListRetirableGrants.
 	//
 	//    * Grant ID Example - 0123456789012345678901234567890123456789012345678901234567890123
 	GrantId *string `min:"1" type:"string"`
 
-	// Token that identifies the grant to be retired.
+	// Identifies the grant to be retired. You can use a grant token to identify
+	// a new grant even before it has achieved eventual consistency.
+	//
+	// Only the CreateGrant operation returns a grant token. For details, see Grant
+	// token (https://docs.aws.amazon.com/kms/latest/developerguide/grants.html#grant_token)
+	// and Eventual consistency (https://docs.aws.amazon.com/kms/latest/developerguide/grants.html#terms-eventual-consistency)
+	// in the AWS Key Management Service Developer Guide.
 	GrantToken *string `min:"1" type:"string"`
 
-	// The Amazon Resource Name (ARN) of the CMK associated with the grant.
+	// The key ARN CMK associated with the grant. To find the key ARN, use the ListKeys
+	// operation.
 	//
 	// For example: arn:aws:kms:us-east-2:444455556666:key/1234abcd-12ab-34cd-56ef-1234567890ab
 	KeyId *string `min:"1" type:"string"`
@@ -13338,15 +15008,17 @@ func (s RetireGrantOutput) GoString() string {
 type RevokeGrantInput struct {
 	_ struct{} `type:"structure"`
 
-	// Identifier of the grant to be revoked.
+	// Identifies the grant to revoke. To get the grant ID, use CreateGrant, ListGrants,
+	// or ListRetirableGrants.
 	//
 	// GrantId is a required field
 	GrantId *string `min:"1" type:"string" required:"true"`
 
-	// A unique identifier for the customer master key associated with the grant.
+	// A unique identifier for the customer master key (CMK) associated with the
+	// grant. To get the key ID and key ARN for a CMK, use ListKeys or DescribeKey.
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK. To specify
-	// a CMK in a different AWS account, you must use the key ARN.
+	// Specify the key ID or key ARN of the CMK. To specify a CMK in a different
+	// AWS account, you must use the key ARN.
 	//
 	// For example:
 	//
@@ -13423,7 +15095,7 @@ type ScheduleKeyDeletionInput struct {
 
 	// The unique identifier of the customer master key (CMK) to delete.
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK.
+	// Specify the key ID or key ARN of the CMK.
 	//
 	// For example:
 	//
@@ -13438,6 +15110,10 @@ type ScheduleKeyDeletionInput struct {
 
 	// The waiting period, specified in number of days. After the waiting period
 	// ends, AWS KMS deletes the customer master key (CMK).
+	//
+	// If the CMK is a multi-Region primary key with replicas, the waiting period
+	// begins when the last of its replica keys is deleted. Otherwise, the waiting
+	// period begins immediately.
 	//
 	// This value is optional. If you include a value, it must be between 7 and
 	// 30, inclusive. If you do not include a value, it defaults to 30.
@@ -13489,11 +15165,29 @@ type ScheduleKeyDeletionOutput struct {
 	_ struct{} `type:"structure"`
 
 	// The date and time after which AWS KMS deletes the customer master key (CMK).
+	//
+	// If the CMK is a multi-Region primary key with replica keys, this field does
+	// not appear. The deletion date for the primary key isn't known until its last
+	// replica key is deleted.
 	DeletionDate *time.Time `type:"timestamp"`
 
-	// The unique identifier of the customer master key (CMK) for which deletion
-	// is scheduled.
+	// The Amazon Resource Name (key ARN (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id-key-ARN))
+	// of the CMK whose deletion is scheduled.
 	KeyId *string `min:"1" type:"string"`
+
+	// The current status of the CMK.
+	//
+	// For more information about how key state affects the use of a CMK, see Key
+	// state: Effect on your CMK (https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+	// in the AWS Key Management Service Developer Guide.
+	KeyState *string `type:"string" enum:"KeyState"`
+
+	// The waiting period before the CMK is deleted.
+	//
+	// If the CMK is a multi-Region primary key with replicas, the waiting period
+	// begins when the last of its replica keys is deleted. Otherwise, the waiting
+	// period begins immediately.
+	PendingWindowInDays *int64 `min:"1" type:"integer"`
 }
 
 // String returns the string representation
@@ -13518,12 +15212,26 @@ func (s *ScheduleKeyDeletionOutput) SetKeyId(v string) *ScheduleKeyDeletionOutpu
 	return s
 }
 
+// SetKeyState sets the KeyState field's value.
+func (s *ScheduleKeyDeletionOutput) SetKeyState(v string) *ScheduleKeyDeletionOutput {
+	s.KeyState = &v
+	return s
+}
+
+// SetPendingWindowInDays sets the PendingWindowInDays field's value.
+func (s *ScheduleKeyDeletionOutput) SetPendingWindowInDays(v int64) *ScheduleKeyDeletionOutput {
+	s.PendingWindowInDays = &v
+	return s
+}
+
 type SignInput struct {
 	_ struct{} `type:"structure"`
 
 	// A list of grant tokens.
 	//
-	// For more information, see Grant Tokens (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// Use a grant token when your permission to call this operation comes from
+	// a new grant that has not yet achieved eventual consistency. For more information,
+	// see Grant token (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
 	// in the AWS Key Management Service Developer Guide.
 	GrantTokens []*string `type:"list"`
 
@@ -13531,9 +15239,9 @@ type SignInput struct {
 	// CMK to sign the message. The KeyUsage type of the CMK must be SIGN_VERIFY.
 	// To find the KeyUsage of a CMK, use the DescribeKey operation.
 	//
-	// To specify a CMK, use its key ID, Amazon Resource Name (ARN), alias name,
-	// or alias ARN. When using an alias name, prefix it with "alias/". To specify
-	// a CMK in a different AWS account, you must use the key ARN or alias ARN.
+	// To specify a CMK, use its key ID, key ARN, alias name, or alias ARN. When
+	// using an alias name, prefix it with "alias/". To specify a CMK in a different
+	// AWS account, you must use the key ARN or alias ARN.
 	//
 	// For example:
 	//
@@ -13644,8 +15352,8 @@ func (s *SignInput) SetSigningAlgorithm(v string) *SignInput {
 type SignOutput struct {
 	_ struct{} `type:"structure"`
 
-	// The Amazon Resource Name (ARN) of the asymmetric CMK that was used to sign
-	// the message.
+	// The Amazon Resource Name (key ARN (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id-key-ARN))
+	// of the asymmetric CMK that was used to sign the message.
 	KeyId *string `min:"1" type:"string"`
 
 	// The cryptographic signature that was generated for the message.
@@ -13817,9 +15525,9 @@ func (s *TagException) RequestID() string {
 type TagResourceInput struct {
 	_ struct{} `type:"structure"`
 
-	// A unique identifier for the CMK you are tagging.
+	// Identifies a customer managed CMK in the account and Region.
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK.
+	// Specify the key ID or key ARN of the CMK.
 	//
 	// For example:
 	//
@@ -13832,7 +15540,14 @@ type TagResourceInput struct {
 	// KeyId is a required field
 	KeyId *string `min:"1" type:"string" required:"true"`
 
-	// One or more tags. Each tag consists of a tag key and a tag value.
+	// One or more tags.
+	//
+	// Each tag consists of a tag key and a tag value. The tag value can be an empty
+	// (null) string.
+	//
+	// You cannot have more than one tag on a CMK with the same tag key. If you
+	// specify an existing tag key with a different tag value, AWS KMS replaces
+	// the current tag value with the specified one.
 	//
 	// Tags is a required field
 	Tags []*Tag `type:"list" required:"true"`
@@ -13963,9 +15678,9 @@ func (s *UnsupportedOperationException) RequestID() string {
 type UntagResourceInput struct {
 	_ struct{} `type:"structure"`
 
-	// A unique identifier for the CMK from which you are removing tags.
+	// Identifies the CMK from which you are removing tags.
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK.
+	// Specify the key ID or key ARN of the CMK.
 	//
 	// For example:
 	//
@@ -14049,14 +15764,15 @@ type UpdateAliasInput struct {
 	// AliasName is a required field
 	AliasName *string `min:"1" type:"string" required:"true"`
 
-	// Identifies the CMK to associate with the alias. When the update operation
-	// completes, the alias will point to this CMK.
+	// Identifies the customer managed CMK (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#customer-cmk)
+	// to associate with the alias. You don't have permission to associate an alias
+	// with an AWS managed CMK (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-managed-cmk).
 	//
 	// The CMK must be in the same AWS account and Region as the alias. Also, the
 	// new target CMK must be the same type as the current target CMK (both symmetric
 	// or both asymmetric) and they must have the same key usage.
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK.
+	// Specify the key ID or key ARN of the CMK.
 	//
 	// For example:
 	//
@@ -14246,9 +15962,9 @@ type UpdateKeyDescriptionInput struct {
 	// Description is a required field
 	Description *string `type:"string" required:"true"`
 
-	// A unique identifier for the customer master key (CMK).
+	// Updates the description of the specified customer master key (CMK).
 	//
-	// Specify the key ID or the Amazon Resource Name (ARN) of the CMK.
+	// Specify the key ID or key ARN of the CMK.
 	//
 	// For example:
 	//
@@ -14317,12 +16033,101 @@ func (s UpdateKeyDescriptionOutput) GoString() string {
 	return s.String()
 }
 
+type UpdatePrimaryRegionInput struct {
+	_ struct{} `type:"structure"`
+
+	// Identifies the current primary key. When the operation completes, this CMK
+	// will be a replica key.
+	//
+	// Specify the key ID or key ARN of a multi-Region primary key.
+	//
+	// For example:
+	//
+	//    * Key ID: mrk-1234abcd12ab34cd56ef1234567890ab
+	//
+	//    * Key ARN: arn:aws:kms:us-east-2:111122223333:key/mrk-1234abcd12ab34cd56ef1234567890ab
+	//
+	// To get the key ID and key ARN for a CMK, use ListKeys or DescribeKey.
+	//
+	// KeyId is a required field
+	KeyId *string `min:"1" type:"string" required:"true"`
+
+	// The AWS Region of the new primary key. Enter the Region ID, such as us-east-1
+	// or ap-southeast-2. There must be an existing replica key in this Region.
+	//
+	// When the operation completes, the multi-Region key in this Region will be
+	// the primary key.
+	//
+	// PrimaryRegion is a required field
+	PrimaryRegion *string `min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s UpdatePrimaryRegionInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UpdatePrimaryRegionInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdatePrimaryRegionInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdatePrimaryRegionInput"}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+	if s.PrimaryRegion == nil {
+		invalidParams.Add(request.NewErrParamRequired("PrimaryRegion"))
+	}
+	if s.PrimaryRegion != nil && len(*s.PrimaryRegion) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("PrimaryRegion", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetKeyId sets the KeyId field's value.
+func (s *UpdatePrimaryRegionInput) SetKeyId(v string) *UpdatePrimaryRegionInput {
+	s.KeyId = &v
+	return s
+}
+
+// SetPrimaryRegion sets the PrimaryRegion field's value.
+func (s *UpdatePrimaryRegionInput) SetPrimaryRegion(v string) *UpdatePrimaryRegionInput {
+	s.PrimaryRegion = &v
+	return s
+}
+
+type UpdatePrimaryRegionOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s UpdatePrimaryRegionOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UpdatePrimaryRegionOutput) GoString() string {
+	return s.String()
+}
+
 type VerifyInput struct {
 	_ struct{} `type:"structure"`
 
 	// A list of grant tokens.
 	//
-	// For more information, see Grant Tokens (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// Use a grant token when your permission to call this operation comes from
+	// a new grant that has not yet achieved eventual consistency. For more information,
+	// see Grant token (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
 	// in the AWS Key Management Service Developer Guide.
 	GrantTokens []*string `type:"list"`
 
@@ -14330,9 +16135,9 @@ type VerifyInput struct {
 	// This must be the same CMK that was used to generate the signature. If you
 	// specify a different CMK, the signature verification fails.
 	//
-	// To specify a CMK, use its key ID, Amazon Resource Name (ARN), alias name,
-	// or alias ARN. When using an alias name, prefix it with "alias/". To specify
-	// a CMK in a different AWS account, you must use the key ARN or alias ARN.
+	// To specify a CMK, use its key ID, key ARN, alias name, or alias ARN. When
+	// using an alias name, prefix it with "alias/". To specify a CMK in a different
+	// AWS account, you must use the key ARN or alias ARN.
 	//
 	// For example:
 	//
@@ -14466,8 +16271,8 @@ func (s *VerifyInput) SetSigningAlgorithm(v string) *VerifyInput {
 type VerifyOutput struct {
 	_ struct{} `type:"structure"`
 
-	// The unique identifier for the asymmetric CMK that was used to verify the
-	// signature.
+	// The Amazon Resource Name (key ARN (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id-key-ARN))
+	// of the asymmetric CMK that was used to verify the signature.
 	KeyId *string `min:"1" type:"string"`
 
 	// A Boolean value that indicates whether the signature was verified. A value
@@ -14519,6 +16324,15 @@ const (
 	AlgorithmSpecRsaesOaepSha256 = "RSAES_OAEP_SHA_256"
 )
 
+// AlgorithmSpec_Values returns all elements of the AlgorithmSpec enum
+func AlgorithmSpec_Values() []string {
+	return []string{
+		AlgorithmSpecRsaesPkcs1V15,
+		AlgorithmSpecRsaesOaepSha1,
+		AlgorithmSpecRsaesOaepSha256,
+	}
+}
+
 const (
 	// ConnectionErrorCodeTypeInvalidCredentials is a ConnectionErrorCodeType enum value
 	ConnectionErrorCodeTypeInvalidCredentials = "INVALID_CREDENTIALS"
@@ -14548,6 +16362,21 @@ const (
 	ConnectionErrorCodeTypeSubnetNotFound = "SUBNET_NOT_FOUND"
 )
 
+// ConnectionErrorCodeType_Values returns all elements of the ConnectionErrorCodeType enum
+func ConnectionErrorCodeType_Values() []string {
+	return []string{
+		ConnectionErrorCodeTypeInvalidCredentials,
+		ConnectionErrorCodeTypeClusterNotFound,
+		ConnectionErrorCodeTypeNetworkErrors,
+		ConnectionErrorCodeTypeInternalError,
+		ConnectionErrorCodeTypeInsufficientCloudhsmHsms,
+		ConnectionErrorCodeTypeUserLockedOut,
+		ConnectionErrorCodeTypeUserNotFound,
+		ConnectionErrorCodeTypeUserLoggedIn,
+		ConnectionErrorCodeTypeSubnetNotFound,
+	}
+}
+
 const (
 	// ConnectionStateTypeConnected is a ConnectionStateType enum value
 	ConnectionStateTypeConnected = "CONNECTED"
@@ -14564,6 +16393,17 @@ const (
 	// ConnectionStateTypeDisconnecting is a ConnectionStateType enum value
 	ConnectionStateTypeDisconnecting = "DISCONNECTING"
 )
+
+// ConnectionStateType_Values returns all elements of the ConnectionStateType enum
+func ConnectionStateType_Values() []string {
+	return []string{
+		ConnectionStateTypeConnected,
+		ConnectionStateTypeConnecting,
+		ConnectionStateTypeFailed,
+		ConnectionStateTypeDisconnected,
+		ConnectionStateTypeDisconnecting,
+	}
+}
 
 const (
 	// CustomerMasterKeySpecRsa2048 is a CustomerMasterKeySpec enum value
@@ -14591,6 +16431,20 @@ const (
 	CustomerMasterKeySpecSymmetricDefault = "SYMMETRIC_DEFAULT"
 )
 
+// CustomerMasterKeySpec_Values returns all elements of the CustomerMasterKeySpec enum
+func CustomerMasterKeySpec_Values() []string {
+	return []string{
+		CustomerMasterKeySpecRsa2048,
+		CustomerMasterKeySpecRsa3072,
+		CustomerMasterKeySpecRsa4096,
+		CustomerMasterKeySpecEccNistP256,
+		CustomerMasterKeySpecEccNistP384,
+		CustomerMasterKeySpecEccNistP521,
+		CustomerMasterKeySpecEccSecgP256k1,
+		CustomerMasterKeySpecSymmetricDefault,
+	}
+}
+
 const (
 	// DataKeyPairSpecRsa2048 is a DataKeyPairSpec enum value
 	DataKeyPairSpecRsa2048 = "RSA_2048"
@@ -14614,6 +16468,19 @@ const (
 	DataKeyPairSpecEccSecgP256k1 = "ECC_SECG_P256K1"
 )
 
+// DataKeyPairSpec_Values returns all elements of the DataKeyPairSpec enum
+func DataKeyPairSpec_Values() []string {
+	return []string{
+		DataKeyPairSpecRsa2048,
+		DataKeyPairSpecRsa3072,
+		DataKeyPairSpecRsa4096,
+		DataKeyPairSpecEccNistP256,
+		DataKeyPairSpecEccNistP384,
+		DataKeyPairSpecEccNistP521,
+		DataKeyPairSpecEccSecgP256k1,
+	}
+}
+
 const (
 	// DataKeySpecAes256 is a DataKeySpec enum value
 	DataKeySpecAes256 = "AES_256"
@@ -14621,6 +16488,14 @@ const (
 	// DataKeySpecAes128 is a DataKeySpec enum value
 	DataKeySpecAes128 = "AES_128"
 )
+
+// DataKeySpec_Values returns all elements of the DataKeySpec enum
+func DataKeySpec_Values() []string {
+	return []string{
+		DataKeySpecAes256,
+		DataKeySpecAes128,
+	}
+}
 
 const (
 	// EncryptionAlgorithmSpecSymmetricDefault is a EncryptionAlgorithmSpec enum value
@@ -14633,6 +16508,15 @@ const (
 	EncryptionAlgorithmSpecRsaesOaepSha256 = "RSAES_OAEP_SHA_256"
 )
 
+// EncryptionAlgorithmSpec_Values returns all elements of the EncryptionAlgorithmSpec enum
+func EncryptionAlgorithmSpec_Values() []string {
+	return []string{
+		EncryptionAlgorithmSpecSymmetricDefault,
+		EncryptionAlgorithmSpecRsaesOaepSha1,
+		EncryptionAlgorithmSpecRsaesOaepSha256,
+	}
+}
+
 const (
 	// ExpirationModelTypeKeyMaterialExpires is a ExpirationModelType enum value
 	ExpirationModelTypeKeyMaterialExpires = "KEY_MATERIAL_EXPIRES"
@@ -14640,6 +16524,14 @@ const (
 	// ExpirationModelTypeKeyMaterialDoesNotExpire is a ExpirationModelType enum value
 	ExpirationModelTypeKeyMaterialDoesNotExpire = "KEY_MATERIAL_DOES_NOT_EXPIRE"
 )
+
+// ExpirationModelType_Values returns all elements of the ExpirationModelType enum
+func ExpirationModelType_Values() []string {
+	return []string{
+		ExpirationModelTypeKeyMaterialExpires,
+		ExpirationModelTypeKeyMaterialDoesNotExpire,
+	}
+}
 
 const (
 	// GrantOperationDecrypt is a GrantOperation enum value
@@ -14685,6 +16577,26 @@ const (
 	GrantOperationGenerateDataKeyPairWithoutPlaintext = "GenerateDataKeyPairWithoutPlaintext"
 )
 
+// GrantOperation_Values returns all elements of the GrantOperation enum
+func GrantOperation_Values() []string {
+	return []string{
+		GrantOperationDecrypt,
+		GrantOperationEncrypt,
+		GrantOperationGenerateDataKey,
+		GrantOperationGenerateDataKeyWithoutPlaintext,
+		GrantOperationReEncryptFrom,
+		GrantOperationReEncryptTo,
+		GrantOperationSign,
+		GrantOperationVerify,
+		GrantOperationGetPublicKey,
+		GrantOperationCreateGrant,
+		GrantOperationRetireGrant,
+		GrantOperationDescribeKey,
+		GrantOperationGenerateDataKeyPair,
+		GrantOperationGenerateDataKeyPairWithoutPlaintext,
+	}
+}
+
 const (
 	// KeyManagerTypeAws is a KeyManagerType enum value
 	KeyManagerTypeAws = "AWS"
@@ -14693,7 +16605,18 @@ const (
 	KeyManagerTypeCustomer = "CUSTOMER"
 )
 
+// KeyManagerType_Values returns all elements of the KeyManagerType enum
+func KeyManagerType_Values() []string {
+	return []string{
+		KeyManagerTypeAws,
+		KeyManagerTypeCustomer,
+	}
+}
+
 const (
+	// KeyStateCreating is a KeyState enum value
+	KeyStateCreating = "Creating"
+
 	// KeyStateEnabled is a KeyState enum value
 	KeyStateEnabled = "Enabled"
 
@@ -14706,9 +16629,29 @@ const (
 	// KeyStatePendingImport is a KeyState enum value
 	KeyStatePendingImport = "PendingImport"
 
+	// KeyStatePendingReplicaDeletion is a KeyState enum value
+	KeyStatePendingReplicaDeletion = "PendingReplicaDeletion"
+
 	// KeyStateUnavailable is a KeyState enum value
 	KeyStateUnavailable = "Unavailable"
+
+	// KeyStateUpdating is a KeyState enum value
+	KeyStateUpdating = "Updating"
 )
+
+// KeyState_Values returns all elements of the KeyState enum
+func KeyState_Values() []string {
+	return []string{
+		KeyStateCreating,
+		KeyStateEnabled,
+		KeyStateDisabled,
+		KeyStatePendingDeletion,
+		KeyStatePendingImport,
+		KeyStatePendingReplicaDeletion,
+		KeyStateUnavailable,
+		KeyStateUpdating,
+	}
+}
 
 const (
 	// KeyUsageTypeSignVerify is a KeyUsageType enum value
@@ -14718,6 +16661,14 @@ const (
 	KeyUsageTypeEncryptDecrypt = "ENCRYPT_DECRYPT"
 )
 
+// KeyUsageType_Values returns all elements of the KeyUsageType enum
+func KeyUsageType_Values() []string {
+	return []string{
+		KeyUsageTypeSignVerify,
+		KeyUsageTypeEncryptDecrypt,
+	}
+}
+
 const (
 	// MessageTypeRaw is a MessageType enum value
 	MessageTypeRaw = "RAW"
@@ -14725,6 +16676,30 @@ const (
 	// MessageTypeDigest is a MessageType enum value
 	MessageTypeDigest = "DIGEST"
 )
+
+// MessageType_Values returns all elements of the MessageType enum
+func MessageType_Values() []string {
+	return []string{
+		MessageTypeRaw,
+		MessageTypeDigest,
+	}
+}
+
+const (
+	// MultiRegionKeyTypePrimary is a MultiRegionKeyType enum value
+	MultiRegionKeyTypePrimary = "PRIMARY"
+
+	// MultiRegionKeyTypeReplica is a MultiRegionKeyType enum value
+	MultiRegionKeyTypeReplica = "REPLICA"
+)
+
+// MultiRegionKeyType_Values returns all elements of the MultiRegionKeyType enum
+func MultiRegionKeyType_Values() []string {
+	return []string{
+		MultiRegionKeyTypePrimary,
+		MultiRegionKeyTypeReplica,
+	}
+}
 
 const (
 	// OriginTypeAwsKms is a OriginType enum value
@@ -14736,6 +16711,15 @@ const (
 	// OriginTypeAwsCloudhsm is a OriginType enum value
 	OriginTypeAwsCloudhsm = "AWS_CLOUDHSM"
 )
+
+// OriginType_Values returns all elements of the OriginType enum
+func OriginType_Values() []string {
+	return []string{
+		OriginTypeAwsKms,
+		OriginTypeExternal,
+		OriginTypeAwsCloudhsm,
+	}
+}
 
 const (
 	// SigningAlgorithmSpecRsassaPssSha256 is a SigningAlgorithmSpec enum value
@@ -14766,7 +16750,29 @@ const (
 	SigningAlgorithmSpecEcdsaSha512 = "ECDSA_SHA_512"
 )
 
+// SigningAlgorithmSpec_Values returns all elements of the SigningAlgorithmSpec enum
+func SigningAlgorithmSpec_Values() []string {
+	return []string{
+		SigningAlgorithmSpecRsassaPssSha256,
+		SigningAlgorithmSpecRsassaPssSha384,
+		SigningAlgorithmSpecRsassaPssSha512,
+		SigningAlgorithmSpecRsassaPkcs1V15Sha256,
+		SigningAlgorithmSpecRsassaPkcs1V15Sha384,
+		SigningAlgorithmSpecRsassaPkcs1V15Sha512,
+		SigningAlgorithmSpecEcdsaSha256,
+		SigningAlgorithmSpecEcdsaSha384,
+		SigningAlgorithmSpecEcdsaSha512,
+	}
+}
+
 const (
 	// WrappingKeySpecRsa2048 is a WrappingKeySpec enum value
 	WrappingKeySpecRsa2048 = "RSA_2048"
 )
+
+// WrappingKeySpec_Values returns all elements of the WrappingKeySpec enum
+func WrappingKeySpec_Values() []string {
+	return []string{
+		WrappingKeySpecRsa2048,
+	}
+}

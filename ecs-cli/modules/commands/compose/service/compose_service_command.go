@@ -78,7 +78,7 @@ func startServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "start",
 		Usage:        usage.ServiceStart,
 		Action:       compose.WithProject(factory, compose.ProjectStart, true),
-		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag(), flags.OptionalCreateLogsFlag(), ForceNewDeploymentFlag()),
+		Flags:        flags.AppendFlags(flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag(), flags.OptionalCreateLogsFlag(), ForceNewDeploymentFlag(), EnableExecuteCommandFlag()),
 		OnUsageError: flags.UsageErrorFactory("start"),
 	}
 }
@@ -88,7 +88,7 @@ func upServiceCommand(factory composeFactory.ProjectFactory) cli.Command {
 		Name:         "up",
 		Usage:        usage.ServiceUp,
 		Action:       compose.WithProject(factory, compose.ProjectUp, true),
-		Flags:        flags.AppendFlags(deploymentConfigFlags(true), loadBalancerFlags(), flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), ForceNewDeploymentFlag(), serviceDiscoveryFlags(), updateServiceDiscoveryFlags(), flags.OptionalSchedulingStrategyFlag(), taggingFlags()),
+		Flags:        flags.AppendFlags(deploymentConfigFlags(true), loadBalancerFlags(), flags.OptionalConfigFlags(), ComposeServiceTimeoutFlag(), flags.OptionalLaunchTypeFlag(), flags.OptionalCreateLogsFlag(), ForceNewDeploymentFlag(), EnableExecuteCommandFlag(), serviceDiscoveryFlags(), updateServiceDiscoveryFlags(), flags.OptionalSchedulingStrategyFlag(), taggingFlags()),
 		OnUsageError: flags.UsageErrorFactory("up"),
 	}
 }
@@ -272,6 +272,15 @@ func ComposeServiceTimeoutFlag() []cli.Flag {
 			Usage: fmt.Sprintf(
 				"Specifies the timeout value in minutes (decimals supported) to wait for the running task count to change. If the running task count has not changed for the specified period of time, then the CLI times out and returns an error. Setting the timeout to 0 will cause the command to return without checking for success.",
 			),
+		},
+	}
+}
+
+func EnableExecuteCommandFlag() []cli.Flag {
+	return []cli.Flag{
+		cli.BoolFlag{
+			Name:  flags.EnableExecuteCommandFlag,
+			Usage: "[Optional] Whether or not to enable the execute command functionality on the deployed service/tasks.",
 		},
 	}
 }

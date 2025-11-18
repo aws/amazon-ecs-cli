@@ -26,30 +26,30 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockResourceGroupsTaggingAPIAPI is a mock of ResourceGroupsTaggingAPIAPI interface
+// MockResourceGroupsTaggingAPIAPI is a mock of ResourceGroupsTaggingAPIAPI interface.
 type MockResourceGroupsTaggingAPIAPI struct {
 	ctrl     *gomock.Controller
 	recorder *MockResourceGroupsTaggingAPIAPIMockRecorder
 }
 
-// MockResourceGroupsTaggingAPIAPIMockRecorder is the mock recorder for MockResourceGroupsTaggingAPIAPI
+// MockResourceGroupsTaggingAPIAPIMockRecorder is the mock recorder for MockResourceGroupsTaggingAPIAPI.
 type MockResourceGroupsTaggingAPIAPIMockRecorder struct {
 	mock *MockResourceGroupsTaggingAPIAPI
 }
 
-// NewMockResourceGroupsTaggingAPIAPI creates a new mock instance
+// NewMockResourceGroupsTaggingAPIAPI creates a new mock instance.
 func NewMockResourceGroupsTaggingAPIAPI(ctrl *gomock.Controller) *MockResourceGroupsTaggingAPIAPI {
 	mock := &MockResourceGroupsTaggingAPIAPI{ctrl: ctrl}
 	mock.recorder = &MockResourceGroupsTaggingAPIAPIMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockResourceGroupsTaggingAPIAPI) EXPECT() *MockResourceGroupsTaggingAPIAPIMockRecorder {
 	return m.recorder
 }
 
-// DescribeReportCreation mocks base method
+// DescribeReportCreation mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) DescribeReportCreation(arg0 *resourcegroupstaggingapi.DescribeReportCreationInput) (*resourcegroupstaggingapi.DescribeReportCreationOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeReportCreation", arg0)
@@ -58,13 +58,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) DescribeReportCreation(arg0 *resourceg
 	return ret0, ret1
 }
 
-// DescribeReportCreation indicates an expected call of DescribeReportCreation
+// DescribeReportCreation indicates an expected call of DescribeReportCreation.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) DescribeReportCreation(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeReportCreation", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).DescribeReportCreation), arg0)
 }
 
-// DescribeReportCreationRequest mocks base method
+// DescribeReportCreationRequest mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) DescribeReportCreationRequest(arg0 *resourcegroupstaggingapi.DescribeReportCreationInput) (*request.Request, *resourcegroupstaggingapi.DescribeReportCreationOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeReportCreationRequest", arg0)
@@ -73,13 +73,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) DescribeReportCreationRequest(arg0 *re
 	return ret0, ret1
 }
 
-// DescribeReportCreationRequest indicates an expected call of DescribeReportCreationRequest
+// DescribeReportCreationRequest indicates an expected call of DescribeReportCreationRequest.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) DescribeReportCreationRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeReportCreationRequest", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).DescribeReportCreationRequest), arg0)
 }
 
-// DescribeReportCreationWithContext mocks base method
+// DescribeReportCreationWithContext mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) DescribeReportCreationWithContext(arg0 context.Context, arg1 *resourcegroupstaggingapi.DescribeReportCreationInput, arg2 ...request.Option) (*resourcegroupstaggingapi.DescribeReportCreationOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -92,14 +92,14 @@ func (m *MockResourceGroupsTaggingAPIAPI) DescribeReportCreationWithContext(arg0
 	return ret0, ret1
 }
 
-// DescribeReportCreationWithContext indicates an expected call of DescribeReportCreationWithContext
+// DescribeReportCreationWithContext indicates an expected call of DescribeReportCreationWithContext.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) DescribeReportCreationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeReportCreationWithContext", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).DescribeReportCreationWithContext), varargs...)
 }
 
-// GetComplianceSummary mocks base method
+// GetComplianceSummary mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetComplianceSummary(arg0 *resourcegroupstaggingapi.GetComplianceSummaryInput) (*resourcegroupstaggingapi.GetComplianceSummaryOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetComplianceSummary", arg0)
@@ -108,13 +108,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetComplianceSummary(arg0 *resourcegro
 	return ret0, ret1
 }
 
-// GetComplianceSummary indicates an expected call of GetComplianceSummary
+// GetComplianceSummary indicates an expected call of GetComplianceSummary.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetComplianceSummary(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetComplianceSummary", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetComplianceSummary), arg0)
 }
 
-// GetComplianceSummaryPages mocks base method
+// GetComplianceSummaryPages mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetComplianceSummaryPages(arg0 *resourcegroupstaggingapi.GetComplianceSummaryInput, arg1 func(*resourcegroupstaggingapi.GetComplianceSummaryOutput, bool) bool) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetComplianceSummaryPages", arg0, arg1)
@@ -122,13 +122,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetComplianceSummaryPages(arg0 *resour
 	return ret0
 }
 
-// GetComplianceSummaryPages indicates an expected call of GetComplianceSummaryPages
+// GetComplianceSummaryPages indicates an expected call of GetComplianceSummaryPages.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetComplianceSummaryPages(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetComplianceSummaryPages", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetComplianceSummaryPages), arg0, arg1)
 }
 
-// GetComplianceSummaryPagesWithContext mocks base method
+// GetComplianceSummaryPagesWithContext mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetComplianceSummaryPagesWithContext(arg0 context.Context, arg1 *resourcegroupstaggingapi.GetComplianceSummaryInput, arg2 func(*resourcegroupstaggingapi.GetComplianceSummaryOutput, bool) bool, arg3 ...request.Option) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
@@ -140,14 +140,14 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetComplianceSummaryPagesWithContext(a
 	return ret0
 }
 
-// GetComplianceSummaryPagesWithContext indicates an expected call of GetComplianceSummaryPagesWithContext
+// GetComplianceSummaryPagesWithContext indicates an expected call of GetComplianceSummaryPagesWithContext.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetComplianceSummaryPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetComplianceSummaryPagesWithContext", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetComplianceSummaryPagesWithContext), varargs...)
 }
 
-// GetComplianceSummaryRequest mocks base method
+// GetComplianceSummaryRequest mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetComplianceSummaryRequest(arg0 *resourcegroupstaggingapi.GetComplianceSummaryInput) (*request.Request, *resourcegroupstaggingapi.GetComplianceSummaryOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetComplianceSummaryRequest", arg0)
@@ -156,13 +156,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetComplianceSummaryRequest(arg0 *reso
 	return ret0, ret1
 }
 
-// GetComplianceSummaryRequest indicates an expected call of GetComplianceSummaryRequest
+// GetComplianceSummaryRequest indicates an expected call of GetComplianceSummaryRequest.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetComplianceSummaryRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetComplianceSummaryRequest", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetComplianceSummaryRequest), arg0)
 }
 
-// GetComplianceSummaryWithContext mocks base method
+// GetComplianceSummaryWithContext mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetComplianceSummaryWithContext(arg0 context.Context, arg1 *resourcegroupstaggingapi.GetComplianceSummaryInput, arg2 ...request.Option) (*resourcegroupstaggingapi.GetComplianceSummaryOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -175,14 +175,14 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetComplianceSummaryWithContext(arg0 c
 	return ret0, ret1
 }
 
-// GetComplianceSummaryWithContext indicates an expected call of GetComplianceSummaryWithContext
+// GetComplianceSummaryWithContext indicates an expected call of GetComplianceSummaryWithContext.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetComplianceSummaryWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetComplianceSummaryWithContext", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetComplianceSummaryWithContext), varargs...)
 }
 
-// GetResources mocks base method
+// GetResources mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetResources(arg0 *resourcegroupstaggingapi.GetResourcesInput) (*resourcegroupstaggingapi.GetResourcesOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetResources", arg0)
@@ -191,13 +191,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetResources(arg0 *resourcegroupstaggi
 	return ret0, ret1
 }
 
-// GetResources indicates an expected call of GetResources
+// GetResources indicates an expected call of GetResources.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetResources(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetResources", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetResources), arg0)
 }
 
-// GetResourcesPages mocks base method
+// GetResourcesPages mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetResourcesPages(arg0 *resourcegroupstaggingapi.GetResourcesInput, arg1 func(*resourcegroupstaggingapi.GetResourcesOutput, bool) bool) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetResourcesPages", arg0, arg1)
@@ -205,13 +205,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetResourcesPages(arg0 *resourcegroups
 	return ret0
 }
 
-// GetResourcesPages indicates an expected call of GetResourcesPages
+// GetResourcesPages indicates an expected call of GetResourcesPages.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetResourcesPages(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetResourcesPages", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetResourcesPages), arg0, arg1)
 }
 
-// GetResourcesPagesWithContext mocks base method
+// GetResourcesPagesWithContext mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetResourcesPagesWithContext(arg0 context.Context, arg1 *resourcegroupstaggingapi.GetResourcesInput, arg2 func(*resourcegroupstaggingapi.GetResourcesOutput, bool) bool, arg3 ...request.Option) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
@@ -223,14 +223,14 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetResourcesPagesWithContext(arg0 cont
 	return ret0
 }
 
-// GetResourcesPagesWithContext indicates an expected call of GetResourcesPagesWithContext
+// GetResourcesPagesWithContext indicates an expected call of GetResourcesPagesWithContext.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetResourcesPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetResourcesPagesWithContext", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetResourcesPagesWithContext), varargs...)
 }
 
-// GetResourcesRequest mocks base method
+// GetResourcesRequest mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetResourcesRequest(arg0 *resourcegroupstaggingapi.GetResourcesInput) (*request.Request, *resourcegroupstaggingapi.GetResourcesOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetResourcesRequest", arg0)
@@ -239,13 +239,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetResourcesRequest(arg0 *resourcegrou
 	return ret0, ret1
 }
 
-// GetResourcesRequest indicates an expected call of GetResourcesRequest
+// GetResourcesRequest indicates an expected call of GetResourcesRequest.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetResourcesRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetResourcesRequest", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetResourcesRequest), arg0)
 }
 
-// GetResourcesWithContext mocks base method
+// GetResourcesWithContext mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetResourcesWithContext(arg0 context.Context, arg1 *resourcegroupstaggingapi.GetResourcesInput, arg2 ...request.Option) (*resourcegroupstaggingapi.GetResourcesOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -258,14 +258,14 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetResourcesWithContext(arg0 context.C
 	return ret0, ret1
 }
 
-// GetResourcesWithContext indicates an expected call of GetResourcesWithContext
+// GetResourcesWithContext indicates an expected call of GetResourcesWithContext.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetResourcesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetResourcesWithContext", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetResourcesWithContext), varargs...)
 }
 
-// GetTagKeys mocks base method
+// GetTagKeys mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetTagKeys(arg0 *resourcegroupstaggingapi.GetTagKeysInput) (*resourcegroupstaggingapi.GetTagKeysOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTagKeys", arg0)
@@ -274,13 +274,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetTagKeys(arg0 *resourcegroupstagging
 	return ret0, ret1
 }
 
-// GetTagKeys indicates an expected call of GetTagKeys
+// GetTagKeys indicates an expected call of GetTagKeys.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetTagKeys(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTagKeys", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetTagKeys), arg0)
 }
 
-// GetTagKeysPages mocks base method
+// GetTagKeysPages mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetTagKeysPages(arg0 *resourcegroupstaggingapi.GetTagKeysInput, arg1 func(*resourcegroupstaggingapi.GetTagKeysOutput, bool) bool) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTagKeysPages", arg0, arg1)
@@ -288,13 +288,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetTagKeysPages(arg0 *resourcegroupsta
 	return ret0
 }
 
-// GetTagKeysPages indicates an expected call of GetTagKeysPages
+// GetTagKeysPages indicates an expected call of GetTagKeysPages.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetTagKeysPages(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTagKeysPages", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetTagKeysPages), arg0, arg1)
 }
 
-// GetTagKeysPagesWithContext mocks base method
+// GetTagKeysPagesWithContext mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetTagKeysPagesWithContext(arg0 context.Context, arg1 *resourcegroupstaggingapi.GetTagKeysInput, arg2 func(*resourcegroupstaggingapi.GetTagKeysOutput, bool) bool, arg3 ...request.Option) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
@@ -306,14 +306,14 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetTagKeysPagesWithContext(arg0 contex
 	return ret0
 }
 
-// GetTagKeysPagesWithContext indicates an expected call of GetTagKeysPagesWithContext
+// GetTagKeysPagesWithContext indicates an expected call of GetTagKeysPagesWithContext.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetTagKeysPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTagKeysPagesWithContext", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetTagKeysPagesWithContext), varargs...)
 }
 
-// GetTagKeysRequest mocks base method
+// GetTagKeysRequest mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetTagKeysRequest(arg0 *resourcegroupstaggingapi.GetTagKeysInput) (*request.Request, *resourcegroupstaggingapi.GetTagKeysOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTagKeysRequest", arg0)
@@ -322,13 +322,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetTagKeysRequest(arg0 *resourcegroups
 	return ret0, ret1
 }
 
-// GetTagKeysRequest indicates an expected call of GetTagKeysRequest
+// GetTagKeysRequest indicates an expected call of GetTagKeysRequest.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetTagKeysRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTagKeysRequest", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetTagKeysRequest), arg0)
 }
 
-// GetTagKeysWithContext mocks base method
+// GetTagKeysWithContext mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetTagKeysWithContext(arg0 context.Context, arg1 *resourcegroupstaggingapi.GetTagKeysInput, arg2 ...request.Option) (*resourcegroupstaggingapi.GetTagKeysOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -341,14 +341,14 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetTagKeysWithContext(arg0 context.Con
 	return ret0, ret1
 }
 
-// GetTagKeysWithContext indicates an expected call of GetTagKeysWithContext
+// GetTagKeysWithContext indicates an expected call of GetTagKeysWithContext.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetTagKeysWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTagKeysWithContext", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetTagKeysWithContext), varargs...)
 }
 
-// GetTagValues mocks base method
+// GetTagValues mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetTagValues(arg0 *resourcegroupstaggingapi.GetTagValuesInput) (*resourcegroupstaggingapi.GetTagValuesOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTagValues", arg0)
@@ -357,13 +357,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetTagValues(arg0 *resourcegroupstaggi
 	return ret0, ret1
 }
 
-// GetTagValues indicates an expected call of GetTagValues
+// GetTagValues indicates an expected call of GetTagValues.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetTagValues(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTagValues", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetTagValues), arg0)
 }
 
-// GetTagValuesPages mocks base method
+// GetTagValuesPages mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetTagValuesPages(arg0 *resourcegroupstaggingapi.GetTagValuesInput, arg1 func(*resourcegroupstaggingapi.GetTagValuesOutput, bool) bool) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTagValuesPages", arg0, arg1)
@@ -371,13 +371,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetTagValuesPages(arg0 *resourcegroups
 	return ret0
 }
 
-// GetTagValuesPages indicates an expected call of GetTagValuesPages
+// GetTagValuesPages indicates an expected call of GetTagValuesPages.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetTagValuesPages(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTagValuesPages", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetTagValuesPages), arg0, arg1)
 }
 
-// GetTagValuesPagesWithContext mocks base method
+// GetTagValuesPagesWithContext mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetTagValuesPagesWithContext(arg0 context.Context, arg1 *resourcegroupstaggingapi.GetTagValuesInput, arg2 func(*resourcegroupstaggingapi.GetTagValuesOutput, bool) bool, arg3 ...request.Option) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1, arg2}
@@ -389,14 +389,14 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetTagValuesPagesWithContext(arg0 cont
 	return ret0
 }
 
-// GetTagValuesPagesWithContext indicates an expected call of GetTagValuesPagesWithContext
+// GetTagValuesPagesWithContext indicates an expected call of GetTagValuesPagesWithContext.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetTagValuesPagesWithContext(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTagValuesPagesWithContext", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetTagValuesPagesWithContext), varargs...)
 }
 
-// GetTagValuesRequest mocks base method
+// GetTagValuesRequest mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetTagValuesRequest(arg0 *resourcegroupstaggingapi.GetTagValuesInput) (*request.Request, *resourcegroupstaggingapi.GetTagValuesOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTagValuesRequest", arg0)
@@ -405,13 +405,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetTagValuesRequest(arg0 *resourcegrou
 	return ret0, ret1
 }
 
-// GetTagValuesRequest indicates an expected call of GetTagValuesRequest
+// GetTagValuesRequest indicates an expected call of GetTagValuesRequest.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetTagValuesRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTagValuesRequest", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetTagValuesRequest), arg0)
 }
 
-// GetTagValuesWithContext mocks base method
+// GetTagValuesWithContext mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) GetTagValuesWithContext(arg0 context.Context, arg1 *resourcegroupstaggingapi.GetTagValuesInput, arg2 ...request.Option) (*resourcegroupstaggingapi.GetTagValuesOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -424,14 +424,14 @@ func (m *MockResourceGroupsTaggingAPIAPI) GetTagValuesWithContext(arg0 context.C
 	return ret0, ret1
 }
 
-// GetTagValuesWithContext indicates an expected call of GetTagValuesWithContext
+// GetTagValuesWithContext indicates an expected call of GetTagValuesWithContext.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) GetTagValuesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTagValuesWithContext", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).GetTagValuesWithContext), varargs...)
 }
 
-// StartReportCreation mocks base method
+// StartReportCreation mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) StartReportCreation(arg0 *resourcegroupstaggingapi.StartReportCreationInput) (*resourcegroupstaggingapi.StartReportCreationOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StartReportCreation", arg0)
@@ -440,13 +440,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) StartReportCreation(arg0 *resourcegrou
 	return ret0, ret1
 }
 
-// StartReportCreation indicates an expected call of StartReportCreation
+// StartReportCreation indicates an expected call of StartReportCreation.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) StartReportCreation(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartReportCreation", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).StartReportCreation), arg0)
 }
 
-// StartReportCreationRequest mocks base method
+// StartReportCreationRequest mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) StartReportCreationRequest(arg0 *resourcegroupstaggingapi.StartReportCreationInput) (*request.Request, *resourcegroupstaggingapi.StartReportCreationOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StartReportCreationRequest", arg0)
@@ -455,13 +455,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) StartReportCreationRequest(arg0 *resou
 	return ret0, ret1
 }
 
-// StartReportCreationRequest indicates an expected call of StartReportCreationRequest
+// StartReportCreationRequest indicates an expected call of StartReportCreationRequest.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) StartReportCreationRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartReportCreationRequest", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).StartReportCreationRequest), arg0)
 }
 
-// StartReportCreationWithContext mocks base method
+// StartReportCreationWithContext mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) StartReportCreationWithContext(arg0 context.Context, arg1 *resourcegroupstaggingapi.StartReportCreationInput, arg2 ...request.Option) (*resourcegroupstaggingapi.StartReportCreationOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -474,14 +474,14 @@ func (m *MockResourceGroupsTaggingAPIAPI) StartReportCreationWithContext(arg0 co
 	return ret0, ret1
 }
 
-// StartReportCreationWithContext indicates an expected call of StartReportCreationWithContext
+// StartReportCreationWithContext indicates an expected call of StartReportCreationWithContext.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) StartReportCreationWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartReportCreationWithContext", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).StartReportCreationWithContext), varargs...)
 }
 
-// TagResources mocks base method
+// TagResources mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) TagResources(arg0 *resourcegroupstaggingapi.TagResourcesInput) (*resourcegroupstaggingapi.TagResourcesOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TagResources", arg0)
@@ -490,13 +490,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) TagResources(arg0 *resourcegroupstaggi
 	return ret0, ret1
 }
 
-// TagResources indicates an expected call of TagResources
+// TagResources indicates an expected call of TagResources.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) TagResources(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TagResources", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).TagResources), arg0)
 }
 
-// TagResourcesRequest mocks base method
+// TagResourcesRequest mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) TagResourcesRequest(arg0 *resourcegroupstaggingapi.TagResourcesInput) (*request.Request, *resourcegroupstaggingapi.TagResourcesOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TagResourcesRequest", arg0)
@@ -505,13 +505,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) TagResourcesRequest(arg0 *resourcegrou
 	return ret0, ret1
 }
 
-// TagResourcesRequest indicates an expected call of TagResourcesRequest
+// TagResourcesRequest indicates an expected call of TagResourcesRequest.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) TagResourcesRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TagResourcesRequest", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).TagResourcesRequest), arg0)
 }
 
-// TagResourcesWithContext mocks base method
+// TagResourcesWithContext mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) TagResourcesWithContext(arg0 context.Context, arg1 *resourcegroupstaggingapi.TagResourcesInput, arg2 ...request.Option) (*resourcegroupstaggingapi.TagResourcesOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -524,14 +524,14 @@ func (m *MockResourceGroupsTaggingAPIAPI) TagResourcesWithContext(arg0 context.C
 	return ret0, ret1
 }
 
-// TagResourcesWithContext indicates an expected call of TagResourcesWithContext
+// TagResourcesWithContext indicates an expected call of TagResourcesWithContext.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) TagResourcesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TagResourcesWithContext", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).TagResourcesWithContext), varargs...)
 }
 
-// UntagResources mocks base method
+// UntagResources mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) UntagResources(arg0 *resourcegroupstaggingapi.UntagResourcesInput) (*resourcegroupstaggingapi.UntagResourcesOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UntagResources", arg0)
@@ -540,13 +540,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) UntagResources(arg0 *resourcegroupstag
 	return ret0, ret1
 }
 
-// UntagResources indicates an expected call of UntagResources
+// UntagResources indicates an expected call of UntagResources.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) UntagResources(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UntagResources", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).UntagResources), arg0)
 }
 
-// UntagResourcesRequest mocks base method
+// UntagResourcesRequest mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) UntagResourcesRequest(arg0 *resourcegroupstaggingapi.UntagResourcesInput) (*request.Request, *resourcegroupstaggingapi.UntagResourcesOutput) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UntagResourcesRequest", arg0)
@@ -555,13 +555,13 @@ func (m *MockResourceGroupsTaggingAPIAPI) UntagResourcesRequest(arg0 *resourcegr
 	return ret0, ret1
 }
 
-// UntagResourcesRequest indicates an expected call of UntagResourcesRequest
+// UntagResourcesRequest indicates an expected call of UntagResourcesRequest.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) UntagResourcesRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UntagResourcesRequest", reflect.TypeOf((*MockResourceGroupsTaggingAPIAPI)(nil).UntagResourcesRequest), arg0)
 }
 
-// UntagResourcesWithContext mocks base method
+// UntagResourcesWithContext mocks base method.
 func (m *MockResourceGroupsTaggingAPIAPI) UntagResourcesWithContext(arg0 context.Context, arg1 *resourcegroupstaggingapi.UntagResourcesInput, arg2 ...request.Option) (*resourcegroupstaggingapi.UntagResourcesOutput, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -574,7 +574,7 @@ func (m *MockResourceGroupsTaggingAPIAPI) UntagResourcesWithContext(arg0 context
 	return ret0, ret1
 }
 
-// UntagResourcesWithContext indicates an expected call of UntagResourcesWithContext
+// UntagResourcesWithContext indicates an expected call of UntagResourcesWithContext.
 func (mr *MockResourceGroupsTaggingAPIAPIMockRecorder) UntagResourcesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)

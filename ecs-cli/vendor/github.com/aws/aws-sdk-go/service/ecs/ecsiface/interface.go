@@ -84,6 +84,10 @@ type ECSAPI interface {
 	DeleteAttributesWithContext(aws.Context, *ecs.DeleteAttributesInput, ...request.Option) (*ecs.DeleteAttributesOutput, error)
 	DeleteAttributesRequest(*ecs.DeleteAttributesInput) (*request.Request, *ecs.DeleteAttributesOutput)
 
+	DeleteCapacityProvider(*ecs.DeleteCapacityProviderInput) (*ecs.DeleteCapacityProviderOutput, error)
+	DeleteCapacityProviderWithContext(aws.Context, *ecs.DeleteCapacityProviderInput, ...request.Option) (*ecs.DeleteCapacityProviderOutput, error)
+	DeleteCapacityProviderRequest(*ecs.DeleteCapacityProviderInput) (*request.Request, *ecs.DeleteCapacityProviderOutput)
+
 	DeleteCluster(*ecs.DeleteClusterInput) (*ecs.DeleteClusterOutput, error)
 	DeleteClusterWithContext(aws.Context, *ecs.DeleteClusterInput, ...request.Option) (*ecs.DeleteClusterOutput, error)
 	DeleteClusterRequest(*ecs.DeleteClusterInput) (*request.Request, *ecs.DeleteClusterOutput)
@@ -135,6 +139,10 @@ type ECSAPI interface {
 	DiscoverPollEndpoint(*ecs.DiscoverPollEndpointInput) (*ecs.DiscoverPollEndpointOutput, error)
 	DiscoverPollEndpointWithContext(aws.Context, *ecs.DiscoverPollEndpointInput, ...request.Option) (*ecs.DiscoverPollEndpointOutput, error)
 	DiscoverPollEndpointRequest(*ecs.DiscoverPollEndpointInput) (*request.Request, *ecs.DiscoverPollEndpointOutput)
+
+	ExecuteCommand(*ecs.ExecuteCommandInput) (*ecs.ExecuteCommandOutput, error)
+	ExecuteCommandWithContext(aws.Context, *ecs.ExecuteCommandInput, ...request.Option) (*ecs.ExecuteCommandOutput, error)
+	ExecuteCommandRequest(*ecs.ExecuteCommandInput) (*request.Request, *ecs.ExecuteCommandOutput)
 
 	ListAccountSettings(*ecs.ListAccountSettingsInput) (*ecs.ListAccountSettingsOutput, error)
 	ListAccountSettingsWithContext(aws.Context, *ecs.ListAccountSettingsInput, ...request.Option) (*ecs.ListAccountSettingsOutput, error)
@@ -251,6 +259,14 @@ type ECSAPI interface {
 	UntagResource(*ecs.UntagResourceInput) (*ecs.UntagResourceOutput, error)
 	UntagResourceWithContext(aws.Context, *ecs.UntagResourceInput, ...request.Option) (*ecs.UntagResourceOutput, error)
 	UntagResourceRequest(*ecs.UntagResourceInput) (*request.Request, *ecs.UntagResourceOutput)
+
+	UpdateCapacityProvider(*ecs.UpdateCapacityProviderInput) (*ecs.UpdateCapacityProviderOutput, error)
+	UpdateCapacityProviderWithContext(aws.Context, *ecs.UpdateCapacityProviderInput, ...request.Option) (*ecs.UpdateCapacityProviderOutput, error)
+	UpdateCapacityProviderRequest(*ecs.UpdateCapacityProviderInput) (*request.Request, *ecs.UpdateCapacityProviderOutput)
+
+	UpdateCluster(*ecs.UpdateClusterInput) (*ecs.UpdateClusterOutput, error)
+	UpdateClusterWithContext(aws.Context, *ecs.UpdateClusterInput, ...request.Option) (*ecs.UpdateClusterOutput, error)
+	UpdateClusterRequest(*ecs.UpdateClusterInput) (*request.Request, *ecs.UpdateClusterOutput)
 
 	UpdateClusterSettings(*ecs.UpdateClusterSettingsInput) (*ecs.UpdateClusterSettingsOutput, error)
 	UpdateClusterSettingsWithContext(aws.Context, *ecs.UpdateClusterSettingsInput, ...request.Option) (*ecs.UpdateClusterSettingsOutput, error)

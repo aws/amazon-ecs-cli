@@ -114,6 +114,14 @@ type SecretsManagerAPI interface {
 	PutSecretValueWithContext(aws.Context, *secretsmanager.PutSecretValueInput, ...request.Option) (*secretsmanager.PutSecretValueOutput, error)
 	PutSecretValueRequest(*secretsmanager.PutSecretValueInput) (*request.Request, *secretsmanager.PutSecretValueOutput)
 
+	RemoveRegionsFromReplication(*secretsmanager.RemoveRegionsFromReplicationInput) (*secretsmanager.RemoveRegionsFromReplicationOutput, error)
+	RemoveRegionsFromReplicationWithContext(aws.Context, *secretsmanager.RemoveRegionsFromReplicationInput, ...request.Option) (*secretsmanager.RemoveRegionsFromReplicationOutput, error)
+	RemoveRegionsFromReplicationRequest(*secretsmanager.RemoveRegionsFromReplicationInput) (*request.Request, *secretsmanager.RemoveRegionsFromReplicationOutput)
+
+	ReplicateSecretToRegions(*secretsmanager.ReplicateSecretToRegionsInput) (*secretsmanager.ReplicateSecretToRegionsOutput, error)
+	ReplicateSecretToRegionsWithContext(aws.Context, *secretsmanager.ReplicateSecretToRegionsInput, ...request.Option) (*secretsmanager.ReplicateSecretToRegionsOutput, error)
+	ReplicateSecretToRegionsRequest(*secretsmanager.ReplicateSecretToRegionsInput) (*request.Request, *secretsmanager.ReplicateSecretToRegionsOutput)
+
 	RestoreSecret(*secretsmanager.RestoreSecretInput) (*secretsmanager.RestoreSecretOutput, error)
 	RestoreSecretWithContext(aws.Context, *secretsmanager.RestoreSecretInput, ...request.Option) (*secretsmanager.RestoreSecretOutput, error)
 	RestoreSecretRequest(*secretsmanager.RestoreSecretInput) (*request.Request, *secretsmanager.RestoreSecretOutput)
@@ -121,6 +129,10 @@ type SecretsManagerAPI interface {
 	RotateSecret(*secretsmanager.RotateSecretInput) (*secretsmanager.RotateSecretOutput, error)
 	RotateSecretWithContext(aws.Context, *secretsmanager.RotateSecretInput, ...request.Option) (*secretsmanager.RotateSecretOutput, error)
 	RotateSecretRequest(*secretsmanager.RotateSecretInput) (*request.Request, *secretsmanager.RotateSecretOutput)
+
+	StopReplicationToReplica(*secretsmanager.StopReplicationToReplicaInput) (*secretsmanager.StopReplicationToReplicaOutput, error)
+	StopReplicationToReplicaWithContext(aws.Context, *secretsmanager.StopReplicationToReplicaInput, ...request.Option) (*secretsmanager.StopReplicationToReplicaOutput, error)
+	StopReplicationToReplicaRequest(*secretsmanager.StopReplicationToReplicaInput) (*request.Request, *secretsmanager.StopReplicationToReplicaOutput)
 
 	TagResource(*secretsmanager.TagResourceInput) (*secretsmanager.TagResourceOutput, error)
 	TagResourceWithContext(aws.Context, *secretsmanager.TagResourceInput, ...request.Option) (*secretsmanager.TagResourceOutput, error)
@@ -137,6 +149,10 @@ type SecretsManagerAPI interface {
 	UpdateSecretVersionStage(*secretsmanager.UpdateSecretVersionStageInput) (*secretsmanager.UpdateSecretVersionStageOutput, error)
 	UpdateSecretVersionStageWithContext(aws.Context, *secretsmanager.UpdateSecretVersionStageInput, ...request.Option) (*secretsmanager.UpdateSecretVersionStageOutput, error)
 	UpdateSecretVersionStageRequest(*secretsmanager.UpdateSecretVersionStageInput) (*request.Request, *secretsmanager.UpdateSecretVersionStageOutput)
+
+	ValidateResourcePolicy(*secretsmanager.ValidateResourcePolicyInput) (*secretsmanager.ValidateResourcePolicyOutput, error)
+	ValidateResourcePolicyWithContext(aws.Context, *secretsmanager.ValidateResourcePolicyInput, ...request.Option) (*secretsmanager.ValidateResourcePolicyOutput, error)
+	ValidateResourcePolicyRequest(*secretsmanager.ValidateResourcePolicyInput) (*request.Request, *secretsmanager.ValidateResourcePolicyOutput)
 }
 
 var _ SecretsManagerAPI = (*secretsmanager.SecretsManager)(nil)

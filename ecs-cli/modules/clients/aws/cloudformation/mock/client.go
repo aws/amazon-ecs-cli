@@ -25,30 +25,30 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockCloudformationClient is a mock of CloudformationClient interface
+// MockCloudformationClient is a mock of CloudformationClient interface.
 type MockCloudformationClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockCloudformationClientMockRecorder
 }
 
-// MockCloudformationClientMockRecorder is the mock recorder for MockCloudformationClient
+// MockCloudformationClientMockRecorder is the mock recorder for MockCloudformationClient.
 type MockCloudformationClientMockRecorder struct {
 	mock *MockCloudformationClient
 }
 
-// NewMockCloudformationClient creates a new mock instance
+// NewMockCloudformationClient creates a new mock instance.
 func NewMockCloudformationClient(ctrl *gomock.Controller) *MockCloudformationClient {
 	mock := &MockCloudformationClient{ctrl: ctrl}
 	mock.recorder = &MockCloudformationClientMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockCloudformationClient) EXPECT() *MockCloudformationClientMockRecorder {
 	return m.recorder
 }
 
-// CreateStack mocks base method
+// CreateStack mocks base method.
 func (m *MockCloudformationClient) CreateStack(arg0, arg1 string, arg2 bool, arg3 *cloudformation.CfnStackParams, arg4 []*cloudformation0.Tag) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateStack", arg0, arg1, arg2, arg3, arg4)
@@ -57,13 +57,13 @@ func (m *MockCloudformationClient) CreateStack(arg0, arg1 string, arg2 bool, arg
 	return ret0, ret1
 }
 
-// CreateStack indicates an expected call of CreateStack
+// CreateStack indicates an expected call of CreateStack.
 func (mr *MockCloudformationClientMockRecorder) CreateStack(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateStack", reflect.TypeOf((*MockCloudformationClient)(nil).CreateStack), arg0, arg1, arg2, arg3, arg4)
 }
 
-// DeleteStack mocks base method
+// DeleteStack mocks base method.
 func (m *MockCloudformationClient) DeleteStack(arg0 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteStack", arg0)
@@ -71,13 +71,13 @@ func (m *MockCloudformationClient) DeleteStack(arg0 string) error {
 	return ret0
 }
 
-// DeleteStack indicates an expected call of DeleteStack
+// DeleteStack indicates an expected call of DeleteStack.
 func (mr *MockCloudformationClientMockRecorder) DeleteStack(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteStack", reflect.TypeOf((*MockCloudformationClient)(nil).DeleteStack), arg0)
 }
 
-// DescribeNetworkResources mocks base method
+// DescribeNetworkResources mocks base method.
 func (m *MockCloudformationClient) DescribeNetworkResources(arg0 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeNetworkResources", arg0)
@@ -85,13 +85,13 @@ func (m *MockCloudformationClient) DescribeNetworkResources(arg0 string) error {
 	return ret0
 }
 
-// DescribeNetworkResources indicates an expected call of DescribeNetworkResources
+// DescribeNetworkResources indicates an expected call of DescribeNetworkResources.
 func (mr *MockCloudformationClientMockRecorder) DescribeNetworkResources(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeNetworkResources", reflect.TypeOf((*MockCloudformationClient)(nil).DescribeNetworkResources), arg0)
 }
 
-// DescribeStacks mocks base method
+// DescribeStacks mocks base method.
 func (m *MockCloudformationClient) DescribeStacks(arg0 string) (*cloudformation0.DescribeStacksOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeStacks", arg0)
@@ -100,13 +100,13 @@ func (m *MockCloudformationClient) DescribeStacks(arg0 string) (*cloudformation0
 	return ret0, ret1
 }
 
-// DescribeStacks indicates an expected call of DescribeStacks
+// DescribeStacks indicates an expected call of DescribeStacks.
 func (mr *MockCloudformationClientMockRecorder) DescribeStacks(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeStacks", reflect.TypeOf((*MockCloudformationClient)(nil).DescribeStacks), arg0)
 }
 
-// GetStackParameters mocks base method
+// GetStackParameters mocks base method.
 func (m *MockCloudformationClient) GetStackParameters(arg0 string) ([]*cloudformation0.Parameter, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetStackParameters", arg0)
@@ -115,13 +115,13 @@ func (m *MockCloudformationClient) GetStackParameters(arg0 string) ([]*cloudform
 	return ret0, ret1
 }
 
-// GetStackParameters indicates an expected call of GetStackParameters
+// GetStackParameters indicates an expected call of GetStackParameters.
 func (mr *MockCloudformationClientMockRecorder) GetStackParameters(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStackParameters", reflect.TypeOf((*MockCloudformationClient)(nil).GetStackParameters), arg0)
 }
 
-// UpdateStack mocks base method
+// UpdateStack mocks base method.
 func (m *MockCloudformationClient) UpdateStack(arg0 string, arg1 *cloudformation.CfnStackParams) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateStack", arg0, arg1)
@@ -130,13 +130,13 @@ func (m *MockCloudformationClient) UpdateStack(arg0 string, arg1 *cloudformation
 	return ret0, ret1
 }
 
-// UpdateStack indicates an expected call of UpdateStack
+// UpdateStack indicates an expected call of UpdateStack.
 func (mr *MockCloudformationClientMockRecorder) UpdateStack(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStack", reflect.TypeOf((*MockCloudformationClient)(nil).UpdateStack), arg0, arg1)
 }
 
-// ValidateStackExists mocks base method
+// ValidateStackExists mocks base method.
 func (m *MockCloudformationClient) ValidateStackExists(arg0 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ValidateStackExists", arg0)
@@ -144,13 +144,13 @@ func (m *MockCloudformationClient) ValidateStackExists(arg0 string) error {
 	return ret0
 }
 
-// ValidateStackExists indicates an expected call of ValidateStackExists
+// ValidateStackExists indicates an expected call of ValidateStackExists.
 func (mr *MockCloudformationClientMockRecorder) ValidateStackExists(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateStackExists", reflect.TypeOf((*MockCloudformationClient)(nil).ValidateStackExists), arg0)
 }
 
-// WaitUntilCreateComplete mocks base method
+// WaitUntilCreateComplete mocks base method.
 func (m *MockCloudformationClient) WaitUntilCreateComplete(arg0 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "WaitUntilCreateComplete", arg0)
@@ -158,13 +158,13 @@ func (m *MockCloudformationClient) WaitUntilCreateComplete(arg0 string) error {
 	return ret0
 }
 
-// WaitUntilCreateComplete indicates an expected call of WaitUntilCreateComplete
+// WaitUntilCreateComplete indicates an expected call of WaitUntilCreateComplete.
 func (mr *MockCloudformationClientMockRecorder) WaitUntilCreateComplete(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WaitUntilCreateComplete", reflect.TypeOf((*MockCloudformationClient)(nil).WaitUntilCreateComplete), arg0)
 }
 
-// WaitUntilDeleteComplete mocks base method
+// WaitUntilDeleteComplete mocks base method.
 func (m *MockCloudformationClient) WaitUntilDeleteComplete(arg0 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "WaitUntilDeleteComplete", arg0)
@@ -172,13 +172,13 @@ func (m *MockCloudformationClient) WaitUntilDeleteComplete(arg0 string) error {
 	return ret0
 }
 
-// WaitUntilDeleteComplete indicates an expected call of WaitUntilDeleteComplete
+// WaitUntilDeleteComplete indicates an expected call of WaitUntilDeleteComplete.
 func (mr *MockCloudformationClientMockRecorder) WaitUntilDeleteComplete(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WaitUntilDeleteComplete", reflect.TypeOf((*MockCloudformationClient)(nil).WaitUntilDeleteComplete), arg0)
 }
 
-// WaitUntilUpdateComplete mocks base method
+// WaitUntilUpdateComplete mocks base method.
 func (m *MockCloudformationClient) WaitUntilUpdateComplete(arg0 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "WaitUntilUpdateComplete", arg0)
@@ -186,7 +186,7 @@ func (m *MockCloudformationClient) WaitUntilUpdateComplete(arg0 string) error {
 	return ret0
 }
 
-// WaitUntilUpdateComplete indicates an expected call of WaitUntilUpdateComplete
+// WaitUntilUpdateComplete indicates an expected call of WaitUntilUpdateComplete.
 func (mr *MockCloudformationClientMockRecorder) WaitUntilUpdateComplete(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WaitUntilUpdateComplete", reflect.TypeOf((*MockCloudformationClient)(nil).WaitUntilUpdateComplete), arg0)

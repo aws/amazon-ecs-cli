@@ -68,7 +68,7 @@ const (
 	// ErrCodeMalformedPolicyDocumentException for service response error code
 	// "MalformedPolicyDocumentException".
 	//
-	// The policy document that you provided isn't valid.
+	// You provided a resource-based policy with syntax errors.
 	ErrCodeMalformedPolicyDocumentException = "MalformedPolicyDocumentException"
 
 	// ErrCodePreconditionNotMetException for service response error code
@@ -76,6 +76,13 @@ const (
 	//
 	// The request failed because you did not complete all the prerequisite steps.
 	ErrCodePreconditionNotMetException = "PreconditionNotMetException"
+
+	// ErrCodePublicPolicyException for service response error code
+	// "PublicPolicyException".
+	//
+	// The BlockPublicPolicy parameter is set to true and the resource policy did
+	// not prevent broad access to the secret.
+	ErrCodePublicPolicyException = "PublicPolicyException"
 
 	// ErrCodeResourceExistsException for service response error code
 	// "ResourceExistsException".
@@ -100,6 +107,7 @@ var exceptionFromCode = map[string]func(protocol.ResponseMetadata) error{
 	"LimitExceededException":           newErrorLimitExceededException,
 	"MalformedPolicyDocumentException": newErrorMalformedPolicyDocumentException,
 	"PreconditionNotMetException":      newErrorPreconditionNotMetException,
+	"PublicPolicyException":            newErrorPublicPolicyException,
 	"ResourceExistsException":          newErrorResourceExistsException,
 	"ResourceNotFoundException":        newErrorResourceNotFoundException,
 }
