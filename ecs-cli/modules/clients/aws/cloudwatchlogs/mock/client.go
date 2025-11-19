@@ -24,30 +24,30 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockClient is a mock of Client interface
+// MockClient is a mock of Client interface.
 type MockClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockClientMockRecorder
 }
 
-// MockClientMockRecorder is the mock recorder for MockClient
+// MockClientMockRecorder is the mock recorder for MockClient.
 type MockClientMockRecorder struct {
 	mock *MockClient
 }
 
-// NewMockClient creates a new mock instance
+// NewMockClient creates a new mock instance.
 func NewMockClient(ctrl *gomock.Controller) *MockClient {
 	mock := &MockClient{ctrl: ctrl}
 	mock.recorder = &MockClientMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockClient) EXPECT() *MockClientMockRecorder {
 	return m.recorder
 }
 
-// CreateLogGroup mocks base method
+// CreateLogGroup mocks base method.
 func (m *MockClient) CreateLogGroup(arg0 *string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateLogGroup", arg0)
@@ -55,13 +55,13 @@ func (m *MockClient) CreateLogGroup(arg0 *string) error {
 	return ret0
 }
 
-// CreateLogGroup indicates an expected call of CreateLogGroup
+// CreateLogGroup indicates an expected call of CreateLogGroup.
 func (mr *MockClientMockRecorder) CreateLogGroup(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLogGroup", reflect.TypeOf((*MockClient)(nil).CreateLogGroup), arg0)
 }
 
-// FilterAllLogEvents mocks base method
+// FilterAllLogEvents mocks base method.
 func (m *MockClient) FilterAllLogEvents(arg0 *cloudwatchlogs.FilterLogEventsInput, arg1 func([]*cloudwatchlogs.FilteredLogEvent)) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FilterAllLogEvents", arg0, arg1)
@@ -69,7 +69,7 @@ func (m *MockClient) FilterAllLogEvents(arg0 *cloudwatchlogs.FilterLogEventsInpu
 	return ret0
 }
 
-// FilterAllLogEvents indicates an expected call of FilterAllLogEvents
+// FilterAllLogEvents indicates an expected call of FilterAllLogEvents.
 func (mr *MockClientMockRecorder) FilterAllLogEvents(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FilterAllLogEvents", reflect.TypeOf((*MockClient)(nil).FilterAllLogEvents), arg0, arg1)

@@ -43,16 +43,17 @@ type ECSParams struct {
 
 // EcsTaskDef corresponds to fields in an ECS TaskDefinition
 type EcsTaskDef struct {
-	NetworkMode          string         `yaml:"ecs_network_mode"`
-	TaskRoleArn          string         `yaml:"task_role_arn"`
-	PIDMode              string         `yaml:"pid_mode"`
-	IPCMode              string         `yaml:"ipc_mode"`
-	ContainerDefinitions ContainerDefs  `yaml:"services"`
-	ExecutionRole        string         `yaml:"task_execution_role"`
-	TaskSize             TaskSize       `yaml:"task_size"` // Needed to run FARGATE tasks
-	DockerVolumes        []DockerVolume `yaml:"docker_volumes"`
-	EFSVolumes           []EFSVolume    `yaml:"efs_volumes"`
-	PlacementConstraints []Constraint   `yaml:"placement_constraints"`
+	NetworkMode          string            `yaml:"ecs_network_mode"`
+	TaskRoleArn          string            `yaml:"task_role_arn"`
+	PIDMode              string            `yaml:"pid_mode"`
+	IPCMode              string            `yaml:"ipc_mode"`
+	ContainerDefinitions ContainerDefs     `yaml:"services"`
+	ExecutionRole        string            `yaml:"task_execution_role"`
+	TaskSize             TaskSize          `yaml:"task_size"` // Needed to run FARGATE tasks
+	DockerVolumes        []DockerVolume    `yaml:"docker_volumes"`
+	EFSVolumes           []EFSVolume       `yaml:"efs_volumes"`
+	PlacementConstraints []Constraint      `yaml:"placement_constraints"`
+	EphemeralStorage     *EphemeralStorage `yaml:"ephemeral_storage"` // Only supported on FARGATE tasks
 }
 
 // ContainerDefs is a map of ContainerDefs within a task definition
@@ -236,6 +237,10 @@ type Strategy struct {
 type Constraint struct {
 	Expression string `yaml:"expression"`
 	Type       string `yaml:"type"`
+}
+
+type EphemeralStorage struct {
+	SizeInGib int64 `yaml:"size_in_gib"`
 }
 
 /////////////////////////////
@@ -443,6 +448,19 @@ func ConvertToECSPlacementStrategy(ecsParams *ECSParams) ([]*ecs.PlacementStrate
 		}
 		output = append(output, ecsStrategy)
 	}
+
+	return output, nil
+}
+
+// ConvertToECSEphemeralStorage converts the EphemeralStorage in the
+// ecs-params into a format that is compatible with ECSClient calls.
+func ConvertToECSEphemeralStorage(ecsParams *ECSParams) (*ecs.EphemeralStorage, error) {
+	if ecsParams == nil || ecsParams.TaskDefinition.EphemeralStorage == nil {
+		return nil, nil
+	}
+
+	output := &ecs.EphemeralStorage{}
+	output.SetSizeInGiB(ecsParams.TaskDefinition.EphemeralStorage.SizeInGib)
 
 	return output, nil
 }

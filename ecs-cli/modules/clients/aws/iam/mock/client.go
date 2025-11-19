@@ -24,30 +24,30 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockClient is a mock of Client interface
+// MockClient is a mock of Client interface.
 type MockClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockClientMockRecorder
 }
 
-// MockClientMockRecorder is the mock recorder for MockClient
+// MockClientMockRecorder is the mock recorder for MockClient.
 type MockClientMockRecorder struct {
 	mock *MockClient
 }
 
-// NewMockClient creates a new mock instance
+// NewMockClient creates a new mock instance.
 func NewMockClient(ctrl *gomock.Controller) *MockClient {
 	mock := &MockClient{ctrl: ctrl}
 	mock.recorder = &MockClientMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockClient) EXPECT() *MockClientMockRecorder {
 	return m.recorder
 }
 
-// AttachRolePolicy mocks base method
+// AttachRolePolicy mocks base method.
 func (m *MockClient) AttachRolePolicy(arg0, arg1 string) (*iam.AttachRolePolicyOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AttachRolePolicy", arg0, arg1)
@@ -56,13 +56,13 @@ func (m *MockClient) AttachRolePolicy(arg0, arg1 string) (*iam.AttachRolePolicyO
 	return ret0, ret1
 }
 
-// AttachRolePolicy indicates an expected call of AttachRolePolicy
+// AttachRolePolicy indicates an expected call of AttachRolePolicy.
 func (mr *MockClientMockRecorder) AttachRolePolicy(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AttachRolePolicy", reflect.TypeOf((*MockClient)(nil).AttachRolePolicy), arg0, arg1)
 }
 
-// CreateOrFindRole mocks base method
+// CreateOrFindRole mocks base method.
 func (m *MockClient) CreateOrFindRole(arg0, arg1, arg2 string, arg3 []*iam.Tag) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateOrFindRole", arg0, arg1, arg2, arg3)
@@ -71,13 +71,13 @@ func (m *MockClient) CreateOrFindRole(arg0, arg1, arg2 string, arg3 []*iam.Tag) 
 	return ret0, ret1
 }
 
-// CreateOrFindRole indicates an expected call of CreateOrFindRole
+// CreateOrFindRole indicates an expected call of CreateOrFindRole.
 func (mr *MockClientMockRecorder) CreateOrFindRole(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrFindRole", reflect.TypeOf((*MockClient)(nil).CreateOrFindRole), arg0, arg1, arg2, arg3)
 }
 
-// CreatePolicy mocks base method
+// CreatePolicy mocks base method.
 func (m *MockClient) CreatePolicy(arg0 iam.CreatePolicyInput) (*iam.CreatePolicyOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreatePolicy", arg0)
@@ -86,13 +86,13 @@ func (m *MockClient) CreatePolicy(arg0 iam.CreatePolicyInput) (*iam.CreatePolicy
 	return ret0, ret1
 }
 
-// CreatePolicy indicates an expected call of CreatePolicy
+// CreatePolicy indicates an expected call of CreatePolicy.
 func (mr *MockClientMockRecorder) CreatePolicy(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePolicy", reflect.TypeOf((*MockClient)(nil).CreatePolicy), arg0)
 }
 
-// CreateRole mocks base method
+// CreateRole mocks base method.
 func (m *MockClient) CreateRole(arg0 iam.CreateRoleInput) (*iam.CreateRoleOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateRole", arg0)
@@ -101,7 +101,7 @@ func (m *MockClient) CreateRole(arg0 iam.CreateRoleInput) (*iam.CreateRoleOutput
 	return ret0, ret1
 }
 
-// CreateRole indicates an expected call of CreateRole
+// CreateRole indicates an expected call of CreateRole.
 func (mr *MockClientMockRecorder) CreateRole(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRole", reflect.TypeOf((*MockClient)(nil).CreateRole), arg0)

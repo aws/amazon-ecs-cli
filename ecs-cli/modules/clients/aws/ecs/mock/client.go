@@ -26,30 +26,30 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockECSClient is a mock of ECSClient interface
+// MockECSClient is a mock of ECSClient interface.
 type MockECSClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockECSClientMockRecorder
 }
 
-// MockECSClientMockRecorder is the mock recorder for MockECSClient
+// MockECSClientMockRecorder is the mock recorder for MockECSClient.
 type MockECSClientMockRecorder struct {
 	mock *MockECSClient
 }
 
-// NewMockECSClient creates a new mock instance
+// NewMockECSClient creates a new mock instance.
 func NewMockECSClient(ctrl *gomock.Controller) *MockECSClient {
 	mock := &MockECSClient{ctrl: ctrl}
 	mock.recorder = &MockECSClientMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockECSClient) EXPECT() *MockECSClientMockRecorder {
 	return m.recorder
 }
 
-// CreateCluster mocks base method
+// CreateCluster mocks base method.
 func (m *MockECSClient) CreateCluster(arg0 string, arg1 []*ecs0.Tag) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateCluster", arg0, arg1)
@@ -58,13 +58,13 @@ func (m *MockECSClient) CreateCluster(arg0 string, arg1 []*ecs0.Tag) (string, er
 	return ret0, ret1
 }
 
-// CreateCluster indicates an expected call of CreateCluster
+// CreateCluster indicates an expected call of CreateCluster.
 func (mr *MockECSClientMockRecorder) CreateCluster(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCluster", reflect.TypeOf((*MockECSClient)(nil).CreateCluster), arg0, arg1)
 }
 
-// CreateService mocks base method
+// CreateService mocks base method.
 func (m *MockECSClient) CreateService(arg0 *ecs0.CreateServiceInput) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateService", arg0)
@@ -72,13 +72,13 @@ func (m *MockECSClient) CreateService(arg0 *ecs0.CreateServiceInput) error {
 	return ret0
 }
 
-// CreateService indicates an expected call of CreateService
+// CreateService indicates an expected call of CreateService.
 func (mr *MockECSClientMockRecorder) CreateService(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateService", reflect.TypeOf((*MockECSClient)(nil).CreateService), arg0)
 }
 
-// DeleteCluster mocks base method
+// DeleteCluster mocks base method.
 func (m *MockECSClient) DeleteCluster(arg0 string) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteCluster", arg0)
@@ -87,13 +87,13 @@ func (m *MockECSClient) DeleteCluster(arg0 string) (string, error) {
 	return ret0, ret1
 }
 
-// DeleteCluster indicates an expected call of DeleteCluster
+// DeleteCluster indicates an expected call of DeleteCluster.
 func (mr *MockECSClientMockRecorder) DeleteCluster(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCluster", reflect.TypeOf((*MockECSClient)(nil).DeleteCluster), arg0)
 }
 
-// DeleteService mocks base method
+// DeleteService mocks base method.
 func (m *MockECSClient) DeleteService(arg0 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteService", arg0)
@@ -101,13 +101,13 @@ func (m *MockECSClient) DeleteService(arg0 string) error {
 	return ret0
 }
 
-// DeleteService indicates an expected call of DeleteService
+// DeleteService indicates an expected call of DeleteService.
 func (mr *MockECSClientMockRecorder) DeleteService(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteService", reflect.TypeOf((*MockECSClient)(nil).DeleteService), arg0)
 }
 
-// DescribeService mocks base method
+// DescribeService mocks base method.
 func (m *MockECSClient) DescribeService(arg0 string) (*ecs0.DescribeServicesOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeService", arg0)
@@ -116,13 +116,13 @@ func (m *MockECSClient) DescribeService(arg0 string) (*ecs0.DescribeServicesOutp
 	return ret0, ret1
 }
 
-// DescribeService indicates an expected call of DescribeService
+// DescribeService indicates an expected call of DescribeService.
 func (mr *MockECSClientMockRecorder) DescribeService(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeService", reflect.TypeOf((*MockECSClient)(nil).DescribeService), arg0)
 }
 
-// DescribeTaskDefinition mocks base method
+// DescribeTaskDefinition mocks base method.
 func (m *MockECSClient) DescribeTaskDefinition(arg0 string) (*ecs0.TaskDefinition, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeTaskDefinition", arg0)
@@ -131,13 +131,13 @@ func (m *MockECSClient) DescribeTaskDefinition(arg0 string) (*ecs0.TaskDefinitio
 	return ret0, ret1
 }
 
-// DescribeTaskDefinition indicates an expected call of DescribeTaskDefinition
+// DescribeTaskDefinition indicates an expected call of DescribeTaskDefinition.
 func (mr *MockECSClientMockRecorder) DescribeTaskDefinition(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeTaskDefinition", reflect.TypeOf((*MockECSClient)(nil).DescribeTaskDefinition), arg0)
 }
 
-// DescribeTasks mocks base method
+// DescribeTasks mocks base method.
 func (m *MockECSClient) DescribeTasks(arg0 []*string) ([]*ecs0.Task, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DescribeTasks", arg0)
@@ -146,13 +146,13 @@ func (m *MockECSClient) DescribeTasks(arg0 []*string) ([]*ecs0.Task, error) {
 	return ret0, ret1
 }
 
-// DescribeTasks indicates an expected call of DescribeTasks
+// DescribeTasks indicates an expected call of DescribeTasks.
 func (mr *MockECSClientMockRecorder) DescribeTasks(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeTasks", reflect.TypeOf((*MockECSClient)(nil).DescribeTasks), arg0)
 }
 
-// GetAttributesFromDescribeContainerInstances mocks base method
+// GetAttributesFromDescribeContainerInstances mocks base method.
 func (m *MockECSClient) GetAttributesFromDescribeContainerInstances(arg0 []*string) (map[string][]*string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAttributesFromDescribeContainerInstances", arg0)
@@ -161,13 +161,13 @@ func (m *MockECSClient) GetAttributesFromDescribeContainerInstances(arg0 []*stri
 	return ret0, ret1
 }
 
-// GetAttributesFromDescribeContainerInstances indicates an expected call of GetAttributesFromDescribeContainerInstances
+// GetAttributesFromDescribeContainerInstances indicates an expected call of GetAttributesFromDescribeContainerInstances.
 func (mr *MockECSClientMockRecorder) GetAttributesFromDescribeContainerInstances(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAttributesFromDescribeContainerInstances", reflect.TypeOf((*MockECSClient)(nil).GetAttributesFromDescribeContainerInstances), arg0)
 }
 
-// GetEC2InstanceIDs mocks base method
+// GetEC2InstanceIDs mocks base method.
 func (m *MockECSClient) GetEC2InstanceIDs(arg0 []*string) (map[string]string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetEC2InstanceIDs", arg0)
@@ -176,13 +176,13 @@ func (m *MockECSClient) GetEC2InstanceIDs(arg0 []*string) (map[string]string, er
 	return ret0, ret1
 }
 
-// GetEC2InstanceIDs indicates an expected call of GetEC2InstanceIDs
+// GetEC2InstanceIDs indicates an expected call of GetEC2InstanceIDs.
 func (mr *MockECSClientMockRecorder) GetEC2InstanceIDs(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEC2InstanceIDs", reflect.TypeOf((*MockECSClient)(nil).GetEC2InstanceIDs), arg0)
 }
 
-// GetTasksPages mocks base method
+// GetTasksPages mocks base method.
 func (m *MockECSClient) GetTasksPages(arg0 *ecs0.ListTasksInput, arg1 ecs.ProcessTasksAction) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTasksPages", arg0, arg1)
@@ -190,13 +190,13 @@ func (m *MockECSClient) GetTasksPages(arg0 *ecs0.ListTasksInput, arg1 ecs.Proces
 	return ret0
 }
 
-// GetTasksPages indicates an expected call of GetTasksPages
+// GetTasksPages indicates an expected call of GetTasksPages.
 func (mr *MockECSClientMockRecorder) GetTasksPages(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTasksPages", reflect.TypeOf((*MockECSClient)(nil).GetTasksPages), arg0, arg1)
 }
 
-// IsActiveCluster mocks base method
+// IsActiveCluster mocks base method.
 func (m *MockECSClient) IsActiveCluster(arg0 string) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "IsActiveCluster", arg0)
@@ -205,13 +205,13 @@ func (m *MockECSClient) IsActiveCluster(arg0 string) (bool, error) {
 	return ret0, ret1
 }
 
-// IsActiveCluster indicates an expected call of IsActiveCluster
+// IsActiveCluster indicates an expected call of IsActiveCluster.
 func (mr *MockECSClientMockRecorder) IsActiveCluster(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsActiveCluster", reflect.TypeOf((*MockECSClient)(nil).IsActiveCluster), arg0)
 }
 
-// ListAccountSettings mocks base method
+// ListAccountSettings mocks base method.
 func (m *MockECSClient) ListAccountSettings(arg0 *ecs0.ListAccountSettingsInput) (*ecs0.ListAccountSettingsOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListAccountSettings", arg0)
@@ -220,13 +220,13 @@ func (m *MockECSClient) ListAccountSettings(arg0 *ecs0.ListAccountSettingsInput)
 	return ret0, ret1
 }
 
-// ListAccountSettings indicates an expected call of ListAccountSettings
+// ListAccountSettings indicates an expected call of ListAccountSettings.
 func (mr *MockECSClientMockRecorder) ListAccountSettings(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAccountSettings", reflect.TypeOf((*MockECSClient)(nil).ListAccountSettings), arg0)
 }
 
-// RegisterTaskDefinitionIfNeeded mocks base method
+// RegisterTaskDefinitionIfNeeded mocks base method.
 func (m *MockECSClient) RegisterTaskDefinitionIfNeeded(arg0 *ecs0.RegisterTaskDefinitionInput, arg1 cache.Cache) (*ecs0.TaskDefinition, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RegisterTaskDefinitionIfNeeded", arg0, arg1)
@@ -235,13 +235,13 @@ func (m *MockECSClient) RegisterTaskDefinitionIfNeeded(arg0 *ecs0.RegisterTaskDe
 	return ret0, ret1
 }
 
-// RegisterTaskDefinitionIfNeeded indicates an expected call of RegisterTaskDefinitionIfNeeded
+// RegisterTaskDefinitionIfNeeded indicates an expected call of RegisterTaskDefinitionIfNeeded.
 func (mr *MockECSClientMockRecorder) RegisterTaskDefinitionIfNeeded(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterTaskDefinitionIfNeeded", reflect.TypeOf((*MockECSClient)(nil).RegisterTaskDefinitionIfNeeded), arg0, arg1)
 }
 
-// RunTask mocks base method
+// RunTask mocks base method.
 func (m *MockECSClient) RunTask(arg0 *ecs0.RunTaskInput) (*ecs0.RunTaskOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RunTask", arg0)
@@ -250,13 +250,13 @@ func (m *MockECSClient) RunTask(arg0 *ecs0.RunTaskInput) (*ecs0.RunTaskOutput, e
 	return ret0, ret1
 }
 
-// RunTask indicates an expected call of RunTask
+// RunTask indicates an expected call of RunTask.
 func (mr *MockECSClientMockRecorder) RunTask(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunTask", reflect.TypeOf((*MockECSClient)(nil).RunTask), arg0)
 }
 
-// StopTask mocks base method
+// StopTask mocks base method.
 func (m *MockECSClient) StopTask(arg0 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StopTask", arg0)
@@ -264,13 +264,13 @@ func (m *MockECSClient) StopTask(arg0 string) error {
 	return ret0
 }
 
-// StopTask indicates an expected call of StopTask
+// StopTask indicates an expected call of StopTask.
 func (mr *MockECSClientMockRecorder) StopTask(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StopTask", reflect.TypeOf((*MockECSClient)(nil).StopTask), arg0)
 }
 
-// UpdateService mocks base method
+// UpdateService mocks base method.
 func (m *MockECSClient) UpdateService(arg0 *ecs0.UpdateServiceInput) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateService", arg0)
@@ -278,7 +278,7 @@ func (m *MockECSClient) UpdateService(arg0 *ecs0.UpdateServiceInput) error {
 	return ret0
 }
 
-// UpdateService indicates an expected call of UpdateService
+// UpdateService indicates an expected call of UpdateService.
 func (mr *MockECSClientMockRecorder) UpdateService(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateService", reflect.TypeOf((*MockECSClient)(nil).UpdateService), arg0)

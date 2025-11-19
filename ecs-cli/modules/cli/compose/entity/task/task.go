@@ -327,6 +327,11 @@ func (t *Task) buildRunTaskInput(taskDefinition string, count int, overrides map
 		return nil, err
 	}
 
+	ephemeralStorage, err := composeutils.ConvertToECSEphemeralStorage(ecsParams)
+	if err != nil {
+		return nil, err
+	}
+
 	// NOTE: this validation is not useful if called after RegisterTaskDefinition
 	if err := entity.ValidateFargateParams(ecsParams, launchType); err != nil {
 		return nil, err
@@ -362,6 +367,14 @@ func (t *Task) buildRunTaskInput(taskDefinition string, count int, overrides map
 
 	if launchType != "" {
 		runTaskInput.LaunchType = aws.String(launchType)
+	}
+
+	if ephemeralStorage != nil {
+		if runTaskInput.Overrides == nil {
+			runTaskInput.Overrides = &ecs.TaskOverride{}
+		}
+
+		runTaskInput.Overrides.SetEphemeralStorage(ephemeralStorage)
 	}
 
 	tags, err := t.GetTags()

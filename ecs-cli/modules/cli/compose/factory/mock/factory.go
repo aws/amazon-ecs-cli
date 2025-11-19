@@ -25,30 +25,30 @@ import (
 	cli "github.com/urfave/cli"
 )
 
-// MockProjectFactory is a mock of ProjectFactory interface
+// MockProjectFactory is a mock of ProjectFactory interface.
 type MockProjectFactory struct {
 	ctrl     *gomock.Controller
 	recorder *MockProjectFactoryMockRecorder
 }
 
-// MockProjectFactoryMockRecorder is the mock recorder for MockProjectFactory
+// MockProjectFactoryMockRecorder is the mock recorder for MockProjectFactory.
 type MockProjectFactoryMockRecorder struct {
 	mock *MockProjectFactory
 }
 
-// NewMockProjectFactory creates a new mock instance
+// NewMockProjectFactory creates a new mock instance.
 func NewMockProjectFactory(ctrl *gomock.Controller) *MockProjectFactory {
 	mock := &MockProjectFactory{ctrl: ctrl}
 	mock.recorder = &MockProjectFactoryMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockProjectFactory) EXPECT() *MockProjectFactoryMockRecorder {
 	return m.recorder
 }
 
-// Create mocks base method
+// Create mocks base method.
 func (m *MockProjectFactory) Create(arg0 *cli.Context, arg1 bool) (project.Project, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", arg0, arg1)
@@ -57,7 +57,7 @@ func (m *MockProjectFactory) Create(arg0 *cli.Context, arg1 bool) (project.Proje
 	return ret0, ret1
 }
 
-// Create indicates an expected call of Create
+// Create indicates an expected call of Create.
 func (mr *MockProjectFactoryMockRecorder) Create(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockProjectFactory)(nil).Create), arg0, arg1)

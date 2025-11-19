@@ -132,6 +132,7 @@ func createRegisterTaskDefinitionRequest(taskDefinition *ecs.TaskDefinition, tag
 		PidMode:                 taskDefinition.PidMode,
 		IpcMode:                 taskDefinition.IpcMode,
 		PlacementConstraints:    taskDefinition.PlacementConstraints,
+		EphemeralStorage:        taskDefinition.EphemeralStorage,
 	}
 
 	if networkMode := taskDefinition.NetworkMode; aws.StringValue(networkMode) != "" {

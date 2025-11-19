@@ -1724,7 +1724,7 @@ task_definition:
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 
-	containerConfigs := []adapter.ContainerConfig{*webContainerConfig, * logRouterContainerConfig}
+	containerConfigs := []adapter.ContainerConfig{*webContainerConfig, *logRouterContainerConfig}
 	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
 
 	containerDefs := taskDefinition.ContainerDefinitions
@@ -2225,4 +2225,40 @@ func createTempECSParamsForTest(t *testing.T, content string) (*ECSParams, error
 	ecsParams, err := ReadECSParams(ecsParamsFileName)
 	assert.NoError(t, err, "Could not read ECS Params file")
 	return ecsParams, err
+}
+
+func TestConvertToTaskDefinitionWithECSParams_EphemeralStorage(t *testing.T) {
+	containerConfig := &adapter.ContainerConfig{
+		Name:  "web",
+		Image: "httpd",
+	}
+
+	ecsParamsString := `version: 1
+task_definition:
+  ephemeral_storage:
+    size_in_gib: 192`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs params tempfile")
+
+	defer os.Remove(tmpfile.Name())
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+	assert.NoError(t, err, "Could not read ECS Params file")
+
+	containerConfigs := []adapter.ContainerConfig{*containerConfig}
+	taskDefinition, err := convertToTaskDefinitionForTest(t, containerConfigs, "", "", ecsParams, nil)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, int64(192), aws.Int64Value(taskDefinition.EphemeralStorage.SizeInGiB))
+	}
 }

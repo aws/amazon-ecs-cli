@@ -148,6 +148,10 @@ type KMSAPI interface {
 	GenerateDataKeyWithoutPlaintextWithContext(aws.Context, *kms.GenerateDataKeyWithoutPlaintextInput, ...request.Option) (*kms.GenerateDataKeyWithoutPlaintextOutput, error)
 	GenerateDataKeyWithoutPlaintextRequest(*kms.GenerateDataKeyWithoutPlaintextInput) (*request.Request, *kms.GenerateDataKeyWithoutPlaintextOutput)
 
+	GenerateMac(*kms.GenerateMacInput) (*kms.GenerateMacOutput, error)
+	GenerateMacWithContext(aws.Context, *kms.GenerateMacInput, ...request.Option) (*kms.GenerateMacOutput, error)
+	GenerateMacRequest(*kms.GenerateMacInput) (*request.Request, *kms.GenerateMacOutput)
+
 	GenerateRandom(*kms.GenerateRandomInput) (*kms.GenerateRandomOutput, error)
 	GenerateRandomWithContext(aws.Context, *kms.GenerateRandomInput, ...request.Option) (*kms.GenerateRandomOutput, error)
 	GenerateRandomRequest(*kms.GenerateRandomInput) (*request.Request, *kms.GenerateRandomOutput)
@@ -216,6 +220,10 @@ type KMSAPI interface {
 	ReEncryptWithContext(aws.Context, *kms.ReEncryptInput, ...request.Option) (*kms.ReEncryptOutput, error)
 	ReEncryptRequest(*kms.ReEncryptInput) (*request.Request, *kms.ReEncryptOutput)
 
+	ReplicateKey(*kms.ReplicateKeyInput) (*kms.ReplicateKeyOutput, error)
+	ReplicateKeyWithContext(aws.Context, *kms.ReplicateKeyInput, ...request.Option) (*kms.ReplicateKeyOutput, error)
+	ReplicateKeyRequest(*kms.ReplicateKeyInput) (*request.Request, *kms.ReplicateKeyOutput)
+
 	RetireGrant(*kms.RetireGrantInput) (*kms.RetireGrantOutput, error)
 	RetireGrantWithContext(aws.Context, *kms.RetireGrantInput, ...request.Option) (*kms.RetireGrantOutput, error)
 	RetireGrantRequest(*kms.RetireGrantInput) (*request.Request, *kms.RetireGrantOutput)
@@ -252,9 +260,17 @@ type KMSAPI interface {
 	UpdateKeyDescriptionWithContext(aws.Context, *kms.UpdateKeyDescriptionInput, ...request.Option) (*kms.UpdateKeyDescriptionOutput, error)
 	UpdateKeyDescriptionRequest(*kms.UpdateKeyDescriptionInput) (*request.Request, *kms.UpdateKeyDescriptionOutput)
 
+	UpdatePrimaryRegion(*kms.UpdatePrimaryRegionInput) (*kms.UpdatePrimaryRegionOutput, error)
+	UpdatePrimaryRegionWithContext(aws.Context, *kms.UpdatePrimaryRegionInput, ...request.Option) (*kms.UpdatePrimaryRegionOutput, error)
+	UpdatePrimaryRegionRequest(*kms.UpdatePrimaryRegionInput) (*request.Request, *kms.UpdatePrimaryRegionOutput)
+
 	Verify(*kms.VerifyInput) (*kms.VerifyOutput, error)
 	VerifyWithContext(aws.Context, *kms.VerifyInput, ...request.Option) (*kms.VerifyOutput, error)
 	VerifyRequest(*kms.VerifyInput) (*request.Request, *kms.VerifyOutput)
+
+	VerifyMac(*kms.VerifyMacInput) (*kms.VerifyMacOutput, error)
+	VerifyMacWithContext(aws.Context, *kms.VerifyMacInput, ...request.Option) (*kms.VerifyMacOutput, error)
+	VerifyMacRequest(*kms.VerifyMacInput) (*request.Request, *kms.VerifyMacOutput)
 }
 
 var _ KMSAPI = (*kms.KMS)(nil)

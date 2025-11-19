@@ -150,6 +150,17 @@ func ConvertToTaskDefinition(params ConvertTaskDefParams) (*ecs.TaskDefinition, 
 	if taskDefParams.ipcMode != "" {
 		taskDefinition.SetIpcMode(taskDefParams.ipcMode)
 	}
+
+	// Set ephemeral storage
+	ephemeralStorage, err := ConvertToECSEphemeralStorage(params.ECSParams)
+	if err != nil {
+		return nil, err
+	}
+
+	if ephemeralStorage != nil {
+		taskDefinition.SetEphemeralStorage(ephemeralStorage)
+	}
+
 	return taskDefinition, nil
 }
 

@@ -72,9 +72,17 @@ type ECRAPI interface {
 	BatchGetImageWithContext(aws.Context, *ecr.BatchGetImageInput, ...request.Option) (*ecr.BatchGetImageOutput, error)
 	BatchGetImageRequest(*ecr.BatchGetImageInput) (*request.Request, *ecr.BatchGetImageOutput)
 
+	BatchGetRepositoryScanningConfiguration(*ecr.BatchGetRepositoryScanningConfigurationInput) (*ecr.BatchGetRepositoryScanningConfigurationOutput, error)
+	BatchGetRepositoryScanningConfigurationWithContext(aws.Context, *ecr.BatchGetRepositoryScanningConfigurationInput, ...request.Option) (*ecr.BatchGetRepositoryScanningConfigurationOutput, error)
+	BatchGetRepositoryScanningConfigurationRequest(*ecr.BatchGetRepositoryScanningConfigurationInput) (*request.Request, *ecr.BatchGetRepositoryScanningConfigurationOutput)
+
 	CompleteLayerUpload(*ecr.CompleteLayerUploadInput) (*ecr.CompleteLayerUploadOutput, error)
 	CompleteLayerUploadWithContext(aws.Context, *ecr.CompleteLayerUploadInput, ...request.Option) (*ecr.CompleteLayerUploadOutput, error)
 	CompleteLayerUploadRequest(*ecr.CompleteLayerUploadInput) (*request.Request, *ecr.CompleteLayerUploadOutput)
+
+	CreatePullThroughCacheRule(*ecr.CreatePullThroughCacheRuleInput) (*ecr.CreatePullThroughCacheRuleOutput, error)
+	CreatePullThroughCacheRuleWithContext(aws.Context, *ecr.CreatePullThroughCacheRuleInput, ...request.Option) (*ecr.CreatePullThroughCacheRuleOutput, error)
+	CreatePullThroughCacheRuleRequest(*ecr.CreatePullThroughCacheRuleInput) (*request.Request, *ecr.CreatePullThroughCacheRuleOutput)
 
 	CreateRepository(*ecr.CreateRepositoryInput) (*ecr.CreateRepositoryOutput, error)
 	CreateRepositoryWithContext(aws.Context, *ecr.CreateRepositoryInput, ...request.Option) (*ecr.CreateRepositoryOutput, error)
@@ -84,6 +92,14 @@ type ECRAPI interface {
 	DeleteLifecyclePolicyWithContext(aws.Context, *ecr.DeleteLifecyclePolicyInput, ...request.Option) (*ecr.DeleteLifecyclePolicyOutput, error)
 	DeleteLifecyclePolicyRequest(*ecr.DeleteLifecyclePolicyInput) (*request.Request, *ecr.DeleteLifecyclePolicyOutput)
 
+	DeletePullThroughCacheRule(*ecr.DeletePullThroughCacheRuleInput) (*ecr.DeletePullThroughCacheRuleOutput, error)
+	DeletePullThroughCacheRuleWithContext(aws.Context, *ecr.DeletePullThroughCacheRuleInput, ...request.Option) (*ecr.DeletePullThroughCacheRuleOutput, error)
+	DeletePullThroughCacheRuleRequest(*ecr.DeletePullThroughCacheRuleInput) (*request.Request, *ecr.DeletePullThroughCacheRuleOutput)
+
+	DeleteRegistryPolicy(*ecr.DeleteRegistryPolicyInput) (*ecr.DeleteRegistryPolicyOutput, error)
+	DeleteRegistryPolicyWithContext(aws.Context, *ecr.DeleteRegistryPolicyInput, ...request.Option) (*ecr.DeleteRegistryPolicyOutput, error)
+	DeleteRegistryPolicyRequest(*ecr.DeleteRegistryPolicyInput) (*request.Request, *ecr.DeleteRegistryPolicyOutput)
+
 	DeleteRepository(*ecr.DeleteRepositoryInput) (*ecr.DeleteRepositoryOutput, error)
 	DeleteRepositoryWithContext(aws.Context, *ecr.DeleteRepositoryInput, ...request.Option) (*ecr.DeleteRepositoryOutput, error)
 	DeleteRepositoryRequest(*ecr.DeleteRepositoryInput) (*request.Request, *ecr.DeleteRepositoryOutput)
@@ -91,6 +107,10 @@ type ECRAPI interface {
 	DeleteRepositoryPolicy(*ecr.DeleteRepositoryPolicyInput) (*ecr.DeleteRepositoryPolicyOutput, error)
 	DeleteRepositoryPolicyWithContext(aws.Context, *ecr.DeleteRepositoryPolicyInput, ...request.Option) (*ecr.DeleteRepositoryPolicyOutput, error)
 	DeleteRepositoryPolicyRequest(*ecr.DeleteRepositoryPolicyInput) (*request.Request, *ecr.DeleteRepositoryPolicyOutput)
+
+	DescribeImageReplicationStatus(*ecr.DescribeImageReplicationStatusInput) (*ecr.DescribeImageReplicationStatusOutput, error)
+	DescribeImageReplicationStatusWithContext(aws.Context, *ecr.DescribeImageReplicationStatusInput, ...request.Option) (*ecr.DescribeImageReplicationStatusOutput, error)
+	DescribeImageReplicationStatusRequest(*ecr.DescribeImageReplicationStatusInput) (*request.Request, *ecr.DescribeImageReplicationStatusOutput)
 
 	DescribeImageScanFindings(*ecr.DescribeImageScanFindingsInput) (*ecr.DescribeImageScanFindingsOutput, error)
 	DescribeImageScanFindingsWithContext(aws.Context, *ecr.DescribeImageScanFindingsInput, ...request.Option) (*ecr.DescribeImageScanFindingsOutput, error)
@@ -105,6 +125,17 @@ type ECRAPI interface {
 
 	DescribeImagesPages(*ecr.DescribeImagesInput, func(*ecr.DescribeImagesOutput, bool) bool) error
 	DescribeImagesPagesWithContext(aws.Context, *ecr.DescribeImagesInput, func(*ecr.DescribeImagesOutput, bool) bool, ...request.Option) error
+
+	DescribePullThroughCacheRules(*ecr.DescribePullThroughCacheRulesInput) (*ecr.DescribePullThroughCacheRulesOutput, error)
+	DescribePullThroughCacheRulesWithContext(aws.Context, *ecr.DescribePullThroughCacheRulesInput, ...request.Option) (*ecr.DescribePullThroughCacheRulesOutput, error)
+	DescribePullThroughCacheRulesRequest(*ecr.DescribePullThroughCacheRulesInput) (*request.Request, *ecr.DescribePullThroughCacheRulesOutput)
+
+	DescribePullThroughCacheRulesPages(*ecr.DescribePullThroughCacheRulesInput, func(*ecr.DescribePullThroughCacheRulesOutput, bool) bool) error
+	DescribePullThroughCacheRulesPagesWithContext(aws.Context, *ecr.DescribePullThroughCacheRulesInput, func(*ecr.DescribePullThroughCacheRulesOutput, bool) bool, ...request.Option) error
+
+	DescribeRegistry(*ecr.DescribeRegistryInput) (*ecr.DescribeRegistryOutput, error)
+	DescribeRegistryWithContext(aws.Context, *ecr.DescribeRegistryInput, ...request.Option) (*ecr.DescribeRegistryOutput, error)
+	DescribeRegistryRequest(*ecr.DescribeRegistryInput) (*request.Request, *ecr.DescribeRegistryOutput)
 
 	DescribeRepositories(*ecr.DescribeRepositoriesInput) (*ecr.DescribeRepositoriesOutput, error)
 	DescribeRepositoriesWithContext(aws.Context, *ecr.DescribeRepositoriesInput, ...request.Option) (*ecr.DescribeRepositoriesOutput, error)
@@ -131,6 +162,14 @@ type ECRAPI interface {
 
 	GetLifecyclePolicyPreviewPages(*ecr.GetLifecyclePolicyPreviewInput, func(*ecr.GetLifecyclePolicyPreviewOutput, bool) bool) error
 	GetLifecyclePolicyPreviewPagesWithContext(aws.Context, *ecr.GetLifecyclePolicyPreviewInput, func(*ecr.GetLifecyclePolicyPreviewOutput, bool) bool, ...request.Option) error
+
+	GetRegistryPolicy(*ecr.GetRegistryPolicyInput) (*ecr.GetRegistryPolicyOutput, error)
+	GetRegistryPolicyWithContext(aws.Context, *ecr.GetRegistryPolicyInput, ...request.Option) (*ecr.GetRegistryPolicyOutput, error)
+	GetRegistryPolicyRequest(*ecr.GetRegistryPolicyInput) (*request.Request, *ecr.GetRegistryPolicyOutput)
+
+	GetRegistryScanningConfiguration(*ecr.GetRegistryScanningConfigurationInput) (*ecr.GetRegistryScanningConfigurationOutput, error)
+	GetRegistryScanningConfigurationWithContext(aws.Context, *ecr.GetRegistryScanningConfigurationInput, ...request.Option) (*ecr.GetRegistryScanningConfigurationOutput, error)
+	GetRegistryScanningConfigurationRequest(*ecr.GetRegistryScanningConfigurationInput) (*request.Request, *ecr.GetRegistryScanningConfigurationOutput)
 
 	GetRepositoryPolicy(*ecr.GetRepositoryPolicyInput) (*ecr.GetRepositoryPolicyOutput, error)
 	GetRepositoryPolicyWithContext(aws.Context, *ecr.GetRepositoryPolicyInput, ...request.Option) (*ecr.GetRepositoryPolicyOutput, error)
@@ -166,6 +205,18 @@ type ECRAPI interface {
 	PutLifecyclePolicy(*ecr.PutLifecyclePolicyInput) (*ecr.PutLifecyclePolicyOutput, error)
 	PutLifecyclePolicyWithContext(aws.Context, *ecr.PutLifecyclePolicyInput, ...request.Option) (*ecr.PutLifecyclePolicyOutput, error)
 	PutLifecyclePolicyRequest(*ecr.PutLifecyclePolicyInput) (*request.Request, *ecr.PutLifecyclePolicyOutput)
+
+	PutRegistryPolicy(*ecr.PutRegistryPolicyInput) (*ecr.PutRegistryPolicyOutput, error)
+	PutRegistryPolicyWithContext(aws.Context, *ecr.PutRegistryPolicyInput, ...request.Option) (*ecr.PutRegistryPolicyOutput, error)
+	PutRegistryPolicyRequest(*ecr.PutRegistryPolicyInput) (*request.Request, *ecr.PutRegistryPolicyOutput)
+
+	PutRegistryScanningConfiguration(*ecr.PutRegistryScanningConfigurationInput) (*ecr.PutRegistryScanningConfigurationOutput, error)
+	PutRegistryScanningConfigurationWithContext(aws.Context, *ecr.PutRegistryScanningConfigurationInput, ...request.Option) (*ecr.PutRegistryScanningConfigurationOutput, error)
+	PutRegistryScanningConfigurationRequest(*ecr.PutRegistryScanningConfigurationInput) (*request.Request, *ecr.PutRegistryScanningConfigurationOutput)
+
+	PutReplicationConfiguration(*ecr.PutReplicationConfigurationInput) (*ecr.PutReplicationConfigurationOutput, error)
+	PutReplicationConfigurationWithContext(aws.Context, *ecr.PutReplicationConfigurationInput, ...request.Option) (*ecr.PutReplicationConfigurationOutput, error)
+	PutReplicationConfigurationRequest(*ecr.PutReplicationConfigurationInput) (*request.Request, *ecr.PutReplicationConfigurationOutput)
 
 	SetRepositoryPolicy(*ecr.SetRepositoryPolicyInput) (*ecr.SetRepositoryPolicyOutput, error)
 	SetRepositoryPolicyWithContext(aws.Context, *ecr.SetRepositoryPolicyInput, ...request.Option) (*ecr.SetRepositoryPolicyOutput, error)

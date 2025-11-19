@@ -485,3 +485,65 @@ func ecsParamsWithEFSVolume() *utils.ECSParams {
 		},
 	}
 }
+
+func TestBuildRuntaskInput_WithEphemeralStorage(t *testing.T) {
+	taskDef := "catSocialService"
+	count := 1
+	cluster := "moewCluster"
+	launchType := config.LaunchTypeFargate
+	flagSet := flag.NewFlagSet("ecs-cli", 0)
+	flagSet.Bool(flags.DisableECSManagedTagsFlag, true, "")
+	cliContext := cli.NewContext(nil, flagSet, nil)
+	ctrl := gomock.NewController(t)
+	mockEcs := mock_ecs.NewMockECSClient(ctrl)
+	ecsParams := utils.ECSParams{
+		TaskDefinition: utils.EcsTaskDef{
+			ExecutionRole: "arn:aws:iam::123456789012:role/my_execution_role",
+			NetworkMode:   "awsvpc",
+			TaskSize: utils.TaskSize{
+				Cpu:    "512",
+				Memory: "1GB",
+			},
+			EFSVolumes: []utils.EFSVolume{
+				{
+					Name:         "myVolume",
+					FileSystemID: aws.String("fs-1234"),
+				},
+			},
+			EphemeralStorage: &utils.EphemeralStorage{SizeInGib: 64},
+		},
+		RunParams: utils.RunParams{
+			NetworkConfiguration: utils.NetworkConfiguration{
+				AwsVpcConfiguration: utils.AwsVpcConfiguration{
+					Subnets:        []string{"sg-bafff1ed", "sg-c0ffeefe"},
+					AssignPublicIp: utils.Enabled,
+				},
+			},
+		},
+	}
+	context := &context.ECSContext{
+		ECSClient:  mockEcs,
+		CLIContext: cliContext,
+		ECSParams:  &ecsParams,
+		CommandConfig: &config.CommandConfig{
+			Cluster:    cluster,
+			LaunchType: launchType,
+		},
+	}
+
+	task := &Task{
+		ecsContext: context,
+	}
+
+	req, err := task.buildRunTaskInput(taskDef, count, nil)
+	t.Log(req)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, aws.String(cluster), req.Cluster)
+		assert.Equal(t, aws.String(taskDef), req.TaskDefinition)
+		assert.Equal(t, aws.String(launchType), req.LaunchType)
+		assert.Equal(t, int64(count), aws.Int64Value(req.Count))
+		assert.Equal(t, aws.String(config.PlatformVersion140), req.PlatformVersion)
+		assert.Equal(t, int64(64), aws.Int64Value(req.Overrides.EphemeralStorage.SizeInGiB))
+	}
+}

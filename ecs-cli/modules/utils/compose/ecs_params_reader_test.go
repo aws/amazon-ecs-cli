@@ -157,14 +157,14 @@ task_definition:
 		assert.ElementsMatch(t, expectedSecrets, wordpress.Secrets, "Expected secrets to match")
 		assert.ElementsMatch(t, expectedSecrets, wordpress.Logging.SecretOptions, "Expected secrets to match")
 
-		expectedContainerDependencies := []ContainerDependency {
-			ContainerDependency {
+		expectedContainerDependencies := []ContainerDependency{
+			ContainerDependency{
 				ContainerName: "mysql",
-				Condition: "STARTED",
+				Condition:     "STARTED",
 			},
-			ContainerDependency {
+			ContainerDependency{
 				ContainerName: "log_router",
-				Condition: "STARTED",
+				Condition:     "STARTED",
 			},
 		}
 
@@ -1007,5 +1007,34 @@ func TestConvertToECSHealthCheck_TestFieldBlank(t *testing.T) {
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, expected, actual)
+	}
+}
+
+// Task Size must match specific CPU/Memory buckets, but we leave validation to ECS.
+func TestReadECSParams_WithEphemeralStorage(t *testing.T) {
+	ecsParamsString := `version: 1
+task_definition:
+  ephemeral_storage:
+    size_in_gib: 128`
+
+	content := []byte(ecsParamsString)
+
+	tmpfile, err := ioutil.TempFile("", "ecs-params")
+	assert.NoError(t, err, "Could not create ecs-params tempfile")
+
+	ecsParamsFileName := tmpfile.Name()
+	defer os.Remove(ecsParamsFileName)
+
+	_, err = tmpfile.Write(content)
+	assert.NoError(t, err, "Could not write data to ecs-params tempfile")
+
+	err = tmpfile.Close()
+	assert.NoError(t, err, "Could not close tempfile")
+
+	ecsParams, err := ReadECSParams(ecsParamsFileName)
+
+	if assert.NoError(t, err) {
+		ephemeralStorage := ecsParams.TaskDefinition.EphemeralStorage
+		assert.Equal(t, int64(128), ephemeralStorage.SizeInGib, "Expected ephemeral storage size to match")
 	}
 }
