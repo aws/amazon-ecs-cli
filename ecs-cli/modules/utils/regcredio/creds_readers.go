@@ -72,7 +72,7 @@ func ReadCredsOutput(filename string) (*ECSRegistryCredsOutput, error) {
 
 	credsOutput := &ECSRegistryCredsOutput{}
 	if err = yaml.Unmarshal([]byte(rawCredsOutput), &credsOutput); err != nil {
-		return nil, errors.Wrapf(err, "Error unmarshalling yaml data from registry credential ouput file: %s", filename)
+		return nil, errors.Wrapf(err, "Error unmarshalling yaml data from registry credential output file: %s", filename)
 	}
 
 	return credsOutput, nil
