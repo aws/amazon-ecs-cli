@@ -150,8 +150,7 @@ func isMultipart(data string) (bool, map[string]string, io.Reader) {
 }
 
 func (b *Builder) getClusterUserData() (string, error) {
-	joinClusterUserData := `
-#!/bin/bash
+	joinClusterUserData := `#!/bin/bash
 echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
 `
 	if len(b.tags) > 0 {
